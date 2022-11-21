@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -78,11 +83,6 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
-            "type": "String"
-        },
-        {
             "name": "FIRMWARE_VERSION",
             "desc": "Firmware version",
             "type": "String"
@@ -93,7 +93,7 @@
             "type": "JsonArray",
             "subset": [{
                     "name": "PORT_NAME",
-                    "desc": "Port Name",
+                    "desc": "Local Port Name",
                     "type": "String"
                 },
                 {

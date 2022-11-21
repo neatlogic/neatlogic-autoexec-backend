@@ -195,6 +195,42 @@
                     "name": "OUT_ERRORS",
                     "desc": "OutErrors(pps)",
                     "type": "Int"
+                },
+                {
+                    "name": "NEIGHBORS",
+                    "desc": "Network Neighbors",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managment IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Chassis Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Interface Name",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         }

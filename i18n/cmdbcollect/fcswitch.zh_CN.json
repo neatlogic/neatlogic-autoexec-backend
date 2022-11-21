@@ -17,6 +17,11 @@
             "type": "String"
         },
         {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -83,11 +88,6 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "设备名",
-            "type": "String"
-        },
-        {
             "name": "FIRMWARE_VERSION",
             "desc": "固件版本",
             "type": "String"
@@ -98,7 +98,7 @@
             "type": "JsonArray",
             "subset": [{
                     "name": "PORT_NAME",
-                    "desc": "端口名",
+                    "desc": "本地端口名",
                     "type": "String"
                 },
                 {

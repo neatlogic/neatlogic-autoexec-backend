@@ -253,6 +253,13 @@ sub _getTable {
         my $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_PORT_WWN} };
         if ( defined($localPortInfo) ) {
             $linkInfo->{PORT_NAME} = $localPortInfo->{NAME};
+
+            # my $portLinkTable = $localPortInfo->{LINK_TABLE};
+            # if ( not defined($portLinkTable) ) {
+            #     $portLinkTable = [];
+            #     $localPortInfo->{LINK_TABLE} = $portLinkTable;
+            # }
+            # push( @$portLinkTable, $linkInfo );
         }
         else {
             $linkInfo->{PORT_NAME} = undef;

@@ -19,7 +19,7 @@ our $TYPES = {
     FIREWALL     => 'SECDEV',          #防火墙，_OBJ_TYPE:各个品牌名
     LOADBALANCER => 'LOADBALANCER',    #负载均衡设备，_OBJ_TYPE:各个品牌名
     STORAGE      => 'STORAGE',         #存储， _OBJ_TYPE:各个品牌名
-    FCSWITCH     => 'FCSWITCH',        #SAN光交， _OBJ_TYPE:各个品牌名
+    FCSWITCH     => 'FCDEV',           #SAN光交， _OBJ_TYPE:各个品牌名
     CLUSTER      => 'CLUSTER',         #集群， _OBJ_TYPE:DBCluster|INSCluster|OSCluster
 };
 
