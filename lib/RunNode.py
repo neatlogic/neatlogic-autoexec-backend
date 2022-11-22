@@ -563,6 +563,8 @@ class RunNode:
         startTime = time.time()
         try:
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+            if op.opMemo is not None:
+                self.writeNodeLog("------{}---\n".format(op.opMemo))
 
             # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
             opStatus = self.getNodeStatus(op)

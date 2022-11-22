@@ -36,9 +36,10 @@ class Operation:
         self.FILE_TYPES = {"file": 1}
         self.PWD_TYPES = {"password": 1, "account": 1}
 
-        self.opId = param['opId']
+        self.opId = param.get('opId')
+        self.opMemo = param.get('help', '')
 
-        opFullName = param['opName']
+        opFullName = param.get('opName')
         self.opName = opFullName
         self.opSubName = os.path.basename(opFullName)
 
@@ -81,18 +82,15 @@ class Operation:
             self.opType = 'local'
         ##############
 
-        if 'isScript' in param:
-            self.isScript = param['isScript']
-            if 'scriptContent' in param and param['scriptContent'] != '':
-                self.scriptContent = param['scriptContent']
-
-        if 'interpreter' in param:
-            self.interpreter = param['interpreter']
+        self.isScript = param.get('isScript')
+        if self.isScript is not None:
+            self.interpreter = param.get('interpreter')
+            self.scriptContent = param.get('scriptContent')
+            if self.scriptContent == '':
+                self.scriptContent = None
 
         # failIgnore参数，用于插件运行失败不影响后续插件运行
-        self.failIgnore = False
-        if 'failIgnore' in param:
-            self.failIgnore = param['failIgnore']
+        self.failIgnore = param.get('failIgnore', False)
 
         self.runPath = context.runPath
         self.dataPath = context.dataPath
@@ -101,18 +99,15 @@ class Operation:
 
         # 加载操作的output描述，并计算抽取出文件output属性
         self.outputFiles = []
-        if 'output' in param:
-            self.outputDesc = param['output']
+        self.outputDesc = param.get('output')
+        if self.outputDesc is not None:
+            self.hasOutput = True
             for outOptName, outOpt in self.outputDesc.items():
-                if outOpt['type'] == 'filepath':
+                if outOpt.get('type') == 'filepath':
                     self.outputFiles.append(outOptName)
         else:
-            self.outputDesc = {}
-
-        if self.outputDesc:
-            self.hasOutput = True
-        else:
             self.hasOutput = False
+            self.outputDesc = {}
 
         self.options = {}
         self.arguments = []

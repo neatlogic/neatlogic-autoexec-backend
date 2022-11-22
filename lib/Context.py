@@ -85,14 +85,12 @@ class Context(VContext.VContext):
                 else:
                     os.environ[k] = json.dumps(v, ensure_ascii=False)
 
-        procEnv = params.get('environment', None)
-        if procEnv is not None:
-            procEnv = params['environment']
-            for k, v in procEnv.items():
-                if isinstance(v, str):
-                    os.environ[k] = v
-                else:
-                    os.environ[k] = json.dumps(v, ensure_ascii=False)
+        procEnv = params.get('environment', {})
+        for k, v in procEnv.items():
+            if isinstance(v, str):
+                os.environ[k] = v
+            else:
+                os.environ[k] = json.dumps(v, ensure_ascii=False)
 
         # DEPLOY环境变量特殊处理
         deployPath = os.getenv('DEPLOY_PATH')
