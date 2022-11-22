@@ -239,6 +239,8 @@ class RunNode:
         self.opOutputRoot = self.runPath + '/output-op'
         self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
+        self.opLocalOutputDir = '{}/output-op/local-0-0'.format(self.runPath)
+
         self.liveDataDir = '{}/livedata/{}/{}-{}-{}'.format(self.runPath, phaseName, self.host, self.port, self.resourceId)
 
         os.makedirs(self.outputDir, exist_ok=True)
@@ -384,8 +386,12 @@ class RunNode:
         return outRelDir
 
     def _getOpOutputPath(self, op):
-        opOutPutPath = '{}/{}.json'.format(self.opOutputDir, op.opId)
-        return opOutPutPath
+        opOutputPath = '{}/{}.json'.format(self.opOutputDir, op.opId)
+        return opOutputPath
+
+    def _getOpLocalOutputPath(self, op):
+        opLocalOutputPath = '{}/{}.json'.format(self.opLocalOutputDir, op.opId)
+        return opLocalOutputPath
 
     def _getOpLiveDataPath(self, op):
         opLiveDataDir = '{}/{}.json'.format(self.liveDataDir, op.opId)
@@ -467,7 +473,6 @@ class RunNode:
 
                 if self.resourceId != 0 and self.totalNodesCount == 1:
                     phaseStatus = self.context.phases[self.phaseName]
-                    phaseStatus.localOutput.update(self.output)
                     localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
                     localOutFile = open(localOutputPath, 'w')
                     fcntl.flock(outputFile, fcntl.LOCK_EX)
@@ -476,12 +481,12 @@ class RunNode:
             except Exception as ex:
                 raise AutoExecError('Save output file:{}, failed {}'.format(self.outputPath, ex))
             finally:
-                if outputFile is not None:
-                    fcntl.flock(outputFile, fcntl.LOCK_UN)
-                    outputFile.close()
                 if localOutFile is not None:
                     fcntl.flock(localOutFile, fcntl.LOCK_UN)
                     localOutFile.close()
+                if outputFile is not None:
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
 
     def _loadOpOutput(self, op):
         # 加载操作输出并进行合并
@@ -500,9 +505,13 @@ class RunNode:
                     if outOptName not in opOutput:
                         opOutput[outOptName] = outOpt.get('defaultValue')
 
-                if op.opId.startswith('basic/convout2local_'):
-                    self.output.update(opOutput.get('dataConverted', {}))
                 self.output[op.opId] = opOutput
+
+                if self.resourceId != 0 and self.totalNodesCount == 1:
+                    phaseStatus = self.context.phases[self.phaseName]
+                    opLocalOutput = phaseStatus.localOutput.get(op.opId, {})
+                    opLocalOutput.update(opOutput)
+                    phaseStatus.localOutput[op.opId] = opLocalOutput
             except Exception as ex:
                 raise AutoExecError('Load operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:
@@ -517,11 +526,18 @@ class RunNode:
             opOutPutPath = self._getOpOutputPath(op)
             try:
                 opOutputFile = open(opOutPutPath, 'w')
+                fcntl.flock(opOutputFile, fcntl.LOCK_EX)
                 opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
+                if self.resourceId != 0 and self.totalNodesCount == 1:
+                    phaseStatus = self.context.phases[self.phaseName]
+                    opLocalOutput = phaseStatus.localOutput.get(op.opId, {})
+                    opLocalOutput.update(opOutput)
+                    phaseStatus.localOutput[op.opId] = opLocalOutput
             except Exception as ex:
                 raise AutoExecError('Save operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:
                 if opOutputFile:
+                    fcntl.flock(opOutputFile, fcntl.LOCK_UN)
                     opOutputFile.close()
 
     def _getOpFileOutMap(self, op):

@@ -52,7 +52,8 @@ if __name__ == "__main__":
         for nodeOut in outCollection.find(
                 {
                     'jobId': jobId,
-                    'data.%s' % opId: {'$ne': None}
+                    'data.%s' % opId: {'$ne': None},
+                    'host': {'$ne': 'local'}
                 },
                 {
                     'data.%s' % opId: 1
@@ -84,11 +85,11 @@ if __name__ == "__main__":
         out = {}
         if isStr:
             out['aggTxtData'] = aggData
-            out['aggJsonData'] = {varKey:aggData}
+            out['aggJsonData'] = {varKey: aggData}
         else:
             out['aggTxtData'] = json.dumps(aggData, ensure_ascii=False)
             out['aggJsonData'] = aggData
-        
+
         AutoExecUtils.saveOutput(out)
     except:
         print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))

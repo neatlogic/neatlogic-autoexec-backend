@@ -47,7 +47,8 @@ if __name__ == "__main__":
         for nodeOut in outCollection.find(
                 {
                     'jobId': jobId,
-                    'data.%s' % opId: {'$ne': None}
+                    'data.%s' % opId: {'$ne': None},
+                    'host': {'$ne': 'local'}
                 },
                 {
                     'host': 1,
