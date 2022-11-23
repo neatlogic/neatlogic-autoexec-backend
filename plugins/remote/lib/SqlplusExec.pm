@@ -463,7 +463,7 @@ sub _execSql {
     my $sqlplusCmd    = $self->{sqlplusCmd};
     if ( not defined($parseData) or $parseData == 0 ) {
         $sqlplusCmd =~ s/sqlplus -s -R 1 -L /sqlplus -R 1 -L /;
-        $formatSetting = 'set linesize 1024 pagesize 9999 echo on feedback on trimout on wrap off;';
+        $formatSetting = 'set linesize 1024 pagesize 9999 echo on;';
     }
 
     my $sqlFH;
