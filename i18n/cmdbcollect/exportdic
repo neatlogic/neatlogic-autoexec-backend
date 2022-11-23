@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from ast import arg
-from genericpath import isfile
 from docx import Document
 from docx import Document
 from docx.oxml.ns import qn
@@ -112,7 +110,7 @@ class wordManager:
             self.add_childtable(doc , field['subset'] , child_res)
 
   def save(self , doc):
-    if os.isfile(self.outpath):
+    if os.path.isfile(self.outpath):
       try:
         os.remove(self.outpath)
       except BaseException as e:
