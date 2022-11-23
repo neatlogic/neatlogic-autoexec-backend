@@ -176,7 +176,7 @@ sub main {
 
     my $blockDevSizeList = '';
     foreach my $blockDevInfo (@blockDevSizeInfo) {
-        $blockDevSizeList = "$blockDevInfo->{device}\t$blockDevInfo->{size}\n";
+        $blockDevSizeList = $blockDevSizeList . "$blockDevInfo->{device}\t$blockDevInfo->{size}\n";
     }
 
     my $out = {};
