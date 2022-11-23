@@ -15,9 +15,9 @@ optional arguments:
 
 ```
 ## 导出字典为Word
-python3 exportdic --lang zh_CN --outpath /tmp/cmdb_attr.docx --verbose 1
+python3 dictexportword --lang zh_CN --outpath /tmp/cmdb_attr.docx --verbose 1
 ```
-usage: exportdic [-h] [--lang LANG] [--outpath OUTPATH] [--verbose VERBOSE]
+usage: dictexportword [-h] [--lang LANG] [--outpath OUTPATH] [--verbose VERBOSE]
 
 optional arguments:
   -h, --help         show this help message and exit
