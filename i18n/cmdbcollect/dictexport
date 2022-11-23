@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from attr import define
 from docx import Document
 from docx import Document
 from docx.oxml.ns import qn
