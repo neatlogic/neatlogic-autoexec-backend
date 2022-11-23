@@ -114,7 +114,6 @@ sub collect {
     my $clusterInfo    = {
         _OBJ_CATEGORY => $objCat,
         _OBJ_TYPE     => 'VcsCluster',
-        INDEX_FIELDS  => CollectObjCat->getIndexFields($objCat),
         MEMBERS       => []
     };
 

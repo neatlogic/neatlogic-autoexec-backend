@@ -250,7 +250,6 @@ sub collect {
         my $clusterInfo    = {
             _OBJ_CATEGORY => $objCat,
             _OBJ_TYPE     => 'NginxCluster',
-            INDEX_FIELDS  => CollectObjCat->getIndexFields($objCat),
             MEMBERS       => []
         };
 
@@ -433,10 +432,11 @@ sub getSetVariable {
     }
     if ( exists( $data->{$key} ) ) {
         my $value = $data->{$key};
-        if ( not defined($value) or scalar($value) == 0  or ref( $value) =~ /HASH/ ) {
+        if ( not defined($value) or scalar($value) == 0 or ref($value) =~ /HASH/ ) {
             return $variables;
-        }else {
-            my $common_array = 1 ;
+        }
+        else {
+            my $common_array = 1;
             for my $ins (@$value) {
                 if ( ref($ins) =~ /Array/ and scalar(@$ins) > 1 ) {
                     $common_array = 0;
@@ -449,7 +449,7 @@ sub getSetVariable {
                     $variables->{$k} = $v;
                 }
             }
-            if ($common_array == 1){
+            if ( $common_array == 1 ) {
                 my $k = @$value[0];
                 my $v = @$value[1];
                 $variables->{$k} = $v;

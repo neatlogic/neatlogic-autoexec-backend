@@ -42,15 +42,7 @@ our $PK_CONFIG = {
     FCSWITCH     => [ 'MGMT_IP', 'SN' ]
 };
 
-our $INDEX_FIELDS = {
-    DBINS    => [ 'IP', 'VIP' ],
-    HOST     => ['OS_ID'],
-    OS       => [ 'OS_ID', 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
-    CLUSTER  => ['MEMBER_PEER'],
-    SWITCH   => ['DEV_NAME'],
-    STORAGE  => [ 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN' ],
-    FCSWITCH => [ 'WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN' ]
-};
+our $INDEX_FIELDS = {};
 
 sub get {
     my ( $self, $objCatName ) = @_;
@@ -67,6 +59,7 @@ sub getPK {
     return $PK_CONFIG->{$objCat};
 }
 
+#Deprecated
 sub getIndexFields {
     my ( $self, $objCat ) = @_;
     my $indexFields = $INDEX_FIELDS->{$objCat};

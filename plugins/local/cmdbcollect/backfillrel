@@ -249,7 +249,7 @@ def genOSRel(db):
                 print("WARN: No eth interfaces found for os:{}".format(os.get('MGMT_IP')))
                 nics = []
             for nic in nics:
-                #macCount = sys.maxsize
+                # macCount = sys.maxsize
                 remotePort = macTblCollection.find_one({'MAC_TABLE.MACS': nic['MAC'],
                                                         'MAC_TABLE.MAC_COUNT': 1},
                                                        {'_OBJ_CATEGORY': 1,
@@ -413,7 +413,7 @@ def genSwitchRel(db):
                 for neighbor in neighbors:
                     if 'DEV_NAME' in neighbor:
                         remoteCount = 0
-                        for dev in cdpDestCollection.find({'DEV_NAME': neighbor['DEV_NAME']},
+                        for dev in cdpDestCollection.find({'$or': [{'DEV_NAME': neighbor['DEV_NAME']}, {'DEV_NAME_1': neighbor['DEV_NAME']}]},
                                                           {'_OBJ_CATEGORY': 1,
                                                            '_OBJ_TYPE': 1,
                                                            'MGMT_IP': 1,

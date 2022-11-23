@@ -71,7 +71,6 @@ sub main {
     foreach my $vsInfo (@$virtualServers) {
         my $clusterInfo = {
             'PK'               => CollectObjCat->getPK($objCat),
-            'INDEX_FIELDS'     => CollectObjCat->getIndexFields($objCat),
             '_OBJ_CATEGORY'    => CollectObjCat->get('CLUSTER'),
             '_OBJ_TYPE'        => 'LoadBalancer-VS',
             'CLUSTER_MODE'     => 'LoadBalance',

@@ -596,7 +596,13 @@ sub _getLLDP {
             # push( @neighbors, $neighbor );
             my $neighbor = {};
             my $portName = $portNoToName->{$1};
-            $neighbor->{DEV_NAME} = $remoteSysInfoMap->{"$1.$2"};
+
+            my $neighborDevName  = $remoteSysInfoMap->{"$1.$2"};
+            my $neighborDevName1 = $neighborDevName;
+            $neighborDevName1 =~ s/\(.*?\)$//;
+            $neighbor->{DEV_NAME}   = $neighborDevName;
+            $neighbor->{DEV_NAME_1} = $neighborDevName1;
+
             $val =~ s/Eth(?=\d)/Ethernet/g;
             $val =~ s/Gig(?=\d)/GigabitEthernet/g;
             $neighbor->{PORT} = $val;
@@ -657,7 +663,13 @@ sub _getCDP {
             my $localPortInfo = $self->{portIdxMap}->{$portIdx};
             my $neighbor      = {};
             my $portName      = $localPortInfo->{NAME};
-            $neighbor->{DEV_NAME} = $remoteSysInfoMap->{"$portIdx.$2"};
+
+            my $neighborDevName  = $remoteSysInfoMap->{"$portIdx.$2"};
+            my $neighborDevName1 = $neighborDevName;
+            $neighborDevName1 =~ s/\(.*?\)$//;
+            $neighbor->{DEV_NAME}   = $neighborDevName;
+            $neighbor->{DEV_NAME_1} = $neighborDevName1;
+
             $val =~ s/Eth(?=\d)/Ethernet/g;
             $val =~ s/Gig(?=\d)/GigabitEthernet/g;
             $neighbor->{PORT} = $val;
@@ -698,7 +710,7 @@ sub collect {
     $self->after();
 
     my $data = $self->{DATA};
-    if ( not defined( $data->{VENDOR} ) ) {
+    if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' ) {
         $data->{VENDOR} = $data->{BRAND};
     }
 

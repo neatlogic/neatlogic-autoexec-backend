@@ -43,6 +43,22 @@ def getObjCatPkDef(objCat, customPkDef):
     return customPkDef
 
 
+def getObjCatIndexDef(objCat):
+    idxDefs = {
+        'DBINS': ['IP', 'VIP'],
+        'HOST': ['OS_ID'],
+        'OS': ['OS_ID', 'HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN'],
+        'CLUSTER': ['MEMBER_PEER'],
+        'SWITCH': ['DEV_NAME'],
+        'STORAGE': ['HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN'],
+        'FCSWITCH': ['WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN']
+    }
+    idxDef = idxDefs.get(objCat)
+    if idxDef is not None:
+        idxDef = []
+    return idxDef
+
+
 def createPKIndex(collection, pkDef):
     pkIdx = []
     for field in pkDef:
@@ -51,10 +67,13 @@ def createPKIndex(collection, pkDef):
     collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
 
 
-def createIndex(collection, data):
+def createIndex(collection, data, objCat):
     collection.create_index([('_OBJ_TYPE', 1)], name='idx_obj_type')
     if 'INDEX_FIELDS' in data:
         for idxField in data['INDEX_FIELDS']:
+            collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
+    else:
+        for idxField in getObjCatIndexDef(objCat):
             collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
 
 
@@ -124,7 +143,7 @@ def saveSwMacTableData(db, existsCollections, data):
         del(data['MAC_TABLE'])
 
 
-def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data):
+def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
     collection = db[table]
     oldData = collection.find_one(primaryKey, {'_id': False})
     if oldData is None:
@@ -137,7 +156,7 @@ def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data):
 
     if table not in existsCollections:
         createPKIndex(collection, pkDef)
-        createIndex(collection, data)
+        createIndex(collection, data, objCat)
         collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
         existsCollections[table] = 1
 
@@ -250,7 +269,7 @@ if __name__ == "__main__":
                         pkDef = getObjCatPkDef(objCat, pkDef)
                     print('INFO: Save connection information success.')
 
-                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data)
+                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat)
 
                     print('INFO: Save data success.\n'.format(typeName, pkJson))
                 except Exception as ex:

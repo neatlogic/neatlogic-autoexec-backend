@@ -147,7 +147,6 @@ sub collect {
         my $clusterInfo = {
             _OBJ_CATEGORY => $objCat,
             _OBJ_TYPE     => 'ZookeeperCluster',
-            INDEX_FIELDS  => CollectObjCat->getIndexFields($objCat),
             MEMBERS       => []
         };
         my $uniqName = 'Zookeeper:' . $members[0];
