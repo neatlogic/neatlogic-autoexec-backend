@@ -54,7 +54,7 @@ sub main {
 
     $blockDevListTxt =~ s/\\n/\n/sg;
 
-    foreach my $devPath split( /\n/, $blockDevListTxt ) {
+    foreach my $devPath (split( /\n/, $blockDevListTxt )) {
         $devPath =~ s/^\s*|\s*$//g;
         if ( $devPath eq '' ) {
             next;
