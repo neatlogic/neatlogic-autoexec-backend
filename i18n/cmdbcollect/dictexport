@@ -27,7 +27,7 @@ class wordManager:
         self.filepath = filepath
 
         if outpath is None or outpath == '':
-            outpath = filepath + '/cmdb_attr.docx'
+            outpath = filepath + '/cmdb&inspect_attribute.docx'
         self.outpath = outpath
 
         table_titles = ["属性", "属性类型", "子集合", "描述"]
@@ -216,11 +216,12 @@ if __name__ == "__main__":
     define_map = word.typeMap
 
     typecount = 1
+    validMap = {}
     for tp in define_map:
         value = define_map[tp]
         tcount = 1
         
-        if value not in data_map :
+        if value not in data_map or value in validMap :
             continue 
         
         #第一层分类
@@ -230,7 +231,7 @@ if __name__ == "__main__":
         data_list = data_map[value]
         for data in data_list :
             # 具体类型
-            second_title = str(typecount) + '.' + str(tcount) + '[' + data['label'] + ']' + data['collection_label'].replace(' ', '')
+            second_title = str(typecount) + '.' + str(tcount)  + data['label'].replace(' ', '')
             if isVerbose == 1:
                 print('INFO:: Add chapter to word', data['label'])
             word.add_titile(doc, second_title , 2 )
@@ -240,4 +241,5 @@ if __name__ == "__main__":
             word.add_table(doc, data)
             tcount = tcount + 1
         typecount = typecount + 1
+        validMap[value] = 1
     word.save(doc)
