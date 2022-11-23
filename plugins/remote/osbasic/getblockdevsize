@@ -7,6 +7,7 @@ use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
 use strict;
 use POSIX;
 use Encode;
+use Getopt::Long;
 use Net::Netmask;
 
 use AutoExecUtils;
@@ -54,7 +55,7 @@ sub main {
 
     $blockDevListTxt =~ s/\\n/\n/sg;
 
-    foreach my $devPath (split( /\n/, $blockDevListTxt )) {
+    foreach my $devPath ( split( /\n/, $blockDevListTxt ) ) {
         $devPath =~ s/^\s*|\s*$//g;
         if ( $devPath eq '' ) {
             next;
