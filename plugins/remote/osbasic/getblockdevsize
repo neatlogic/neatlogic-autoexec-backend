@@ -61,10 +61,13 @@ sub main {
             next;
         }
 
+        my $diskInfo = { device => $devPath, size => undef };
+
         if ( $osType =~ /Windows/i ) {
             my $diskSize = getWindowsDiskSize($devPath);
             if ( defined($diskSize) ) {
-                push( @blockDevSizeInfo, { device => $devPath, size => $diskSize } );
+                $diskInfo->{size} = $diskSize;
+                print("$devPath\t${diskSize}MB\n");
             }
             else {
                 $hasError = 1;
@@ -83,11 +86,11 @@ sub main {
             if ( defined($blockCmdPath) ) {
                 ## blockdev --getsize64 /dev/sdb
                 #107374182400
-                my $diskInfo = { device => $devPath };
                 my $diskSize = `$blockCmdPath --getsize64 "$devPath"`;
                 if ( $? == 0 ) {
-                    $diskInfo->{size} = int( $diskSize / 1024 / 1024 + 0.5 );
-                    push( @blockDevSizeInfo, $diskInfo );
+                    $diskSize = int( $diskSize / 1024 / 1024 + 0.5 );
+                    $diskInfo->{size} = $diskSize;
+                    print("$devPath\t${diskSize}MB\n");
                 }
                 else {
                     $hasError = 1;
@@ -96,7 +99,6 @@ sub main {
             }
             else {
                 if ( $osType =~ /AIX/i ) {
-                    my $diskInfo = { device => $devPath };
 
                     # getconf DISK_SIZE /dev/hdiskxx
                     #* 1048576
@@ -109,8 +111,9 @@ sub main {
                         if ( defined($blockCmdPath) ) {
                             my $diskSize = `$blockCmdPath DISK_SIZE "$devPath"`;
                             if ( $? == 0 ) {
-                                $diskInfo->{size} = int($diskSize);
-                                push( @blockDevSizeInfo, $diskInfo );
+                                $diskSize = int($diskSize);
+                                $diskInfo->{size} = $diskSize;
+                                print("$devPath\t${diskSize}MB\n");
                             }
                             else {
                                 $hasError = 1;
@@ -142,7 +145,6 @@ sub main {
                     # * Partition  Tag  Flags    Sector     Count    Sector  Mount Directory
                     #     0      4    00        256 3907012494 3907012749
                     #     8     11    00  3907012750     16384 3907029133
-                    my $diskInfo = { device => $devPath };
                     my $blockCmdPath;
                     for my $binDir ( '/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin' ) {
                         if ( -x "$binDir/prtvtoc" ) {
@@ -160,8 +162,9 @@ sub main {
                                 if ( $diskInfoTxt =~ /(\d+)\s*bytes\/sector/is ) {
                                     $blockSize = int($1);
                                 }
-                                $diskInfo->{size} = int( $sectors * $blockSize / 1024 / 1024 + 0.5 );
-                                push( @blockDevSizeInfo, $diskInfo );
+                                my $diskSize = int( $sectors * $blockSize / 1024 / 1024 + 0.5 );
+                                $diskInfo->{size} = $diskSize;
+                                print("$devPath\t${diskSize}MB\n");
                             }
                             else {
                                 $hasError = 1;
@@ -172,11 +175,14 @@ sub main {
                 }
             }
         }
+
+        push( @blockDevSizeInfo, $diskInfo );
     }
 
     my $blockDevSizeList = '';
     foreach my $blockDevInfo (@blockDevSizeInfo) {
-        $blockDevSizeList = $blockDevSizeList . "$blockDevInfo->{device}\t$blockDevInfo->{size}\n";
+        my $diskSizeLine = $blockDevInfo->{device} . "\t" . $blockDevInfo->{size} . "\n";
+        $blockDevSizeList = $blockDevSizeList . $diskSizeLine;
     }
 
     my $out = {};
