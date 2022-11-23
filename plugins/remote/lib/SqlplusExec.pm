@@ -459,16 +459,19 @@ sub _execSql {
         $sql = $sql . ';';
     }
 
-    my $sqlplusCmd = $self->{sqlplusCmd};
+    my $formatSetting = 'set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on wrap on;';
+    my $sqlplusCmd    = $self->{sqlplusCmd};
     if ( not $parseData ) {
         $sqlplusCmd =~ s/sqlplus -s -R 1 -L /sqlplus -R 1 -L /;
+        my $formatSetting = 'set linesize 256 pagesize 9999 echo off tab off trimout on underline on wrap on;';
     }
 
     my $sqlFH;
     my $cmd;
+
     if ( $self->{osType} ne 'Windows' ) {
         $cmd = qq{$sqlplusCmd << "EOF"
-               set linesize 256 pagesize 9999 echo off feedback off tab off trimout on underline on wrap on;
+               $formatSetting
                $sql
                exit;
                EOF
@@ -479,8 +482,9 @@ sub _execSql {
         use File::Temp;
         $sqlFH = File::Temp->new( UNLINK => 1, SUFFIX => '.sql' );
         my $fname = $sqlFH->filename;
-        print $sqlFH ($sql);
-        print $sqlFH ("\nexit;\n");
+        print $sqlFH ( $formatSetting, "\n" );
+        print $sqlFH ( $sql,           "\n" );
+        print $sqlFH ("exit;\n");
         $sqlFH->close();
 
         $cmd = qq{$sqlplusCmd @"$fname"};
