@@ -6,8 +6,10 @@ use lib "$FindBin::Bin/../lib";
 use strict;
 use POSIX qw(strftime);
 use IO::File;
+use File::Spec;
 use JSON;
 use Getopt::Long;
+use File::Basename qw(dirname);
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -19,7 +21,7 @@ sub usage {
 sub main {
     my $pname = $FindBin::Script;
 
-    my $mode = 0775;
+    my $mode = '0775';
     my $user;
     my $group;
 
@@ -28,6 +30,8 @@ sub main {
         'user=s'  => \$user,
         'group=s' => \$group
     );
+
+    $mode = oct($mode);
 
     my $allDirTxt = '';
     foreach my $dirTxt (@ARGV) {
@@ -60,16 +64,23 @@ sub main {
     }
     else {
         foreach my $dir ( split( "\n", $allDirTxt ) ) {
-            if ( not -e $dir ) {
-                if ( not mkdir( $dir, $mode ) ) {
-                    $hasError = 1;
-                    print("ERROR: Create directory:$dir failed, $!\n");
-                }
-            }
-            if ( defined($uid) and defined($gid) ) {
-                if ( not chown( $uid, $gid, $dir ) ) {
-                    $hasError = 1;
-                    print("ERROR: Change directory:$dir owner to $uid:$gid failed, $!\n");
+            my @dirPathNames = File::Spec->splitdir($dir);
+            my $count        = scalar(@dirPathNames);
+            my $dirPath      = '';
+            for ( my $i = 0 ; $i < $count ; $i++ ) {
+                $dirPath = File::Spec->catdir( $dirPath, $dirPathNames[$i] );
+                if ( not -e $dirPath ) {
+                    if ( not mkdir( $dirPath, $mode ) ) {
+                        $hasError = 1;
+                        print("ERROR: Create directory:$dir failed, $!\n");
+                        last;
+                    }
+                    if ( defined($uid) and defined($gid) ) {
+                        if ( not chown( $uid, $gid, $dirPath ) ) {
+                            $hasError = 1;
+                            print("ERROR: Change directory:$dir owner to $uid:$gid failed, $!\n");
+                        }
+                    }
                 }
             }
         }
