@@ -1111,7 +1111,7 @@ sub updateConfigInZip {
             #计算下一个zip子目录下的所有autocfg文件，计算源文件路径，用于给出解压pattern
             my $orgFileMap       = {};
             my @orgFiles         = ();
-            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
+            my $allCfgFilesInZip = $self->getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
             foreach my $cfgFileInZip (@$allCfgFilesInZip) {
 
                 #先算出基于环境替换类的autocfg文件的源头文件路径
@@ -1286,7 +1286,7 @@ sub updateConfig {
             #计算下一个zip子目录下的所有autocfg文件，计算源文件路径，用于给出解压pattern
             my $orgFileMap       = {};
             my @orgFiles         = ();
-            my $allCfgFilesInZip = getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
+            my $allCfgFilesInZip = $self->getAllSubFiles( $dirsMap, $nextCwd, $pkgFiles );
             foreach my $cfgFileInZip (@$allCfgFilesInZip) {
 
                 #先算出基于环境替换类的autocfg文件的源头文件路径
