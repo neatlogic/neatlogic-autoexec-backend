@@ -413,7 +413,7 @@ def genSwitchRel(db):
                 for neighbor in neighbors:
                     if 'DEV_NAME' in neighbor:
                         remoteCount = 0
-                        for dev in cdpDestCollection.find({'$or': [{'DEV_NAME': neighbor['DEV_NAME']}, {'DEV_NAME_1': neighbor['DEV_NAME']}]},
+                        for dev in cdpDestCollection.find({'$or': [{'DEV_NAME': neighbor['DEV_NAME']}, {'DEV_NAME': neighbor['DEV_NAME_1']}]},
                                                           {'_OBJ_CATEGORY': 1,
                                                            '_OBJ_TYPE': 1,
                                                            'MGMT_IP': 1,
