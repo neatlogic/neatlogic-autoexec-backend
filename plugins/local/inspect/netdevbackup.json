@@ -6,17 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "网路设备配置备份",
-    "option": [
-        {
-            "opt": "node",
-            "name": "node",
-            "help": "",
-            "type": "text",
-            "required": "false",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
+    "option": [{
             "opt": "protocol",
             "name": "连接协议",
             "help": "连接协议",
@@ -24,8 +14,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "ssh",
                         "value": "ssh"
                     },
@@ -45,8 +34,7 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "华为",
                         "value": "huawei"
                     },
@@ -74,8 +62,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "exit",
                         "value": "exit"
                     },
@@ -104,8 +91,7 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "否",
                         "value": "0"
                     },
@@ -118,12 +104,10 @@
             "defaultValue": "0"
         }
     ],
-    "output": [
-        {
-            "opt": "fileList",
-            "name": "文件备份路径",
-            "help": "文件备份路径",
-            "type": "json"
-        }
-    ]
+    "output": [{
+        "opt": "fileList",
+        "name": "文件备份路径",
+        "help": "文件备份路径",
+        "type": "json"
+    }]
 }
