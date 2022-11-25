@@ -226,6 +226,7 @@ class RunNode:
 
         self.localOutput = {}
         self.output = {}
+        self.input = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
@@ -236,20 +237,31 @@ class RunNode:
         self.outputRelDir = 'output/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.outputDir = '{}/{}'.format(self.runPath, self.outputRelDir)
         self.outputPath = self.outputDir + '.json'
+
+        self.inputRoot = self.runPath + '/input'
+        self.inputRelDir = 'input/{}-{}-{}'.format(self.host, self.port, self.resourceId)
+        self.inputDir = '{}/{}'.format(self.runPath, self.inputRelDir)
+        self.inputPath = self.inputDir + '.json'
+
         self.opOutputRoot = self.runPath + '/output-op'
         self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
+        #self.opInputRelDir = 'input-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
+        #self.opInputDir = '{}/{}'.format(self.runPath, self.opInputRelDir)
         self.opLocalOutputDir = '{}/output-op/local-0-0'.format(self.runPath)
 
         self.liveDataDir = '{}/livedata/{}/{}-{}-{}'.format(self.runPath, phaseName, self.host, self.port, self.resourceId)
 
-        os.makedirs(self.outputDir, exist_ok=True)
+        os.makedirs(self.outputRoot, exist_ok=True)
         os.makedirs(self.opOutputDir, exist_ok=True)
+        os.makedirs(self.inputRoot, exist_ok=True)
+        os.makedirs(self.liveDataDir, exist_ok=True)
 
         self.status = NodeStatus.pending
         self.outputStore = OutputStore.OutputStore(context, self.phaseName, node)
         self._loadNodeStatus()
         self._loadOutput()
+        self._loadInput()
 
         # if self.logHandle is None:
         #     # 如果文件存在，则删除重建
@@ -457,6 +469,24 @@ class RunNode:
         if localOutput is not None:
             self.localOutput = localOutput
 
+    def _loadInput(self):
+        # 加载操作输入参数
+        if os.path.exists(self.inputPath):
+            inputFile = None
+            try:
+                inputFile = open(self.inputPath, 'r')
+                fcntl.flock(inputFile, fcntl.LOCK_SH)
+                content = inputFile.read()
+                if content:
+                    input = json.loads(content)
+                    self.input = input
+            except Exception as ex:
+                raise AutoExecError('Load input file:{}, failed {}'.format(self.inputPath, ex))
+            finally:
+                if inputFile is not None:
+                    fcntl.flock(inputFile, fcntl.LOCK_UN)
+                    inputFile.close()
+
     def _saveOutput(self):
         if self.output:
             outputFile = None
@@ -540,6 +570,20 @@ class RunNode:
                     fcntl.flock(opOutputFile, fcntl.LOCK_UN)
                     opOutputFile.close()
 
+    def _saveOpInput(self, op):
+        self.input[op.opId] = {'options': op.options, 'arguments': op.arguments}
+        inputFile = None
+        try:
+            inputFile = open(self.inputPath, 'w')
+            fcntl.flock(inputFile, fcntl.LOCK_EX)
+            inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
+        except Exception as ex:
+            raise AutoExecError('Save input file:{}, failed {}'.format(self.inputPath, ex))
+        finally:
+            if inputFile is not None:
+                fcntl.flock(inputFile, fcntl.LOCK_UN)
+                inputFile.close()
+
     def _getOpFileOutMap(self, op):
         fileOutMap = {}
         opOutput = self.output.get(op.opId)
@@ -577,6 +621,8 @@ class RunNode:
                 timeConsume = time.time() - startTime
                 self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
                 return
+
+            self._saveOpInput(op)
 
             if op.opBunddleName != 'native' and not os.path.exists(op.pluginPath):
                 ret = 1
