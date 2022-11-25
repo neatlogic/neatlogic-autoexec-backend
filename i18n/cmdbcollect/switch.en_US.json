@@ -217,6 +217,11 @@
                         },
                         {
                             "name": "DEV_NAME",
+                            "desc": "Device Name(incluse serial)",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME_1",
                             "desc": "Device Name",
                             "type": "String"
                         },

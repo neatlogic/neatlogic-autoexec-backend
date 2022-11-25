@@ -217,6 +217,11 @@
                         },
                         {
                             "name": "DEV_NAME",
+                            "desc": "设备名(包括序列号后缀)",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME_1",
                             "desc": "设备名",
                             "type": "String"
                         },
