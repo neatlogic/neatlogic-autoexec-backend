@@ -223,6 +223,8 @@ class JobRunner:
         return parallelCount
 
     def getRoundParallelCount(self, roundNo, totalNodeCount, roundCount):
+        if totalNodeCount <= 0:
+            totalNodeCount = 1
         if roundCount <= 0:
             roundCount = totalNodeCount
 
@@ -343,14 +345,15 @@ class JobRunner:
 
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
-                parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
+                if nodesFactory.totalNodesCount > 0:
+                    parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
 
-                lastPhase = phaseName
-                serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
-                thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
-                thread.name = 'PhaseExecutor-' + phaseName
-                threads.append(thread)
-                thread.start()
+                    lastPhase = phaseName
+                    serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+                    thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
+                    thread.name = 'PhaseExecutor-' + phaseName
+                    threads.append(thread)
+                    thread.start()
 
         for thread in threads:
             thread.join()
@@ -381,6 +384,9 @@ class JobRunner:
         realGroupRoundCount = groupRoundCount
         if realGroupRoundCount <= 0:
             realGroupRoundCount = nodesFactory.nodesCount
+
+        if realGroupRoundCount == 0:
+            realGroupRoundCount = 1
 
         # 获取分组运行的最大的并行线程数
         parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
@@ -419,6 +425,8 @@ class JobRunner:
         maxRoundNo = realGroupRoundCount
         if nodesFactory.nodesCount < maxRoundNo:
             maxRoundNo = nodesFactory.nodesCount
+        if maxRoundNo <= 0:
+            maxRoundNo = 1
 
         firstRound = True
         midRound = False

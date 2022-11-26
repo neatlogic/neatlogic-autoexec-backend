@@ -571,7 +571,30 @@ class RunNode:
                     opOutputFile.close()
 
     def _saveOpInput(self, op):
-        self.input[op.opId] = {'options': op.options, 'arguments': op.arguments}
+        opDesc = op.param.get('desc', {})
+        saveOpts = {}
+        for optName, optValue in op.options.items():
+            optType = opDesc.get(optName)
+            if optType in ('password', 'account'):
+                saveOpts[optName] = '******'
+            elif optType == 'textarea':
+                optValue = optValue.replace('\\n', '\n')
+                saveOpts[optName] = optValue
+            else:
+                saveOpts[optName] = optValue
+        saveArgs = []
+        for arg in op.arguments:
+            argType = arg.get('type')
+            if argType in ('password', 'account'):
+                saveArgs.append('******')
+            elif argType == 'textarea':
+                argVal = arg.get('value')
+                argVal = argVal.replace('\\n', '\n')
+                saveArgs.append(argVal)
+            else:
+                saveArgs.append(arg.get('value'))
+
+        self.input[op.opId] = {'options': saveOpts, 'arguments': saveArgs}
         inputFile = None
         try:
             inputFile = open(self.inputPath, 'w')

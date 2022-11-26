@@ -165,11 +165,8 @@ class Operation:
 
     # 分析操作参数进行相应处理
     def parseParam(self, refMap=None, localRefMap=None, resourceId=None, host=None, port=None, nodeEnv={}):
-        opDesc = {}
-        if 'desc' in self.param:
-            opDesc = self.param['desc']
-
-        opOpts = self.param['opt']
+        opDesc = self.param.get('desc', {})
+        opOpts = self.param.get('opt', {})
 
         for optName, optValue in opOpts.items():
             optType = opDesc.get(optName)
