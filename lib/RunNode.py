@@ -594,11 +594,11 @@ class RunNode:
             else:
                 saveArgs.append(arg.get('value'))
 
-        self.input[op.opId] = {'options': saveOpts, 'arguments': saveArgs}
         inputFile = None
         try:
             inputFile = open(self.inputPath, 'w')
             fcntl.flock(inputFile, fcntl.LOCK_EX)
+            self.input[op.opId] = {'options': saveOpts, 'arguments': saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
         except Exception as ex:
             raise AutoExecError('Save input file:{}, failed {}'.format(self.inputPath, ex))
