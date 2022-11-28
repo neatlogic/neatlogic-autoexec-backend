@@ -220,7 +220,7 @@ sub _checkError {
         if ( $isVerbose == 1 ) {
             if ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
                 $hasError = 1;
-                print("ERROR: $line\n");
+                print("WARN: $line\n");
             }
             else {
                 print("$line\n");
@@ -229,7 +229,7 @@ sub _checkError {
         else {
             if ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
                 $hasError = 1;
-                print("ERROR: $line\n");
+                print("WARN: $line\n");
             }
         }
     }
