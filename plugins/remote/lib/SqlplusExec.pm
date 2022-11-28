@@ -227,7 +227,7 @@ sub _checkError {
         if ( $lines[$i] =~ /ORA-\d+:/ ) {
             $hasError = 1;
             if ( $isVerbose != 1 ) {
-                print("ERROR: $line\n");
+                print("\nERROR: $line\n");
             }
         }
     }
