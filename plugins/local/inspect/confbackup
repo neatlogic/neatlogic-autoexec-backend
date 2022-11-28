@@ -244,6 +244,7 @@ if __name__ == "__main__":
     remoteFilePatterns = args.remotefiles
     if len(remoteFilePatterns) == 0:
         print("WARN: Remote files not defined.\n", end='')
+        AutoExecUtils.saveOutput({'fileList':[]})
         exit(0)
 
     try:
