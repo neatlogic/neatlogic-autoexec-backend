@@ -234,6 +234,14 @@ sub _checkError {
         }
     }
     print("----------------------------------------------------------\n");
+    if ( $hasError == 1 ) {
+        if ( $output =~ /\bshutdown\b/is and $output =~ /\bORA-01109: database not open\b/is ) {
+            if ( $output =~ /\binstance shut down\b/ ) {
+                $hasError = 0;
+            }
+        }
+    }
+
     return ( undef, undef, $hasError );
 }
 
