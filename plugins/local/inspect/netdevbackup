@@ -143,7 +143,7 @@ sub main {
 
     if ( not defined($spawn) ) {
         print("ERROR: : $vendor config backup failed.\n");
-        exit(1);
+        return 1;
     }
     else {
         my $rsConfig = $sep->backup( $fullPageCmd, $configCmd, $exitCmd );
@@ -153,7 +153,7 @@ sub main {
         $out->{fileList} = [$filePath];
         AutoExecUtils::saveOutput($out);
         print("INFO: : $vendor config backup success.\n");
-        exit(0);
+        return 0;
     }
 }
 

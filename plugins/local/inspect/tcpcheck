@@ -97,6 +97,8 @@ sub main {
     $out->{DATA} = $data;
     AutoExecUtils::saveOutput($out);
     print Dumper ($data);
+
+    return 0;
 }
 
 exit main();
