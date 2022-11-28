@@ -243,8 +243,8 @@ if __name__ == "__main__":
     node = args.node
     remoteFilePatterns = args.remotefiles
     if len(remoteFilePatterns) == 0:
-        print("ERROR: Remote files not defined.\n", end='')
-        exit(2)
+        print("WARN: Remote files not defined.\n", end='')
+        exit(0)
 
     try:
         nodeInfo = {}
