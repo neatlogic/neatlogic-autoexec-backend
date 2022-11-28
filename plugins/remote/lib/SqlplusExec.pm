@@ -235,8 +235,13 @@ sub _checkError {
     }
     print("----------------------------------------------------------\n");
     if ( $hasError == 1 ) {
-        if ( $output =~ /\bshutdown\b/is and $output =~ /\bORA-01109: database not open\b/is ) {
-            if ( $output =~ /\binstance shut down\b/ ) {
+        if ( $output =~ /\bshutdown\b/is ) {
+            if ( $output =~ /\bORA-01109: database not open\b/is ) {
+                if ( $output =~ /\binstance shut down\b/ ) {
+                    $hasError = 0;
+                }
+            }
+            elsif ( $output =~ /\bORA-01034: ORACLE not available/is ) {
                 $hasError = 0;
             }
         }
