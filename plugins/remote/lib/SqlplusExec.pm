@@ -209,7 +209,7 @@ sub evalProfile {
 }
 
 sub _checkError {
-    my ( $self, $output, $isVerbose ) = @_;
+    my ( $self, $sql, $output, $isVerbose ) = @_;
     my @lines      = split( /\n/, $output );
     my $linesCount = scalar(@lines);
 
@@ -234,14 +234,21 @@ sub _checkError {
         }
     }
     print("----------------------------------------------------------\n");
+
     if ( $hasError == 1 ) {
-        if ( $output =~ /\bshutdown\b/is ) {
-            if ( $output =~ /\bORA-01109: database not open\b/is ) {
-                if ( $output =~ /\binstance shut down\b/ ) {
-                    $hasError = 0;
-                }
+        if ( $sql =~ /^\s*shutdown\b/is ) {
+
+            # if ( $output =~ /ORA-01507:/is ) {
+            #     $hasError = 0;
+            # }
+            # elsif ( $output =~ /ORA-01109:\W/is ) {
+            #     $hasError = 0;
+            # }
+
+            if ( $hasError == 1 and $output =~ /ORACLE instance shut down/is ) {
+                $hasError = 0;
             }
-            elsif ( $output =~ /\bORA-01034: ORACLE not available/is ) {
+            elsif ( $output =~ /ORA-01034:/is ) {
                 $hasError = 0;
             }
         }
@@ -524,7 +531,7 @@ sub _execSql {
             return $self->_parseOutput( $output, $isVerbose );
         }
         else {
-            return $self->_checkError( $output, $isVerbose );
+            return $self->_checkError( $sql, $output, $isVerbose );
         }
     }
 }
