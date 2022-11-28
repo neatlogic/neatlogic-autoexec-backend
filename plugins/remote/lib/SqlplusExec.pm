@@ -218,16 +218,18 @@ sub _checkError {
     for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
         if ( $isVerbose == 1 ) {
-            print("$line\n");
+            if ( $line =~ /ORA-\d+:/ ) {
+                $hasError = 1;
+                print("ERROR: $line\n");
+            }
+            else {
+                print("$line\n");
+            }
         }
-
-        #错误识别
-        #ERROR at line 1:
-        #ORA-00907: missing right parenthesis
-        if ( $lines[$i] =~ /ORA-\d+:/ ) {
-            $hasError = 1;
-            if ( $isVerbose != 1 ) {
-                print("\nERROR: $line\n");
+        else {
+            if ( $line =~ /ORA-\d+:/ ) {
+                $hasError = 1;
+                print("ERROR: $line\n");
             }
         }
     }
