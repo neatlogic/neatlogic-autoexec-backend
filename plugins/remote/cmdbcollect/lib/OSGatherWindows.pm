@@ -206,7 +206,9 @@ sub getSystemInfo {
 
     $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $sysInfo->{'Total Physical Memory'} );
     $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $sysInfo->{'Available Physical Memory'} );
-    $osInfo->{MEM_USAGE}     = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
+    if( defined($osInfo->{MEM_TOTAL}) and $osInfo->{MEM_TOTAL} > 0 ){
+        $osInfo->{MEM_USAGE}     = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
+    }
 }
 
 sub getIpAddrs {
