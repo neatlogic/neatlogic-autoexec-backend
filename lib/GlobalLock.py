@@ -169,8 +169,8 @@ class GlobalLock(object):
                 if waitCount > maxWaitCount:
                     cancelId = lockId
                     lockInfo['lockId'] = None
-                    lockInfo['message'] = "Lock {}:{} timeout.\n".format(namePath, lockTarget)
-                    print("ERROR: {}".format(lockInfo['message']), end='')
+                    lockInfo['message'] = "Lock {}:{} timeout.".format(namePath, lockTarget)
+                    print("ERROR: {}\n".format(lockInfo['message']), end='')
                     lockParams['action'] = 'cancel'
                     self.cancel(cancelId)
                 else:
