@@ -85,6 +85,7 @@ class ListenWorkThread(threading.Thread):
                         self.globalLock.notifyWaiter(actionData['lockId'])
                         print("INFO: Lock notify event recieved, lockId:{}.\n".format(actionData['lockId']), end='')
                     elif actionData['action'] == 'exit':
+                        self.globalLock.stop()
                         self.runnerListener.stop()
                         break
             except Exception as ex:
@@ -99,14 +100,14 @@ class ListenWorkThread(threading.Thread):
                 lockMode = ''
             try:
                 lockInfo = self.globalLock.doLock(lockParams)
-                print("INFO: PID({}) lock({}) {} lockId({}) for {}:{} success.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockInfo.get('lockId'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget', '-')), end='')
+                print("INFO: PID({}) {} {} lockId({}) for {}:{} success.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockInfo.get('lockId'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget', '-')), end='')
                 self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
             except Exception as ex:
                 lockInfo = {
                     'lockId': None,
                     'message': str(ex)
                 }
-                print("INFO: PID({}) lock({}) {} for {}:{} failed, {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget'), str(ex)), end='')
+                print("INFO: PID({}) {} {} for {}:{} failed, {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget'), str(ex)), end='')
                 self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
 
 

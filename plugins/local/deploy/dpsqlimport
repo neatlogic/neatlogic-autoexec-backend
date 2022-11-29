@@ -192,7 +192,7 @@ sub main {
     my $ret      = 0;
 
     my $lock      = DeployLock->new($deployEnv);
-    my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
+    my $sqlLockId = $lock->lockEnvSql($DeployLock::READ);
 
     END {
         local $?;
