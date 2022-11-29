@@ -255,8 +255,8 @@ sub findProcess {
     print("INFO: Begin to find and match processes.\n");
     my $callback    = $self->{callback};
     my $matchedProc = {};
-    my ( $chldOut, $chldIn );
-    my $pid = open2( $chldOut, $chldIn, $self->{listProcCmd} );
+    my $chldOut;
+    open( $chldOut, $self->{listProcCmd} . '|' );
     if ( defined($chldOut) ) {
         my $procFilters  = $self->{procFilters};
         my $filtersCount = $self->{filtersCount};
@@ -389,10 +389,8 @@ sub findProcess {
             }
         }
 
-        waitpid( $pid, 0 );
-        my $status = $?;
-        close($chldIn);
         close($chldOut);
+        my $status = $?;
 
         if ( $status != 0 ) {
             print("ERROR: Get Process list failed.\n");
@@ -423,8 +421,8 @@ sub getProcess {
         IPV6_ADDRS => $self->{ipv6Addrs}
     };
 
-    my ( $chldOut, $chldIn );
-    my $pipePid = open2( $chldOut, $chldIn, "$self->{listProcCmdByPid} $pid" );
+    my ($chldOut);
+    open( $chldOut, "$self->{listProcCmdByPid} $pid |" );
     if ( defined($chldOut) ) {
 
         my $headLine = <$chldOut>;
@@ -458,10 +456,8 @@ sub getProcess {
             $procInfo->{ENVIRONMENT} = $envMap;
         }
 
-        waitpid( $pipePid, 0 );
-        my $status = $?;
-        close($chldIn);
         close($chldOut);
+        my $status = $?;
 
         if ( $status != 0 ) {
             print("WARN: Get Process $pid information failed.\n");
