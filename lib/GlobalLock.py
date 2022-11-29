@@ -114,6 +114,7 @@ class GlobalLock(object):
             return None
 
         # 同一个作业内部，对同一个锁发起多次请求，如果前面已经锁上则返回相应的lockId
+        lockAction = lockParams.get('action', 'lock')
         lockPid = lockParams.get('pid', '-')
         lockOwner = lockParams.get('lockOwner', '-')
         lockTarget = lockParams.get('lockTarget', '-')
@@ -125,7 +126,7 @@ class GlobalLock(object):
             return lockInfo
 
         serverAdapter = self.context.serverAdapter
-        lockParams['action'] = 'lock'
+        lockParams['action'] = lockAction
         lockInfo = serverAdapter.callGlobalLock(lockParams)
         # ServerApi return
         # lockInfo = {
@@ -143,7 +144,7 @@ class GlobalLock(object):
         if lockInfo.get('wait') == 1:
             lockEvent = threading.Event()
             self._putLock(lockId, lockParams, lockEvent)
-            print("INFO: Wait because of:" + lockInfo['message'])
+            print("INFO: Wait because of: {}\n".format(lockInfo.get('message', '')), end='')
 
             # retry
             timeOut = 15
@@ -159,15 +160,17 @@ class GlobalLock(object):
                     try:
                         lockInfo = serverAdapter.callGlobalLock(lockParams)
                     except Exception as ex:
-                        print("WARN: Retry lock {} {} server failed, {}.\n".format(namePath, lockTarget. str(ex)))
+                        print("WARN: Retry lock {}:{} server failed, {}.\n".format(namePath, lockTarget. str(ex)), end='')
+                    finally:
+                        lockParams['action'] = lockAction
 
                     waitCount = waitCount + 1
 
                 if waitCount > maxWaitCount:
                     cancelId = lockId
                     lockInfo['lockId'] = None
-                    lockInfo['message'] = "Lock {} {} timeout.\n".format(namePath, lockTarget)
-                    print("ERROR: " + lockInfo['message'])
+                    lockInfo['message'] = "Lock {}:{} timeout.\n".format(namePath, lockTarget)
+                    print("ERROR: {}".format(lockInfo['message']), end='')
                     lockParams['action'] = 'cancel'
                     self.cancel(cancelId)
                 else:
@@ -193,7 +196,7 @@ class GlobalLock(object):
                 break
             except Exception as ex:
                 lockInfo['message'] = str(ex)
-                print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId, str(ex)))
+                print("WARN: Unlock lockId({}) server failed, {}.\n".format(lockId, str(ex)), end='')
             time.sleep(5)
             tryCount = tryCount + 1
         return lockInfo
@@ -211,7 +214,7 @@ class GlobalLock(object):
                 self._removeLock(lockId)
                 break
             except Exception as ex:
-                print("WARN: Cancel lockId({}) server failed, {}.\n".format(lockId. str(ex)))
+                print("WARN: Cancel lockId({}) server failed, {}.\n".format(lockId. str(ex)), end='')
             time.sleep(5)
             tryCount = tryCount + 1
 
