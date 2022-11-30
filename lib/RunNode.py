@@ -37,7 +37,7 @@ import OutputStore
 class LogFile:
     def __init__(self, fileHandle, runNode):
         self.failIgnore = False
-        self.hintKey = 'ERROR'
+        self.hintKeyBytes = b'ERROR:'
         self.foreLine = b''
         self.fileHandle = fileHandle
         self.runNode = runNode
@@ -49,7 +49,7 @@ class LogFile:
     def setFailPattern(self, failIgnore, operator, patOpts, exPatOpt):
         self.failIgnore = failIgnore
         if(failIgnore):
-            self.hintKey = 'WARN'
+            self.hintKeyBytes = b'WARN:'
         self.failPatsOp = operator
         for reOpt in patOpts:
             if reOpt is not None and reOpt != '':
@@ -89,7 +89,7 @@ class LogFile:
                 for pat in self.failPats[1:]:
                     pats = pats + 'and ' + pat
                 timeBytes = Utils.getTimeStr().encode()
-                self.fileHandle.write(timeBytes + self.hintKey + ': Fail pattern {} matched for pre line.\n'.format(pats).encode())
+                self.fileHandle.write(timeBytes + self.hintKeyBytes + ' Fail pattern {} matched for pre line.\n'.format(pats).encode())
         else:
             matched = False
             for pat in self.failPats:
@@ -98,7 +98,7 @@ class LogFile:
                         self.runNode.hasFailLog = True
                     matched = True
                     timeBytes = Utils.getTimeStr().encode()
-                    self.fileHandle.write(timeBytes + self.hintKey + ': Fail pattern {} matched for pre line.\n'.format(pat).encode())
+                    self.fileHandle.write(timeBytes + self.hintKeyBytes + ' Fail pattern {} matched for pre line.\n'.format(pat).encode())
                     break
 
         return matched
