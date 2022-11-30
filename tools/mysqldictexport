@@ -1,0 +1,261 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+from docx import Document
+from docx import Document
+from docx.oxml.ns import qn
+from docx.shared import Pt, RGBColor
+from docx.shared import Inches
+import os
+import re
+import json
+import argparse
+import pymysql
+
+class mysqlManager:
+    def __init__(self, ip ,port ,user , password):
+        self.ip = ip 
+        self.port = port 
+        self.user = user 
+        self.password = password 
+        self.authdb = 'INFORMATION_SCHEMA'
+        self.charset = 'utf8mb4'
+
+        moduleMap = {
+            "base" : "底层框架",
+            "catalog" : "流程管理",
+            "channel" : "流程管理",
+            "process" : "流程管理",
+            "processtask" : "流程管理",
+            "event" : "事件管理",
+            "change" : "变更管理",
+            "cmdb" : "配置管理",
+            "inspect" : "巡检管理",
+            "autoexec" : "自动化管理",
+            "discovery" : "自动化管理",
+            "deploy" : "发布管理",
+            "report" : "报表管理",
+            "knowledge" : "知识库管理",
+            "pbc" : "监管报送",
+            "custom" : "定制模块"
+        }
+        self.moduleMap = moduleMap
+
+    #连接mysql
+    def getConnect(self):
+        db = pymysql.connect(
+            host=self.ip,
+            db=self.authdb,
+            user=self.user,
+            passwd=self.password,
+            port=self.port,
+            charset=self.charset,
+            use_unicode=True)
+        cursor = db.cursor()
+        return (db , cursor)
+
+    #获取数据库表名
+    def getDBtables(self , cursor , db_name) :
+        tables_sql = "SELECT table_name , table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{}' ".format(db_name)
+        cursor.execute(tables_sql)
+        results = cursor.fetchall()
+        moduleMap = self.moduleMap
+        tables = []
+        
+        for row in results :
+            table_name = row[0]
+            info = table_name.split('_')
+            matchstr = table_name
+            if len(info) > 1 :
+                matchstr = info[0]
+            module_name = 'base'
+            if matchstr in moduleMap :
+                module_name = info[0]
+            data = [ table_name , row[1] , module_name ]
+            tables.append(data)
+        
+        tableMap = {}
+        for table in tables : 
+            module_name = table[2]
+            module_desc = moduleMap[module_name]
+            tables = None 
+            if module_desc not in tableMap :
+                tables = []
+            else :
+                tables = tableMap[module_desc]
+            tables.append(table)
+            tableMap[module_desc] = tables
+        return tableMap
+
+    #获取表字段信息
+    def getTablesColumns(self , cursor , db_name , table_name):
+        select_sql = "SELECT COLUMN_NAME,DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{}' AND table_name = '{}' ".format(db_name , table_name)
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+        return results
+
+    #关闭连接
+    def close(self , db , cursor):
+        cursor.close()
+        db.close()
+
+class wordManager:
+
+    def __init__(self, outpath):
+        self.outpath = outpath
+
+        table_titles = ["字段名", "字段类型", "长度", "是否为空" , "描述" ]
+        self.table_titles = table_titles
+
+    def init_doc(self):
+        document = Document()
+        document.styles['Normal'].font.name = u'宋体'
+        document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+        document.styles['Normal'].font.size = Pt(10.5)
+        document.styles['Normal'].font.color.rgb = RGBColor(0, 0, 0)
+        return document
+
+    def add_titile(self, doc ,title , number):
+        title = doc.add_heading( title , number )
+
+    def add_paragraph(self, doc, text):
+        paragraph = doc.add_paragraph(text)
+        paragraph.paragraph_format.space_before = Pt(0) 
+        paragraph.paragraph_format.space_after = Pt(0) 
+        paragraph.paragraph_format.line_spacing = 1.5  
+        paragraph.paragraph_format.left_indent = Inches(0)  
+        paragraph.paragraph_format.right_indent = Inches(0)  
+    
+    def add_table(self, doc, columns):
+        table = doc.add_table(rows=1, cols=len(self.table_titles))
+        # 设置表格样式
+        table.style = 'Light List Accent 1'
+        # 设置标题
+        title_cells = table.rows[0].cells
+        for i in range(len(self.table_titles)):
+            title_cells[i].text = self.table_titles[i]
+
+        # 设置内容
+        for column in columns:
+            row_cells = table.add_row().cells
+            column_name = str(column[0])
+            data_type = str(column[1])
+            if column[2] is None :
+                character_maximum_length = ''
+            else :
+                character_maximum_length = str(column[2])
+            is_nullable = str(column[3])
+            column_comment = str(column[4])
+            row_cells[0].text = column_name
+            row_cells[1].text = data_type
+            row_cells[2].text = character_maximum_length
+            row_cells[3].text = is_nullable
+            row_cells[4].text = column_comment
+    
+    def save(self, doc , db_name):
+        outfile = self.outpath + '/' + db_name + '.docx'
+        if os.path.isfile(outfile):
+            try:
+                os.remove(outfile)
+            except BaseException as e:
+                print(e)
+        doc.save(outfile)
+        print('FINE:: Save Database {} table dict to word file {} success.'.format(db_name ,  self.outpath))
+
+    def transfer(self , tables ):
+        data = []
+
+        for tables in tables : 
+            moduleMap = self.moduleMap
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='127.0.0.1', help='mysql db ip')
+    parser.add_argument('--port', default=3306, help='mysql db port')
+    parser.add_argument('--user', default='root', help='mysql db user')
+    parser.add_argument('--password', default='', help='mysql db user password')
+    parser.add_argument('--dbnames', default='codedriver,codedriver_demo', help='export databse name,default:codedriver,codedriver_demo')
+    parser.add_argument('--outpath', default='', help='export output path')
+    parser.add_argument('--modules', default='', help='export module ,default all , eg: "流程,自动化"')
+
+    args = parser.parse_args()
+    ip = args.ip
+    port = args.port
+    user = args.user
+    password = args.password
+    dbnames = args.dbnames
+    outpath = args.outpath
+    modules = args.modules
+
+    if ip is None  or ip == '':
+        ip = '127.0.0.1'
+    if port is None or port == '' :
+        port = 3306 
+    if outpath is None or outpath == '':
+        filepath = os.path.split(os.path.realpath(__file__))[0]
+        filepath = os.path.realpath(filepath)
+        outpath = filepath
+
+    mysql = mysqlManager(ip ,port ,user , password)
+    moduleMap = mysql.moduleMap
+
+    #默认生成所有模块
+    needModuleMap = {}
+    if modules is None or  modules == '' :
+        needModuleMap = moduleMap
+    else :
+        if modules is not None and modules != '' :
+            modules_info = modules.split(',')
+            for m in modules_info :
+                #支持模糊匹配，如：入参为流程或流程管理
+                for dm in moduleMap :
+                    dm_desc = moduleMap[dm]
+                    if  m == dm_desc or m in dm_desc :
+                        needModuleMap[dm] = 1
+            #底层框架必生成
+            if 'base' not in needModuleMap :
+                needModuleMap['base'] = 1 
+
+    ( db , cursor ) = mysql.getConnect()
+    dbname_list = dbnames.split(',')
+    for db_name in dbname_list : 
+        #一个数据库一个文档
+        word = wordManager(outpath)
+        doc = word.init_doc()
+
+        tableMap = mysql.getDBtables( cursor , db_name )
+        #print(tableMap)
+        tcount = 1
+        validMap = {}
+        #按模块归类
+        for module in moduleMap :
+            module_desc = moduleMap[module]
+            if module_desc in validMap or module_desc not in tableMap or module not in needModuleMap :
+                continue 
+
+            print("INFO:: Add module {} to doc .".format(module_desc))
+            first_text = str(tcount) + '. ' + module_desc
+            word.add_titile(doc, first_text , 1 )
+
+            tables = tableMap[module_desc]
+            ccount = 1
+            for table in tables :
+                table_name = table[0]
+                table_comment = table[1]
+
+                if 'fulltextindex_'  in table_name : 
+                    print("INFO:: Sikpe table {} ".format(table_name))
+                    continue
+
+                print("INFO:: Add module {} table {} to doc ...".format( module_desc , table_name ) )
+                second_text = str(tcount) + '.' + str(ccount) + '. ' + table_name + ' ' + table_comment
+                columns = mysql.getTablesColumns( cursor , db_name , table_name )
+                word.add_titile(doc, second_text , 2 )
+                word.add_table(doc, columns)
+                ccount = ccount + 1
+                
+            tcount = tcount + 1
+            validMap[module_desc] = 1
+        word.save(doc,db_name)
+        
+    mysql.close(db , cursor )
