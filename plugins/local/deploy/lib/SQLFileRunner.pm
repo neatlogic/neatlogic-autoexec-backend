@@ -340,13 +340,19 @@ sub execOneSqlFile {
         my $dbType = uc( $dbInfo->{dbType} );
         my $dbName = $dbInfo->{dbName};
 
+        my $dbAddrDesc = $dbInfo->{dbStr};
+        if ( not defined($dbAddrDesc) or $dbAddrDesc eq '' ) {
+            $dbAddrDesc = $dbInfo->{host} . ':' . $dbInfo->{port};
+        }
+        $dbAddrDesc = "$dbType/$dbAddrDesc/$dbName";
+
         print("#***************************************\n");
         print("# JOB_ID=$ENV{AUTOEXEC_JOBID}\n");
         print("# FILE=$sqlFile\n");
         print("# Encoding=$fileCharset\n");
         print("# PreStatus=$sqlFileStatus->{status}->{status}\n");
         print("# MD5=$sqlFileStatus->{status}->{md5}\n");
-        print( "# $dbType/$dbName BeginExec\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
+        print( "# $dbAddrDesc BeginExec\@" . strftime( "%Y/%m/%d %H:%M:%S", localtime() ) . "\n" );
         print("#***************************************\n\n");
 
         my $handlerName = $self->_getHandlerName( $dbInfo, $dbType );
