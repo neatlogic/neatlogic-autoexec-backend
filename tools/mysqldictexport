@@ -35,6 +35,7 @@ class mysqlManager:
             "discovery" : "自动化管理",
             "deploy" : "发布管理",
             "report" : "报表管理",
+            "reportinstance" : "报表管理", 
             "knowledge" : "知识库管理",
             "pbc" : "监管报送",
             "custom" : "定制模块"
@@ -244,7 +245,7 @@ if __name__ == "__main__":
                 table_comment = table[1]
 
                 if 'fulltextindex_'  in table_name : 
-                    print("INFO:: Sikpe table {} ".format(table_name))
+                    print("INFO:: Skip data table {} ".format(table_name))
                     continue
 
                 print("INFO:: Add module {} table {} to doc ...".format( module_desc , table_name ) )
