@@ -344,6 +344,7 @@ sub execOneSqlFile {
         my $handlerName = $self->_getHandlerName( $dbInfo, $dbType );
         my $requireName = "$handlerName.pm";
 
+        my $dbType     = $dbInfo->{dbType};
         my $dbAddrDesc = $dbInfo->{dbStr};
         if ( not defined($dbAddrDesc) or $dbAddrDesc eq '' ) {
             $dbAddrDesc = $dbInfo->{host} . ':' . $dbInfo->{port};
