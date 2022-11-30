@@ -36,6 +36,8 @@ import OutputStore
 
 class LogFile:
     def __init__(self, fileHandle, runNode):
+        self.failIgnore = False
+        self.hintKey = 'ERROR'
         self.foreLine = b''
         self.fileHandle = fileHandle
         self.runNode = runNode
@@ -44,7 +46,10 @@ class LogFile:
         self.failPatsOp = 'and'
         self.failExpPat = None
 
-    def setFailPattern(self, operator, patOpts, exPatOpt):
+    def setFailPattern(self, failIgnore, operator, patOpts, exPatOpt):
+        self.failIgnore = failIgnore
+        if(failIgnore):
+            self.hintKey = 'WARN'
         self.failPatsOp = operator
         for reOpt in patOpts:
             if reOpt is not None and reOpt != '':
@@ -78,20 +83,22 @@ class LogFile:
                     matched = False
                     break
             if matched:
-                self.runNode.hasFailLog = True
+                if not self.failIgnore:
+                    self.runNode.hasFailLog = True
                 pats = str(self.failPats[0])
                 for pat in self.failPats[1:]:
                     pats = pats + 'and ' + pat
                 timeBytes = Utils.getTimeStr().encode()
-                self.fileHandle.write(timeBytes + 'ERROR: Fail pattern {} matched for pre line.\n'.format(pats).encode())
+                self.fileHandle.write(timeBytes + self.hintKey + ': Fail pattern {} matched for pre line.\n'.format(pats).encode())
         else:
             matched = False
             for pat in self.failPats:
                 if pat.search(line):
-                    self.runNode.hasFailLog = True
+                    if not self.failIgnore:
+                        self.runNode.hasFailLog = True
                     matched = True
                     timeBytes = Utils.getTimeStr().encode()
-                    self.fileHandle.write(timeBytes + 'ERROR: Fail pattern {} matched for pre line.\n'.format(pat).encode())
+                    self.fileHandle.write(timeBytes + self.hintKey + ': Fail pattern {} matched for pre line.\n'.format(pat).encode())
                     break
 
         return matched
@@ -674,7 +681,7 @@ class RunNode:
                             self.context.exportEnv(envName)
                         elif op.opSubName == 'failkeys':
                             self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
-                            self.logHandle.setFailPattern(op.options.get('operator'), op.arguments, op.options.get('exclude'))
+                            self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
                     except Exception as ex:
                         ret = 1
                         self.writeNodeLog('ERROR: Execute native plugin native/{} failed, {}\n'.format(op.opSubName, str(ex)))
