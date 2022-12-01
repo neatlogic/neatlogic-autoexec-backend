@@ -7,22 +7,23 @@
 如有新增模块或不符合规范的表单独定义，需更改此map定义
 ```
 moduleMap = {
-    "base" : "底层框架",
-    "catalog" : "流程管理",
-    "channel" : "流程管理",
-    "process" : "流程管理",
-    "processtask" : "流程管理",
-    "event" : "事件管理",
-    "change" : "变更管理",
-    "cmdb" : "配置管理",
-    "inspect" : "巡检管理",
-    "autoexec" : "自动化管理",
-    "discovery" : "自动化管理",
-    "deploy" : "发布管理",
-    "report" : "报表管理",
-    "knowledge" : "知识库管理",
-    "pbc" : "监管报送",
-    "custom" : "定制模块"
+  "base" : "底层框架",
+  "catalog" : "流程管理",
+  "channel" : "流程管理",
+  "process" : "流程管理",
+  "processtask" : "流程管理",
+  "event" : "事件管理",
+  "change" : "变更管理",
+  "cmdb" : "配置管理",
+  "inspect" : "巡检管理",
+  "autoexec" : "自动化管理",
+  "discovery" : "自动化管理",
+  "deploy" : "发布管理",
+  "report" : "报表管理",
+  "reportinstance" : "报表管理", 
+  "knowledge" : "知识库管理",
+  "pbc" : "监管报送",
+  "custom" : "定制模块"
 }
 ```
 ## 导出mysql库为Word插件帮助说明
