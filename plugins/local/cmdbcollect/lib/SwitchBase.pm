@@ -78,15 +78,17 @@ sub new {
     my $commOidDef = {
 
         #端口信息
-        PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
-        PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',     #ifDescr
-        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',     #ifType
-        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
-        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',     #ifAdminStatus
-        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',     #ifOperStatus
-        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',     #ifSpeed
-        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',     #ifMTU
-        PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',    #ifOutQLen
+        #PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
+        #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',       #ifDescr
+        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #ifIndex
+        PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifDescr
+        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
+        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
+        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
+        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',       #ifOperStatus
+        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',       #ifSpeed
+        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
+        PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',      #ifOutQLen
 
         #Counter inspect
         PORT_IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
@@ -288,12 +290,17 @@ sub _getPortIdx {
     my $portIdxInfo    = $snmp->get_table( -baseoid => $commOidDef->{PORT_INDEX} );
     $self->_errCheck( $portIdxInfo, $commOidDef->{PORT_INDEX}, 'PORT_INDEX' );
 
-    #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514 #oid最后一位是序号，值是数字索引
+    #.1.3.6.1.2.1.17.1.4.1.2.1 = INTEGER: 514
+    #oid最后一位是序号，值是数字索引
     my @sortedOids = oid_lex_sort( keys(%$portIdxInfo) );
     for ( my $i = 0 ; $i <= $#sortedOids ; $i++ ) {
         my $oid = $sortedOids[$i];
         my $val = $portIdxInfo->{$oid};
-        $portIdxToNoMap->{$val} = $i + 1;
+
+        #$portIdxToNoMap->{$val} = $i + 1;
+
+        my $portNo = int( substr( $oid, rindex( $oid, '.' ) + 1 ) );
+        $portIdxToNoMap->{$val} = $portNo;
     }
 
     return $portIdxToNoMap;
