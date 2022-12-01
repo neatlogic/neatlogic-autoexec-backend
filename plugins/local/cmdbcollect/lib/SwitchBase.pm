@@ -81,7 +81,7 @@ sub new {
         #PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
         #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',       #ifDescr
         PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #ifIndex
-        PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifDescr
+        PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifName
         PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
         PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
         PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
