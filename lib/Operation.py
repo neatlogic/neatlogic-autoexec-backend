@@ -442,7 +442,7 @@ class Operation:
 
             argValue = arg.get('value')
 
-            if argDesc == 'filepath':
+            if argDesc == 'filepath' and self.opType == 'remote':
                 argValue = 'file/' + os.path.basename(argValue)
 
             if (isObject or isPassword) and osType != 'windows':
@@ -525,7 +525,7 @@ class Operation:
             if noPassword and isPassword:
                 hideValue = True
 
-            if k == 'filepath':
+            if k == 'filepath' and self.opType == 'remote':
                 v = 'file/' + os.path.basename(v)
 
             if (isObject or isPassword) and osType != 'windows':
