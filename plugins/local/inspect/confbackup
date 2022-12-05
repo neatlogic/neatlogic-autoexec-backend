@@ -146,7 +146,7 @@ class RemoteConfBackup:
         savePath = savePath + '/' + path
 
         if not os.path.exists(savePath):
-            os.makedirs(savePath)
+            os.makedirs(savePath, exist_ok=True)
         savePath = savePath + '/' + filename
 
         fileJson = {}
@@ -208,7 +208,7 @@ class RemoteConfBackup:
 
         os.chdir(os.environ.get('AUTOEXEC_WORK_PATH'))
         if not os.path.exists(localDir):
-            os.makedirs(localDir)
+            os.makedirs(localDir, exist_ok=True)
 
         for remotePath, modifyTime in self.filePaths.items():
             try:
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     remoteFilePatterns = args.remotefiles
     if len(remoteFilePatterns) == 0:
         print("WARN: Remote files not defined.\n", end='')
-        AutoExecUtils.saveOutput({'fileList':[]})
+        AutoExecUtils.saveOutput({'fileList': []})
         exit(0)
 
     try:

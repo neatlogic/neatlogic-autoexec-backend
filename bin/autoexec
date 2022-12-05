@@ -353,11 +353,15 @@ if __name__ == "__main__":
         # 初始化console日志文件
         logDir = runPath + '/log'
         if not os.path.exists(logDir):
-            os.makedirs(logDir)
+            os.makedirs(logDir, exist_ok=True)
 
         consoleLogPath = logDir + '/console.txt'
-
         consoleLogFile = None
+
+        fileDir = runPath + '/file'
+        if not os.path.exists(fileDir):
+            os.mkdir(fileDir)
+
         if args.firstfire:
             # 作业的第一个阶段执行，需要创建新的console 日志文件
             if os.path.exists(consoleLogPath):

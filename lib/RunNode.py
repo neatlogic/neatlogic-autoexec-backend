@@ -1076,6 +1076,10 @@ class RunNode:
 
                 if uploadRet == 0 and op.hasFileOpt:
                     uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
+                if uploadRet == 0 and op.hasFilePathOpt:
+                    uploadRet = tagent.upload(self.username, self.context.runPath + '/file', remotePath + '/')
+                    for filePath in op.filePaths:
+                        uploadRet = tagent.upload(self.username, self.context.runPath + '/' + filePath, remotePath + '/file/')
                 if uploadRet == 0 and op.hasOutput:
                     uploadRet = tagent.writeFile(self.username, b'', remotePath + '/output.json')
 
@@ -1294,8 +1298,22 @@ class RunNode:
                         sftp.mkdir(os.path.join(remotePath, 'file'))
                     try:
                         for file in os.listdir(os.path.join(self.context.runPath, 'file')):
-                            if os.path.isfile(os.path.join(self.context.runPath, 'file', file)):
-                                sftp.put(os.path.join(self.context.runPath, 'file', file), os.path.join(remotePath, 'file', file))
+                            localFilePath = os.path.join(self.context.runPath, 'file', file)
+                            if os.path.isfile(localFilePath):
+                                sftp.put(localFilePath, os.path.join(remotePath, 'file', file))
+                    except Exception as err:
+                        hasError = True
+                        self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))
+                if uploadRet == 0 and op.hasFilePathOpt:
+                    try:
+                        sftp.stat(os.path.join(remotePath, 'file'))
+                    except Exception as err:
+                        sftp.mkdir(os.path.join(remotePath, 'file'))
+                    try:
+                        for file in op.filePaths:
+                            localFilePath = os.path.join(self.context.runPath, file)
+                            if os.path.isfile(localFilePath):
+                                sftp.put(localFilePath, os.path.join(remotePath, 'file', file))
                     except Exception as err:
                         hasError = True
                         self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))

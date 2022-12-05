@@ -245,7 +245,7 @@ if need_deploy == 1:
                 #	if os.path.isfile(descfile):
                 #		descdir = os.path.dirname(descdest)
                 #		if not os.path.isdir(descdir):
-                #			os.makedirs(descdir)
+                #			os.makedirs(descdir, exist_ok=True)
                 #		if os.path.exists(descfile):
                 #			shutil.copyfile(descfile, descdest)
                 #			print('INFO: Update descriptor file:%s\n' % wardesc)

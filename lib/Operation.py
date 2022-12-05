@@ -26,6 +26,8 @@ class Operation:
         self.opsParam = opsParam
         self.isScript = 0
         self.hasFileOpt = False
+        self.hasFilePathOpt = False
+        self.filePaths = []
         self.scriptContent = None
         self.interpreter = ''
         self.fileFeteched = context.fileFeteched
@@ -215,11 +217,15 @@ class Operation:
                         optValue = '[]'
 
                 if optValue:
-                    fileNames = self.fetchFile(optName, optValue)
+                    fileNames = self.fetchFile(optValue)
                     fileNamesJson = []
                     for fileName in fileNames:
                         fileNamesJson.append('file/' + fileName)
                     optValue = json.dumps(fileNamesJson, ensure_ascii=False)
+            elif optType == 'filepath':
+                optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
+                self.hasFilePathOpt = True
+                self.filePaths.append(optValue)
             else:
                 optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                 if optType == 'textarea':
@@ -254,11 +260,15 @@ class Operation:
                         argValue = '[]'
 
                     if optValue:
-                        fileNames = self.fetchFile(optName, argValue)
+                        fileNames = self.fetchFile(argValue)
                         fileNamesJson = []
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
                         argValue = json.dumps(fileNamesJson, ensure_ascii=False)
+                elif optType == 'filepath':
+                    optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
+                    self.hasFilePathOpt = True
+                    self.filePaths.append(optValue)
                 else:
                     argValue = self.resolveOptValue(argValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     if argType == 'textarea':
@@ -267,7 +277,7 @@ class Operation:
             self.arguments = args
 
     # 如果参数是文件需要下载文件到本地cache目录并symlink到任务执行路径下的file目录下
-    def fetchFile(self, optName, fileIds):
+    def fetchFile(self, fileIds):
         cachePath = self.dataPath + '/cache'
         serverAdapter = self.context.serverAdapter
 
@@ -431,6 +441,10 @@ class Operation:
                 hideValue = True
 
             argValue = arg.get('value')
+
+            if argDesc == 'filepath':
+                argValue = 'file/' + os.path.basename(argValue)
+
             if (isObject or isPassword) and osType != 'windows':
                 cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota="'")
             else:
@@ -510,6 +524,9 @@ class Operation:
             hideValue = False
             if noPassword and isPassword:
                 hideValue = True
+
+            if k == 'filepath':
+                v = 'file/' + os.path.basename(v)
 
             if (isObject or isPassword) and osType != 'windows':
                 cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota="'")
