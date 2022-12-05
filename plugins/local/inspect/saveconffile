@@ -77,6 +77,7 @@ if __name__ == "__main__":
                 'md5': fileInfo.get('md5')
             }
 
+        jobId = os.getenv('AUTOEXEC_JOBID')
         fileId = None
         for fileInfo in filesList:
             try:
@@ -107,6 +108,7 @@ if __name__ == "__main__":
                     print("FINE: Upload file %s to storage success." % (serverPath))
                     fileId = result['id']
                     result = AutoExecUtils.txtFileInspectSave({
+                        "jobId": jobId,
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
@@ -119,6 +121,7 @@ if __name__ == "__main__":
                     })
                 else:
                     result = AutoExecUtils.txtFileInspectSave({
+                        "jobId": jobId,
                         "resourceId": resourceId,
                         "pathId": pathId,
                         "path": fileInfo['serverPath'],
