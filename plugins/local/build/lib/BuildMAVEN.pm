@@ -71,7 +71,7 @@ sub build {
     }
     else {
         if ( $args !~ /\bclean\b/ ) {
-            $cmd = "mvn $silentOpt clean $args";
+            $cmd = "mvn $silentOpt clean";
             print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
