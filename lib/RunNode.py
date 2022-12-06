@@ -1304,7 +1304,7 @@ class RunNode:
                     except Exception as err:
                         hasError = True
                         self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))
-                if uploadRet == 0 and op.hasFilePathOpt:
+                if hasError == 0 and op.hasFilePathOpt:
                     try:
                         sftp.stat(os.path.join(remotePath, 'file'))
                     except Exception as err:
