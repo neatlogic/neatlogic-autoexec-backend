@@ -263,7 +263,7 @@ def genOSRel(db):
                          '$elemMatch': {'MACS': nic['MAC'],
                                         'PORT': {'$ne': None, '$regex': r'/'},
                                         'MAC_COUNT': 1}
-                     },
+                     }
                      })
 
                 refSwPorts = []
