@@ -33,6 +33,7 @@ def getObjCatPkDef(objCat, customPkDef):
         'LOADBALANCER': ['MGMT_IP', 'SN'],
         'STORAGE': ['MGMT_IP', 'SN'],
         'FCSWITCH': ['MGMT_IP', 'SN'],
+        'FCDEV': ['MGMT_IP', 'SN'],
         'K8S': ['MGMT_IP'],
         'UNKNOWN': ['MGMT_IP']
     }
@@ -51,7 +52,8 @@ def getObjCatIndexDef(objCat):
         'CLUSTER': ['MEMBER_PEER'],
         'SWITCH': ['DEV_NAME'],
         'STORAGE': ['HBA_INTERFACES.WWNN', 'HBA_INTERFACES.WWPN'],
-        'FCSWITCH': ['WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN']
+        'FCSWITCH': ['WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN'],
+        'FCDEV': ['WWNN', 'PORTS.WWPN', 'LINK_TABLE.PEER_WWPN']
     }
     idxDef = idxDefs.get(objCat)
     if idxDef is not None:
