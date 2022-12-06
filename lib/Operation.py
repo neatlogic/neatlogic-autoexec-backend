@@ -265,7 +265,7 @@ class Operation:
                         for fileName in fileNames:
                             fileNamesJson.append('file/' + fileName)
                         argValue = json.dumps(fileNamesJson, ensure_ascii=False)
-                elif optType == 'filepath':
+                elif argType == 'filepath':
                     optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     self.hasFilePathOpt = True
                     self.filePaths.append(optValue)
