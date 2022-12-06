@@ -258,6 +258,7 @@ def genOSRel(db):
                     {'_OBJ_CATEGORY': 1,
                      '_OBJ_TYPE': 1,
                      'MGMT_IP': 1,
+                     'DEV_NAME': 1,
                      'SN': 1,
                      'MAC_TABLE': {
                          '$elemMatch': {'MACS': nic['MAC'],
@@ -272,6 +273,7 @@ def genOSRel(db):
                     refSwPort = {'_OBJ_CATEGORY': remotePort['_OBJ_CATEGORY'],
                                  '_OBJ_TYPE': remotePort['_OBJ_TYPE'],
                                  'MGMT_IP': remotePort['MGMT_IP'],
+                                 'DEV_NAME': remotePort['DEV_NAME'],
                                  'SN': remotePort['SN'],
                                  'PORT': remotePort['MAC_TABLE'][0]['PORT']}
                     refSwPorts.append(refSwPort)
@@ -288,23 +290,32 @@ def genOSRel(db):
                 if wwpn is None:
                     continue
 
-                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE.PEER_WWPN': wwpn,
-                                                        'LINK_TABLE.LINK_COUNT': 1},
-                                                       {'_OBJ_CATEGORY': 1,
-                                                        '_OBJ_TYPE': 1,
-                                                        'MGMT_IP': 1,
-                                                        'SN': 1,
-                                                        'LINK_TABLE': {
-                                                            '$elemMatch': {'PEER_WWPN': wwpn,
-                                                                           'LINK_COUNT': 1}
-                                                        },
-                                                        })
+                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE': {
+                    '$elemMatch': {
+                        'PEER_WWPN': wwpn,
+                        'LINK_COUNT': 1
+                    }
+                }
+                },
+                    {'_OBJ_CATEGORY': 1,
+                     '_OBJ_TYPE': 1,
+                     'MGMT_IP': 1,
+                     'DEV_NAME': 1,
+                     'SN': 1,
+                     'LINK_TABLE': {
+                         '$elemMatch': {
+                             'PEER_WWPN': wwpn,
+                             'LINK_COUNT': 1
+                         }
+                     }
+                     })
                 refFcPorts = []
                 refFcPort = {}
                 if remoteFcPort is not None and 'LINK_TABLE' in remoteFcPort:
                     refFcPort = {'_OBJ_CATEGORY': remoteFcPort['_OBJ_CATEGORY'],
                                  '_OBJ_TYPE': remoteFcPort['_OBJ_TYPE'],
                                  'MGMT_IP': remoteFcPort['MGMT_IP'],
+                                 'DEV_NAME': remotePort['DEV_NAME'],
                                  'SN': remoteFcPort['SN'],
                                  'PORT': remoteFcPort['LINK_TABLE'][0]['PORT_NAME']}
                     refFcPorts.append(refFcPort)
