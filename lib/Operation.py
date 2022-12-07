@@ -525,7 +525,7 @@ class Operation:
             if noPassword and isPassword:
                 hideValue = True
 
-            if k == 'filepath' and self.opType == 'remote':
+            if kDesc == 'filepath' and self.opType == 'remote':
                 v = 'file/' + os.path.basename(v)
 
             if (isObject or isPassword) and osType != 'windows':
