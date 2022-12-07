@@ -218,7 +218,10 @@ sub _checkError {
     for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
         if ( $isVerbose == 1 ) {
-            if ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
+            if ( $line =~ /ORA-32004:/ ) {
+                print("WARN: $line\n");
+            }
+            elsif ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
                 $hasError = 1;
                 print("WARN: $line\n");
             }
@@ -227,7 +230,10 @@ sub _checkError {
             }
         }
         else {
-            if ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
+            if ( $line =~ /ORA-32004:/ ) {
+                print("WARN: $line\n");
+            }
+            elsif ( $line =~ /ORA-\d+:/ or $line =~ /CRS-\d+:/ ) {
                 $hasError = 1;
                 print("WARN: $line\n");
             }
