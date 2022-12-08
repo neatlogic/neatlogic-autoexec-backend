@@ -12,6 +12,7 @@ class PhaseNodeFactory:
     def __init__(self, context, parallelCount):
         self.context = context
         self.parallelCount = parallelCount
+        self.cleared = False
         self.nodeQueue = queue.Queue(parallelCount + 1)
         self.localNodeQueue = queue.Queue(5)
 
@@ -23,6 +24,8 @@ class PhaseNodeFactory:
         while self.context.goToStop == False:
             try:
                 node = self.nodeQueue.get(timeout=5)
+                if node is None:
+                    self.cleared = True
                 return node
             except Exception as ex:
                 pass
@@ -39,4 +42,5 @@ class PhaseNodeFactory:
                 return node
             except Exception as ex:
                 pass
+        self.cleared = True
         return node

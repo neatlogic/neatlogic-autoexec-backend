@@ -19,6 +19,7 @@ class RunNodeFactory:
         self.phaseName = phaseName
         self.phaseType = phaseType
         self.nodesFile = None
+        self.cleared = False
 
         nodesFilePath = context.getNodesFilePath(phaseName=phaseName, groupNo=groupNo)
         if not os.path.isfile(nodesFilePath):
@@ -55,6 +56,7 @@ class RunNodeFactory:
         localNode = self.localNode()
         if localNode is not None:
             localRunNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, localNode)
+        self.cleared = True
         return localRunNode
 
     def nextRunNode(self):
@@ -62,6 +64,8 @@ class RunNodeFactory:
         nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
             runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount)
+        else:
+            self.cleared = True
         return runNode
 
     def localNode(self):
@@ -69,6 +73,7 @@ class RunNodeFactory:
         if self.context.runnerId == self.localRunnerId:
             # 如果当前runner是指定运行local阶段的runner
             localNode = {"resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
+        self.cleared = True
         return localNode
 
     def nextNode(self, runnerId=None):
@@ -116,6 +121,7 @@ class RunNodeFactory:
                 if 'port' in nodeObj:
                     nodeObj['protocolPort'] = nodeObj['port']
         else:
+            self.cleared = True
             nodeObj = None
             if self.nodesFile is not None:
                 self.nodesFile.close()
