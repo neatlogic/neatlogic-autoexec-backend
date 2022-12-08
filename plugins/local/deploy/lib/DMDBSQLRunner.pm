@@ -305,8 +305,8 @@ sub run {
             $spawn->send("SET AUTOCOMMIT OFF;\n");
         }
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
-        $spawn->send("SET AUTOCOMMIT OFF;\n");
-        $spawn->expect( undef, [ $PROMPT => sub { } ] );
+#        $spawn->send("SET AUTOCOMMIT OFF;\n");
+#        $spawn->expect( undef, [ $PROMPT => sub { } ] );
         $spawn->send("SET DEFINE OFF;\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
         $spawn->send("SET LINESIZE 160;\n");
@@ -319,9 +319,23 @@ sub run {
         $spawn->expect(
             undef,
             [
+                #密码过期
+                #[-2503]:Login password expired.
+                qr/(?<=\n)\[-\d+\]:Login password expired.\s*/ => sub {
+                    $hasError     = 1;
+                    $hasHardError = 1;
+                    my $matchContent = $spawn->match();
+                    if ( $charSet ne 'UTF-8' ) {
+                        $matchContent = Encode::encode( "utf-8", Encode::decode( $charSet, $matchContent ) );
+                    }
+                    print("\nERROR: $matchContent\n");
+                    &$execEnded();
+                }
+            ],
+            [
                 #SQL对象错误
                 #[-2106]:Error in line: 1
-                qr/(?<=\n)\[-\d+\]:Error in line: \d+/ => sub {
+                qr/(?<=\n)\[-\d+\]:Error in line:\s*\d+/ => sub {
                     my $matchContent = $spawn->match();
 
                     $matchContent =~ /^(\[-\d+\]):.*$/s;
