@@ -68,7 +68,7 @@ class PhaseWorker(threading.Thread):
             localOps = []
             # 为了让每个节点都有独立的插件参数记录，复制operation
             for op in self.operations:
-                localOps.append(copy.copy(op))
+                localOps.append(op.copy())
 
             opsStatus = None
             try:

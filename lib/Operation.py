@@ -8,6 +8,7 @@
 """
 from email.errors import HeaderMissingRequiredValue
 import os
+import copy
 import fcntl
 import re
 import json
@@ -150,6 +151,17 @@ class Operation:
             else:
                 self.pluginParentPath = '{}/plugins/local/{}'.format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = '{}/{}'.format(self.pluginParentPath, self.opSubName)
+
+    def _reinit(self):
+        self.options = {}
+        self.arguments = []
+        self.filePaths = []
+        self.lockedFDs = []
+
+    def copy(self):
+        copied = copy.copy(self)
+        copied._reinit()
+        return copied
 
     def __del__(self):
         for fd in self.lockedFDs:
