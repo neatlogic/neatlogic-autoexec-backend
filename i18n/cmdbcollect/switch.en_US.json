@@ -47,22 +47,6 @@
             "type": "String"
         },
         {
-            "name": "IP_ADDRS",
-            "desc": "IP Addresses",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "NETMASK",
-                    "desc": "Net Mask",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BRAND",
             "desc": "Brand",
             "type": "String"
@@ -96,6 +80,22 @@
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
+        },
+        {
+            "name": "IP_ADDRS",
+            "desc": "IP Addresses",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "Net Mask",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PORTS",

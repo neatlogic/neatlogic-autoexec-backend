@@ -49,6 +49,18 @@
                     {
                         "text": "山石",
                         "value": "hillstone"
+                    },
+                    {
+                        "text": "锐捷",
+                        "value": "ruijie"
+                    },
+                    {
+                        "text": "迈普",
+                        "value": "maipu"
+                    },
+                    {
+                        "text": "中兴",
+                        "value": "zte"
                     }
                 ]
             },
