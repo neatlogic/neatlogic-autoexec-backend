@@ -250,7 +250,7 @@ sub _checkError {
                 $hasError = 0;
             }
         }
-        elsif ( $sql =~ /^\s*startup\b/is ) {
+        elsif ( $sql =~ /^\s*startup\b/is or $sql =~ /^\s*alter\s+database\s+open\b/is ) {
             if ( $output =~ /already open/is ) {
                 $hasError = 0;
             }
