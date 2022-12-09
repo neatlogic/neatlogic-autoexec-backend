@@ -330,6 +330,7 @@ class Operation:
     def fetchScript(self, pluginParentPath, scriptFileName, opId):
         if self.scriptContent:
             savePath = '{}/{}'.format(pluginParentPath, scriptFileName)
+            self.pluginPath = savePath
             filePathTmp = savePath + '.tmp'
             lockFilePath = savePath + '.lock'
             lockFile = open(lockFilePath, 'w+')
@@ -341,15 +342,18 @@ class Operation:
                 if os.path.exists(savePath):
                     os.unlink(savePath)
                 os.rename(filePathTmp, savePath)
-                self.scriptFetched[opId] = True
+                self.scriptFetched[opId] = savePath
             finally:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
         else:
-            if not self.scriptFetched.get(opId):
+            scriptSavePath = self.scriptFetched.get(opId)
+            if scriptSavePath is None:
                 serverAdapter = self.context.serverAdapter
                 scriptCataLog = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId)
                 if scriptCataLog is not None and scriptCataLog != '/':
                     self.pluginPath = '%s/%s/%s' % (self.pluginParentPath, scriptCataLog, scriptFileName)
+            else:
+                self.pluginPath = scriptSavePath
 
     def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':

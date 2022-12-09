@@ -510,6 +510,7 @@ class ServerAdapter:
 
     def fetchScript(self, pluginParentPath, scriptFileName, opId):
         scriptCatalog = None
+        scriptSavePath = None
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
@@ -525,13 +526,13 @@ class ServerAdapter:
         cachedFile = None
         response = None
         try:
-            if self.scriptFetched.get(opId):
+            if self.scriptFetched.get(opId) is not None:
                 return
 
             lockFile = open(lockFilePath, 'w+')
             fcntl.flock(lockFile, fcntl.LOCK_EX)
 
-            if self.scriptFetched.get(opId):
+            if self.scriptFetched.get(opId) is not None:
                 return
 
             if os.path.exists(cachedFilePath):
@@ -570,7 +571,7 @@ class ServerAdapter:
                     os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
                     os.symlink(cachedFilePath, scriptSavePath)
 
-            self.scriptFetched[opId] = True
+            self.scriptFetched[opId] = scriptSavePath
 
             return scriptCatalog
 
