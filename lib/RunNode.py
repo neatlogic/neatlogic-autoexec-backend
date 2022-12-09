@@ -619,7 +619,9 @@ class RunNode:
         opOutput = self.output.get(op.opId)
         if opOutput is not None:
             for fileOpt in op.outputFiles:
-                fileOutMap[fileOpt] = opOutput[fileOpt]
+                filePath = opOutput[fileOpt]
+                if filePath is not None:
+                    fileOutMap[fileOpt] = filePath
             return fileOutMap
 
     def _removeOpOutput(self, op):
