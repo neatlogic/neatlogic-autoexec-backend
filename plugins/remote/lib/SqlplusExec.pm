@@ -243,18 +243,18 @@ sub _checkError {
 
     if ( $hasError == 1 ) {
         if ( $sql =~ /^\s*shutdown\b/is ) {
-
-            # if ( $output =~ /ORA-01507:/is ) {
-            #     $hasError = 0;
-            # }
-            # elsif ( $output =~ /ORA-01109:\W/is ) {
-            #     $hasError = 0;
-            # }
-
-            if ( $hasError == 1 and $output =~ /ORACLE instance shut down/is ) {
+            if ( $output =~ /ORACLE instance shut down/is ) {
                 $hasError = 0;
             }
             elsif ( $output =~ /ORA-01034:/is ) {
+                $hasError = 0;
+            }
+        }
+        elsif ( $sql =~ /^\s*startup\b/is ) {
+            if ( $output =~ /already open/is ) {
+                $hasError = 0;
+            }
+            elsif ( $output =~ /ORA-01531:/is ) {
                 $hasError = 0;
             }
         }
