@@ -47,22 +47,6 @@
             "type": "String"
         },
         {
-            "name": "IP_ADDRS",
-            "desc": "IP地址列表",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "NETMASK",
-                    "desc": "掩码",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BRAND",
             "desc": "品牌",
             "type": "String"
@@ -96,6 +80,22 @@
             "name": "PORTS_COUNT",
             "desc": "端口数量",
             "type": "Int"
+        },
+        {
+            "name": "IP_ADDRS",
+            "desc": "IP地址列表",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "掩码",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PORTS",

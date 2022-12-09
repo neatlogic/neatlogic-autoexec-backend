@@ -55,7 +55,10 @@ sub defindVendor {
         "h3c"       => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length disable' },
         "cisco"     => { "configCmd" => "show run",                      "fullPageCmd" => 'terminal length 0' },
         "hillstone" => { "configCmd" => "show configuration",            "fullPageCmd" => 'terminal length 0' },
-        "huawei"    => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length 0 temporary' }
+        "huawei"    => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length 0 temporary' },
+        "ruijie"    => { "configCmd" => "show running-config", "fullPageCmd" => 'terminal length 0' },
+        "maipu"    => { "configCmd" => "show running-config", "fullPageCmd" => 'more off' },
+        "zte"    => { "configCmd" => "show run", "fullPageCmd" => 'terminal length 0' }
     };
     my $info = $vendorInfo->{$vendor};
     return $info;
