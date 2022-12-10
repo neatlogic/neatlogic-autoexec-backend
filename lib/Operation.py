@@ -24,6 +24,9 @@ class Operation:
         self.context = context
         self.node = None
         self.jobId = context.jobId
+        self.status = 'pending'
+        self.preOp = None
+        self.hasNodeEnv = False
         self.opsParam = opsParam
         self.isScript = 0
         self.hasFileOpt = False

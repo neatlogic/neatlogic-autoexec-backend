@@ -65,10 +65,14 @@ class PhaseWorker(threading.Thread):
                 print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port), end='')
 
             # 运行完所有操作
+            preOp = None
             localOps = []
             # 为了让每个节点都有独立的插件参数记录，复制operation
             for op in self.operations:
-                localOps.append(op.copy())
+                localOp = op.copy()
+                localOp.preOp = preOp
+                localOps.append(localOp)
+                preOp = localOp
 
             opsStatus = None
             try:

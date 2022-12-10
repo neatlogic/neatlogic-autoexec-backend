@@ -167,7 +167,6 @@ class RunNode:
     def __init__(self, context, groupNo, phaseIndex, phaseName, phaseType, node, totalNodesCount=0):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
-        self.nodeEnv = {}
         self.hasIgnoreFail = 0
         self.statuses = {}
         self.statusFile = None
@@ -204,18 +203,6 @@ class RunNode:
         self.username = node.get('username', 'none')
         self.password = node.get('password', '')
 
-        self.nodeEnv['RESOURCE_ID'] = self.resourceId
-        self.nodeEnv['NODE_NAME'] = self.name
-        self.nodeEnv['NODE_HOST'] = self.host
-        self.nodeEnv['NODE_PORT'] = str(self.port)
-        self.nodeEnv['NODE_PROTOCOL_PORT'] = self.protocolPort
-        self.nodeEnv['INS_NAME'] = self.name
-        self.nodeEnv['INS_HOST'] = self.host
-        self.nodeEnv['INS_PORT'] = self.port
-        self.nodeEnv['INS_PROTOCOL_PORT'] = self.protocolPort
-        self.nodeEnv['INS_PATH'] = '%s/%s' % (os.getenv('NAME_PATH'), self.name)
-        self.nodeEnv['INS_ID_PATH'] = '%s/%s' % (os.getenv('ID_PATH'), self.id)
-
         self.phaseLogDir = '{}/log/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.phaseLogDir):
             os.mkdir(self.phaseLogDir)
@@ -232,7 +219,7 @@ class RunNode:
             self.updateNodeStatus(NodeStatus.failed)
 
         self.localOutput = {}
-        self.output = {}
+        self.output = {'nodeEnv': {}}
         self.input = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
@@ -269,6 +256,20 @@ class RunNode:
         self._loadNodeStatus()
         self._loadOutput()
         self._loadInput()
+
+        self.nodeEnv = self.output.get('nodeEnv', {}).copy()
+        # 下面的nodeEnv是动态生成的
+        self.nodeEnv['RESOURCE_ID'] = self.resourceId
+        self.nodeEnv['NODE_NAME'] = self.name
+        self.nodeEnv['NODE_HOST'] = self.host
+        self.nodeEnv['NODE_PORT'] = str(self.port)
+        self.nodeEnv['NODE_PROTOCOL_PORT'] = self.protocolPort
+        self.nodeEnv['INS_NAME'] = self.name
+        self.nodeEnv['INS_HOST'] = self.host
+        self.nodeEnv['INS_PORT'] = self.port
+        self.nodeEnv['INS_PROTOCOL_PORT'] = self.protocolPort
+        self.nodeEnv['INS_PATH'] = '%s/%s' % (os.getenv('NAME_PATH'), self.name)
+        self.nodeEnv['INS_ID_PATH'] = '%s/%s' % (os.getenv('ID_PATH'), self.id)
 
         # if self.logHandle is None:
         #     # 如果文件存在，则删除重建
@@ -678,12 +679,34 @@ class RunNode:
                         elif op.opSubName == 'setenv':
                             envName = op.options['name']
                             envValue = op.options['value']
-                            self.writeNodeLog('INFO: Execute -> native/{} {}={}\n'.format(op.opSubName, envName, envValue))
-                            self.context.setEnv(envName, envValue)
-                            self.context.exportEnv(envName)
+                            envScope = op.options['scope']
+                            self.writeNodeLog('INFO: Execute -> native/{} {}={} scope:{}\n'.format(op.opSubName, envName, envValue, envScope))
+                            if envScope == 'global':
+                                self.context.setEnv(envName, envValue)
+                                self.context.exportEnv(envName)
+                            else:
+                                op.hasNodeEnv = True
+                                self.nodeEnv[envName] = envValue
+                                persistenceEnv = self.output['nodeEnv']
+                                persistenceEnv[envName] = envValue
                         elif op.opSubName == 'failkeys':
                             self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
                             self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
+                        elif op.opSubName == 'extractprestepstatus':
+                            envName = op.options.get('envname')
+                            varScope = op.options.get('scope')
+                            self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, varScope, envName))
+                            if op.preOp is not None and op.preOp.status is not None:
+                                if varScope == 'global':
+                                    self.context.setEnv(envName, op.preOp.status)
+                                    self.context.exportEnv(envName)
+                                else:
+                                    op.hasNodeEnv = True
+                                    self.nodeEnv[envName] = op.preOp.status
+                                    persistenceEnv = self.output['nodeEnv']
+                                    persistenceEnv[envName] = op.preOp.status
+                        elif op.opSubName == 'extractval':
+                            pass
                     except Exception as ex:
                         ret = 1
                         self.writeNodeLog('ERROR: Execute native plugin native/{} failed, {}\n'.format(op.opSubName, str(ex)))
@@ -717,8 +740,8 @@ class RunNode:
                 self._removeOpOutput(op)
                 self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
             else:
-                if op.hasOutput:
-                    if op.opType != 'remote':
+                if op.hasOutput or op.hasNodeEnv:
+                    if op.opType not in ('remote', 'native'):
                         self._loadOpOutput(op)
                     self._saveOutput()
                 self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
@@ -731,13 +754,13 @@ class RunNode:
         opFinalStatus = NodeStatus.succeed
         if ret != 0 or self.hasFailLog:
             if op.failIgnore:
-                hasIgnoreFail = 1
                 opFinalStatus = NodeStatus.ignored
                 hintKey = 'WARN:'
             else:
-                hasIgnoreFail = 0
                 opFinalStatus = NodeStatus.failed
                 hintKey = 'ERROR:'
+
+        op.status = opFinalStatus
 
         self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ''), opFinalStatus))
         self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
