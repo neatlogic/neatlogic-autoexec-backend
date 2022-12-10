@@ -18,7 +18,7 @@
         {
             "opt": "value",
             "name": "变量值",
-            "help": "环境变量的值",
+            "help": "环境变量的值, 支持$()shell展开, 含有高危指令会失效",
             "type": "text",
             "required": "true",
             "validate": "",

@@ -681,6 +681,13 @@ class RunNode:
                             envValue = op.options['value']
                             envScope = op.options['scope']
                             self.writeNodeLog('INFO: Execute -> native/{} {}={} scope:{}\n'.format(op.opSubName, envName, envValue, envScope))
+                            matchObjs = re.search(r'\$\(([^\)]+)\)', envValue)
+                            if matchObjs is not None:
+                                if re.search(r'\brm\b', envValue) or re.search(r'\bcp\b', envValue) or re.search(r'>', envValue):
+                                    print("WARN: Shell eval string contains critical command rm|cp or redirect symbol, not permitted, evaluate aborted.\n")
+                                else:
+                                    result = subprocess.run('echo ' + envValue, shell=True, stdout=subprocess.PIPE)
+                                    envValue = result.stdout.decode().strip()
                             if envScope == 'global':
                                 self.context.setEnv(envName, envValue)
                                 self.context.exportEnv(envName)
