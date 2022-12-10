@@ -6,7 +6,7 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "获取前一步骤的状态保存到环境变量, 提供给外部流程工具引用",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "envname",
             "name": "变量名",

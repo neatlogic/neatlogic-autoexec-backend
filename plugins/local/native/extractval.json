@@ -6,7 +6,7 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "获取JSON数据中的某个字段的值保存到环境变量, 提供给外部流程工具引用",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "data",
             "name": "Json数据",
