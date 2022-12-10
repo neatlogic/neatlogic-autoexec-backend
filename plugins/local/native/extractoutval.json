@@ -1,0 +1,55 @@
+{
+    "opDesc": "抽取上游输出数据的部分数据",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "抽取上游输出数据中的部分数据, 提供给外部流程工具引用",
+    "enabled": 1,
+    "option": [{
+            "opt": "outputkey",
+            "name": "变量名",
+            "help": "上游输出的变量名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selector",
+            "name": "字段选择",
+            "help": "字段选择如果是json数据, 使用python语法进行抽取, 如果是文本数据则用正则表达式抽取。\n正则表达式, 例如: Now Date:\\s*([\\d-\\s:]+)\nJson对象, data代表参数中提供的json object, 例如: data['attr'][0]['myfield']",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selectortype",
+            "name": "抽取方法",
+            "help": "不同的数据类型的抽取方法",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "正则表达式",
+                        "value": "RegExp"
+                    },
+                    {
+                        "text": "Json数据抽取",
+                        "value": "JsonObject"
+                    }
+                ]
+            },
+            "defaultValue": "JsonObject"
+        }
+    ],
+    "output": [{
+        "opt": "extractTxtVal",
+        "name": "抽取结果",
+        "help": "抽取得到的数据",
+        "type": "text"
+    }]
+}

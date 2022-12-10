@@ -681,6 +681,13 @@ class RunNode:
                             envValue = op.options['value']
                             envScope = op.options['scope']
                             self.writeNodeLog('INFO: Execute -> native/{} {}={} scope:{}\n'.format(op.opSubName, envName, envValue, envScope))
+                            matchObjs = re.search(r'\$\(([^\)]+)\)', envValue)
+                            if matchObjs is not None:
+                                if re.search(r'\brm\b', envValue) or re.search(r'\bcp\b', envValue) or re.search(r'>', envValue):
+                                    print("WARN: Shell eval string contains critical command rm|cp or redirect symbol, not permitted, evaluate aborted.\n")
+                                else:
+                                    result = subprocess.run('echo ' + envValue, shell=True, stdout=subprocess.PIPE)
+                                    envValue = result.stdout.decode().strip()
                             if envScope == 'global':
                                 self.context.setEnv(envName, envValue)
                                 self.context.exportEnv(envName)
@@ -694,10 +701,10 @@ class RunNode:
                             self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
                         elif op.opSubName == 'extractprestepstatus':
                             envName = op.options.get('envname')
-                            varScope = op.options.get('scope')
-                            self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, varScope, envName))
+                            envScope = op.options.get('scope')
+                            self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, envScope, envName))
                             if op.preOp is not None and op.preOp.status is not None:
-                                if varScope == 'global':
+                                if envScope == 'global':
                                     self.context.setEnv(envName, op.preOp.status)
                                     self.context.exportEnv(envName)
                                 else:
@@ -705,8 +712,13 @@ class RunNode:
                                     self.nodeEnv[envName] = op.preOp.status
                                     persistenceEnv = self.output['nodeEnv']
                                     persistenceEnv[envName] = op.preOp.status
-                        elif op.opSubName == 'extractval':
-                            pass
+                        else:
+                            #其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
+                            #native工具一般用于处理数据，不需要连接remote进行操作
+                            if self.host == 'local':
+                                ret = self._localExecute(op)
+                            elif op.opType == 'localremote':
+                                ret = self._localRemoteExecute(op)
                     except Exception as ex:
                         ret = 1
                         self.writeNodeLog('ERROR: Execute native plugin native/{} failed, {}\n'.format(op.opSubName, str(ex)))
