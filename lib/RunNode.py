@@ -461,9 +461,6 @@ class RunNode:
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
-                    nodeEnv = output.get('nodeEnv')
-                    if nodeEnv is None:
-                        output['nodeEnv'] = {}
                     self.output = output
             except Exception as ex:
                 raise AutoExecError('Load output file:{}, failed {}'.format(self.outputPath, ex))
@@ -475,10 +472,16 @@ class RunNode:
             # 如果本地output文件不存在则从mongodb加载
             self.output = self.outputStore.loadOutput()
 
+        if 'nodeEnv' not in self.output:
+            self.output['nodeEnv'] = {}
+
         # 为了让remote的节点能够引用到local输出的参数，需要加载local节点的output
         localOutput = self._getLocalOutput()
         if localOutput is not None:
             self.localOutput = localOutput
+
+        if 'nodeEnv' not in self.localOutput:
+            self.localOutput['nodeEnv'] = {}
 
     def _loadInput(self):
         # 加载操作输入参数
