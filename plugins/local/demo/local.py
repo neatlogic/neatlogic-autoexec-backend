@@ -61,6 +61,33 @@ if __name__ == "__main__":
     out['outtext'] = "this is the text out value"
     out['outpassword'] = "{RC4}xxxxxxxxxx"
     out['outfile'] = "testfile.txt"
-    out['outjson'] = '{"key1":"value1", "key2":"value2"}'
+    out['outjsonlist'] = [
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": {"key11": "value11", "key22": "value22"}
+        },
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": {"key11": "value11", "key22": "value22"}
+        }
+    ]
+    
+    out['outjsonobj'] = {
+        "mydata": [
+            {
+                "key1": "value1",
+                "key2": "value2",
+                "key3": {"key11": "value11", "key22": "value22"}
+            },
+            {
+                "key1": "value1",
+                "key2": "value2",
+                "key3": {"key11": "value11", "key22": "value22"}
+            }
+        ]
+    }
+
     out['outcsv'] = '"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"}'
     AutoExecUtils.saveOutput(out)

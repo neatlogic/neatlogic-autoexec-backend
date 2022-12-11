@@ -144,9 +144,15 @@
             "type": "file"
         },
         {
-            "opt": "outjson",
-            "name": "json输出",
-            "help": "json输出测试",
+            "opt": "outjsonlist",
+            "name": "json列表输出",
+            "help": "json列表输出测试",
+            "type": "json"
+        },
+        {
+            "opt": "outjsonobj",
+            "name": "json对象输出",
+            "help": "json对象输出测试",
             "type": "json"
         },
         {

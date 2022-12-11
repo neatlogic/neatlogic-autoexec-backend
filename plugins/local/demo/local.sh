@@ -109,7 +109,33 @@ if [ ! -z "$OUTPUT_PATH" ]; then
     cat <<EOF >"$OUTPUT_PATH"
 {
     "outtext":"$outtext",
-    'outfile":"$outfile"
+    "outfile":"$outfile",
+    "outjsonlist":[
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": {"key11": "value11", "key22": "value22"}
+        },
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "key3": {"key11": "value11", "key22": "value22"}
+        }
+    ],
+    "outjsonobj":{
+        "mydata": [
+            {
+                "key1": "value1",
+                "key2": "value2",
+                "key3": {"key11": "value11", "key22": "value22"}
+            },
+            {
+                "key1": "value1",
+                "key2": "value2",
+                "key3": {"key11": "value11", "key22": "value22"}
+            }
+        ]
+    }
 }
 EOF
 fi
