@@ -12,10 +12,11 @@ import datetime
 
 import AutoExecUtils
 
+
 def extractByRegexp(txtData, regexpTxt):
     if not isinstance(txtData, str):
         txtData = str(txtData)
-    
+
     extractVal = None
     regexp = re.compile(regexpTxt, re.IGNORECASE | re.MULTILINE)
     matchObj = re.search(regexp, txtData)
@@ -23,8 +24,9 @@ def extractByRegexp(txtData, regexpTxt):
         extractVal = matchObj.group(0)
     else:
         print('ERROR: Data:{} not match regular expression:{}\n'.foramt(txtData, regexpTxt))
-    
+
     return extractVal
+
 
 def extractByJsonSelector(txtData, selectorTxt):
     extractVal = None
@@ -69,13 +71,14 @@ def extractByJsonSelector(txtData, selectorTxt):
 
     return extractVal
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('--outputkey', default='', help='Output key')
     parser.add_argument('--selectortype', default='JsonObject', help='Field selector type: RegExp|JsonObject')
     parser.add_argument('--selector', default='', help='Field selector')
-    
+
     exitCode = 0
 
     dbclient = None
@@ -87,7 +90,6 @@ if __name__ == "__main__":
         exitCode = 2
         print("ERROR: Can not connect to database, {}".format(err))
         sys.exit(exitCode)
-
 
     hasOptError = False
 
@@ -138,29 +140,26 @@ if __name__ == "__main__":
         }
 
         print("INFO: Try to query node output for operation id:%s output:%s." % (opId, varKey))
-        nodeOut = outCollection.findOne(
-                queryCond,
-                {
-                    'data.%s' % opId: 1
-                })
+        nodeOut = outCollection.find_one(queryCond, {'data.%s' % opId: 1})
 
         if nodeOut is None:
             exitCode = 4
             print("ERROR: Can not find node output for operation id:%s output:%s." % (opId, varKey))
         else:
             val = nodeOut['data'].get(opId).get(varKey)
-            
+
             if selectorType == 'RegExp':
                 extractVal = extractByRegexp(val, fieldSelector)
             else:
                 extractVal = extractByJsonSelector(val, fieldSelector)
-            
+
             if extractVal is None:
                 exitCode = 2
-
+            else:
+                print('Extrace value:{}'.format(extractVal))
     except Exception as err:
         exitCode = 1
-        print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
+        print('ERROR: Extract output value for {} failed, {}'.format(outputKey, err))
     finally:
         if dbclient is not None:
             dbclient.close()

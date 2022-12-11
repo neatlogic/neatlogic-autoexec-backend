@@ -697,11 +697,13 @@ class RunNode:
                             if envScope == 'global':
                                 self.context.setEnv(envName, envValue)
                                 self.context.exportEnv(envName)
+                                self.writeNodeLog('INFO: Set global envariable:{}={}\n'.format(envName, envValue))
                             else:
                                 op.hasNodeEnv = True
                                 self.nodeEnv[envName] = envValue
                                 persistenceEnv = self.output['nodeEnv']
                                 persistenceEnv[envName] = envValue
+                                self.writeNodeLog('INFO: Set node envariable:{}={}\n'.format(envName, envValue))
                         elif op.opSubName == 'failkeys':
                             self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
                             self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
@@ -713,11 +715,13 @@ class RunNode:
                                 if envScope == 'global':
                                     self.context.setEnv(envName, op.preOp.status)
                                     self.context.exportEnv(envName)
+                                    self.writeNodeLog('INFO: Set global envariable:{}={}\n'.format(envName, op.preOp.status))
                                 else:
                                     op.hasNodeEnv = True
                                     self.nodeEnv[envName] = op.preOp.status
                                     persistenceEnv = self.output['nodeEnv']
                                     persistenceEnv[envName] = op.preOp.status
+                                    self.writeNodeLog('INFO: Set node envariable:{}={}\n'.format(envName, op.preOp.status))
                         else:
                             # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
                             # native工具一般用于处理数据，不需要连接remote进行操作
