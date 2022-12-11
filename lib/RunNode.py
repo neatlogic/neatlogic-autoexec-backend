@@ -461,6 +461,9 @@ class RunNode:
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
+                    nodeEnv = output.get('nodeEnv')
+                    if nodeEnv is None:
+                        output['nodeEnv'] = {}
                     self.output = output
             except Exception as ex:
                 raise AutoExecError('Load output file:{}, failed {}'.format(self.outputPath, ex))
@@ -713,8 +716,8 @@ class RunNode:
                                     persistenceEnv = self.output['nodeEnv']
                                     persistenceEnv[envName] = op.preOp.status
                         else:
-                            #其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
-                            #native工具一般用于处理数据，不需要连接remote进行操作
+                            # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
+                            # native工具一般用于处理数据，不需要连接remote进行操作
                             if self.host == 'local':
                                 ret = self._localExecute(op)
                             elif op.opType == 'localremote':
