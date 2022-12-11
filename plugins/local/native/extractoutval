@@ -45,9 +45,10 @@ def extractByJsonSelector(txtData, selectorTxt):
     if selectorTxt.startswith('data['):
         selectorTxt = selectorTxt[5:-1]
         selectorTxt = selectorTxt.replace(r'\]\s+\[', '][')
+        print('Extract', end='')
         for fieldIdx in re.split(r'[\[\]]+', selectorTxt):
             if curObj is not None:
-                print('->%s' % fieldIdx)
+                print('->%s' % fieldIdx, end='')
                 identity = fieldIdx
                 if fieldIdx.startswith('"') or fieldIdx.startswith("'"):
                     identity = fieldIdx[1:-1]
@@ -58,16 +59,18 @@ def extractByJsonSelector(txtData, selectorTxt):
                         nextObj = curObj[identity]
                 else:
                     nextObj = curObj.get(identity)
+
                 if nextObj is None:
-                    print("ERROR: There is no data key:%s" % fieldIdx)
+                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end='')
                 curObj = nextObj
         extractVal = curObj
+
+        if extractVal is not None:
+            if not isinstance(extractVal, str):
+                extractVal = json.dumps(extractVal)
+            print(' = %s\n' % (extractVal), end='')
     else:
         print('ERROR: Json object selector syntax error: must start with key word data.')
-
-    if extractVal is not None:
-        if not isinstance(extractVal, str):
-            extractVal = json.dumps(extractVal)
 
     return extractVal
 
