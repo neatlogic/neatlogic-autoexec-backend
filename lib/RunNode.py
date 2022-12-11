@@ -798,13 +798,13 @@ class RunNode:
             interpreter = ConditionDSL.Interpreter()
             result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
-            raise AutoExecError("Parse error, syntax error at char 0\n")
+            raise AutoExecError('Condition yntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
 
         activeOps = None
         if result:
-            activeOps = opParams['if']
+            activeOps = opParams.get('if', [])
         else:
-            activeOps = opParams['else']
+            activeOps = opParams.get('else', [])
 
         phaseStatus = self.context.phases[self.phaseName]
         opArgsRefMap = ifOp.opsParam
@@ -928,7 +928,9 @@ class RunNode:
                 finalStatus = NodeStatus.failed
 
             try:
-                self.writeNodeLog("ERROR: Unknow error occurred.\n")
+                nodeConsumeTime = time.time() - nodeStartTime
+                self.updateNodeStatus(finalStatus, consumeTime=nodeConsumeTime)
+                self.writeNodeLog("ERROR: Some error occurred.\n")
                 self.writeNodeLog(str(ex))
                 self.writeNodeLog(traceback.format_exc())
                 self.writeNodeLog("\n")
