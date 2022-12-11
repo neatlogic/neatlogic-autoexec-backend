@@ -218,7 +218,7 @@ class RunNode:
             self.logger.log(logging.FATAL, "ERROR: Create log dir {} failed, {}\n".format(self.hisLogDir, ex))
             self.updateNodeStatus(NodeStatus.failed)
 
-        self.localOutput = {}
+        self.localOutput = {'nodeEnv': {}}
         self.output = {'nodeEnv': {}}
         self.input = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
