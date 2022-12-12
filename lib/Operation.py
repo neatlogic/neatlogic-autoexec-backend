@@ -358,9 +358,8 @@ class Operation:
             scriptSavePath = self.scriptFetched.get(opId)
             if scriptSavePath is None:
                 serverAdapter = self.context.serverAdapter
-                scriptCataLog = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId)
-                if scriptCataLog is not None and scriptCataLog != '/':
-                    self.pluginPath = '%s/%s/%s' % (self.pluginParentPath, scriptCataLog, scriptFileName)
+                scriptSavePath = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId)
+                self.pluginPath = scriptSavePath
             else:
                 self.pluginPath = scriptSavePath
 

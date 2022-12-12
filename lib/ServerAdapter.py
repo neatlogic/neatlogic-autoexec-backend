@@ -527,7 +527,7 @@ class ServerAdapter:
         response = None
         try:
             if self.scriptFetched.get(opId) is not None:
-                return
+                return self.scriptFetched.get(opId)
 
             if os.path.exists(cachedFilePath):
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -536,7 +536,7 @@ class ServerAdapter:
             fcntl.flock(cachedFile, fcntl.LOCK_EX)
 
             if self.scriptFetched.get(opId) is not None:
-                return
+                return self.scriptFetched.get(opId)
 
             if lastModifiedTime != 0:
                 lastModifiedTime = os.path.getmtime(cachedFilePath)
@@ -589,7 +589,7 @@ class ServerAdapter:
 
             self.scriptFetched[opId] = scriptSavePath
 
-            return scriptCatalog
+            return scriptSavePath
 
         except:
             raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
