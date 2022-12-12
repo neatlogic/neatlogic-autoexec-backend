@@ -529,27 +529,29 @@ class ServerAdapter:
             if self.scriptFetched.get(opId) is not None:
                 return
 
-            lockFile = open(lockFilePath, 'w+')
-            fcntl.flock(lockFile, fcntl.LOCK_EX)
+            cachedFile = open(cachedFilePath, 'a+')
+            fcntl.flock(cachedFile, fcntl.LOCK_EX)
 
             if self.scriptFetched.get(opId) is not None:
                 return
 
-            if os.path.exists(cachedFilePath):
-                lastModifiedTime = os.path.getmtime(cachedFilePath)
+            lastModifiedTime = os.path.getmtime(cachedFilePath)
             params['lastModified'] = lastModifiedTime
 
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
             if response.status == 200:
-                cachedFile = open(cachedFilePath, 'w')
-                fcntl.flock(cachedFile, fcntl.LOCK_EX)
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
+
+                cachedFile.truncate(0)
                 cachedFile.write(scriptContent)
                 os.chmod(cachedFilePath, stat.S_IRWXU)
+
+                lockFile = open(lockFilePath, 'w+')
+                fcntl.flock(lockFile, fcntl.LOCK_EX)
 
                 scriptCatalog = retObj['Return'].get('scriptCatalog')
                 if scriptCatalog:
@@ -570,6 +572,10 @@ class ServerAdapter:
                     scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
 
                 scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
+
+                lockFile = open(lockFilePath, 'w+')
+                fcntl.flock(lockFile, fcntl.LOCK_EX)
+
                 if not os.path.exists(scriptSavePath):
                     os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
                     try:
@@ -584,12 +590,12 @@ class ServerAdapter:
         except:
             raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
         finally:
-            if cachedFile is not None:
-                fcntl.flock(cachedFile, fcntl.LOCK_UN)
-                cachedFile.close()
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
+            if cachedFile is not None:
+                fcntl.flock(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
 
     def getScript(self, scriptId):
         params = {
