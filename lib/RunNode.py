@@ -798,7 +798,7 @@ class RunNode:
             interpreter = ConditionDSL.Interpreter()
             result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
-            raise AutoExecError('Condition yntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
+            raise AutoExecError('Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
 
         activeOps = None
         if result:
