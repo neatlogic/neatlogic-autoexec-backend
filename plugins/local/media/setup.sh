@@ -19,6 +19,8 @@ echo "MEDIA HOME:$PERL_MEDIA_HOME"
 echo "AUTOEXEC HOME:$AUTOEXEC_HOME"
 
 export PERL5LIB=.:$PL_LIB_PATH/lib/perl5:$PERL5LIB
+export PERL_MM_USE_DEFAULT=1                    #安装交互中使用default值自动应答
+export PERL_EXTUTILS_AUTOINSTALL=--default-deps #安装交互中依赖自动安装默认依赖
 
 install_base=$PL_LIB_PATH
 
@@ -120,4 +122,3 @@ for PKG in ${INS_FAIL_PKGS[@]}; do
 done
 
 cd $PRE_CWD
-
