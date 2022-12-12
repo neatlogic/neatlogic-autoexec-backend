@@ -545,9 +545,10 @@ class ServerAdapter:
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
-
-                cachedFile.truncate(0)
+                cachedFile.seek(0)
+                cachedFile.truncate()
                 cachedFile.write(scriptContent)
+                cachedFile.flush()
                 os.chmod(cachedFilePath, stat.S_IRWXU)
 
                 lockFile = open(lockFilePath, 'w+')
