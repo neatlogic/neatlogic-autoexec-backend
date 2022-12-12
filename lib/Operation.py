@@ -316,9 +316,15 @@ class Operation:
                     if os.path.exists(linkPath):
                         if os.readlink(linkPath) != cacheFilePath:
                             os.unlink(linkPath)
-                            os.symlink(cacheFilePath, linkPath)
+                            try:
+                                os.symlink(cacheFilePath, linkPath)
+                            except FileExistsError:
+                                pass
                     else:
-                        os.symlink(cacheFilePath, linkPath)
+                        try:
+                            os.symlink(cacheFilePath, linkPath)
+                        except FileExistsError:
+                            pass
                 finally:
                     if lockFile is not None:
                         fcntl.flock(lockFile, fcntl.LOCK_UN)

@@ -559,7 +559,10 @@ class ServerAdapter:
                 scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
                 if os.path.exists(scriptSavePath):
                     os.unlink(scriptSavePath)
-                os.symlink(cachedFilePath, scriptSavePath)
+                try:
+                    os.symlink(cachedFilePath, scriptSavePath)
+                except FileExistsError:
+                    pass
             elif response.status == 205:
                 resHeaders = response.info()
                 scriptCatalog = resHeaders['ScriptCatalog']
@@ -569,7 +572,10 @@ class ServerAdapter:
                 scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
                 if not os.path.exists(scriptSavePath):
                     os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
-                    os.symlink(cachedFilePath, scriptSavePath)
+                    try:
+                        os.symlink(cachedFilePath, scriptSavePath)
+                    except FileExistsError:
+                        pass
 
             self.scriptFetched[opId] = scriptSavePath
 
