@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>
@@ -34,7 +34,7 @@ class VsphereQuery:
 
     def get_datastore(self, cluster):
         data_list = []
-        if not hasattr( cluster , 'datastore'):
+        if not hasattr(cluster, 'datastore'):
             return data_list
         datastore = cluster.datastore
         if datastore != None:
@@ -62,7 +62,7 @@ class VsphereQuery:
 
     def get_network(self, cluster):
         data_list = []
-        if not hasattr( cluster , 'network'):
+        if not hasattr(cluster, 'network'):
             return data_list
         network = cluster.network
         if network != None:
@@ -145,7 +145,7 @@ class VsphereQuery:
 
     def get_hostlist(self, cluster):
         data_list = []
-        if not hasattr( cluster , 'host'):
+        if not hasattr(cluster, 'host'):
             return data_list
 
         host_list = cluster.host
@@ -159,23 +159,23 @@ class VsphereQuery:
         else:
             return str
 
-    def validIPAddress(self , ipAddress):
+    def validIPAddress(self, ipAddress):
         try:
             return "IPv4" if type(ip_address(ipAddress)) is IPv4Address else "IPv6"
         except ValueError:
             return "Invalid"
-    
-    #查vm网卡获取所有IP
-    def get_nic_ipv4(self , vm):
+
+    # 查vm网卡获取所有IP
+    def get_nic_ipv4(self, vm):
         net = vm.guest.net
         if net is None or len(net) == 0:
-            return None 
+            return None
         ipAddress_arry = net[0].ipAddress
-        ipv4 = None 
+        ipv4 = None
         for ip in ipAddress_arry:
-            if( self.validIPAddress(ip) == 'IPv4' ):
-                ipv4 = ip 
-                break 
+            if(self.validIPAddress(ip) == 'IPv4'):
+                ipv4 = ip
+                break
         return ipv4
 
     def get_vm(self, host, vm, cluster):
@@ -192,12 +192,12 @@ class VsphereQuery:
         else:
             os_type = 'Linux'
 
-        #先看vmtools拿到的ip是不是ipv6
+        # 先看vmtools拿到的ip是不是ipv6
         os_ip = self.str_format(guest.ipAddress)
         if self.validIPAddress(os_ip) != "IPv4":
             os_ip = self.get_nic_ipv4(vm)
-            if os_ip is None :
-                return None 
+            if os_ip is None:
+                return None
         powerState = vm.summary.runtime.powerState
         hardware = vm.config.hardware
         memory = hardware.memoryMB
@@ -227,17 +227,17 @@ class VsphereQuery:
         ins['IS_VIRTUAL'] = 1
         serialNumber = host.hardware.systemInfo.serialNumber
         host_uuid = host.hardware.systemInfo.uuid
-        if serialNumber is None :
+        if serialNumber is None:
             serialNumber = ''
         ins['MACHINE_UUID'] = host_uuid
         ins['MACHINE_SN'] = serialNumber
-        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber,'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','ESXI_IP':host.name,'UUID':host_uuid}]
-        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId,'_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER','MGMT_IP':self.ip}]
+        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'BOARD_SERIAL': serialNumber, '_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'ESXI_IP': host.name, 'UUID': host_uuid}]
+        ins['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED', '_OBJ_TYPE': 'VCENTER', 'MOID': cluster._moId, '_OBJ_CATEGORY': 'VMWARE-CLUSTER', '_OBJ_TYPE': 'VMWARE-CLUSTER', 'MGMT_IP': self.ip}]
         return ins
 
     def get_vmlist(self, cluster):
         data_list = []
-        if(hasattr(cluster ,'host')):
+        if(hasattr(cluster, 'host')):
             host_list = cluster.host
             if host_list != None:
                 for host in host_list:
@@ -245,7 +245,7 @@ class VsphereQuery:
                     if vm_list != None:
                         for vm in vm_list:
                             vmIns = self.get_vm(host, vm, cluster)
-                            if vmIns is not None :
+                            if vmIns is not None:
                                 data_list.append(vmIns)
         return data_list
 
@@ -253,7 +253,7 @@ class VsphereQuery:
         Disconnect(self.service_instance)
 
     def get_alarms(self):
-        alarms =[]
+        alarms = []
         for trigger in self.vcontent.rootFolder.triggeredAlarmState:
             alarm = {}
             alarm['KEY'] = trigger.key
@@ -305,8 +305,8 @@ class VsphereQuery:
             datacenter_list.append(datacenter_ins)
 
         vsphere['DATACENTER'] = datacenter_list
-        #告警
-        vsphere['ALARMS']=self.get_alarms()
-        #关闭会话
+        # 告警
+        vsphere['ALARMS'] = self.get_alarms()
+        # 关闭会话
         self.disconnect()
         return vsphere

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
  Copyright © 2017 TechSure<http://www.techsure.com.cn/>

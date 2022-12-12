@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding:UTF-8 -*-
 
 import AutoExecUtils
@@ -20,7 +20,7 @@ def createPKIndex(collection, pkDef):
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name='idx_pk', unique=True)
-    collection.create_index([('_updatetime', 1)],name='idx_ttl', expireAfterSeconds=15811200)
+    collection.create_index([('_updatetime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
 
 
 if __name__ == "__main__":
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             try:
                 if(collection == '_job_output_desc'):
                     existsCollection = True
-                    break 
+                    break
             except:
                 pass
 
@@ -97,13 +97,13 @@ if __name__ == "__main__":
             data['field'] = paramMap[key]
             data['jobId'] = jobId
             data['_updatetime'] = currentTime
-            
+
             primaryKey = {'jobId': jobId, 'phase': data['phase'], 'pluginId': data['pluginId']}
             collection.replace_one(primaryKey, data, upsert=True)
 
             if(existsCollection == False):
                 pkDef = ['jobId', 'phase', 'pluginId']
-                createPKIndex(collection , pkDef )
+                createPKIndex(collection, pkDef)
 
             print('INFO: Update {}/{}/{} report output desc success.'.format(data['phase'], data['pluginId'], paramMap[key]))
 

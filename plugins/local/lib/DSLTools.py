@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import warnings
 import json
 import pyparsing as pp

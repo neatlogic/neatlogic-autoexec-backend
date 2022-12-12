@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding:UTF-8 -*-
 
 import re
@@ -16,6 +16,7 @@ import LocalRemoteExec
 def saveInspectData(inspectData):
     out = {'DATA': inspectData}
     AutoExecUtils.saveOutput(out)
+
 
 def usage():
     pname = os.path.basename(__file__)
