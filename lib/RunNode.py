@@ -803,7 +803,7 @@ class RunNode:
         else:
             raise AutoExecError('Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
 
-        self.writeNodeLog("INFO: IF condition [{}] = {}\n\n".format(condition, result))
+        self.writeNodeLog("INFO: IF condition [ {} ] = {}\n\n".format(condition, result))
 
         activeOps = None
         if result:
