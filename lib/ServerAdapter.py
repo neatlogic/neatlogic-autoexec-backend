@@ -519,7 +519,7 @@ class ServerAdapter:
         cachedFilePath = '%s/%s' % (pluginParentPath, opId)
         lastModifiedTime = 0
 
-        lockFilePath = cachedFilePath + '.lock'
+        lockFilePath = cachedFilePath[0:cachedFilePath.rindex('_')] + '.lock'
         lockFile = None
 
         #cachedFileTmp = None
