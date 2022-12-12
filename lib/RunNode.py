@@ -729,6 +729,9 @@ class RunNode:
                                 ret = self._localExecute(op)
                             else:
                                 ret = self._localRemoteExecute(op)
+
+                            if op.hasOutput or op.hasNodeEnv:
+                                self._loadOpOutput(op)
                     except Exception as ex:
                         ret = 1
                         self.writeNodeLog('ERROR: Execute native plugin native/{} failed, {}\n'.format(op.opSubName, str(ex)))

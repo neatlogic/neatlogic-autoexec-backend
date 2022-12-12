@@ -1,6 +1,6 @@
 {
     "opDesc": "抽取上游输出数据的部分数据",
-    "opType": "localremote",
+    "opType": "native",
     "typeName": "NATIVE",
     "riskName": "LOW",
     "interpreter": "python",
