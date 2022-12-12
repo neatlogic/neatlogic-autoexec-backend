@@ -529,13 +529,18 @@ class ServerAdapter:
             if self.scriptFetched.get(opId) is not None:
                 return
 
+            if os.path.exists(cachedFilePath):
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
+
             cachedFile = open(cachedFilePath, 'a+')
             fcntl.flock(cachedFile, fcntl.LOCK_EX)
 
             if self.scriptFetched.get(opId) is not None:
                 return
 
-            lastModifiedTime = os.path.getmtime(cachedFilePath)
+            if lastModifiedTime != 0:
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
+
             params['lastModified'] = lastModifiedTime
 
             response = self.httpGET(self.apiMap['fetchScript'],  params)
@@ -545,10 +550,8 @@ class ServerAdapter:
                 content = response.read().decode(charset, errors='ignore')
                 retObj = json.loads(content)
                 scriptContent = retObj['Return']['script']
-                cachedFile.seek(0)
-                cachedFile.truncate()
+                cachedFile.truncate(0)
                 cachedFile.write(scriptContent)
-                cachedFile.flush()
                 os.chmod(cachedFilePath, stat.S_IRWXU)
 
                 lockFile = open(lockFilePath, 'w+')

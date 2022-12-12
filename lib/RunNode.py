@@ -510,16 +510,18 @@ class RunNode:
                     phaseStatus = self.context.phases[self.phaseName]
                     phaseStatus.localOutput = self.output
 
-                outputFile = open(self.outputPath, 'w')
+                outputFile = open(self.outputPath, 'a+')
                 fcntl.flock(outputFile, fcntl.LOCK_EX)
+                outputFile.truncate(0)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
                 self.outputStore.saveOutput(self.output)
 
                 if self.resourceId != 0 and self.totalNodesCount == 1:
                     phaseStatus = self.context.phases[self.phaseName]
                     localOutputPath = '{}/output/local-0-0.json'.format(self.runPath)
-                    localOutFile = open(localOutputPath, 'w')
-                    fcntl.flock(outputFile, fcntl.LOCK_EX)
+                    localOutFile = open(localOutputPath, 'a+')
+                    fcntl.flock(localOutFile, fcntl.LOCK_EX)
+                    localOutFile.truncate(0)
                     localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
                     self.outputStore.saveOutputToLocal(phaseStatus.localOutput)
             except Exception as ex:
@@ -540,6 +542,7 @@ class RunNode:
             try:
                 opOutput = {}
                 opOutputFile = open(opOutPutPath, 'r')
+                fcntl.flock(opOutputFile, fcntl.LOCK_SH)
                 content = opOutputFile.read()
                 if content:
                     opOutput = json.loads(content)
@@ -560,6 +563,7 @@ class RunNode:
                 raise AutoExecError('Load operation {} output file:{}, failed {}'.format(op.opId, opOutPutPath, ex))
             finally:
                 if opOutputFile:
+                    fcntl.flock(opOutputFile, fcntl.LOCK_UN)
                     opOutputFile.close()
 
     def _saveOpOutput(self, op):
@@ -569,8 +573,9 @@ class RunNode:
             opOutputFile = None
             opOutPutPath = self._getOpOutputPath(op)
             try:
-                opOutputFile = open(opOutPutPath, 'w')
+                opOutputFile = open(opOutPutPath, 'a+')
                 fcntl.flock(opOutputFile, fcntl.LOCK_EX)
+                opOutputFile.truncate(0)
                 opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
                 if self.resourceId != 0 and self.totalNodesCount == 1:
                     phaseStatus = self.context.phases[self.phaseName]
@@ -610,8 +615,9 @@ class RunNode:
 
         inputFile = None
         try:
-            inputFile = open(self.inputPath, 'w')
+            inputFile = open(self.inputPath, 'a+')
             fcntl.flock(inputFile, fcntl.LOCK_EX)
+            inputFile.truncate(0)
             self.input[op.opId] = {'options': saveOpts, 'arguments': saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
         except Exception as ex:
