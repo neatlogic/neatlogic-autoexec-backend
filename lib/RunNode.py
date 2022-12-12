@@ -727,7 +727,7 @@ class RunNode:
                             # native工具一般用于处理数据，不需要连接remote进行操作
                             if self.host == 'local':
                                 ret = self._localExecute(op)
-                            elif op.opType == 'localremote':
+                            else:
                                 ret = self._localRemoteExecute(op)
                     except Exception as ex:
                         ret = 1
@@ -799,6 +799,8 @@ class RunNode:
             result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
             raise AutoExecError('Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
+
+        self.writeNodeLog("INFO: IF condition [{}] = {}\n\n".format(condition, result))
 
         activeOps = None
         if result:
