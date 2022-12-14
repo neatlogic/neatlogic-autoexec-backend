@@ -142,6 +142,46 @@ def getMetricsDef(db, objCat, objType):
 
     return inspectDef
 
+#获取对应CMDB对象全量数据
+def getObjCatFullData(datalist):
+    new_datalist = []
+    for data in datalist :
+        objCat = data.get('_OBJ_CATEGORY')
+        objType = data.get('_OBJ_TYPE')
+        pkDef = data.get('PK')
+        pkDef = getObjCatPkDef(objCat, pkDef)
+        table = "COLLECT_" + objCat
+
+        typeName = objCat
+        if objType is not None:
+            typeName = objType
+
+        pkInvalid = False
+        # 根据PK的定义生成Primary Key filter
+        primaryKey = {}
+        for pKey in pkDef:
+            if pKey in data:
+                pVal = data[pKey]
+                primaryKey[pKey] = data[pKey]
+                if pVal is None or pVal == '':
+                    print("WARN: {} PK attribute:{} is empty.".format(typeName, pKey))
+            else:
+                primaryKey[pKey] = None
+                pkInvalid = True
+                print("WARN: {} not contain PK attribute:{}.".format(typeName, pKey))
+
+        if pkInvalid:
+            new_datalist.append(data)
+        
+        collection = db[table]
+        fullData = collection.find_one(primaryKey, {'_id': False})
+        if fullData is None:
+            fullData = data
+        else:
+            for key in data.keys():
+                fullData[key] = data[key]
+        new_datalist.append(fullData)
+    return new_datalist
 
 def getInspectData(nodeInfo):
     ip = nodeInfo.get('host')
@@ -158,12 +198,27 @@ def getInspectData(nodeInfo):
     else:
         collectData = []
         for key, value in outputData.items():
-            if key.startswith("inspect/") or key.startswith("svcinspect/"):
+            if key.startswith("inspect/"):
                 # 这一步是抽取可用性检测插件（pingcheck,urlcheck,sshcheck,agentcheck,tcpcheck）的返回结果
                 aInspectData = value.get('DATA')
                 if aInspectData is not None:
                     inspectData.update(aInspectData)
                 continue
+            elif key.startswith("svcinspect/") :
+                aInspectData = value.get('DATA') 
+                #svcinspect服务检测插件，包含CMDB采集数据（数据）和可用性检测结果（Map对象），针对svcinspect特殊处理
+                if isinstance (  value.get('DATA'), list ):
+                    aInspectData = aInspectData[0]
+
+                if aInspectData is not None:
+                    inspectData.update(aInspectData)
+                
+                if not isinstance ( value.get('DATA'), list ) :
+                    continue
+                
+                #svcinspect插件是对CMDB采集插件数据的补充，下面告警阀值是对match全量采集数据的，这里对增量的采集数据进行数据补全
+                value['DATA'] = getObjCatFullData(value.get('DATA'))
+            
             elif not key.startswith("cmdbcollect/"):
                 continue
 
