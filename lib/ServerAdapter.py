@@ -798,6 +798,34 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
 
+    def updateMonitorStatus(self, ciType, resourceId, status, alertCount):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'ciType': ciType,
+            'ciEntityId': resourceId,
+            'monitorStatus': status,
+            'alertCount': alertCount,
+            'inspectTime': int(time.time() * 1000)
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['updateMonitorStatus'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return True
+                else:
+                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+            else:
+                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
+
     def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:
             return {}
