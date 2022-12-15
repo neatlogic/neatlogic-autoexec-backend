@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     nodeInfo = json.loads(node)
 
-    password = nodeInfo['password']
+    password = nodeInfo.get('password', '')
     if password.startswith('{ENCRYPTED}'):
         vContext = VContext.VContext(0)
         password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
@@ -77,10 +77,13 @@ if __name__ == "__main__":
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         sys.tracebacklimit = -1
         try:
-            ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10)
+            ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10, look_for_keys=False)
         except Exception as ex:
-            print("ERROR: {}".format(str(ex)))
-            exitCode = 1
+            try:
+                ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10)
+            except Exception as ex:
+                print("ERROR: {}".format(str(ex)))
+                exitCode = 1
         finally:
             if ssh is not None:
                 ssh.close()
