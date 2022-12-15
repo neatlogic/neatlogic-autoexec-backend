@@ -6,6 +6,29 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "分析CMDB采集输出数据，形成巡检报告",
-    "option": [],
+    "option": [{
+        "opt": "statustarget",
+        "name": "保存目标",
+        "help": "检查状态保存目标",
+        "type": "select",
+        "required": "true",
+        "validate": "",
+        "dataSource": {
+            "dataList": [{
+                    "text": "inspect",
+                    "value": "inspect"
+                },
+                {
+                    "text": "monitor",
+                    "value": "monitor"
+                },
+                {
+                    "text": "all",
+                    "value": "all"
+                }
+            ]
+        },
+        "defaultValue": "inspect"
+    }],
     "output": []
 }
