@@ -92,7 +92,6 @@ class Operation:
         if self.isScript is not None:
             self.interpreter = param.get('interpreter')
             self.scriptContent = param.get('scriptContent')
-            self.scriptId = param.get('scriptId')
             if self.scriptContent == '':
                 self.scriptContent = None
 
@@ -147,7 +146,7 @@ class Operation:
             if not os.path.exists(self.pluginParentPath):
                 os.mkdir(self.pluginParentPath)
             self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
-            self.fetchScript(self.pluginParentPath, scriptFileName)
+            self.fetchScript(self.pluginParentPath, scriptFileName, self.opId)
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opBunddleName)
@@ -337,9 +336,7 @@ class Operation:
         return fileNamesArray
 
     # 获取script
-    def fetchScript(self, pluginParentPath, scriptFileName):
-        opId = self.opId
-        scriptId = self.scriptId
+    def fetchScript(self, pluginParentPath, scriptFileName, opId):
         if self.scriptContent:
             savePath = '{}/{}'.format(pluginParentPath, scriptFileName)
             self.pluginPath = savePath
@@ -347,8 +344,6 @@ class Operation:
             lockFilePath = savePath + '.lock'
             lockFile = open(lockFilePath, 'w+')
             fcntl.flock(lockFile, fcntl.LOCK_EX)
-            if scriptFileName in self.scriptFetched:
-                return
             try:
                 fileTmp = open(filePathTmp, 'w')
                 fileTmp.write(self.scriptContent)
@@ -356,13 +351,17 @@ class Operation:
                 if os.path.exists(savePath):
                     os.unlink(savePath)
                 os.rename(filePathTmp, savePath)
-                self.scriptFetched[scriptFileName] = savePath
+                self.scriptFetched[opId] = savePath
             finally:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
         else:
-            serverAdapter = self.context.serverAdapter
-            scriptSavePath = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId, scriptId)
-            self.pluginPath = scriptSavePath
+            scriptSavePath = self.scriptFetched.get(opId)
+            if scriptSavePath is None:
+                serverAdapter = self.context.serverAdapter
+                scriptSavePath = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId)
+                self.pluginPath = scriptSavePath
+            else:
+                self.pluginPath = scriptSavePath
 
     def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':

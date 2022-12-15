@@ -42,7 +42,6 @@ class ServerAdapter:
             'getNodePwd': '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
-            'updateMonitorStatus': '/codedriver/api/rest/cmdb/cientity/updatemonitorstatus',
             'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
             'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
@@ -509,50 +508,38 @@ class ServerAdapter:
 
     # 从自定义脚本库下载脚本到脚本目录
 
-    def fetchScript(self, pluginParentPath, scriptFileName, opId, scriptId):
-        scriptFilePath = None
-
+    def fetchScript(self, pluginParentPath, scriptFileName, opId):
+        scriptCatalog = None
+        scriptSavePath = None
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
         }
 
-        lockFile = None
-        opFileLockFile = None
-        opFilePath = '%s/%s' % (pluginParentPath, opId)
-        opLockFilePath = '%s.lock' % (opFilePath)
+        cachedFilePath = '%s/%s' % (pluginParentPath, opId)
         lastModifiedTime = 0
 
+        lockFilePath = cachedFilePath[0:cachedFilePath.rindex('_')] + '.lock'
+        lockFile = None
+
+        #cachedFileTmp = None
+        cachedFile = None
         response = None
         try:
-            if os.path.exists(opFilePath):
-                scriptFilePath = os.readlink(opFilePath)
+            if self.scriptFetched.get(opId) is not None:
+                return self.scriptFetched.get(opId)
 
-            newScriptFilePath = self.scriptFetched.get(scriptId)
-            if newScriptFilePath is not None:
-                if scriptFilePath == newScriptFilePath:
-                    return scriptFilePath
+            if os.path.exists(cachedFilePath):
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
 
-            opFileLockFile = open(opLockFilePath, 'w+')
-            fcntl.flock(opFileLockFile, fcntl.LOCK_EX)
+            cachedFile = open(cachedFilePath, 'a+')
+            fcntl.flock(cachedFile, fcntl.LOCK_EX)
 
-            newScriptFilePath = self.scriptFetched.get(scriptId)
-            if newScriptFilePath is not None:
-                if scriptFilePath == newScriptFilePath:
-                    return scriptFilePath
-                else:
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(newScriptFilePath, opFilePath)
-                    return newScriptFilePath
+            if self.scriptFetched.get(opId) is not None:
+                return self.scriptFetched.get(opId)
 
-            usedScriptVerId = None
-            if os.path.exists(opFilePath):
-                lastModifiedTime = os.path.getmtime(opFilePath)
-                scriptFilePath = os.readlink(opFilePath)
-                scriptFilename = os.path.basename(scriptFilePath)
-                usedScriptVerId = scriptFilename[0:scriptFilename.index('.')]
-                params['scriptVersionId'] = int(usedScriptVerId)
+            if lastModifiedTime != 0:
+                lastModifiedTime = os.path.getmtime(cachedFilePath)
 
             params['lastModified'] = lastModifiedTime
 
@@ -561,40 +548,48 @@ class ServerAdapter:
             if response.status == 200:
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
-                retObj = json.loads(content).get('Return')
-                scriptContent = retObj['script']
-                scriptId = retObj['scriptId']
-                scriptVerId = retObj['scriptVersionId']
+                retObj = json.loads(content)
+                scriptContent = retObj['Return']['script']
+                cachedFile.truncate(0)
+                cachedFile.write(scriptContent)
+                os.chmod(cachedFilePath, stat.S_IRWXU)
 
-                if usedScriptVerId != str(scriptVerId):
-                    scriptFilePath = '%s/%s.%s' % (pluginParentPath, scriptVerId, scriptFileName)
+                lockFile = open(lockFilePath, 'w+')
+                fcntl.flock(lockFile, fcntl.LOCK_EX)
 
-                    if not os.path.exists(scriptFilePath):
-                        lockFilePath = '%s/%s.lock' % (pluginParentPath, scriptId)
-                        lockFile = open(lockFilePath, 'w+')
-                        fcntl.flock(lockFile, fcntl.LOCK_EX)
-                        if not os.path.exists(scriptFilePath):
-                            scriptFile = open(scriptFilePath, 'w')
-                            scriptFile.write(scriptContent)
-                            os.chmod(scriptFilePath, stat.S_IRWXU)
+                scriptCatalog = retObj['Return'].get('scriptCatalog')
+                if scriptCatalog:
+                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
+                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
 
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(scriptFilePath, opFilePath)
-
+                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                if os.path.exists(scriptSavePath):
+                    os.unlink(scriptSavePath)
+                try:
+                    os.symlink(cachedFilePath, scriptSavePath)
+                except FileExistsError:
+                    pass
             elif response.status == 205:
                 resHeaders = response.info()
-                scriptId = resHeaders['ScriptId']
-                scriptVerId = resHeaders['ScriptVersionId']
+                scriptCatalog = resHeaders['ScriptCatalog']
+                if scriptCatalog:
+                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
 
-                if usedScriptVerId != scriptVerId:
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(scriptFilePath, opFilePath)
+                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
 
-            self.scriptFetched[scriptId] = scriptFilePath
+                lockFile = open(lockFilePath, 'w+')
+                fcntl.flock(lockFile, fcntl.LOCK_EX)
 
-            return scriptFilePath
+                if not os.path.exists(scriptSavePath):
+                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
+                    try:
+                        os.symlink(cachedFilePath, scriptSavePath)
+                    except FileExistsError:
+                        pass
+
+            self.scriptFetched[opId] = scriptSavePath
+
+            return scriptSavePath
 
         except:
             raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
@@ -602,9 +597,9 @@ class ServerAdapter:
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
-            if opFileLockFile is not None:
-                fcntl.flock(opFileLockFile, fcntl.LOCK_UN)
-                opFileLockFile.close()
+            if cachedFile is not None:
+                fcntl.flock(cachedFile, fcntl.LOCK_UN)
+                cachedFile.close()
 
     def getScript(self, scriptId):
         params = {
@@ -797,39 +792,11 @@ class ServerAdapter:
                 if retObj.get('Status') == 'OK':
                     return True
                 else:
-                    raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
             else:
-                raise AutoExecError("Update inspect status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, ex))
-
-    def updateMonitorStatus(self, ciType, resourceId, status, alertCount):
-        if self.context.devMode:
-            return {}
-
-        params = {
-            'jobId': self.context.jobId,
-            'ciType': ciType,
-            'ciEntityId': resourceId,
-            'monitorStatus': status,
-            'alertCount': alertCount,
-            'monitorTime': int(time.time() * 1000)
-        }
-
-        try:
-            response = self.httpJSON(self.apiMap['updateMonitorStatus'],  params)
-            charset = response.info().get_content_charset()
-            content = response.read().decode(charset, errors='ignore')
-            retObj = json.loads(content)
-            if response.status == 200:
-                if retObj.get('Status') == 'OK':
-                    return True
-                else:
-                    raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
-            else:
-                raise AutoExecError("Update monitor status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
-        except Exception as ex:
-            raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, ex))
+            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:
