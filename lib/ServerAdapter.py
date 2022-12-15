@@ -42,6 +42,7 @@ class ServerAdapter:
             'getNodePwd': '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateMonitorStatus': '/codedriver/api/rest/cmdb/cientity/updatemonitorstatus',
             'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
             'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
@@ -792,11 +793,11 @@ class ServerAdapter:
                 if retObj.get('Status') == 'OK':
                     return True
                 else:
-                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+                    raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
             else:
-                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+                raise AutoExecError("Update inspect status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
+            raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def updateMonitorStatus(self, ciType, resourceId, status, alertCount):
         if self.context.devMode:
@@ -808,7 +809,7 @@ class ServerAdapter:
             'ciEntityId': resourceId,
             'monitorStatus': status,
             'alertCount': alertCount,
-            'inspectTime': int(time.time() * 1000)
+            'monitorTime': int(time.time() * 1000)
         }
 
         try:
@@ -820,11 +821,11 @@ class ServerAdapter:
                 if retObj.get('Status') == 'OK':
                     return True
                 else:
-                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+                    raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
             else:
-                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+                raise AutoExecError("Update monitor status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
+            raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:

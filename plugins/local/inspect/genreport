@@ -358,7 +358,7 @@ def inspectData(nodeInfo):
     return rptDataRecords
 
 
-def saveReport(db, ciType, resourceId, rptData):
+def saveReport(db, ciType, resourceId, rptData, statusTarget='inspect'):
     rptTable = 'INSPECT_REPORTS'
     rptCollection = db[rptTable]
 
@@ -372,8 +372,12 @@ def saveReport(db, ciType, resourceId, rptData):
     rptCollection.create_index([('_jobid', 1)], name='idx_jobid')
     print('INFO: Save report data success.')
     saveHisReport(db, ciType, resourceId, rptData)
-    AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
-    print('INFO: Update inspect status for node success.')
+    if statusTarget in ('inspect', 'all'):
+        AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
+        print('INFO: Update inspect status for node success.')
+    elif statusTarget in ('monitor', 'all'):
+        AutoExecUtils.updateMonitorStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
+        print('INFO: Update monitor status for node success.')
 
 
 def saveHisReport(db, ciType, resourceId, rptData):
@@ -391,9 +395,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--outputfile', default='', help='Output json file path for node')
     parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--statustarget', default='inspect', help='Inspect status save target, all|inspect|monitor')
     args = parser.parse_args()
     outputPath = args.outputfile
     node = args.node
+    statusTarget = args.statustarget
 
     dbclient = None
     try:
@@ -425,7 +431,7 @@ if __name__ == "__main__":
 
         rptDataRecords = inspectData(nodeInfo)
         for rptData in rptDataRecords:
-            saveReport(db, ciType, resourceId, rptData)
+            saveReport(db, ciType, resourceId, rptData, statusTarget)
 
     except Exception as ex:
         if 'password' in nodeInfo:
