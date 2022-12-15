@@ -509,38 +509,50 @@ class ServerAdapter:
 
     # 从自定义脚本库下载脚本到脚本目录
 
-    def fetchScript(self, pluginParentPath, scriptFileName, opId):
-        scriptCatalog = None
-        scriptSavePath = None
+    def fetchScript(self, pluginParentPath, scriptFileName, opId, scriptId):
+        scriptFilePath = None
+
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
         }
 
-        cachedFilePath = '%s/%s' % (pluginParentPath, opId)
+        lockFile = None
+        opFileLockFile = None
+        opFilePath = '%s/%s' % (pluginParentPath, opId)
+        opLockFilePath = '%s.lock' % (opFilePath)
         lastModifiedTime = 0
 
-        lockFilePath = cachedFilePath[0:cachedFilePath.rindex('_')] + '.lock'
-        lockFile = None
-
-        #cachedFileTmp = None
-        cachedFile = None
         response = None
         try:
-            if self.scriptFetched.get(opId) is not None:
-                return self.scriptFetched.get(opId)
+            if os.path.exists(opFilePath):
+                scriptFilePath = os.readlink(opFilePath)
 
-            if os.path.exists(cachedFilePath):
-                lastModifiedTime = os.path.getmtime(cachedFilePath)
+            newScriptFilePath = self.scriptFetched.get(scriptId)
+            if newScriptFilePath is not None:
+                if scriptFilePath == newScriptFilePath:
+                    return scriptFilePath
 
-            cachedFile = open(cachedFilePath, 'a+')
-            fcntl.flock(cachedFile, fcntl.LOCK_EX)
+            opFileLockFile = open(opLockFilePath, 'w+')
+            fcntl.flock(opFileLockFile, fcntl.LOCK_EX)
 
-            if self.scriptFetched.get(opId) is not None:
-                return self.scriptFetched.get(opId)
+            newScriptFilePath = self.scriptFetched.get(scriptId)
+            if newScriptFilePath is not None:
+                if scriptFilePath == newScriptFilePath:
+                    return scriptFilePath
+                else:
+                    if os.path.exists(opFilePath):
+                        os.unlink(opFilePath)
+                    os.symlink(newScriptFilePath, opFilePath)
+                    return newScriptFilePath
 
-            if lastModifiedTime != 0:
-                lastModifiedTime = os.path.getmtime(cachedFilePath)
+            usedScriptVerId = None
+            if os.path.exists(opFilePath):
+                lastModifiedTime = os.path.getmtime(opFilePath)
+                scriptFilePath = os.readlink(opFilePath)
+                scriptFilename = os.path.basename(scriptFilePath)
+                usedScriptVerId = scriptFilename[0:scriptFilename.index('.')]
+                params['scriptVersionId'] = int(usedScriptVerId)
 
             params['lastModified'] = lastModifiedTime
 
@@ -549,48 +561,40 @@ class ServerAdapter:
             if response.status == 200:
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
-                retObj = json.loads(content)
-                scriptContent = retObj['Return']['script']
-                cachedFile.truncate(0)
-                cachedFile.write(scriptContent)
-                os.chmod(cachedFilePath, stat.S_IRWXU)
+                retObj = json.loads(content).get('Return')
+                scriptContent = retObj['script']
+                scriptId = retObj['scriptId']
+                scriptVerId = retObj['scriptVersionId']
 
-                lockFile = open(lockFilePath, 'w+')
-                fcntl.flock(lockFile, fcntl.LOCK_EX)
+                if usedScriptVerId != str(scriptVerId):
+                    scriptFilePath = '%s/%s.%s' % (pluginParentPath, scriptVerId, scriptFileName)
 
-                scriptCatalog = retObj['Return'].get('scriptCatalog')
-                if scriptCatalog:
-                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
-                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
+                    if not os.path.exists(scriptFilePath):
+                        lockFilePath = '%s/%s.lock' % (pluginParentPath, scriptId)
+                        lockFile = open(lockFilePath, 'w+')
+                        fcntl.flock(lockFile, fcntl.LOCK_EX)
+                        if not os.path.exists(scriptFilePath):
+                            scriptFile = open(scriptFilePath, 'w')
+                            scriptFile.write(scriptContent)
+                            os.chmod(scriptFilePath, stat.S_IRWXU)
 
-                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
-                if os.path.exists(scriptSavePath):
-                    os.unlink(scriptSavePath)
-                try:
-                    os.symlink(cachedFilePath, scriptSavePath)
-                except FileExistsError:
-                    pass
+                    if os.path.exists(opFilePath):
+                        os.unlink(opFilePath)
+                    os.symlink(scriptFilePath, opFilePath)
+
             elif response.status == 205:
                 resHeaders = response.info()
-                scriptCatalog = resHeaders['ScriptCatalog']
-                if scriptCatalog:
-                    scriptFileName = '%s/%s' % (scriptCatalog, scriptFileName)
+                scriptId = resHeaders['ScriptId']
+                scriptVerId = resHeaders['ScriptVersionId']
 
-                scriptSavePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                if usedScriptVerId != scriptVerId:
+                    if os.path.exists(opFilePath):
+                        os.unlink(opFilePath)
+                    os.symlink(scriptFilePath, opFilePath)
 
-                lockFile = open(lockFilePath, 'w+')
-                fcntl.flock(lockFile, fcntl.LOCK_EX)
+            self.scriptFetched[scriptId] = scriptFilePath
 
-                if not os.path.exists(scriptSavePath):
-                    os.makedirs('%s/%s' % (pluginParentPath, scriptCatalog), exist_ok=True)
-                    try:
-                        os.symlink(cachedFilePath, scriptSavePath)
-                    except FileExistsError:
-                        pass
-
-            self.scriptFetched[opId] = scriptSavePath
-
-            return scriptSavePath
+            return scriptFilePath
 
         except:
             raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
@@ -598,9 +602,9 @@ class ServerAdapter:
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
-            if cachedFile is not None:
-                fcntl.flock(cachedFile, fcntl.LOCK_UN)
-                cachedFile.close()
+            if opFileLockFile is not None:
+                fcntl.flock(opFileLockFile, fcntl.LOCK_UN)
+                opFileLockFile.close()
 
     def getScript(self, scriptId):
         params = {
