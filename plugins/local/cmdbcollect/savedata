@@ -81,7 +81,7 @@ def createIndex(collection, data, objCat):
 
 # 目的通过PEER信息搜索到应用进程
 def saveAppConnData(db, existsCollections, data):
-    if data['_OBJ_CATEGORY'] in ('INS', 'DBINS'):
+    if data['_OBJ_CATEGORY'] in ('INS', 'DBINS') and 'OS_ID' in data :
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']
@@ -199,7 +199,8 @@ if __name__ == "__main__":
                 if key == 'DATA':
                     collectData = value
                 else:
-                    if not key.startswith("cmdbcollect/"):
+                    #svcinspect巡检插件，包含补充CMDB采集数据对象的数据
+                    if (not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/")):
                         continue
 
                     collectData = value['DATA']

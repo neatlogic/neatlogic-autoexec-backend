@@ -380,6 +380,12 @@ def updateInspectStatus(ciType, resourceId, status, alertCount):
     return serverAdapter.updateInspectStatus(ciType, resourceId, status, alertCount)
 
 
+def updateMonitorStatus(ciType, resourceId, status, alertCount):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.updateMonitorStatus(ciType, resourceId, status, alertCount)
+
+
 def setResourceInspectJobId(resourceId, jobId, phaseName):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)

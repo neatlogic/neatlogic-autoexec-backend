@@ -29,11 +29,11 @@ if __name__ == "__main__":
     if node is None or node == '':
         print("ERROR: Node not defined by option --node or enviroment variable AUTOEXEC_NODE")
         exitCode = 3
-        os.exit(exitCode)
+        sys.exit(exitCode)
 
     nodeInfo = json.loads(node)
 
-    password = nodeInfo['password']
+    password = nodeInfo.get('password', '')
     if password.startswith('{ENCRYPTED}'):
         vContext = VContext.VContext(0)
         password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
@@ -57,38 +57,43 @@ if __name__ == "__main__":
     password = None
 
     try:
-        nodeName = nodeInfo['nodeName']
-        nodeType = nodeInfo['nodeType']
-        host = nodeInfo['host']
-        port = str(nodeInfo['port'])
-        protocolPort = nodeInfo['protocolPort']
-        username = nodeInfo['username']
-        password = nodeInfo['password']
+        nodeName = nodeInfo.get('nodeName', 'null')
+        nodeType = nodeInfo.get('nodeType', 'null')
+        host = nodeInfo.get('host', 'null')
+        port = str(nodeInfo.get('port', '0'))
+        protocolPort = nodeInfo.get('protocolPort', '0')
+        username = nodeInfo.get('username', 'anonymouse')
+        password = nodeInfo.get('password', '')
     except Exception as ex:
         exitCode = 3
         print("ERROR: %s" % (str(ex)))
-        os.exit(exitCode)
+        sys.exit(exitCode)
 
     exitCode = 0
+    errMsg = ''
 
     if protocol == 'ssh':
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         sys.tracebacklimit = -1
         try:
-            ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10)
-            print("INFO: Connect to {}@{}:{} success.".format(username, host, protocolPort))
-        except BaseException as ex:
-            exitCode = 1
-            print("ERROR: Connect to {}@{}:{} failed, {}".format(username, host, protocolPort, ex))
+            ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10, look_for_keys=False)
+        except Exception as ex:
+            try:
+                ssh.connect(hostname=host, port=protocolPort, username=username, password=password, banner_timeout=10, timeout=10)
+            except Exception as ex:
+                print("ERROR: {}".format(str(ex)))
+                exitCode = 1
         finally:
             if ssh is not None:
                 ssh.close()
     elif protocol == 'tagent':
-        tagent = TagentClient.TagentClient(host, protocolPort, password=password, connectTimeout=60, readTimeout=360, writeTimeout=10)
-        exitCode = tagent.execCmd('root', 'echo test')
-        if exitCode != 0:
+        try:
+            tagent = TagentClient.TagentClient(host, protocolPort, password=password, connectTimeout=60, readTimeout=360, writeTimeout=10)
+            exitCode = tagent.execCmd('root', 'echo test')
+        except Exception as ex:
             exitCode = 1
+            print(ex)
     elif protocol == 'database':
         binPaths = os.path.split(os.path.realpath(__file__))
         homePath = os.path.realpath(binPaths[0]+'/..')
@@ -146,5 +151,13 @@ if __name__ == "__main__":
     else:
         print("ERROR: Connection test for rotocol %s not support." % (protocol))
         exitCode = 2
+
+    if exitCode > 255:
+        exitCode = exitCode >> 8
+
+    if exitCode == 0:
+        print("INFO: Connect to {}://{}@{}:{} success.".format(protocol, username, host, protocolPort))
+    else:
+        print("ERROR: Connect to {}://{}@{}:{} failed.".format(protocol, username, host, protocolPort))
 
     exit(exitCode)
