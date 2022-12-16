@@ -56,7 +56,7 @@ declare -i INSTALL_COUNT=0
 echo "Begin install perl pkgs......"
 pwd
 
-for dir in $(find . -maxdepth 1 -type d); do
+for dir in $(find . -maxdepth 1 -type d -and -name 'ExtUtils*') $(find . -maxdepth 1 -type d); do
         dir=${dir#*/}
         if [[ $dir == DBD-Oracle* ]]; then
                 #oracle DBD
