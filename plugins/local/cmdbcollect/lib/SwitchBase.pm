@@ -409,7 +409,7 @@ sub _getPorts {
         }
     }
 
-    my @ports = values(%$portsMap);
+    my @ports = sort { $a->{NO} <=> $b->{NO} } values(%$portsMap);
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
     $self->{portNoMap}     = $portNoMap;

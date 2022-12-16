@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import traceback
+import argparse
+
+import AutoExecUtils
+
+def usage():
+    pname = os.path.basename(__file__)
+    exit(1)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--notifyHandler', default='EmailNotifyHandler', help='notify handler')
+    parser.add_argument('--notifyTargets', default='', help='notify users/teams/roles, multiple value , split')
+    args = parser.parse_args()
+
+    notifyHandler = args.notifyHandler
+    notifyTargets = args.notifyTargets 
+
+    if notifyHandler is None or notifyHandler == '' : 
+        notifyHandler = 'EmailNotifyHandler'
+    
+    if notifyTargets is None or notifyTargets == '' : 
+        print("Must defined option . --notifyTargets")
+        usage()
+
+    notifyList = [] 
+    notifys = notifyTargets.split(',')
+    for obj in notifys :
+        notifyList.append(obj)
+
+    #int(jobId)
+    jobId = os.getenv('AUTOEXEC_JOBID')
+    if jobId is None:
+        print("ERROR: Can not find jobid in environment AUTOEXEC_JOBID.")
+        exit(1)
+    
+    try:
+        parmas = {"jobId":jobId , 'notifyHandler':notifyHandler , "receiverList" : notifyList }
+        AutoExecUtils.notifyInspectReport(parmas)
+        print("FINE: Notify inspect report job({}) success.".format(jobId))
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)

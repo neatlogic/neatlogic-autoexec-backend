@@ -426,3 +426,8 @@ def txtFileInspectSave(params):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.txtFileInspectSave(params)
+
+def notifyInspectReport(params):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.notifyInspectReport(params)

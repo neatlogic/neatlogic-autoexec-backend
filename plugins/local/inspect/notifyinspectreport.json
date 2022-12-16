@@ -1,0 +1,36 @@
+{
+    "opDesc": "巡检报告通知插件",
+    "opType": "runner",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "巡检报告通知插件",
+    "option": [{
+            "opt": "notifyHandler",
+            "name": "通知方式",
+            "help": "通知方式",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "邮件",
+                        "value": "EmailNotifyHandler"
+                    }
+                ]
+            },
+            "defaultValue": "EmailNotifyHandler"
+        },
+        {
+            "opt": "notifyTargets",
+            "name": "通知对象",
+            "help": "通知对象，支持通知人、组、角色",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}
