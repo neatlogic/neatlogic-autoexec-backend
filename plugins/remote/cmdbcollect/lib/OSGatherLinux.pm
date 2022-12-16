@@ -915,8 +915,12 @@ sub getNicInfo {
             if ( -e "/sys/class/net/$ethName" and not -e "/sys/class/net/$ethName/device" ) {
 
                 #不是物理网卡
-                next;
+                $nicInfo->{IS_VIRTUAL} = 1;
             }
+            else {
+                $nicInfo->{IS_VIRTUAL} = 0;
+            }
+
             my ( $ethtoolState, $ethtoolLines ) = $self->getCmdOutLines("ethtool $ethName");
             if ( $ethtoolState == 0 ) {
                 foreach my $ethLine (@$ethtoolLines) {
@@ -939,6 +943,12 @@ sub getNicInfo {
                 }
                 $i    = $i + 1;
                 $line = $$nicInfoLines[$i];
+            }
+
+            if ( $ethName =~ /^lo/i or $ipAddr =~ /^127/ or $ipAddr =~ '^::1' ) {
+
+                #忽略loopback网卡
+                next;
             }
 
             if ( defined($speed) and $speed ne '' ) {
@@ -1023,7 +1033,9 @@ sub getHBAInfo {
         if ( $speed eq 'unknown' ) {
             $state = 'down';
         }
-        $hbaInfo->{STATUS} = $state;
+        $hbaInfo->{STATUS}     = $state;
+        $hbaInfo->{IS_VIRTUAL} = $hostInfo->{IS_VIRTUAL};
+
         push( @hbaInfos, $hbaInfo );
     }
 
@@ -1031,9 +1043,11 @@ sub getHBAInfo {
 }
 
 sub collectHostInfo {
-    my ($self) = @_;
+    my ( $self, $osInfo ) = @_;
 
     my $hostInfo = {};
+    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS}      = $osInfo->{DISKS};
 
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getMainBoardInfo($hostInfo);
@@ -1048,7 +1062,7 @@ sub collectHostInfo {
 sub collect {
     my ($self)   = @_;
     my $osInfo   = $self->collectOsInfo();
-    my $hostInfo = $self->collectHostInfo();
+    my $hostInfo = $self->collectHostInfo($osInfo);
 
     if ( not defined( $osInfo->{MACHINE_ID} ) ) {
         $osInfo->{MACHINE_ID} = $hostInfo->{BOARD_SERIAL};
@@ -1063,8 +1077,6 @@ sub collect {
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
 
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
-    $hostInfo->{IS_VIRTUAL}   = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS}        = $osInfo->{DISKS};
 
     $self->collectOsPerfInfo($osInfo);
 

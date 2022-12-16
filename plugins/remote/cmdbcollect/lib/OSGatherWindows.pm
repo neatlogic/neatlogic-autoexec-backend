@@ -206,8 +206,8 @@ sub getSystemInfo {
 
     $osInfo->{MEM_TOTAL}     = $utils->getMemSizeFromStr( $sysInfo->{'Total Physical Memory'} );
     $osInfo->{MEM_AVAILABLE} = $utils->getMemSizeFromStr( $sysInfo->{'Available Physical Memory'} );
-    if( defined($osInfo->{MEM_TOTAL}) and $osInfo->{MEM_TOTAL} > 0 ){
-        $osInfo->{MEM_USAGE}     = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
+    if ( defined( $osInfo->{MEM_TOTAL} ) and $osInfo->{MEM_TOTAL} > 0 ) {
+        $osInfo->{MEM_USAGE} = int( ( $osInfo->{MEM_TOTAL} - $osInfo->{MEM_AVAILABLE} ) * 10000 / $osInfo->{MEM_TOTAL} + 0.5 ) / 100;
     }
 }
 
@@ -504,6 +504,8 @@ sub getBoardInfo {
 sub getNicInfo {
     my ( $self, $hostInfo ) = @_;
 
+    my $isVritual = $hostInfo->{IS_VIRTUAL};
+
     # Description                              MACAddress
     # Intel(R) PRO/1000 MT Network Connection  00:0C:29:28:7D:49
     my @nicInfos          = ();
@@ -522,9 +524,10 @@ sub getNicInfo {
             if ( not defined( $macsMap->{$nicName} ) ) {
                 $macsMap->{$nicName} = 1;
                 my $nicInfo = {};
-                $nicInfo->{NAME}   = $nicName;
-                $nicInfo->{MAC}    = $nicMac;
-                $nicInfo->{STATUS} = 'up';
+                $nicInfo->{NAME}       = $nicName;
+                $nicInfo->{MAC}        = $nicMac;
+                $nicInfo->{IS_VIRTUAL} = $isVritual;
+                $nicInfo->{STATUS}     = 'up';
                 push( @nicInfos, $nicInfo );
             }
         }
@@ -540,9 +543,26 @@ sub getNicInfo {
 }
 
 sub collectHostInfo {
-    my ($self) = @_;
+    my ( $self, $osInfo ) = @_;
 
     my $hostInfo = {};
+
+    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
+    $hostInfo->{DISKS}      = $osInfo->{DISKS};
+
+    $hostInfo->{CPU_COUNT}     = $osInfo->{CPU_COUNT};
+    $hostInfo->{CPU_CORES}     = $osInfo->{CPU_CORES};
+    $hostInfo->{CPU_MODEL}     = $osInfo->{CPU_MODEL};
+    $hostInfo->{CPU_FREQUENCY} = $osInfo->{CPU_FREQUENCY};
+
+    $hostInfo->{SYS_VENDOR}   = $osInfo->{SYS_VENDOR};
+    $hostInfo->{PRODUCT_NAME} = $osInfo->{PRODUCT_NAME};
+    $hostInfo->{BIOS_VERSION} = $osInfo->{BIOS_VERSION};
+    $hostInfo->{PRODUCT_UUID} = $osInfo->{PRODUCT_UUID};
+
+    $hostInfo->{MEM_TOTAL}     = $osInfo->{MEM_TOTAL};
+    $hostInfo->{MEM_AVAILABLE} = $osInfo->{MEM_AVAILABLE};
+
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getBoardInfo($hostInfo);
         $self->getNicInfo($hostInfo);
@@ -565,29 +585,9 @@ sub collect {
     $self->{codepage} = $self->getCodePage();
     $self->{verbose}  = 0;
     my $osInfo   = $self->collectOsInfo();
-    my $hostInfo = $self->collectHostInfo();
+    my $hostInfo = $self->collectHostInfo($osInfo);
 
-    # my $hostInfo;
-    # if ( $osInfo->{IS_VIRTUAL} == 0 ){
-    #     $hostInfo = $self->collectHostInfo();
-    # }
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
-
-    $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
-    $hostInfo->{DISKS}      = $osInfo->{DISKS};
-
-    $hostInfo->{CPU_COUNT}     = $osInfo->{CPU_COUNT};
-    $hostInfo->{CPU_CORES}     = $osInfo->{CPU_CORES};
-    $hostInfo->{CPU_MODEL}     = $osInfo->{CPU_MODEL};
-    $hostInfo->{CPU_FREQUENCY} = $osInfo->{CPU_FREQUENCY};
-
-    $hostInfo->{SYS_VENDOR}   = $osInfo->{SYS_VENDOR};
-    $hostInfo->{PRODUCT_NAME} = $osInfo->{PRODUCT_NAME};
-    $hostInfo->{BIOS_VERSION} = $osInfo->{BIOS_VERSION};
-    $hostInfo->{PRODUCT_UUID} = $osInfo->{PRODUCT_UUID};
-
-    $hostInfo->{MEM_TOTAL}     = $osInfo->{MEM_TOTAL};
-    $hostInfo->{MEM_AVAILABLE} = $osInfo->{MEM_AVAILABLE};
 
     $self->collectOsPerfInfo($osInfo);
 

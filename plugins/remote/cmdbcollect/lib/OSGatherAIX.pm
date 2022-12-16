@@ -807,7 +807,7 @@ sub getHostNicInfo {
 
         my $nicInfo = $nicInfosMap->{$ethName};
         if ( not defined($nicInfo) ) {
-            $nicInfo                 = {};
+            $nicInfo                 = { IS_VIRTUAL => 0 };
             $nicInfo->{NAME}         = $ethName;
             $nicInfosMap->{$ethName} = $nicInfo;
 
@@ -823,6 +823,7 @@ sub getHostNicInfo {
                 }
                 elsif ( $line =~ /Device Type: Virtual/i ) {
                     $hostInfo->{IS_VIRTUAL} = 1;
+                    $nicInfo->{IS_VIRTUAL}  = 1;
                 }
                 elsif ( $line =~ /Driver Flags: Up/i ) {
                     $nicInfo->{STATUS} = 'up';
@@ -906,7 +907,7 @@ sub getHostHBAInfo {
     }
 
     foreach my $fcName (@fcNames) {
-        my $hbaInfo = { NAME => $fcName };
+        my $hbaInfo = { NAME => $fcName, IS_VIRTUAL => $hostInfo->{IS_VIRTUAL} };
         my @ports   = ();
         my @state   = ();
 
