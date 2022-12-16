@@ -74,10 +74,10 @@ for dir in $(find . -maxdepth 1 -type d); do
                 fi
                 cd $PERL_MEDIA_HOME/perl-pkgs
                 INSTALL_COUNT=INSTALL_COUNT+1
-        elif [[ -e "$dir/Build.PL" ]]; then
+        elif [[ -e "$dir/Makefile.PL" ]]; then
                 echo -e "${BLUE}Try to install package:${dir}${NC}"
                 cd $dir
-                perl Build.PL --install_base $install_base && ./Build install
+                perl Makefile.PL INSTALL_BASE=$install_base && make && make install
                 if [[ $? -ne 0 ]]; then
                         echo -e "${RED}ERROR: Install package:$dir failed.${NC}"
                         INS_FAIL_PKGS+=($dir)
@@ -87,10 +87,10 @@ for dir in $(find . -maxdepth 1 -type d); do
                 fi
                 cd $PERL_MEDIA_HOME/perl-pkgs
                 INSTALL_COUNT=INSTALL_COUNT+1
-        elif [[ -e "$dir/Makefile.PL" ]]; then
+        elif [[ -e "$dir/Build.PL" ]]; then
                 echo -e "${BLUE}Try to install package:${dir}${NC}"
                 cd $dir
-                perl Makefile.PL INSTALL_BASE=$install_base && make && make install
+                perl Build.PL --install_base $install_base && ./Build install
                 if [[ $? -ne 0 ]]; then
                         echo -e "${RED}ERROR: Install package:$dir failed.${NC}"
                         INS_FAIL_PKGS+=($dir)
