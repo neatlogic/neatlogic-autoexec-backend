@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -81,8 +80,7 @@
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -111,8 +109,7 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "可见主机HBA启动器",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -140,8 +137,7 @@
             "name": "STORAGE_VOLUMES_UNHEALTH",
             "desc": "不健康的后端卷",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -167,8 +163,7 @@
             "name": "STORAGE_VOLUME_SUMMARY",
             "desc": "后端实体存储卷总概",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "CLUSTER_NAME",
                     "desc": "集群名称",
                     "type": "String"
@@ -187,8 +182,7 @@
                     "name": "VENDOR",
                     "desc": "后端品牌分布",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "厂商",
                             "type": "String"
@@ -219,6 +213,135 @@
                     "name": "USED",
                     "desc": "已用卷数量",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA卡列表",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "节点WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "端口WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "接线状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接光交端口",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "光交名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "光交管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "光交序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         }

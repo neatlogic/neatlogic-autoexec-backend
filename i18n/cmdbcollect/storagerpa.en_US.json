@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "RPA"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -73,38 +72,10 @@
             "type": "Int"
         },
         {
-            "name": "ETH_INTERFACES",
-            "desc": "NIC",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP Address",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Link Status",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed(Gbps)",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTERS",
             "desc": "Clusters Config",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -113,8 +84,7 @@
                     "name": "COPIES",
                     "desc": "Copies",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -165,8 +135,7 @@
                     "name": "LINKS",
                     "desc": "Links",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -204,8 +173,7 @@
             "name": "CONSISTENCY_GROUPS",
             "desc": "Consistency Groups",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -214,8 +182,7 @@
                     "name": "RPAS",
                     "desc": "Rpas in Cluster",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -249,8 +216,7 @@
                             "name": "ETH_INTERFACES",
                             "desc": "NIC",
                             "type": "JsonArray",
-                            "subset": [
-                                {
+                            "subset": [{
                                     "name": "NAME",
                                     "desc": "Name",
                                     "type": "String"
@@ -276,8 +242,7 @@
                             "name": "HBA_INTERFACES",
                             "desc": "HBA Interfaces",
                             "type": "JsonArray",
-                            "subset": [
-                                {
+                            "subset": [{
                                     "name": "WWPN",
                                     "desc": "WWPN",
                                     "type": "String"
@@ -304,31 +269,111 @@
             "type": "String"
         },
         {
-            "name": "HBA_INTERFACES",
-            "desc": "HBA Interfaces",
+            "name": "REPOSITORY_VOL_STATUS",
+            "desc": "Repository Vol Status",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "Health Status",
+            "type": "String"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
             "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "WWPN",
-                    "desc": "WWPN",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
                     "type": "String"
                 },
                 {
-                    "name": "TYPE",
-                    "desc": "Link TPYE",
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
                     "type": "String"
                 },
                 {
                     "name": "SPEED",
-                    "desc": "Speed(Gbps)",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
                     "type": "Float"
                 },
                 {
                     "name": "REMOTE_PORTS",
                     "desc": "Connted FC Ports",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "_OBJ_CATEGORY",
                             "desc": "Object Cat",
                             "type": "String"
@@ -361,16 +406,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "REPOSITORY_VOL_STATUS",
-            "desc": "Repository Vol Status",
-            "type": "String"
-        },
-        {
-            "name": "STATUS",
-            "desc": "Health Status",
-            "type": "String"
         }
     ]
 }
