@@ -59,7 +59,8 @@ class ServerAdapter:
             'getCITxtFilePathList': '/codedriver/api/rest/inspect/configfile/resource/path/list',
             'uploadFile': '/codedriver/api/binary/file/upload',
             'removeUploadedFile': '/codedriver/api/rest/file/delete',
-            'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save'
+            'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save',
+            'inspectReport' : '/codedriver/api/rest/inspect/autoexec/job/report/notify'
         }
 
         self.context = context
@@ -1031,3 +1032,18 @@ class ServerAdapter:
                 raise AutoExecError("Save Inspect for {} failed, status code:{} {}".format(objHint, response.status, content))
         except Exception as ex:
             raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, ex))
+
+    def notifyInspectReport(self , params) :
+        try:
+            jobId = params['jobId']
+            response = self.httpJSON(self.apiMap['inspectReport'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, retObj['Message']))
+            else:
+                raise AutoExecError("Notify inspect Report {} failed, status code:{} {}".format(jobId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, ex))

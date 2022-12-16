@@ -47,7 +47,8 @@ class ListenWorkThread(threading.Thread):
 
             actionData = None
             try:
-                actionData = json.loads(datagram.decode('utf-8', 'ignore'))
+                datagram = datagram.decode('utf-8', 'ignore')
+                actionData = json.loads(datagram)
                 if actionData:
                     if actionData['action'] == 'informNodeWaitInput':
                         resourceId = int(actionData.get('resourceId'))
@@ -84,6 +85,11 @@ class ListenWorkThread(threading.Thread):
                     elif actionData['action'] == 'globalLockNotify':
                         self.globalLock.notifyWaiter(actionData['lockId'])
                         print("INFO: Lock notify event recieved, lockId:{}.\n".format(actionData['lockId']), end='')
+                    elif actionData['action'] == 'queryCollectDB':
+                        queryThread = threading.Thread(target=self.queryCollectDB, args=(actionData['queryParams'], addr))
+                        queryThread.setName('CollectDBQuery')
+                        queryThread.start()
+                        print("INFO: Query collectDB event recived:{}\n".format(datagram), end='')
                     elif actionData['action'] == 'exit':
                         self.globalLock.stop()
                         self.runnerListener.stop()
@@ -109,6 +115,21 @@ class ListenWorkThread(threading.Thread):
                 }
                 print("INFO: PID({}) {} {} for {}:{} failed, {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget'), str(ex)), end='')
                 self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
+
+    def queryCollectDB(self, actionData, addr):
+        collection = actionData['collection']
+        condition = actionData['condition']
+        projection = actionData['projection']
+        db = self.context.db
+        collection = db[collection]
+        try:
+            result = []
+            projection['_id'] = 0
+            for item in collection.find(condition, projection).limit(10):
+                result.append(item)
+            self.server.sendto(json.dumps({'result': result, 'error': None}, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
+        except Exception as ex:
+            self.server.sendto(json.dumps({'result': None, 'error': str(ex)}, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
 
 
 class ListenThread (threading.Thread):  # 继承父类threading.Thread

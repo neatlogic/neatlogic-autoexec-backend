@@ -7,6 +7,8 @@ package CollectUtils;
 use strict;
 use Encode;
 use IO::File;
+use IO::Socket;
+use JSON;
 use POSIX qw(uname);
 
 sub new {
@@ -26,6 +28,9 @@ sub new {
         #如果EUID是0，那么运行用户就是root
         $self->{isRoot} = 1;
     }
+
+    $self->{workPath} = $ENV{AUTOEXEC_WORK_PATH};
+    $self->{sockPath} = $ENV{AUTOEXEC_JOB_SOCK};
 
     bless( $self, $type );
     return $self;
@@ -442,4 +447,54 @@ sub getNicSpeedFromStr {
     return ( $unit, $speed );
 }
 
+#查询CollectDB，最多返回前10条记录，结果最大大小不能超过4K
+sub queryCollectDB {
+    my ( $self, $collection, $condition, $projection ) = @_;
+
+    my $resultSet;
+
+    my $sockPath = $self->{sockPath};
+    if ( -e $sockPath ) {
+        my $localAddr = $self->{workPath} . "/client$$.sock";
+
+        END {
+            unlink($localAddr);
+        }
+
+        eval {
+            my $client = IO::Socket::UNIX->new(
+                Local   => $localAddr,
+                Peer    => $sockPath,
+                Type    => IO::Socket::SOCK_DGRAM,
+                Timeout => 10
+            );
+
+            my $request = {};
+            $request->{action}      = 'queryCollectDB';
+            $request->{queryParams} = { 'collection' => $collection, 'condition' => $condition, 'projection' => $projection };
+
+            $client->send( to_json($request) );
+
+            my $content;
+            $client->recv( $content, 4096 );
+            $client->close();
+            my $retObj = from_json($content);
+            unlink($localAddr);
+            if ( $retObj->{error} ) {
+                print("WARN: $retObj->{error}\n");
+            }
+
+            $resultSet = $retObj->{result};
+        };
+        if ($@) {
+            unlink($localAddr);
+            print("WARN: Query collect DB failed failed, $@\n");
+        }
+    }
+    else {
+        print("WARN: Query collect DB failed:socket file $sockPath not exist.\n");
+    }
+
+    return $resultSet;
+}
 1;

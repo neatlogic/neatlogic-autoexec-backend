@@ -11,6 +11,8 @@ use Net::SNMP qw(:snmp);
 use SnmpHelper;
 use Data::Dumper;
 
+use CollectUtils;
+
 my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie' ];
 
 sub new {
@@ -19,6 +21,9 @@ sub new {
     $self->{brand} = $args{brand};
     $self->{DATA}  = { PK => ['MGMT_IP'] };
     bless( $self, $class );
+
+    my $utils = CollectUtils->new();
+    $self->{utils} = $utils;
 
     $self->{snmpHelper} = SnmpHelper->new();
 
@@ -215,7 +220,8 @@ sub _errCheck {
 #根据文件顶部预定义的$BRANDS匹配sysDescr信息，得到设备的品牌
 sub getBrand {
     my ($self) = @_;
-    my $snmp = $self->{snmpSession};
+    my $utils  = $self->{utils};
+    my $snmp   = $self->{snmpSession};
 
     my $sysDescrOids = ['1.3.6.1.2.1.1.1.0'];
 
@@ -238,9 +244,30 @@ sub getBrand {
                 last;
             }
         }
+    }
 
-        if ( not defined($brand) ) {
-            print("WARN: Can not get brand from sysdescr.\n");
+    if ( not defined($brand) ) {
+        print("WARN: Can not get vendor from sysdescr, try to detect it by sysObjectId.\n");
+
+        #Get sysObjectId
+        my $sysObjOid = '1.3.6.1.2.1.1.2.0';
+        $result = $snmp->get_request( -varbindlist => [$sysObjOid] );
+        if ( $self->_errCheck( $result, [$sysObjOid], 'sysObjectId' ) ) {
+            die("ERROR: Snmp request failed.\n");
+        }
+        else {
+            my $sysObjId    = $result->{$sysObjOid};
+            my $modelsArray = $utils->queryCollectDB( '_discovery_rule', { 'sysObjectId' => ".$sysObjId" }, { 'VENDOR' => 1, 'MODEL' => 1 } );
+            if ( defined($modelsArray) and scalar(@$modelsArray) > 0 ) {
+                my $modelInfo = $$modelsArray[0];
+                my $model     = $modelInfo->{MODEL};
+                $self->{DATA}->{MODEL} = $model;
+                $brand = $modelInfo->{VENDOR};
+                print("INFO: Detect device vendor:$brand, model:$model.\n");
+            }
+            else {
+                print("WARN: Can not detect device vendor, please add sysObjectId:.$sysObjId and relative information in discovery_rule.\n");
+            }
         }
     }
 
@@ -409,7 +436,7 @@ sub _getPorts {
         }
     }
 
-    my @ports = values(%$portsMap);
+    my @ports = sort { $a->{NO} <=> $b->{NO} } values(%$portsMap);
     $self->{DATA}->{PORTS} = \@ports;
     $self->{portIdxMap}    = $portIdxMap;
     $self->{portNoMap}     = $portNoMap;
