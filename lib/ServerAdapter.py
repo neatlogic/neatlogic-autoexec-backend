@@ -60,7 +60,7 @@ class ServerAdapter:
             'uploadFile': '/codedriver/api/binary/file/upload',
             'removeUploadedFile': '/codedriver/api/rest/file/delete',
             'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save',
-            'inspectReport' : '/codedriver/api/rest/inspect/autoexec/job/report/notify'
+            'inspectReport': '/codedriver/api/rest/inspect/autoexec/job/report/notify'
         }
 
         self.context = context
@@ -1033,7 +1033,7 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, ex))
 
-    def notifyInspectReport(self , params) :
+    def notifyInspectReport(self, params):
         try:
             jobId = params['jobId']
             response = self.httpJSON(self.apiMap['inspectReport'],  params)
