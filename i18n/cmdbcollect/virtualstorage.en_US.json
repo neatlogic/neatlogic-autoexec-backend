@@ -6,8 +6,7 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -86,8 +85,7 @@
             "name": "LUNS",
             "desc": "LUN List",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -116,8 +114,7 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "Visable Initiator",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -145,8 +142,7 @@
             "name": "STORAGE_VOLUMES_UNHEALTH",
             "desc": "Storage Vol Unhealth",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -172,8 +168,7 @@
             "name": "STORAGE_VOLUME_SUMMARY",
             "desc": "Storage Vol Summary",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "CLUSTER_NAME",
                     "desc": "Cluster Name",
                     "type": "String"
@@ -192,8 +187,7 @@
                     "name": "VENDOR",
                     "desc": "Vendor Storage",
                     "type": "JsonArray",
-                    "subset": [
-                        {
+                    "subset": [{
                             "name": "NAME",
                             "desc": "Vendor",
                             "type": "String"
@@ -224,6 +218,135 @@
                     "name": "USED",
                     "desc": "Used",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Connted FC Ports",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Cat",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         }

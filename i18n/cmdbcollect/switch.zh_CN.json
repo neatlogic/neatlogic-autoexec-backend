@@ -2,7 +2,7 @@
     "label": "交换机",
     "collection": "COLLECT_SWITCH",
     "docroot": null,
-    "collection_label": "网络设备",
+    "collection_label": "交换机",
     "filter": {
         "_OBJ_TYPE": "Switch"
     },

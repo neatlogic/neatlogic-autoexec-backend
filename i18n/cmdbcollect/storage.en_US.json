@@ -4,8 +4,7 @@
     "docroot": null,
     "collection_label": "Storage Device",
     "filter": {},
-    "fields": [
-        {
+    "fields": [{
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -66,43 +65,10 @@
             "type": "String"
         },
         {
-            "name": "ETH_INTERFACES",
-            "desc": "Eth Interfaces",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CONTROLLER_NAME",
-                    "desc": "Controller",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "Mac",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BATTERIES",
             "desc": "Batteries",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -128,8 +94,7 @@
             "name": "CONTROLLERS",
             "desc": "Controllers",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -165,8 +130,7 @@
             "name": "FANS",
             "desc": "Fans",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -194,85 +158,6 @@
             ]
         },
         {
-            "name": "HBA_INTERFACES",
-            "desc": "FC Ports",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CONTROLLER_NAME",
-                    "desc": "Controller",
-                    "type": "String"
-                },
-                {
-                    "name": "WWNN",
-                    "desc": "WWNN",
-                    "type": "String"
-                },
-                {
-                    "name": "WWPN",
-                    "desc": "WWPN",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECT_TO",
-                    "desc": "Connect To",
-                    "type": "array"
-                },
-                {
-                    "name": "REMOTE_PORTS",
-                    "desc": "Connted FC Ports",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "Object Cat",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "Object Type",
-                            "type": "String"
-                        },
-                        {
-                            "name": "DEV_NAME",
-                            "desc": "Device Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "Managent IP",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SN",
-                            "desc": "Serial",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "Port Name",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "HEALTH_CHECK",
             "desc": "Health Report",
             "type": "Text"
@@ -281,8 +166,7 @@
             "name": "LUNS",
             "desc": "Logical Disks",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "ID",
                     "desc": "ID",
                     "type": "String"
@@ -338,8 +222,7 @@
             "name": "POOLS",
             "desc": "Storage Pools",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -380,8 +263,7 @@
             "name": "POWER_SUPPLIES",
             "desc": "Power Supplies",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -407,8 +289,7 @@
             "name": "VOLUMES",
             "desc": "Volumes(NFS)",
             "type": "JsonArray",
-            "subset": [
-                {
+            "subset": [{
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -437,6 +318,135 @@
                     "name": "POOL_NAME",
                     "desc": "Pool Name",
                     "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [{
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Connted FC Ports",
+                    "type": "JsonArray",
+                    "subset": [{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Cat",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         }
