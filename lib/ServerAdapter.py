@@ -50,6 +50,7 @@ class ServerAdapter:
             'informRoundEnded': '/codedriver/api/rest/autoexec/job/phase/inform/round/end',
             'updateJobStatus': '/codedriver/api/rest/autoexec/job/status/update',
             'exportJobEnv': '/codedriver/api/rest/autoexec/job/env/update',
+            'updateGlobalParam': '/codedriver/api/rest/autoexec/global/param/update/forautoexec',
             'setResourceInspectJobId': '/codedriver/api/rest/autoexec/job/resource/inspect/update',
             'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
             'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
@@ -683,7 +684,22 @@ class ServerAdapter:
             'passThroughEnv': self.context.passThroughEnv
         }
 
-        response = self.httpJSON(self.apiMap['exportJobEnv'],  params)
+        self.httpJSON(self.apiMap['exportJobEnv'],  params)
+
+        return
+
+    def updateGlobalParam(self, name, value):
+        if self.context.devMode:
+            return {}
+        params = {
+            'jobId': self.context.jobId,
+            'key': name,
+            'defaultValue': value,
+            'time': time.time(),
+            'passThroughEnv': self.context.passThroughEnv
+        }
+
+        self.httpJSON(self.apiMap['updateGlobalParam'],  params)
 
         return
 
