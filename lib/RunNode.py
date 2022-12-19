@@ -703,13 +703,19 @@ class RunNode:
                             if envScope == 'global':
                                 self.context.setEnv(envName, envValue)
                                 self.context.exportEnv(envName)
-                                self.writeNodeLog('INFO: Set global envariable:{}={}\n'.format(envName, envValue))
+                                self.writeNodeLog('INFO: Set global envrionment:{}={}\n'.format(envName, envValue))
                             else:
                                 op.hasNodeEnv = True
                                 self.nodeEnv[envName] = envValue
                                 persistenceEnv = self.output['nodeEnv']
                                 persistenceEnv[envName] = envValue
-                                self.writeNodeLog('INFO: Set node envariable:{}={}\n'.format(envName, envValue))
+                                self.writeNodeLog('INFO: Set node envrionment:{}={}\n'.format(envName, envValue))
+                        elif op.opSubName == 'updategparam':
+                            varName = op.options['name']
+                            varValue = op.options['value']
+                            self.writeNodeLog('INFO: Execute -> native/{} {}={}\n'.format(op.opSubName, varName, varValue))
+                            self.context.serverAdapter.updateGlobalParam(varName, varValue)
+                            self.writeNodeLog('INFO: Update global variable:{}={}\n'.format(varName, varValue))
                         elif op.opSubName == 'failkeys':
                             self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
                             self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
