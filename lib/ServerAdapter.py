@@ -42,6 +42,7 @@ class ServerAdapter:
             'getNodePwd': '/codedriver/api/rest/resourcecenter/resource/account/get',
             'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
             'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateMonitorStatus': '/codedriver/api/rest/cmdb/cientity/updatemonitorstatus',
             'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
             'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
             'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
@@ -59,7 +60,7 @@ class ServerAdapter:
             'uploadFile': '/codedriver/api/binary/file/upload',
             'removeUploadedFile': '/codedriver/api/rest/file/delete',
             'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save',
-            'inspectReport' : '/codedriver/api/rest/inspect/autoexec/job/report/notify'
+            'inspectReport': '/codedriver/api/rest/inspect/autoexec/job/report/notify'
         }
 
         self.context = context
@@ -793,11 +794,39 @@ class ServerAdapter:
                 if retObj.get('Status') == 'OK':
                     return True
                 else:
-                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+                    raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
             else:
-                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+                raise AutoExecError("Update inspect status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
+            raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, ex))
+
+    def updateMonitorStatus(self, ciType, resourceId, status, alertCount):
+        if self.context.devMode:
+            return {}
+
+        params = {
+            'jobId': self.context.jobId,
+            'ciType': ciType,
+            'ciEntityId': resourceId,
+            'monitorStatus': status,
+            'alertCount': alertCount,
+            'monitorTime': int(time.time() * 1000)
+        }
+
+        try:
+            response = self.httpJSON(self.apiMap['updateMonitorStatus'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return True
+                else:
+                    raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, retObj['Message']))
+            else:
+                raise AutoExecError("Update monitor status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:
@@ -1000,7 +1029,7 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, ex))
 
-    def notifyInspectReport(self , params) :
+    def notifyInspectReport(self, params):
         try:
             jobId = params['jobId']
             response = self.httpJSON(self.apiMap['inspectReport'],  params)
