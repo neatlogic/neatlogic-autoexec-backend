@@ -744,7 +744,7 @@ sub collect {
     $self->after();
 
     my $data = $self->{DATA};
-    if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' ) {
+    if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' or $data->{VENDOR} eq '-' ) {
         $data->{VENDOR} = $data->{BRAND};
     }
 
