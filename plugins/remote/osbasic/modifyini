@@ -1,0 +1,238 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --backup 0|1 --content <sysctl.conf content>\n");
+    exit(1);
+}
+
+sub backup {
+    my ($filePath)  = @_;
+    my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
+    my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
+    return $exitCode;
+}
+
+sub parseInIContent {
+    my ($content) = @_;
+
+    my @sectionNames   = ();
+    my $sectionsMap    = {};
+    my $sectionKeysMap = {};
+
+    my $sectionName = '.';
+    my $comment     = '';
+
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line eq '' or $line =~ /^#/ or $line =~ /^;/ ) {
+            $comment = $comment . $line . "\n";
+            next;
+        }
+
+        my $thisComment = $comment;
+
+        if ( $line =~ /\[\s*([^\]]+)\s*\]/ ) {
+            $sectionName = $1;
+            $sectionKeysMap->{$sectionName} = [];
+            push( @sectionNames, $sectionName );
+            $sectionsMap->{$sectionName} = { data => {}, comment => $thisComment };
+        }
+        else {
+            my $sectionData   = $sectionsMap->{$sectionName}->{data};
+            my $keysInSection = $sectionKeysMap->{$sectionName};
+            my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
+            $sectionData->{$key} = { line => $line, value => $val, comment => $thisComment };
+            push( @$keysInSection, $key );
+        }
+        undef($comment);
+        $comment = '';
+    }
+
+    return ( \@sectionNames, $sectionKeysMap, $sectionsMap );
+}
+
+sub restoreIniFile {
+    my ( $sectionNames, $sectionKeysMap, $sectionsMap ) = @_;
+
+    my $content = '';
+    foreach my $sectionName (@$sectionNames) {
+        my $section        = $sectionsMap->{$sectionName};
+        my $sectionData    = $section->{data};
+        my $oneSectionKeys = $sectionKeysMap->{$sectionName};
+        my $sectionComment = $section->{comment};
+
+        if ( $sectionComment ne '' ) {
+            $content = $content . $sectionComment;
+        }
+
+        if ( $sectionName ne '.' ) {
+            $content = $content . "[$sectionName]\n";
+        }
+
+        foreach my $key (@$oneSectionKeys) {
+            my $line    = $sectionData->{$key}->{line};
+            my $comment = $sectionData->{$key}->{comment};
+
+            if ( $comment ne '' ) {
+                $content = $content . $comment;
+            }
+            $content = $content . $line . "\n";
+        }
+    }
+
+    return $content;
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+
+    my $filePath;
+    my $needBackup = 0;
+    my $content;
+    my $noSection = 0;
+
+    GetOptions(
+        'backup=i'    => \$needBackup,
+        'filepath=s'  => \$filePath,
+        'content=s'   => \$content,
+        'nosection=i' => \$noSection
+    );
+
+    my $hasOptErr = 0;
+    if ( not defined($filePath) or $filePath eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined file path by option --filepath\n");
+    }
+    if ( not defined($content) or $content eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined modify content by option --content\n");
+    }
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $scriptDir = $FindBin::Bin;
+    chdir($scriptDir);
+
+    if ( not -e $filePath ) {
+        print("ERROR: File $filePath not exists.\n");
+    }
+
+    my ( $sectionNames, $sectionKeysMap, $sectionsMap ) = parseInIContent($content);
+    if ( $noSection == 0 ) {
+        my $topSetionKeys = $sectionKeysMap->{'.'};
+        if ($topSetionKeys) {
+            $hasError = 1;
+            print("ERROR: Invalid format of ini config to be used to modified the config file.\n");
+            print("ERROR: Key value not inclued in section.\n");
+            my $oneSectionMap = $sectionsMap->{'.'};
+            my $sectionData   = $oneSectionMap->{data};
+            foreach my $key (@$topSetionKeys) {
+                my $line = $sectionData->{$key}->{line};
+                print("$line\n");
+            }
+            exit($hasError);
+        }
+    }
+
+    my $oldContent = AutoExecUtils::getFileContent($filePath);
+    my ( $oldSectionNames, $oldSectionKeysMap, $oldSectionsMap ) = parseInIContent($oldContent);
+
+    my $isChanged = 0;
+
+    foreach my $sectionName (@$sectionNames) {
+        my $oneSectionMap  = $sectionsMap->{$sectionName};
+        my $oneSectionKeys = $sectionKeysMap->{$sectionName};
+        my $sectionData    = $oneSectionMap->{data};
+        my $sectionComment = $oneSectionMap->{comment};
+
+        my $oldOneSectionMap  = $oldSectionsMap->{$sectionName};
+        my $oldOneSectionKeys = $oldSectionKeysMap->{$sectionName};
+        my $oldSectionData    = $oldOneSectionMap->{data};
+        my $oldSctionComment  = $oldOneSectionMap->{comment};
+
+        if ( not defined($oldOneSectionMap) ) {
+            $isChanged = 1;
+            push( @$oldSectionNames, $sectionName );
+            $oldSectionKeysMap->{$sectionName} = $oneSectionKeys;
+            $oldSectionsMap->{$sectionName}    = $oneSectionMap;
+            print("Append new section:$sectionName\n");
+        }
+        else {
+            foreach my $key (@$oneSectionKeys) {
+                my $val     = $sectionData->{$key}->{value};
+                my $comment = $sectionData->{$key}->{comment};
+
+                my $item = $oldSectionData->{$key};
+                if ( not defined($item) ) {
+                    $oldSectionData->{$key} = { line => "$key = $val", value => $val, comment => $comment };
+                    push( @$oldOneSectionKeys, $key );
+                    print("Append $key = $val to section:$sectionName\n");
+                }
+                else {
+                    my $oldVal     = $oldSectionData->{$key}->{value};
+                    my $oldComment = $oldSectionData->{$key}->{comment};
+                    if ( $oldVal ne $val ) {
+                        $isChanged                       = 1;
+                        $oldSectionData->{$key}->{line}  = "$key = $val";
+                        $oldSectionData->{$key}->{value} = $val;
+                        print("Modify $key = $val in section:$sectionName\n");
+                    }
+
+                    #如果新的comment非空，而且原来没有包含此comment，则append Comment
+                    #避免删除原来的comment
+                    if ( $comment ne '' and $oldComment !~ /$comment/is ) {
+                        $isChanged = 1;
+                        $oldSectionData->{$key}->{comment} = $oldComment . "\n" . $comment;
+                    }
+                }
+            }
+        }
+    }
+
+    my $newContent;
+    if ( $isChanged == 1 ) {
+        $newContent = restoreIniFile( $oldSectionNames, $oldSectionKeysMap, $oldSectionsMap );
+        my $fh = IO::File->new(">$filePath");
+        if ( defined($fh) ) {
+            if ( $needBackup == 1 ) {
+                my $exitCode = backup($filePath);
+                if ( $exitCode != 0 ) {
+                    print("ERROR: Backup file:$filePath failed, $!\n");
+                    $hasError = 2;
+                }
+            }
+            if ( $hasError == 0 ) {
+                $fh->write( $newContent, length($newContent) );
+            }
+            $fh->close();
+        }
+        else {
+            $hasError = 1;
+            print("ERROR: Can not open file:$filePath to write, $!\n");
+        }
+    }
+
+    my $out = { iniConf => $newContent };
+    AutoExecUtils::saveOutput($out);
+
+    return $hasError;
+}
+
+exit main();
