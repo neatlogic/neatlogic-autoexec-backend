@@ -3,8 +3,9 @@ import traceback
 import time
 import sys
 import os
+import ssl
 from ping3 import ping
-from pyVim.connect import SmartConnectNoSSL, Disconnect
+from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim, vmodl
 
 class VmManage(object):
@@ -16,7 +17,9 @@ class VmManage(object):
         self.pwd = password
         self.port = port
         try:
-            self.client = SmartConnectNoSSL(host=ip,user=user,pwd=password,port=443)
+            ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
+            ssl_context.verify_mode = ssl.CERT_NONE
+            self.client = SmartConnect(host=ip,user=user,pwd=password,port=443,sslContext=ssl_context)
             self.content = self.client.RetrieveContent()
             print("INFO:: connect vsphere {} success".format(ip))
         except Exception as e:
