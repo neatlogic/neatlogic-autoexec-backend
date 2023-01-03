@@ -4,6 +4,7 @@
 import os
 import traceback
 import argparse
+from ast import literal_eval
 
 import AutoExecUtils
 
@@ -14,7 +15,7 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--notifyHandler', default='EmailNotifyHandler', help='notify handler')
-    parser.add_argument('--notifyTargets', default='', help='notify users/teams/roles, multiple value , split')
+    parser.add_argument('--notifyTargets', default='', help='notify users/teams/roles, eg:"[\"user#c8dea216f5bd49349db05cbc87db2f9a\", \"team#ce541bdaa1554ef787f604c28f6eee96\", \"role#c3f16375b9654fe68b90e5929c41ceac\"]"')
     args = parser.parse_args()
 
     notifyHandler = args.notifyHandler
@@ -28,10 +29,9 @@ if __name__ == "__main__":
         usage()
 
     notifyList = [] 
-    notifys = notifyTargets.split(',')
+    notifys = literal_eval(notifyTargets)
     for obj in notifys :
         notifyList.append(obj)
-
     #int(jobId)
     jobId = os.getenv('AUTOEXEC_JOBID')
     if jobId is None:
