@@ -26,7 +26,7 @@
             "opt": "notifyTargets",
             "name": "通知对象",
             "help": "通知对象，支持通知人、组、角色",
-            "type": "text",
+            "type": "userselect",
             "required": "true",
             "validate": "",
             "defaultValue": ""
