@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "OS主版本",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -172,90 +177,6 @@
             "type": "Float"
         },
         {
-            "name": "USERS",
-            "desc": "用户",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "家目录",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "SHELL",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MACHINE_SN",
-            "desc": "machine_sn",
-            "type": "String"
-        },
-        {
-            "name": "MACHINE_UUID",
-            "desc": "machine_uuid",
-            "type": "String"
-        },
-        {
-            "name": "MEM_UNIT",
-            "desc": "mem_unit",
-            "type": "String"
-        },
-        {
-            "name": "RUN_ON",
-            "desc": "所在OS",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "OS类型",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "VCENTER_IP",
-            "desc": "vcenter_ip",
-            "type": "String"
-        },
-        {
-            "name": "VM_ID",
-            "desc": "vm_id",
-            "type": "String"
-        },
-        {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
@@ -321,6 +242,38 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "用户",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
+                    "type": "String"
                 }
             ]
         },
@@ -397,6 +350,58 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "MACHINE_SN",
+            "desc": "machine_sn",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_UUID",
+            "desc": "machine_uuid",
+            "type": "String"
+        },
+        {
+            "name": "MEM_UNIT",
+            "desc": "mem_unit",
+            "type": "String"
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VCENTER_IP",
+            "desc": "vcenter_ip",
+            "type": "String"
+        },
+        {
+            "name": "VM_ID",
+            "desc": "vm_id",
+            "type": "String"
         }
     ]
 }

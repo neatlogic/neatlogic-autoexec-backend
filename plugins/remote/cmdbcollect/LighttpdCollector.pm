@@ -90,7 +90,11 @@ sub collect {
     if ( $verInfo =~ /lighttpd\/([\d\.]+)/ ) {
         $version = $1;
     }
+
     $appInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "lighttpd$1";
+    }
 
     my $portsMap    = {};
     my $lsnPortsMap = $procInfo->{CONN_INFO}->{LISTEN};

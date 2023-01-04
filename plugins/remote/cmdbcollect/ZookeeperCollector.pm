@@ -81,6 +81,10 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
 
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Zookeeper$1";
+    }
+
     my $pos      = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
     my $confPath = substr( $cmdLine, $pos );
 

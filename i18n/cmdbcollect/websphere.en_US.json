@@ -38,6 +38,11 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "Major Version",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"

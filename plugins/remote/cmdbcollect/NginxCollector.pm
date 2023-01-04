@@ -192,13 +192,18 @@ sub collect {
 
         #扁平化处理
         my $ins = {};
-        $ins->{_OBJ_CATEGORY}        = CollectObjCat->get('INS');
-        $ins->{_MULTI_PROC}          = 1;
-        $ins->{SERVER_NAME}          = 'nginx';
-        $ins->{EXE_PATH}             = $exePath;
-        $ins->{BIN_PATH}             = $binPath;
-        $ins->{INSTALL_PATH}         = $basePath;
-        $ins->{VERSION}              = $version;
+        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+        $ins->{_MULTI_PROC}   = 1;
+        $ins->{SERVER_NAME}   = 'nginx';
+        $ins->{EXE_PATH}      = $exePath;
+        $ins->{BIN_PATH}      = $binPath;
+        $ins->{INSTALL_PATH}  = $basePath;
+        $ins->{VERSION}       = $version;
+
+        if ( $version =~ /(\d+)/ ) {
+            $ins->{MAJOR_VERSION} = "Nginx$1";
+        }
+
         $ins->{PREFIX}               = $prefix;
         $ins->{CONFIG_PATH}          = $configPath;
         $ins->{WORKER_CONNECTIONS}   = $worker_connections;

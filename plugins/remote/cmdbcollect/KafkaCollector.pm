@@ -71,6 +71,9 @@ sub collect {
 
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "kafka$1";
+    }
 
     my $pos      = rindex( $cmdLine, 'kafka.Kafka' ) + 12;
     my $confPath = substr( $cmdLine, $pos );

@@ -5,7 +5,7 @@
     "collection_label": "Server Machine",
     "filter": {
         "_OBJ_TYPE": "SERVERDEV"
-    },  
+    },
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
@@ -33,60 +33,18 @@
             "type": "Int"
         },
         {
-            "name": "BOARD_VENDOR",
-            "desc": "Vendor",
-            "type": "String"
-        },
-        {
             "name": "BOARD_SERIAL",
             "desc": "Serial",
             "type": "String"
         },
         {
-            "name": "MANUFACTURER",
-            "desc": "Product",
+            "name": "BOARD_VENDOR",
+            "desc": "Vendor",
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "Dev Name",
-            "type": "String"
-        },
-        {
-            "name": "FIRMWARE_REVISION",
-            "desc": "Firmware Version",
-            "type": "String"
-        },
-        {
-            "name": "TEMPERATURE",
-            "desc": "Temperature",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "Sensor ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "Entity ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "Value(℃)",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "VOLTAGE",
-            "desc": "Voltage",
+            "name": "CABLE",
+            "desc": "Cable",
             "type": "JsonArray",
             "subset": [
                 {
@@ -139,6 +97,38 @@
             ]
         },
         {
+            "name": "DEV_NAME",
+            "desc": "Dev Name",
+            "type": "String"
+        },
+        {
+            "name": "DRIVE_SLOT",
+            "desc": "Drive",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "FAN",
             "desc": "Fan",
             "type": "JsonArray",
@@ -166,8 +156,50 @@
             ]
         },
         {
-            "name": "PROCESSOR",
-            "desc": "Processor",
+            "name": "FIRMWARE_REVISION",
+            "desc": "Firmware Version",
+            "type": "String"
+        },
+        {
+            "name": "FRU",
+            "desc": "Fru",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "FRU_DEVICE",
+                    "desc": "FRU Device",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_MFG",
+                    "desc": "Board Mfg",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_PRODUCT",
+                    "desc": "Board Product",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "Board Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_NUMBER",
+                    "desc": "Board Part Number",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "Product",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY",
+            "desc": "Memory",
             "type": "JsonArray",
             "subset": [
                 {
@@ -247,8 +279,8 @@
             ]
         },
         {
-            "name": "MEMORY",
-            "desc": "Memory",
+            "name": "PROCESSOR",
+            "desc": "Processor",
             "type": "JsonArray",
             "subset": [
                 {
@@ -269,92 +301,6 @@
                 {
                     "name": "STATUS",
                     "desc": "Status",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "DRIVE_SLOT",
-            "desc": "Drive",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "Sensor ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "Entity ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "Value",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CABLE",
-            "desc": "Cable",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "Sensor ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "Entity ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "Value",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "FRU",
-            "desc": "Fru",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "FRU_DEVICE",
-                    "desc": "FRU Device",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_MFG",
-                    "desc": "Board Mfg",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_PRODUCT",
-                    "desc": "Board Product",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_SERIAL",
-                    "desc": "Board Serial",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_NUMBER",
-                    "desc": "Board Part Number",
                     "type": "String"
                 }
             ]
@@ -419,6 +365,60 @@
                 {
                     "name": "TYPE",
                     "desc": "Type",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TEMPERATURE",
+            "desc": "Temperature",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value(℃)",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VOLTAGE",
+            "desc": "Voltage",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "Sensor ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "Entity ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "Value",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
                     "type": "String"
                 }
             ]

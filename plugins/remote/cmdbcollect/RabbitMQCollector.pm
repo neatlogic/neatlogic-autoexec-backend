@@ -77,6 +77,9 @@ sub collect {
         }
     }
     $appInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "RabbitMQ$1";
+    }
 
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 

@@ -33,6 +33,11 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "Major Version",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
@@ -347,48 +352,6 @@
             ]
         },
         {
-            "name": "MON_STATUS",
-            "desc": "Monitor Status",
-            "type": "JsonObject",
-            "subset": [
-                {
-                    "name": "ACTIVE_CONNECTIONS",
-                    "desc": "Active Connections",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_ACCEPTS",
-                    "desc": "Accepts",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_HANDLED",
-                    "desc": "Handled",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVERR_EQUESTS",
-                    "desc": "Equests",
-                    "type": "Int"
-                },
-                {
-                    "name": "READING",
-                    "desc": "Reading",
-                    "type": "Int"
-                },
-                {
-                    "name": "WRITING",
-                    "desc": "Writing",
-                    "type": "Int"
-                },
-                {
-                    "name": "WAITING",
-                    "desc": "Waiting",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "MAIN_ENV",
             "desc": "Main Process Environment",
             "type": "JsonArray",
@@ -513,6 +476,48 @@
             "name": "LOG_PATH",
             "desc": "Log Path",
             "type": "String"
+        },
+        {
+            "name": "MON_STATUS",
+            "desc": "Monitor Status",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "ACTIVE_CONNECTIONS",
+                    "desc": "Active Connections",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_ACCEPTS",
+                    "desc": "Accepts",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_HANDLED",
+                    "desc": "Handled",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVERR_EQUESTS",
+                    "desc": "Equests",
+                    "type": "Int"
+                },
+                {
+                    "name": "READING",
+                    "desc": "Reading",
+                    "type": "Int"
+                },
+                {
+                    "name": "WRITING",
+                    "desc": "Writing",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITING",
+                    "desc": "Waiting",
+                    "type": "Int"
+                }
+            ]
         },
         {
             "name": "PREFIX",

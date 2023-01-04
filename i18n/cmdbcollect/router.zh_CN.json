@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "Router"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -47,6 +48,23 @@
             "type": "String"
         },
         {
+            "name": "IP_ADDRS",
+            "desc": "IP地址列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "掩码",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "BRAND",
             "desc": "品牌",
             "type": "String"
@@ -77,31 +95,11 @@
             "type": "String"
         },
         {
-            "name": "PORTS_COUNT",
-            "desc": "端口数量",
-            "type": "Int"
-        },
-        {
-            "name": "IP_ADDRS",
-            "desc": "IP地址列表",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "NETMASK",
-                    "desc": "掩码",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "PORTS",
             "desc": "SWitch Ports",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "端口名",
                     "type": "String"
@@ -200,7 +198,8 @@
                     "name": "NEIGHBORS",
                     "desc": "网络邻居",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属对象类型",
                             "type": "String"
@@ -238,6 +237,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
+            "type": "Int"
         }
     ]
 }

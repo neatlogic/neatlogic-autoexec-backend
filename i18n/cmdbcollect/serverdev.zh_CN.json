@@ -5,7 +5,7 @@
     "collection_label": "服务器硬件",
     "filter": {
         "_OBJ_TYPE": "SERVERDEV"
-    },  
+    },
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
@@ -33,8 +33,8 @@
             "type": "Int"
         },
         {
-            "name": "MANUFACTURER",
-            "desc": "厂商",
+            "name": "BOARD_PRODUCT",
+            "desc": "设备型号",
             "type": "String"
         },
         {
@@ -43,50 +43,8 @@
             "type": "String"
         },
         {
-            "name": "BOARD_PRODUCT",
-            "desc": "设备型号",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "设备名",
-            "type": "String"
-        },
-        {
-            "name": "FIRMWARE_REVISION",
-            "desc": "固态版本",
-            "type": "String"
-        },
-        {
-            "name": "TEMPERATURE",
-            "desc": "温度",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "传感器ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "实体ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "温度(℃)",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "VOLTAGE",
-            "desc": "电压",
+            "name": "CABLE",
+            "desc": "电缆",
             "type": "JsonArray",
             "subset": [
                 {
@@ -139,6 +97,38 @@
             ]
         },
         {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "DRIVE_SLOT",
+            "desc": "驱动器插槽",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "传感器ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "实体ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "读取值",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "FAN",
             "desc": "风扇",
             "type": "JsonArray",
@@ -166,8 +156,50 @@
             ]
         },
         {
-            "name": "PROCESSOR",
-            "desc": "处理器",
+            "name": "FIRMWARE_REVISION",
+            "desc": "固态版本",
+            "type": "String"
+        },
+        {
+            "name": "FRU",
+            "desc": "可替换部件",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "FRU_DEVICE",
+                    "desc": "FRU设备",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_MFG",
+                    "desc": "制造商",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_PRODUCT",
+                    "desc": "产品型号",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "序列号",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_NUMBER",
+                    "desc": "零件号",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY",
+            "desc": "内存",
             "type": "JsonArray",
             "subset": [
                 {
@@ -247,8 +279,8 @@
             ]
         },
         {
-            "name": "MEMORY",
-            "desc": "内存",
+            "name": "PROCESSOR",
+            "desc": "处理器",
             "type": "JsonArray",
             "subset": [
                 {
@@ -269,92 +301,6 @@
                 {
                     "name": "STATUS",
                     "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "DRIVE_SLOT",
-            "desc": "驱动器插槽",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "传感器ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "实体ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "读取值",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CABLE",
-            "desc": "电缆",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "SENSOR_ID",
-                    "desc": "传感器ID",
-                    "type": "String"
-                },
-                {
-                    "name": "ENTITY_ID",
-                    "desc": "实体ID",
-                    "type": "String"
-                },
-                {
-                    "name": "SENSOR_READING",
-                    "desc": "读取值",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "FRU",
-            "desc": "可替换部件",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "FRU_DEVICE",
-                    "desc": "FRU设备",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_MFG",
-                    "desc": "制造商",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_PRODUCT",
-                    "desc": "产品型号",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_SERIAL",
-                    "desc": "序列号",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_NUMBER",
-                    "desc": "零件号",
                     "type": "String"
                 }
             ]
@@ -390,7 +336,7 @@
                     "type": "String"
                 }
             ]
-        }, 
+        },
         {
             "name": "SEL_LIST",
             "desc": "系统日志明细(最新20条)",
@@ -419,6 +365,60 @@
                 {
                     "name": "TYPE",
                     "desc": "类别",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TEMPERATURE",
+            "desc": "温度",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "传感器ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "实体ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "温度(℃)",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VOLTAGE",
+            "desc": "电压",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "SENSOR_ID",
+                    "desc": "传感器ID",
+                    "type": "String"
+                },
+                {
+                    "name": "ENTITY_ID",
+                    "desc": "实体ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SENSOR_READING",
+                    "desc": "读取值",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
                     "type": "String"
                 }
             ]

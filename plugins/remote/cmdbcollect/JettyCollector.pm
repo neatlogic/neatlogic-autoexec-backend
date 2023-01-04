@@ -94,6 +94,10 @@ sub collect {
     $version =~ s/^\s*|\s*$//g;
     $appInfo->{VERSION} = $version;
 
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Jetty$1";
+    }
+
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
     if ( $port == 65535 ) {

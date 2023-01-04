@@ -74,6 +74,10 @@ sub collect {
     }
     $appInfo->{VERSION} = $version;
 
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "ElasticSearch$1";
+    }
+
     if ( $cmdLine =~ /\s-Des.path.conf=(.*?)\s+-/ ) {
         $confPath = $1;
         $confPath =~ s/^["']|["']$//g;

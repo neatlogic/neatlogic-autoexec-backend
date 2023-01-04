@@ -33,6 +33,11 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "主版本",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "版本",
             "type": "String"
@@ -347,48 +352,6 @@
             ]
         },
         {
-            "name": "MON_STATUS",
-            "desc": "服务状态",
-            "type": "JsonObject",
-            "subset": [
-                {
-                    "name": "ACTIVE_CONNECTIONS",
-                    "desc": "活动连接数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_ACCEPTS",
-                    "desc": "接收请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_HANDLED",
-                    "desc": "处理请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVERR_EQUESTS",
-                    "desc": "请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "READING",
-                    "desc": "Reading",
-                    "type": "Int"
-                },
-                {
-                    "name": "WRITING",
-                    "desc": "Writing",
-                    "type": "Int"
-                },
-                {
-                    "name": "WAITING",
-                    "desc": "Waiting",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "MAIN_ENV",
             "desc": "主进程环境变量",
             "type": "JsonArray",
@@ -501,6 +464,48 @@
                     "name": "PROXY_PASS",
                     "desc": "转发地址",
                     "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MON_STATUS",
+            "desc": "服务状态",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "ACTIVE_CONNECTIONS",
+                    "desc": "活动连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_ACCEPTS",
+                    "desc": "接收请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_HANDLED",
+                    "desc": "处理请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVERR_EQUESTS",
+                    "desc": "请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "READING",
+                    "desc": "Reading",
+                    "type": "Int"
+                },
+                {
+                    "name": "WRITING",
+                    "desc": "Writing",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITING",
+                    "desc": "Waiting",
+                    "type": "Int"
                 }
             ]
         },

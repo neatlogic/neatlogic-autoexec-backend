@@ -99,7 +99,10 @@ sub collect {
     $version = $1;
     $version =~ s/,//g;
     $version =~ s/"//g;
-    $mongodbInfo->{VERSION}      = $version;
+    $mongodbInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $mongodbInfo->{MAJOR_VERSION} = "mongodb$1";
+    }
     $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVIRONMENT'}->{'LANG'};
 
     my $host    = '127.0.0.1';
