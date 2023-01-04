@@ -78,8 +78,12 @@ sub getVersion {
         }
     }
 
-    $appInfo->{EXE_PATH}       = $phpPath;
-    $appInfo->{VERSION}        = $version;
+    $appInfo->{EXE_PATH} = $phpPath;
+    $appInfo->{VERSION}  = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "PHP$1";
+    }
+
     $appInfo->{ENGINE_VERSION} = $engineVer;
 }
 

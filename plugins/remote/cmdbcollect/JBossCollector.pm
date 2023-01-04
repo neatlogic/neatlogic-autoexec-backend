@@ -110,7 +110,13 @@ sub collect {
     my @verOut = $self->getCmdOut($verCmd);
     foreach my $line (@verOut) {
         if ( $line =~ /jboss ([a-z]+\s)?(\d[^\s]*)/ ) {
-            $appInfo->{VERSION} = "$1$2";
+            my $verType = $1;
+            my $verNum  = $2;
+            $appInfo->{VERSION} = "$verType$verNum";
+
+            if ( $verNum =~ /(\d+)/ ) {
+                $appInfo->{MAJOR_VERSION} = "jboss $verType$1";
+            }
         }
     }
 

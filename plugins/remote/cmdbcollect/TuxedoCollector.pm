@@ -64,6 +64,9 @@ sub collect {
         $version = $&;
     }
     $appInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Tuxedo$1";
+    }
 
     my $insPath;
     my $insPathInfo = $self->getCmdOut( 'tmunloadcf |grep TUXDIR|head -n1', $user );

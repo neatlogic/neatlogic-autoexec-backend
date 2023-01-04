@@ -139,6 +139,9 @@ sub collect {
         $version = $1;
     }
     $postgresqlInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $postgresqlInfo->{MAJOR_VERSION} = "PostgreSQL$1";
+    }
 
     my $host       = '127.0.0.1';
     my $postgresql = PostgresqlExec->new(

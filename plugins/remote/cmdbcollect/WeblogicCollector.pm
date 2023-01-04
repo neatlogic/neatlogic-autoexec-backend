@@ -23,7 +23,7 @@ use CollectObjCat;
 sub getConfig {
     return {
         regExps  => ['\sweblogic.Server$'],    #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'java' },        #ps的属性的精确匹配
+        psAttrs  => { COMM    => 'java' },     #ps的属性的精确匹配
         envAttrs => { WL_HOME => undef }       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
@@ -31,9 +31,12 @@ sub getConfig {
 sub getConfigInfo {
     my ( $self, $appInfo, $domainHome, $serverName, $confFile ) = @_;
 
-    my $confObj = xml_to_object( $confFile, { file => 1 } );
+    my $confObj       = xml_to_object( $confFile, { file => 1 } );
     my $domainVersion = $confObj->path('domain-version')->value();
     $appInfo->{VERSION} = $domainVersion;
+    if ( $domainVersion =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Weblogic$1";
+    }
 
     #获取端口信息，其实也可以从CONN_INFO的LISTEN属性里获取
     # <server>
@@ -130,7 +133,7 @@ sub getPatchInfo {
     my $osUser     = $procInfo->{USER};
     my $oPatchPath = "$installPath/OPatch/opatch";
     if ( -f $oPatchPath ) {
-        my $cmdPath = File::Spec->canonpath($oPatchPath);
+        my $cmdPath   = File::Spec->canonpath($oPatchPath);
         my $patchInfo = $self->getCmdOut( qq{"$cmdPath" lsinventory}, $osUser );
         while ( $patchInfo =~ /Patch\s+(\d+)\s+:/g ) {
             push( @patches, { VALUE => $1 } );

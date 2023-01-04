@@ -15,6 +15,8 @@ use Cwd;
 use IO::File;
 use File::Basename;
 
+use Distribution;
+
 sub stripDMIComment {
     my ( $self, $str ) = @_;
 
@@ -55,25 +57,30 @@ sub getCpuLoad {
 
 sub getOsVersion {
     my ( $self, $osInfo ) = @_;
+    my $osMajorVer;
     my $osVer;
-    if ( -e '/etc/redhat-release' ) {
-        $osVer = $self->getFileContent('/etc/redhat-release');
-        $osVer =~ s/^\s*|\s*$//g;
+
+    eval {
+        my $dist = Distribution->new();
+
+        my $distName = $dist->distribution_name();
+        if ( defined($distName) ) {
+            my $version = $dist->distribution_version();
+            if ( not defined($version) ) {
+                $version = '';
+            }
+            $osVer = "${distName}${version}";
+            if ( $version =~ /(\d+)/ ) {
+                $osMajorVer = "${distName}$1";
+            }
+        }
+    };
+    if ($@) {
+        print("WARN: Get linux distribute info failed, $@\n");
     }
-    elsif ( -e '/etc/SuSE-release' ) {
-        my $verLines = $self->getFileLines('/etc/SuSE-release');
-        ($osVer) = grep( !/=/, @$verLines );
-        $osVer =~ s/^\s*|\s*$//g;
-    }
-    elsif ( -e '/etc/debian_version' ) {
-        $osVer = $self->getFileLines('/etc/debian_version');
-        $osVer =~ s/^\s*|\s*$//g;
-    }
-    elsif ( -e '/etc/fedora-release' ) {
-        $osVer = $self->getFileLines('/etc/fedora-release');
-        $osVer =~ s/^\s*|\s*$//g;
-    }
-    $osInfo->{VERSION} = $osVer;
+
+    $osInfo->{VERSION}       = $osVer;
+    $osInfo->{MAJOR_VERSION} = $osMajorVer;
 }
 
 sub getVendorInfo {

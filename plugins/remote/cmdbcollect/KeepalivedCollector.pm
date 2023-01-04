@@ -50,7 +50,7 @@ sub collect {
         }
         if ( $line =~ /configure options/ ) {
             my @values = split( /:/, $line );
-            my $cfg = $values[1] || '';
+            my $cfg    = $values[1] || '';
             $cfg =~ s/^\s*|\s*$//g;
             if ( $cfg =~ /--prefix=/ ) {
                 my @values = split( /=/, $cfg );
@@ -62,10 +62,14 @@ sub collect {
     my $configPath = File::Spec->catfile("/etc/keepalived/");
     my $configFile = File::Spec->catfile( $configPath, "keepalived.conf" );
 
-    $keepalivedInfo->{EXE_PATH}      = $exePath;
-    $keepalivedInfo->{BIN_PATH}      = $binPath;
-    $keepalivedInfo->{INSTALL_PATH}  = $basePath;
-    $keepalivedInfo->{VERSION}       = $version;
+    $keepalivedInfo->{EXE_PATH}     = $exePath;
+    $keepalivedInfo->{BIN_PATH}     = $binPath;
+    $keepalivedInfo->{INSTALL_PATH} = $basePath;
+    $keepalivedInfo->{VERSION}      = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $keepalivedInfo->{MAJOR_VERSION} = "Keepalived$1";
+    }
+
     $keepalivedInfo->{PREFIX}        = $prefix;
     $keepalivedInfo->{CONFIG_PATH}   = $configPath;
     $keepalivedInfo->{VRRP_SCRIPT}   = $self->parseConfig( $configFile, 'vrrp_script' );
@@ -77,7 +81,7 @@ sub collect {
 
 sub parseConfig {
     my ( $self, $conf_path, $identification ) = @_;
-    my @vrrp = $self->parseVrrp( $conf_path, $identification );
+    my @vrrp       = $self->parseVrrp( $conf_path, $identification );
     my @vrrpResult = ();
     foreach my $content (@vrrp) {
         my $instance = $self->parseStructure( $content, $identification );
@@ -90,10 +94,10 @@ sub formatStructure {
     my ( $self, $content, $identification ) = @_;
     my $newContent = '';
     while (1) {
-        my $index = index( $content, $identification );
-        my $block = substr( $content, 0, $index + 1 );
+        my $index       = index( $content, $identification );
+        my $block       = substr( $content, 0, $index + 1 );
         my @block_array = split( '\n', $block );
-        my $newBlock = '';
+        my $newBlock    = '';
         foreach my $line (@block_array) {
             $line =~ s/^\s*|\s*$//g;
             if ( $line eq '' or $line =~ /^#/ ) {
@@ -109,7 +113,7 @@ sub formatStructure {
         $block =~ s/\n/ /;
         $block =~ s/\r/ /;
         $newContent = $newContent . $newBlock;
-        $content = substr( $content, $index + 1, length($content) );
+        $content    = substr( $content, $index + 1, length($content) );
         if ( $index == -1 ) {
             $newContent = $newContent . $content;
             last;
@@ -125,14 +129,14 @@ sub parseStructure {
     my $name;
     $content =~ s/$identification//g;
     $index = index( $content, '{' );
-    $name = substr( $content, 0, $index );
+    $name  = substr( $content, 0, $index );
     $name =~ s/^\s*|\s*$//g;
     $instance->{NAME} = $name;
     $content = substr( $content, $index + 1, length($content) );
 
     #分析正文
     my @contents = split( '[\n\r]', $content );
-    my $block = '';
+    my $block    = '';
     my ( $startIndex, $endIndex ) = ( 0, 0 );
     foreach my $line (@contents) {
         $line =~ s/^\s*|\s*$//g;

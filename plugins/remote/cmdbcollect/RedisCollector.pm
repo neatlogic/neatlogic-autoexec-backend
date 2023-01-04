@@ -55,7 +55,11 @@ sub collect {
     #Redis server v=3.2.12 sha=00000000:0 malloc=jemalloc-3.6.0 bits=64 build=7897e7d0e13773f
     my $verInfo = $self->getCmdOut(qq{"$exePath" -v});
     if ( $verInfo =~ /v=([\d\.]+)/ ) {
-        $redisInfo->{VERSION} = $1;
+        my $version = $1;
+        $redisInfo->{VERSION} = $version;
+        if ( $version =~ /(\d+)/ ) {
+            $redisInfo->{MAJOR_VERSION} = "Redis$1";
+        }
     }
 
     my $configFile = File::Spec->catfile( $binPath, "redis.conf" );

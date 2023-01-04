@@ -183,6 +183,9 @@ sub collect {
         }
     }
     $mysqlInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $mysqlInfo->{MAJOR_VERSION} = "MySQL$1";
+    }
 
     my $host  = '127.0.0.1';
     my $mysql = MysqlExec->new(

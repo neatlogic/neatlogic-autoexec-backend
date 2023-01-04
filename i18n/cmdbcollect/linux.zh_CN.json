@@ -33,8 +33,18 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "OS主版本",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "OS版本",
+            "type": "String"
+        },
+        {
+            "name": "KERNEL_VERSION",
+            "desc": "内核版本",
             "type": "String"
         },
         {
@@ -114,11 +124,6 @@
         {
             "name": "SYS_VENDOR",
             "desc": "厂商",
-            "type": "String"
-        },
-        {
-            "name": "KERNEL_VERSION",
-            "desc": "内核版本",
             "type": "String"
         },
         {
@@ -534,6 +539,75 @@
             "type": "Float"
         },
         {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "IS_VRITUAL",
+                    "desc": "是否虚拟",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
@@ -608,109 +682,6 @@
             "type": "String"
         },
         {
-            "name": "HOST_ON",
-            "desc": "Run On Host",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "主机归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "主机类型",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_SERIAL",
-                    "desc": "主板序列号",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "PATCHES_APPLIED",
-            "desc": "已打补丁",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "补丁",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "ETH_INTERFACES",
-            "desc": "网卡",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "网卡名",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "网卡地址",
-                    "type": "String"
-                },
-                {
-                    "name": "IS_VRITUAL",
-                    "desc": "是否虚拟",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "速率(Mbps)",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PORTS",
-                    "desc": "连接交换机端口",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属类别",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "交换机类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "DEV_NAME",
-                            "desc": "交换机名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "交换机管理Ip",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SN",
-                            "desc": "交换机序列号",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "端口名",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -781,6 +752,40 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "HOST_ON",
+            "desc": "Run On Host",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "主机归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "主机类型",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "主板序列号",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PATCHES_APPLIED",
+            "desc": "已打补丁",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "补丁",
+                    "type": "String"
                 }
             ]
         }

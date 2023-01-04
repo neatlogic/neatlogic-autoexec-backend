@@ -70,6 +70,10 @@ sub collect {
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $appInfo->{VERSION}       = $version;
 
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "IIS$1";
+    }
+
     # Name             ID   State      Physical Path                  Bindings
     # ----             --   -----      -------------                  --------
     # Default Web Site 1    Started    %SystemDrive%\inetpub\wwwroot  http *:80:

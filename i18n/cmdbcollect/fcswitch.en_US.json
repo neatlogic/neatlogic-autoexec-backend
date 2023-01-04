@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "Object Type",
             "type": "String"
@@ -14,11 +15,6 @@
         {
             "name": "MGMT_IP",
             "desc": "Managment IP",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "Device Name",
             "type": "String"
         },
         {
@@ -50,7 +46,8 @@
             "name": "IP_ADDRS",
             "desc": "IP Addresses",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -83,6 +80,11 @@
             "type": "String"
         },
         {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
             "name": "FIRMWARE_VERSION",
             "desc": "Firmware version",
             "type": "String"
@@ -91,7 +93,8 @@
             "name": "LINK_TABLE",
             "desc": "Link Table",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "PORT_NAME",
                     "desc": "Local Port Name",
                     "type": "String"
@@ -119,36 +122,11 @@
             ]
         },
         {
-            "name": "PORTS_COUNT",
-            "desc": "Ports Count",
-            "type": "Int"
-        },
-        {
-            "name": "WWNN",
-            "desc": "Node WWN",
-            "type": "String"
-        },
-        {
-            "name": "ZONES",
-            "desc": "Zone List",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "Zone Name",
-                    "type": "String"
-                },
-                {
-                    "name": "INDEX",
-                    "desc": "Index",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "PORTS",
             "desc": "SWitch Ports",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "Interface Name",
                     "type": "String"
@@ -242,6 +220,33 @@
                     "name": "OUT_ERRORS",
                     "desc": "OutErrors(pps)",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "Ports Count",
+            "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "Node WWN",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Zone Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
                 }
             ]
         }

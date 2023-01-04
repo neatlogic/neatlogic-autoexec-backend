@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "RPA"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
             "type": "String"
@@ -72,10 +73,75 @@
             "type": "Int"
         },
         {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "CLUSTERS",
             "desc": "集群配置",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -84,7 +150,8 @@
                     "name": "RPAS",
                     "desc": "集群部署RPA",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -118,7 +185,8 @@
                             "name": "ETH_INTERFACES",
                             "desc": "以太网卡",
                             "type": "JsonArray",
-                            "subset": [{
+                            "subset": [
+                                {
                                     "name": "NAME",
                                     "desc": "名称",
                                     "type": "String"
@@ -144,7 +212,8 @@
                             "name": "HBA_INTERFACES",
                             "desc": "HBA卡",
                             "type": "JsonArray",
-                            "subset": [{
+                            "subset": [
+                                {
                                     "name": "WWPN",
                                     "desc": "WWPN",
                                     "type": "String"
@@ -169,7 +238,8 @@
             "name": "CONSISTENCY_GROUPS",
             "desc": "一致性组",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -178,7 +248,8 @@
                     "name": "COPIES",
                     "desc": "拷贝",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -229,7 +300,8 @@
                     "name": "LINKS",
                     "desc": "传输链接",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -269,82 +341,11 @@
             "type": "String"
         },
         {
-            "name": "REPOSITORY_VOL_STATUS",
-            "desc": "数据卷状态",
-            "type": "String"
-        },
-        {
-            "name": "STATUS",
-            "desc": "健康状态",
-            "type": "String"
-        },
-        {
-            "name": "ETH_INTERFACES",
-            "desc": "网卡",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "网卡名",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "网卡地址",
-                    "type": "String"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "速率(Mbps)",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PORTS",
-                    "desc": "连接交换机端口",
-                    "type": "JsonArray",
-                    "subset": [{
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属类别",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "交换机类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "DEV_NAME",
-                            "desc": "交换机名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "交换机管理Ip",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SN",
-                            "desc": "交换机序列号",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "端口名",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -373,7 +374,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接光交端口",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -406,6 +408,16 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "REPOSITORY_VOL_STATUS",
+            "desc": "数据卷状态",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "健康状态",
+            "type": "String"
         }
     ]
 }

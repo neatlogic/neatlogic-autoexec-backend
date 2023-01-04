@@ -73,6 +73,9 @@ sub getVersion {
 
     $appInfo->{EXE_PATH} = $pythonPath;
     $appInfo->{VERSION}  = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Python$1";
+    }
 }
 
 sub collect {

@@ -46,6 +46,9 @@ sub getMiscInfo {
     my $osVer = $self->getCmdOut('oslevel -s');
     $osVer =~ s/^\s*|\s*$//g;
     $osInfo->{VERSION} = $osVer;
+    if ( $osVer =~ /(\d)/ ) {
+        $osInfo->{MAJOR_VERSION} = "AIX$1";
+    }
 
     my $machineId = $self->getCmdOut('uname -m');
     $machineId =~ s/^\s*|\s*$//g;
