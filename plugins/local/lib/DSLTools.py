@@ -185,9 +185,11 @@ def _and(a, b):
 
 
 class Interpreter(object):
-    def __init__(self, AST=None, ruleName=None, ruleLevel=None, data=None):
+    def __init__(self, AST=None, ruleAppId=None, ruleSeq=None, ruleName=None, ruleLevel=None, data=None):
         # data格式为dict格式
         self.AST = AST
+        self.ruleAppId = ruleAppId
+        self.ruleSeq = ruleSeq
         self.ruleName = ruleName
         self.ruleLevel = ruleLevel
         self.data = data
@@ -433,7 +435,8 @@ class Interpreter(object):
                     if op(resultFieldVal, value):
                         matchedField = {
                             'jsonPath': jsonPath[1:],
-                            'ruleName': self.ruleName,
+                            'ruleAppId': self.ruleAppId,
+                            'ruleSeq': self.ruleSeq,
                             'ruleLevel': self.ruleLevel,
                             'fieldValue': fieldValue,
                         }
@@ -586,7 +589,7 @@ if __name__ == "__main__":
     ast = Parser(rule1)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
-    interpreter = Interpreter(AST=ast.asList(), ruleName="测试", ruleLevel="L1", data=data)
+    interpreter = Interpreter(AST=ast.asList(), ruleAppId=15, ruleSeq='ABS#13', ruleName="测试", ruleLevel="L1", data=data)
     matchedFields = interpreter.resolve()
 
     print(json.dumps(matchedFields, ensure_ascii=False, sort_keys=True, indent=4))

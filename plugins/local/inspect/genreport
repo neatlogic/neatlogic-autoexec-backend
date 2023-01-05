@@ -11,6 +11,9 @@ import json
 from bson.json_util import dumps, loads
 from DSLTools import Parser, Interpreter
 
+# inspect defined for app system cache
+appSystemParsedCache = {}
+
 
 def usage():
     pname = os.path.basename(__file__)
@@ -95,6 +98,65 @@ def getAlertSummarized(alerts):
             'alertFields': alertFieldsArray}
 
 
+def getAppMetrisDef(db, appSysIds, defName, parentRuleMap):
+    newAppDefs = []
+    queryAppSysIds = []
+    for appSysId in appSysIds:
+        cachedAppDef = appSystemParsedCache.get(appSysId)
+        if cachedAppDef is not None:
+            newAppDefs.append(cachedAppDef)
+        else:
+            queryAppSysIds.append(appSysId)
+
+    appDefCollection = db['_inspectdef_app']
+    # find appsystem custome threshold
+    appDefs = []
+    if queryAppSysIds:
+        appDefs = appDefCollection.find({'appSystemId': {'$in': appSysIds}, 'name': defName})
+
+    for appDef in appDefs:
+        # 比较AST抽象语法树结构生成时间根规则修改时间，如果老了则进行AST分析并保存和更新到DB
+        ruleSeq = 5000
+        ruleNeedUpdate = False
+        currentTime = datetime.datetime.utcnow()
+        for ruleDef in appDef['thresholds']:
+            if ruleDef.get('isOverWrite') != 1:
+                ruleSeq = ruleSeq + 1
+                ruleDef['ruleSeq'] = '%s#%d' % (ruleDef.get('appSystemAbbrName'), ruleSeq)
+            else:
+                parentRule = parentRuleMap.get(ruleDef['ruleUuid'])
+                ruleDef['ruleSeq'] = parentRule.get('ruleSeq')
+            ruleDef['appSystemId'] = appDef['appSystemId']
+
+            updateTime = None
+            if updateTime in ruleDef:
+                ruleDef['_updatetime']
+            else:
+                updateTime = currentTime
+
+            astGenTime = None
+            if astGenTime in ruleDef:
+                astGenTime = ruleDef['_astgentime']
+
+            if astGenTime is None or updateTime is None or astGenTime < updateTime:
+                ruleDef['_astgentime'] = currentTime
+                ast = Parser(ruleDef['rule'])
+                ruleDef['AST'] = ast.asList()
+                # print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+                ruleNeedUpdate = True
+
+        if ruleNeedUpdate:
+            _id = appDef['_id']
+            del(appDef['_id'])
+            appDefCollection.update_one({'_id': _id},
+                                        {'$set':
+                                         {'thresholds': appDef['thresholds']}
+                                         })
+        newAppDefs.appned(appDef)
+
+    return newAppDefs
+
+
 def getMetricsDef(db, objCat, objType):
     inspectDefCollection = db['_inspectdef']
     collectName = 'COLLECT_' + objCat.upper()
@@ -112,9 +174,15 @@ def getMetricsDef(db, objCat, objType):
                 'thresholds': []}
 
     # 比较AST抽象语法树结构生成时间根规则修改时间，如果老了则进行AST分析并保存和更新到DB
+    ruleMap = {}
+    ruleSeq = 0
     ruleNeedUpdate = False
     currentTime = datetime.datetime.utcnow()
     for ruleDef in inspectDef['thresholds']:
+        ruleSeq = ruleSeq + 1
+        ruleDef['ruleSeq'] = '#%d' % (ruleSeq)
+        ruleMap[ruleDef.get('ruleUuid', 0)] = ruleDef
+
         updateTime = None
         if updateTime in ruleDef:
             ruleDef['_updatetime']
@@ -291,10 +359,8 @@ def getInspectData(nodeInfo):
 
 def inspectData(nodeInfo):
     rptDataRecords = []
-    currentTime = datetime.datetime.utcnow()
     execUser = os.getenv('AUTOEXEC_USER')
     inspectDefMap = {}
-    objCatRulesMap = {}
     objCatFieldsMap = {}
     # 获取cmdb对单个节点采集的数据
     dataRecords = getInspectData(nodeInfo)
@@ -311,10 +377,6 @@ def inspectData(nodeInfo):
                 inspectDef = getMetricsDef(db, objCat, objType)
                 inspectDefMap[objCat] = inspectDef
 
-                for inspectRule in inspectDef['thresholds']:
-                    inspectRulesMap[inspectRule['name']] = inspectRule
-                objCatRulesMap[objCat] = inspectRulesMap
-
                 needFieldsMap = {
                     'AVAILABILITY': 1,
                     'ERROR_MESSAGE': 1,
@@ -324,6 +386,18 @@ def inspectData(nodeInfo):
                 for fieldDef in inspectDef['fields']:
                     if fieldDef['selected'] == 1:
                         needFieldsMap[fieldDef['name']] = 1
+
+            appSysIds = nodeInfo.get('appSysetmId', None)
+            defName = inspectDef['name']
+            thresholdsMap = {}
+            for ruleDef in inspectDef['thresholds']:
+                thresholdsMap[ruleDef.get('ruleUuid', 0)] = ruleDef
+                inspectRulesMap[ruleDef.get('ruleSeq')] = ruleDef
+
+            for appDef in getAppMetrisDef(db, appSysIds, defName, thresholdsMap):
+                for appRuleDef in appDef['thresholds']:
+                    thresholdsMap[appRuleDef.get('ruleUuid', 0)] = appRuleDef
+                    inspectRulesMap[appRuleDef.get('ruleSeq')] = appRuleDef
 
             rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
                        'MGMT_IP': nodeInfo['host'],
@@ -336,12 +410,10 @@ def inspectData(nodeInfo):
                 if needField in dataCollected:
                     rptData[needField] = dataCollected[needField]
 
-            inspectRules = inspectDef['thresholds']
             alerts = []
-            matchedFields = None
-            for inspectRule in inspectRules:
+            for inspectRule in thresholdsMap.values():
                 ast = inspectRule['AST']
-                interpreter = Interpreter(AST=ast, ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
+                interpreter = Interpreter(AST=ast, ruleAppId=inspectRule.get('appSystemId'), ruleSeq=inspectRule['ruleSeq'], ruleName=inspectRule['name'], ruleLevel=inspectRule['level'], data=dataCollected)
                 ruleAlerts = interpreter.resolve()
                 alerts.extend(ruleAlerts)
                 # alerts的数据结构
@@ -349,12 +421,16 @@ def inspectData(nodeInfo):
                 #     {
                 #         "jsonPath": "$.DISKS[0].CAPACITY",
                 #         "ruleLevel": "WARN",
+                #         "ruleAppId": 234315,
+                #         "ruleSeq": "ABS#12",
                 #         "ruleName": "测试",
                 #         "fieldValue": 92,
                 #     },
                 #     {
                 #         "jsonPath": "$.DISKS[1].CAPACITY",
                 #         "ruleLevel": "WARN",
+                #         "ruleAppId": 234315,
+                #         "ruleSeq": "ABS#13",
                 #         "ruleName": "测试",
                 #         "fieldValue": 92,
                 #     }
@@ -373,8 +449,8 @@ def inspectData(nodeInfo):
             if alerts:
                 # 如果存在匹配了告警规则的rule，则存放到报告中，用于匹配规则的展示
                 for alert in alerts:
-                    ruleName = alert['ruleName']
-                    alertThresHolds[ruleName] = inspectRulesMap[ruleName]
+                    ruleSeq = alert['ruleSeq']
+                    alertThresHolds[ruleSeq] = inspectRulesMap[ruleSeq]
                 inspectResult['hasAlert'] = True
             else:
                 inspectResult['hasAlert'] = False
@@ -384,23 +460,27 @@ def inspectData(nodeInfo):
                 alerts.append({
                     "jsonPath": "$.AVAILABILITY",
                     "ruleLevel": "CRITICAL",
+                    'ruleSeq': '#01',
                     'ruleName': "可用性告警",
                     'fieldValue': availability
                 })
-                alertThresHolds['可用性告警'] = {'name': '可用性告警',
-                                            'level': 'CRITICAL',
-                                            'rule': '$.AVAILABILITY != True'}
+                alertThresHolds['#01'] = {'name': '可用性告警',
+                                          'level': 'CRITICAL',
+                                          'ruleSeq': '#01',
+                                          'rule': '$.AVAILABILITY != True'}
 
                 if rptData.get('ERROR_MESSAGE'):
                     alerts.append({
                         "jsonPath": "$.ERROR_MESSAGE",
                         "ruleLevel": "CRITICAL",
                         'ruleName': "错误信息非空",
+                        'ruleSeq': '#02',
                         'fieldValue': rptData.get('ERROR_MESSAGE')
                     })
-                    alertThresHolds['错误信息非空'] = {'name': '错误信息非空',
-                                                 'level': 'CRITICAL',
-                                                 'rule': '$.ERROR_MESSAGE != ""'}
+                    alertThresHolds['#02'] = {'name': '错误信息非空',
+                                              'level': 'CRITICAL',
+                                              'ruleSeq': '#02',
+                                              'rule': '$.ERROR_MESSAGE != ""'}
 
             inspectResult['thresholds'] = alertThresHolds
 
