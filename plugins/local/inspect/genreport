@@ -99,6 +99,9 @@ def getAlertSummarized(alerts):
 
 
 def getAppMetrisDef(db, appSysIds, defName, parentRuleMap):
+    if not appSysIds:
+        return []
+
     newAppDefs = []
     queryAppSysIds = []
     for appSysId in appSysIds:
