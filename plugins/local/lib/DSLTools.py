@@ -437,6 +437,7 @@ class Interpreter(object):
                             'jsonPath': jsonPath[1:],
                             'ruleAppId': self.ruleAppId,
                             'ruleSeq': self.ruleSeq,
+                            'ruleName': self.ruleName,
                             'ruleLevel': self.ruleLevel,
                             'fieldValue': fieldValue,
                         }
