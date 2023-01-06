@@ -1280,53 +1280,73 @@ class RunNode:
                 # Copy a local file (localpath) to the SFTP server as remotepath
                 try:
                     try:
-                        sftp.stat(remoteRoot)
+                        # sftp.stat(remoteRoot)
+                        sftp.chdir(remoteRoot)
                     except IOError:
                         sftp.mkdir(remoteRoot)
+                        sftp.chdir(remoteRoot)
                 except SFTPError as err:
                     hasError = True
-                    self.writeNodeLog("ERROR: Mkdir {} failed: {}\n".format(remoteRoot, err))
+                    self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(remoteRoot, err))
 
                 absRoot = op.remotePluginRootPath
                 dirStartPos = len(absRoot) + 1
                 for root, dirs, files in os.walk(op.remotePluginRootPath + '/lib', topdown=True, followlinks=True):
                     root = root[dirStartPos:]
                     try:
-                        # 创建当前目录
-                        sftp.mkdir(os.path.join(remoteRoot, root))
-                    except:
-                        pass
-                    for direntry in dirs:
+                        curRoot = os.path.join(remoteRoot, root)
                         try:
-                            sftp.mkdir(os.path.join(remoteRoot, root, direntry))
+                            sftp.chdir(curRoot)
                         except:
-                            pass
-                    for name in files:
-                        # 遍历文件并scp到目标上
-                        filePath = os.path.join(root, name)
-                        absFilePath = os.path.join(absRoot, filePath)
-                        try:
-                            sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
-                        except Exception as err:
-                            hasError = True
-                            self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
+                            # 创建当前目录
+                            sftp.mkdir(curRoot)
+                            sftp.chdir(curRoot)
+                    except Exception as err:
+                        hasError = True
+                        self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(root, err))
+
+                    if not hasError:
+                        for direntry in dirs:
+                            try:
+                                try:
+                                    sftp.stat(direntry)
+                                except:
+                                    sftp.mkdir(direntry)
+                            except Exception as err:
+                                hasError = True
+                                self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(os.path.join(root, direntry), err))
+
+                    if not hasError:
+                        for name in files:
+                            # 遍历文件并scp到目标上
+                            filePath = os.path.join(root, name)
+                            absFilePath = os.path.join(absRoot, filePath)
+                            try:
+                                sftp.put(absFilePath, name)
+                            except Exception as err:
+                                hasError = True
+                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
                 if op.isScript == 1:
                     try:
-                        sftp.stat(remotePath)
-                    except IOError:
-                        sftp.mkdir(remotePath)
-                    except SFTPError as err:
+                        try:
+                            # sftp.stat(remotePath)
+                            sftp.chdir(remotePath)
+                        except:
+                            sftp.mkdir(remotePath)
+                            sftp.chdir(remotePath)
+                    except Exception as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: Mkdir {} failed: {}\n".format(remotePath, err))
+                        self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(remotePath, err))
 
-                    scriptFile = open(op.pluginPath, 'r')
-                    fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                    sftp.put(op.pluginPath, os.path.join(remotePath, op.scriptFileName))
-                    fcntl.flock(scriptFile, fcntl.LOCK_UN)
-                    scriptFile.close()
-                    scriptFile = None
-                    sftp.chmod(os.path.join(remotePath, op.scriptFileName), stat.S_IRWXU)
+                    if not hasError:
+                        scriptFile = open(op.pluginPath, 'r')
+                        fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                        sftp.put(op.pluginPath, op.scriptFileName)
+                        fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                        scriptFile.close()
+                        scriptFile = None
+                        sftp.chmod(op.scriptFileName, stat.S_IRWXU)
 
                     # remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
                     # remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
@@ -1336,24 +1356,38 @@ class RunNode:
                     for root, dirs, files in os.walk(op.remotePluginRootPath + '/' + op.opBunddleName, topdown=True, followlinks=True):
                         root = root[dirStartPos:]
                         try:
-                            # 创建当前目录
-                            sftp.mkdir(os.path.join(remoteRoot, root))
-                        except:
-                            pass
-                        for direntry in dirs:
+                            curRoot = os.path.join(remoteRoot, root)
                             try:
-                                sftp.mkdir(os.path.join(remoteRoot, root, direntry))
+                                # 创建当前目录
+                                sftp.chdir(curRoot)
                             except:
-                                pass
-                        for name in files:
-                            # 遍历文件并scp到目标上
-                            filePath = os.path.join(root, name)
-                            absFilePath = os.path.join(absRoot, filePath)
-                            try:
-                                sftp.put(absFilePath, os.path.join(remoteRoot, filePath))
-                            except Exception as err:
-                                hasError = True
-                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
+                                sftp.mkdir(curRoot)
+                                sftp.chdir(curRoot)
+                        except Exception as err:
+                            hasError = True
+                            self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(root, err))
+
+                        if not hasError:
+                            for direntry in dirs:
+                                try:
+                                    try:
+                                        sftp.stat(direntry)
+                                    except:
+                                        sftp.mkdir(direntry)
+                                except Exception as err:
+                                    hasError = True
+                                    self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(os.path.join(root, direntry), err))
+
+                        if not hasError:
+                            for name in files:
+                                # 遍历文件并scp到目标上
+                                filePath = os.path.join(root, name)
+                                absFilePath = os.path.join(absRoot, filePath)
+                                try:
+                                    sftp.put(absFilePath, name)
+                                except Exception as err:
+                                    hasError = True
+                                    self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
 
                     sftp.chmod('{}/{}'.format(remotePath, op.opSubName), stat.S_IRWXU)
 
