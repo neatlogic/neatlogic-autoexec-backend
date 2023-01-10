@@ -1,24 +1,24 @@
 #!/usr/bin/perl
 use strict;
 
-package PostgresqlExec;
+package MysqlExec;
 
 use POSIX qw(uname);
 use Carp;
 
-#postgresql的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
+#sqlplus的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
 
 sub new {
     my ( $type, %args ) = @_;
     my $self = {
-        host     => $args{host},
-        port     => $args{port},
-        username => $args{username},
-        password => $args{password},
-        sslmode  => $args{sslmode},
-        dbname   => $args{dbname},
-        osUser   => $args{osUser},
-        psqlHome => $args{psqlHome}
+        host       => $args{host},
+        port       => $args{port},
+        socketPath => $args{socketPath},
+        username   => $args{username},
+        password   => $args{password},
+        dbname     => $args{dbname},
+        osUser     => $args{osUser},
+        mysqlHome  => $args{mysqlHome}
     };
 
     my @uname  = uname();
@@ -35,51 +35,56 @@ sub new {
         $isRoot = 1;
     }
 
-    my $psqlCmd;
-    if ( defined( $args{psqlHome} ) and -d $args{psqlHome} ) {
-        $psqlCmd = "'$args{psqlHome}/bin/psql' ";
+    my $mysqlCmd;
+    if ( defined( $args{mysqlHome} ) and -d $args{mysqlHome} ) {
+        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t";
     }
     else {
-        $psqlCmd = 'psql';
+        $mysqlCmd = 'mysql -t';
     }
 
-    if ( defined( $args{host} ) or defined( $args{port} ) ) {
+    if ( defined( $args{socketPath} ) and -e $args{socketPath} ) {
+        $mysqlCmd = "$mysqlCmd --socket '$args{socketPath}'";
+    }
+    elsif ( defined( $args{host} ) or defined( $args{port} ) ) {
         if ( defined( $args{host} ) ) {
-            $psqlCmd = "$psqlCmd  -h'$args{host}'";
-        }
-        if ( defined( $args{port} ) ) {
-            $psqlCmd = "$psqlCmd -p $args{port}";
+            $mysqlCmd = "$mysqlCmd  -h'$args{host}'";
         }
         else {
-            $psqlCmd = "$psqlCmd -p 5432";
+            $mysqlCmd = "$mysqlCmd -h127.0.0.1";
+        }
+        if ( defined( $args{port} ) ) {
+            $mysqlCmd = "$mysqlCmd -P$args{port}";
+        }
+        else {
+            $mysqlCmd = "$mysqlCmd -P3306";
         }
     }
 
-    if ( defined( $args{username} ) and $args{username} ne '' ) {
-        $psqlCmd = "$psqlCmd -U '$args{username}'";
+    if ( defined( $args{username} ) ) {
+        $mysqlCmd = "$mysqlCmd -u'$args{username}'";
+    }
+    else {
+        $mysqlCmd = "$mysqlCmd -uroot";
     }
 
     if ( defined( $args{password} ) ) {
-        $ENV{PGPASSWORD} = $args{password};
+        my $out = `$mysqlCmd -e 'set names utf8;' 2>&1`;
+
+        #探测到需要用密码才设置密码
+        if ( $? != 0 ) {
+            $mysqlCmd = "$mysqlCmd -p'$args{password}'";
+        }
     }
 
-    my $paramsLine = '';
     if ( defined( $args{dbname} ) ) {
-        $paramsLine = "$paramsLine dbname=$args{dbname}";
-    }
-
-    if ( defined( $args{sslmode} ) ) {
-        $paramsLine = "$paramsLine sslmode=$args{sslmode}";
-    }
-
-    if ( $paramsLine ne '' ) {
-        $psqlCmd = qq{$psqlCmd '$paramsLine'};
+        $mysqlCmd = "$mysqlCmd -D'$args{dbname}'";
     }
 
     if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
-        $psqlCmd = qq{su - $osUser -c "$psqlCmd"};
+        $mysqlCmd = qq{su - $osUser -c "$mysqlCmd"};
     }
-    $self->{psqlCmd} = $psqlCmd;
+    $self->{mysqlCmd} = $mysqlCmd;
 
     bless( $self, $type );
     return $self;
@@ -94,37 +99,47 @@ sub _parseOutput {
     my @fieldNames = ();
 
     #字段描述信息，分析行头时一行对应一个字段描述数组
-    my @fieldDescs = ();
-    my @rowsArray  = ();
-    my $state      = 'heading';
-
-    for ( my $i = 0 ; $i < $linesCount - 1 ; $i++ ) {
+    my @fieldDescs   = ();
+    my @rowsArray    = ();
+    my $state        = 'heading';
+    my $headingBegin = 0;
+    for ( my $i = 0 ; $i < $linesCount ; $i++ ) {
         my $line = $lines[$i];
 
         #错误识别
-        if ( $line =~ /^ERROR:/ ) {
+        #ERROR at line 1:
+        #ORA-00907: missing right parenthesis
+        if ( $line =~ /^ERROR\s*[^:]*?:.*?$/ or $line =~ /^ERROR.*?:.*?$/ ) {
             $hasError = 1;
-            print( $line, "\n" );
+            print( $line,            "\n" );
+            print( $lines[ $i + 1 ], "\n" );
+        }
+
+        if ( $headingBegin == 0 and $line !~ /^[-\+]+$/ ) {
+            next;
+        }
+        else {
+            $headingBegin = 1;
         }
 
         if ( $state eq 'heading' ) {
 
             #sqlplus的输出根据headsize的设置，一条记录会用多个行进行输出
-            if ( $line =~ /^[-\+]+$/ ) {
-                my $headerLine = $lines[ $i - 1 ];
-                my $linePos    = 1;
+            my $underLine = $lines[ $i + 1 ];
+            if ( $underLine =~ /^[-\+]+$/ ) {
+                my $linePos = 1;
 
                 #sqlplus的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
                 #如果一行多个字段，字段之间的------中间会有空格，譬如：---- ---------
-                my @lineSegs = split( /\+/, $line );
-                for ( my $j = 0 ; $j < scalar(@lineSegs) ; $j++ ) {
-                    my $segment = $lineSegs[$j];
+                my @underLineSegs = split( /\+/, $underLine );
+                for ( my $j = 1 ; $j < scalar(@underLineSegs) ; $j++ ) {
+                    my $segment = $underLineSegs[$j];
 
                     #减号的数量就时字段的显示字节宽度
                     my $fieldLen = length($segment);
 
                     #linePos记录了当前行匹配的开始位置，根据字段的显示宽度从当前行抽取字段名
-                    my $fieldName = substr( $headerLine, $linePos, $fieldLen - 1 );
+                    my $fieldName = substr( $line, $linePos, $fieldLen );
                     $fieldName =~ s/^\s+|\s+$//g;
 
                     #生成字段描述，记录名称、行中的开始位置、长度信息
@@ -140,16 +155,17 @@ sub _parseOutput {
 
                     $linePos = $linePos + $fieldLen + 1;
                 }
+                $i++;
                 $state = 'row';
             }
         }
-        else {
+        elsif ( $line =~ /^\|/ ) {
             my $row = {};
 
             foreach my $fieldDesc (@fieldDescs) {
 
                 #根据字段描述的行中的开始位置和长度，substr抽取字段值
-                my $val = substr( $lines[$i], $fieldDesc->{start}, $fieldDesc->{len} - 1 );
+                my $val = substr( $line, $fieldDesc->{start}, $fieldDesc->{len} );
                 if ( defined($val) ) {
                     $val =~ s/^\s+|\s+$//g;
                 }
@@ -195,7 +211,7 @@ sub _execSql {
     my $sqlFH;
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
-        $cmd = qq{$self->{psqlCmd} << "EOF"
+        $cmd = qq{$self->{mysqlCmd} << "EOF"
                $sql
                EOF
               };
@@ -207,12 +223,11 @@ sub _execSql {
         $sqlFH = File::Temp->new( UNLINK => 1, SUFFIX => '.sql' );
         my $fname = $sqlFH->filename;
         print $sqlFH ($sql);
-        print $sqlFH ("\n\\q\n");
         $sqlFH->close();
 
-        my $psqlCmd = $self->{psqlCmd};
-        $psqlCmd =~ s/'/"/g;
-        $cmd = qq{$psqlCmd -f "$fname"};
+        my $mysqlCmd = $self->{mysqlCmd};
+        $mysqlCmd =~ s/'/"/g;
+        $cmd = qq{$mysqlCmd < "$fname"};
     }
 
     if ($isVerbose) {
