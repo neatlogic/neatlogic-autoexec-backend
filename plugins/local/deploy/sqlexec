@@ -151,10 +151,10 @@ sub main {
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
-        $toolsDir           = "$autoexecHome/tools";
         $ENV{AUTOEXEC_HOME} = $autoexecHome;
         $ENV{TOOLS_PATH}    = $toolsDir;
     }
+    $toolsDir = "$autoexecHome/tools";
 
     my $dbExtArgs = {
         fileCharset => $charSet,
