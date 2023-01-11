@@ -127,7 +127,7 @@ def getAppMetrisDef(db, appSysIds, defName, parentRuleMap):
         for ruleDef in appDef['thresholds']:
             if ruleDef.get('isOverWrite') != 1:
                 ruleSeq = ruleSeq + 1
-                ruleDef['ruleSeq'] = '%s#%d' % (ruleDef.get('appSystemAbbrName'), ruleSeq)
+                ruleDef['ruleSeq'] = '%s#%d' % (appDef.get('appSystemAbbrName'), ruleSeq)
             else:
                 parentRule = parentRuleMap.get(ruleDef['ruleUuid'])
                 ruleDef['ruleSeq'] = parentRule.get('ruleSeq')
@@ -157,7 +157,7 @@ def getAppMetrisDef(db, appSysIds, defName, parentRuleMap):
                                         {'$set':
                                          {'thresholds': appDef['thresholds']}
                                          })
-        newAppDefs.appned(appDef)
+        newAppDefs.append(appDef)
 
     return newAppDefs
 
@@ -392,7 +392,7 @@ def inspectData(nodeInfo):
                     if fieldDef['selected'] == 1:
                         needFieldsMap[fieldDef['name']] = 1
 
-            appSysIds = nodeInfo.get('appSysetmId', None)
+            appSysIds = nodeInfo.get('appSystemId', None)
             defName = inspectDef['name']
             thresholdsMap = {}
             for ruleDef in inspectDef['thresholds']:
