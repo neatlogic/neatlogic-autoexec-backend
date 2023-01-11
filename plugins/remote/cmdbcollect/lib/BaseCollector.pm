@@ -158,7 +158,7 @@ sub isMainProcess {
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();
-                my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+                my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} , 0  );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
                 my $parentPeerInfo = $parentProcInfo->{CONN_INFO}->{PEER};

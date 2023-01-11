@@ -188,7 +188,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid ) = @_;
+    my ( $self, $lsnPortsMap, $pid , $isContainer ) = @_;
 
     my $cmd = "netstat -ano |";
     my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
@@ -204,7 +204,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid ) = @_;
+    my ( $self, $pid , $isContainer ) = @_;
 
     my $cmd = "netstat -ano| findstr LISTENING |";
     my ( $status, $portsMap ) = $self->parseListenLines(
@@ -219,8 +219,8 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid ) = @_;
-    my $lsnPortsMap = $self->getListenPorts($pid);
+    my ( $self, $pid , $isContainer) = @_;
+    my $lsnPortsMap = $self->getListenPorts($pid );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -229,9 +229,9 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap ) = @_;
-    my $lsnPortsMap = $self->getListenPorts($pid);
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
+    my ( $self, $pid, $lsnPortsMap , $isContainer) = @_;
+    my $lsnPortsMap = $self->getListenPorts($pid , $isContainer);
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid ,$isContainer);
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;

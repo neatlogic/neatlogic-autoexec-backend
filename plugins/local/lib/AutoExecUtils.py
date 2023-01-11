@@ -437,3 +437,8 @@ def notifyInspectReport(params):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.notifyInspectReport(params)
+
+def getResourceInfoList(ip , port , name , type):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getResourceInfoList(ip , port , name , type)

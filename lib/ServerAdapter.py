@@ -61,7 +61,8 @@ class ServerAdapter:
             'uploadFile': '/codedriver/api/binary/file/upload',
             'removeUploadedFile': '/codedriver/api/rest/file/delete',
             'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save',
-            'inspectReport': '/codedriver/api/rest/inspect/autoexec/job/report/notify'
+            'inspectReport': '/codedriver/api/rest/inspect/autoexec/job/report/notify',
+            'getResourceInfo' : '/codedriver/api/rest/resourcecenter/resource/custom/list'
         }
 
         self.context = context
@@ -1059,3 +1060,64 @@ class ServerAdapter:
                 raise AutoExecError("Notify inspect Report {} failed, status code:{} {}".format(jobId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, ex))
+
+
+    def getResourceInfoList(self, ip , port , name , type):
+        param = {"keyword": "","searchMode": "text","currentPage": 1,"pageSize": 10}
+        conditionList = []
+        conditionRelList = []
+        uuid = {
+            "ip": "c9cc49f2fbab454ca678361c5a3794cc" , 
+            "port":"a04cff8b501c44f7a66b9c0b15e2f3d4" , 
+            "name":"a72d187fde1b4114b5dbb35b633c5b62",
+            "typeIdList":"bf12f6806aa6477086c7e1d7c7c9a52a"
+        }
+        valueList = []
+        if ip is not None and ip != '' :
+            conditionList.append({"uuid": uuid['ip'], "name": "ip","valueList": [ip], "expression": "equal"})
+            valueList.append(uuid['ip'])
+
+        if port is not None and port != '' :
+            conditionList.append({"uuid": uuid['port'],"name": "port","valueList": [port], "expression": "equal"})
+            valueList.append(uuid['port'])
+
+        if name is not None and name != '' :
+            conditionList.append({"uuid": uuid['name'],"name": "name","valueList": [name], "expression": "equal"})
+            valueList.append(uuid['name'])
+
+        if type is not None and type != '' :
+            conditionList.append({"uuid": uuid['typeIdList'],"name": "typeIdList","valueList": [type], "expression": "include"})
+            valueList.append(uuid['typeIdList'])
+
+        conditionLen = len(valueList)
+        if conditionLen > 1 :
+            count = 0
+            for i in valueList :
+                if( count + 1 > conditionLen - 1) :
+                    break
+                form = valueList[ count ]
+                to = valueList[ count+1 ] 
+                conditionRelList.append({"joinType": "and", "from": form ,"to": to })
+                count = count + 1
+            conditionGroupins = {"uuid": "6f81871c303b458b8be100ee64aa9506", "conditionList":conditionList , "conditionRelList":conditionRelList}
+            conditionGroupList = []
+            conditionGroupList.append(conditionGroupins)
+            param["conditionGroupList"] = conditionGroupList
+
+            try:
+                response = self.httpJSON(self.apiMap['getResourceInfo'], param)
+                charset = response.info().get_content_charset()
+                content = response.read().decode(charset, errors='ignore')
+                retObj = json.loads(content)
+                if response.status == 200:
+                    if retObj.get('Status') == 'OK':
+                        return retObj['Return'].get('tbodyList')
+                    else:
+                        raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip ,name , port ,type, retObj.get('Message')))
+                else:
+                    raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, status code:{} {}".format(ip ,name , port ,type, response.status, content))
+            except Exception as ex:
+                raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip ,name , port ,type, ex))
+        else :
+            raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip ,name , port ,type))
+        
