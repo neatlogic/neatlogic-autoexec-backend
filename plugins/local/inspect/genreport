@@ -443,6 +443,7 @@ def inspectData(nodeInfo):
 
             inspectResult = {'status': 'NORMAL',
                              'name': inspectDef['name'],
+                             'label': inspectDef['label'],
                              'alerts': alerts}
 
             if 'port' in nodeInfo:
