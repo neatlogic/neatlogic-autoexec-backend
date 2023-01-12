@@ -242,6 +242,12 @@ def getInspectData(nodeInfo):
             errMsg = 'AVAILABILITY attribute not found in inspect data, must use availability tools(pingcheck,urlcheck,sshcheck,agentcheck,tcpcheck...) to collect availability first.'
             inspectData['ERROR_MESSAGE'] = errMsg
 
+        #标记数据集合类型
+        objCatMap = {}
+        for data in collectData:
+            objCat = data.get('_OBJ_CATEGORY')
+            objCatMap[objCat] = 1
+
         for data in collectData:
             isMalformData = 0
             objCat = data.get('_OBJ_CATEGORY')
@@ -267,16 +273,16 @@ def getInspectData(nodeInfo):
                     continue
                 elif objCat == 'DB' and data.get('NAME') != nodeName:
                     continue
+                elif 'OS' in objCatMap and objCat == 'HOST':
+                    continue
 
-                print("INFO: Data matched {}:{}/{}.".format(ip, port, nodeName))
+                print("INFO: Data matched {}/{}:{}/{}.".format( objCat, ip, port, nodeName))
                 nodeData = data
                 if 'RESOURCE_ID' in nodeData :
                     inspectData['RESOURCE_ID'] = nodeData['RESOURCE_ID']
                 nodeData.update(inspectData)
                 dataRecords.append(nodeData)
 
-                if objCat != "CONTAINER" and objCat != 'HOST':
-                    break
             else:
                 print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
@@ -329,7 +335,8 @@ def inspectData(nodeInfo):
             resourceId = None
             if 'RESOURCE_ID' in dataCollected and dataCollected['RESOURCE_ID'] == '0' :
                 resourceId = getResourceId(dataCollected)    
-                continue
+                if resourceId is None :
+                    continue
             
             if resourceId is None :
                 resourceId = nodeInfo['resourceId']
