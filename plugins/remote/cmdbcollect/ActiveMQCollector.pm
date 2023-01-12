@@ -73,6 +73,9 @@ sub collect {
     if ( $output =~ /ActiveMQ\s+(\d+\.\d+\.\d+)/ ) {
         my $version = $1;
         $appInfo->{VERSION} = $version;
+        if ( $version =~ /(\d+)/ ) {
+            $appInfo->{MAJOR_VERSION} = "ActiveMQ$1";
+        }
     }
 
     #         <transportConnectors>

@@ -73,7 +73,7 @@ sub collect {
     my ( $webAddr, $webPort, $webSslAddr, $webSslPort );
     if ( -f $confFile ) {
         $appInfo->{CONFIG_PATH} = dirname($confFile);
-        my $confObj = xml_to_object( $confFile, { file => 1 } );
+        my $confObj  = xml_to_object( $confFile, { file => 1 } );
         my @httpObjs = $confObj->path('cluster/server-default/http');
         foreach my $httpObj (@httpObjs) {
             if ( $httpObj->attr('port') and $httpObj->path('openssl') ) {
@@ -131,6 +131,9 @@ sub collect {
         $version = $1;
     }
     $appInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Resin$1";
+    }
 
     $appInfo->{ADMIN_PORT} = undef;
 

@@ -183,7 +183,11 @@ sub collect {
     my $verOut = $self->getCmdOutLines($verCmd);
     foreach my $line (@$verOut) {
         if ( $line =~ /Server number:\s*(.*?)\s*$/ ) {
-            $appInfo->{VERSION} = $1;
+            my $version = $1;
+            $appInfo->{VERSION} = $version;
+            if ( $version =~ /(\d+)/ ) {
+                $appInfo->{MAJOR_VERSION} = "Tomcat$1";
+            }
         }
     }
 

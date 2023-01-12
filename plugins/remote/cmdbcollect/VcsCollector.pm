@@ -55,6 +55,11 @@ sub collect {
     my $version = $self->getCmdOut("$vcsbin/hastart -v");
     chomp($version);
     $appInfo->{VERSION} = $version;
+
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Vcs$1";
+    }
+
     my $clusLines = $self->getCmdOutLines("$vcsbin/haclus -display");
 
     for my $line (@$clusLines) {

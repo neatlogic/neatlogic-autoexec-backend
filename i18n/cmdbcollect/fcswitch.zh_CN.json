@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -14,11 +15,6 @@
         {
             "name": "MGMT_IP",
             "desc": "管理IP",
-            "type": "String"
-        },
-        {
-            "name": "DEV_NAME",
-            "desc": "设备名",
             "type": "String"
         },
         {
@@ -50,7 +46,8 @@
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -88,6 +85,11 @@
             "type": "String"
         },
         {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
             "name": "FIRMWARE_VERSION",
             "desc": "固件版本",
             "type": "String"
@@ -96,7 +98,8 @@
             "name": "LINK_TABLE",
             "desc": "链接列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "PORT_NAME",
                     "desc": "本地端口名",
                     "type": "String"
@@ -124,36 +127,11 @@
             ]
         },
         {
-            "name": "PORTS_COUNT",
-            "desc": "端口数量",
-            "type": "Int"
-        },
-        {
-            "name": "WWNN",
-            "desc": "设备WWN",
-            "type": "String"
-        },
-        {
-            "name": "ZONES",
-            "desc": "Zone列表",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "INDEX",
-                    "desc": "Index",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "PORTS",
             "desc": "SWitch Ports",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "端口名",
                     "type": "String"
@@ -247,6 +225,33 @@
                     "name": "OUT_ERRORS",
                     "desc": "流出错误pps",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
+            "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "设备WWN",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
                 }
             ]
         }

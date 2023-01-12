@@ -417,6 +417,9 @@ sub collect {
     if ( $verInfo =~ /"DB2\s+(v\S+)"/ ) {
         $version = $1;
         $insInfo->{VERSION} = $version;
+        if ( $version =~ /(\d+)/ ) {
+            $insInfo->{MAJOR_VERSION} = "DB2$1";
+        }
 
         #$insInfo->{DB_ID}   = $version;    #TODO：原来的，为什么DB_ID是version？
     }

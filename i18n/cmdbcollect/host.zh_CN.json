@@ -118,46 +118,6 @@
             ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "主板序列号",
-            "type": "String"
-        },
-        {
-            "name": "ESXI_IP",
-            "desc": "Esxi IP",
-            "type": "String"
-        },
-        {
-            "name": "MANUFACTURER",
-            "desc": "制造商",
-            "type": "String"
-        },
-        {
-            "name": "MEM_MAXIMUM_CAPACITY",
-            "desc": "可安装内存",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_SLOTS",
-            "desc": "内存槽量",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_SPEED",
-            "desc": "内存速率",
-            "type": "String"
-        },
-        {
-            "name": "POWER CORDS_COUNT",
-            "desc": "电源数量",
-            "type": "String"
-        },
-        {
-            "name": "UUID",
-            "desc": "虚拟化UUID",
-            "type": "String"
-        },
-        {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
@@ -225,6 +185,16 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "主板序列号",
+            "type": "String"
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
         },
         {
             "name": "HBA_INTERFACES",
@@ -299,6 +269,36 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "制造商",
+            "type": "String"
+        },
+        {
+            "name": "MEM_MAXIMUM_CAPACITY",
+            "desc": "可安装内存",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SLOTS",
+            "desc": "内存槽量",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SPEED",
+            "desc": "内存速率",
+            "type": "String"
+        },
+        {
+            "name": "POWER CORDS_COUNT",
+            "desc": "电源数量",
+            "type": "String"
+        },
+        {
+            "name": "UUID",
+            "desc": "虚拟化UUID",
+            "type": "String"
         }
     ]
 }

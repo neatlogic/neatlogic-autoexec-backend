@@ -6,7 +6,8 @@
     "filter": {
         "_OBJ_TYPE": "Virtual_Storage"
     },
-    "fields": [{
+    "fields": [
+        {
             "name": "_OBJ_CATEGORY",
             "desc": "归属对象类型",
             "type": "String"
@@ -67,160 +68,11 @@
             "type": "String"
         },
         {
-            "name": "DEV_NAME",
-            "desc": "设备名",
-            "type": "String"
-        },
-        {
-            "name": "HEALTH_CHECK",
-            "desc": "Health Check Text",
-            "type": "Text"
-        },
-        {
-            "name": "LUNS",
-            "desc": "逻辑磁盘列表",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "ID",
-                    "desc": "ID",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "WWN",
-                    "desc": "Lun WWN",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "大小(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "VISABLE_GROUPS",
-                    "desc": "可见HBA启动器组",
-                    "type": "array"
-                },
-                {
-                    "name": "VISABLE_INITIATORS",
-                    "desc": "可见主机HBA启动器",
-                    "type": "JsonArray",
-                    "subset": [{
-                            "name": "NAME",
-                            "desc": "名称",
-                            "type": "String"
-                        },
-                        {
-                            "name": "NODE_WWN",
-                            "desc": "Node WWN",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT_WWN",
-                            "desc": "Port WWN",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TYPE",
-                            "desc": "Type",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "STORAGE_VOLUMES_UNHEALTH",
-            "desc": "不健康的后端卷",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "IO_STATUS",
-                    "desc": "IO状态",
-                    "type": "String"
-                },
-                {
-                    "name": "OPER_STATUS",
-                    "desc": "控制状态",
-                    "type": "String"
-                },
-                {
-                    "name": "HEALTH_STATE",
-                    "desc": "健康状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "STORAGE_VOLUME_SUMMARY",
-            "desc": "后端实体存储卷总概",
-            "type": "JsonArray",
-            "subset": [{
-                    "name": "CLUSTER_NAME",
-                    "desc": "集群名称",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "总容量",
-                    "type": "String"
-                },
-                {
-                    "name": "STORAGE-VOLUMES",
-                    "desc": "存储卷总数",
-                    "type": "Int"
-                },
-                {
-                    "name": "VENDOR",
-                    "desc": "后端品牌分布",
-                    "type": "JsonArray",
-                    "subset": [{
-                            "name": "NAME",
-                            "desc": "厂商",
-                            "type": "String"
-                        },
-                        {
-                            "name": "VOLUME_COUNT",
-                            "desc": "卷数量",
-                            "type": "Int"
-                        }
-                    ]
-                },
-                {
-                    "name": "OUT-OF-DATE",
-                    "desc": "镜像不同步数量",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNHEALTHY",
-                    "desc": "不健康数量",
-                    "type": "Int"
-                },
-                {
-                    "name": "META-DATA",
-                    "desc": "元数据卷数量",
-                    "type": "Int"
-                },
-                {
-                    "name": "USED",
-                    "desc": "已用卷数量",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "网卡名",
                     "type": "String"
@@ -244,7 +96,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接交换机端口",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -279,10 +132,16 @@
             ]
         },
         {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
-            "subset": [{
+            "subset": [
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -311,7 +170,8 @@
                     "name": "REMOTE_PORTS",
                     "desc": "连接光交端口",
                     "type": "JsonArray",
-                    "subset": [{
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
                             "desc": "归属类别",
                             "type": "String"
@@ -342,6 +202,156 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "HEALTH_CHECK",
+            "desc": "Health Check Text",
+            "type": "Text"
+        },
+        {
+            "name": "LUNS",
+            "desc": "逻辑磁盘列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "Lun WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "可见HBA启动器组",
+                    "type": "array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "可见主机HBA启动器",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NODE_WWN",
+                            "desc": "Node WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT_WWN",
+                            "desc": "Port WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUMES_UNHEALTH",
+            "desc": "不健康的后端卷",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "IO_STATUS",
+                    "desc": "IO状态",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "控制状态",
+                    "type": "String"
+                },
+                {
+                    "name": "HEALTH_STATE",
+                    "desc": "健康状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUME_SUMMARY",
+            "desc": "后端实体存储卷总概",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CLUSTER_NAME",
+                    "desc": "集群名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "总容量",
+                    "type": "String"
+                },
+                {
+                    "name": "STORAGE-VOLUMES",
+                    "desc": "存储卷总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "VENDOR",
+                    "desc": "后端品牌分布",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "厂商",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VOLUME_COUNT",
+                            "desc": "卷数量",
+                            "type": "Int"
+                        }
+                    ]
+                },
+                {
+                    "name": "OUT-OF-DATE",
+                    "desc": "镜像不同步数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNHEALTHY",
+                    "desc": "不健康数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "META-DATA",
+                    "desc": "元数据卷数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用卷数量",
+                    "type": "Int"
                 }
             ]
         }

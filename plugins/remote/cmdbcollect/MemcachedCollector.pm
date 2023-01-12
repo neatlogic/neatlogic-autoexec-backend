@@ -141,6 +141,10 @@ sub collect {
     }
     $appInfo->{VERSION} = $version;
 
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "memcached$1";
+    }
+
     $appInfo->{PORT}           = $port;
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;

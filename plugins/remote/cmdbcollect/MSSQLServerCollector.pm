@@ -88,7 +88,11 @@ sub collect {
             $authMode = $1;
         }
     }
-    $appInfo->{VERSION}             = $version;
+    $appInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Microsoft SQL Server$1";
+    }
+
     $appInfo->{AUTHENTICATION_MODE} = $authMode;
 
     my $insName;

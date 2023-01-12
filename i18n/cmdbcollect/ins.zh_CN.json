@@ -31,6 +31,11 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "主版本",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "版本",
             "type": "String"

@@ -43,8 +43,18 @@
             "type": "Int"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "OS Major Version",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "KERNEL_VERSION",
+            "desc": "Kernel Version",
             "type": "String"
         },
         {
@@ -154,11 +164,6 @@
         {
             "name": "PRODUCT_UUID",
             "desc": "Product UUID",
-            "type": "String"
-        },
-        {
-            "name": "KERNEL_VERSION",
-            "desc": "Kernel Version",
             "type": "String"
         },
         {
@@ -355,119 +360,6 @@
             "type": "Float"
         },
         {
-            "name": "USERS",
-            "desc": "users",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "Home Directory",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "Shell",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_CLUSTER",
-            "desc": "Belong to Cluster",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "HOST_ON",
-            "desc": "Run On Host",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "BOARD_SERIAL",
-                    "desc": "Main Board Serial",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "PATCHES_APPLIED",
-            "desc": "Patches Applied",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Patch Number",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "SYMANTEC_INSTALLED",
-            "desc": "Symantec Installed",
-            "type": "Float"
-        },
-        {
-            "name": "VCENTER_IP",
-            "desc": "Vcenter IP",
-            "type": "String"
-        },
-        {
-            "name": "VM_ID",
-            "desc": "VM Id",
-            "type": "String"
-        },
-        {
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
@@ -533,6 +425,70 @@
                             "type": "String"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "users",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "Home Directory",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "Shell",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_CLUSTER",
+            "desc": "Belong to Cluster",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
                 }
             ]
         },
@@ -609,6 +565,55 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "HOST_ON",
+            "desc": "Run On Host",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "BOARD_SERIAL",
+                    "desc": "Main Board Serial",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PATCHES_APPLIED",
+            "desc": "Patches Applied",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Number",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SYMANTEC_INSTALLED",
+            "desc": "Symantec Installed",
+            "type": "Float"
+        },
+        {
+            "name": "VCENTER_IP",
+            "desc": "Vcenter IP",
+            "type": "String"
+        },
+        {
+            "name": "VM_ID",
+            "desc": "VM Id",
+            "type": "String"
         }
     ]
 }

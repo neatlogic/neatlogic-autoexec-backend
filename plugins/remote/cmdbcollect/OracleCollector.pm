@@ -416,6 +416,9 @@ sub collectIns {
 
     my $version = $self->getInsVersion($insInfo);
     $insInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $insInfo->{MAJOR_VERSION} = "Oracle Databse $1";
+    }
 
     #获取CDB（pluggable database的标记）
     my $isCdb = $self->isCDB();
@@ -647,6 +650,9 @@ sub getGridVersion {
         $version = $1;
     }
     $racInfo->{VERSION} = $version;
+    if ( $version =~ /(\d+)/ ) {
+        $insInfo->{MAJOR_VERSION} = "Oracle Grid $1";
+    }
     return $version;
 }
 

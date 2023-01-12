@@ -60,7 +60,12 @@ sub getVersion {
             next;
         }
         if ( $$verLines[ $i + 1 ] =~ /^(Version|版本)\s+(\d.*)$/ ) {
-            $appInfo->{VERSION} = $2;
+            my $version = $2;
+            $appInfo->{VERSION} = $version;
+            if ( $version =~ /(\d+)/ ) {
+                $appInfo->{MAJOR_VERSION} = "WebSphere$1";
+            }
+
             last;
         }
     }

@@ -123,46 +123,6 @@
             ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "Board Serial",
-            "type": "String"
-        },
-        {
-            "name": "ESXI_IP",
-            "desc": "Esxi IP",
-            "type": "String"
-        },
-        {
-            "name": "MANUFACTURER",
-            "desc": "Manufacturer",
-            "type": "String"
-        },
-        {
-            "name": "MEM_MAXIMUM_CAPACITY",
-            "desc": "Memory Maximum Capacity",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_SLOTS",
-            "desc": "Memory Slots",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_SPEED",
-            "desc": "Memory Speed",
-            "type": "String"
-        },
-        {
-            "name": "POWER CORDS_COUNT",
-            "desc": "Power Cords Count",
-            "type": "String"
-        },
-        {
-            "name": "UUID",
-            "desc": "Vcenter UUID",
-            "type": "String"
-        },
-        {
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
@@ -230,6 +190,16 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
         },
         {
             "name": "HBA_INTERFACES",
@@ -304,6 +274,36 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "Manufacturer",
+            "type": "String"
+        },
+        {
+            "name": "MEM_MAXIMUM_CAPACITY",
+            "desc": "Memory Maximum Capacity",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SLOTS",
+            "desc": "Memory Slots",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SPEED",
+            "desc": "Memory Speed",
+            "type": "String"
+        },
+        {
+            "name": "POWER CORDS_COUNT",
+            "desc": "Power Cords Count",
+            "type": "String"
+        },
+        {
+            "name": "UUID",
+            "desc": "Vcenter UUID",
+            "type": "String"
         }
     ]
 }

@@ -191,12 +191,12 @@ sub getSystemInfo {
     $osInfo->{CPU_MODEL}       = $cpuModel;
     $osInfo->{CPU_FREQUENCY}   = $cpuFrequency;
 
-    $osInfo->{VERSION}        = $sysInfo->{'OS Version'};
-    $osInfo->{KERNEL_VERSION} = $sysInfo->{'OS Version'};
-    $osInfo->{NAME}           = $sysInfo->{'OS Name'};
-    $osInfo->{DOMAIN}         = $sysInfo->{'Domain'};
-    $osInfo->{SYSTEM_LOCALE}  = $sysInfo->{'System Locale'};
-    $osInfo->{INPUT_LOCALE}   = $sysInfo->{'Input Locale'};
+    #$osInfo->{VERSION}        = $sysInfo->{'OS Version'};
+    #$osInfo->{KERNEL_VERSION} = $sysInfo->{'OS Version'};
+    $osInfo->{NAME}          = $sysInfo->{'OS Name'};
+    $osInfo->{DOMAIN}        = $sysInfo->{'Domain'};
+    $osInfo->{SYSTEM_LOCALE} = $sysInfo->{'System Locale'};
+    $osInfo->{INPUT_LOCALE}  = $sysInfo->{'Input Locale'};
 
     $osInfo->{TIME_ZONE}    = $sysInfo->{'Time Zone'};
     $osInfo->{SYS_VENDOR}   = $sysInfo->{'System Manufacturer'};
@@ -255,6 +255,26 @@ sub getIpAddrs {
     $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipV4Addrs, \@ipV6Addrs );
     $osInfo->{IP_ADDRS}   = \@ipV4Addrs;
     $osInfo->{IPV6_ADDRS} = \@ipV6Addrs;
+}
+
+sub getOsVersion {
+    my ( $self, $osInfo ) = @_;
+
+    my $osVer = $self->getCmdOut( 'wmic os get caption 2>nul | findstr /i /v caption', 'Administrator', { charset => $self->{codepage} } );
+
+    $osVer =~ s/[^[:ascii:][:print:]]//g;
+    $osVer =~ s/\?\s*/ /g;
+    $osVer =~ s/^\s*|\s*$//g;
+
+    my @uname     = uname();
+    my $osType    = $uname[0];
+    my $release   = $uname[2];
+    my $build     = $uname[3];
+    my $kernelVer = "$osType $release $build";
+
+    $osInfo->{VERSION}        = $osVer;
+    $osInfo->{MAJOR_VERSION}  = $osVer;
+    $osInfo->{KERNEL_VERSION} = $kernelVer;
 }
 
 sub getCPUCores {
@@ -436,6 +456,7 @@ sub collectOsInfo {
         $self->getNTPInfo($osInfo);
         $self->getSymantecInfo($osInfo);
         $self->getSystemInfo($osInfo);
+        $self->getOsVersion($osInfo);
         $self->getIpAddrs($osInfo);
         $self->getCPUCores($osInfo);
         $self->getUsers($osInfo);

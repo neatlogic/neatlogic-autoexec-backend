@@ -59,7 +59,7 @@
         {
             "opt": "user",
             "name": "用户名",
-            "help": "访问仓库的用户名(使用ssh方式，留空)",
+            "help": "访问仓库的用户名(如GIT使用ssh方式，留空)",
             "type": "text",
             "required": "false",
             "validate": "",

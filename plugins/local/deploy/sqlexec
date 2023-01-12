@@ -5,6 +5,7 @@ use Cwd;
 use Digest::MD5;
 use Getopt::Long;
 use Expect;
+use IO::File;
 use JSON;
 
 use DBInfo;
@@ -42,6 +43,7 @@ sub main {
     my $charSet;
     my $dbNodeJson;
     my $sqlFileJson;
+    my $sqlTxt;
 
     GetOptions(
         'help'          => \$isHelp,
@@ -54,7 +56,8 @@ sub main {
         'dbversion=s'   => \$dbVersion,
         'dbargs=s'      => \$dbArgs,
         'encoding=s'    => \$charSet,
-        'sqlfilejson=s' => \$sqlFileJson
+        'sqlfilejson=s' => \$sqlFileJson,
+        'sql=s'         => \$sqlTxt
     );
 
     #$ENV{IS_INTERACT} = 1;
@@ -107,9 +110,27 @@ sub main {
         }
     }
 
+    if ( defined($sqlTxt) and $sqlTxt ne '' ) {
+        $sqlTxt =~ s/^\s*|\s*$//sg;
+        $sqlTxt =~ s/\\n/\n/sg;
+        $sqlTxt = $sqlTxt . "\n";
+        my $jobId      = $ENV{AUTOEXEC_JOBID};
+        my $sqlTxtFile = "sqltext.$jobId.sql";
+        my $fh         = IO::File->new(">file/$sqlTxtFile");
+        if ( defined($fh) ) {
+            print $fh ($sqlTxt);
+            $fh->close();
+            push( @$sqlFiles, $sqlTxtFile );
+        }
+        else {
+            $hasOptError = 1;
+            print("ERROR: Can not write sql text to file file/$sqlTxtFile.\n");
+        }
+    }
+
     if ( scalar(@$sqlFiles) == 0 ) {
         $hasOptError = 1;
-        print("ERROR: Must define sql files with option --sqlfiles in json string.\n");
+        print("ERROR: Must define sql files with option --sqlfiles in json string or --sql with sql scripts.\n");
     }
 
     if ( $hasOptError == 1 ) {
@@ -151,10 +172,10 @@ sub main {
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
-        $toolsDir           = "$autoexecHome/tools";
         $ENV{AUTOEXEC_HOME} = $autoexecHome;
         $ENV{TOOLS_PATH}    = $toolsDir;
     }
+    $toolsDir = "$autoexecHome/tools";
 
     my $dbExtArgs = {
         fileCharset => $charSet,

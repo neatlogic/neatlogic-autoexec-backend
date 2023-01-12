@@ -80,7 +80,7 @@ sub collect {
         $verInfoLines = $self->getCmdOutLines( "$binPath version", $procInfo->{USER} );
     }
     else {
-        $binPath = 'hadoop';
+        $binPath      = 'hadoop';
         $verInfoLines = $self->getCmdOutLines( "hadoop version", $procInfo->{USER} );
     }
     if ( $verInfoLines and scalar(@$verInfoLines) > 0 ) {
@@ -91,6 +91,10 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{LOG_PATH}     = $logPath;
     $appInfo->{VERSION}      = $version;
+
+    if ( $version =~ /(\d+)/ ) {
+        $appInfo->{MAJOR_VERSION} = "Hadoop$1";
+    }
 
     my $reportInfoLines = $self->getCmdOutLines( "$binPath dfsadmin -report", $procInfo->{USER} );
 
