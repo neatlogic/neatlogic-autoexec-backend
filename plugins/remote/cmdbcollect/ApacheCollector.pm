@@ -61,8 +61,9 @@ sub getVerInfo {
     foreach my $line (@$apacheInfoLines) {
         if ( $line =~ /Server version:\s+(.*?)$/ ) {
             $versionInfo->{VERSION} = $1;
+            my $version = $1;
             if ( $version =~ /(\d+)/ ) {
-                $appInfo->{MAJOR_VERSION} = "Apache$version";
+                $versionInfo->{MAJOR_VERSION} = "Apache$version";
             }
         }
         elsif ( $line =~ /Server MPM:\s+(.*?)$/ ) {
