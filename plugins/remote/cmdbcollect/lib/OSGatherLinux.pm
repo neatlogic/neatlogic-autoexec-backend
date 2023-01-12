@@ -919,6 +919,9 @@ sub getNicInfo {
         my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
         if ( $line =~ /^\d+:\s+(\S+):/ ) {
             $ethName = $1;
+            if ($ethName =~ /@/){
+                $ethName = substr($ethName , 0, index( $ethName, '@' ));
+            }
             if ( -e "/sys/class/net/$ethName" and not -e "/sys/class/net/$ethName/device" ) {
 
                 #不是物理网卡
