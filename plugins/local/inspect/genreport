@@ -36,6 +36,7 @@ def getObjCatPkDef(objCat, customPkDef):
         'STORAGE': ['MGMT_IP', 'SN'],
         'FCSWITCH': ['MGMT_IP', 'SN'],
         'K8S': ['MGMT_IP'],
+        'CONTAINER' :['MGMT_IP' , 'CONTAINER_ID'],
         'UNKNOWN': ['MGMT_IP']
     }
     fixPkDef = pkDefs.get(objCat)
@@ -143,8 +144,6 @@ def getMetricsDef(db, objCat, objType):
     return inspectDef
 
 # 获取对应CMDB对象全量数据
-
-
 def getObjCatFullData(datalist):
     new_datalist = []
     for data in datalist:
@@ -243,6 +242,12 @@ def getInspectData(nodeInfo):
             errMsg = 'AVAILABILITY attribute not found in inspect data, must use availability tools(pingcheck,urlcheck,sshcheck,agentcheck,tcpcheck...) to collect availability first.'
             inspectData['ERROR_MESSAGE'] = errMsg
 
+        #标记数据集合类型
+        objCatMap = {}
+        for data in collectData:
+            objCat = data.get('_OBJ_CATEGORY')
+            objCatMap[objCat] = 1
+
         for data in collectData:
             isMalformData = 0
             objCat = data.get('_OBJ_CATEGORY')
@@ -268,14 +273,16 @@ def getInspectData(nodeInfo):
                     continue
                 elif objCat == 'DB' and data.get('NAME') != nodeName:
                     continue
+                elif 'OS' in objCatMap and objCat == 'HOST':
+                    continue
 
-                print("INFO: Data matched {}:{}/{}.".format(ip, port, nodeName))
+                print("INFO: Data matched {}/{}:{}/{}.".format( objCat, ip, port, nodeName))
                 nodeData = data
+                if 'RESOURCE_ID' in nodeData :
+                    inspectData['RESOURCE_ID'] = nodeData['RESOURCE_ID']
                 nodeData.update(inspectData)
                 dataRecords.append(nodeData)
 
-                if objCat != 'HOST':
-                    break
             else:
                 print('WARN: Data not match IP:{} but:{}.'.format(ip, data['MGMT_IP']))
 
@@ -325,7 +332,16 @@ def inspectData(nodeInfo):
                     if fieldDef['selected'] == 1:
                         needFieldsMap[fieldDef['name']] = 1
 
-            rptData = {'RESOURCE_ID': nodeInfo['resourceId'],
+            resourceId = None
+            if 'RESOURCE_ID' in dataCollected and dataCollected['RESOURCE_ID'] == '0' :
+                resourceId = getResourceId(dataCollected)    
+                if resourceId is None :
+                    continue
+            
+            if resourceId is None :
+                resourceId = nodeInfo['resourceId']
+
+            rptData = {'RESOURCE_ID': resourceId,
                        'MGMT_IP': nodeInfo['host'],
                        '_execuser': execUser
                        }
@@ -336,6 +352,7 @@ def inspectData(nodeInfo):
                 if needField in dataCollected:
                     rptData[needField] = dataCollected[needField]
 
+            inspectDef = inspectDefMap[objCat]
             inspectRules = inspectDef['thresholds']
             alerts = []
             matchedFields = None
@@ -448,6 +465,26 @@ def saveHisReport(db, ciType, resourceId, rptData):
     rptCollection.create_index([('_report_time', 1)], name='idx_ttl', expireAfterSeconds=7776000)
     print('INFO: Save report history data success.')
 
+#反查资源中心resource_id
+def getResourceId(jsonData):
+    _OBJ_CATEGORY = jsonData['_OBJ_CATEGORY']
+    obj_type = jsonData['_OBJ_TYPE']
+    mgmt_ip = jsonData['MGMT_IP']
+    mgmt_port = jsonData['MGMT_PORT']
+    name = None 
+    if 'NAME' in jsonData : 
+        name = jsonData['NAME']
+    resourceId = None 
+    if (mgmt_ip is None or mgmt_ip) == '' and (name is None or name == '') :
+        return resourceId
+    resourceList = [] 
+    if _OBJ_CATEGORY == "CONTAINER" :
+        resourceList = AutoExecUtils.getResourceInfoList(mgmt_ip , None , name ,obj_type)
+    else :
+        resourceList = AutoExecUtils.getResourceInfoList(mgmt_ip , mgmt_port , name ,obj_type)
+    if len(resourceList) == 1 :
+        resourceId = resourceList[0]['id']
+    return resourceId
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -43,9 +43,13 @@ sub new {
         bizIp       => $args{bizIp},
         ipAddrs     => $args{ipAddrs},
         ipv6Addrs   => $args{ipv6Addrs},
-        procEnvName => $args{procEnvName}
+        procEnvName => $args{procEnvName},
+        containner  => $args{containner}
     };
 
+    if(not defined($procFilters)){
+        $procFilters = [];
+    }
     $self->{procFilters}      = $procFilters;
     $self->{filtersCount}     = scalar(@$procFilters);
     $self->{matchedProcsInfo} = {};
@@ -230,24 +234,26 @@ sub getProcMaxOpenFilesCount {
     return $maxCount;
 }
 
-sub isProcInDocker {
+sub isProcInContainer {
     my ( $self, $pid ) = @_;
     my $fh = IO::File->new("</proc/$pid/cgroup");
 
-    my $isDocker = 0;
+    my $isContainer = 0;
+    my $containerType = '';
 
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
             if ( index( $line, 'docker' ) >= 0 ) {
-                $isDocker = 1;
+                $isContainer = 1;
+                $containerType = 'Docker';
                 last;
             }
         }
         $fh->close();
     }
 
-    return $isDocker;
+    return ($isContainer,$containerType);
 }
 
 sub findProcess {
@@ -308,59 +314,65 @@ sub findProcess {
                     }
                 }
 
-                if ( $self->isProcInDocker( $matchedMap->{PID} ) ) {
-                    next;
-                }
-
                 $matchedMap->{COMMAND} = join( ' ', @vars );
                 my $envMap;
-
-                if ( defined($psAttrs) ) {
-                    my $psAttrVal;
-                    foreach my $attr ( keys(%$psAttrs) ) {
-                        my $attrVal = $psAttrs->{$attr};
-                        $psAttrVal = $matchedMap->{$attr};
-                        if ( $attrVal ne $psAttrVal ) {
-                            $isMatched = 0;
-                            last;
-                        }
-                    }
-                }
-
-                if ( $isMatched == 0 ) {
-                    next;
-                }
-
                 my $myPid = $matchedMap->{PID};
 
-                if ( defined($envAttrs) ) {
-                    my $envAttrVal;
-                    foreach my $attr ( keys(%$envAttrs) ) {
-                        my $attrVal = $envAttrs->{$attr};
-                        if ( not defined($envMap) ) {
-                            $envMap = $self->getProcEnv($myPid);
-                        }
+                #容器进程只采集容器信息
+                my ( $isContainer, $containerType ) = $self->isProcInContainer( $matchedMap->{PID} );
+                if ( $isContainer ) {
+                    $matchedMap->{_CONTAINERTYPE} = $containerType;
+                    $config->{className} = "$containerType"."Collector";
+                    if ($self->{containner} == 0 ){
+                        next ;
+                    }
+                }else{
 
-                        $envAttrVal = $envMap->{$attr};
-
-                        if ( not defined($envAttrVal) ) {
-                            $isMatched = 0;
-                            last;
-                        }
-
-                        if ( not defined($attrVal) or $attrVal eq '' ) {
-                            if ( defined($envAttrVal) ) {
-                                next;
-                            }
-                            else {
+                    if ( defined($psAttrs) ) {
+                        my $psAttrVal;
+                        foreach my $attr ( keys(%$psAttrs) ) {
+                            my $attrVal = $psAttrs->{$attr};
+                            $psAttrVal = $matchedMap->{$attr};
+                            if ( $attrVal ne $psAttrVal ) {
                                 $isMatched = 0;
                                 last;
                             }
                         }
+                    }
 
-                        if ( $envAttrVal !~ /$attrVal/ ) {
-                            $isMatched = 0;
-                            last;
+                    if ( $isMatched == 0 ) {
+                        next;
+                    }
+
+                    if ( defined($envAttrs) ) {
+                        my $envAttrVal;
+                        foreach my $attr ( keys(%$envAttrs) ) {
+                            my $attrVal = $envAttrs->{$attr};
+                            if ( not defined($envMap) ) {
+                                $envMap = $self->getProcEnv($myPid);
+                            }
+
+                            $envAttrVal = $envMap->{$attr};
+
+                            if ( not defined($envAttrVal) ) {
+                                $isMatched = 0;
+                                last;
+                            }
+
+                            if ( not defined($attrVal) or $attrVal eq '' ) {
+                                if ( defined($envAttrVal) ) {
+                                    next;
+                                }
+                                else {
+                                    $isMatched = 0;
+                                    last;
+                                }
+                            }
+
+                            if ( $envAttrVal !~ /$attrVal/ ) {
+                                $isMatched = 0;
+                                last;
+                            }
                         }
                     }
                 }
@@ -466,7 +478,7 @@ sub getProcess {
 
         my $connGather = $self->{connGather};
         if ($parseListen) {
-            my $connInfo    = $connGather->getListenInfo($pid);
+            my $connInfo    = $connGather->getListenInfo($pid , 0);
             my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
             $connInfo->{PORT_BIND} = $portInfoMap;
             $procInfo->{CONN_INFO} = $connInfo;
@@ -475,7 +487,7 @@ sub getProcess {
         if ($parseConnStat) {
             my $connInfo = $procInfo->{CONN_INFO};
             if ( defined($connInfo) ) {
-                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} , 0);
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
             }
         }

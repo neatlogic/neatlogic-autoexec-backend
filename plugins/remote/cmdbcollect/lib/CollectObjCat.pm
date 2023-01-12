@@ -20,6 +20,7 @@ our $TYPES = {
     STORAGE      => 'STORAGE',         #存储， _OBJ_TYPE:各个品牌名
     FCSWITCH     => 'FCSWITCH',        #SAN光交， _OBJ_TYPE:各个品牌名
     CLUSTER      => 'CLUSTER',         #集群， _OBJ_TYPE:DBCluster|INSCluster|OSCluster
+    CONTAINER    => 'CONTAINER'        #容器，_OBJ_TYPE:docker
 };
 
 #Deprecated，废弃，改为在local/cmdbcollect/savedata里声明每个类别的主键定义
@@ -37,7 +38,8 @@ our $PK_CONFIG = {
     FIREWALL     => [ 'MGMT_IP', 'SN' ],
     LOADBALANCER => [ 'MGMT_IP', 'SN' ],
     STORAGE      => [ 'MGMT_IP', 'SN' ],
-    FCSWITCH     => [ 'MGMT_IP', 'SN' ]
+    FCSWITCH     => [ 'MGMT_IP', 'SN' ],
+    CONTAINER    => ['MGMT_IP' , 'CONTAINER_ID']
 };
 
 our $INDEX_FIELDS = {};

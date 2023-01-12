@@ -417,13 +417,77 @@
                     ]
                 },
                 {
+                    "name": "CONTAINER_INFO",
+                    "desc": "Container Info",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IMAGE",
+                            "desc": "Image",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IMAGEID",
+                            "desc": "Image Id",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CONTAINERID",
+                            "desc": "Container Id",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATE",
+                            "desc": "State",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAINS_CONTAINER",
+                    "desc": "Contains Container",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CONTAINER_ID",
+                            "desc": "Container Id",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
                     "name": "RUN_NODE",
                     "desc": "Run Node",
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
                             "name": "UID",
-                            "desc": "Node Uid",
+                            "desc": "k8s node uid",
                             "type": "String"
                         }
                     ]

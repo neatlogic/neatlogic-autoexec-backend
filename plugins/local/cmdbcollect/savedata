@@ -35,6 +35,7 @@ def getObjCatPkDef(objCat, customPkDef):
         'FCSWITCH': ['MGMT_IP', 'SN'],
         'FCDEV': ['MGMT_IP', 'SN'],
         'K8S': ['MGMT_IP'],
+        'CONTAINER' :['MGMT_IP' , 'CONTAINER_ID'],
         'UNKNOWN': ['MGMT_IP']
     }
     fixPkDef = pkDefs.get(objCat)

@@ -422,13 +422,77 @@
                     ]
                 },
                 {
+                    "name": "CONTAINER_INFO",
+                    "desc": "容器信息",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IMAGE",
+                            "desc": "镜像",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IMAGEID",
+                            "desc": "镜像ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CONTAINERID",
+                            "desc": "容器ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATE",
+                            "desc": "容器状态",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAINS_CONTAINER",
+                    "desc": "包含容器",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CONTAINER_ID",
+                            "desc": "容器ID",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
                     "name": "RUN_NODE",
                     "desc": "所在操作系统",
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
                             "name": "UID",
-                            "desc": "k8s node uid",
+                            "desc": "k8s节点ID",
                             "type": "String"
                         }
                     ]
