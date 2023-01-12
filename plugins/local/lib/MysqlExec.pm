@@ -212,7 +212,6 @@ sub _execSql {
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
         $cmd = qq{$self->{mysqlCmd} << "EOF"
-               set names utf8;
                $sql
                EOF
               };
