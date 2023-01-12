@@ -1,0 +1,351 @@
+{
+    "label": "Docker",
+    "collection": "COLLECT_CONTAINER",
+    "docroot": null,
+    "collection_label": "Docker",
+    "filter": {
+        "_OBJ_TYPE": "Docker"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment PORT",
+            "type": "String"
+        },
+        {
+            "name": "CONTAINER_ID",
+            "desc": "Container Id",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "IPADDRESS",
+            "desc": "IP",
+            "type": "Int"
+        },
+        {
+            "name": "MACADDRESS",
+            "desc": "Mac Address",
+            "type": "String"
+        },
+        {
+            "name": "GATEWAY",
+            "desc": "Geteway",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "Status",
+            "type": "String"
+        },
+        {
+            "name": "CREATED",
+            "desc": "Created",
+            "type": "Int"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Uptime",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Cmd",
+            "type": "Int"
+        },
+        {
+            "name": "MANAGED_METHOD",
+            "desc": "Manager method",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "HOSTNAME",
+            "desc": "Hostname",
+            "type": "String"
+        },
+        {
+            "name": "IMAGE",
+            "desc": "Image",
+            "type": "String"
+        },
+        {
+            "name": "DRIVER",
+            "desc": "Driver",
+            "type": "String"
+        },
+        {
+            "name": "PLATFORM",
+            "desc": "Platform",
+            "type": "String"
+        },
+        {
+            "name": "OS_PID",
+            "desc": "Os Pid",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Ports",
+            "type": "String"
+        },
+        {
+            "name": "MOUNTS",
+            "desc": "Mounts",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SOURCE",
+                    "desc": "Source",
+                    "type": "String"
+                },
+                {
+                    "name": "DESTINATION",
+                    "desc": "Destination",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "Mod",
+                    "type": "String"
+                },
+                {
+                    "name": "RW",
+                    "desc": "RW",
+                    "type": "String"
+                }, 
+                {
+                    "name": "PROPAGATION",
+                    "desc": "Propagation",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ENV",
+            "desc": "Env",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CPU_USAGE",
+            "desc": "Cpu Usage",
+            "type": "String"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Mem Used",
+            "type": "String"
+        },
+        {
+            "name": "MEM_LIMIT",
+            "desc": "Mem Limit",
+            "type": "String"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "Mem Usage",
+            "type": "String"
+        },
+        {
+            "name": "BLOCK_IO",
+            "desc": "Block I/O",
+            "type": "String"
+        },
+        {
+            "name": "NET_IO",
+            "desc": "Net I/O",
+            "type": "String"
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "Connection Stats",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "Total",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "InBound",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "Syn Recv",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "Close Wait",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "OutBound",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "Recv Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "Recv Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "Recv Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "Recv Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "OutBound Conn Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "Remote Addr",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "Syn Sent",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "Run On",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Mgmt IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

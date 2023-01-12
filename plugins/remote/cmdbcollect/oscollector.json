@@ -153,6 +153,10 @@
                     {
                         "text": "Zookeeper",
                         "value": "Zookeeper"
+                    },
+                    {
+                        "text": "Docker",
+                        "value": "Docker"
                     }
                 ]
             },
@@ -207,6 +211,26 @@
             "opt": "inspect",
             "name": "巡检检查",
             "help": "采集更详细的巡检数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "containner",
+            "name": "采集容器",
+            "help": "是否采集容器信息，如:docker",
             "type": "select",
             "required": "true",
             "validate": "",

@@ -651,7 +651,7 @@ sub getGridVersion {
     }
     $racInfo->{VERSION} = $version;
     if ( $version =~ /(\d+)/ ) {
-        $insInfo->{MAJOR_VERSION} = "Oracle Grid $1";
+        $racInfo->{MAJOR_VERSION} = "Oracle Grid $1";
     }
     return $version;
 }

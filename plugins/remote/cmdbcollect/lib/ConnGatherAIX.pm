@@ -263,7 +263,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid ) = @_;
+    my ( $self, $lsnPortsMap, $pid , $isContainer  ) = @_;
 
     if ( not defined($pid) ) {
         my $remoteAddrs    = {};
@@ -300,7 +300,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid ) = @_;
+    my ( $self, $pid , $isContainer ) = @_;
 
     if ( not defined($pid) ) {
 
@@ -346,7 +346,7 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid ) = @_;
+    my ( $self, $pid ,$isContainer) = @_;
     my $lsnPortsMap   = $self->{lsnPortsMap};
     my $lsnBackLogMap = $self->{lsnBackLogMap};
 
@@ -364,7 +364,7 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap ) = @_;
+    my ( $self, $pid, $lsnPortsMap ,$isContainer) = @_;
     my $remoteAddrs   = $self->{remoteAddrs};
     my $procConnStats = $self->{procConnStats};
 

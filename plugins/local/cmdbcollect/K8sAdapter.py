@@ -489,6 +489,7 @@ class K8sAdapter:
                         ownerReferences.append({"_OBJ_CATEGORY": "K8S", "_OBJ_TYPE": 'K8S_REPLICASET', "UID": owner['uid'], 'NAME': owner['name'], 'KIND': owner['kind']})
                 pod['OWNERREFERENCES'] = ownerReferences
 
+                containerList = [] 
                 if 'spec' in podObj:
                     specObj = podObj['spec']
                     pod['RESTARTPOLICY'] = specObj['restartPolicy']
@@ -518,6 +519,16 @@ class K8sAdapter:
                     pod['ENABLESERVICELINKS'] = specObj['enableServiceLinks']
                     pod['SCHEDULERNAME'] = specObj['schedulerName']
 
+                    containers = specObj = specObj['containers']
+                    for container in containers:
+                        containerIns = {}
+                        name = container['name']
+                        image = container['image']
+                        containerIns['NAME'] = name
+                        containerIns['IMAGE'] = image
+                        containerList.append(containerIns)
+
+                newContainerList = [] 
                 if 'status' in podObj:
                     statusObj = podObj['status']
                     pod['PHASE'] = statusObj['phase']
@@ -552,6 +563,49 @@ class K8sAdapter:
                         conditions.append(cds)
                     pod['CONDITIONS'] = conditions
 
+                    refContainers = []
+                    if 'containerStatuses' in statusObj :
+                        containerStatuses = statusObj['containerStatuses']
+                        for container in containerStatuses:
+                            name = container['name']
+                            image = container['image']
+                            imageID = container['imageID']
+                            if 'containerID' not in container :
+                                continue 
+                            
+                            containerID = container['containerID']
+                            state = container['started']
+                            
+                            containerIns = {}
+                            for containerd in containerList:
+                                if name == containerd['NAME'] and  image == containerd['IMAGE'] :
+                                    containerIns = containerd
+                                    break
+                            
+                            containerIns['IMAGEID'] = imageID
+                            containerIns['CONTAINERID'] = containerID
+                            status = 'Exited'
+                            if state :
+                                status = 'Running'
+                            containerIns['STATE'] = status
+                            newContainerList.append(containerIns)
+
+                            ref_containerId = None
+                            ref_containerType = None
+                            if 'docker' in containerID :
+                                ref_containerId = containerID.replace('docker://','')
+                                ref_containerType = "Docker"
+
+                            if ref_containerId is not None :
+                                ref_containerId = ref_containerId.strip()
+                                refContainers.append({"_OBJ_CATEGORY": "CONTAINER", "_OBJ_TYPE": ref_containerType , "CONTAINER_ID": ref_containerId })
+
+                    # 容器信息
+                    pod['CONTAINER_INFO'] = newContainerList
+
+                    # 与容器关系
+                    pod['CONTAINS_CONTAINER'] = refContainers
+
                     # 与node关系
                     if hostIP != '':
                         for node in nodes:
@@ -559,7 +613,6 @@ class K8sAdapter:
                                 pod['RUN_NODE'] = {"_OBJ_CATEGORY": "K8S", "_OBJ_TYPE": 'K8S_NODE', "UID": node['UID']}
                     else:
                         pod['RUN_NODE'] = {}
-                # docker containers 是否采集?
                 pods.append(pod)
         else:
             print("ERROR: :Request k8s pods failed . \n")

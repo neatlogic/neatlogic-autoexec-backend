@@ -380,5 +380,47 @@
             "name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
             "rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
         }
+    ],
+    "COLLECT_CONTAINER": [
+        {
+            "name": "内存使用率超过80%",
+            "level": "WARN",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "name": "内存使用率超过90%",
+            "level": "CRITICAL",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "name": "内存使用率超过98%",
+            "level": "FATAL",
+            "rule": "$.MEM_USAGE >= 98"
+        },
+        {
+            "name": "CPU使用率超过80%",
+            "level": "WARN",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "name": "CPU使用率超过90%",
+            "level": "CRITICAL",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "name": "CPU使用率超过98%",
+            "level": "FATAL",
+            "rule": "$.CPU_USAGE >= 98"
+        },
+        {
+            "name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
+            "level": "WARN",
+            "rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
+        },
+        {
+            "name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
+            "level": "CRITICAL",
+            "rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
+        }
     ]
 }
