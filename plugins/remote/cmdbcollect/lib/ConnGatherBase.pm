@@ -260,7 +260,7 @@ sub getRemoteAddrs {
     if ( $status != 0 ) {
         my $cmd            = "netstat -ntudwp|";
         if ($isContainer == 1){
-            $cmd            = "nsenter -t $osPid -n netstat -ntudwp|";
+            $cmd            = "nsenter -t $pid -n netstat -ntudwp|";
         }
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
@@ -279,7 +279,7 @@ sub getRemoteAddrs {
     if ( $status != 0 ) {
         my $cmd            = "ss -ntudwp |";
         if ($isContainer == 1){
-            $cmd            = "nsenter -t $osPid -n ss -ntudwp|";
+            $cmd            = "nsenter -t $pid -n ss -ntudwp|";
         }
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
