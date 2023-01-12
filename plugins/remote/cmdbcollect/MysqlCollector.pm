@@ -97,6 +97,10 @@ sub parseCommandOpts {
         $opts->{$key} = $val;
     }
 
+    if ( not defined( $opts->{mysqlHome} ) ) {
+        $opts->{mysqlHome} = $opts->{basedir};
+    }
+
     return $opts;
 }
 
