@@ -9,8 +9,8 @@
     "enabled": 1,
     "option": [{
             "opt": "outputkey",
-            "name": "变量名",
-            "help": "上游输出的变量名",
+            "name": "变量名或数据",
+            "help": "上游输出的变量名或Json数据",
             "type": "text",
             "required": "true",
             "validate": "",
