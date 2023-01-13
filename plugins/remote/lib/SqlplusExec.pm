@@ -85,7 +85,7 @@ sub new {
         $sqlplusCmd = 'sqlplus -s -R 1 -L / as sysasm';
     }
 
-    if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
+    if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
         $sqlplusCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.AL32UTF8 ORACLE_SID=$oraSid $sqlplusCmd"};
     }
 
