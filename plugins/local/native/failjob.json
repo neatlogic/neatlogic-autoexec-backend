@@ -1,0 +1,20 @@
+{
+    "opDesc": "failjob",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "失败退出执行",
+    "option": [],
+    "argument": {
+        "name": "失败提示",
+        "help": "",
+        "type": "text",
+        "count": 1,
+        "isConst": "false",
+        "defaultValue": "作业失败，主动退出",
+        "required": "true",
+        "validate": ""
+    }
+}
