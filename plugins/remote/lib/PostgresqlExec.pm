@@ -76,7 +76,7 @@ sub new {
         $psqlCmd = qq{$psqlCmd '$paramsLine'};
     }
 
-    if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
+    if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
         $psqlCmd = qq{su - $osUser -c "$psqlCmd"};
     }
     $self->{psqlCmd} = $psqlCmd;
@@ -109,13 +109,13 @@ sub _parseOutput {
 
         if ( $state eq 'heading' ) {
 
-            #sqlplus的输出根据headsize的设置，一条记录会用多个行进行输出
+            #psql的输出根据headsize的设置，一条记录会用多个行进行输出
             if ( $line =~ /^[-\+]+$/ ) {
                 my $headerLine = $lines[ $i - 1 ];
                 my $linePos    = 1;
 
-                #sqlplus的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
-                #如果一行多个字段，字段之间的------中间会有空格，譬如：---- ---------
+                #psql的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
+                #如果一行多个字段，字段之间的------中间会有空格，譬如：----+---------
                 my @lineSegs = split( /\+/, $line );
                 for ( my $j = 0 ; $j < scalar(@lineSegs) ; $j++ ) {
                     my $segment = $lineSegs[$j];
@@ -135,7 +135,7 @@ sub _parseOutput {
 
                     push( @fieldDescs, $fieldDesc );
 
-                    #@fieldNames数组用于保留在sqlplus中字段的显示顺序
+                    #@fieldNames数组用于保留在psql中字段的显示顺序
                     push( @fieldNames, $fieldName );
 
                     $linePos = $linePos + $fieldLen + 1;
@@ -254,7 +254,7 @@ sub query {
     return ( $status, $rows );
 }
 
-#运行非查询的sql，如果verbose=1，直接输出sqlplus执行的日志
+#运行非查询的sql，如果verbose=1，直接输出psql执行的日志
 sub do {
     my ( $self, %args ) = @_;
     my $sql       = $args{sql};
