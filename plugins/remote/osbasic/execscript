@@ -166,11 +166,10 @@ sub main {
         print("FINE: Exec script success.\n");
     }
     else {
+        if ( $exitCode > 255 ) {
+            $exitCode = $exitCode >> 8;
+        }
         print("ERROR: Exec script failed.\n");
-    }
-
-    if ( $exitCode > 255 ) {
-        $exitCode = $exitCode >> 8;
     }
 
     return $exitCode;
