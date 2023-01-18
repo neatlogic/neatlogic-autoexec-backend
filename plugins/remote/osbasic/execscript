@@ -162,6 +162,10 @@ sub main {
     }
     my $cmd      = getScriptCmd( $scriptFilePath, $interpreter, $args );
     my $exitCode = system($cmd);
+
+    #print finish flag
+    print("\n\x1b[[-=-exec finish-=-\x1b]]\r\n");
+
     if ( $exitCode == 0 ) {
         print("FINE: Exec script success.\n");
     }
