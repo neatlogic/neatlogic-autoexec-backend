@@ -76,7 +76,7 @@ sub new {
         $psqlCmd = qq{$psqlCmd '$paramsLine'};
     }
 
-    if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
+    if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
         $psqlCmd = qq{su - $osUser -c "$psqlCmd"};
     }
     $self->{psqlCmd} = $psqlCmd;

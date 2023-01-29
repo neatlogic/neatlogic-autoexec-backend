@@ -120,37 +120,52 @@ if __name__ == "__main__":
     if hasOptError:
         sys.exit(2)
 
-    outputKey = re.sub(r'^#\{', '', outputKey)
-    outputKey = re.sub(r'\}$', '', outputKey)
-    outputKeyInfo = outputKey.split('.')
+    if outputKey.startswith('#{'):
+        outputKey = re.sub(r'^#\{', '', outputKey)
+        outputKey = re.sub(r'\}$', '', outputKey)
+        outputKeyInfo = outputKey.split('.')
 
-    if len(outputKeyInfo) != 3:
-        print("ERROR: Malform output key %s." % (outputKey))
-        sys.exit(3)
+        if len(outputKeyInfo) != 3:
+            print("ERROR: Malform output key %s." % (outputKey))
+            sys.exit(3)
 
-    opId = outputKeyInfo[1]
-    varKey = outputKeyInfo[2]
+        opId = outputKeyInfo[1]
+        varKey = outputKeyInfo[2]
 
-    jobId = os.getenv('AUTOEXEC_JOBID')
+        jobId = os.getenv('AUTOEXEC_JOBID')
 
-    extractVal = None
+        extractVal = None
 
-    try:
-        queryCond = {
-            'jobId': jobId,
-            'resourceId': resourceId,
-            'data.%s' % opId: {'$ne': None}
-        }
+        try:
+            queryCond = {
+                'jobId': jobId,
+                'resourceId': resourceId,
+                'data.%s' % opId: {'$ne': None}
+            }
 
-        print("INFO: Try to query node output for operation id:%s output:%s." % (opId, varKey))
-        nodeOut = outCollection.find_one(queryCond, {'data.%s' % opId: 1})
+            print("INFO: Try to query node output for operation id:%s output:%s." % (opId, varKey))
+            nodeOut = outCollection.find_one(queryCond, {'data.%s' % opId: 1})
 
-        if nodeOut is None:
-            exitCode = 4
-            print("ERROR: Can not find node output for operation id:%s output:%s." % (opId, varKey))
-        else:
-            val = nodeOut['data'].get(opId).get(varKey)
+            if nodeOut is None:
+                exitCode = 4
+                print("ERROR: Can not find node output for operation id:%s output:%s." % (opId, varKey))
+            else:
+                val = nodeOut['data'].get(opId).get(varKey)
+        except Exception as err:
+            exitCode = 1
+            print("ERROR: Query node output for operation id:%s output:%s, %s." % (opId, varKey, err))
+        finally:
+            if dbclient is not None:
+                dbclient.close()
+    else:
+        try:
+            val = json.loads(outputKey)
+        except Exception as err:
+            exitCode = 1
+            print("ERROR: Value:%s to be extract is not in json format." % (outputKey))
 
+    if exitCode == 0 and val is not None:
+        try:
             if selectorType == 'RegExp':
                 extractVal = extractByRegexp(val, fieldSelector)
             else:
@@ -160,12 +175,9 @@ if __name__ == "__main__":
                 exitCode = 2
             else:
                 print('Extrace value:{}'.format(extractVal))
-    except Exception as err:
-        exitCode = 1
-        print('ERROR: Extract output value for {} failed, {}'.format(outputKey, err))
-    finally:
-        if dbclient is not None:
-            dbclient.close()
+        except Exception as err:
+            exitCode = 3
+            print('ERROR: Extract output value for {} failed, {}'.format(outputKey, err))
 
     out = {'extractTxtVal': extractVal}
     AutoExecUtils.saveOutput(out)

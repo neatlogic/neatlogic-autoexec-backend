@@ -162,12 +162,22 @@ sub main {
     }
     my $cmd      = getScriptCmd( $scriptFilePath, $interpreter, $args );
     my $exitCode = system($cmd);
+
+    if ( $exitCode > 255 ) {
+        $exitCode = $exitCode >> 8;
+    }
+
+    #print finish flag
+    print("\n\x1b[[-=-exec finish-=-\x1b]]\r\n");
+    print("$exitCode\n");
+
     if ( $exitCode == 0 ) {
         print("FINE: Exec script success.\n");
     }
     else {
         print("ERROR: Exec script failed.\n");
     }
+
     return $exitCode;
 }
 

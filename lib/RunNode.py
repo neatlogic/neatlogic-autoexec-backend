@@ -719,6 +719,13 @@ class RunNode:
                         elif op.opSubName == 'failkeys':
                             self.writeNodeLog('INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(op.opSubName, op.options.get('operator'), op.options.get('exclude'), ' '.join(e.get('value') for e in op.arguments)))
                             self.logHandle.setFailPattern(op.failIgnore, op.options.get('operator'), op.arguments, op.options.get('exclude'))
+                        elif op.opSubName == 'failjob':
+                            ret = 1
+                            msgLine = 'ERROR: '
+                            for arg in op.arguments:
+                                msg = arg.get('value', '')
+                                msgLine = msgLine + msg
+                            self.writeNodeLog(msgLine + "\n")
                         elif op.opSubName == 'extractprestepstatus':
                             envName = op.options.get('envname')
                             envScope = op.options.get('scope')
@@ -884,16 +891,20 @@ class RunNode:
 
                 # evaluate if-block
                 if op.opName == 'native/IF-Block':
+                    ifOpsFail = 0
                     ifOps = self.getIfBlockOps(op)
                     for ifOp in ifOps:
                         ifOp.setNode(self)
                         opStatus = self.execOneOperation(ifOp)
                         if opStatus == NodeStatus.failed:
                             isFail = 1
+                            ifOpsFail = 1
                             hasIgnoreFail = 0
                             break
                         elif opStatus == NodeStatus.ignored:
                             hasIgnoreFail = 1
+                    if ifOpsFail == 1:
+                        break
                 else:
                     op.setNode(self)
                     # execute on operation

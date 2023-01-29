@@ -14,7 +14,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("$pname --backup 0|1 --content <sysctl.conf content>\n");
+    print("$pname --backup 0|1 --filepath <file path of ini> --nosection <0|1> --content <sysctl.conf content>\n");
     exit(1);
 }
 

@@ -6,7 +6,7 @@ package MysqlExec;
 use POSIX qw(uname);
 use Carp;
 
-#sqlplus的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
+#mysql的执行工具类，当执行出现ORA错误是会自动exit非0值，失败退出进程
 
 sub new {
     my ( $type, %args ) = @_;
@@ -81,7 +81,7 @@ sub new {
         $mysqlCmd = "$mysqlCmd -D'$args{dbname}'";
     }
 
-    if ( $isRoot and defined( $args{osUser} ) and $osType ne 'Windows' ) {
+    if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
         $mysqlCmd = qq{su - $osUser -c "$mysqlCmd"};
     }
     $self->{mysqlCmd} = $mysqlCmd;
@@ -124,13 +124,13 @@ sub _parseOutput {
 
         if ( $state eq 'heading' ) {
 
-            #sqlplus的输出根据headsize的设置，一条记录会用多个行进行输出
+            #mysql的输出根据headsize的设置，一条记录会用多个行进行输出
             my $underLine = $lines[ $i + 1 ];
             if ( $underLine =~ /^[-\+]+$/ ) {
                 my $linePos = 1;
 
-                #sqlplus的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
-                #如果一行多个字段，字段之间的------中间会有空格，譬如：---- ---------
+                #mysql的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
+                #如果一行多个字段，字段之间的------中间会有+，譬如：----+---------
                 my @underLineSegs = split( /\+/, $underLine );
                 for ( my $j = 1 ; $j < scalar(@underLineSegs) ; $j++ ) {
                     my $segment = $underLineSegs[$j];
@@ -150,7 +150,7 @@ sub _parseOutput {
 
                     push( @fieldDescs, $fieldDesc );
 
-                    #@fieldNames数组用于保留在sqlplus中字段的显示顺序
+                    #@fieldNames数组用于保留在mysql中字段的显示顺序
                     push( @fieldNames, $fieldName );
 
                     $linePos = $linePos + $fieldLen + 1;
@@ -161,20 +161,53 @@ sub _parseOutput {
         }
         elsif ( $line =~ /^\|/ ) {
             my $row = {};
+            $line =~ s/^\||\|$/ /g;
+            my @fieldValues     = split( / \| /, $line );
+            my $splitFieldCount = scalar(@fieldValues);
+            my $fieldDescCount  = scalar(@fieldDescs);
 
-            foreach my $fieldDesc (@fieldDescs) {
+            if ( $splitFieldCount == $fieldDescCount ) {
+                for ( my $i = 0 ; $i < $fieldDescCount ; $i++ ) {
+                    my $fieldDesc = $fieldDescs[$i];
 
-                #根据字段描述的行中的开始位置和长度，substr抽取字段值
-                my $val = substr( $line, $fieldDesc->{start}, $fieldDesc->{len} );
-                if ( defined($val) ) {
-                    $val =~ s/^\s+|\s+$//g;
+                    #根据字段描述的行中的开始位置和长度，substr抽取字段值
+                    my $val = $fieldValues[$i];
+                    if ( defined($val) ) {
+                        $val =~ s/^\s+|\s+$//g;
+                    }
+                    else {
+                        $val = '';
+                    }
+
+                    my $fieldName = $fieldDesc->{name};
+                    $row->{$fieldName} = $val;
                 }
-                else {
-                    $val = '';
-                }
+            }
+            else {
+                #offset用于修正utf8编码时length utf8字符会返回3个字节，实际上显示字符宽度是2
+                my $startOffset = 0;
+                foreach my $fieldDesc (@fieldDescs) {
 
-                my $fieldName = $fieldDesc->{name};
-                $row->{$fieldName} = $val;
+                    #根据字段描述的行中的开始位置和长度，substr抽取字段值
+                    my $val = substr( $line, $fieldDesc->{start} + $startOffset, $fieldDesc->{len} );
+
+                    my $endChar = substr( $line, $fieldDesc->{start} + $startOffset + $fieldDesc->{len}, 1 );
+                    while ( defined($endChar) and $endChar ne '|' ) {
+                        $val         = $val . $endChar;
+                        $startOffset = $startOffset + 1;
+                        $endChar     = substr( $line, $fieldDesc->{start} + $startOffset + $fieldDesc->{len}, 1 );
+                    }
+
+                    if ( defined($val) ) {
+                        $val =~ s/^\s+|\s+$//g;
+                    }
+                    else {
+                        $val = '';
+                    }
+
+                    my $fieldName = $fieldDesc->{name};
+                    $row->{$fieldName} = $val;
+                }
             }
 
             #完成一条记录的抽取，保存到行数组，进入下一条记录的处理
@@ -269,7 +302,7 @@ sub query {
     return ( $status, $rows );
 }
 
-#运行非查询的sql，如果verbose=1，直接输出sqlplus执行的日志
+#运行非查询的sql，如果verbose=1，直接输出mysql执行的日志
 sub do {
     my ( $self, %args ) = @_;
     my $sql       = $args{sql};
