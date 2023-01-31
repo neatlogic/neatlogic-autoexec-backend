@@ -150,7 +150,7 @@ def getMyNode():
     node = None
 
     if nodeJson is not None and nodeJson != '':
-        node = json.load(nodeJson)
+        node = json.loads(nodeJson)
 
     return node
 
@@ -433,12 +433,14 @@ def txtFileInspectSave(params):
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.txtFileInspectSave(params)
 
+
 def notifyInspectReport(params):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.notifyInspectReport(params)
 
-def getResourceInfoList(ip , port , name , type):
+
+def getResourceInfoList(ip, port, name, type):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
-    return serverAdapter.getResourceInfoList(ip , port , name , type)
+    return serverAdapter.getResourceInfoList(ip, port, name, type)

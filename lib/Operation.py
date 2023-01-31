@@ -375,12 +375,17 @@ class Operation:
         if not localRefMap:
             localRefMap = self.node.localOutput
 
-        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', optValue)
+        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\}|\$(\w+))', optValue)
         for matchObj in matchObjs:
             # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
             # matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
+            isSimpleVar = False
             exp = matchObj[0]
             paramName = matchObj[1]
+            if paramName == '':
+                isSimpleVar = True
+                paramName = matchObj[2]
+
             val = None
 
             nativeRefMap = self.context.opt
@@ -419,7 +424,10 @@ class Operation:
             if val is not None:
                 if not isinstance(val, str):
                     val = json.dumps(val, ensure_ascii=False)
-                optValue = optValue.replace(exp, val)
+                if isSimpleVar:
+                    optValue = re.sub('\$%s(?=\W)' % (paramName), val, optValue)
+                else:
+                    optValue = optValue.replace(exp, val)
 
         return optValue
 
