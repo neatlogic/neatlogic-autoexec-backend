@@ -60,7 +60,7 @@ class JmxUtils:
                 
         except Exception as ex:
             errMsg = str(ex)
-            print("WARN:: Jmx get Bean {} failed , {} .".format(errMsg))
+            print("WARN:: Jmx get Bean failed , {} .".format(errMsg))
         return metricMap
 
     def queryCheck( self , beanName , attribute):

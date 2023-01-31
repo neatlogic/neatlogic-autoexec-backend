@@ -478,6 +478,10 @@ class Operation:
             if argDesc == 'filepath' and self.opType == 'remote':
                 argValue = 'file/' + os.path.basename(argValue)
 
+            if noPassword and argDesc == 'textarea':
+                # 隐藏工具输入参数中可能是密码的内容
+                argValue = re.sub(r'(password\s*[=:]|pwd\s*[=:]|identified\s+by\s+).*?(\\n|$)', r' \1**hidden**\\n', argValue, flags=re.IGNORECASE)
+
             if (isObject or isPassword) and osType != 'windows':
                 cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota="'")
             else:
@@ -560,6 +564,10 @@ class Operation:
 
             if kDesc == 'filepath' and self.opType == 'remote':
                 v = 'file/' + os.path.basename(v)
+
+            if noPassword and kDesc == 'textarea':
+                # 隐藏工具输入参数中可能是密码的内容
+                v = re.sub(r'(password\s*[=:]|pwd\s*[=:]|identified\s+by\s+).*?(\\n|$)', r' \1**hidden**\\n', v, flags=re.IGNORECASE)
 
             if (isObject or isPassword) and osType != 'windows':
                 cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota="'")

@@ -597,6 +597,8 @@ class RunNode:
             if optType in ('password', 'account'):
                 saveOpts[optName] = '******'
             elif optType == 'textarea':
+                # 隐藏工具输入参数中可能是密码的内容
+                optValue = re.sub(r'(password\s*[=:]|pwd\s*[=:]|identified\s+by\s+).*?(\\n|$)', r' \1**hidden**\\n', optValue, flags=re.IGNORECASE)
                 optValue = optValue.replace('\\n', '\n')
                 saveOpts[optName] = optValue
             else:
@@ -608,6 +610,8 @@ class RunNode:
                 saveArgs.append('******')
             elif argType == 'textarea':
                 argVal = arg.get('value')
+                # 隐藏工具输入参数中可能是密码的内容
+                argVal = re.sub(r'(password\s*[=:]|pwd\s*[=:]|identified\s+by\s+).*?(\\n|$)', r' \1**hidden**\\n', argVal, flags=re.IGNORECASE)
                 argVal = argVal.replace('\\n', '\n')
                 saveArgs.append(argVal)
             else:
