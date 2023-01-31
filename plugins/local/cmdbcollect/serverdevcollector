@@ -346,7 +346,7 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--user', default='', help='default user ')
-    parser.add_argument('--password', default=161, help='default user password')
+    parser.add_argument('--password', default='', help='default user password')
     parser.add_argument('--verbose', default='0', help='verbose output')
 
     args = parser.parse_args()

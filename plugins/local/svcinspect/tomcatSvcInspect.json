@@ -1,0 +1,66 @@
+{
+    "opName": "Tomcat性能巡检",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Tomcat性能巡检",
+    "option": [
+        {
+            "opt": "jmxport",
+            "name": "jmx port",
+            "help": "jmx服务端口",
+            "type": "text",
+            "required": "true",
+            "validate": ["integer_p"],
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "jmx认证用户",
+            "help": "jmx认证用户",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "jmx认证用户密码",
+            "help": "jmx认证用户密码",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
+}
