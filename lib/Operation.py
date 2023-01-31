@@ -376,12 +376,15 @@ class Operation:
         if not localRefMap:
             localRefMap = self.node.localOutput
 
-        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', optValue)
+        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\}|\$(\w+))', optValue)
         for matchObj in matchObjs:
             # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
             # matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
             exp = matchObj[0]
             paramName = matchObj[1]
+            if paramName == '':
+                paramName = matchObj[2]
+
             val = None
 
             nativeRefMap = self.context.opt
