@@ -83,10 +83,10 @@ class Context(VContext.VContext):
             for k, v in jobOpt.items():
                 if isinstance(v, str):
                     if v[0:5] == '{RC4}':
-                        plaintTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
-                        encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plaintTxt)
+                        plainTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
+                        encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
                         if v[5:] == encryptTxt:
-                            v = plaintTxt
+                            jobOpt[k] = plainTxt
                     os.environ[k] = v
                 else:
                     os.environ[k] = json.dumps(v, ensure_ascii=False)
