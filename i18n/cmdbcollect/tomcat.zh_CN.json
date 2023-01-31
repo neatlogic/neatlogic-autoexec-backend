@@ -607,6 +607,225 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "MEMORY",
+            "desc": "内存情况",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "INIT",
+                    "desc": "初始化",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已使用(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMITTED",
+                    "desc": "已提交(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "最大内存(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USAGE",
+                    "desc": "使用率(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "MEMORYPOOL",
+            "desc": "内存池情况",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "INIT",
+                    "desc": "初始化",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已使用(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMITTED",
+                    "desc": "已提交(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "最大内存(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USAGE",
+                    "desc": "使用率(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "GARBAGECOLLECTOR",
+            "desc": "GC情况",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "COLLECTIONTIME",
+                    "desc": "时间(秒)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COLLECTIONCOUNT",
+                    "desc": "次数",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "THREAD",
+            "desc": "线程情况",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "THREADCOUNT",
+                    "desc": "活动线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "DAEMONTHREADCOUNT",
+                    "desc": "守护线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PEAKTHREADCOUNT",
+                    "desc": "线程峰值数",
+                    "type": "Int"
+                },
+                {
+                    "name": "TOTALSTARTEDTHREADCOUNT",
+                    "desc": "总开启线程数",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "THREADPOOL",
+            "desc": "线程池情况",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECTIONCOUNT",
+                    "desc": "连接连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CURRENTTHREADCOUNT",
+                    "desc": "当前线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CURRENTTHREADSBUSY",
+                    "desc": "繁忙线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAXTHREADS",
+                    "desc": "最大线程数",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "REQUESTPROCESSOR",
+            "desc": "请求处理器情况",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "REQUESTCOUNT",
+                    "desc": "请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "ERRORCOUNT",
+                    "desc": "出错请求",
+                    "type": "Int"
+                },
+                {
+                    "name": "BYTESRECEIVED",
+                    "desc": "接收的流量(B)",
+                    "type": "Int"
+                },
+                {
+                    "name": "BYTESSENT",
+                    "desc": "发送的流量(B)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "DATASOURCE",
+            "desc": "JDBC连接串",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "对象",
+                    "type": "String"
+                },
+                {
+                    "name": "DRIVERCLASSNAME",
+                    "desc": "类型",
+                    "type": "Int"
+                },
+                {
+                    "name": "INITIALSIZE",
+                    "desc": "初始连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAXTOTAL",
+                    "desc": "最大连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "NUMACTIVE",
+                    "desc": "当前连接数",
+                    "type": "Int"
+                }
+            ]
         }
     ]
 }

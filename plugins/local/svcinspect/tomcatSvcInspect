@@ -1,0 +1,199 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import argparse
+import json
+import time
+
+import AutoExecUtils
+import JmxUtils
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --node <host node> --jmxport <jmx port> --username <authenticate username> --password <authenticate password> --verbose")
+    exit(1)
+
+def memDivide( value ):
+    if value == -1 or value == 0:
+        return value
+    return round(value/1024/1024)
+
+def usageDivide( molecule , denominator ):
+    if denominator == -1 or denominator == 0:
+        return 0
+    return round((molecule/denominator)*100)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jmxport', default='', help='tomcat process jmx rmi server port')
+    parser.add_argument('--username', default='', help='jmx authenticate username')
+    parser.add_argument('--password', default='', help='jmx authenticate password')
+    parser.add_argument('--verbose', default='', help='verbose output')
+
+    args = parser.parse_args()
+    isVerbose = int(args.verbose)
+    node = os.getenv('AUTOEXEC_NODE')
+    if node != None and node != '':
+        node = json.loads(node)
+
+    host = ''
+    port = ''
+    resourceId = 0 
+    jmxport = args.jmxport
+    username = args.username
+    password = args.password
+
+    if (node != None):
+        host = node['host']
+        if 'protocolPort' in node :
+            port = node['protocolPort']
+        elif 'port' in node:
+            port = node['port']
+        
+        if (jmxport is None or jmxport =='' ):
+            jmxport = port
+        
+        resourceId = node['resourceId']
+
+    if (host == '' or jmxport == ''):
+        usage()
+
+    tomcat = {
+        "MGMT_IP"     : host,
+        "PORT"        : port,
+        "_OBJ_CATEGORY": "INS",
+        "_OBJ_TYPE"    : "Tomcat",
+        "RESOURCE_ID" : resourceId,
+        "AVAILABILITY": 0
+    }
+    startTime = time.time()
+    JmxUtils = JmxUtils.JmxUtils(host , jmxport , username , password , isVerbose )
+    (ret , errMsg) = JmxUtils.queryCheck("java.lang:type=Runtime" , "Uptime")
+    timeConsume = round(time.time() - startTime, 4)
+    if ret == 1:
+        memory = []
+        for attribute in ["HeapMemoryUsage" , "NonHeapMemoryUsage"] :
+            ins = {}
+            result = JmxUtils.queryBeanByNameAndAtrribute("java.lang:type=Memory" , attribute)
+            data = result[attribute]
+            max = memDivide(data['max'])
+            used = memDivide(data['used'])
+            init = memDivide(data['init'])
+            committed = memDivide(data['committed'])
+            ins['NAME'] = attribute
+            ins['MAX'] = max
+            ins['USED'] = used
+            ins['INIT'] = init
+            ins['COMMITTED'] = committed
+            ins['USAGE'] = usageDivide(used , max)
+            memory.append(ins)
+        tomcat["MEMORY"] = memory
+        
+        memoryPool = []
+        for name in ["Code Cache","Metaspace","Compressed Class Space","Par Eden Space","Par Survivor Space","PS Eden Space","PS Old Gen","PS Perm Gen","PS Survivor Space","CMS Old Gen","CMS Perm Gen","Perm Gen"]: 
+            beanName = "java.lang:type={},name={}".format("MemoryPool", name)
+            result = JmxUtils.queryBeanByNameAndAtrribute(beanName , "Usage")
+            ins = {}
+            if 'Usage' in result :
+                attribute = 'Usage'
+                data = result[attribute]
+                max = memDivide(data['max'])
+                used = memDivide(data['used'])
+                init = memDivide(data['init'])
+                committed = memDivide(data['committed'])
+                ins['NAME'] = "{} {}".format(name , attribute)
+                ins['MAX'] = max
+                ins['USED'] = used
+                ins['INIT'] = init
+                ins['COMMITTED'] = committed
+                ins['USAGE'] = usageDivide(used , max)
+                memoryPool.append(ins)
+        tomcat["MEMORYPOOL"] = memoryPool
+
+        garbageCollector = []
+        gcBeans = ["Copy","MarkSweepCompact","PS Scavenge","ConcurrentMarkSweep","ParNew","PS MarkSweep"]
+        gcAttributes = ["CollectionTime","CollectionCount"]
+        for beanName in gcBeans :
+            ins = {}
+            ins['NAME'] = beanName
+            existAtrribute = 0 
+            for atrributeName in gcAttributes :
+                result = JmxUtils.queryBeanByTypeAndNameAtrribute("GarbageCollector" , beanName,  atrributeName )
+                existAtrribute = 0 
+                if atrributeName in result :
+                    ins[atrributeName.upper()] = result[atrributeName][atrributeName]
+                    if existAtrribute == 0  :
+                        existAtrribute = 1
+            if existAtrribute == 1 :
+                garbageCollector.append(ins)
+        tomcat["GARBAGECOLLECTOR"] = garbageCollector
+        
+        thread = {}
+        thAttributes = ["ThreadCount" , "DaemonThreadCount" , "PeakThreadCount" , "TotalStartedThreadCount"]
+        for atrributeName in thAttributes :
+            result = JmxUtils.queryBeanByNameAndAtrribute("java.lang:type=Threading",  atrributeName )
+            value = result[atrributeName][atrributeName]
+            thread[atrributeName.upper()] = value
+        tomcat["THREAD"] = thread
+
+        threadPoolMap = {}
+        threadPoolAttributes = ["connectionCount","currentThreadCount","currentThreadsBusy","maxThreads"]
+        for atrributeName in threadPoolAttributes :
+            result = JmxUtils.queryBeanByNameAndAtrribute("Catalina:name=*,type=ThreadPool",  atrributeName, "{name}")
+            for key in result :
+                data = result[key]
+                ins = {} 
+                if key in threadPoolMap :
+                    ins = threadPoolMap[key]
+                ins['NAME'] = key 
+                if 'dict' in  str(type(data)) :
+                    for dkey in data :
+                        ins[dkey.upper()]= data[dkey] 
+                threadPoolMap[key] = ins
+        threadPool = []
+        for key in threadPoolMap : 
+            threadPool.append(threadPoolMap[key])
+        tomcat["THREADPOOL"] = threadPool
+
+        requestProcessorMap = {}
+        requestProcessorAttributes = ["requestCount","errorCount","bytesReceived","bytesSent"]
+        for atrributeName in requestProcessorAttributes :
+            result = JmxUtils.queryBeanByNameAndAtrribute("Catalina:type=GlobalRequestProcessor,name=*",  atrributeName, "{name}")
+            for key in result :
+                data = result[key]
+                ins = {} 
+                if key in requestProcessorMap :
+                    ins = requestProcessorMap[key]
+                ins['NAME'] = key 
+                if 'dict' in  str(type(data)) :
+                    for dkey in data :
+                        ins[dkey.upper()]= data[dkey] 
+                requestProcessorMap[key] = ins
+        requestProcessor = []
+        for key in requestProcessorMap : 
+            requestProcessor.append(requestProcessorMap[key])
+        tomcat["REQUESTPROCESSOR"] = requestProcessor
+
+        dataSource = {}
+        dataSourceAttributes = ["maxTotal","numActive","initialSize","driverClassName"]
+        for atrributeName in dataSourceAttributes :
+            result = JmxUtils.queryBeanByNameAndAtrribute("Catalina:class=javax.sql.DataSource,context=*,host=*,name=*,type=DataSource",  atrributeName , '{name}')
+            for key in result : 
+                dataSource["NAME"] = key 
+                data = result[key]
+                for dkey in data :
+                    dataSource[dkey.upper()] = data[dkey]
+        tomcat["DATASOURCE"] = dataSource
+
+        tomcat['AVAILABILITY'] = 1
+        tomcat['ERROR_MESSAGE'] = ''
+    else:
+        tomcat['AVAILABILITY'] = 0
+        tomcat['ERROR_MESSAGE'] = errMsg
+    tomcat['RESPONSE_TIME'] = timeConsume
+    
+    out = {}
+    out["DATA"] = [tomcat]
+    AutoExecUtils.saveOutput(out)
+        
