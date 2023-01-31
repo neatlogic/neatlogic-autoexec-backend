@@ -10,6 +10,7 @@ import json
 from shutil import copyfile
 import datetime
 
+import Utils
 import VContext
 import PhaseStatus
 import ServerAdapter
@@ -81,6 +82,11 @@ class Context(VContext.VContext):
         if jobOpt is not None:
             for k, v in jobOpt.items():
                 if isinstance(v, str):
+                    if v[0:5] == '{RC4}':
+                        plaintTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
+                        encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plaintTxt)
+                        if v[5:] == encryptTxt:
+                            v = plaintTxt
                     os.environ[k] = v
                 else:
                     os.environ[k] = json.dumps(v, ensure_ascii=False)
