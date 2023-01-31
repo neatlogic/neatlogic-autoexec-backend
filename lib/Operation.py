@@ -425,7 +425,7 @@ class Operation:
                 if not isinstance(val, str):
                     val = json.dumps(val, ensure_ascii=False)
                 if isSimpleVar:
-                    optValue = re.sub('\$%s(?=\W)' % (paramName), val, optValue)
+                    optValue = re.sub('\$%s(?=\W|$)' % (paramName), val, optValue)
                 else:
                     optValue = optValue.replace(exp, val)
 
