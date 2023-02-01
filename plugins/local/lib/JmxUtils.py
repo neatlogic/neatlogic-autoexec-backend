@@ -68,6 +68,13 @@ class JmxUtils:
         errMsg = ''
         try :
             self.queryBeanByNameAndAtrribute( beanName , attribute)
+            jmxQuery = [
+                JMXQuery(
+                    mBeanName = beanName,
+                    attribute = attribute
+                    )
+            ]
+            self.connection.query(jmxQuery)
             ret = 1
         except Exception as ex:
             ret = 0 
