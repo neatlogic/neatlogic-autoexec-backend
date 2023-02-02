@@ -32,37 +32,37 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
-            'register': '/codedriver/api/rest/autoexec/tool/register',
-            'getParams': '/codedriver/api/rest/autoexec/job/create/param/get',
-            'getNodes': '/codedriver/api/binary/autoexec/job/phase/nodes/download',
-            'fetchFile': '/codedriver/api/binary/file/download',
-            'fetchScript': '/codedriver/api/rest/autoexec/job/phase/operation/script/get/forautoexec',
-            'getScript': '/codedriver/api/rest/autoexec/script/active/version/get',
-            'getAccount': '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'getNodePwd': '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'getInspectConf': '/codedriver/api/rest/autoexec/inspect/nodeconf/get',
-            'updateInspectStatus': '/codedriver/api/rest/cmdb/cientity/updateinspectstatus',
-            'updateMonitorStatus': '/codedriver/api/rest/cmdb/cientity/updatemonitorstatus',
-            'updateNodeStatus': '/codedriver/api/rest/autoexec/job/phase/node/status/update',
-            'updatePhaseStatus': '/codedriver/api/rest/autoexec/job/phase/status/update',
-            'fireNextGroup': '/codedriver/api/rest/autoexec/job/next/group/fire',
-            'fireNextPhase': '/codedriver/api/rest/autoexec/job/next/phase/fire',
-            'informRoundEnded': '/codedriver/api/rest/autoexec/job/phase/inform/round/end',
-            'updateJobStatus': '/codedriver/api/rest/autoexec/job/status/update',
-            'exportJobEnv': '/codedriver/api/rest/autoexec/job/env/update',
-            'updateGlobalParam': '/codedriver/api/rest/autoexec/global/param/update/forautoexec',
-            'setResourceInspectJobId': '/codedriver/api/rest/autoexec/job/resource/inspect/update',
-            'getCmdbCiAttrs': '/codedriver/api/rest/cmdb/cientity/attrentity/get',
-            'getAccessEndpoint': '/codedriver/api/rest/resourcecenter/resource/accessendpoint/get',
-            'globalLock': '/codedriver/api/rest/global/lock',
-            'getDeployIdPath': '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
-            'getDeployRunnerGroup': '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
-            'getCITxtFilePathList': '/codedriver/api/rest/inspect/configfile/resource/path/list',
-            'uploadFile': '/codedriver/api/binary/file/upload',
-            'removeUploadedFile': '/codedriver/api/rest/file/delete',
-            'txtFileInspectSave': '/codedriver/api/rest/inspect/configfile/audit/save',
-            'inspectReport': '/codedriver/api/rest/inspect/autoexec/job/report/notify',
-            'getResourceInfo' : '/codedriver/api/rest/resourcecenter/resource/custom/list'
+            'register': '/neatlogic/api/rest/autoexec/tool/register',
+            'getParams': '/neatlogic/api/rest/autoexec/job/create/param/get',
+            'getNodes': '/neatlogic/api/binary/autoexec/job/phase/nodes/download',
+            'fetchFile': '/neatlogic/api/binary/file/download',
+            'fetchScript': '/neatlogic/api/rest/autoexec/job/phase/operation/script/get/forautoexec',
+            'getScript': '/neatlogic/api/rest/autoexec/script/active/version/get',
+            'getAccount': '/neatlogic/api/rest/resourcecenter/resource/account/get',
+            'getNodePwd': '/neatlogic/api/rest/resourcecenter/resource/account/get',
+            'getInspectConf': '/neatlogic/api/rest/autoexec/inspect/nodeconf/get',
+            'updateInspectStatus': '/neatlogic/api/rest/cmdb/cientity/updateinspectstatus',
+            'updateMonitorStatus': '/neatlogic/api/rest/cmdb/cientity/updatemonitorstatus',
+            'updateNodeStatus': '/neatlogic/api/rest/autoexec/job/phase/node/status/update',
+            'updatePhaseStatus': '/neatlogic/api/rest/autoexec/job/phase/status/update',
+            'fireNextGroup': '/neatlogic/api/rest/autoexec/job/next/group/fire',
+            'fireNextPhase': '/neatlogic/api/rest/autoexec/job/next/phase/fire',
+            'informRoundEnded': '/neatlogic/api/rest/autoexec/job/phase/inform/round/end',
+            'updateJobStatus': '/neatlogic/api/rest/autoexec/job/status/update',
+            'exportJobEnv': '/neatlogic/api/rest/autoexec/job/env/update',
+            'updateGlobalParam': '/neatlogic/api/rest/autoexec/global/param/update/forautoexec',
+            'setResourceInspectJobId': '/neatlogic/api/rest/autoexec/job/resource/inspect/update',
+            'getCmdbCiAttrs': '/neatlogic/api/rest/cmdb/cientity/attrentity/get',
+            'getAccessEndpoint': '/neatlogic/api/rest/resourcecenter/resource/accessendpoint/get',
+            'globalLock': '/neatlogic/api/rest/global/lock',
+            'getDeployIdPath': '/neatlogic/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
+            'getDeployRunnerGroup': '/neatlogic/api/rest/deploy/runner/group/get/forautoexec',
+            'getCITxtFilePathList': '/neatlogic/api/rest/inspect/configfile/resource/path/list',
+            'uploadFile': '/neatlogic/api/binary/file/upload',
+            'removeUploadedFile': '/neatlogic/api/rest/file/delete',
+            'txtFileInspectSave': '/neatlogic/api/rest/inspect/configfile/audit/save',
+            'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
+            'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list'
         }
 
         self.context = context
@@ -1065,45 +1065,44 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, ex))
 
-
-    def getResourceInfoList(self, ip , port , name , type):
-        param = {"keyword": "","searchMode": "text","currentPage": 1,"pageSize": 10}
+    def getResourceInfoList(self, ip, port, name, type):
+        param = {"keyword": "", "searchMode": "text", "currentPage": 1, "pageSize": 10}
         conditionList = []
         conditionRelList = []
         uuid = {
-            "ip": "c9cc49f2fbab454ca678361c5a3794cc" , 
-            "port":"a04cff8b501c44f7a66b9c0b15e2f3d4" , 
-            "name":"a72d187fde1b4114b5dbb35b633c5b62",
-            "typeIdList":"bf12f6806aa6477086c7e1d7c7c9a52a"
+            "ip": "c9cc49f2fbab454ca678361c5a3794cc",
+            "port": "a04cff8b501c44f7a66b9c0b15e2f3d4",
+            "name": "a72d187fde1b4114b5dbb35b633c5b62",
+            "typeIdList": "bf12f6806aa6477086c7e1d7c7c9a52a"
         }
         valueList = []
-        if ip is not None and ip != '' :
-            conditionList.append({"uuid": uuid['ip'], "name": "ip","valueList": [ip], "expression": "equal"})
+        if ip is not None and ip != '':
+            conditionList.append({"uuid": uuid['ip'], "name": "ip", "valueList": [ip], "expression": "equal"})
             valueList.append(uuid['ip'])
 
-        if port is not None and port != '' :
-            conditionList.append({"uuid": uuid['port'],"name": "port","valueList": [port], "expression": "equal"})
+        if port is not None and port != '':
+            conditionList.append({"uuid": uuid['port'], "name": "port", "valueList": [port], "expression": "equal"})
             valueList.append(uuid['port'])
 
-        if name is not None and name != '' :
-            conditionList.append({"uuid": uuid['name'],"name": "name","valueList": [name], "expression": "equal"})
+        if name is not None and name != '':
+            conditionList.append({"uuid": uuid['name'], "name": "name", "valueList": [name], "expression": "equal"})
             valueList.append(uuid['name'])
 
-        if type is not None and type != '' :
-            conditionList.append({"uuid": uuid['typeIdList'],"name": "typeIdList","valueList": [type], "expression": "include"})
+        if type is not None and type != '':
+            conditionList.append({"uuid": uuid['typeIdList'], "name": "typeIdList", "valueList": [type], "expression": "include"})
             valueList.append(uuid['typeIdList'])
 
         conditionLen = len(valueList)
-        if conditionLen > 1 :
+        if conditionLen > 1:
             count = 0
-            for i in valueList :
-                if( count + 1 > conditionLen - 1) :
+            for i in valueList:
+                if(count + 1 > conditionLen - 1):
                     break
-                form = valueList[ count ]
-                to = valueList[ count+1 ] 
-                conditionRelList.append({"joinType": "and", "from": form ,"to": to })
+                form = valueList[count]
+                to = valueList[count+1]
+                conditionRelList.append({"joinType": "and", "from": form, "to": to})
                 count = count + 1
-            conditionGroupins = {"uuid": "6f81871c303b458b8be100ee64aa9506", "conditionList":conditionList , "conditionRelList":conditionRelList}
+            conditionGroupins = {"uuid": "6f81871c303b458b8be100ee64aa9506", "conditionList": conditionList, "conditionRelList": conditionRelList}
             conditionGroupList = []
             conditionGroupList.append(conditionGroupins)
             param["conditionGroupList"] = conditionGroupList
@@ -1117,11 +1116,10 @@ class ServerAdapter:
                     if retObj.get('Status') == 'OK':
                         return retObj['Return'].get('tbodyList')
                     else:
-                        raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip ,name , port ,type, retObj.get('Message')))
+                        raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, retObj.get('Message')))
                 else:
-                    raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, status code:{} {}".format(ip ,name , port ,type, response.status, content))
+                    raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, status code:{} {}".format(ip, name, port, type, response.status, content))
             except Exception as ex:
-                raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip ,name , port ,type, ex))
-        else :
-            raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip ,name , port ,type))
-        
+                raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, ex))
+        else:
+            raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip, name, port, type))

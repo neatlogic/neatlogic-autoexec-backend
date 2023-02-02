@@ -79,7 +79,7 @@
         {
             "opt": "vm_folder",
             "name": "存放目录",
-            "help": "vsphere 新建虚拟机存放目录，不存在会新建。如：codedriver",
+            "help": "vsphere 新建虚拟机存放目录，不存在会新建。如：neatlogic",
             "type": "text",
             "required": "true",
             "validate": "",

@@ -35,41 +35,41 @@ sub new {
         $self->{serverConf} = $serverConf;
 
         $self->{apiMap} = {
-            'getIdPath'            => '/codedriver/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
-            'getDeployRunnerGroup' => '/codedriver/api/rest/deploy/runner/group/get/forautoexec',
+            'getIdPath'            => '/neatlogic/api/rest/resourcecenter/resource/appidmoduleidenvid/get',
+            'getDeployRunnerGroup' => '/neatlogic/api/rest/deploy/runner/group/get/forautoexec',
 
             #版本状态：pending|compiling|compiled|compile-failed|releasing|release-failed|released
-            'getVer'             => '/codedriver/api/rest/deploy/version/info/get/forautoexec',
-            'addVer'             => '/codedriver/api/rest/deploy/version/save/forautoexec',
-            'updateVer'          => '/codedriver/api/rest/deploy/version/info/update/forautoexec',
-            'delBuild'           => '/codedriver/api/rest/deploy/version/buildNo/delete',
-            'delVer'             => '/codedriver/api/rest/deploy/version/delete',
-            'releaseVerToEnv'    => '/codedriver/api/rest/deploy/version/env/update/forautoexec',
-            'getEnvVer'          => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
-            'getOtherSiteEnvVer' => '/codedriver/api/rest/deploy/version/env/get/forautoexec',
+            'getVer'             => '/neatlogic/api/rest/deploy/version/info/get/forautoexec',
+            'addVer'             => '/neatlogic/api/rest/deploy/version/save/forautoexec',
+            'updateVer'          => '/neatlogic/api/rest/deploy/version/info/update/forautoexec',
+            'delBuild'           => '/neatlogic/api/rest/deploy/version/buildNo/delete',
+            'delVer'             => '/neatlogic/api/rest/deploy/version/delete',
+            'releaseVerToEnv'    => '/neatlogic/api/rest/deploy/version/env/update/forautoexec',
+            'getEnvVer'          => '/neatlogic/api/rest/deploy/version/env/get/forautoexec',
+            'getOtherSiteEnvVer' => '/neatlogic/api/rest/deploy/version/env/get/forautoexec',
 
             #autocfg和DB配置自动生成
-            'addAutoCfgKeys' => '/codedriver/api/rest/deploy/app/config/env/autoCfgKeys/save/forautoexec',
-            'addDBSchemas'   => '/codedriver/api/rest/deploy/app/config/env/db/config/schemas/save/forautoexec',
+            'addAutoCfgKeys' => '/neatlogic/api/rest/deploy/app/config/env/autoCfgKeys/save/forautoexec',
+            'addDBSchemas'   => '/neatlogic/api/rest/deploy/app/config/env/db/config/schemas/save/forautoexec',
 
             #环境制品状态：pending|succeed｜failed
-            'getAccountPwd'         => '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'getAutoCfgConf'        => '/codedriver/api/rest/deploy/app/env/all/autoconfig/get',
-            'getDBConf'             => '/codedriver/api/rest/deploy/app/config/env/db/config/get/forautoexec',
-            'addBuildQuality'       => '/codedriver/api/rest/deploy/versoin/build/quality/save',
-            'getAppPassWord'        => '/codedriver/api/rest/resourcecenter/resource/account/get',
-            'getSqlFileStatuses'    => '/codedriver/api/rest/autoexec/job/sql/list',
-            'checkInSqlFiles'       => '/codedriver/api/rest/autoexec/job/sql/checkin',
-            'pushSqlStatus'         => '/codedriver/api/rest/autoexec/job/sql/update',
-            'updatePhaseStatus'     => '/codedriver/api/rest/autoexec/job/phase/status/update',
-            'createJob'             => '/codedriver/api/rest/deploy/job/create',
-            'getJobStatus'          => '/codedriver/api/rest/autoexec/job/status/get',
-            'saveVersionDependency' => '/codedriver/api/rest/deploy/versoin/dependency/save/forautoexec',
-            'setEnvVersion'         => '/codedriver/api/rest/deploy/env/version/save',
-            'rollbackEnvVersion'    => '/codedriver/api/rest/deploy/env/version/rollback',
-            'setInsVersion'         => '/codedriver/api/rest/deploy/instance/version/save',
-            'rollbackInsVersion'    => '/codedriver/api/rest/deploy/instance/version/rollback',
-            'getBuild'              => '/codedriver/api/binary/deploy/appbuild/download'
+            'getAccountPwd'         => '/neatlogic/api/rest/resourcecenter/resource/account/get',
+            'getAutoCfgConf'        => '/neatlogic/api/rest/deploy/app/env/all/autoconfig/get',
+            'getDBConf'             => '/neatlogic/api/rest/deploy/app/config/env/db/config/get/forautoexec',
+            'addBuildQuality'       => '/neatlogic/api/rest/deploy/versoin/build/quality/save',
+            'getAppPassWord'        => '/neatlogic/api/rest/resourcecenter/resource/account/get',
+            'getSqlFileStatuses'    => '/neatlogic/api/rest/autoexec/job/sql/list',
+            'checkInSqlFiles'       => '/neatlogic/api/rest/autoexec/job/sql/checkin',
+            'pushSqlStatus'         => '/neatlogic/api/rest/autoexec/job/sql/update',
+            'updatePhaseStatus'     => '/neatlogic/api/rest/autoexec/job/phase/status/update',
+            'createJob'             => '/neatlogic/api/rest/deploy/job/create',
+            'getJobStatus'          => '/neatlogic/api/rest/autoexec/job/status/get',
+            'saveVersionDependency' => '/neatlogic/api/rest/deploy/versoin/dependency/save/forautoexec',
+            'setEnvVersion'         => '/neatlogic/api/rest/deploy/env/version/save',
+            'rollbackEnvVersion'    => '/neatlogic/api/rest/deploy/env/version/rollback',
+            'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
+            'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
+            'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download'
         };
 
         my $username    = $serverConf->{username};
