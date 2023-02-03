@@ -141,7 +141,6 @@ sub collect {
     $appInfo->{MEMBERS}        = \@members;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{NAME} = $procInfo->{HOST_NAME};
 

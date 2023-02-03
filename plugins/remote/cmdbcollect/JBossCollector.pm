@@ -120,6 +120,12 @@ sub collect {
         }
     }
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $confPath;
     if ( $cmdLine =~ /-Djboss\.server\.base\.dir=(\S+)\s+/ ) {
         $confPath = $1;
@@ -262,8 +268,6 @@ sub collect {
     }
 
     $self->getJavaAttrs($appInfo);
-
-    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     return $appInfo;
 }

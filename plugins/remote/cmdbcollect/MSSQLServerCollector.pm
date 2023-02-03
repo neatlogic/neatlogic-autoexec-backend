@@ -127,7 +127,7 @@ sub collect {
     $appInfo->{PRIMARY_IP} = $bizIp;
     $appInfo->{VIP}        = $vip;
     $appInfo->{PORT}       = $port;
-    $appInfo->{SSL_PORT}   = undef, $appInfo->{MON_PORT} = $port;
+    $appInfo->{SSL_PORT}   = undef;
 
     $appInfo->{DATA_FILE} = undef;
     $appInfo->{DATABASES} = [];

@@ -38,6 +38,12 @@ sub collect {
     my $appInfo  = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $confPath;
     if ( $cmdLine =~ /-Dcatalina.base=(\S+)/ ) {
         $confPath = $1;
@@ -135,8 +141,13 @@ sub collect {
                 return;
             }
             $appInfo->{PORT} = int($port);
-            if ( defined($sslPort) ) {
-                $appInfo->{SSL_PORT} = int($sslPort);
+            if ( defined($port) and $port ne '' ) {
+                $servicePorts->{http} = int($port);
+            }
+
+            if ( defined($sslPort) and $sslPort ne '' ) {
+                $appInfo->{SSL_PORT}   = int($sslPort);
+                $servicePorts->{https} = int($sslPort);
             }
         }
         else {
@@ -158,7 +169,6 @@ sub collect {
 
     $self->getJavaAttrs($appInfo);
     my $javaHome = $appInfo->{JAVA_HOME};
-    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     #Using CATALINA_BASE:   /app/servers/balantflow
     #Using CATALINA_HOME:   /app/servers/balantflow

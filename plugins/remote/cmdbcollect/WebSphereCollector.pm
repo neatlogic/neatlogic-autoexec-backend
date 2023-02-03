@@ -89,6 +89,13 @@ sub getPorts {
     }
 
     my $serverName = $appInfo->{SERVER_NAME};
+
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my @ports;
     my ( $port, $sslPort, $adminPort, $adminSslPort, $soapPort, $bootstrapPort );
     if ( defined($portConfXml) ) {
@@ -108,18 +115,21 @@ sub getPorts {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $sslPort = int($1);
                         push( @ports, $sslPort );
+                        $servicePorts->{https} = $sslPort;
                     }
                 }
                 elsif ( index( $portDef, '"WC_adminhost"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $adminPort = int($1);
                         push( @ports, $adminPort );
+                        $servicePorts->{admin} = $adminPort;
                     }
                 }
                 elsif ( index( $portDef, '"WC_adminhost_secure"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $adminSslPort = int($1);
                         push( @ports, $adminSslPort );
+                        $servicePorts->{admin_ssl} = $adminSslPort;
                     }
                 }
 
@@ -128,11 +138,13 @@ sub getPorts {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $soapPort = int($1);
                         push( @ports, $soapPort );
+                        $servicePorts->{soap} = $soapPort;
                     }
                 }
                 elsif ( index( $portDef, '"BOOTSTRAP_ADDRESS"' ) > 0 ) {
                     if ( $portDef =~ /\sport="(\d+)"/ ) {
                         $bootstrapPort = int($1);
+                        $servicePorts->{bootstrap} = $bootstrapPort;
                     }
                 }
             }
@@ -144,7 +156,6 @@ sub getPorts {
     $appInfo->{ADMIN_PORT}     = $adminPort;
     $appInfo->{ADMIN_SSL_PORT} = $adminSslPort;
     $appInfo->{SOAP_PORT}      = $soapPort;
-    $appInfo->{MON_PORT}       = $soapPort;
 
     my $wasType = $appInfo->{WAS_TYPE};
     if ( $wasType eq 'DMGR' ) {

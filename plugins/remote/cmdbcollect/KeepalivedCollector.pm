@@ -75,7 +75,6 @@ sub collect {
     $keepalivedInfo->{VRRP_SCRIPT}   = $self->parseConfig( $configFile, 'vrrp_script' );
     $keepalivedInfo->{VRRP_INSTANCE} = $self->parseConfig( $configFile, 'vrrp_instance' );
     $keepalivedInfo->{PORT}          = 0;
-    $keepalivedInfo->{MON_PORT}      = undef;
     return $keepalivedInfo;
 }
 

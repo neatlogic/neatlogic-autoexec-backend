@@ -135,7 +135,6 @@ sub collect {
 
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

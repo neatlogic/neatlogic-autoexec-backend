@@ -90,8 +90,7 @@ sub collect {
 
     $mongodbInfo->{PORT}           = $port;
     $mongodbInfo->{SSL_PORT}       = undef;
-    $mongodbInfo->{MON_PORT}       = $port;
-    $mongodbInfo->{ADMIN_PORT}     = $port;
+    $mongodbInfo->{ADMIN_PORT}     = undef;
     $mongodbInfo->{ADMIN_SSL_PORT} = undef;
 
     my $version = $self->getCmdOut("$exePath --version");

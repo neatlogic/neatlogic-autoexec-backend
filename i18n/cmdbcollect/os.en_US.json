@@ -51,6 +51,23 @@
             "type": "String"
         },
         {
+            "name": "SERVICE_PORTS",
+            "desc": "Service Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"

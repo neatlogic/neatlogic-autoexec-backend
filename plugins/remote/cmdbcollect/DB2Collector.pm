@@ -127,7 +127,8 @@ sub getTCPInfo {
         }
     }
 
-    my @ports;
+    my $servicePorts = {};
+
     my $port;
     my $sslPort;
     if ( $svcName =~ /^\d+$/ ) {
@@ -153,15 +154,16 @@ sub getTCPInfo {
         }
     }
 
+    my $servicePorts = {};
     if ( defined($port) ) {
-        push( @ports, { LISTEN => "$port" } );
+        $servicePorts->{tcp} = $port;
     }
     else {
         print("WARN: DB2 service $svcName not found in /etc/services.\n");
         $port = '50000';
     }
     if ( defined($sslPort) ) {
-        push( @ports, { ADDR => "$port" } );
+        $servicePorts->{ssl} = $sslPort;
     }
 
     my $pFinder = $self->{pFinder};
@@ -172,10 +174,9 @@ sub getTCPInfo {
     $insInfo->{PORT}           = $port;
     $insInfo->{SERVICE_ADDR}   = "$vip:$port";
     $insInfo->{SSL_PORT}       = $sslPort;
-    $insInfo->{MON_PORT}       = $port;
     $insInfo->{ADMIN_PORT}     = $port;
     $insInfo->{ADMIN_SSL_PORT} = $sslPort;
-    $insInfo->{LISTEN}         = \@ports;
+    $insInfo->{SERVICE_PORTS}  = $servicePorts;
 }
 
 sub getDBInfos {

@@ -117,9 +117,17 @@ class RunNodeFactory:
             if 'username' not in nodeObj:
                 nodeObj['username'] = 'none'
 
-            if 'protocolPort' not in nodeObj or nodeObj['protocolPort'] == '':
-                if 'port' in nodeObj:
-                    nodeObj['protocolPort'] = nodeObj['port']
+            protocol = nodeObj.get('protocol')
+            protocolPort = nodeObj.get('protocolPort')
+            serveicePorts = nodeObj.get('servicePorts')
+
+            if serveicePorts is not None:
+                servicePort = serveicePorts.get(protocol)
+                if servicePort is not None and servicePort != '':
+                    protocolPort = servicePort
+
+            if protocolPort is None or protocolPort == '':
+                protocolPort = nodeObj.get('port', 0)
         else:
             self.cleared = True
             nodeObj = None

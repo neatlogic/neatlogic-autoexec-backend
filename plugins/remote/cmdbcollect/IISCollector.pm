@@ -102,16 +102,19 @@ sub collect {
     }
     $appInfo->{SITES} = \@sites;
 
-    my $lsnMap = {};
+    my $servicePorts = {};
+    my $lsnMap       = {};
     my ( $port, $sslPort );
     foreach my $oneSite (@sites) {
         my $protocol = $oneSite->{PROTOCOL};
         my $lsnInfo  = $oneSite->{LISTEN};
         if ( $protocol eq 'http' and $lsnInfo =~ /:80:/ ) {
             $port = 80;
+            $servicePorts->{http} = $port;
         }
         if ( $protocol eq 'https' and $lsnInfo =~ /:443:/ ) {
             $sslPort = 443;
+            $servicePorts->{https} = $sslPort;
         }
 
         while ( $lsnInfo =~ /([^:]+):(\d+)/g ) {
@@ -132,6 +135,7 @@ sub collect {
             my $lsnInfo  = $oneSite->{LISTEN};
             if ( $protocol eq 'http' and $lsnInfo =~ /:(\d+):/ ) {
                 $port = $1;
+                $servicePorts->{http} = $port;
                 last;
             }
         }
@@ -142,14 +146,16 @@ sub collect {
             my $protocol = $oneSite->{PROTOCOL};
             my $lsnInfo  = $oneSite->{LISTEN};
             if ( $protocol eq 'https' and $lsnInfo =~ /:(\d+):/ ) {
+                $servicePorts->{https} = $sslPort;
                 $sslPort = $1;
                 last;
             }
         }
     }
-    $appInfo->{PORT}     = $port;
-    $appInfo->{SSL_PORT} = $sslPort;
-    $appInfo->{MON_PORT} = $port;
+
+    $appInfo->{PORT}          = $port;
+    $appInfo->{SSL_PORT}      = $sslPort;
+    $appInfo->{SERVICE_PORTS} = $servicePorts;
 
     # Name                 Status       CLR Ver  Pipeline Mode  Start Mode
     # ----                 ------       -------  -------------  ----------

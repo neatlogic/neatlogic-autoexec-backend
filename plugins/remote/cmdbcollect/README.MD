@@ -247,8 +247,8 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
 - SSL_PORT: ssl|https服务端口，，如果没有就为null
 - ADMIN_PORT: 管理端口，，如果没有就为null
 - ADMIN_SSL_PORT: ssl|https管理端口，如果没有就为null
-- MON_PORT: 监控端口，如果没有就为null
 - JMX_PORT: Java的jmx的监听端口，如果没有就为null
+- SERVICE_PORTS: 所有监听端口，例如:"http":80,"https":443,"admin":8080,"admin_ssl":8443,"tcp":7070,"tcp_ssl":7443
 - PORTS: 所有监听端口的列表，用于检索
 - PORC_INFO: 进程信息（CMDB中不需要，只是参考）
 
@@ -268,8 +268,12 @@ ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args
         "MIN_HEAP_SIZE": 2,
         "CONFIG_PATH": "/app/servers/balantflow",
         "PORT": "8080",
+        "SERVICE_PORTS":[
+            {"NAME":"http", "PORT":80},
+            {"NAME":"https", "PORT":443},
+            {"NAME":"admin", "PORT":8080}
+        ],
         "JRE_HOME": "/app/serverware/jdk",
-        "MON_PORT": "10099",
         "CONN_INFO": {
             "PEER": ["::ffff:127.0.0.1:3306"],
             "LISTEN": ["10099", "::ffff:127.0.0.1:9184", "36404", "43539", "9345", "9999", "8080"]
