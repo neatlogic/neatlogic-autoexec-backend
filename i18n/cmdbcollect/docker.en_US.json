@@ -18,6 +18,16 @@
             "type": "String"
         },
         {
+            "name": "HOSTNAME",
+            "desc": "Hostname",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -28,54 +38,9 @@
             "type": "String"
         },
         {
-            "name": "CONTAINER_ID",
-            "desc": "Container Id",
-            "type": "String"
-        },
-        {
-            "name": "NAME",
-            "desc": "Name",
-            "type": "String"
-        },
-        {
-            "name": "IPADDRESS",
-            "desc": "IP",
-            "type": "Int"
-        },
-        {
-            "name": "MACADDRESS",
-            "desc": "Mac Address",
-            "type": "String"
-        },
-        {
-            "name": "GATEWAY",
-            "desc": "Geteway",
-            "type": "String"
-        },
-        {
-            "name": "STATUS",
-            "desc": "Status",
-            "type": "String"
-        },
-        {
-            "name": "CREATED",
-            "desc": "Created",
-            "type": "Int"
-        },
-        {
             "name": "UPTIME",
             "desc": "Uptime",
             "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Cmd",
-            "type": "Int"
-        },
-        {
-            "name": "MANAGED_METHOD",
-            "desc": "Manager method",
-            "type": "Int"
         },
         {
             "name": "AVAILABILITY",
@@ -93,102 +58,8 @@
             "type": "String"
         },
         {
-            "name": "HOSTNAME",
-            "desc": "Hostname",
-            "type": "String"
-        },
-        {
-            "name": "IMAGE",
-            "desc": "Image",
-            "type": "String"
-        },
-        {
-            "name": "DRIVER",
-            "desc": "Driver",
-            "type": "String"
-        },
-        {
-            "name": "PLATFORM",
-            "desc": "Platform",
-            "type": "String"
-        },
-        {
-            "name": "OS_PID",
-            "desc": "Os Pid",
-            "type": "String"
-        },
-        {
-            "name": "PORTS",
-            "desc": "Ports",
-            "type": "String"
-        },
-        {
-            "name": "MOUNTS",
-            "desc": "Mounts",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SOURCE",
-                    "desc": "Source",
-                    "type": "String"
-                },
-                {
-                    "name": "DESTINATION",
-                    "desc": "Destination",
-                    "type": "String"
-                },
-                {
-                    "name": "MODE",
-                    "desc": "Mod",
-                    "type": "String"
-                },
-                {
-                    "name": "RW",
-                    "desc": "RW",
-                    "type": "String"
-                }, 
-                {
-                    "name": "PROPAGATION",
-                    "desc": "Propagation",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "ENV",
-            "desc": "Env",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "KEY",
-                    "desc": "Key",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CPU_USAGE",
             "desc": "Cpu Usage",
-            "type": "String"
-        },
-        {
-            "name": "MEM_USED",
-            "desc": "Mem Used",
-            "type": "String"
-        },
-        {
-            "name": "MEM_LIMIT",
-            "desc": "Mem Limit",
             "type": "String"
         },
         {
@@ -197,13 +68,8 @@
             "type": "String"
         },
         {
-            "name": "BLOCK_IO",
-            "desc": "Block I/O",
-            "type": "String"
-        },
-        {
-            "name": "NET_IO",
-            "desc": "Net I/O",
+            "name": "MEM_USED",
+            "desc": "Mem Used",
             "type": "String"
         },
         {
@@ -321,6 +187,135 @@
             ]
         },
         {
+            "name": "BLOCK_IO",
+            "desc": "Block I/O",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Cmd",
+            "type": "Text"
+        },
+        {
+            "name": "CONTAINER_ID",
+            "desc": "Container Id",
+            "type": "String"
+        },
+        {
+            "name": "CREATED",
+            "desc": "Created",
+            "type": "Int"
+        },
+        {
+            "name": "DRIVER",
+            "desc": "Driver",
+            "type": "String"
+        },
+        {
+            "name": "ENV",
+            "desc": "Env",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "GATEWAY",
+            "desc": "Geteway",
+            "type": "String"
+        },
+        {
+            "name": "IMAGE",
+            "desc": "Image",
+            "type": "String"
+        },
+        {
+            "name": "IPADDRESS",
+            "desc": "IP",
+            "type": "Int"
+        },
+        {
+            "name": "MACADDRESS",
+            "desc": "Mac Address",
+            "type": "String"
+        },
+        {
+            "name": "MANAGED_METHOD",
+            "desc": "Manager method",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_LIMIT",
+            "desc": "Mem Limit",
+            "type": "String"
+        },
+        {
+            "name": "MOUNTS",
+            "desc": "Mounts",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SOURCE",
+                    "desc": "Source",
+                    "type": "String"
+                },
+                {
+                    "name": "DESTINATION",
+                    "desc": "Destination",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "Mod",
+                    "type": "String"
+                },
+                {
+                    "name": "RW",
+                    "desc": "RW",
+                    "type": "String"
+                },
+                {
+                    "name": "PROPAGATION",
+                    "desc": "Propagation",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NET_IO",
+            "desc": "Net I/O",
+            "type": "String"
+        },
+        {
+            "name": "OS_PID",
+            "desc": "Os Pid",
+            "type": "String"
+        },
+        {
+            "name": "PLATFORM",
+            "desc": "Platform",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "Ports",
+            "type": "String"
+        },
+        {
             "name": "RUN_ON",
             "desc": "Run On",
             "type": "JsonArray",
@@ -346,6 +341,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "STATUS",
+            "desc": "Status",
+            "type": "String"
         }
     ]
 }

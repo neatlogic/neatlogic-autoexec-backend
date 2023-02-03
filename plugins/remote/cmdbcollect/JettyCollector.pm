@@ -110,7 +110,6 @@ sub collect {
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $jmxPort;
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

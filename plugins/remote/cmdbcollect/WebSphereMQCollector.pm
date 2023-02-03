@@ -17,9 +17,9 @@ use CollectObjCat;
 
 sub getConfig {
     return {
-        regExps  => ['\brunmqlsr\b'],          #正则表达是匹配ps输出
-        psAttrs  => { COMM => 'runmqlsr' },    #ps的属性的精确匹配
-        envAttrs => { TS_INSNAME => undef }    #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps  => ['\brunmqlsr\b'],                #正则表达是匹配ps输出
+        psAttrs  => { COMM       => 'runmqlsr' },    #ps的属性的精确匹配
+        envAttrs => { TS_INSNAME => undef }          #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -76,7 +76,6 @@ sub collect {
     $appInfo->{CONFIG_PATH}    = $homePath;
     $appInfo->{SERVER_NAME}    = $mqmName;
     $appInfo->{PORT}           = $port;
-    $appInfo->{MON_PORT}       = $port;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
@@ -88,7 +87,7 @@ sub collect {
     }
     $appInfo->{CCSID} = $ccsid;
 
-    my @queues = ();
+    my @queues         = ();
     my $queueInfoLines = $self->getCmdOutLines( "echo 'dis q(*)' | runmqsc $mqmName", $user );
     foreach my $line (@$queueInfoLines) {
         if ( $line =~ /QUEUE\((\S+)\)\s+TYPE\((\S+)\)/ ) {
@@ -100,7 +99,7 @@ sub collect {
     }
     $appInfo->{QUEUES} = \@queues;
 
-    my @channels = ();
+    my @channels         = ();
     my $channelInfoLines = $self->getCmdOutLines( "echo 'dis chl(*)' | runmqsc $mqmName", $user );
     foreach my $line (@$channelInfoLines) {
         if ( $line =~ /CHANNEL\((\S+)\)\s+CHLTYPE\((\S+)\)/ ) {

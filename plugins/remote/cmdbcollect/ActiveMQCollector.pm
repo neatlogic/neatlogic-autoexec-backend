@@ -90,6 +90,12 @@ sub collect {
     # -->
     #         </transportConnectors>
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $ports = [];
     my $port;
     my $proto;
@@ -109,7 +115,7 @@ sub collect {
                     $proto = $1;
                     $port  = int($2);
                     if ( defined( $lsnPorts->{$port} ) ) {
-                        $appInfo->{ uc("${proto}_PORT") } = $port;
+                        $servicePorts->{ lc($proto) } = $port;
                         push( @$ports, $port );
 
                         if ( $port < $minPort ) {
@@ -146,6 +152,7 @@ sub collect {
                     my $pt = int($1);
                     if ( defined( $lsnPorts->{$pt} ) ) {
                         $mngtPort = $pt;
+                        $servicePorts->{admin} = $mngtPort;
                     }
                 }
             }
@@ -154,12 +161,9 @@ sub collect {
 
     $appInfo->{ADMIN_PORT}     = $mngtPort;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $mngtPort;
 
     $appInfo->{PORT}     = $port;
     $appInfo->{SSL_PORT} = undef;
-
-    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
 
     return $appInfo;
 }

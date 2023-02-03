@@ -104,17 +104,24 @@ sub collect {
         }
     }
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $port;
     my $sslPort;
     my $conf = $self->getFileContent($confFile);
     while ( $conf =~ /\n\s*server\.port\s*=\s*(\d+)\s*\n/sg ) {
         if ( defined( $portsMap->{$1} ) ) {
-            $port = $1;
+            $port = int($1);
+            $servicePorts->{http} = $port;
         }
     }
     if ( $conf =~ /\n\s*ssl\.engine\s*=\s*"enable"\s*\n/s ) {
         while ( $conf =~ /\n\s*\$SERVER\["socket"\]\s*==\s*"\d+\.\d+\.\d+\.\d+:(\d+)"\s*\{(.*?)\}/sg ) {
-            $sslPort = $1;
+            $sslPort = int($1);
             my $sslDetail = $2;
             if ( $sslDetail !~ /\n\s*ssl\.engine\s*=\s*"enable"\s*\n/s ) {
                 undef($sslPort);
@@ -127,12 +134,14 @@ sub collect {
             }
         }
     }
+    if ( defined($sslPort) and $sslPort ne '' ) {
+        $servicePorts->{https} = $sslPort;
+    }
 
     $appInfo->{PORT}           = $port;
     $appInfo->{SSL_PORT}       = $sslPort;
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{ADMIN_SSL_PORT} = $sslPort;
-    $appInfo->{MON_PORT}       = $port;
 
     my $logPath;
     my $serverRoot;

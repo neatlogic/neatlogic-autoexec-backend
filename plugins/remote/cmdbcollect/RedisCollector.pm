@@ -112,7 +112,6 @@ sub collect {
 
     $redisInfo->{PORT}           = $port;
     $redisInfo->{SSL_PORT}       = $port;
-    $redisInfo->{MON_PORT}       = $port;
     $redisInfo->{ADMIN_PORT}     = $port;
     $redisInfo->{ADMIN_SSL_PORT} = $port;
 

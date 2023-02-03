@@ -61,6 +61,12 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{RESIN_HOME}   = $homePath;
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $confFile;
     if ( $cmdLine =~ /-conf\s+(.*?)\s+-/ ) {
         $confFile = $1;
@@ -112,8 +118,14 @@ sub collect {
             $sslPort = $appSslPort;
         }
 
-        $appInfo->{PORT}     = $port;
-        $appInfo->{SSL_PORT} = $sslPort;
+        $appInfo->{PORT}     = int($port);
+        $appInfo->{SSL_PORT} = int($sslPort);
+        if ( defined($port) and $port ne '' ) {
+            $servicePorts->{http} = int($port);
+        }
+        if ( defined($sslPort) and $sslPort ne '' ) {
+            $servicePorts->{https} = int($sslPort);
+        }
     }
     else {
         $appInfo->{CONFIG_PATH} = undef;
@@ -135,13 +147,9 @@ sub collect {
         $appInfo->{MAJOR_VERSION} = "Resin$1";
     }
 
-    $appInfo->{ADMIN_PORT} = undef;
-
-    $appInfo->{SSL_PORT}       = undef;
+    $appInfo->{ADMIN_PORT}     = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
-
-    $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
+    $appInfo->{SERVER_NAME}    = $procInfo->{HOST_NAME};
 
     return $appInfo;
 }

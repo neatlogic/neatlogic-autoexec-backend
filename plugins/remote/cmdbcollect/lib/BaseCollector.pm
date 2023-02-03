@@ -158,7 +158,7 @@ sub isMainProcess {
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();
-                my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} , 0  );
+                my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, 0 );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
                 my $parentPeerInfo = $parentProcInfo->{CONN_INFO}->{PEER};
@@ -313,6 +313,18 @@ sub getJavaAttrs {
     $appInfo->{MAX_HEAP_SIZE} = $utils->getMemSizeFromStr($maxHeapSize);
     $appInfo->{JMX_PORT}      = $jmxPort;
     $appInfo->{JMX_SSL}       = $jmxSsl;
+
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+    if ( defined($jmxPort) ) {
+        if ( defined($jmxSsl) and $jmxSsl eq 'true' or $jmxSsl eq '1' ) {
+            $servicePorts->{jmx_ssl} = $jmxPort;
+        }
+        $servicePorts->{jmx} = $jmxPort;
+    }
 }
 
 #采集器实现需要重载这个类
