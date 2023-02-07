@@ -77,8 +77,7 @@ sub collect {
         print("WARN: Can not determine Java listen port.\n");
     }
 
-    $appInfo->{PORT}     = $port;
-    $appInfo->{MON_PORT} = $appInfo->{JMX_PORT};
+    $appInfo->{PORT} = $port;
 
     $self->getServerName($appInfo);
 

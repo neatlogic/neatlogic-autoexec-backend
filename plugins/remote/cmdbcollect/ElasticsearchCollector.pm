@@ -90,11 +90,29 @@ sub collect {
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{CONFIG_PATH}  = $confPath;
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my $yaml = YAML::Tiny->read('elasticsearch.yml');
 
     my $clusterName = $yaml->[0]->{'cluster.name'};
     my $nodeName    = $yaml->[0]->{'node.name'};
     my $port        = $yaml->[0]->{'http.port'};
+    my $sslPort     = $yaml->[0]->{'https.port'};
+    if ( defined($port) ) {
+        $servicePorts->{http} = $port;
+    }
+    else {
+        $port = $sslPort;
+    }
+
+    if ( defined($sslPort) ) {
+        $servicePorts->{https} = $sslPort;
+    }
+
     if ( not defined($port) ) {
         $port = 9200;
     }
@@ -110,7 +128,6 @@ sub collect {
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

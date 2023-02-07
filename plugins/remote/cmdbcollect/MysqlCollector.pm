@@ -171,7 +171,6 @@ sub collect {
     $mysqlInfo->{PORT}           = $port;
     $mysqlInfo->{SERVICE_ADDR}   = "$vip:$port";
     $mysqlInfo->{SSL_PORT}       = undef;
-    $mysqlInfo->{MON_PORT}       = $port;
     $mysqlInfo->{ADMIN_PORT}     = $port;
     $mysqlInfo->{ADMIN_SSL_PORT} = undef;
 

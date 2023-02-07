@@ -75,6 +75,12 @@ sub collect {
     $appInfo->{CHUNK_GROW_FACTOR}    = undef;
     $appInfo->{MIN_SPACE_PER_RECORD} = undef;
 
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+    if ( not defined($servicePorts) ) {
+        $servicePorts = {};
+        $appInfo->{SERVICE_PORTS} = $servicePorts;
+    }
+
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
     if ( defined($homePath) or $homePath ne '' ) {
@@ -87,13 +93,20 @@ sub collect {
             my $optVal = $2;
             $optVal =~ s/^["']|["']$//g;
             if ( $opt eq 'p' ) {
-                $port = int($optVal);
+                my $tcpPort = int($optVal);
+                $port = $tcpPort;
+                if ( $tcpPort != 0 ) {
+                    $servicePorts->{tcp} = $tcpPort;
+                }
             }
             elsif ( $opt eq 'U' ) {
+                my $udpPort = int($optVal);
                 if ( not defined($port) ) {
-                    $port = int($optVal);
+                    $port = $udpPort;
                 }
-                $appInfo->{UDP_PORT} = int($optVal);
+                if ( $udpPort != 0 ) {
+                    $servicePorts->{udp} = $udpPort;
+                }
             }
             elsif ( $opt eq 's' ) {
 
@@ -125,7 +138,7 @@ sub collect {
         }
     }
 
-    if ( $port == 65535 ) {
+    if ( $port == 65535 or $port == 0 ) {
         print("WARN: Can not determine Memcached listen port.\n");
         return undef;
     }
@@ -149,7 +162,6 @@ sub collect {
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{ADMIN_SSL_PORT} = $port;
-    $appInfo->{MON_PORT}       = $port;
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

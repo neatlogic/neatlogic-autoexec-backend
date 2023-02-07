@@ -46,17 +46,29 @@ if __name__ == "__main__":
 
     nodeInfo['password'] = password
 
+    protocol = nodeInfo.get('protocol')
+    protocolPort = nodeInfo.get('protocolPort')
+    serveicePorts = nodeInfo.get('servicePorts')
+
+    if serveicePorts is not None:
+        servicePort = serveicePorts.get(protocol)
+        if servicePort is not None and servicePort != '':
+            protocolPort = servicePort
+
+    if protocolPort is None or protocolPort == '':
+        protocolPort = nodeInfo.get('port', 0)
+
     hasError = 0
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     sys.tracebacklimit = -1
     try:
-        ssh.connect(hostname=nodeInfo['host'], port=nodeInfo['protocolPort'], username=nodeInfo['username'], password=nodeInfo['password'], banner_timeout=10, timeout=10)
-        print("INFO: Connect to {}@{}:{} success.".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort']))
+        ssh.connect(hostname=nodeInfo['host'], port=protocolPort, username=nodeInfo['username'], password=nodeInfo['password'], banner_timeout=10, timeout=10)
+        print("INFO: Connect to {}@{}:{} success.".format(nodeInfo['username'], nodeInfo['host'], protocolPort))
     except BaseException as ex:
         hasError = 1
-        print("ERROR: Connect to {}@{}:{} failed, {}".format(nodeInfo['username'], nodeInfo['host'], nodeInfo['protocolPort'], ex))
+        print("ERROR: Connect to {}@{}:{} failed, {}".format(nodeInfo['username'], nodeInfo['host'], protocolPort, ex))
     finally:
         if ssh is not None:
             ssh.close()

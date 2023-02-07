@@ -103,6 +103,8 @@ sub collect {
     $appInfo->{CONFIG_PATH} = $realConfPath;
 
     $self->getJavaAttrs($appInfo);
+    my $servicePorts = $appInfo->{SERVICE_PORTS};
+
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
 
     my @members;
@@ -127,7 +129,8 @@ sub collect {
         return undef;
     }
 
-    $appInfo->{PORT} = $port;
+    $appInfo->{PORT}     = $port;
+    $servicePorts->{tcp} = $port;
 
     my @logDirs = ();
     foreach my $logDir ( split( ',', $confMap->{'log.dirs'} ) ) {
@@ -143,7 +146,6 @@ sub collect {
 
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
-    $appInfo->{MON_PORT}       = $appInfo->{JMX_PORT};
 
     $appInfo->{SERVER_NAME} = $procInfo->{HOST_NAME};
 

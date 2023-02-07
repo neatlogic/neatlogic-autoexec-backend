@@ -171,17 +171,20 @@ sub getConfInfo {
         }
     }
 
+    my $servicePorts = {};
+    $confInfo->{SERVICE_PORTS} = $servicePorts;
+
     $confInfo->{PORT}       = $listenPorts[0];
     $confInfo->{ADMIN_PORT} = $listenPorts[0];
-    $confInfo->{MON_PORT}   = $listenPorts[0];
 
     if ( $confInfo->{SSL_ENGINE} eq 'on' ) {
         $confInfo->{SSL_PORT}       = $listenPorts[0];
         $confInfo->{ADMIN_SSL_PORT} = $listenPorts[0];
+        $servicePorts->{https}      = $confInfo->{SSL_PORT};
     }
     else {
         $confInfo->{SSL_PORT} = undef;
-        $confInfo->{SSL_PORT} = undef;
+        $servicePorts->{http} = $confInfo->{PORT};
     }
 
     return $confInfo;

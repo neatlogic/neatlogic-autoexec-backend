@@ -53,6 +53,23 @@
             "type": "String"
         },
         {
+            "name": "SERVICE_PORTS",
+            "desc": "Service Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
@@ -141,11 +158,6 @@
         {
             "name": "ADMIN_SSL_PORT",
             "desc": "Admin SSL Port",
-            "type": "String"
-        },
-        {
-            "name": "MON_PORT",
-            "desc": "Monitor Port",
             "type": "String"
         },
         {
@@ -471,6 +483,134 @@
             "type": "Text"
         },
         {
+            "name": "DATASOURCE",
+            "desc": "JDBC DataSource",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DRIVERCLASSNAME",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "INITIALSIZE",
+                    "desc": "Initialsize",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAXTOTAL",
+                    "desc": "MaxTotal",
+                    "type": "Int"
+                },
+                {
+                    "name": "NUMACTIVE",
+                    "desc": "CurrentActive",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "GARBAGECOLLECTOR",
+            "desc": "GC Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "COLLECTIONTIME",
+                    "desc": "Collectiontime(s)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COLLECTIONCOUNT",
+                    "desc": "Collectioncount",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "MEMORY",
+            "desc": "Memory Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INIT",
+                    "desc": "Init",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMITTED",
+                    "desc": "Committed(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "Max(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USAGE",
+                    "desc": "Usage(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "MEMORYPOOL",
+            "desc": "Memory Pool Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INIT",
+                    "desc": "Init",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "COMMITTED",
+                    "desc": "Committed(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "Max(MB)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USAGE",
+                    "desc": "Usage(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
             "name": "REF_CLUSTER",
             "desc": "Reference Clusters",
             "type": "JsonArray",
@@ -582,6 +722,38 @@
             ]
         },
         {
+            "name": "REQUESTPROCESSOR",
+            "desc": "RequestProcessor Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "REQUESTCOUNT",
+                    "desc": "Requestcount",
+                    "type": "Int"
+                },
+                {
+                    "name": "ERRORCOUNT",
+                    "desc": "Errorcount",
+                    "type": "Int"
+                },
+                {
+                    "name": "BYTESRECEIVED",
+                    "desc": "Bytesreceived(B)",
+                    "type": "Int"
+                },
+                {
+                    "name": "BYTESSENT",
+                    "desc": "Bytessent(B)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
@@ -605,102 +777,6 @@
                     "name": "OS_ID",
                     "desc": "OS CMDB ID",
                     "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MEMORY",
-            "desc": "Memory Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "INIT",
-                    "desc": "Init",
-                    "type": "Int"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "COMMITTED",
-                    "desc": "Committed(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "MAX",
-                    "desc": "Max(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "USAGE",
-                    "desc": "Usage(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "MEMORYPOOL",
-            "desc": "Memory Pool Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "INIT",
-                    "desc": "Init",
-                    "type": "Int"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "COMMITTED",
-                    "desc": "Committed(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "MAX",
-                    "desc": "Max(MB)",
-                    "type": "Int"
-                },
-                {
-                    "name": "USAGE",
-                    "desc": "Usage(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "GARBAGECOLLECTOR",
-            "desc": "GC Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "COLLECTIONTIME",
-                    "desc": "Collectiontime(s)",
-                    "type": "Int"
-                },
-                {
-                    "name": "COLLECTIONCOUNT",
-                    "desc": "Collectioncount",
-                    "type": "Int"
                 }
             ]
         },
@@ -759,70 +835,6 @@
                 {
                     "name": "MAXTHREADS",
                     "desc": "Maxthreads",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "REQUESTPROCESSOR",
-            "desc": "RequestProcessor Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "REQUESTCOUNT",
-                    "desc": "Requestcount",
-                    "type": "Int"
-                },
-                {
-                    "name": "ERRORCOUNT",
-                    "desc": "Errorcount",
-                    "type": "Int"
-                },
-                {
-                    "name": "BYTESRECEIVED",
-                    "desc": "Bytesreceived(B)",
-                    "type": "Int"
-                },
-                {
-                    "name": "BYTESSENT",
-                    "desc": "Bytessent(B)",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "DATASOURCE",
-            "desc": "JDBC DataSource",
-            "type": "JsonObject",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DRIVERCLASSNAME",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "INITIALSIZE",
-                    "desc": "Initialsize",
-                    "type": "Int"
-                },
-                {
-                    "name": "MAXTOTAL",
-                    "desc": "MaxTotal",
-                    "type": "Int"
-                },
-                {
-                    "name": "NUMACTIVE",
-                    "desc": "CurrentActive",
                     "type": "Int"
                 }
             ]

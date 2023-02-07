@@ -365,8 +365,15 @@ sub mergeMultiProcs {
                 if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
                     $appInfo->{PORT} = $minPort;
                 }
-                if ( not defined( $appInfo->{MON_PORT} ) ) {
-                    $appInfo->{MON_PORT} = $appInfo->{PORT};
+
+                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型
+                my $servicePorts = $appInfo->{SERVICE_PORTS};
+                if ( defined($servicePorts) ) {
+                    my @servicePortsArray = ();
+                    while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
+                        push( @servicePortsArray, { NAME => $svcName, PORT => $svcPort } );
+                    }
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
                 }
             }
 
@@ -420,9 +427,10 @@ sub doDetailCollect {
     my $objCat;
     my $pid     = $procInfo->{PID};
     my $objType = $procInfo->{_OBJ_TYPE};
+
     #是否是容器进程，默认不是
-    my $isContainer = 0 ;
-    
+    my $isContainer = 0;
+
     print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
     my $connInfo;
     if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
@@ -431,8 +439,8 @@ sub doDetailCollect {
         $connInfo = { PEER => {}, LISTEN => {} };
     }
     else {
-        $connInfo = $connGather->getListenInfo($pid , $isContainer);
-        my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN});
+        $connInfo = $connGather->getListenInfo( $pid, $isContainer );
+        my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
         $connInfo->{PORT_BIND} = $portInfoMap;
         $procInfo->{CONN_INFO} = $connInfo;
     }
@@ -458,15 +466,15 @@ sub doDetailCollect {
             my $statInfo = {};
             my $lsnPid   = $procInfo->{LISTENER_PID};
             if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
-                my $lsnInfo = $connGather->getListenInfo($pid , $isContainer);
+                my $lsnInfo = $connGather->getListenInfo( $pid, $isContainer );
                 map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
                 my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
                 $connInfo->{PORT_BIND} = $portInfoMap;
 
-                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN} ,$isContainer);
+                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN}, $isContainer );
             }
             else {
-                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} ,$isContainer );
+                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, $isContainer );
             }
             map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
         }
@@ -502,11 +510,11 @@ sub doDetailCollect {
         }
         print("INFO: Matched Object Type:$objCat/$objType.\n");
 
-        $appInfo->{MGMT_IP}   = $procInfo->{MGMT_IP};
-        $appInfo->{MGMT_PORT} = $procInfo->{MGMT_PORT};
-        $appInfo->{OS_ID}     = $procInfo->{OS_ID};
-        $appInfo->{OS_USER}   = $procInfo->{USER};
-        $appInfo->{_CONTAINERTYPE}   = $procInfo->{_CONTAINERTYPE};
+        $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};
+        $appInfo->{MGMT_PORT}      = $procInfo->{MGMT_PORT};
+        $appInfo->{OS_ID}          = $procInfo->{OS_ID};
+        $appInfo->{OS_USER}        = $procInfo->{USER};
+        $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
 
         push( @$appsArray, $appInfo );
 
@@ -632,10 +640,10 @@ sub main {
 
     $SIG{ALRM} = \&collectTimeout;
 
-    my $isVerbose = 0;
-    my $isDebug   = 0;
-    my $inspect   = 0;
-    my $containner = 0 ;
+    my $isVerbose  = 0;
+    my $isDebug    = 0;
+    my $inspect    = 0;
+    my $containner = 0;
     my $procEnvName;
     my $classDef;
     my $defaultPassConf;
@@ -645,7 +653,7 @@ sub main {
         'debug=i'           => \$isDebug,
         'class=s'           => \$classDef,
         'inspect=i'         => \$inspect,
-        'containner=i'         => \$containner,
+        'containner=i'      => \$containner,
         'procenvname=s'     => \$procEnvName,
         'defaultpassconf=s' => \$defaultPassConf
     );
@@ -737,7 +745,8 @@ sub main {
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my $procFilters = getProcessFilters($collectClassMap);
 
-    my $pFinder   = ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipAddrs => $ipAddrs, ipv6Addrs => $ipv6Addrs, procEnvName => $procEnvName ,containner =>$containner  );
+    my $pFinder =
+        ProcessFinder->new( $procFilters, callback => \&doDetailCollect, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipAddrs => $ipAddrs, ipv6Addrs => $ipv6Addrs, procEnvName => $procEnvName, containner => $containner );
     my $appsMap   = $pFinder->findProcess();
     my $appsArray = $pFinder->{appsArray};
 

@@ -9,6 +9,7 @@ use strict;
 package AutoExecUtils;
 
 use POSIX;
+use Data::Dumper;
 use IO::File;
 use Encode;
 use Encode::Guess;
@@ -180,9 +181,9 @@ sub saveOutput {
 sub evalDsl {
     my ( $data, $checkDsl ) = @_;
     $checkDsl =~ s/\[\s*([^\]]+)\s*\]/\$data->\{'$1'\}/g;
-
+    $checkDsl =~ s/==\s*(['"])/eq $1/g;
+    $checkDsl =~ s/!=\s*(['"])/ne $1/g;
     my $ret = eval($checkDsl);
-
     return $ret;
 }
 

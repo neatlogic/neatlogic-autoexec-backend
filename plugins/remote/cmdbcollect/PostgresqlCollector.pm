@@ -131,7 +131,6 @@ sub collect {
     $postgresqlInfo->{PORT}         = $port;
     $postgresqlInfo->{SERVICE_ADDR} = "$vip:$port";
     $postgresqlInfo->{SSL_PORT}     = undef;
-    $postgresqlInfo->{MON_PORT}     = $port;
 
     my $verOut = $self->getCmdOut( "'$postgresqlPath' --version", $osUser );
     my $version;

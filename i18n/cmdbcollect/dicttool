@@ -44,6 +44,7 @@ def getDefaultFieldKeys():
         'VIP',
         'IP',
         'PORT',
+        'SERVICE_PORTS',
         'UPTIME',
         'IS_VIRTUAL',
         'DOMAIN',

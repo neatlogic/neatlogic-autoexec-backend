@@ -53,6 +53,23 @@
             "type": "String"
         },
         {
+            "name": "SERVICE_PORTS",
+            "desc": "服务监听端口",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "UPTIME",
             "desc": "运行时间（秒）",
             "type": "Int"
@@ -141,11 +158,6 @@
         {
             "name": "ADMIN_SSL_PORT",
             "desc": "管理SSL端口",
-            "type": "String"
-        },
-        {
-            "name": "MON_PORT",
-            "desc": "监控端口",
             "type": "String"
         },
         {

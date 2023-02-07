@@ -226,7 +226,6 @@ sub collect {
         }
         $ins->{'SERVICE_PORT'} = $port;
         $ins->{PORT}           = $port;
-        $ins->{MON_PORT}       = $port;
         $ins->{ADMIN_PORT}     = $port;
 
         my $type = 'http';

@@ -46,28 +46,24 @@ if __name__ == "__main__":
 
     nodeInfo['password'] = password
 
+    nodeName = nodeInfo.get('nodeName', 'null')
+    nodeType = nodeInfo.get('nodeType', 'null')
+    host = nodeInfo.get('host', 'null')
+    port = str(nodeInfo.get('port', '0'))
+    username = nodeInfo.get('username', 'anonymouse')
+    password = nodeInfo.get('password', '')
+
     protocol = nodeInfo.get('protocol')
+    protocolPort = nodeInfo.get('protocolPort')
+    serveicePorts = nodeInfo.get('servicePorts')
 
-    nodeName = None
-    nodeType = None
-    host = None
-    port = None
-    protocolPort = None
-    username = None
-    password = None
+    if serveicePorts is not None:
+        servicePort = serveicePorts.get(protocol)
+        if servicePort is not None and servicePort != '':
+            protocolPort = servicePort
 
-    try:
-        nodeName = nodeInfo.get('nodeName', 'null')
-        nodeType = nodeInfo.get('nodeType', 'null')
-        host = nodeInfo.get('host', 'null')
-        port = str(nodeInfo.get('port', '0'))
-        protocolPort = nodeInfo.get('protocolPort', '0')
-        username = nodeInfo.get('username', 'anonymouse')
-        password = nodeInfo.get('password', '')
-    except Exception as ex:
-        exitCode = 3
-        print("ERROR: %s" % (str(ex)))
-        sys.exit(exitCode)
+    if protocolPort is None or protocolPort == '':
+        protocolPort = nodeInfo.get('port', 0)
 
     exitCode = 0
     errMsg = ''
