@@ -261,6 +261,158 @@
             "type": "Float"
         },
         {
+            "name": "ADMIN_URL",
+            "desc": "Admin Url",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_NAME",
+            "desc": "Machine Name",
+            "type": "String"
+        },
+        {
+            "name": "HEALTH_STATE",
+            "desc": "Health State",
+            "type": "String"
+        },
+        {
+            "name": "APPLICATIONS",
+            "desc": "Applications",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HEAP_SIZE_CURRENT",
+            "desc": "Current HeapSize(M)",
+            "type": "Int"
+        },
+        {
+            "name": "HEAP_FREE_CURRENT",
+            "desc": "Free HeapSize(M)",
+            "type": "Int"
+        },
+        {
+            "name": "HEAP_USEDPERCENT",
+            "desc": "HeapSize UsedPercent(%)",
+            "type": "Float"
+        },
+        {
+            "name": "EXECUTE_THREADTOTALCOUNT",
+            "desc": "Execute ThreadTotalCount",
+            "type": "Int"
+        },
+        {
+            "name": "EXECUTE_THREADIDLECOUNT",
+            "desc": "Execute ThreadIdlCount",
+            "type": "Int"
+        },
+        {
+            "name": "PENDING_REQUESTCURRENTCOUNT",
+            "desc": "Pending RequestCurrentCount",
+            "type": "Int"
+        },
+        {
+            "name": "THREAD_ACTIVECOUNT",
+            "desc": "Thread ActiveCount",
+            "type": "Int"
+        },
+        {
+            "name": "THREAD_STANDBYCOUNT",
+            "desc": "Thread StandByCount",
+            "type": "Int"
+        },
+        {
+            "name": "DATASOURCES",
+            "desc": "JDBC DataSources",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                },
+
+                {
+                    "name": "MINCAPACITY",
+                    "desc": "Min Capacity",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAXCAPACITY",
+                    "desc": "Max Capacity",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATEMENTCACHETYPE",
+                    "desc": "Statement Cachetype",
+                    "type": "String"
+                },
+                {
+                    "name": "STATEMENTCACHESIZE",
+                    "desc": "Statement Cachesize",
+                    "type": "Int"
+                },
+                {
+                    "name": "HIGHESTNUMWAITERS",
+                    "desc": "HighestNumWaiters",
+                    "type": "String"
+                },
+
+                {
+                    "name": "DATABASE_PRODUCTNAME",
+                    "desc": "Database ProductName",
+                    "type": "String"
+                },
+                {
+                    "name": "DATABASE_PRODUCTVERSION",
+                    "desc": "Database ProductVersion",
+                    "type": "String"
+                },
+                {
+                    "name": "ACTIVECONNECTIONS_CURRENTCOUNT",
+                    "desc": "ActiveConnections CurrentCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "LEAKED_CONNECTIONCOUNT",
+                    "desc": "Leaked ConnectionCount",
+                    "type": "Int"
+                },
+
+                {
+                    "name": "ACTIVECONNECTIONS_HIGHCOUNT",
+                    "desc": "ActiveConnections Highcount",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITSECONDSHIGHCOUNT",
+                    "desc": "WaitSeconds HighCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITING_FORCONNECTION_CURRENTCOUNT",
+                    "desc": "Waiting ForConnection CurrentCount",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",

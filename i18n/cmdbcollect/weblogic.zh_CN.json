@@ -261,6 +261,158 @@
             "type": "Float"
         },
         {
+            "name": "ADMIN_URL",
+            "desc": "管理地址",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_NAME",
+            "desc": "计算机",
+            "type": "String"
+        },
+        {
+            "name": "HEALTH_STATE",
+            "desc": "健康状态",
+            "type": "String"
+        },
+        {
+            "name": "APPLICATIONS",
+            "desc": "应用状态",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HEAP_SIZE_CURRENT",
+            "desc": "当前HeapSize(M)",
+            "type": "Int"
+        },
+        {
+            "name": "HEAP_FREE_CURRENT",
+            "desc": "空闲HeapSize(M)",
+            "type": "Int"
+        },
+        {
+            "name": "HEAP_USEDPERCENT",
+            "desc": "HeapSize使用率(%)",
+            "type": "Float"
+        },
+        {
+            "name": "EXECUTE_THREADTOTALCOUNT",
+            "desc": "执行线程总数",
+            "type": "Int"
+        },
+        {
+            "name": "EXECUTE_THREADIDLECOUNT",
+            "desc": "空闲执行线程总数",
+            "type": "Int"
+        },
+        {
+            "name": "PENDING_REQUESTCURRENTCOUNT",
+            "desc": "暂挂用户请求数",
+            "type": "Int"
+        },
+        {
+            "name": "THREAD_ACTIVECOUNT",
+            "desc": "活动执行线程数",
+            "type": "Int"
+        },
+        {
+            "name": "THREAD_STANDBYCOUNT",
+            "desc": "等待执行线程数",
+            "type": "Int"
+        },
+        {
+            "name": "DATASOURCES",
+            "desc": "JDBC连接池",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
+                    "type": "String"
+                },
+
+                {
+                    "name": "MINCAPACITY",
+                    "desc": "初始容量",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAXCAPACITY",
+                    "desc": "最大容量",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATEMENTCACHETYPE",
+                    "desc": "语句高速缓存类型",
+                    "type": "String"
+                },
+                {
+                    "name": "STATEMENTCACHESIZE",
+                    "desc": "语句高速缓存大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "HIGHESTNUMWAITERS",
+                    "desc": "最大等待连接数",
+                    "type": "String"
+                },
+
+                {
+                    "name": "DATABASE_PRODUCTNAME",
+                    "desc": "连接类型",
+                    "type": "String"
+                },
+                {
+                    "name": "DATABASE_PRODUCTVERSION",
+                    "desc": "连接数据库版本",
+                    "type": "String"
+                },
+                {
+                    "name": "ACTIVECONNECTIONS_CURRENTCOUNT",
+                    "desc": "活动连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "LEAKED_CONNECTIONCOUNT",
+                    "desc": "泄露连接数",
+                    "type": "Int"
+                },
+
+                {
+                    "name": "ACTIVECONNECTIONS_HIGHCOUNT",
+                    "desc": "最大活动连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITSECONDSHIGHCOUNT",
+                    "desc": "等待连接中的最长时间等待者的秒数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITING_FORCONNECTION_CURRENTCOUNT",
+                    "desc": "当前等待连接的总数",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",
