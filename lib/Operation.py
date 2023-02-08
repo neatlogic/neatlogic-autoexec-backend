@@ -29,6 +29,7 @@ class Operation:
         self.hasNodeEnv = False
         self.opsParam = opsParam
         self.isScript = 0
+        self.depends = []
         self.hasFileOpt = False
         self.hasFilePathOpt = False
         self.filePaths = []
@@ -36,6 +37,7 @@ class Operation:
         self.interpreter = ''
         self.fileFeteched = context.fileFeteched
         self.scriptFetched = context.scriptFetched
+        self.opFetched = context.opFetched
         self.lockedFDs = []
 
         self.JSON_TYPES = {"node": 1, "json": 1, "file": 1, "multiselect": 1, "checkbox": 1, "textarea": 1}
@@ -65,6 +67,20 @@ class Operation:
 
         self.extNameMap = {
             'perl': '.pl',
+            'python': '.py',
+            'ruby': '.rb',
+            'cmd': '.bat',
+            'powershell': '.ps1',
+            'vbscript': '.vbs',
+            'bash': '.sh',
+            'ksh': '.sh',
+            'csh': '.sh',
+            'sh': '.sh',
+            'javascript': '.js'
+        }
+
+        self.libExtNameMap = {
+            'perl': '.pm',
             'python': '.py',
             'ruby': '.rb',
             'cmd': '.bat',
@@ -130,24 +146,7 @@ class Operation:
         self.scriptFileName = None
 
         if self.isScript == 1:
-            scriptName = self.opName
-            if not self.opName.isascii():
-                # 如果脚本名不是ascii的，则只使用其id来作为脚本名
-                scriptName = self.opId.split('_')[-1]
-
-            scriptFileName = scriptName
-            extName = self.extNameMap[self.interpreter]
-            if not scriptFileName.endswith(extName):
-                scriptFileName = scriptFileName + extName
-
-            self.scriptFileName = scriptFileName
-            self.pluginParentPath = '{}/script'.format(self.context.runPath)
-            if self.opBunddleName != '':
-                self.pluginParentPath = self.pluginParentPath + '/' + self.opBunddleName
-            if not os.path.exists(self.pluginParentPath):
-                os.mkdir(self.pluginParentPath)
-            self.pluginPath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
-            self.fetchScript(self.pluginParentPath, scriptFileName)
+            self.fetchOperation()
         else:
             if self.opType == 'remote':
                 self.pluginParentPath = '{}/plugins/remote/{}'.format(self.context.homePath, self.opBunddleName)
@@ -308,7 +307,6 @@ class Operation:
             if fileName is not None:
                 cacheFilePath = '{}/{}'.format(cachePath, fileId)
                 linkPath = self.runPath + '/file/' + fileName
-
                 lockFilePath = linkPath + '.lock'
                 lockFile = open(lockFilePath, 'w+')
 
@@ -337,17 +335,40 @@ class Operation:
         return fileNamesArray
 
     # 获取script
-    def fetchScript(self, pluginParentPath, scriptFileName):
+    def fetchOperation(self):
         opId = self.opId
-        scriptId = self.scriptId
+        if opId in self.opFetched:
+            return
+
+        serverAdapter = self.context.serverAdapter
+        scriptName = self.opName
+        if not self.opName.isascii():
+            # 如果脚本名不是ascii的，则只使用其id来作为脚本名
+            scriptName = self.opId.split('_')[-1]
+
+        scriptFileName = self.getScriptFileName(scriptName, self.interpreter)
+        self.scriptFileName = scriptFileName
+
+        self.pluginParentPath = '{}/script'.format(self.context.runPath)
+        if self.opBunddleName != '':
+            self.pluginParentPath = self.pluginParentPath + '/' + self.opBunddleName
+
+        if not os.path.exists(self.pluginParentPath):
+            os.mkdir(self.pluginParentPath)
+
+        opId = self.opId
+
+        self.scriptLockPath = '%s/%s.lock' % (self.pluginParentPath, self.scriptId)
+        self.lockPath = '%s/%s.lock' % (self.pluginParentPath, opId)
+
         if self.scriptContent:
-            savePath = '{}/{}'.format(pluginParentPath, scriptFileName)
+            savePath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
             self.pluginPath = savePath
             filePathTmp = savePath + '.tmp'
             lockFilePath = savePath + '.lock'
             lockFile = open(lockFilePath, 'w+')
             fcntl.flock(lockFile, fcntl.LOCK_EX)
-            if scriptFileName in self.scriptFetched:
+            if opId in self.opFetched:
                 return
             try:
                 fileTmp = open(filePathTmp, 'w')
@@ -356,13 +377,33 @@ class Operation:
                 if os.path.exists(savePath):
                     os.unlink(savePath)
                 os.rename(filePathTmp, savePath)
-                self.scriptFetched[scriptFileName] = savePath
+                self.opFetched[opId] = savePath
             finally:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
         else:
+            scriptId = self.scriptId
             serverAdapter = self.context.serverAdapter
-            scriptSavePath = serverAdapter.fetchScript(pluginParentPath, scriptFileName, opId, scriptId)
+            scriptSavePath = serverAdapter.fetchOperation(self)
             self.pluginPath = scriptSavePath
+            self.getScriptDepends(scriptId)
+
+    def getScriptDepends(self, scriptId):
+        scriptLibPath = '%s/%s.lib' % (self.pluginParentPath, scriptId)
+        if os.path.exists(scriptLibPath):
+            try:
+                scriptIdPath = '%s/%s' % (self.pluginParentPath, scriptId)
+                scriptLockPath = scriptIdPath + '.lock'
+                libFile = os.readlink(scriptIdPath)
+                libName = os.path.basename(libFile)
+                libName = libName[libName.index('.')+1:]
+                self.depends.append({'id': scriptId, 'name': libName, 'file': libFile, 'lockPath': scriptLockPath})
+
+                scriptLibFile = open(scriptLibPath, 'r')
+                content = scriptLibFile.read()
+                for libScriptId in content.split(','):
+                    self.getScriptDepends(libScriptId)
+            except Exception as ex:
+                raise AutoExecError.AutoExecError("Get script dependends failed, " + str(ex))
 
     def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':
@@ -593,6 +634,16 @@ class Operation:
                 nameWithExt = self.opName
 
         return nameWithExt
+
+    def getScriptFileName(self, scriptName, interpreter, isLib=0):
+        scriptFileName = scriptName
+        if isLib == 1:
+            extName = self.libExtNameMap[interpreter]
+        else:
+            extName = self.extNameMap[interpreter]
+        if not scriptFileName.endswith(extName):
+            scriptFileName = scriptFileName + extName
+        return scriptFileName
 
     def getCmd(self, fullPath=False, remotePath='.', osType='linux'):
         cmd = None

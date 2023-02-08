@@ -41,6 +41,7 @@ class VContext:
 
         self.fileFeteched = {}
         self.scriptFetched = {}
+        self.opFetched = {}
 
         self.goToStop = False
         # 用于标记全局是否有失败的节点

@@ -1000,18 +1000,18 @@ class RunNode:
         environment['AUTOEXEC_NODE'] = json.dumps(self.node, ensure_ascii=False)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
-        scriptFile = None
+        opLockFile = None
         if op.isScript == 1:
-            scriptFile = open(op.pluginPath, 'r')
-            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+            opLockFile = open(op.lockPath, 'r')
+            fcntl.flock(opLockFile, fcntl.LOCK_SH)
 
         self.writeNodeLog("INFO: Execute -> {}\n".format(orgCmdLineHidePassword))
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
-        if scriptFile is not None:
-            fcntl.flock(scriptFile, fcntl.LOCK_UN)
-            scriptFile.close()
-            scriptFile = None
+        if opLockFile is not None:
+            fcntl.flock(opLockFile, fcntl.LOCK_UN)
+            opLockFile.close()
+            opLockFile = None
 
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op=op)
@@ -1060,19 +1060,19 @@ class RunNode:
         environment['AUTOEXEC_NODE'] = json.dumps(self.node, ensure_ascii=False)
         environment['AUTOEXEC_NODES_PATH'] = self.context.phases[self.phaseName].nodesFilePath
 
-        scriptFile = None
+        opLockFile = None
         if op.isScript == 1:
-            scriptFile = open(op.pluginPath, 'r')
-            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+            opLockFile = open(op.lockPath, 'r')
+            fcntl.flock(opLockFile, fcntl.LOCK_SH)
 
         self.writeNodeLog("INFO: Execute -> {}\n".format(orgCmdLineHidePassword))
         child = subprocess.Popen(cmdline, env=environment, cwd=self.runPath, shell=True, close_fds=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         self.childPid = child.pid
 
-        if scriptFile is not None:
-            fcntl.flock(scriptFile, fcntl.LOCK_UN)
-            scriptFile.close()
-            scriptFile = None
+        if opLockFile is not None:
+            fcntl.flock(opLockFile, fcntl.LOCK_UN)
+            opLockFile.close()
+            opLockFile = None
 
         # 管道启动成功后，更新状态为running
         self.updateNodeStatus(NodeStatus.running, op=op)
@@ -1136,16 +1136,26 @@ class RunNode:
                 self.writeNodeLog("INFO: Begin to upload remote operation...\n")
                 uploadRet = 0
                 if op.isScript == 1:
-                    scriptFile = open(op.pluginPath, 'r')
+                    opLockFile = open(op.lockPath, 'r')
                     try:
                         uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot, dirCreate=True)
                         if uploadRet == 0:
-                            fcntl.flock(scriptFile, fcntl.LOCK_SH)
+                            fcntl.flock(opLockFile, fcntl.LOCK_SH)
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
-                            fcntl.flock(scriptFile, fcntl.LOCK_UN)
+                        for dependLib in op.depends:
+                            if uploadRet == 0:
+                                scriptLockFile = open(dependLib.lockPath)
+                                try:
+                                    fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
+                                    uploadRet = tagent.upload(self.username, dependLib.file, remotePath + '/' + dependLib.name, convertCharset=1)
+                                finally:
+                                    fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
+                                    scriptLockFile.close()
+                                    scriptLockFile = None
                     finally:
-                        scriptFile.close()
-                        scriptFile = None
+                        fcntl.flock(opLockFile, fcntl.LOCK_UN)
+                        opLockFile.close()
+                        opLockFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
                         uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
@@ -1355,14 +1365,30 @@ class RunNode:
                         self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(remotePath, err))
 
                     if not hasError:
-                        scriptFile = open(op.pluginPath, 'r')
-                        fcntl.flock(scriptFile, fcntl.LOCK_SH)
-                        sftp.put(op.pluginPath, op.scriptFileName)
-                        fcntl.flock(scriptFile, fcntl.LOCK_UN)
-                        scriptFile.close()
-                        scriptFile = None
-                        sftp.chmod(op.scriptFileName, stat.S_IRWXU)
-
+                        opLockFile = open(op.lockPath, 'r')
+                        try:
+                            fcntl.flock(opLockFile, fcntl.LOCK_SH)
+                            sftp.put(op.pluginPath, op.scriptFileName)
+                            sftp.chmod(op.scriptFileName, stat.S_IRWXU)
+                            for dependLib in op.depends:
+                                if uploadRet == 0:
+                                    scriptLockFile = open(dependLib.lockPath)
+                                    try:
+                                        fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
+                                        sftp.put(dependLib.file, dependLib.name)
+                                    finally:
+                                        if scriptLockFile is not None:
+                                            fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
+                                            scriptLockFile.close()
+                                            scriptLockFile = None
+                        except Exception as err:
+                            hasError = True
+                            self.writeNodeLog("ERROR: SFTP upload operation {} failed:{}\n".format(op.pluginPath, err))
+                        finally:
+                            if opLockFile is not None:
+                                fcntl.flock(opLockFile, fcntl.LOCK_UN)
+                                opLockFile.close()
+                                opLockFile = None
                     # remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
                     # remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
                 else:

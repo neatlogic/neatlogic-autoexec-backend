@@ -68,6 +68,7 @@ class ServerAdapter:
         self.context = context
         self.fileFeteched = context.fileFeteched
         self.scriptFetched = context.scriptFetched
+        self.opFetched = context.opFetched
         serverBaseUrl = context.config['server']['server.baseurl']
         if(serverBaseUrl[-1] == '/'):
             serverBaseUrl = serverBaseUrl[0:-1]
@@ -511,100 +512,169 @@ class ServerAdapter:
                 lockFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
-
-    def fetchScript(self, pluginParentPath, scriptFileName, opId, scriptId):
+    def fetchScriptLib(self, operation, scriptId):
+        pluginParentPath = operation.pluginParentPath
+        scriptFileName = None
         scriptFilePath = None
+
+        params = {
+            'jobId': self.context.jobId,
+            'scriptId': scriptId
+        }
+
+        lockFile = None
+        scriptIdFilePath = '%s/%s' % (pluginParentPath, scriptId)
+        scriptIdLockFilePath = '%s.lock' % (scriptIdFilePath)
+        lastModifiedTime = 0
+
+        response = None
+        try:
+            newScriptFilePath = self.scriptFetched.get(scriptId)
+            if newScriptFilePath is not None:
+                return (newScriptFilePath, [])
+
+            lockFile = open(scriptIdLockFilePath, 'w+')
+            fcntl.flock(lockFile, fcntl.LOCK_EX)
+
+            newScriptFilePath = self.scriptFetched.get(scriptId)
+            if newScriptFilePath is not None:
+                return (newScriptFilePath, [])
+
+            usedScriptVerId = None
+            if os.path.exists(scriptIdFilePath):
+                try:
+                    scriptFilePath = os.readlink(scriptIdFilePath)
+                    lastModifiedTime = os.path.getmtime(scriptIdFilePath)
+                    scriptFilename = os.path.basename(scriptFilePath)
+                    usedScriptVerId = scriptFilename[0:scriptFilename.index('.')]
+                    params['scriptVersionId'] = int(usedScriptVerId)
+                except:
+                    # link has been removed
+                    pass
+
+            params['lastModified'] = lastModifiedTime
+
+            response = self.httpGET(self.apiMap['fetchScript'],  params)
+
+            scriptName = 'none'
+            scriptVerId = None
+            scriptContent = None
+            isLib = 0
+            useLibs = []
+            if response.status == 200:
+                charset = response.info().get_content_charset()
+                content = response.read().decode(charset, errors='ignore')
+                retObj = json.loads(content).get('Return')
+                scriptContent = retObj['script']
+                scriptId = retObj.get('scriptId', 0)
+                scriptName = retObj.get('scriptName', 'none')
+                scriptVerId = retObj.get('scriptVersionId', 0)
+                isLib = retObj.get('isLib', 0)
+                useLibs = retObj.get('useLibs', [])
+                interpreter = retObj.get('interpreter', 'bash')
+
+            elif response.status == 205:
+                resHeaders = response.info()
+                scriptId = resHeaders['ScriptId']
+                scriptName = resHeaders['ScriptName']
+                scriptVerId = resHeaders['ScriptVersionId']
+                isLib = resHeaders['IsLib']
+                interpreter = resHeaders['Interpreter']
+
+            if scriptVerId != None and usedScriptVerId != scriptVerId:
+                scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
+
+                scriptFilePath = '%s/%s.%s' % (pluginParentPath, scriptVerId, scriptFileName)
+                scriptLibFilePath = '%s/%s.%s.lib' % (pluginParentPath, scriptVerId, scriptFileName)
+
+                if not os.path.exists(scriptFilePath):
+                    if scriptContent is not None:
+                        scriptFile = open(scriptFilePath, 'w')
+                        scriptFile.write(scriptContent)
+                        os.chmod(scriptFilePath, stat.S_IRWXU)
+                        scriptFile.close()
+
+                    if useLibs:
+                        scriptLibFile = open(scriptLibFilePath, 'w')
+                        scriptLibFile.write(','.joinb(useLibs))
+                        scriptLibFile.close()
+
+                if os.path.exists(scriptIdFilePath):
+                    os.unlink(scriptIdFilePath)
+                os.symlink(scriptFilePath, scriptIdFilePath)
+
+                scriptNamePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                if os.path.exists(scriptNamePath):
+                    os.unlink(scriptNamePath)
+                os.symlink(scriptFilePath, scriptNamePath)
+
+            self.scriptFetched[scriptId] = scriptFilePath
+
+            return (scriptFilePath, useLibs)
+
+        except:
+            raise AutoExecError("ERROR: Fetch {} custom lib to {}/{} failed.\n".format(scriptId, pluginParentPath, scriptFileName))
+        finally:
+            if lockFile is not None:
+                fcntl.flock(lockFile, fcntl.LOCK_UN)
+                lockFile.close()
+
+    def fetchOperation(self, operation):
+        opId = operation.opId
 
         params = {
             'jobId': self.context.jobId,
             'operationId': opId
         }
 
-        lockFile = None
         opFileLockFile = None
-        opFilePath = '%s/%s' % (pluginParentPath, opId)
+        opFilePath = '%s/%s' % (operation.pluginParentPath, opId)
         opLockFilePath = '%s.lock' % (opFilePath)
-        lastModifiedTime = 0
 
         response = None
         try:
-            if os.path.exists(opFilePath):
-                scriptFilePath = os.readlink(opFilePath)
-
-            newScriptFilePath = self.scriptFetched.get(scriptId)
+            newScriptFilePath = self.opFetched.get(opId)
             if newScriptFilePath is not None:
-                if scriptFilePath == newScriptFilePath:
-                    return scriptFilePath
+                return newScriptFilePath
 
             opFileLockFile = open(opLockFilePath, 'w+')
             fcntl.flock(opFileLockFile, fcntl.LOCK_EX)
 
-            newScriptFilePath = self.scriptFetched.get(scriptId)
+            newScriptFilePath = self.opFetched.get(opId)
             if newScriptFilePath is not None:
-                if scriptFilePath == newScriptFilePath:
-                    return scriptFilePath
-                else:
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(newScriptFilePath, opFilePath)
-                    return newScriptFilePath
+                return newScriptFilePath
 
-            usedScriptVerId = None
+            oldScriptFilePath = None
             if os.path.exists(opFilePath):
-                lastModifiedTime = os.path.getmtime(opFilePath)
-                scriptFilePath = os.readlink(opFilePath)
-                scriptFilename = os.path.basename(scriptFilePath)
-                usedScriptVerId = scriptFilename[0:scriptFilename.index('.')]
-                params['scriptVersionId'] = int(usedScriptVerId)
+                try:
+                    oldScriptFilePath = os.readlink(opFilePath)
+                except:
+                    pass
 
-            params['lastModified'] = lastModifiedTime
+            opScriptFilePath = None
+            useLibs = [operation.scriptId]
+            dependLibs = []
+            # 避免使用递归，如果使用递归，会因为循环递归导致死锁
+            while (useLibs):
+                libScriptId = useLibs.pop()
+                dependLibs.append(libScriptId)
+                (scriptFilePath, myUseLibs) = self.fetchScriptLib(operation, libScriptId)
+                useLibs.extend(myUseLibs)
+                if opScriptFilePath is None:
+                    opScriptFilePath = scriptFilePath
 
-            response = self.httpGET(self.apiMap['fetchScript'],  params)
+            if oldScriptFilePath != opScriptFilePath:
+                if os.path.exists(opFilePath):
+                    os.unlink(opFilePath)
+                os.symlink(opScriptFilePath, opFilePath)
 
-            if response.status == 200:
-                charset = response.info().get_content_charset()
-                content = response.read().decode(charset, errors='ignore')
-                retObj = json.loads(content).get('Return')
-                scriptContent = retObj['script']
-                scriptId = retObj['scriptId']
-                scriptVerId = retObj['scriptVersionId']
-
-                if usedScriptVerId != str(scriptVerId):
-                    scriptFilePath = '%s/%s.%s' % (pluginParentPath, scriptVerId, scriptFileName)
-
-                    if not os.path.exists(scriptFilePath):
-                        lockFilePath = '%s/%s.lock' % (pluginParentPath, scriptId)
-                        lockFile = open(lockFilePath, 'w+')
-                        fcntl.flock(lockFile, fcntl.LOCK_EX)
-                        if not os.path.exists(scriptFilePath):
-                            scriptFile = open(scriptFilePath, 'w')
-                            scriptFile.write(scriptContent)
-                            os.chmod(scriptFilePath, stat.S_IRWXU)
-
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(scriptFilePath, opFilePath)
-
-            elif response.status == 205:
-                resHeaders = response.info()
-                scriptId = resHeaders['ScriptId']
-                scriptVerId = resHeaders['ScriptVersionId']
-
-                if usedScriptVerId != scriptVerId:
-                    if os.path.exists(opFilePath):
-                        os.unlink(opFilePath)
-                    os.symlink(scriptFilePath, opFilePath)
-
-            self.scriptFetched[scriptId] = scriptFilePath
+            self.opFetched[opId] = opScriptFilePath
 
             return scriptFilePath
 
         except:
-            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, pluginParentPath, scriptFileName))
+            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, operation.pluginParentPath, operation.scriptFileName))
         finally:
-            if lockFile is not None:
-                fcntl.flock(lockFile, fcntl.LOCK_UN)
-                lockFile.close()
             if opFileLockFile is not None:
                 fcntl.flock(opFileLockFile, fcntl.LOCK_UN)
                 opFileLockFile.close()
