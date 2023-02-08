@@ -288,9 +288,7 @@ sub main {
             $wlstbin = "$1/../common/bin/wlst.sh";
         }
 
-        if (not defined($wlstbin) or $wlstbin eq '' ){
-            continue ;
-        }else{
+        if (defined($wlstbin) and $wlstbin ne '' ){
             last ;
         }
     }
