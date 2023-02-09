@@ -569,17 +569,17 @@ class ServerAdapter:
                 scriptId = retObj.get('scriptId', 0)
                 scriptName = retObj.get('scriptName', 'none')
                 scriptVerId = retObj.get('scriptVersionId', 0)
-                isLib = retObj.get('isLib', 0)
-                useLibs = retObj.get('useLibs', [])
-                interpreter = retObj.get('interpreter', 'bash')
+                isLib = retObj.get('scriptIsLib', 0)
+                useLibs = retObj.get('scriptUseLibs', [])
+                interpreter = retObj.get('scriptInterpreter', 'bash')
 
             elif response.status == 205:
                 resHeaders = response.info()
                 scriptId = resHeaders['ScriptId']
                 scriptName = resHeaders['ScriptName']
                 scriptVerId = resHeaders['ScriptVersionId']
-                isLib = resHeaders['IsLib']
-                interpreter = resHeaders['Interpreter']
+                isLib = resHeaders['ScriptIsLib']
+                interpreter = resHeaders['ScriptInterpreter']
 
             if scriptVerId != None and usedScriptVerId != scriptVerId:
                 scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
