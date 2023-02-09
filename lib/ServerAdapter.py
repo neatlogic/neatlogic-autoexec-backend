@@ -1159,7 +1159,7 @@ class ServerAdapter:
             valueList.append(uuid['name'])
 
         if type is not None and type != '':
-            conditionList.append({"uuid": uuid['typeIdList'], "name": "typeIdList", "valueList": [type], "expression": "include"})
+            conditionList.append({"uuid": uuid['typeIdList'], "name": "typeIdList", "valueList": [type], "expression": "like"})
             valueList.append(uuid['typeIdList'])
 
         conditionLen = len(valueList)

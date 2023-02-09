@@ -1,0 +1,355 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(uname);
+use Getopt::Long;
+use IO::File;
+use File::Temp;
+use JSON;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --serverPort <server port > --username <console username> --password <console password> .\n");
+    exit(-1);
+}
+
+
+sub getCheckCommand {
+    my $str = q{
+#-*- coding:utf-8 -*-
+
+import re
+import traceback
+import sys
+
+adminserver_username = sys.argv[1]
+adminserver_password = sys.argv[2] 
+adminserver_ip = sys.argv[3] 
+adminserver_port = sys.argv[4]
+try:
+    connect(adminserver_username, adminserver_password, 't3://' + adminserver_ip + ':' + str(adminserver_port))
+    print("connection success.")
+except:
+    print ("connection failed.")
+};
+    return $str;
+}
+
+sub getInspectCommand{
+    my $str = q{
+#-*- coding:utf-8 -*-
+import re
+import traceback
+import sys
+
+adminserver_username = sys.argv[1]
+adminserver_password = sys.argv[2] 
+adminserver_ip = sys.argv[3] 
+adminserver_port = sys.argv[4]
+
+def getHealthState(healthState):
+    state = 'HEALTH_Error'
+    stateStr = re.findall(r"State:(.+?),", str(healthState))
+    state = stateStr[0]
+    return state
+
+def getDynamicServer(server):
+    server['NAME'] = cmo.getName()
+    server['MACHINE_NAME'] = cmo.getCurrentMachine()
+    server['ADMINSERVER_PORT'] = cmo.getAdminServerListenPort()
+    server['ADMIN_PORT'] = cmo.getAdministrationPort()
+    server['ADMIN_URL'] = cmo.getAdministrationURL()
+    server['SSL_PORT'] = cmo.getSSLListenPort()
+    server['STATE'] = cmo.getState()
+    server['HEALTH_STATE'] = getHealthState(cmo.getHealthState())
+    return server
+
+def getConfigServer(server):
+    cd('/Servers/' + server['NAME'])
+    server['STAGINGMODE'] = cmo.getStagingMode()
+    #server['CLUSTER_NAME'] = cmo.getCluster()
+
+def getServerApplication():
+    applications = cmo.getApplicationRuntimes()
+    excludes = ["wls" , "jmx" , "consoleapp" , "mejb" , "jdbc"]
+    appList = [] 
+    for app in applications : 
+        appName = str(app.getName())
+        isNeed = True
+        for exclude in excludes :
+            if exclude.lower() in appName.lower():
+                isNeed = False
+                break
+        if isNeed : 
+            state = getHealthState(app.getHealthState())
+            appList.append({"NAME":appName , "STATE" : state })
+    return appList
+
+def getServerJVM(server):
+    cd('/JVMRuntime/' + server['NAME'])
+    javaVendor = cmo.getJavaVendor()
+    javaVersion = cmo.getJavaVersion()
+
+    heapFreePercent = cmo.getHeapFreePercent()
+    usedPercent = 100 - heapFreePercent
+    heapSizeMax = cmo.getHeapSizeMax()
+    heapSizeCurrent = cmo.getHeapSizeCurrent()
+    heapFreeCurrent = cmo.getHeapFreeCurrent()
+
+    heapSizeMax = round(heapSizeMax/1024/1024)
+    heapSizeCurrent = round(heapSizeCurrent/1024/1024)
+    heapFreeCurrent = round(heapFreeCurrent/1024/1024)
+
+    server['JAVAVENDOR'] = javaVendor
+    server['JAVAVERSION'] = javaVersion
+    server['HEAP_SIZE_MAX'] = heapSizeMax
+    server['HEAP_SIZE_CURRENT'] = heapSizeCurrent
+    server['HEAP_FREE_CURRENT'] = heapFreeCurrent
+    server['HEAP_USEDPERCENT'] = usedPercent 
+    server['HEAP_FREEPERCENT'] = heapFreePercent
+    return server
+
+def getThreadPool(server):
+    cd('/ThreadPoolRuntime/ThreadPoolRuntime')
+    executeThreadTotalCount = cmo.getExecuteThreadTotalCount()
+    executeThreadIdleCount = cmo.getExecuteThreadIdleCount()
+    threadActiveCount = 0
+    threadStandbyCount = 0
+    for thread in cmo.getExecuteThreads():
+        if thread.getName().find('ACTIVE') != -1 :
+                threadActiveCount = threadActiveCount + 1
+        if thread.getName().find('STANDBY') != -1 :
+                threadStandbyCount = threadStandbyCount + 1
+    
+    cd('/ExecuteQueueRuntimes/weblogic.socket.Muxer')
+    pendingRequestCurrentCount = cmo.getPendingRequestCurrentCount()
+    server['EXECUTE_THREADTOTALCOUNT'] = executeThreadTotalCount
+    server['EXECUTE_THREADIDLECOUNT'] = executeThreadIdleCount
+    server['PENDING_REQUESTCURRENTCOUNT'] = pendingRequestCurrentCount
+    server['THREAD_ACTIVECOUNT'] = threadActiveCount
+    server['THREAD_STANDBYCOUNT'] = threadStandbyCount
+    return server
+
+def getJDBCDataSource(server):
+    jdbcDataSource = []
+    try:
+        serverConfig()
+        cd('/JDBCSystemResources')
+        resources = cmo.getJDBCSystemResources()
+        for jdbc in resources : 
+            name = jdbc.getName()
+            cd(name+'/JDBCResource/'+  name + '/JDBCConnectionPoolParams/' + name)
+            maxcapacity = cmo.getMaxCapacity()
+            minCapacity = cmo.getMinCapacity()
+            statementCacheType = cmo.getStatementCacheType()
+            statementCacheSize = cmo.getStatementCacheSize()
+            highestNumWaiters = cmo.getHighestNumWaiters()
+
+            ins = {}
+            ins['NAME'] = name 
+            ins['MAXCAPACITY'] = maxcapacity 
+            ins['MINCAPACITY'] = minCapacity 
+            ins['STATEMENTCACHETYPE'] = statementCacheType 
+            ins['STATEMENTCACHESIZE'] = statementCacheSize 
+            ins['HIGHESTNUMWAITERS'] = highestNumWaiters
+            jdbcDataSource.append(ins)
+
+        serverRuntime()
+        for datasource in jdbcDataSource : 
+            cd('/JDBCServiceRuntime/'+server['NAME']+'/JDBCDataSourceRuntimeMBeans/' + datasource['NAME'])
+            state = cmo.getState()
+            databaseProductName = cmo.getDatabaseProductName()
+            databaseProductVersion = cmo.getDatabaseProductVersion()
+            activeConnectionsCurrentCount = cmo.getActiveConnectionsCurrentCount()
+            activeConnectionsHighCount = cmo.getActiveConnectionsHighCount()
+            waitSecondsHighCount = cmo.getWaitSecondsHighCount()
+            waitingForConnectionCurrentCount = cmo.getWaitingForConnectionCurrentCount()
+            leakedConnectionCount = cmo.getLeakedConnectionCount()
+            datasource['STATE'] =  state
+            datasource['DATABASE_PRODUCTNAME'] =  databaseProductName
+            datasource['DATABASE_PRODUCTVERSION'] =  databaseProductVersion
+            datasource['ACTIVECONNECTIONS_CURRENTCOUNT'] =  activeConnectionsCurrentCount
+            datasource['ACTIVECONNECTIONS_HIGHCOUNT'] =  activeConnectionsHighCount
+            datasource['WAITSECONDSHIGHCOUNT'] =  waitSecondsHighCount
+            datasource['WAITING_FORCONNECTION_CURRENTCOUNT'] =  waitingForConnectionCurrentCount
+            datasource['LEAKED_CONNECTIONCOUNT'] =  leakedConnectionCount
+    except:
+        print("WARN:: Not found jdbc datasource.")
+    return jdbcDataSource
+
+is_connect = 0 
+try:
+    connect(adminserver_username, adminserver_password, 't3://' + adminserver_ip + ':' + str(adminserver_port))
+    print("connection success.")
+    is_connect = 1 
+except:
+    print ("connection failed.")
+
+if(is_connect == 0) :
+    exit(1)
+
+server = {}
+try:
+    serverRuntime()
+    getDynamicServer(server)
+    serverConfig()
+    getConfigServer(server)
+    serverRuntime()
+    server['APPLICATIONS'] = getServerApplication()
+    getServerJVM(server)
+    getThreadPool(server)
+    datasource = getJDBCDataSource(server)
+    server['DATASOURCES'] = datasource
+except:
+    print ("Exec inspect failed.")
+    dumpStack()
+print(server)
+};
+    return $str;
+}
+
+sub str2Json {
+    my ($dataStr) = @_;
+    my $s = index( $dataStr, "{" );
+    my $e = rindex( $dataStr, "}" );
+    my $data = {};
+    if ( $e > $s ) {
+        $dataStr = substr( $dataStr, $s, $e - $s + 1 );
+        # 去掉转码
+        $dataStr =~ s/u'/'/g;
+        $dataStr =~ s/'/"/g;
+        $data = decode_json($dataStr);
+    }
+    return $data;
+}
+sub makeTempPy {
+    my ($cmd) = @_;
+    my $tempFH = File::Temp->new( UNLINK => 0, SUFFIX => '.py' );
+    my $fname = $tempFH->filename;
+    print $tempFH ($cmd);
+    $tempFH->close();
+    return $fname;
+}
+
+sub runCmd{
+    my ($wlstbin , $cmd , $host , $port , $username , $password ) = @_;
+    my $filename = makeTempPy($cmd);
+    my $result = `sh $wlstbin $filename $username $password $host $port`;
+    my $ret = 1 ;
+    if($result =~ /connection\s+failed/ ){
+        $ret = 0 ;
+    }
+    unlink($filename);
+    return ($ret , $result);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ($node , $serverPort , $username , $password , $verbose);
+
+    GetOptions(
+        'node=s'    => \$node,
+        'username=s' => \$username,
+        'password=s' => \$password,
+        'serverPort=s' => \$serverPort,
+        'verbose=i' =>\$verbose
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $wlstbin;
+    my $servers = `ps -ef |grep weblogic.Server`;
+    my @serverInfo = split( /\n/, $servers );
+    foreach my $line (@serverInfo) {
+
+        if ( $line =~ /-Dweblogic\.home\=(.[^ ]*)/ ) {
+            $wlstbin = "$1/../common/bin/wlst.sh";
+        }
+
+        if (defined($wlstbin) and $wlstbin ne '' ){
+            last ;
+        }
+    }
+
+    if (not defined($wlstbin) or $wlstbin eq '' ){
+        print("WARN:: Can't found weblogic server.");
+        exit(0);
+    }
+
+    my $host       = $nodeInfo->{host};
+    my $port       = $serverPort;
+    if( not defined($port) or $port eq  ''){
+        $port = int( $nodeInfo->{port} );
+    }
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int( $nodeInfo->{protocolPort} );
+    }
+
+    print("INFO: Try to inspect to $host:$port.\n");
+    my $startTime = time();
+    my $checkCmd = getCheckCommand();
+    my ($ret,$result) = runCmd( $wlstbin , $checkCmd , $host , $port , $username , $password );
+    if($verbose == 1){
+        print($result);
+    }
+    my $data;
+    my $responseTime = time() - $startTime;
+    if ($ret == 0 ){
+        $data = {
+            MGMT_IP      => $host,
+            PORT         => $port,
+            RESOURCE_ID  => '0',
+            AVAILABILITY => 0 ,
+            _OBJ_CATEGORY => "INS",
+            _OBJ_TYPE   =>  "Weblogic"
+        };
+        $data->{'ERROR_MESSAGE'} = "Connection Server $host:$port failed.";
+        $data->{AVAILABILITY}    = 0;
+        $data->{RESPONSE_TIME} = $responseTime;
+        print("WARN:: Connection Server $host:$port failed .");
+    }else{
+        my $inspectCommand = getInspectCommand();
+        my ($inspectRet,$inspectResult) = runCmd( $wlstbin , $inspectCommand , $host , $port , $username , $password );
+        $data = str2Json($inspectResult);
+        
+        $data->{_OBJ_CATEGORY}  = "INS";
+        $data->{_OBJ_TYPE}  ="Weblogic";
+        $data->{MGMT_IP}  = $host;
+        $data->{PORT}  = $port;
+        $data->{RESOURCE_ID}  = '0';
+        $data->{AVAILABILITY}  = 1;
+        $data->{ERROR_MESSAGE} = '';
+        if($verbose == 1){
+            print($inspectResult);
+        }
+    }
+    my $out = {};
+    $out->{DATA} = [$data];
+    AutoExecUtils::saveOutput($out);
+
+    return 0;
+}
+
+exit main();
