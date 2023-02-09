@@ -28,6 +28,7 @@ class Context:
         self.jobId = os.getenv('AUTOEXEC_JOBID')
         self.fileFeteched = {}
         self.scriptFetched = {}
+        self.opFetched = {}
 
 
 def setEnv():

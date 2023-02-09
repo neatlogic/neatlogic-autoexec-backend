@@ -96,7 +96,7 @@ if __name__ == "__main__":
     try:
         srcNodePwd = AutoExecUtils.getNodePwd(srcNodeInfo.get('resourceId'), srcNodeInfo.get('host'), srcNodeInfo.get('port'), srcUserName, srcProtocol)
     except Exception as ex:
-        print("ERROR: Can not find passwford for {}://{}@{}.".format(srcProtocol, srcUserName, srcNodeInfo.get('host')))
+        print("ERROR: Can not find passwford for {}://{}@{} {}.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), str(ex)))
         sys.exit(-1)
 
     srcNodeInfo['password'] = srcNodePwd
