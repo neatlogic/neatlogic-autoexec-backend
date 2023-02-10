@@ -15,16 +15,16 @@
         "validate": "",
         "dataSource": {
             "dataList": [{
-                    "text": "inspect",
+                    "text": "巡检",
                     "value": "inspect"
                 },
                 {
-                    "text": "monitor",
+                    "text": "监控",
                     "value": "monitor"
                 },
                 {
-                    "text": "all",
-                    "value": "all"
+                    "text": "巡检和监控",
+                    "value": "both"
                 }
             ]
         },

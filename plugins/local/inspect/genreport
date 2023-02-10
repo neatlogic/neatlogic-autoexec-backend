@@ -535,10 +535,10 @@ def saveReport(db, ciType, resourceId, rptData, statusTarget='inspect'):
     rptCollection.create_index([('_jobid', 1)], name='idx_jobid')
     print('INFO: Save report data success.')
     saveHisReport(db, ciType, resourceId, rptData)
-    if statusTarget in ('inspect', 'all'):
+    if statusTarget in ('inspect', 'both', 'all'):
         AutoExecUtils.updateInspectStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
         print('INFO: Update inspect status for node success.')
-    if statusTarget in ('monitor', 'all'):
+    if statusTarget in ('monitor', 'both', 'all'):
         AutoExecUtils.updateMonitorStatus(ciType, resourceId, rptData['_inspect_result']['status'], rptData['_inspect_result']['totalCount'])
         print('INFO: Update monitor status for node success.')
 
