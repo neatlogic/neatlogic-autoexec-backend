@@ -565,7 +565,7 @@ class ServerAdapter:
                 scriptName = resHeaders.get('ScriptName', 'none')
                 scriptVerId = resHeaders.get('ScriptVersionId')
                 isLib = resHeaders.get('ScriptIsLib', 0)
-                useLibs = resHeaders.get('scriptUseLibs', [])
+                useLibs = json.loads(resHeaders.get('scriptUseLibs', '[]'))
                 interpreter = resHeaders.get('ScriptInterpreter')
 
                 scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
@@ -583,7 +583,6 @@ class ServerAdapter:
                         if scriptContent is not None:
                             scriptFile = open(scriptFilePath, 'w')
                             scriptFile.write(scriptContent)
-                            os.chmod(scriptFilePath, stat.S_IRWXU)
                             scriptFile.close()
                             scriptFile = None
                 else:
@@ -598,6 +597,7 @@ class ServerAdapter:
                         scriptFile.close()
                         scriptFile = None
 
+                os.chmod(scriptFilePath, stat.S_IRWXU)
                 scriptLibFile = open(scriptLibFilePath, 'w')
                 scriptLibFile.write(','.join(useLibs))
                 scriptLibFile.close()
