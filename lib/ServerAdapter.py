@@ -36,7 +36,7 @@ class ServerAdapter:
             'getParams': '/neatlogic/api/rest/autoexec/job/create/param/get',
             'getNodes': '/neatlogic/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/neatlogic/api/binary/file/download',
-            'fetchScript': '/neatlogic/api/rest/autoexec/job/phase/operation/script/get/forautoexec',
+            'fetchScript': 'neatlogic/api/binary/autoexec/job/phase/operation/script/get/forautoexec',
             'getScript': '/neatlogic/api/rest/autoexec/script/active/version/get',
             'getAccount': '/neatlogic/api/rest/resourcecenter/resource/account/get',
             'getNodePwd': '/neatlogic/api/rest/resourcecenter/resource/account/get',
@@ -514,14 +514,15 @@ class ServerAdapter:
     # 从自定义脚本库下载脚本到脚本目录
     def fetchScriptLib(self, operation, scriptId):
         pluginParentPath = operation.pluginParentPath
-        scriptFileName = None
         scriptFilePath = None
+        useLibs = []
 
         params = {
             'jobId': self.context.jobId,
             'scriptId': scriptId
         }
 
+        scriptFile = None
         lockFile = None
         scriptIdFilePath = '%s/%s' % (pluginParentPath, scriptId)
         scriptIdLockFilePath = '%s.lock' % (scriptIdFilePath)
@@ -552,63 +553,66 @@ class ServerAdapter:
                     # link has been removed
                     pass
 
+            params['acceptStream'] = "True"
             params['lastModified'] = lastModifiedTime
 
             response = self.httpGET(self.apiMap['fetchScript'],  params)
 
-            scriptName = 'none'
-            scriptVerId = None
-            scriptContent = None
-            isLib = 0
-            useLibs = []
+            resHeaders = response.headers
             if response.status == 200:
-                charset = response.info().get_content_charset()
-                content = response.read().decode(charset, errors='ignore')
-                retObj = json.loads(content).get('Return')
-                scriptContent = retObj['script']
-                scriptId = retObj.get('scriptId', 0)
-                scriptName = retObj.get('scriptName', 'none')
-                scriptVerId = retObj.get('scriptVersionId', 0)
-                isLib = retObj.get('scriptIsLib', 0)
+                scriptId = resHeaders.get('ScriptId')
+                scriptName = resHeaders.get('ScriptName', 'none')
+                scriptVerId = resHeaders.get('ScriptVersionId')
+                isLib = resHeaders.get('ScriptIsLib', 0)
                 useLibs = retObj.get('scriptUseLibs', [])
-                interpreter = retObj.get('scriptInterpreter', 'bash')
+                interpreter = resHeaders.get('ScriptInterpreter')
 
-            elif response.status == 205:
-                resHeaders = response.info()
-                scriptId = resHeaders['ScriptId']
-                scriptName = resHeaders['ScriptName']
-                scriptVerId = resHeaders['ScriptVersionId']
-                isLib = resHeaders['ScriptIsLib']
-                interpreter = resHeaders['ScriptInterpreter']
-
-            if scriptVerId != None and usedScriptVerId != scriptVerId:
                 scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
-
                 scriptFilePath = '%s/%s.%s' % (pluginParentPath, scriptVerId, scriptFileName)
                 scriptLibFilePath = '%s/%s.%s.lib' % (pluginParentPath, scriptVerId, scriptFileName)
 
-                if not os.path.exists(scriptFilePath):
-                    if scriptContent is not None:
-                        scriptFile = open(scriptFilePath, 'w')
-                        scriptFile.write(scriptContent)
-                        os.chmod(scriptFilePath, stat.S_IRWXU)
+                contentType = resHeaders.get('Content-Type')
+                if contentType.startswith('application/json'):
+                    charset = resHeaders.get_content_charset()
+                    content = response.read().decode(charset, errors='ignore')
+                    retObj = json.loads(content).get('Return')
+                    scriptContent = retObj['script']
+
+                    if not os.path.exists(scriptFilePath):
+                        if scriptContent is not None:
+                            scriptFile = open(scriptFilePath, 'w')
+                            scriptFile.write(scriptContent)
+                            os.chmod(scriptFilePath, stat.S_IRWXU)
+                            scriptFile.close()
+                            scriptFile = None
+                else:
+                    if not os.path.exists(scriptFilePath):
+                        scriptFile = open(scriptFilePath, 'wb')
+                        CHUNK = 16 * 1024
+                        while True:
+                            chunk = response.read(CHUNK)
+                            if not chunk:
+                                break
+                            scriptFile.write(chunk)
                         scriptFile.close()
+                        scriptFile = None
 
-                    if useLibs:
-                        scriptLibFile = open(scriptLibFilePath, 'w')
-                        scriptLibFile.write(','.joinb(useLibs))
-                        scriptLibFile.close()
+                scriptLibFile = open(scriptLibFilePath, 'w')
+                scriptLibFile.write(','.joinb(useLibs))
+                scriptLibFile.close()
 
-                if os.path.exists(scriptIdFilePath):
-                    os.unlink(scriptIdFilePath)
-                os.symlink(scriptFilePath, scriptIdFilePath)
+                if scriptVerId != None and usedScriptVerId != scriptVerId:
+                    if os.path.exists(scriptIdFilePath):
+                        os.unlink(scriptIdFilePath)
+                    os.symlink(scriptFilePath, scriptIdFilePath)
 
-                scriptNamePath = '%s/%s' % (pluginParentPath, scriptFileName)
-                if os.path.exists(scriptNamePath):
-                    os.unlink(scriptNamePath)
-                os.symlink(scriptFilePath, scriptNamePath)
+                    scriptNamePath = '%s/%s' % (pluginParentPath, scriptFileName)
+                    if os.path.exists(scriptNamePath):
+                        os.unlink(scriptNamePath)
+                    os.symlink(scriptFilePath, scriptNamePath)
 
-            self.scriptFetched[scriptId] = scriptFilePath
+                    if scriptFilePath is not None:
+                        self.scriptFetched[scriptId] = scriptFilePath
 
             return (scriptFilePath, useLibs)
 
@@ -618,6 +622,8 @@ class ServerAdapter:
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
                 lockFile.close()
+            if scriptFile is not None:
+                scriptFile.close()
 
     def fetchOperation(self, operation):
         opId = operation.opId
