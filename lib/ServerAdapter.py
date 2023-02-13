@@ -522,6 +522,7 @@ class ServerAdapter:
             'scriptId': scriptId
         }
 
+        scriptFileName = None
         scriptFile = None
         lockFile = None
         scriptIdFilePath = '%s/%s' % (pluginParentPath, scriptId)
@@ -564,7 +565,7 @@ class ServerAdapter:
                 scriptName = resHeaders.get('ScriptName', 'none')
                 scriptVerId = resHeaders.get('ScriptVersionId')
                 isLib = resHeaders.get('ScriptIsLib', 0)
-                useLibs = retObj.get('scriptUseLibs', [])
+                useLibs = resHeaders.get('scriptUseLibs', [])
                 interpreter = resHeaders.get('ScriptInterpreter')
 
                 scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
@@ -598,7 +599,7 @@ class ServerAdapter:
                         scriptFile = None
 
                 scriptLibFile = open(scriptLibFilePath, 'w')
-                scriptLibFile.write(','.joinb(useLibs))
+                scriptLibFile.write(','.join(useLibs))
                 scriptLibFile.close()
 
                 if scriptVerId != None and usedScriptVerId != scriptVerId:
