@@ -338,22 +338,6 @@ class Operation:
 
     # 获取script
     def fetchOperation(self):
-        opId = self.opId
-
-        self.pluginParentPath = '{}/script'.format(self.context.runPath)
-        if self.opBunddleName != '':
-            self.pluginParentPath = self.pluginParentPath + '/' + self.opBunddleName
-
-        if not os.path.exists(self.pluginParentPath):
-            os.mkdir(self.pluginParentPath)
-
-        self.lockPath = '%s/%s.lock' % (self.pluginParentPath, opId)
-
-        opPluginPath = self.opFetched.get(opId)
-        if opPluginPath is not None:
-            self.pluginPath = opPluginPath
-            return
-
         serverAdapter = self.context.serverAdapter
         scriptName = self.opName
         if not self.opName.isascii():
@@ -363,7 +347,22 @@ class Operation:
         scriptFileName = self.getScriptFileName(scriptName, self.interpreter)
         self.scriptFileName = scriptFileName
 
+        self.pluginParentPath = '{}/script'.format(self.context.runPath)
+        if self.opBunddleName != '':
+            self.pluginParentPath = self.pluginParentPath + '/' + self.opBunddleName
+
+        if not os.path.exists(self.pluginParentPath):
+            os.mkdir(self.pluginParentPath)
+
+        opId = self.opId
+
         self.scriptLockPath = '%s/%s.lock' % (self.pluginParentPath, self.scriptId)
+        self.lockPath = '%s/%s.lock' % (self.pluginParentPath, opId)
+
+        opPluginPath = self.opFetched.get(opId)
+        if opPluginPath is not None:
+            self.pluginPath = opPluginPath
+            return
 
         if self.scriptContent:
             savePath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
