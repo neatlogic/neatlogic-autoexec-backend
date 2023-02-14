@@ -693,7 +693,7 @@
                 },
                 {
                     "name": "IS_VIRTUAL",
-                    "desc": "是否虚拟",
+                    "desc": "Is Virtual",
                     "type": "Int"
                 },
                 {

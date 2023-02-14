@@ -51,7 +51,7 @@
         },
         {
             "name": "IS_VIRTUAL",
-            "desc": "是否虚拟",
+            "desc": "是否虚拟机",
             "type": "Int"
         },
         {
