@@ -339,7 +339,9 @@ class Operation:
     # 获取script
     def fetchOperation(self):
         opId = self.opId
-        if opId in self.opFetched:
+        opPluginPath = self.opFetched.get(opId)
+        if opPluginPath is not None:
+            self.pluginPath = opPluginPath
             return
 
         serverAdapter = self.context.serverAdapter
