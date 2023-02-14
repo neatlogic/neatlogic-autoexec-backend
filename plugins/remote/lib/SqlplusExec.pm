@@ -527,18 +527,18 @@ sub _execSql {
 
     my $output = `$cmd`;
     my $status = $?;
-    if ( $status ne 0 ) {
+
+    if ( $status != 0 ) {
         print("ERROR: Execute cmd failed\n $output\n");
         print("----------------------------------------------------------\n");
         return ( undef, undef, $status );
     }
+
+    if ($parseData) {
+        return $self->_parseOutput( $output, $isVerbose );
+    }
     else {
-        if ($parseData) {
-            return $self->_parseOutput( $output, $isVerbose );
-        }
-        else {
-            return $self->_checkError( $sql, $output, $isVerbose );
-        }
+        return $self->_checkError( $sql, $output, $isVerbose );
     }
 }
 
