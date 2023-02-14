@@ -339,6 +339,8 @@ class Operation:
     # 获取script
     def fetchOperation(self):
         opId = self.opId
+        self.lockPath = '%s/%s.lock' % (self.pluginParentPath, opId)
+
         opPluginPath = self.opFetched.get(opId)
         if opPluginPath is not None:
             self.pluginPath = opPluginPath
@@ -363,7 +365,6 @@ class Operation:
         opId = self.opId
 
         self.scriptLockPath = '%s/%s.lock' % (self.pluginParentPath, self.scriptId)
-        self.lockPath = '%s/%s.lock' % (self.pluginParentPath, opId)
 
         if self.scriptContent:
             savePath = '{}/{}'.format(self.pluginParentPath, scriptFileName)
