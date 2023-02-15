@@ -630,11 +630,6 @@ class ServerAdapter:
     def fetchOperation(self, operation):
         opId = operation.opId
 
-        params = {
-            'jobId': self.context.jobId,
-            'operationId': opId
-        }
-
         opFileLockFile = None
         opFilePath = '%s/%s' % (operation.pluginParentPath, opId)
         opLockFilePath = '%s.lock' % (opFilePath)
