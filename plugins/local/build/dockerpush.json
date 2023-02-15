@@ -1,14 +1,13 @@
 {
-    "opDesc": "Docker镜像生成",
+    "opDesc": "Docker镜像上传仓库",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
-    "description": "工程编译后，生成docker镜像",
+    "description": "把生成docker镜像推送到镜像仓库",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "registry",
             "name": "镜像仓库",
             "help": "镜像仓库地址，例如：10.0.1.13:8080",

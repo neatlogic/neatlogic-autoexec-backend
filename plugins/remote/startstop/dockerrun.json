@@ -1,11 +1,11 @@
 {
-    "opDesc": "拉取Docker镜像",
+    "opDesc": "运行Docker镜像",
     "opType": "target",
     "typeName": "START_STOP",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
-    "description": "拉取Docker镜像到当前主机",
+    "description": "在主机上运行Docker镜像",
     "enabled": 1,
     "option": [{
             "opt": "name",
