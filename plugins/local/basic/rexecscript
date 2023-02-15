@@ -60,7 +60,7 @@ if __name__ == "__main__":
     params = ''
     if (len(param) > 0):
         for p in (param):
-            params = params + ' ' + p
+            params = params + ' "' + p + '"'
 
     ret = False
     errorMsg = ''

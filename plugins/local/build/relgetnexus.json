@@ -1,14 +1,13 @@
 {
-    "opDesc": "Docker镜像生成",
+    "opDesc": "从Nexus下载包",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "nexus-args",
-    "description": "工程编译后，生成docker镜像",
+    "description": "从Nexus上下载包",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "baseurl",
             "name": "Nexus地址",
             "help": "Nexus地址，例如：https://192.168.0.8:8443",

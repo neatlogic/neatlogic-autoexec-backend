@@ -1,14 +1,13 @@
 {
-    "opDesc": "Docker镜像生成",
+    "opDesc": "上传包到Jfrog",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "jfrog-args",
-    "description": "工程编译后，生成docker镜像",
+    "description": "工程编译打包后，上传包到Jfrog",
     "enabled": 0,
-    "option": [
-        {
+    "option": [{
             "opt": "baseurl",
             "name": "Nexus地址",
             "help": "Nexus地址，例如：https://192.168.0.8:8443",
