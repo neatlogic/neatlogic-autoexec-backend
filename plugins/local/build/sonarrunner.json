@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "sonar-args",
     "description": "对代码进行静态扫描，生成扫描报告",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "verbose",
             "name": "显示明细",

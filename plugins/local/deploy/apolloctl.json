@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "apollo-args",
     "description": "Appolo配置控制",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

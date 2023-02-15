@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "nexus-args",
     "description": "工程编译打包后，上传包到Nexus",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "baseurl",
             "name": "Nexus地址",

@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "relsync-args",
     "description": "用户跨多套环境同步制品，例如: 生产同步测试环境制品",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

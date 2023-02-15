@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "执行本地命令，可以对系统的工程、制品进行客户化处理",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

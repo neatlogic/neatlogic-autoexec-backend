@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "A10-args",
     "description": "Disable或Enable负载均衡A10 POOL的节点",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "verbose",
             "name": "显示明细",

@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "git-args",
     "description": "拉取GIT/SVN代码",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "verbose",
             "name": "显示明细",

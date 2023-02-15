@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于不同环境配置的配置，对环境制品里的配置模版进行自动修改",
-    "enabled": 0,
+    "enabled": 1,
     "option": [],
     "argument": {
         "name": "实例名称",

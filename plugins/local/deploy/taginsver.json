@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "标记实例的版本号",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "rollback",
