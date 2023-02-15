@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "对TCP或URL进行可用性检查",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

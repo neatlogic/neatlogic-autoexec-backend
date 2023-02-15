@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "relsync-args",
     "description": "把版本制品目录同步到环境镜像制品目录",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

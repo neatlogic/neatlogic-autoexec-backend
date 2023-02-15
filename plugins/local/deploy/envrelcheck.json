@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "环境制品状态检查，支持跨环境监察",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "proxytourl",

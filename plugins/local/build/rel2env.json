@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "把编译释放出的版本拷贝到对应的环境制品目录",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

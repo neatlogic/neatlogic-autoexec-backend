@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "git-args",
     "description": "从编译目录中抽取文件生成版本制品(科蓝网银)",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",
