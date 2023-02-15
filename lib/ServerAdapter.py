@@ -671,7 +671,7 @@ class ServerAdapter:
 
             self.opFetched[opId] = opScriptFilePath
 
-            return scriptFilePath
+            return opScriptFilePath
 
         except:
             raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, operation.pluginParentPath, operation.scriptFileName))
