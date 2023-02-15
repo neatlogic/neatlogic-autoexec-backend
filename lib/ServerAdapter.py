@@ -512,13 +512,14 @@ class ServerAdapter:
                 lockFile.close()
 
     # 从自定义脚本库下载脚本到脚本目录
-    def fetchScriptLib(self, operation, scriptId):
+    def fetchScriptLib(self, operation, scriptId, opId=None):
         pluginParentPath = operation.pluginParentPath
         scriptFilePath = None
         useLibs = []
 
         params = {
             'jobId': self.context.jobId,
+            'operationId': opId,
             'scriptId': scriptId
         }
 
@@ -658,17 +659,15 @@ class ServerAdapter:
                 except:
                     pass
 
+            useLibs = []
             opScriptFilePath = None
-            useLibs = [operation.scriptId]
-            dependLibs = []
+            (opScriptFilePath, useLibs) = self.fetchScriptLib(operation, operation.scriptId, opId)
+
             # 避免使用递归，如果使用递归，会因为循环递归导致死锁
             while (useLibs):
                 libScriptId = useLibs.pop()
-                dependLibs.append(libScriptId)
                 (scriptFilePath, myUseLibs) = self.fetchScriptLib(operation, libScriptId)
                 useLibs.extend(myUseLibs)
-                if opScriptFilePath is None:
-                    opScriptFilePath = scriptFilePath
 
             if oldScriptFilePath != opScriptFilePath:
                 if os.path.exists(opFilePath):
