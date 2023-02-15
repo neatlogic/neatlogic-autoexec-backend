@@ -288,23 +288,6 @@
             "type": "String"
         },
         {
-            "name": "APPLICATIONS",
-            "desc": "Applications",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "State",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "HEAP_SIZE_CURRENT",
             "desc": "Current HeapSize(M)",
             "type": "Int"
@@ -600,6 +583,11 @@
                 {
                     "name": "STAGING_MODE",
                     "desc": "Staging Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
                     "type": "String"
                 }
             ]

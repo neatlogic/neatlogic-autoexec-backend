@@ -288,23 +288,6 @@
             "type": "String"
         },
         {
-            "name": "APPLICATIONS",
-            "desc": "应用状态",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "状态",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "HEAP_SIZE_CURRENT",
             "desc": "当前HeapSize(M)",
             "type": "Int"
@@ -600,6 +583,11 @@
                 {
                     "name": "STAGING_MODE",
                     "desc": "Staging模式",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
                     "type": "String"
                 }
             ]
