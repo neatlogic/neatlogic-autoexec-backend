@@ -600,7 +600,7 @@ class ServerAdapter:
 
                 os.chmod(scriptFilePath, stat.S_IRWXU)
                 scriptLibFile = open(scriptLibFilePath, 'w')
-                scriptLibFile.write(','.join(useLibs))
+                scriptLibFile.write(','.join(map(str, useLibs)))
                 scriptLibFile.close()
 
                 if scriptVerId != None and usedScriptVerId != scriptVerId:
