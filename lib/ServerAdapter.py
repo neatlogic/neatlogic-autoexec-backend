@@ -565,7 +565,7 @@ class ServerAdapter:
                 scriptId = resHeaders.get('ScriptId')
                 scriptName = resHeaders.get('ScriptName', 'none')
                 scriptVerId = resHeaders.get('ScriptVersionId')
-                isLib = resHeaders.get('ScriptIsLib', 0)
+                isLib = int(resHeaders.get('ScriptIsLib', 0))
                 useLibs = json.loads(resHeaders.get('ScriptUseLibs', '[]'))
                 interpreter = resHeaders.get('ScriptInterpreter')
 
