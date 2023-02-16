@@ -390,23 +390,31 @@ class Operation:
             self.pluginPath = scriptSavePath
             self.getScriptDepends(scriptId)
 
-    def getScriptDepends(self, scriptId):
-        scriptLibPath = '%s/%s.lib' % (self.pluginParentPath, scriptId)
+    def getScriptDepends(self, scriptId, isLib=0):
+        scriptIdPath = '%s/%s' % (self.pluginParentPath, scriptId)
+        scriptLibPath = os.readlink(scriptIdPath) + '.lib'
         if os.path.exists(scriptLibPath):
+            scriptLibFile = None
             try:
-                scriptIdPath = '%s/%s' % (self.pluginParentPath, scriptId)
-                scriptLockPath = scriptIdPath + '.lock'
-                libFile = os.readlink(scriptIdPath)
-                libName = os.path.basename(libFile)
-                libName = libName[libName.index('.')+1:]
-                self.depends.append({'id': scriptId, 'name': libName, 'file': libFile, 'lockPath': scriptLockPath})
+                if isLib == 1:
+                    scriptIdPath = '%s/%s' % (self.pluginParentPath, scriptId)
+                    scriptLockPath = scriptIdPath + '.lock'
+                    libFile = os.readlink(scriptIdPath)
+                    libName = os.path.basename(libFile)
+                    libName = libName[libName.index('.')+1:]
+                    self.depends.append({'id': scriptId, 'name': libName, 'file': libFile, 'lockPath': scriptLockPath})
 
                 scriptLibFile = open(scriptLibPath, 'r')
                 content = scriptLibFile.read()
                 for libScriptId in content.split(','):
-                    self.getScriptDepends(libScriptId)
+                    if libScriptId is not None and libScriptId != '':
+                        self.getScriptDepends(libScriptId, 1)
             except Exception as ex:
                 raise AutoExecError.AutoExecError("Get script dependends failed, " + str(ex))
+            finally:
+                if scriptLibFile is not None:
+                    scriptLibFile.close()
+                    scriptLibFile = None
 
     def resolveOptValue(self, optValue, refMap=None, localRefMap=None, nodeEnv={}):
         if optValue is None or optValue == '':

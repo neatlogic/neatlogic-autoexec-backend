@@ -1144,10 +1144,10 @@ class RunNode:
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
                         for dependLib in op.depends:
                             if uploadRet == 0:
-                                scriptLockFile = open(dependLib.lockPath)
+                                scriptLockFile = open(dependLib['lockPath'])
                                 try:
                                     fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
-                                    uploadRet = tagent.upload(self.username, dependLib.file, remotePath + '/' + dependLib.name, convertCharset=1)
+                                    uploadRet = tagent.upload(self.username, dependLib['file'], remotePath + '/' + dependLib['name'], convertCharset=1)
                                 finally:
                                     fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
                                     scriptLockFile.close()
@@ -1372,10 +1372,10 @@ class RunNode:
                             sftp.chmod(op.scriptFileName, stat.S_IRWXU)
                             for dependLib in op.depends:
                                 if uploadRet == 0:
-                                    scriptLockFile = open(dependLib.lockPath)
+                                    scriptLockFile = open(dependLib['lockPath'])
                                     try:
                                         fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
-                                        sftp.put(dependLib.file, dependLib.name)
+                                        sftp.put(dependLib['file'], dependLib['name'])
                                     finally:
                                         if scriptLockFile is not None:
                                             fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
