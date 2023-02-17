@@ -119,10 +119,10 @@ class RunNodeFactory:
 
             protocol = nodeObj.get('protocol')
             protocolPort = nodeObj.get('protocolPort')
-            serveicePorts = nodeObj.get('servicePorts')
+            servicePorts = nodeObj.get('servicePorts')
 
-            if serveicePorts is not None:
-                servicePort = serveicePorts.get(protocol)
+            if servicePorts is not None:
+                servicePort = servicePorts.get(protocol)
                 if servicePort is not None and servicePort != '':
                     protocolPort = servicePort
 

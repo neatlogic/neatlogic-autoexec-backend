@@ -55,10 +55,10 @@ if __name__ == "__main__":
 
     protocol = nodeInfo.get('protocol')
     protocolPort = nodeInfo.get('protocolPort')
-    serveicePorts = nodeInfo.get('servicePorts')
+    servicePorts = nodeInfo.get('servicePorts')
 
-    if serveicePorts is not None:
-        servicePort = serveicePorts.get(protocol)
+    if servicePorts is not None:
+        servicePort = servicePorts.get(protocol)
         if servicePort is not None and servicePort != '':
             protocolPort = servicePort
 
