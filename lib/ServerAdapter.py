@@ -21,6 +21,7 @@ from urllib.error import HTTPError
 from hashlib import sha256
 import hmac
 import base64
+import tarfile
 
 from AutoExecError import AutoExecError
 
@@ -616,10 +617,17 @@ class ServerAdapter:
                     if scriptFilePath is not None:
                         self.scriptFetched[scriptId] = scriptFilePath
 
+                if scriptFileName.endswith('.tar'):
+                    try:
+                        with tarfile.open(scriptFilePath, "r") as tf:
+                            tf.extractall(path=pluginParentPath)
+                    except Exception as ex:
+                        raise AutoExecError("ERROR: Extract package from file {} failed, {}.".format(scriptFileName, str(ex)))
+
             return (scriptFilePath, useLibs)
 
-        except:
-            raise AutoExecError("ERROR: Fetch {} custom lib to {}/{} failed.\n".format(scriptId, pluginParentPath, scriptFileName))
+        except Exception as ex:
+            raise AutoExecError("ERROR: Fetch {} custom lib to {}/{} failed, {}.\n".format(scriptId, pluginParentPath, scriptFileName, str(ex)))
         finally:
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
@@ -634,7 +642,6 @@ class ServerAdapter:
         opFilePath = '%s/%s' % (operation.pluginParentPath, opId)
         opLockFilePath = '%s.lock' % (opFilePath)
 
-        response = None
         try:
             newScriptFilePath = self.opFetched.get(opId)
             if newScriptFilePath is not None:
@@ -673,8 +680,8 @@ class ServerAdapter:
 
             return opScriptFilePath
 
-        except:
-            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed.\n".format(opId, operation.pluginParentPath, operation.scriptFileName))
+        except Exception as ex:
+            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed, {}.\n".format(opId, operation.pluginParentPath, operation.scriptFileName, str(ex)))
         finally:
             if opFileLockFile is not None:
                 fcntl.flock(opFileLockFile, fcntl.LOCK_UN)

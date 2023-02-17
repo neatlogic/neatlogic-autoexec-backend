@@ -66,7 +66,7 @@ class Operation:
         }
 
         self.extNameMap = {
-            'binary': '',
+            'package': '.tar',
             'perl': '.pl',
             'python': '.py',
             'ruby': '.rb',
@@ -81,7 +81,7 @@ class Operation:
         }
 
         self.libExtNameMap = {
-            'binary': '',
+            'package': '.tar',
             'perl': '.pm',
             'python': '.py',
             'ruby': '.rb',

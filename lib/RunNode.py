@@ -240,8 +240,8 @@ class RunNode:
         self.opOutputRoot = self.runPath + '/output-op'
         self.opOutputRelDir = 'output-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         self.opOutputDir = '{}/{}'.format(self.runPath, self.opOutputRelDir)
-        #self.opInputRelDir = 'input-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
-        #self.opInputDir = '{}/{}'.format(self.runPath, self.opInputRelDir)
+        # self.opInputRelDir = 'input-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
+        # self.opInputDir = '{}/{}'.format(self.runPath, self.opInputRelDir)
         self.opLocalOutputDir = '{}/output-op/local-0-0'.format(self.runPath)
 
         self.liveDataDir = '{}/livedata/{}/{}-{}-{}'.format(self.runPath, phaseName, self.host, self.port, self.resourceId)
@@ -1144,10 +1144,16 @@ class RunNode:
                             uploadRet = tagent.upload(self.username, op.pluginPath, remotePath + '/' + op.scriptFileName, convertCharset=1)
                         for dependLib in op.depends:
                             if uploadRet == 0:
+                                name = dependLib['name']
                                 scriptLockFile = open(dependLib['lockPath'])
                                 try:
                                     fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
-                                    uploadRet = tagent.upload(self.username, dependLib['file'], remotePath + '/' + dependLib['name'], convertCharset=1)
+                                    uploadRet = tagent.upload(self.username, dependLib['file'], remotePath + '/' + name, convertCharset=1)
+                                    if name.endswith('.tar'):
+                                        if tagent.agentOsType == 'windows':
+                                            uploadRet = tagent.execCmd(self.username, '7z.exe x "%s" -o"%s" -aoa -y -ttar' % (name, remotePath))
+                                        else:
+                                            uploadRet = tagent.execCmd(self.username, 'cd %s && tar xvf %s' % (remotePath, name))
                                 finally:
                                     fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
                                     scriptLockFile.close()
@@ -1285,6 +1291,7 @@ class RunNode:
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType='Unix')
             self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+            tarFiles = []
             scriptFile = None
             uploaded = False
             hasError = False
@@ -1372,10 +1379,13 @@ class RunNode:
                             sftp.chmod(op.scriptFileName, stat.S_IRWXU)
                             for dependLib in op.depends:
                                 if uploadRet == 0:
+                                    name = dependLib['name']
                                     scriptLockFile = open(dependLib['lockPath'])
                                     try:
                                         fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
-                                        sftp.put(dependLib['file'], dependLib['name'])
+                                        sftp.put(dependLib['file'], name)
+                                        if name.endswith('.tar'):
+                                            tarFiles.append(name)
                                     finally:
                                         if scriptLockFile is not None:
                                             fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
@@ -1479,6 +1489,13 @@ class RunNode:
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 try:
+                    # 解开package
+                    for tarFile in tarFiles:
+                        stderr = ssh.exec_command('cd %s && tar xf %s' % (remotePath, tarFile))
+                        errMsg = stderr.read()
+                        if errMsg != '':
+                            self.writeNodeLog(errMsg)
+                    # 执行主命令
                     # ret = 0
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
