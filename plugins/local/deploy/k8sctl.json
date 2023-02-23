@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "k8s-args",
     "description": "K8S应用的部署",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "host",

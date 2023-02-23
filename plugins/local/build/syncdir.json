@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "同步本地的两个目录内容",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

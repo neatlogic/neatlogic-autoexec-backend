@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "根据执行目标协议拷贝文件或目录到目标实例OS",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

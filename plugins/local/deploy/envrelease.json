@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "发布环境制品(同步各个执行器)",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",

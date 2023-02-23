@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "检查代码中是否出现非法IP",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "netblacklist",
