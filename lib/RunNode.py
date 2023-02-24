@@ -926,7 +926,10 @@ class RunNode:
 
             hintKey = 'FINE:'
             if isFail == 0:
-                if hasIgnoreFail == 1:
+                if self.context.goToStop:
+                    finalStatus = NodeStatus.paused
+                    hintKey = 'WARN:'
+                elif hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                     self.hasIgnoreFail = 1
                     finalStatus = NodeStatus.ignored
