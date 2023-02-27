@@ -90,6 +90,9 @@ class PhaseWorker(threading.Thread):
             elif opsStatus == NodeStatus.succeed:
                 phaseStatus.incSucNodeCount()
                 print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port), end='')
+            elif opsStatus == NodeStatus.paused:
+                phaseStatus.incPauseNodeCount()
+                print("WARN: Node({}) {}:{} execute paused.\n".format(node.resourceId, node.host, node.port), end='')
             else:
                 phaseStatus.incFailNodeCount()
                 print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port), end='')

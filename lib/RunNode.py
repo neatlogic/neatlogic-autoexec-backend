@@ -347,7 +347,6 @@ class RunNode:
                 raise AutoExecError('Push status:{} to server, failed {}'.format(self.statusPath, ex))
 
     def _loadNodeStatus(self):
-        status = NodeStatus.pending
         statuses = {}
         try:
             if os.path.exists(self.statusPath):
@@ -887,8 +886,10 @@ class RunNode:
 
             self.logHandle.clearFailPattern()
 
+            isPaused = False
             for op in ops:
                 if self.context.goToStop:
+                    isPaused = True
                     self.updateNodeStatus(NodeStatus.paused)
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
@@ -926,7 +927,7 @@ class RunNode:
 
             hintKey = 'FINE:'
             if isFail == 0:
-                if self.context.goToStop:
+                if isPaused:
                     finalStatus = NodeStatus.paused
                     hintKey = 'WARN:'
                 elif hasIgnoreFail == 1:

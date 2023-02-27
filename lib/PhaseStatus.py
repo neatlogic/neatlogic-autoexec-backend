@@ -32,6 +32,7 @@ class PhaseStatus:
         self.failNodeCount = 0
         self.ignoreFailNodeCount = 0
         self.sucNodeCount = 0
+        self.pauseNodeCount = 0
         self.skipNodeCount = 0
         self.warnCount = 0
 
@@ -85,6 +86,12 @@ class PhaseStatus:
             self.ignoreFailNodeCount += 1
             self.produceEvent()
             return self.ignoreFailNodeCount
+
+    def incPauseNodeCount(self):
+        with self.couterLock:
+            self.pauseNodeCount += 1
+            self.produceEvent()
+            return self.pauseNodeCount
 
     def incSucNodeCount(self):
         with self.couterLock:

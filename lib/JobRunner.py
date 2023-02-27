@@ -388,7 +388,7 @@ class JobRunner:
 
             phaseStatus = self.context.phases.get(phaseName)
             if phaseStatus is not None:
-                print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
+                print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, pauseCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end='')
                 print("--------------------------------------------------------------\n\n", end='')
 
         return lastPhase
@@ -559,7 +559,7 @@ class JobRunner:
                         break
 
                 if lastRound:
-                    print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount), end='')
+                    print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, pauseCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end='')
                     print("--------------------------------------------------------------\n\n")
 
             if lastRound or self.context.hasFailNodeInGlobal:
