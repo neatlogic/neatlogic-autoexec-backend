@@ -62,6 +62,9 @@ sub new {
     $self->{warningCount} = 0;
     $self->{logonTimeout} = $dbInfo->{logonTimeout};
 
+    #$self->{PROMPT} = qr/(obclient)>\s$/;
+    $self->{PROMPT} = qr/obclient(\s+\[$dbName\])?>\s$/;
+
     if ( not defined($isInteract) ) {
         $isInteract = 0;
     }
@@ -110,6 +113,7 @@ sub test {
     my $user         = $self->{user};
     my $dbName       = $self->{dbName};
     my $logonTimeout = $self->{logonTimeout};
+    my $PROMPT       = $self->{PROMPT};
 
     my $hasHardError = 0;
     my $hasLogon     = 0;
@@ -117,7 +121,7 @@ sub test {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/(obclient)>\s$/ => sub {
+            $PROMPT => sub {
                 $hasLogon = 1;
                 $spawn->send("exit;\n");
             }
@@ -161,12 +165,11 @@ sub run {
     my $sqlFile      = $self->{sqlFile};
     my $sqlFileName  = $self->{sqlFileName};
     my $isAutoCommit = $self->{isAutoCommit};
+    my $PROMPT       = $self->{PROMPT};
 
     my $pipeFile = $logFilePath;
     $pipeFile =~ s/\.log$//;
     $pipeFile = "$pipeFile.run.pipe";
-
-    my $PROMPT = qr/(obclient)>\s$/;
 
     my $hasSendAutocommit = 0;
     my $hasSendCharset    = 0;
@@ -263,7 +266,7 @@ sub run {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/(obclient)>\s$/ => sub {
+            $PROMPT => sub {
                 $hasLogon = 1;
             }
         ],
