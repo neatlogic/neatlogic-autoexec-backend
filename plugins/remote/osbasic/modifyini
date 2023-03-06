@@ -101,12 +101,14 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
 
     my $filePath;
-    my $needBackup = 0;
+    my $needBackup       = 0;
+    my $createIfNotExist = 0;
     my $content;
     my $noSection = 0;
 
     GetOptions(
         'backup=i'    => \$needBackup,
+        'create=i'    => \$createIfNotExist,
         'filepath=s'  => \$filePath,
         'content=s'   => \$content,
         'nosection=i' => \$noSection
@@ -131,7 +133,15 @@ sub main {
     chdir($scriptDir);
 
     if ( not -e $filePath ) {
-        print("ERROR: File $filePath not exists.\n");
+        if ( $createIfNotExist == 1 ) {
+            my $fh = IO::File->new(">$filePath");
+            if ( defined($fh) ) {
+                $fh->close();
+            }
+        }
+        else {
+            print("ERROR: File $filePath not exists.\n");
+        }
     }
 
     my ( $sectionNames, $sectionKeysMap, $sectionsMap ) = parseInIContent($content);
