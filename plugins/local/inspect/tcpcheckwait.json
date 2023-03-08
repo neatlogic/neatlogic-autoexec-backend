@@ -7,6 +7,24 @@
     "defaultProfile": null,
     "description": "检测并等待IP端口可以建立TCP连接",
     "option": [{
+            "opt": "host",
+            "name": "IP地址",
+            "help": "检测的目标地址",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "port",
+            "name": "TCP端口",
+            "help": "检测的目标TCP端口",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
             "opt": "timeout",
             "name": "超时时间",
             "help": "查询超时时间，单位秒",

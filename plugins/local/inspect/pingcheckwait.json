@@ -7,6 +7,15 @@
     "defaultProfile": null,
     "description": "检测并等待IP可以Ping通",
     "option": [{
+            "opt": "host",
+            "name": "IP地址",
+            "help": "Ping的目标地址",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
             "opt": "timeout",
             "name": "超时时间",
             "help": "查询超时时间，单位秒",
