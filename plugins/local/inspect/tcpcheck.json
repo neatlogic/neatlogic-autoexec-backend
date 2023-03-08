@@ -1,28 +1,24 @@
 {
-    "opName": "TCP连通性检查",
+    "opName": "TCP连通等待",
     "opType": "runner_target",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "在Runner上检查是否可以建立TCP连接到目标",
-    "option": [
-        {
-            "opt": "timeout",
-            "name": "超时时间",
-            "help": "查询超时时间，单位秒",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": "10"
-        }
-    ],
-    "output": [
-        {
-            "opt": "DATA",
-            "name": "JSON数据",
-            "help": "采集到的数据",
-            "type": "json"
-        }
-    ]
+    "description": "检查IP端口是否可以建立TCP连接",
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": "10"
+    }],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
 }
