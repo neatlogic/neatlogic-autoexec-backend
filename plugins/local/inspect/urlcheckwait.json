@@ -1,0 +1,39 @@
+{
+    "opName": "URL连通检查等待",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检测并等待多个URL是否可以正常访问",
+    "option": [{
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "retrycount",
+            "name": "重试次数",
+            "help": "失败重试次数",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "argument": {
+        "name": "HTTP请求",
+        "help": "例如：GET, http://${host}:${port}/console",
+        "isConst": "false",
+        "type": "text",
+        "count": 0,
+        "defaultValue": "GET, http://${host}:${port}/",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

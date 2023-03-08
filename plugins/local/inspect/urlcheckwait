@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd qw(abs_path);
+use Getopt::Long;
+use JSON;
+use WebCtl;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --retrycount <retry count> --timeout <timeout seconds> <url1> <url2>\n");
+    exit(-1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+
+    my $retryCount = 1;
+    my $timeout    = 10;
+
+    GetOptions(
+        'retrycount=i' => \$retryCount,
+        'timeout=i'    => \$timeout
+    );
+    my @requests = @ARGV;
+
+    my $webCtl = WebCtl->new();
+
+    my $isFailed = 1;
+    for ( my $i = 1 ; $i <= $retryCount ; $i++ ) {
+        print("INFO: Begin url check...\n");
+        my $startTime = time();
+        eval {
+            foreach my $req (@requests) {
+                my @reqInfo = split( /\s*,\s*/, $req );
+                my $method  = uc( $reqInfo[0] );
+                my $url     = $reqInfo[1];
+                my $data    = $reqInfo[2];
+
+                print("INFO: Http request $url.\n");
+                if ( $method eq 'POST' ) {
+                    my $jsonData;
+                    eval { $jsonData = from_json($data); };
+                    if ( defined($jsonData) ) {
+                        $webCtl->doRest( 'POST', $url, $jsonData );
+                    }
+                    else {
+                        $webCtl->doPost( $url, $data );
+                    }
+                }
+                elsif ( $method eq 'GET' ) {
+                    $webCtl->get($url);
+                }
+                else {
+                    my $jsonData;
+                    if ( defined($data) and $data ne '' ) {
+                        $jsonData = from_json($data);
+                    }
+                    $webCtl->doRest( $method, $url, $jsonData );
+                }
+                print("INFO: Http request succeed.\n");
+            }
+        };
+        if ($@) {
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print("WARN: $errMsg");
+            my $leftTime = $timeout - ( time() - $startTime );
+            if ( $leftTime > 0 ) {
+                sleep($leftTime);
+            }
+        }
+        else {
+            $isFailed = 0;
+            print("INFO: Http requests all complete succeed.\n");
+        }
+    }
+
+    if ( $isFailed == 0 ) {
+        print("FINE: Url check succeed.\n");
+    }
+    else {
+        print("ERROR: Url check failed(timeout).\n");
+    }
+
+    return $isFailed;
+}
+
+exit main();
