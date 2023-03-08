@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
-    "description": "把生成docker镜像推送到镜像仓库",
+    "description": "把在Runner节点生成到本机仓库的docker镜像推送到远程镜像仓库",
     "enabled": 1,
     "option": [{
             "opt": "registry",

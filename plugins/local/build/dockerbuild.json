@@ -5,10 +5,9 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
-    "description": "工程编译后，生成docker镜像",
+    "description": "工程编译并生成环境制品后，基于环境制品目录生成docker镜像",
     "enabled": 1,
-    "option": [
-        {
+    "option": [{
             "opt": "registry",
             "name": "镜像仓库",
             "help": "镜像仓库地址，例如：10.0.1.13:8080",
