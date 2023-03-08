@@ -1,6 +1,6 @@
 {
     "opName": "Ping等待",
-    "opType": "runner_target",
+    "opType": "runner",
     "typeName": "INSPECT",
     "riskName": "LOW",
     "interpreter": "bash",
