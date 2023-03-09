@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "Runner从源头主机获取文件目录传送到目标主机",
+    "description": "Runner从源头主机获取文件或目录传送到执行目标OS",
     "option": [{
             "opt": "verbose",
             "name": "输出详细信息",

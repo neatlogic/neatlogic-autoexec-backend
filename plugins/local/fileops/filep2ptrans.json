@@ -5,7 +5,7 @@
     "riskName": "HIGH",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "远程主机之间点到点的文件传输, 需要两个主机之间有一个TCP端口用于传输, 默认1025",
+    "description": "远程主机之间点到点的文件传输, 临时在执行目标OS上启用一个TCP端口用于传输, 默认使用端口1025",
     "option": [{
             "opt": "verbose",
             "name": "输出详细信息",

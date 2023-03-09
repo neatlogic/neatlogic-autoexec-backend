@@ -7,7 +7,26 @@
     "defaultProfile": null,
     "description": "本地连远程执行命令",
     "enabled": 1,
-    "option": [
+    "option": [{
+            "opt": "protocol",
+            "name": "连接协议",
+            "help": "连接目标的协议",
+            "type": "select",
+            "dataSource": {
+                "dataList": [{
+                        "text": "ssh",
+                        "value": "ssh"
+                    },
+                    {
+                        "text": "tagent",
+                        "value": "tagent"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ssh"
+        },
         {
             "opt": "ip",
             "name": "IP",
@@ -50,8 +69,7 @@
             "help": "脚本解析器",
             "type": "select",
             "dataSource": {
-                "dataList": [
-                    {
+                "dataList": [{
                         "text": "perl",
                         "value": "perl"
                     },
