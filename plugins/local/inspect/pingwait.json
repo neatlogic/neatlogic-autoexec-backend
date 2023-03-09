@@ -7,6 +7,26 @@
     "defaultProfile": null,
     "description": "检测并等待IP可以Ping通",
     "option": [{
+            "opt": "targetstatus",
+            "name": "目标状态",
+            "help": "等待的目标状态",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "Up",
+                        "value": "up"
+                    },
+                    {
+                        "text": "Down",
+                        "value": "down"
+                    }
+                ]
+            },
+            "defaultValue": "Up"
+        },
+        {
             "opt": "host",
             "name": "IP地址",
             "help": "Ping的目标地址",

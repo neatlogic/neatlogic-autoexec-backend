@@ -16,6 +16,7 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--protocol', default='ssh', help='Protocol')
     parser.add_argument('--ip', default='', help='connect remote ip')
     parser.add_argument('--port', default=22, help='connect remote port')
     parser.add_argument('--username', default='', help='connect remote ip username')
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     nodeInfo = {}
     nodeInfo['resourceId'] = '0000'
     nodeInfo['host'] = ip
-    nodeInfo['protocol'] = 'ssh'
+    nodeInfo['protocol'] = args.protocol
     nodeInfo['protocolPort'] = int(port)
     nodeInfo['username'] = username
     nodeInfo['password'] = password
