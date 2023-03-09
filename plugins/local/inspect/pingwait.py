@@ -67,7 +67,8 @@ if __name__ == "__main__":
                 except Exception as ex:
                     errMsg = str(ex)
                     print('WARN: ' + errMsg)
-
+                finally:
+                    sys.stdout.flush()
             if isFailed:
                 print("ERROR: Wait %s up failed(timeout)." % (host))
             else:
@@ -95,7 +96,8 @@ if __name__ == "__main__":
                     errMsg = str(ex)
                     print('WARN: ' + errMsg)
                     break
-
+                finally:
+                    sys.stdout.flush()
             if isFailed:
                 print("ERROR: Wait %s down failed(timeout)." % (host))
             else:
