@@ -8,6 +8,7 @@ use POSIX qw(strftime);
 use IO::File;
 use JSON;
 use Getopt::Long;
+use Data::Dumper;
 
 use AutoExecUtils;
 
@@ -172,11 +173,7 @@ sub main {
         my $sectionData    = $oneSectionMap->{data};
         my $sectionComment = $oneSectionMap->{comment};
 
-        my $oldOneSectionMap  = $oldSectionsMap->{$sectionName};
-        my $oldOneSectionKeys = $oldSectionKeysMap->{$sectionName};
-        my $oldSectionData    = $oldOneSectionMap->{data};
-        my $oldSctionComment  = $oldOneSectionMap->{comment};
-
+        my $oldOneSectionMap = $oldSectionsMap->{$sectionName};
         if ( not defined($oldOneSectionMap) ) {
             $isChanged = 1;
             push( @$oldSectionNames, $sectionName );
@@ -185,12 +182,15 @@ sub main {
             print("Append new section:$sectionName\n");
         }
         else {
+            my $oldOneSectionKeys = $oldSectionKeysMap->{$sectionName};
+            my $oldSectionData    = $oldOneSectionMap->{data};
             foreach my $key (@$oneSectionKeys) {
                 my $val     = $sectionData->{$key}->{value};
                 my $comment = $sectionData->{$key}->{comment};
 
                 my $item = $oldSectionData->{$key};
                 if ( not defined($item) ) {
+                    $isChanged = 1;
                     $oldSectionData->{$key} = { line => "$key = $val", value => $val, comment => $comment };
                     push( @$oldOneSectionKeys, $key );
                     print("Append $key = $val to section:$sectionName\n");
