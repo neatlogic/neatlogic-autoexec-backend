@@ -24,7 +24,7 @@
                     }
                 ]
             },
-            "defaultValue": "Up"
+            "defaultValue": "up"
         },
         {
             "opt": "timeout",
@@ -42,7 +42,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "10"
+            "defaultValue": "30"
         }
     ],
     "argument": {
