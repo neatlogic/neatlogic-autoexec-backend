@@ -214,7 +214,7 @@ sub _execSql {
     my $sqlFH;
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
-        $cmd = qq{$self->{psqlCmd} << "EOF"
+        $cmd = qq{$self->{psqlCmd} 2>&1 << "EOF"
                $sql
                EOF
               };
@@ -231,7 +231,7 @@ sub _execSql {
 
         my $psqlCmd = $self->{psqlCmd};
         $psqlCmd =~ s/'/"/g;
-        $cmd = qq{$psqlCmd -f "$fname"};
+        $cmd = qq{$psqlCmd -f "$fname" 2>&1};
     }
 
     if ($isVerbose) {
