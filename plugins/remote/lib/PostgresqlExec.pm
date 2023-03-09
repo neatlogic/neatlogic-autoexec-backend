@@ -85,6 +85,25 @@ sub new {
     return $self;
 }
 
+sub _checkError {
+    my ( $self, $output, $isVerbose ) = @_;
+    my $hasError = 0;
+
+    if ( $isVerbose == 1 ) {
+        print($output);
+    }
+
+    foreach my $line ( split( /\n/, $output ) ) {
+
+        #错误识别
+        if ( $line =~ /^ERROR:/ ) {
+            $hasError = 1;
+        }
+    }
+
+    return ( undef, undef, $hasError );
+}
+
 sub _parseOutput {
     my ( $self, $output, $isVerbose ) = @_;
     my @lines      = split( /\n/, $output );
@@ -232,11 +251,9 @@ sub _execSql {
     if ($parseData) {
         return $self->_parseOutput( $output, $isVerbose );
     }
-    elsif ($isVerbose) {
-        print($output);
+    else {
+        return $self->_checkError( $output, $isVerbose );
     }
-
-    return ( undef, undef, $status );
 }
 
 #运行查询sql，返回行数组, 如果vebose=1，打印行数据
