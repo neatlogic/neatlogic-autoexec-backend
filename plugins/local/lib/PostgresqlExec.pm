@@ -85,6 +85,25 @@ sub new {
     return $self;
 }
 
+sub _checkError {
+    my ( $self, $output, $isVerbose ) = @_;
+    my $hasError = 0;
+
+    if ( $isVerbose == 1 ) {
+        print($output);
+    }
+
+    foreach my $line ( split( /\n/, $output ) ) {
+
+        #错误识别
+        if ( $line =~ /^ERROR:/ ) {
+            $hasError = 1;
+        }
+    }
+
+    return ( undef, undef, $hasError );
+}
+
 sub _parseOutput {
     my ( $self, $output, $isVerbose ) = @_;
     my @lines      = split( /\n/, $output );
@@ -109,13 +128,13 @@ sub _parseOutput {
 
         if ( $state eq 'heading' ) {
 
-            #sqlplus的输出根据headsize的设置，一条记录会用多个行进行输出
+            #psql的输出根据headsize的设置，一条记录会用多个行进行输出
             if ( $line =~ /^[-\+]+$/ ) {
                 my $headerLine = $lines[ $i - 1 ];
                 my $linePos    = 1;
 
-                #sqlplus的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
-                #如果一行多个字段，字段之间的------中间会有空格，譬如：---- ---------
+                #psql的header字段下的-------，通过减号标记字段的显示字节宽度，通过此计算字段显示宽度，用于截取字段值
+                #如果一行多个字段，字段之间的------中间会有空格，譬如：----+---------
                 my @lineSegs = split( /\+/, $line );
                 for ( my $j = 0 ; $j < scalar(@lineSegs) ; $j++ ) {
                     my $segment = $lineSegs[$j];
@@ -135,7 +154,7 @@ sub _parseOutput {
 
                     push( @fieldDescs, $fieldDesc );
 
-                    #@fieldNames数组用于保留在sqlplus中字段的显示顺序
+                    #@fieldNames数组用于保留在psql中字段的显示顺序
                     push( @fieldNames, $fieldName );
 
                     $linePos = $linePos + $fieldLen + 1;
@@ -195,7 +214,7 @@ sub _execSql {
     my $sqlFH;
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
-        $cmd = qq{$self->{psqlCmd} << "EOF"
+        $cmd = qq{$self->{psqlCmd} 2>&1 << "EOF"
                $sql
                EOF
               };
@@ -212,7 +231,7 @@ sub _execSql {
 
         my $psqlCmd = $self->{psqlCmd};
         $psqlCmd =~ s/'/"/g;
-        $cmd = qq{$psqlCmd -f "$fname"};
+        $cmd = qq{$psqlCmd -f "$fname" 2>&1};
     }
 
     if ($isVerbose) {
@@ -232,11 +251,9 @@ sub _execSql {
     if ($parseData) {
         return $self->_parseOutput( $output, $isVerbose );
     }
-    elsif ($isVerbose) {
-        print($output);
+    else {
+        return $self->_checkError( $output, $isVerbose );
     }
-
-    return ( undef, undef, $status );
 }
 
 #运行查询sql，返回行数组, 如果vebose=1，打印行数据
@@ -254,7 +271,7 @@ sub query {
     return ( $status, $rows );
 }
 
-#运行非查询的sql，如果verbose=1，直接输出sqlplus执行的日志
+#运行非查询的sql，如果verbose=1，直接输出psql执行的日志
 sub do {
     my ( $self, %args ) = @_;
     my $sql       = $args{sql};
