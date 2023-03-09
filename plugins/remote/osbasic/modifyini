@@ -141,6 +141,7 @@ sub main {
             }
         }
         else {
+            $hasError = 1;
             print("ERROR: File $filePath not exists.\n");
         }
     }
