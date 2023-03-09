@@ -24,7 +24,7 @@
                     }
                 ]
             },
-            "defaultValue": "Up"
+            "defaultValue": "up"
         },
         {
             "opt": "host",
@@ -33,7 +33,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "10"
+            "defaultValue": "127.0.0.1"
         },
         {
             "opt": "port",
@@ -42,7 +42,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "10"
+            "defaultValue": "22"
         },
         {
             "opt": "timeout",
@@ -60,7 +60,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "10"
+            "defaultValue": "30"
         }
     ],
     "output": []
