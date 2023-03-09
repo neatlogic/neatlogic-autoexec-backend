@@ -25,7 +25,8 @@
                 ]
             },
             "defaultValue": "Up"
-        }, {
+        },
+        {
             "opt": "host",
             "name": "IP地址",
             "help": "检测的目标地址",
