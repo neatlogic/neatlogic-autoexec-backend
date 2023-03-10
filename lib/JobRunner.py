@@ -308,11 +308,11 @@ class JobRunner:
                 endStatus = NodeStatus.succeed
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
-                elif phaseStatus.ignoreFailNodeCount > 0:
-                    endStatus = NodeStatus.completed
                 elif self.context.goToStop or self.context.hasFailNodeInGlobal:
                     if not nodesFactory.cleared:
                         endStatus = NodeStatus.paused
+                elif phaseStatus.ignoreFailNodeCount > 0:
+                    endStatus = NodeStatus.completed
             else:
                 self.context.hasFailNodeInGlobal = True
                 endStatus = NodeStatus.failed
