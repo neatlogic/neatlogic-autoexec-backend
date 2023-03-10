@@ -1,7 +1,7 @@
 {
     "opDesc": "从JSON对象中抽取文本",
-    "opType": "runner",
-    "typeName": "BASIC",
+    "opType": "native",
+    "typeName": "NATIVE",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
