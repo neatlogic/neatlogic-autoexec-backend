@@ -34,27 +34,32 @@ sub parseInIContent {
     my $sectionKeysMap = {};
 
     my $sectionName = '.';
-    my $comment     = '';
+    $sectionKeysMap->{'.'} = [];
+    push( @sectionNames, '.' );
+    $sectionsMap->{'.'} = { data => {}, comment => '' };
+
+    my $comment = '';
 
     $content =~ s/\\n/\n/sg;
     foreach my $line ( split( /\n/, $content ) ) {
+        my $orgLine = $line;
         $line =~ s/^\s*|\s*$//g;
         if ( $line eq '' or $line =~ /^#/ or $line =~ /^;/ ) {
-            $comment = $comment . $line . "\n";
+            $comment = $comment . $orgLine . "\n";
             next;
         }
 
         my $thisComment = $comment;
 
-        if ( $line =~ /\[\s*([^\]]+)\s*\]/ ) {
+        if ( $line =~ /^\[\s*([^\]]+)\s*\]$/ ) {
             $sectionName = $1;
             $sectionKeysMap->{$sectionName} = [];
             push( @sectionNames, $sectionName );
             $sectionsMap->{$sectionName} = { data => {}, comment => $thisComment };
         }
         else {
-            my $sectionData   = $sectionsMap->{$sectionName}->{data};
             my $keysInSection = $sectionKeysMap->{$sectionName};
+            my $sectionData   = $sectionsMap->{$sectionName}->{data};
             my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
             $sectionData->{$key} = { line => $line, value => $val, comment => $thisComment };
             push( @$keysInSection, $key );
