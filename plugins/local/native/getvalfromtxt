@@ -1,0 +1,52 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import sys
+import argparse
+import re
+
+import AutoExecUtils
+
+
+def extractByRegexp(txtData, regexpTxt):
+    if not isinstance(txtData, str):
+        txtData = str(txtData)
+
+    extractVal = None
+    regexp = re.compile(regexpTxt, re.IGNORECASE | re.MULTILINE)
+    matchObj = re.search(regexp, txtData)
+    if matchObj:
+        extractVal = matchObj.group(0)
+    else:
+        print('ERROR: Data:{} not match regular expression:{}\n'.foramt(txtData, regexpTxt))
+
+    return extractVal
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--txtval', default='', help='Text to be extract')
+    parser.add_argument('--selector', default='', help='Field selector')
+
+    exitCode = 0
+
+    args = parser.parse_args()
+    val = args.txtval
+    fieldSelector = args.selector
+
+    if exitCode == 0 and val is not None:
+        try:
+            extractVal = extractByRegexp(val, fieldSelector)
+
+            if extractVal is None:
+                exitCode = 2
+            else:
+                print('Extrace value:{}'.format(extractVal))
+        except Exception as err:
+            exitCode = 3
+            print('ERROR: Extract output value failed, {}'.format(err))
+
+    out = {'extractTxtVal': extractVal}
+    AutoExecUtils.saveOutput(out)
+
+    sys.exit(exitCode)
