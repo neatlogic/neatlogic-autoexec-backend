@@ -309,8 +309,7 @@ class JobRunner:
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
                 elif self.context.goToStop or self.context.hasFailNodeInGlobal:
-                    if not nodesFactory.cleared:
-                        endStatus = NodeStatus.paused
+                    endStatus = NodeStatus.paused
                 elif phaseStatus.ignoreFailNodeCount > 0:
                     endStatus = NodeStatus.completed
             else:
@@ -318,8 +317,6 @@ class JobRunner:
                 endStatus = NodeStatus.failed
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
-                # elif phaseStatus.isPausing:
-                #     endStatus = NodeStatus.paused
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end='')
