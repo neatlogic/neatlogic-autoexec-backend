@@ -546,6 +546,7 @@ class JobRunner:
                     loopCount = self.context.maxExecSecs / 10
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
+                        print("INFO: Inform server group:%d round:%d ended.\n" % (groupNo, roundNo), end='')
                         self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
                         if phaseStatus.waitGlobalRoundFin(10):
                             break
