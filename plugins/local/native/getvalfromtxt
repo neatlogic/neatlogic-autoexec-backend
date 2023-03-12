@@ -46,7 +46,8 @@ if __name__ == "__main__":
             exitCode = 3
             print('ERROR: Extract output value failed, {}'.format(err))
 
-    out = {'extractTxtVal': extractVal}
-    AutoExecUtils.saveOutput(out)
+    if extractVal is not None:
+        out = {'extractTxtVal': extractVal}
+        AutoExecUtils.saveOutput(out)
 
     sys.exit(exitCode)
