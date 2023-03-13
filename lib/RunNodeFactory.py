@@ -128,8 +128,16 @@ class RunNodeFactory:
                 if servicePort is not None and servicePort != '':
                     protocolPort = servicePort
 
+            if protocol.startswith('tagent.'):
+                nodeObj['protocol'] = 'tagent'
+                protocolPortTxt = protocol[7:]
+                if protocolPortTxt != '':
+                    protocolPort = int(protocolPortTxt)
+
             if protocolPort is None or protocolPort == '':
                 protocolPort = nodeObj.get('port', 0)
+
+            nodeObj['protocolPort'] = protocolPort
         else:
             self.cleared = True
             nodeObj = None

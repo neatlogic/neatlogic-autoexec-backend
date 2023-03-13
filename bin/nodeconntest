@@ -62,6 +62,12 @@ if __name__ == "__main__":
         if servicePort is not None and servicePort != '':
             protocolPort = servicePort
 
+    if protocol.startswith('tagent.'):
+        protocol = 'tagent'
+        protocolPortTxt = protocol[7:]
+        if protocolPortTxt != '':
+            protocolPort = int(protocolPortTxt)
+
     if protocolPort is None or protocolPort == '':
         protocolPort = nodeInfo.get('port', 0)
 
