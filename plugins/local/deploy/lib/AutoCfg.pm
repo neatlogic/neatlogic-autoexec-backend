@@ -516,7 +516,8 @@ sub replacePlaceHolder {
         $count++;
     }
 
-    if ( $fileName !~ /\.$env\./i and ( scalar(%$insCfgMap) > 0 or scalar(%$packCfgMap) > 0 ) ) {
+    #if ( $fileName !~ /\.$env\./i and ( scalar(%$insCfgMap) > 0 or scalar(%$packCfgMap) > 0 ) ) {
+    if ( $fileName !~ /\.$env\./i ) {
         my $content;
         $orgCfgName =~ s/\.$suffix$//i;
         my $orgFileName1 = $orgFileName;
