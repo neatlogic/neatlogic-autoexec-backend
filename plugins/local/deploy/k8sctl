@@ -6,7 +6,6 @@ use JSON;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
-use Data::Dumper;
 
 use AutoExecUtils;
 
