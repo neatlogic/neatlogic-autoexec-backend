@@ -18,21 +18,21 @@ def usage():
 
 def pingCheck(host, timeOut):
     second = ping(dest_addr=host, timeout=timeOut)
-    second = round(second, 4)
     if second:
+        second = round(second, 4)
         print('INFO: {} is reachable, took {} second'.format(host, second))
         return (True, None)
     else:
         loopCount = 2
         while not second and loopCount > 0:
             second = ping(dest_addr=host, timeout=5)
-            second = round(second, 4)
             loopCount = loopCount - 1
         if second:
+            second = round(second, 4)
             print('INFO: {} is reachable, took {} second'.format(host, second))
             return (True, None)
         else:
-            errorMsg = 'ERROR: {} is unreachable, took {} second'.format(host, second)
+            errorMsg = 'ERROR: {} is unreachable.'.format(host)
             print(errorMsg)
             return (False, errorMsg)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             exit(1)
 
         errMsg = None
-        print("INFO: Try to ping {}.\n".format(nodeInfo['host']))
+        print("INFO: Try to ping {}...".format(nodeInfo['host']))
         startTime = time.time()
 
         port = nodeInfo.get('port')

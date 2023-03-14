@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "docker-args",
-    "description": "在主机上运行Docker镜像",
+    "description": "在远程OS上运行Docker镜像",
     "enabled": 1,
     "option": [{
             "opt": "name",

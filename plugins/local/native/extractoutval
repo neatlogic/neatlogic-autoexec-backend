@@ -2,13 +2,10 @@
 # -*- coding:UTF-8 -*-
 
 import os
-from ssl import create_default_context
 import sys
-import fcntl
 import json
 import argparse
 import re
-import datetime
 
 import AutoExecUtils
 
@@ -66,7 +63,9 @@ def extractByJsonSelector(txtData, selectorTxt):
         extractVal = curObj
 
         if extractVal is not None:
-            if not isinstance(extractVal, str):
+            if isinstance(extractVal, list):
+                extractVal = ','.join(extractVal)
+            elif not isinstance(extractVal, str):
                 extractVal = json.dumps(extractVal)
             print(' = %s\n' % (extractVal), end='')
     else:
@@ -158,11 +157,14 @@ if __name__ == "__main__":
             if dbclient is not None:
                 dbclient.close()
     else:
-        try:
-            val = json.loads(outputKey)
-        except Exception as err:
-            exitCode = 1
-            print("ERROR: Value:%s to be extract is not in json format." % (outputKey))
+        if selectorType == 'JsonObject':
+            try:
+                val = json.loads(outputKey)
+            except Exception as err:
+                exitCode = 1
+                print("ERROR: Value:%s to be extract is not in json format." % (outputKey))
+        else:
+            val = outputKey
 
     if exitCode == 0 and val is not None:
         try:
