@@ -306,32 +306,24 @@ sub main {
         $image = $prevImage;
     }
 
-    my $reqObj;
-    if( $action eq 'restart' ){
-        $reqObj = {
-            spec => {
-                template => {
-                    metadata => {
-                        annotations => {
-                            'kubectl.kubernetes.io/restartedAt' => strftime( "%Y-%m-%d %H:%M:%S", localtime() )
+    my $reqObj = {
+        spec => {
+            template => {
+                spec => {
+                    containers => [
+                        {
+                            name  => $name,
+                            image => $image
                         }
-                    }
+                    ]
                 }
             }
-        };
-    }else{
-        $reqObj = {
-            spec => {
-                template => {
-                    spec => {
-                        containers => [
-                            {
-                                name  => $name,
-                                image => $image
-                            }
-                        ]
-                    }
-                }
+        }
+    };
+    if ( $action eq 'restart' ) {
+        $reqObj->{spec}->{metadata} = {
+            annotations => {
+                'kubectl.kubernetes.io/restartedAt' => strftime( "%Y-%m-%d %H:%M:%S", localtime() )
             }
         };
     }
