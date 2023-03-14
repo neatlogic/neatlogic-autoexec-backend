@@ -6,7 +6,7 @@ use JSON;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
-use Data::Dumper;
+use POSIX qw(strftime);
 
 use AutoExecUtils;
 
@@ -306,26 +306,41 @@ sub main {
         $image = $prevImage;
     }
 
-    my $reqObj = {
-        spec => {
-            template => {
-                spec => {
-                    containers => [
-                        {
-                            name  => $name,
-                            image => $image
+    my $reqObj;
+    if( $action eq 'restart' ){
+        $reqObj = {
+            spec => {
+                template => {
+                    metadata => {
+                        annotations => {
+                            'kubectl.kubernetes.io/restartedAt' => strftime( "%Y-%m-%d %H:%M:%S", localtime() )
                         }
-                    ]
+                    }
                 }
             }
-        }
-    };
+        };
+    }else{
+        $reqObj = {
+            spec => {
+                template => {
+                    spec => {
+                        containers => [
+                            {
+                                name  => $name,
+                                image => $image
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+    }
     my $hasError = 0;
     my $queryData;
     my $req = to_json($reqObj);
 
     #TODO: 增加其他的action，譬如：del、put等
-    if ( $action eq 'patch' or $action eq 'rollback' ) {
+    if ( $action eq 'patch' or $action eq 'rollback' or $action eq 'restart' ) {
         $client->PATCH( $url, $req );
     }
     else {
