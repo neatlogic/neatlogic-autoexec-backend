@@ -6,6 +6,7 @@ use JSON;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
+use Data::Dumper;
 
 use AutoExecUtils;
 
@@ -183,6 +184,43 @@ sub getRollUpdateInfo {
     return $data;
 }
 
+sub getPrevVerImage {
+    my ( $client, $url, $image ) = @_;
+    my $preVerImage;
+    my $causeBy = '';
+    $client->GET($url);
+    if ( $client->responseCode() ne 200 ) {
+        my $errMsg = $client->responseContent();
+        $causeBy = "ERROR: Rollback application $image failed, cause by:$errMsg\n";
+    }
+    else {
+        my $content    = $client->responseContent();
+        my $data       = from_json($content);
+        my $rsItems    = $data->{'items'};
+        my $imgMap     = {};
+        my $currentGen = 0;
+        foreach my $rs (@$rsItems) {
+            my $img;
+            my $containers = $rs->{'spec'}->{'template'}->{'spec'}->{'containers'};
+            my $gen        = int( $rs->{'metadata'}->{'generation'} );
+            foreach my $ct (@$containers) {
+                $img = $ct->{'image'};
+                if ( $image eq $img ) {
+                    $currentGen = $gen;
+                    last;
+                }
+            }
+            $imgMap->{$gen} = $img;
+        }
+        my $prevGen = $currentGen + 1;
+        $preVerImage = $imgMap->{$prevGen};
+        if ( not defined($preVerImage) or $preVerImage eq '' ) {
+            $causeBy = "ERROR: Rollback application $image failed, cause by: can not found history version.\n";
+        }
+    }
+    return ( $preVerImage, $causeBy );
+}
+
 sub main {
     my ( $host, $apiPort, $managerPort, $token );
     my ( $image, $name, $namespace, $deployment, $action, $timeout );
@@ -250,6 +288,24 @@ sub main {
     my $baseUrl = "https://$host:$apiPort";
     my $url     = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
 
+    my $client = REST::Client->new();
+    $client->addHeader( "Authorization", "Bearer $token" );
+    $client->addHeader( 'Content-Type',  'application/strategic-merge-patch+json' );
+    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
+    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+
+    if ( $action eq 'rollback' ) {
+        my $replicasetsUrl = "$baseUrl/apis/apps/v1/namespaces/$namespace/replicasets?labelSelector=app%3D$name";
+        my ( $prevImage, $causeBy ) = getPrevVerImage( $client, $replicasetsUrl, $image );
+        if ( not defined($prevImage) or $prevImage eq '' ) {
+            print($causeBy);
+            exit(1);
+        }
+
+        #用上个版本镜像回退
+        $image = $prevImage;
+    }
+
     my $reqObj = {
         spec => {
             template => {
@@ -266,17 +322,10 @@ sub main {
     };
     my $hasError = 0;
     my $queryData;
-    my $req    = to_json($reqObj);
-    my $client = REST::Client->new();
-
-    $client->addHeader( "Authorization", "Bearer $token" );
-    $client->addHeader( 'Content-Type',  'application/strategic-merge-patch+json' );
-
-    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
-    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+    my $req = to_json($reqObj);
 
     #TODO: 增加其他的action，譬如：del、put等
-    if ( $action eq 'patch' ) {
+    if ( $action eq 'patch' or $action eq 'rollback' ) {
         $client->PATCH( $url, $req );
     }
     else {
@@ -359,7 +408,7 @@ sub main {
                 print("INFO: Desired pod: $desired, Pending pod: $pending, Running pod: $running, Failed pod: $failed .\n");
                 if ( $desired == ( $running + $failed ) ) {
                     print("INFO: Desired pod: $desired, Running pod: $running, Failed pod: $failed.\n");
-                    if( $failed > 0 ){
+                    if ( $failed > 0 ) {
                         $hasError = 1;
                     }
                     last;

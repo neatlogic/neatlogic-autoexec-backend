@@ -9,7 +9,7 @@ use strict;
 package AutoExecUtils;
 
 use POSIX;
-use Data::Dumper;
+#use Data::Dumper;
 use IO::File;
 use Encode;
 use Encode::Guess;
