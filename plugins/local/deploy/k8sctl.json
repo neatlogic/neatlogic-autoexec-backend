@@ -56,6 +56,14 @@
                     {
                         "text": "更新",
                         "value": "patch"
+                    },
+                    {
+                        "text": "回滚",
+                        "value": "rollback"
+                    },
+                    {
+                        "text": "重启",
+                        "value": "restart"
                     }
                 ]
             },
