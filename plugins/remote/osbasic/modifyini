@@ -154,7 +154,7 @@ sub main {
     my ( $sectionNames, $sectionKeysMap, $sectionsMap ) = parseInIContent($content);
     if ( $noSection == 0 ) {
         my $topSetionKeys = $sectionKeysMap->{'.'};
-        if ($topSetionKeys) {
+        if ( scalar(@$topSetionKeys) > 0 ) {
             $hasError = 1;
             print("ERROR: Invalid format of ini config to be used to modified the config file.\n");
             print("ERROR: Key value not inclued in section.\n");
