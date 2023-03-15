@@ -37,7 +37,7 @@ sub new {
 
     my $mysqlCmd;
     if ( defined( $args{mysqlHome} ) and -d $args{mysqlHome} ) {
-        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t";
+        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t --connect-expired-password";
     }
     else {
         $mysqlCmd = 'mysql -t';
