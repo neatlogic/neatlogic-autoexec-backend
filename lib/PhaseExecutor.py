@@ -10,8 +10,8 @@ import threading
 from threading import Thread
 import traceback
 import queue
-import copy
 import NodeStatus
+import OutputStore
 
 
 class PhaseWorker(threading.Thread):
@@ -145,8 +145,18 @@ class PhaseExecutor:
         self.workers = workers
         return workers
 
+    def _loadLocalOutput(self):
+        phaseStatus = self.context.phases[self.phaseName]
+        if phaseStatus.localOutput is None:
+            localNode = {'resourceId': 0, 'host': 'local', 'port': 0}
+            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
+            output = loalOutStore.loadOutput()
+            phaseStatus.localOutput = output
+
     def execute(self):
         phaseStatus = self.phaseStatus
+        self._loadLocalOutput()
+
         worker_threads = []
         try:
             # 删除当前阶段的waitInput标记文件

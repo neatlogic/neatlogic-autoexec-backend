@@ -478,6 +478,8 @@ class RunNode:
         localOutput = self._getLocalOutput()
         if localOutput is not None:
             self.localOutput = localOutput
+            if self.resourceId == 0:
+                self.output = localOutput
 
         if 'nodeEnv' not in self.localOutput:
             self.localOutput['nodeEnv'] = {}
