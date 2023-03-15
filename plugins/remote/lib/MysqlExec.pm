@@ -40,7 +40,7 @@ sub new {
         $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t --connect-expired-password";
     }
     else {
-        $mysqlCmd = 'mysql -t';
+        $mysqlCmd = 'mysql -t --connect-expired-password';
     }
 
     if ( defined( $args{socketPath} ) and -e $args{socketPath} ) {
