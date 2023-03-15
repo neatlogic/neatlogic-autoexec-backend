@@ -219,16 +219,6 @@ class Interpreter(object):
         if operandsCount == 2:
             operand1 = self.resolveExp(nodeEnv, AST[1])
             operand2 = self.resolveExp(nodeEnv, AST[2])
-            if isinstance(operand1, str):
-                if re.match(r'^\d+$', operand1):
-                    operand1 = int(operand1)
-                if re.match(r'^[\d\.]+$', operand1):
-                    operand1 = float(operand1)
-            if isinstance(operand2, str):
-                if re.match(r'^\d+$', operand2):
-                    operand2 = int(operand2)
-                if re.match(r'^[\d\.]+$', operand2):
-                    operand2 = float(operand2)
 
             result = op(operand1, operand2)
         else:
