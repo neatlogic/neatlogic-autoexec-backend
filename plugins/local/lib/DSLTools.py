@@ -36,9 +36,18 @@ class BinaryOperation(Operation):
         op = tokens[0][1].lower()
         operands = tokens[0][0::2]
 
-        self.AST = [op]
-        for oper in operands:
-            self.AST.append(oper)
+        myAST = [op]
+        myAST.append(operands[0])
+        myAST.append(operands[1])
+        for operand in operands[2:]:
+            operation = Operation()
+            operation.AST_TYPE = 'OPERATOR'
+            operation.AST = myAST
+            myAST = [op]
+            myAST.append(operation)
+            myAST.append(operand)
+
+        self.AST = myAST
 
 
 class FieldTerm(object):
