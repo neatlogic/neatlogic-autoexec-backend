@@ -64,14 +64,11 @@ sub main {
     print("INFO: Execute->$cmd\n");
 
     my $ret = system($cmd );
-
     if ( $ret eq 0 ) {
-        print("INFO: Register success!\n");
+        print("INFO: Remove local $image success!\n");
     }
     else {
-        $hasError = $hasError + 1;
-        print("INFO: $image is not exist!\n");
-        return $hasError;
+        print("INFO: Local $image is not exist!\n");
     }
 
     $cmd = "docker pull $image_name";
@@ -79,11 +76,11 @@ sub main {
     $ret = system($cmd );
 
     if ( $ret eq 0 ) {
-        print("INFO: Pull image success!\n");
+        print("INFO: Pull image $image_name success!\n");
     }
     else {
         $hasError = $hasError + 1;
-        print("ERROR: Pull image failed.\n");
+        print("ERROR: Pull image $image_name failed.\n");
         return $hasError;
     }
 

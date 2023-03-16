@@ -74,9 +74,9 @@ sub main {
     }
     else {
         print("ERROR: Docker run failed.\n");
-        return ($ret);
     }
-
+    
+    return ($ret);
 }
 
 exit main();
