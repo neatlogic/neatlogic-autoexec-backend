@@ -84,9 +84,9 @@ sub main {
         $storeType = 'dockerHub';
     }
 
-    $project = lc($project);
-    $image   = lc($image);
-    $tagname = lc($tagname);
+    $project = $project;
+    $image   = $image;
+    $tagname = $tagname;
 
     my $hasError = 0;
 
