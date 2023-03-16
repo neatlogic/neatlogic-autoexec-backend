@@ -27,7 +27,7 @@
                     }
                 ]
             },
-            "defaultValue": "dockerHub"
+            "defaultValue": "harbor"
         },
         {
             "opt": "registry",
