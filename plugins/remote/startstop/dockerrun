@@ -16,12 +16,14 @@ sub usage {
 }
 
 sub main {
-    my ( $name, $image, $tagName );
+    my ( $name, $image, $tagName, $ports , $network );
 
     GetOptions(
         'name:s'    => \$name,
         'image:s'   => \$image,
-        'tagname:s' => \$tagName
+        'tagname:s' => \$tagName,
+        'ports:s' => \$ports,
+        'network:s' => \$network
     );
 
     if (   not defined($name)
@@ -43,7 +45,20 @@ sub main {
         print("INFO: Container $name is not running.\n");
     }
 
-    my $cmd = "docker run -d --name=$name @ARGV $image:$tagName";
+    my $cmd = "sudo docker run -d --name=$name";
+    if( defined($ports) and  $ports ne '' ){
+        my @portList = split( /,/, $ports );
+        foreach my $port (@portList){
+            if( $port ne '' ){
+                $cmd = $cmd + " -p $port";
+            }
+        }
+    }
+
+    if( defined($network) and  $network ne '' ){
+        $cmd = $cmd + " --net $network";
+    }
+    $cmd = $cmd + " @ARGV $image:$tagName";
 
     #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
     print("INFO: Execute->$cmd\n");
