@@ -33,8 +33,12 @@ sub main {
         usage();
     }
 
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
+
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
-    my $cmd = "docker rm -vf $name";
+    my $cmd = "sudo docker rm -vf $name";
     print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
 
