@@ -37,10 +37,18 @@ sub new {
 
     my $mysqlCmd;
     if ( defined( $args{mysqlHome} ) and -d $args{mysqlHome} ) {
-        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t --connect-expired-password";
+        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t";
     }
     else {
-        $mysqlCmd = 'mysql -t --connect-expired-password';
+        $mysqlCmd = 'mysql -t';
+    }
+
+    my $helpTxt = `$mysqlCmd --help`;
+    if ( $helpTxt =~ /get-server-public-key/ ) {
+        $mysqlCmd = "$mysqlCmd --get-server-public-key";
+    }
+    if ( $helpTxt =~ /connect-expired-password/ ) {
+        $mysqlCmd = "$mysqlCmd --connect-expired-password";
     }
 
     if ( defined( $args{socketPath} ) and -e $args{socketPath} ) {
