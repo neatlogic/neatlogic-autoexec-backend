@@ -54,15 +54,15 @@ sub main {
         my @portList = split( /,/, $ports );
         foreach my $port (@portList){
             if( $port ne '' ){
-                $cmd = $cmd + " -p $port";
+                $cmd = $cmd . " -p $port";
             }
         }
     }
 
     if( defined($network) and  $network ne '' ){
-        $cmd = $cmd + " --net $network";
+        $cmd = $cmd . " --net $network";
     }
-    $cmd = $cmd + " @ARGV $image:$tagname";
+    $cmd = $cmd . " @ARGV $image:$tagname";
 
     #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
     print("INFO: Execute->$cmd\n");
