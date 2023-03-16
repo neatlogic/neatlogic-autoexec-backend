@@ -38,9 +38,18 @@ class BinaryOperation(Operation):
         op = tokens[0][1].lower()
         operands = tokens[0][0::2]
 
-        self.AST = [op]
-        for oper in operands:
-            self.AST.append(oper)
+        myAST = [op]
+        myAST.append(operands[0])
+        myAST.append(operands[1])
+        for operand in operands[2:]:
+            operation = Operation()
+            operation.AST_TYPE = 'OPERATOR'
+            operation.AST = myAST
+            myAST = [op]
+            myAST.append(operation)
+            myAST.append(operand)
+
+        self.AST = myAST
 
 
 def Parser(ruleTxt):
@@ -63,6 +72,7 @@ def Parser(ruleTxt):
         (OR, 2, pp.opAssoc.LEFT, BinaryOperation)
     ]
 
+    ruleExp = pp.Forward()
     ruleExp = pp.infixNotation(variable | value, oplist)
 
     try:
@@ -210,13 +220,15 @@ class Interpreter(object):
             operand1 = self.resolveExp(nodeEnv, AST[1])
             operand2 = self.resolveExp(nodeEnv, AST[2])
             if isinstance(operand1, str):
-                operand2 = str(operand2)
-            else:
-                if isinstance(operand2, str):
-                    if re.match(r'^\d+$', operand2):
-                        operand2 = float(operand2)
-                    else:
-                        operand2 = int(operand2)
+                if re.match(r'^\d+$', operand1):
+                    operand1 = int(operand1)
+                if re.match(r'^[\d\.]+$', operand1):
+                    operand1 = float(operand1)
+            if isinstance(operand2, str):
+                if re.match(r'^\d+$', operand2):
+                    operand2 = int(operand2)
+                if re.match(r'^[\d\.]+$', operand2):
+                    operand2 = float(operand2)
 
             result = op(operand1, operand2)
         else:
@@ -234,7 +246,8 @@ if __name__ == "__main__":
     print("Test...")
     print("----------------------------\n")
 
-    rule = '$MYVAR == "hello" and (-f "/tmp/test.txt" or -d "/tmp/tt")'
+    rule = '$MYVAR == "hot_standby" and (-f "/tmp/test.txt" or -d "/tmp/tt")'
+    rule = '$WAL_LEVEL == "replica" and ($WAL_LEVEL == "hot_standby" and $WAL_LEVEL == "logical")'
     ast = Parser(rule)
     if isinstance(ast, Operation):
         print(json.dumps(ast.asList(), sort_keys=True, indent=4, ensure_ascii=False))
