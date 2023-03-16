@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use Getopt::Long;
 
 use DeployUtils;
 
@@ -26,7 +27,7 @@ sub usage {
 sub main {
     my ( $isHelp,   $envPath, $version, $buildNo );
     my ( $username, $password );
-    my ( $image,    $tagname, $registry, $project );
+    my ( $image,    $tagname, $registry, $project, $storeType );
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -38,7 +39,8 @@ sub main {
         'image=s'    => \$image,
         'tagname=s'  => \$tagname,
         'user=s'     => \$username,
-        'password=s' => \$password
+        'password=s' => \$password,
+        'storeType=s' => \$storeType
     );
 
     usage() if ( defined($isHelp) );
@@ -78,32 +80,37 @@ sub main {
         print("ERROR: Must defined option: --image and --tagname and --project.\n");
     }
 
+    if ( not defined($storeType) or $storeType eq '' ) {
+        $storeType = 'dockerHub';
+    }
+
     $project = lc($project);
     $image   = lc($image);
     $tagname = lc($tagname);
 
     my $hasError = 0;
 
-    # check if project exists on remote repository
-    print("INFO: Checking if project exists...\n");
+    if ($storeType eq 'harbor'){
+        # check if project exists on remote repository
+        print("INFO: Checking if project exists...\n");
+        my $projectCheckCmd     = "curl -s -u '$username:$password' -X GET --header  'Accept: application/json' 'http://$registry/api/projects?name=$project'";
+        my $projectCheckRes     = $deployUtils->getPipeOut($projectCheckCmd);
+        my $projectCheckResLine = $projectCheckRes->[0];
+        if ( $projectCheckResLine eq "null" ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Project $project not exists on $registry.\n");
 
-    my $projectCheckCmd     = "curl -s -u '$username:$password' -X GET --header  'Accept: application/json' 'http://$registry/api/projects?name=$project'";
-    my $projectCheckRes     = $deployUtils->getPipeOut($projectCheckCmd);
-    my $projectCheckResLine = $projectCheckRes->[0];
-    if ( $projectCheckResLine eq "null" ) {
-        $hasError = $hasError + 1;
-        print("ERROR: Project $project not exists on $registry.\n");
-
-        # 自动创建project
-        # my $projectCreateCmd = "curl -s -u '$username:$password' -X POST --header  'Content-Type:application/json' 'http://$registry/api/projects' -d '{\"project_name\": \"$project\"}'";
-        # my $projectCreateRet = $deployUtils->execmd($projectCreateCmd);
-        # if ( $projectCreateRet eq 0 ) {
-        #     print("INFO: Create project $project on $registry success!\n");
-        # }
-        # else {
-        #     print("ERROR: Create project $project on $registry failed!\n");
-        #     exit(-1);
-        # }
+            # 自动创建project
+            # my $projectCreateCmd = "curl -s -u '$username:$password' -X POST --header  'Content-Type:application/json' 'http://$registry/api/projects' -d '{\"project_name\": \"$project\"}'";
+            # my $projectCreateRet = $deployUtils->execmd($projectCreateCmd);
+            # if ( $projectCreateRet eq 0 ) {
+            #     print("INFO: Create project $project on $registry success!\n");
+            # }
+            # else {
+            #     print("ERROR: Create project $project on $registry failed!\n");
+            #     exit(-1);
+            # }
+        }
     }
 
     if ( $hasError > 0 ) {
@@ -135,10 +142,10 @@ sub main {
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {
-        $hasError = $hasError + 1;
         print("INFO: Push image $registry/$project/$image:$tagname success!\n");
     }
     else {
+        $hasError = $hasError + 1;
         print("ERROR: Push image $registry/$project/$image:$tagname failed!\n");
     }
 
