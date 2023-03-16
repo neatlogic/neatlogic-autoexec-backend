@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use Getopt::Long;
 
 use DeployUtils;
 use DeployLock;
@@ -26,7 +27,7 @@ sub main {
     my ( $image,   $tagname, $registry, $project );
 
     GetOptions(
-        'h|help'     => $isHelp,
+        'h|help'     => \$isHelp,
         'envpath=s'  => \$envPath,
         'version=s'  => \$version,
         'buildno=s'  => \$buildNo,
@@ -70,9 +71,9 @@ sub main {
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $distDir = $dirInfo->{distribute};
 
-    $project = lc($project);
-    $image   = lc($image);
-    $tagname = lc($tagname);
+    $project = $project;
+    $image   = $image;
+    $tagname = $tagname;
 
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::READ);

@@ -7,7 +7,29 @@
     "defaultProfile": "docker-args",
     "description": "把在Runner节点生成到本机仓库的docker镜像推送到远程镜像仓库",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
+            "opt": "storeType",
+            "name": "仓库类型",
+            "help": "仓库类型，默认为官方Docker Hub",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "官方DockerHub",
+                        "value": "dockerHub"
+                    },
+                    {
+                        "text": "私有harbor",
+                        "value": "harbor"
+                    }
+                ]
+            },
+            "defaultValue": "harbor"
+        },
+        {
             "opt": "registry",
             "name": "镜像仓库",
             "help": "镜像仓库地址，例如：10.0.1.13:8080",
