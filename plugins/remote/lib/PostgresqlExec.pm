@@ -59,16 +59,16 @@ sub new {
         $psqlCmd = "$psqlCmd -U '$args{username}'";
     }
 
-    if ( defined( $args{password} ) ) {
+    if ( defined( $args{password} ) and $args{password} ne '' ) {
         $ENV{PGPASSWORD} = $args{password};
     }
 
     my $paramsLine = '';
-    if ( defined( $args{dbname} ) ) {
+    if ( defined( $args{dbname} ) and $args{dbname} ne '' ) {
         $paramsLine = "$paramsLine dbname=$args{dbname}";
     }
 
-    if ( defined( $args{sslmode} ) ) {
+    if ( defined( $args{sslmode} ) and $args{sslmode} ne '' ) {
         $paramsLine = "$paramsLine sslmode=$args{sslmode}";
     }
 
