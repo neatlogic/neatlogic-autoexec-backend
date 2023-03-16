@@ -4,6 +4,7 @@ use FindBin;
 use Getopt::Long;
 
 use DeployUtils;
+use AutoExecUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -84,9 +85,9 @@ sub main {
         $storeType = 'dockerHub';
     }
 
-    $project = $project;
-    $image   = $image;
-    $tagname = $tagname;
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
 
     my $hasError = 0;
 
@@ -137,16 +138,17 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
-    my $cmd = "sudo docker push $registry/$project/$image:$tagname";
+    my $image_name = "$registry/$project/$image:$tagname";
+    my $cmd = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {
-        print("INFO: Push image $registry/$project/$image:$tagname success!\n");
+        print("INFO: Push image $image_name success!\n");
     }
     else {
         $hasError = $hasError + 1;
-        print("ERROR: Push image $registry/$project/$image:$tagname failed!\n");
+        print("ERROR: Push image $image_name failed!\n");
     }
 
     if ( $hasError == 0 ) {
@@ -155,6 +157,10 @@ sub main {
     else {
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
+
+    my $out = {};
+    $out->{image_name} = $image_name;
+    AutoExecUtils::saveOutput($out);
 
     return $hasError;
 }
