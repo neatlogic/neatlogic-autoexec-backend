@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use Getopt::Long;
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --name ContanerName --image ImageName --tag TagName\n");
+    print("Usage: $pname --name ContanerName --image ImageName --tag tagname\n");
     print("\n");
     print("       --name:    ContainerName\n");
     print("       --image:   Image name\n");
@@ -16,23 +17,29 @@ sub usage {
 }
 
 sub main {
-    my ( $name, $image, $tagName );
+    my ( $name, $image, $tagname, $ports , $network );
 
     GetOptions(
         'name:s'    => \$name,
         'image:s'   => \$image,
-        'tagname:s' => \$tagName
+        'tagname:s' => \$tagname,
+        'ports:s' => \$ports,
+        'network:s' => \$network
     );
 
     if (   not defined($name)
         or not defined($image)
-        or not defined($tagName) )
+        or not defined($tagname) )
     {
         usage();
     }
 
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
+
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
-    my $cmd = "docker rm -vf $name";
+    my $cmd = "sudo docker rm -vf $name";
     print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
 
@@ -43,7 +50,20 @@ sub main {
         print("INFO: Container $name is not running.\n");
     }
 
-    my $cmd = "docker run -d --name=$name @ARGV $image:$tagName";
+    my $cmd = "sudo docker run -d --name=$name";
+    if( defined($ports) and  $ports ne '' ){
+        my @portList = split( /,/, $ports );
+        foreach my $port (@portList){
+            if( $port ne '' ){
+                $cmd = $cmd + " -p $port";
+            }
+        }
+    }
+
+    if( defined($network) and  $network ne '' ){
+        $cmd = $cmd + " --net $network";
+    }
+    $cmd = $cmd + " @ARGV $image:$tagname";
 
     #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
     print("INFO: Execute->$cmd\n");

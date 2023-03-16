@@ -37,8 +37,8 @@
         },
         {
             "opt": "tagname",
-            "name": "镜像名",
-            "help": "Docker的镜像名，默认保持与模块同名",
+            "name": "标签名",
+            "help": "Docker的镜像标签名，默认保持为：环境名-版本号",
             "type": "text",
             "required": "true",
             "validate": "",

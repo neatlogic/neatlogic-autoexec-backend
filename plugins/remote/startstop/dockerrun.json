@@ -27,12 +27,30 @@
         },
         {
             "opt": "tagname",
-            "name": "镜像名",
-            "help": "Docker的镜像名，默认保持与模块同名",
+            "name": "标签名",
+            "help": "Docker的镜像标签名，默认保持为：环境名-版本号",
             "type": "text",
             "required": "true",
             "validate": "",
             "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "ports",
+            "name": "暴露端口",
+            "help": "Docker的镜像暴露的端口，格式：操作系统端:容器端口,多个逗号分隔。如：3308:3306,8099:8080",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "network",
+            "name": "网络名称",
+            "help": "Docker的镜像绑定网络，如：neatlogic",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "argument": {

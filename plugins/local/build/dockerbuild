@@ -5,6 +5,7 @@ use Getopt::Long;
 
 use DeployUtils;
 use DeployLock;
+use AutoExecUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -71,9 +72,9 @@ sub main {
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $distDir = $dirInfo->{distribute};
 
-    $project = $project;
-    $image   = $image;
-    $tagname = $tagname;
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
 
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::READ);
@@ -88,17 +89,23 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
-    my $cmd = "sudo docker build -t $registry/$project/$image:$tagname $distDir/app";
+    my $image_name = "$registry/$project/$image:$tagname";
+    my $cmd = "sudo docker build -t $image_name $distDir/app";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
     if ( $ret eq 0 ) {
-        print("INFO: Build success.\n");
+        print("INFO: Build $image_name success.\n");
     }
     else {
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
-        print("ERROR: Build failed.\n");
+        print("ERROR: Build $image_name failed.\n");
     }
+    
+    my $out = {};
+    $out->{image_name} = $image_name;
+    AutoExecUtils::saveOutput($out);
+    
     return $ret;
 }
 

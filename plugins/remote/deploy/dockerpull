@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 use strict;
 use FindBin;
+use Getopt::Long;
 
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --registry Registry --project Project --image ImageName --tag TagName\n");
+    print("Usage: $pname --registry Registry --project Project --image ImageName --tag tagname\n");
     print("              --username UserName --password Password");
     print("\n");
     print("       --registry: Docker registry\n");
@@ -19,7 +20,7 @@ sub usage {
 }
 
 sub main {
-    my ( $registry, $project, $image, $tagName );
+    my ( $registry, $project, $image, $tagname );
     my ( $username, $password );
 
     my $pname = $FindBin::Script;
@@ -28,17 +29,20 @@ sub main {
         'registry=s' => \$registry,
         'project=s'  => \$project,
         'image=s'    => \$image,
-        'tagname=s'  => \$tagName,
+        'tagname=s'  => \$tagname,
         'user=s'     => \$username,
         'password=s' => \$password
     );
 
-    if ( not defined($image) or not defined($registry) or not defined($tagName) ) {
+    if ( not defined($image) or not defined($registry) or not defined($tagname) ) {
         usage();
     }
 
-    my $hasError = 0;
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
 
+    my $hasError = 0;
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
     
     # login first
@@ -55,7 +59,8 @@ sub main {
         return $hasError;
     }
 
-    my $cmd = "docker rmi $registry/$project/$image:$tagName $image:$tagName";
+    my $image_name = "$registry/$project/$image:$tagname";
+    my $cmd = "docker rmi $image_name $image:$tagname";
     print("INFO: Execute->$cmd\n");
 
     my $ret = system($cmd );
@@ -69,7 +74,7 @@ sub main {
         return $hasError;
     }
 
-    $cmd = "docker pull $registry/$project/$image:$tagName";
+    $cmd = "docker pull $image_name";
     print("INFO: Execute->$cmd\n");
     $ret = system($cmd );
 
@@ -83,16 +88,16 @@ sub main {
     }
 
     #my $cmd = "docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H$host:$h_port tag $registry/library/$image:$env-$version $image:$env-$version";
-    $cmd = "docker tag $registry/$project/$image:$tagName $image:$tagName";
+    $cmd = "docker tag $image_name $image:$tagname";
     print("INFO: Execute->$cmd\n");
     $ret = system($cmd );
 
     if ( $ret eq 0 ) {
-        print("INFO: Tag image success.\n");
+        print("INFO: Tag image $image_name to $image:$tagname success.\n");
     }
     else {
         $hasError = $hasError + 1;
-        print("ERROR: Tag image failed.\n");
+        print("ERROR: Tag image $image_name to $image:$tagname failed.\n");
     }
 
     return $hasError;
