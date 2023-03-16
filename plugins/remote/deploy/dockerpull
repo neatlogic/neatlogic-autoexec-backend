@@ -46,8 +46,8 @@ sub main {
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
     
     # login first
-    my $loginCmd      = "echo  '$password' |docker login $registry --username '$username' --password-stdin";
-    my $loginCmdPrint = "echo  '******' |docker login $registry --username '$username' --password-stdin";
+    my $loginCmd      = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
+    my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
     print("INFO: Execute->$loginCmdPrint\n");
     my $loginRet = system($loginCmd);
     if ( $loginRet eq 0 ) {
