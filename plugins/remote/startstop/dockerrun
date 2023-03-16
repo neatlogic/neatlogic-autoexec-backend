@@ -5,7 +5,7 @@ use FindBin;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname --name ContanerName --image ImageName --tag TagName\n");
+    print("Usage: $pname --name ContanerName --image ImageName --tag tagname\n");
     print("\n");
     print("       --name:    ContainerName\n");
     print("       --image:   Image name\n");
@@ -16,19 +16,19 @@ sub usage {
 }
 
 sub main {
-    my ( $name, $image, $tagName, $ports , $network );
+    my ( $name, $image, $tagname, $ports , $network );
 
     GetOptions(
         'name:s'    => \$name,
         'image:s'   => \$image,
-        'tagname:s' => \$tagName,
+        'tagname:s' => \$tagname,
         'ports:s' => \$ports,
         'network:s' => \$network
     );
 
     if (   not defined($name)
         or not defined($image)
-        or not defined($tagName) )
+        or not defined($tagname) )
     {
         usage();
     }
@@ -62,7 +62,7 @@ sub main {
     if( defined($network) and  $network ne '' ){
         $cmd = $cmd + " --net $network";
     }
-    $cmd = $cmd + " @ARGV $image:$tagName";
+    $cmd = $cmd + " @ARGV $image:$tagname";
 
     #docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H $host:$h_port logs -f $name";
     print("INFO: Execute->$cmd\n");
