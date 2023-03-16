@@ -34,7 +34,6 @@ sub main {
         usage();
     }
 
-    $project = lc($project);
     $image   = lc($image);
     $tagname = lc($tagname);
 
@@ -75,7 +74,7 @@ sub main {
     else {
         print("ERROR: Docker run failed.\n");
     }
-    
+
     return ($ret);
 }
 
