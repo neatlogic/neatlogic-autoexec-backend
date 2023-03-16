@@ -69,14 +69,14 @@ sub new {
         }
     }
 
-    if ( defined( $args{username} ) ) {
+    if ( defined( $args{username} ) and $args{username} ne '' ) {
         $mysqlCmd = "$mysqlCmd -u'$args{username}'";
     }
     else {
         $mysqlCmd = "$mysqlCmd -uroot";
     }
 
-    if ( defined( $args{password} ) ) {
+    if ( defined( $args{password} ) and $args{password} ne '' ) {
         my $out = `$mysqlCmd -e 'set names utf8;' 2>&1`;
 
         #探测到需要用密码才设置密码
@@ -85,7 +85,7 @@ sub new {
         }
     }
 
-    if ( defined( $args{dbname} ) ) {
+    if ( defined( $args{dbname} ) and $args{dbname} ne '' ) {
         $mysqlCmd = "$mysqlCmd -D'$args{dbname}'";
     }
 
