@@ -33,6 +33,24 @@
             "required": "true",
             "validate": "",
             "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "ports",
+            "name": "暴露端口",
+            "help": "Docker的镜像暴露的端口，格式：操作系统端:容器端口,多个逗号分隔。如：3308:3306,8099:8080",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "network",
+            "name": "网络名称",
+            "help": "Docker的镜像绑定网络，如：neatlogic",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "argument": {
