@@ -1264,11 +1264,25 @@ class RunNode:
 
                             self._saveOpOutput(op)
                     try:
-                        if ret == 0 or self.context.failReserveDir == 0:
+                        if ret == 0:
                             if tagent.agentOsType == 'windows':
                                 tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
                             else:
                                 tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
+                        else:
+                            if self.context.failReserveDir == 0:
+                                if tagent.agentOsType == 'windows':
+                                    tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
+                                else:
+                                    tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
+                            else:
+                                try:
+                                    if tagent.agentOsType == 'windows':
+                                        tagent.execCmd(self.username, 'rd /s /q "{}/output.json"'.format(remoteRoot))
+                                    else:
+                                        tagent.execCmd(self.username, "rm -rf {}/output.json".format(remoteRoot))
+                                except:
+                                    pass
                     except Exception as ex:
                         self.writeNodeLog('WARN: Remote remove directory {} failed {}\n'.format(remoteRoot, ex))
             except Exception as ex:
@@ -1554,8 +1568,16 @@ class RunNode:
                             self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
                             ret = 2
                     try:
-                        if ret == 0 or self.context.failReserveDir == 0:
-                            ssh.exec_command("rm -rf {}".format(remoteRoot, remoteRoot))
+                        if ret == 0:
+                            ssh.exec_command("rm -rf {}".format(remoteRoot))
+                        else:
+                            if self.context.failReserveDir == 0:
+                                ssh.exec_command("rm -rf {}".format(remoteRoot))
+                            else:
+                                try:
+                                    ssh.exec_command("rm -rf {}/output.json".format(remoteRoot))
+                                except:
+                                    pass
                     except Exception as ex:
                         self.writeNodeLog("WARN: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
 
