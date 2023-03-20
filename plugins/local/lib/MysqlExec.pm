@@ -43,7 +43,14 @@ sub new {
         $mysqlCmd = 'mysql -t';
     }
 
-    my $helpTxt = `$mysqlCmd --help`;
+    my $helpTxt = '';
+    if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
+        $helpTxt = `su - $osUser -c "$mysqlCmd --help"`;
+    }
+    else {
+        $helpTxt = `$mysqlCmd --help`;
+    }
+
     if ( $helpTxt =~ /get-server-public-key/ ) {
         $mysqlCmd = "$mysqlCmd --get-server-public-key";
     }
