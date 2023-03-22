@@ -221,8 +221,7 @@ sub release {
 
         print("INFO: Sync '$buildPath' to $runnerIp:'$buildPath'.\n");
         $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dataPath' && rsync" '$buildPath' $runnerIp:'$dataPath/'};
-        print("DEBUG: $syncCmd\n");
-        $ret = system($syncCmd);
+        $ret     = system($syncCmd);
         if ( $ret != 0 ) {
             print("ERROR: Sync '$buildPath' to $runnerIp:'$buildPath/' failed.\n");
             last;
