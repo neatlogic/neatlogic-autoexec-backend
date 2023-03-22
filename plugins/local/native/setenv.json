@@ -43,6 +43,26 @@
                 ]
             },
             "defaultValue": "node"
+        },
+        {
+            "opt": "hidden",
+            "name": "是否隐藏",
+            "help": "如果变量存放的是敏感信息，请设置为隐藏",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         }
     ]
 }

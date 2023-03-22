@@ -6,7 +6,26 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "导出全局环境变量，提供给外部流程工具引用",
-    "option": [],
+    "option": [{
+        "opt": "hidden",
+        "name": "是否隐藏",
+        "help": "如果变量存放的是敏感信息，请设置为隐藏",
+        "type": "select",
+        "required": "true",
+        "validate": "",
+        "dataSource": {
+            "dataList": [{
+                    "text": "否",
+                    "value": "0"
+                },
+                {
+                    "text": "是",
+                    "value": "1"
+                }
+            ]
+        },
+        "defaultValue": "0"
+    }],
     "argument": {
         "name": "导出变量名",
         "help": "需要导出的环境变量名",

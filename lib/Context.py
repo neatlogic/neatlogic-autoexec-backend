@@ -248,11 +248,11 @@ class Context(VContext.VContext):
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not save envirment {}={}, {}'.format(name, value, ex))
 
-    def exportEnv(self, name):
+    def exportEnv(self, name, isHidden=0):
         value = ''
         if name in os.environ:
             value = os.environ[name]
-        self.serverAdapter.exportEnv(name, value)
+        self.serverAdapter.exportEnv(name, value, isHidden=0)
 
     def getNodesFilePath(self, phaseName=None, groupNo=None):
         nodesFilePath = None

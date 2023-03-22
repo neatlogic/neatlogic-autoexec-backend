@@ -689,15 +689,16 @@ class RunNode:
                             self.writeNodeLog(msgLine + "\n")
                         elif op.opSubName == 'export':
                             for arg in op.arguments:
+                                isHidden = op.options.get('hidden', 0)
                                 envName = arg.get('value', '')
                                 if envName != '' and os.getenv(envName) is not None:
                                     self.writeNodeLog('INFO: Execute -> native/{} {}\n'.format(op.opSubName, envName))
-                                    self.context.exportEnv(envName)
+                                    self.context.exportEnv(envName, isHidden)
                         elif op.opSubName == 'setenv':
                             envName = op.options['name']
                             envValue = op.options['value']
                             envScope = op.options['scope']
-                            isHidden = op.options.get('isHidden', 0)
+                            isHidden = op.options.get('hidden', 0)
                             self.writeNodeLog('INFO: Execute -> native/{} {}={} scope:{}\n'.format(op.opSubName, envName, envValue, envScope))
                             matchObjs = re.search(r'\$\(([^\)]+)\)', envValue)
                             if matchObjs is not None:
@@ -708,7 +709,7 @@ class RunNode:
                                     envValue = result.stdout.decode().strip()
                             if envScope == 'global':
                                 self.context.setEnv(envName, envValue, isHidden)
-                                self.context.exportEnv(envName)
+                                self.context.exportEnv(envName, isHidden)
                                 self.writeNodeLog('INFO: Set global envrionment:{}={}\n'.format(envName, envValue))
                             else:
                                 op.hasNodeEnv = True

@@ -751,7 +751,7 @@ class ServerAdapter:
         except:
             raise
 
-    def exportEnv(self, name, value):
+    def exportEnv(self, name, value, isHidden=0):
         if self.context.devMode:
             return {}
 
@@ -759,6 +759,7 @@ class ServerAdapter:
             'jobId': self.context.jobId,
             'envName': name,
             'envValue': value,
+            'isHidden': isHidden,
             'time': time.time(),
             'passThroughEnv': self.context.passThroughEnv
         }
