@@ -227,7 +227,7 @@ class Context(VContext.VContext):
         except Exception as ex:
             raise AutoExecError.AutoExecError('Can not load envirment, {}'.format(ex))
 
-    def setEnv(self, name, value):
+    def setEnv(self, name, value, isHidden=0):
         os.environ[name] = value
 
         db = self.db
@@ -235,6 +235,7 @@ class Context(VContext.VContext):
         pk = {'jobId': self.jobId, 'name': name}
         outData = {}
         outData['value'] = value
+        outData['isHidden'] = isHidden
         outData['createDate'] = datetime.datetime.utcnow()
         outData.update(pk)
 

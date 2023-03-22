@@ -219,7 +219,7 @@ class RunNode:
             self.updateNodeStatus(NodeStatus.failed)
 
         self.localOutput = {'nodeEnv': {}}
-        self.output = {'nodeEnv': {}}
+        self.output = {'nodeEnv': {}, 'hiddenNodeEnv': {}}
         self.input = {}
         self.statusPhaseDir = '{}/status/{}'.format(self.runPath, phaseName)
         if not os.path.exists(self.statusPhaseDir):
@@ -697,6 +697,7 @@ class RunNode:
                             envName = op.options['name']
                             envValue = op.options['value']
                             envScope = op.options['scope']
+                            isHidden = op.options.get('isHidden', 0)
                             self.writeNodeLog('INFO: Execute -> native/{} {}={} scope:{}\n'.format(op.opSubName, envName, envValue, envScope))
                             matchObjs = re.search(r'\$\(([^\)]+)\)', envValue)
                             if matchObjs is not None:
@@ -706,7 +707,7 @@ class RunNode:
                                     result = subprocess.run('echo ' + envValue, shell=True, stdout=subprocess.PIPE)
                                     envValue = result.stdout.decode().strip()
                             if envScope == 'global':
-                                self.context.setEnv(envName, envValue)
+                                self.context.setEnv(envName, envValue, isHidden)
                                 self.context.exportEnv(envName)
                                 self.writeNodeLog('INFO: Set global envrionment:{}={}\n'.format(envName, envValue))
                             else:
@@ -714,6 +715,9 @@ class RunNode:
                                 self.nodeEnv[envName] = envValue
                                 persistenceEnv = self.output['nodeEnv']
                                 persistenceEnv[envName] = envValue
+                                if isHidden == 1:
+                                    hiddenEnv = self.output['hiddenNodeEnv']
+                                    hiddenEnv[envName] = 1
                                 self.writeNodeLog('INFO: Set node envrionment:{}={}\n'.format(envName, envValue))
                         elif op.opSubName == 'updategparam':
                             varName = op.options['name']
@@ -738,7 +742,7 @@ class RunNode:
                             if op.preOp is not None and op.preOp.status is not None:
                                 if envScope == 'global':
                                     self.context.setEnv(envName, op.preOp.status)
-                                    self.context.exportEnv(envName)
+                                    self.context.exportEnv(envName, isHidden)
                                     self.writeNodeLog('INFO: Set global envariable:{}={}\n'.format(envName, op.preOp.status))
                                 else:
                                     op.hasNodeEnv = True
