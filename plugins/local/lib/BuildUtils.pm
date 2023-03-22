@@ -211,34 +211,39 @@ sub release {
         symlink( "../../build/$buildNo", $buildLnk );
     }
 
+    my $syncCmd;
     my $ret = 0;
-    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression = no -x';
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
     while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
         if ( $runnerId eq $myRunnerId ) {
             next;
         }
 
-        print("INFO: Sync '$buildPath' to $runnerIp::'$buildRoot/'.\n");
-        $ret = system("rsync -avrR --delete '$buildPath' $runnerIp::'$buildRoot/'");
+        print("INFO: Sync '$buildPath' to $runnerIp:'$buildPath'.\n");
+        $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dataPath' && rsync" '$buildPath' $runnerIp:'$dataPath/'};
+        print("DEBUG: $syncCmd\n");
+        $ret = system($syncCmd);
         if ( $ret != 0 ) {
-            print("ERROR: Sync '$buildPath' to $runnerIp::'$buildRoot/' failed.\n");
+            print("ERROR: Sync '$buildPath' to $runnerIp:'$buildPath/' failed.\n");
             last;
         }
 
         if ( -d "$outerCompileRoot/build" ) {
-            print("INFO: Sync '$outerCompileRoot/build' to $runnerIp::'$outerCompileRoot/'\n");
-            $ret = system("rsync -avrR --delete '$outerCompileRoot/build' $runnerIp::'$outerCompileRoot/'");
+            print("INFO: Sync '$outerCompileRoot/build' to $runnerIp:'$outerCompileRoot/build'\n");
+            $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dataPath' && rsync" '$outerCompileRoot/build' $runnerIp:'$dataPath/'};
+            $ret     = system($syncCmd);
             if ( $ret != 0 ) {
-                print("ERROR: Sync '$outerCompileRoot/build' to $runnerIp::'$outerCompileRoot/' failed.\n");
+                print("ERROR: Sync '$outerCompileRoot/build' to $runnerIp:'$outerCompileRoot/build' failed.\n");
                 last;
             }
         }
 
         if ( defined($envName) and $envName ne '' and -l $buildLnk ) {
-            print("ERROR: Copy '$buildLnk' to $runnerIp::'$envBuildRoot/'.\n");
-            $ret = system("rsync -avR '$buildLnk' $runnerIp::'$envBuildRoot/'");
+            print("INFO: Copy '$buildLnk' to $runnerIp:'$envBuildRoot/'.\n");
+            $syncCmd = qq{rsync -avR --rsync-path="mkdir -p '$dataPath' && rsync" '$buildLnk' $runnerIp:'$dataPath/'};
+            $ret     = system($syncCmd);
             if ( $ret != 0 ) {
-                print("ERROR: Copy '$buildLnk' to $runnerIp::'$envBuildRoot/' failed.\n");
+                print("ERROR: Copy '$buildLnk' to $runnerIp:'$envBuildRoot/' failed.\n");
                 last;
             }
         }
@@ -260,21 +265,23 @@ sub release2Env {
     my $cwd = getcwd();
     chdir($dataPath);
 
+    my $dataPath     = $buildEnv->{DATA_PATH};
     my $dirInfo      = DeployUtils->getDataDirStruct( $buildEnv, 1 );
     my $envBuildRoot = $dirInfo->{distribute};
 
     my $ret = 0;
-    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression = no -x';
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
     while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
         if ( $runnerId eq $myRunnerId ) {
             next;
         }
 
         if ( defined($envName) and $envName ne '' and -d $envBuildRoot ) {
-            print("ERROR: Sync '$envBuildRoot/' to $runnerIp::'$envBuildRoot/'.\n");
-            $ret = system("rsync -avrR --delete '$envBuildRoot/' $runnerIp::'$envBuildRoot/'");
+            print("INFO: Sync '$envBuildRoot/' to $runnerIp:'$envBuildRoot/'.\n");
+            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dataPath' && rsync" '$envBuildRoot/' $runnerIp:'$dataPath/'};
+            $ret = system($syncCmd);
             if ( $ret != 0 ) {
-                print("ERROR: Sync '$envBuildRoot/' to $runnerIp::'$envBuildRoot/' failed.\n");
+                print("ERROR: Sync '$envBuildRoot/' to $runnerIp:'$envBuildRoot/' failed.\n");
                 last;
             }
         }

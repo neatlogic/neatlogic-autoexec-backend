@@ -107,7 +107,7 @@ sub auth {
 }
 
 sub new {
-    my ( $type, $host, $port, $password, $readTimeout, $writeTimeout, $agentCharset ) = @_;
+    my ( $type, $host, $port, $password, $readTimeout, $writeTimeout, $execTimeout, $agentCharset ) = @_;
 
     $| = 1;
 
@@ -124,16 +124,23 @@ sub new {
     $self->{host}        = $host;
     $self->{port}        = $port;
     $self->{password}    = $password;
+
     if ( not defined($readTimeout) ) {
-        $readTimeout = 0;
+        $readTimeout = 360;
     }
     $self->{readTimeout} = int($readTimeout);
 
     if ( not defined($writeTimeout) ) {
-        $writeTimeout = 0;
+        $writeTimeout = 10;
     }
     $self->{writeTimeout} = $writeTimeout;
-    $self->{encrypt}      = 0;
+
+    if ( not defined($execTimeout) ) {
+        $execTimeout = 86400;
+    }
+    $self->{execTimeout} = $execTimeout;
+
+    $self->{encrypt} = 0;
 
     if ( defined($agentCharset) ) {
         $self->{agentCharset} = $agentCharset;
@@ -579,9 +586,12 @@ sub execCmd {
         $envJson = to_json($env);
     }
 
-    my $rexecTimeout = $self->{execTimeout};
+    my $rexecTimeout = 86400;
     if ( defined($execTimeout) and $execTimeout > 0 ) {
         $rexecTimeout = $execTimeout;
+    }
+    elsif ( defined( $self->{execTimeout} ) ) {
+        $rexecTimeout = $self->{execTimeout};
     }
 
     my $socket = $self->getConnection($isVerbose);
