@@ -114,21 +114,23 @@ sub deployInit {
             $deployEnv->{ $pathLevels[$i] . '_NAME' } = $pathNames[$i];
         }
 
-        my $dataPath   = "$autoexecHome/data/verdata/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
-        my $prjRoot    = "$dataPath/workspace";
-        my $prjPath    = "$prjRoot/project";
-        my $verRoot    = "$dataPath/artifact/$version";
-        my $distRoot   = "$verRoot/env";
-        my $mirrorRoot = "$dataPath/mirror";
-        my $buildRoot  = "$dataPath/artifact/$version/build";
+        my $verDataRoot = "$autoexecHome/data/verdata";
+        my $dataPath    = "$verDataRoot/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
+        my $prjRoot     = "$dataPath/workspace";
+        my $prjPath     = "$prjRoot/project";
+        my $verRoot     = "$dataPath/artifact/$version";
+        my $distRoot    = "$verRoot/env";
+        my $mirrorRoot  = "$dataPath/mirror";
+        my $buildRoot   = "$dataPath/artifact/$version/build";
 
-        $deployEnv->{TOOLS_PATH}  = "$autoexecHome/tools";
-        $deployEnv->{DATA_PATH}   = $dataPath;
-        $deployEnv->{VER_ROOT}    = $verRoot;
-        $deployEnv->{PRJ_ROOT}    = $prjRoot;
-        $deployEnv->{PRJ_PATH}    = $prjPath;
-        $deployEnv->{DIST_ROOT}   = $distRoot;
-        $deployEnv->{MIRROR_ROOT} = $mirrorRoot;
+        $deployEnv->{VERDATA_ROOT} = $verDataRoot;
+        $deployEnv->{TOOLS_PATH}   = "$autoexecHome/tools";
+        $deployEnv->{DATA_PATH}    = $dataPath;
+        $deployEnv->{VER_ROOT}     = $verRoot;
+        $deployEnv->{PRJ_ROOT}     = $prjRoot;
+        $deployEnv->{PRJ_PATH}     = $prjPath;
+        $deployEnv->{DIST_ROOT}    = $distRoot;
+        $deployEnv->{MIRROR_ROOT}  = $mirrorRoot;
 
         $deployEnv->{BUILD_ROOT} = $buildRoot;
         if ( defined($buildNo) ) {
