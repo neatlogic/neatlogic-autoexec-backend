@@ -5,6 +5,7 @@
 """
 
 import os
+import re
 from filelock import FileLock
 import json
 from shutil import copyfile
@@ -78,18 +79,19 @@ class Context(VContext.VContext):
         self.opt = params.get('opt', {})
         self.globalOpt = params.get('globalOpt', {})
 
-        jobOpt = params.get('opt', None)
-        if jobOpt is not None:
-            for k, v in jobOpt.items():
-                if isinstance(v, str):
-                    if v[0:5] == '{RC4}':
-                        plainTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
-                        encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-                        if v[5:] == encryptTxt:
-                            jobOpt[k] = plainTxt
-                    os.environ[k] = v
-                else:
-                    os.environ[k] = json.dumps(v, ensure_ascii=False)
+        jobOpt = params.get('opt', {})
+        for k, v in jobOpt.items():
+            v = self.resolveJobOpt(v)
+            jobOpt[k] = v
+            if isinstance(v, str):
+                if v[0:5] == '{RC4}':
+                    plainTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
+                    encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+                    if v[5:] == encryptTxt:
+                        jobOpt[k] = plainTxt
+                os.environ[k] = v
+            else:
+                os.environ[k] = json.dumps(v, ensure_ascii=False)
 
         procEnv = params.get('environment', {})
         for k, v in procEnv.items():
@@ -266,3 +268,39 @@ class Context(VContext.VContext):
             phase = PhaseStatus.PhaseStatus(phaseName)
             phase.nodesFilePath = self.getNodesFilePath()
             self.phases[phaseName] = phase
+
+    def resolveJobOpt(self, optValue):
+        if optValue is None or optValue == '':
+            return optValue
+
+        if not isinstance(optValue, str):
+            optValue = json.dumps(optValue, ensure_ascii=False)
+
+        matchObjs = re.findall(r'(\$\{\s*([^\{\}]+)\s*\}|\$(\w+))', optValue)
+        for matchObj in matchObjs:
+            # 如果参数引用的是当前作业的参数（变量格式不是${opId.varName}），则从全局参数表中获取参数值
+            # matchObj = re.match(r'^\s*\$\{\s*([^\{\}]+)\s*\}\s*$', optValue)
+            isSimpleVar = False
+            exp = matchObj[0]
+            paramName = matchObj[1]
+            if paramName == '':
+                isSimpleVar = True
+                paramName = matchObj[2]
+
+            val = None
+
+            nativeRefMap = self.opt
+            globalOptMap = self.globalOpt
+            if paramName in nativeRefMap:
+                val = nativeRefMap[paramName]
+            elif paramName in globalOptMap:
+                val = globalOptMap[paramName]
+            if val is not None:
+                if not isinstance(val, str):
+                    val = json.dumps(val, ensure_ascii=False)
+                if isSimpleVar:
+                    optValue = re.sub('\$%s(?=\W|$)' % (paramName), val, optValue)
+                else:
+                    optValue = optValue.replace(exp, val)
+
+        return optValue
