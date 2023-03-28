@@ -1,0 +1,69 @@
+{
+    "opName": "Websphere Server巡检",
+    "opType": "target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "websphere Server服务器巡检",
+    "option": [
+        {
+            "opt": "serverPort",
+            "name": "巡检Server端口",
+            "help": "巡检Server服务器端口",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "websphere账号",
+            "help": "websphere console账号",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "websphere账号密码",
+            "help": "websphere console账号密码",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+
+    },
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
+}

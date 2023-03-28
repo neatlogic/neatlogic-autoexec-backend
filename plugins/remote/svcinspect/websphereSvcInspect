@@ -1,0 +1,390 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(uname);
+use Getopt::Long;
+use IO::File;
+use File::Temp;
+use JSON;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --serverPort <server port > --username <console username> --password <console password> .\n");
+    exit(-1);
+}
+
+
+sub getCheckCommand {
+    my ($serverName) = @_;
+    my $str = qq{
+import re
+import traceback
+import sys
+try:
+    serverName = "$serverName"
+    perfStr=AdminControl.queryNames( 'type=Perf,process=%s,*' % serverName)
+    print('Wsadmin connection success.')
+except:
+    print('Wsadmin connection failed.')
+};
+    return $str;
+}
+
+sub getInspectCommand{
+    my ($serverName) = @_;
+    my $str = qq{
+#-*- coding:utf-8 -*-
+import re
+import traceback
+import sys
+
+def transferTime( time ):
+    time = int( time )
+    hour = 0
+    day = 0
+    minute = 0
+    if(time > 0 ):
+        minute = time % 60
+    time = time / 60
+    if(time > 0 ):
+        hour = time % 60
+    time = time / 24
+    if( time > 0 ):
+        day = time % 24
+    timeStr = ''
+    if(day > 0):
+        timeStr = str(day) +'day'
+    if(hour > 0):
+        timeStr = timeStr + str(hour) +'hour'
+    timeStr = timeStr + str(minute) + 'minute'
+    return timeStr
+
+data = {}
+try:
+    serverName = "$serverName"
+    perfStr=AdminControl.queryNames( 'type=Perf,process=%s,*' % serverName)
+    perfObj=AdminControl.makeObjectName( perfStr)
+    srvrStr=AdminControl.queryNames( 'type=Server,name=%s,*' % serverName )
+    srvrObj=AdminControl.makeObjectName( srvrStr)
+    stats=AdminControl.invoke_jmx( perfObj, 'getStatsObject', [ srvrObj,java.lang.Boolean('true')], ['javax.management.ObjectName', 'java.lang.Boolean'])
+    ############ JVM ############################################
+    jvm = {};
+    jvmStats = stats.getStats('jvmRuntimeModule') ;
+    heapSize = jvmStats.getStatistic('HeapSize')
+    freeMemory = jvmStats.getStatistic('FreeMemory')
+    usedMemory = jvmStats.getStatistic('UsedMemory')
+    processCpuUsage = jvmStats.getStatistic('ProcessCpuUsage')
+    waitsForLockCount = jvmStats.getStatistic('WaitsForLockCount')
+    waitForLockTime = jvmStats.getStatistic('WaitForLockTime')
+    threadStartedCount = jvmStats.getStatistic('ThreadStartedCount')
+    threadEndedCount = jvmStats.getStatistic('ThreadEndedCount')
+    upTime = jvmStats.getStatistic('UpTime')
+    if heapSize == None :
+        heapSize = '0'
+    else :
+        heapSize = int(heapSize.getCurrent())/1024
+    if usedMemory == None :
+        usedMemory = '0'
+    else :
+        usedMemory = int(usedMemory.getCount())/1024
+    if usedMemory == None and heapSize != None  :
+        useRate = '0'
+    else :
+        useRate = round((float(usedMemory) / float(heapSize) )* 100,2)
+    if freeMemory == None :
+        freeMemory = '0'
+    else :
+        freeMemory = str(freeMemory.getCount()) + 'MB'
+    if upTime == None :
+        upTime = '0'
+    else :
+        upTime = transferTime(upTime.getCount())
+    if processCpuUsage == None :
+        processCpuUsage = '0%'
+    else :
+        processCpuUsage = str(processCpuUsage.getCount()) + '%'  
+    availableSize = heapSize - usedMemory
+    heapSize = str(heapSize) + 'MB'
+    usedMemory = str(usedMemory) + 'MB'
+    availableSize = str(availableSize) + 'MB'
+    useRate = str(useRate) + '%'
+    if waitsForLockCount == None :
+        waitsForLockCount = '0'
+    else :
+        waitsForLockCount = waitsForLockCount.getCount()
+
+    if waitForLockTime == None :
+        waitForLockTime = '0'
+    else :
+        waitForLockTime =str(waitForLockTime.getCount())+'m'
+    if threadStartedCount == None :
+        threadStartedCount = '0'
+    else :
+        threadStartedCount = threadStartedCount.getCount()
+    if threadEndedCount == None :
+        threadEndedCount = '0'
+    else :
+        threadEndedCount = threadEndedCount.getCount()
+    jvm['heapSize']=heapSize
+    jvm['freeMemory']=freeMemory
+    jvm['usedMemory']=usedMemory
+    jvm['availableSize']=availableSize
+    jvm['useRate']=useRate
+    jvm['processCpuUsage']=processCpuUsage
+    jvm['waitsForLockCount']=waitsForLockCount
+    jvm['waitForLockTime']=waitForLockTime
+    jvm['threadStartedCount']=threadStartedCount
+    jvm['threadEndedCount']=threadEndedCount
+    jvm['upTime']=upTime
+    data['jvm']=jvm
+    ############ webcontainnner ########################
+    webcontainner ={}
+    webcontainnerStats = stats.getStats('threadPoolModule').getStats('WebContainer')
+    if webcontainnerStats != None :
+        createCount = webcontainnerStats.getStatistic('CreateCount')
+        destroyCount = webcontainnerStats.getStatistic('DestroyCount')
+        activeCount = webcontainnerStats.getStatistic('ActiveCount')
+        poolSize = webcontainnerStats.getStatistic('PoolSize')
+        percentMaxed = webcontainnerStats.getStatistic('PercentMaxed')
+        declaredThreadHungCount = webcontainnerStats.getStatistic('DeclaredThreadHungCount')
+        clearedThreadHangCount = webcontainnerStats.getStatistic('ClearedThreadHangCount')
+        concurrentHungThreadCount = webcontainnerStats.getStatistic('ConcurrentHungThreadCount')
+        activeTime = webcontainnerStats.getStatistic('ActiveTime')
+        if createCount != None :
+            createCount = str(createCount.getCount())
+        else :
+            createCount = '0'
+        if destroyCount != None :
+            destroyCount = str(destroyCount.getCount())
+        else :
+            destroyCount = '0'
+        if activeCount != None :
+            activeCount = str(activeCount.getCurrent())
+        else :
+            activeCount = '0'
+
+        if poolSize != None :
+            poolSize = str(poolSize.getCurrent())
+        else :
+            poolSize = '0'
+
+        if percentMaxed != None :
+            percentMaxed = str(percentMaxed.getCurrent())
+        else :
+            percentMaxed = '0'
+
+        if declaredThreadHungCount != None :
+            declaredThreadHungCount = str(declaredThreadHungCount.getCount())
+        else :
+            declaredThreadHungCount = '0'
+
+        if clearedThreadHangCount != None :
+            clearedThreadHangCount = str(clearedThreadHangCount.getCount())
+        else :
+            clearedThreadHangCount = '0'
+
+        if concurrentHungThreadCount != None :
+            concurrentHungThreadCount = str(concurrentHungThreadCount.getCurrent())
+        else :
+            concurrentHungThreadCount = '0'
+
+        if activeTime != None :
+            activeTime = str(activeTime.getCount())
+        else :
+            activeTime = '0'
+
+        webcontainner['createCount']=createCount
+        webcontainner['destroyCount']=destroyCount
+        webcontainner['activeCount']=activeCount
+        webcontainner['poolSize']=poolSize
+        webcontainner['percentMaxed']=percentMaxed
+        webcontainner['declaredThreadHungCount']=declaredThreadHungCount
+        webcontainner['clearedThreadHangCount']=clearedThreadHangCount
+        webcontainner['concurrentHungThreadCount']=concurrentHungThreadCount
+        webcontainner['activeTime']=activeTime
+        data['webcontainner'] = webcontainner
+    ############ datasource ################################
+    jdbcList = []
+    jdbcValid = {}
+    if stats.getStats('connectionPoolModule') != None :
+        for driver in stats.getStats('connectionPoolModule').subCollections():
+            for datasource in stats.getStats('connectionPoolModule').getStats(driver.getName()).subCollections():
+                jdbc = {}
+            if jdbcValid.has_key(datasource.getName()) :
+                continue
+            WaitingThreadCount = datasource.getStatistic('WaitingThreadCount').getCurrent()
+            poolSize = datasource.getStatistic('PoolSize').getCurrent()
+            freePoolSize = datasource.getStatistic('FreePoolSize').getCurrent()
+            percentUsed = datasource.getStatistic('PercentUsed').getCurrent()
+            CreateCount = datasource.getStatistic('CreateCount').getCount()
+            jdbc['poolSize'] = str(poolSize)
+            jdbc['WaitingThreadCount'] = str(WaitingThreadCount)
+            jdbc['freePoolSize'] = str(freePoolSize )
+            jdbc['percentUsed'] = str(percentUsed )
+            jdbc['CreateCount'] = str(CreateCount )
+            jdbc['name'] = datasource.getName()
+            jdbcValid[datasource.getName()] = datasource.getName()
+            jdbcList.append(jdbc)
+        data['jdbcList'] = jdbcList
+except:
+    traceback.print_exc()
+print data
+};
+    return $str;
+}
+
+sub str2Json {
+    my ($dataStr) = @_;
+    my $s = index( $dataStr, "{" );
+    my $e = rindex( $dataStr, "}" );
+    my $data = {};
+    if ( $e > $s ) {
+        $dataStr = substr( $dataStr, $s, $e - $s + 1 );
+        # 去掉转码
+        $dataStr =~ s/u'/'/g;
+        $dataStr =~ s/'/"/g;
+        $data = decode_json($dataStr);
+    }
+    return $data;
+}
+sub makeTempPy {
+    my ($cmd) = @_;
+    my $tempFH = File::Temp->new( UNLINK => 0, SUFFIX => '.py' );
+    my $fname = $tempFH->filename;
+    print $tempFH ($cmd);
+    $tempFH->close();
+    return $fname;
+}
+
+sub runCmd{
+    my ($wsadminBin , $cmd , $host , $port , $username , $password ) = @_;
+    my $filename = makeTempPy($cmd);
+    my $cmd = "sh $wsadminBin  -lang jython  -host $host -port $port  -user $username -password  $password -javaoption '-Dcom.sun.net.ssl.checkRevocation=false' -f $filename";
+    my $result = `$cmd`;
+    my $ret = 1 ;
+    if($result =~ /connection\s+failed/ ){
+        $ret = 0 ;
+    }
+    unlink($filename);
+    return ($ret , $result);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ($node , $serverPort , $username , $password , $verbose);
+
+    GetOptions(
+        'node=s'    => \$node,
+        'username=s' => \$username,
+        'password=s' => \$password,
+        'serverPort=s' => \$serverPort,
+        'verbose=i' =>\$verbose
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $wsadminBin;
+    my $servers = `ps -ef |grep com.ibm.ws.runtime.WsServer`;
+    my @serverInfo = split( /\n/, $servers );
+    foreach my $line (@serverInfo) {
+
+        if ( $line =~ /-Dosgi\.install\.area\=(.[^ ]*)/ ) {
+            $wsadminBin = "$1/bin/wsadmin.sh";
+        }
+
+        if (defined($wsadminBin) and $wsadminBin ne '' ){
+            last ;
+        }
+    }
+
+    if (not defined($wsadminBin) or $wsadminBin eq '' ){
+        print("WARN:: Can't found webSphere server.\n");
+        exit(0);
+    }
+
+    my $host       = $nodeInfo->{host};
+    my $port       = $serverPort;
+    my $serverName = $nodeInfo->{nodeName};
+    my $servicePorts = $nodeInfo->{servicePorts};
+    if(defined($servicePorts) ){
+        $port = $servicePorts->{soap};
+    } 
+    if( not defined($port) or $port eq  ''){
+        $port = int( $nodeInfo->{port} );
+    }
+    if ( not defined($port) or $port eq  '' ) {
+        print("WARN:: Can't found webSphere servicePorts.\n");
+    }
+
+    print("INFO: Try to inspect to $host:$port.\n");
+    my $startTime = time();
+    my $checkCmd = getCheckCommand($serverName);
+    my ($ret,$result) = runCmd( $wsadminBin , $checkCmd , $host , $port , $username , $password );
+    if($verbose == 1){
+        print($result);
+    }
+    my $data;
+    my $responseTime = time() - $startTime;
+    if ($ret == 0 ){
+        $data = {
+            MGMT_IP      => $host,
+            PORT         => $port,
+            RESOURCE_ID  => '0',
+            AVAILABILITY => 0 ,
+            _OBJ_CATEGORY => "INS",
+            _OBJ_TYPE   =>  "Websphere"
+        };
+        $data->{'ERROR_MESSAGE'} = "Connection Server $host:$port failed.";
+        $data->{AVAILABILITY}    = 0;
+        $data->{RESPONSE_TIME} = $responseTime;
+        print("WARN:: Connection Server $host:$port failed .\n");
+    }else{
+        my $inspectCommand = getInspectCommand($serverName);
+        my ($inspectRet,$inspectResult) = runCmd( $wsadminBin , $inspectCommand , $host , $port , $username , $password );
+
+        if ($inspectResult =~ /Error/){
+            print("Warn:: Wsadmin found error. \n");
+        }
+
+        $data = str2Json($inspectResult);
+        $data->{_OBJ_CATEGORY}  = "INS";
+        $data->{_OBJ_TYPE}  ="Websphere";
+        $data->{MGMT_IP}  = $host;
+        $data->{PORT}  = $port;
+        $data->{RESOURCE_ID}  = '0';
+        $data->{AVAILABILITY}  = 1;
+        $data->{ERROR_MESSAGE} = '';
+        if($verbose == 1){
+            print($inspectResult);
+        }
+    }
+    my $out = {};
+    $out->{DATA} = [$data];
+    AutoExecUtils::saveOutput($out);
+
+    return 0;
+}
+
+exit main();
