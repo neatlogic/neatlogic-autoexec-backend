@@ -295,6 +295,173 @@
             ]
         },
         {
+            "name": "JVM",
+            "desc": "JVM Info",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "HEAPSIZE",
+                    "desc": "HeapSize(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEMEMORY",
+                    "desc": "Free Memory(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USEDMEMORY",
+                    "desc": "Use Memory(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "AVAILABLESIZE",
+                    "desc": "AvailabelSize(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USERATE",
+                    "desc": "UseRate(%)",
+                    "type": "Float"
+                },
+
+                {
+                    "name": "WAITSFORLOCKCOUNT",
+                    "desc": "WaitsforLockCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITFORLOCKTIME",
+                    "desc": "WaitforLocktime",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADSTARTEDCOUNT",
+                    "desc": "ThreadStartedCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADENDEDCOUNT",
+                    "desc": "ThreadEndedCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "UPTIME",
+                    "desc": "Uptime",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "WEBCONTAINNER",
+            "desc": "WebContainner",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "CreateCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "DESTROYCOUNT",
+                    "desc": "DestroyCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVECOUNT",
+                    "desc": "ActiveCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "PoolSize",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTMAXED",
+                    "desc": "PercentMaxed",
+                    "type": "Float"
+                },
+                {
+                    "name": "DECLAREDTHREADHUNGCOUNT",
+                    "desc": "Declared ThreadHungCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLEAREDTHREADHANGCOUNT",
+                    "desc": "Cleared ThreadHangcount",
+                    "type": "Int"
+                },
+                {
+                    "name": "CONCURRENTHUNGTHREADCOUNT",
+                    "desc": "Concurrenthung ThreadCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVETIME",
+                    "desc": "Activetime(ms)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "DATASOURCE",
+            "desc": "DataSource",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "PollSize",
+                    "type": "Int"
+                },
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "CreateCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSECOUNT",
+                    "desc": "CloseCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEPOOLSIZE",
+                    "desc": "Free PoolSize",
+                    "type": "Int"
+                },
+                {
+                    "name": "FAULTCOUNT",
+                    "desc": "FaultCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITINGTHREADCOUNT",
+                    "desc": "WaitingThreadCount",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTUSED",
+                    "desc": "PercentUsed(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USETIME",
+                    "desc": "Usetime(MS)",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITTIME",
+                    "desc": "Waittime(MS)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CONN_STATS",
             "desc": "Connection Stats",
             "type": "JsonObject",

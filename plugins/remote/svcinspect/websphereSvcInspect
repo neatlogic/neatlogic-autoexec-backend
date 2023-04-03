@@ -85,63 +85,59 @@ try:
     threadEndedCount = jvmStats.getStatistic('ThreadEndedCount')
     upTime = jvmStats.getStatistic('UpTime')
     if heapSize == None :
-        heapSize = '0'
+        heapSize = 0
     else :
         heapSize = int(heapSize.getCurrent())/1024
     if usedMemory == None :
-        usedMemory = '0'
+        usedMemory = 0
     else :
         usedMemory = int(usedMemory.getCount())/1024
     if usedMemory == None and heapSize != None  :
-        useRate = '0'
+        useRate = 0
     else :
         useRate = round((float(usedMemory) / float(heapSize) )* 100,2)
     if freeMemory == None :
-        freeMemory = '0'
+        freeMemory = 0
     else :
-        freeMemory = str(freeMemory.getCount()) + 'MB'
+        freeMemory = int(freeMemory.getCount())
     if upTime == None :
-        upTime = '0'
+        upTime = 0
     else :
         upTime = transferTime(upTime.getCount())
     if processCpuUsage == None :
-        processCpuUsage = '0%'
+        processCpuUsage = 0
     else :
-        processCpuUsage = str(processCpuUsage.getCount()) + '%'  
+        processCpuUsage = float(processCpuUsage.getCount())
     availableSize = heapSize - usedMemory
-    heapSize = str(heapSize) + 'MB'
-    usedMemory = str(usedMemory) + 'MB'
-    availableSize = str(availableSize) + 'MB'
-    useRate = str(useRate) + '%'
     if waitsForLockCount == None :
-        waitsForLockCount = '0'
+        waitsForLockCount = 0
     else :
-        waitsForLockCount = waitsForLockCount.getCount()
+        waitsForLockCount = int(waitsForLockCount.getCount())
 
     if waitForLockTime == None :
-        waitForLockTime = '0'
+        waitForLockTime = 0
     else :
-        waitForLockTime =str(waitForLockTime.getCount())+'m'
+        waitForLockTime = int(waitForLockTime.getCount())
     if threadStartedCount == None :
-        threadStartedCount = '0'
+        threadStartedCount = 0
     else :
-        threadStartedCount = threadStartedCount.getCount()
+        threadStartedCount = int(threadStartedCount.getCount())
     if threadEndedCount == None :
-        threadEndedCount = '0'
+        threadEndedCount = 0
     else :
-        threadEndedCount = threadEndedCount.getCount()
-    jvm['heapSize']=heapSize
-    jvm['freeMemory']=freeMemory
-    jvm['usedMemory']=usedMemory
-    jvm['availableSize']=availableSize
-    jvm['useRate']=useRate
-    jvm['processCpuUsage']=processCpuUsage
-    jvm['waitsForLockCount']=waitsForLockCount
-    jvm['waitForLockTime']=waitForLockTime
-    jvm['threadStartedCount']=threadStartedCount
-    jvm['threadEndedCount']=threadEndedCount
-    jvm['upTime']=upTime
-    data['jvm']=jvm
+        threadEndedCount = int(threadEndedCount.getCount())
+    jvm['HEAPSIZE']=heapSize
+    jvm['FREEMEMORY']=freeMemory
+    jvm['USEDMEMORY']=usedMemory
+    jvm['AVAILABLESIZE']=availableSize
+    jvm['USERATE']=useRate
+    jvm['PROCESSCPUUSAGE']=processCpuUsage
+    jvm['WAITSFORLOCKCOUNT']=waitsForLockCount
+    jvm['WAITFORLOCKTIME']=waitForLockTime
+    jvm['THREADSTARTEDCOUNT']=threadStartedCount
+    jvm['THREADENDEDCOUNT']=threadEndedCount
+    jvm['UPTIME']=upTime
+    data['JVM']=jvm
     ############ webcontainnner ########################
     webcontainner ={}
     webcontainnerStats = stats.getStats('threadPoolModule').getStats('WebContainer')
@@ -156,81 +152,136 @@ try:
         concurrentHungThreadCount = webcontainnerStats.getStatistic('ConcurrentHungThreadCount')
         activeTime = webcontainnerStats.getStatistic('ActiveTime')
         if createCount != None :
-            createCount = str(createCount.getCount())
+            createCount = int(createCount.getCount())
         else :
-            createCount = '0'
+            createCount = 0
         if destroyCount != None :
-            destroyCount = str(destroyCount.getCount())
+            destroyCount = int(destroyCount.getCount())
         else :
-            destroyCount = '0'
+            destroyCount = 0
         if activeCount != None :
-            activeCount = str(activeCount.getCurrent())
+            activeCount = int(activeCount.getCurrent())
         else :
-            activeCount = '0'
+            activeCount = 0
 
         if poolSize != None :
-            poolSize = str(poolSize.getCurrent())
+            poolSize = int(poolSize.getCurrent())
         else :
-            poolSize = '0'
+            poolSize = 0
 
         if percentMaxed != None :
-            percentMaxed = str(percentMaxed.getCurrent())
+            percentMaxed = float(percentMaxed.getCurrent())
         else :
-            percentMaxed = '0'
+            percentMaxed = 0
 
         if declaredThreadHungCount != None :
-            declaredThreadHungCount = str(declaredThreadHungCount.getCount())
+            declaredThreadHungCount = int(declaredThreadHungCount.getCount())
         else :
-            declaredThreadHungCount = '0'
+            declaredThreadHungCount = 0
 
         if clearedThreadHangCount != None :
-            clearedThreadHangCount = str(clearedThreadHangCount.getCount())
+            clearedThreadHangCount = int(clearedThreadHangCount.getCount())
         else :
-            clearedThreadHangCount = '0'
+            clearedThreadHangCount = 0
 
         if concurrentHungThreadCount != None :
-            concurrentHungThreadCount = str(concurrentHungThreadCount.getCurrent())
+            concurrentHungThreadCount = int(concurrentHungThreadCount.getCurrent())
         else :
-            concurrentHungThreadCount = '0'
+            concurrentHungThreadCount = 0
 
         if activeTime != None :
-            activeTime = str(activeTime.getCount())
+            activeTime = int(activeTime.getCount())
         else :
-            activeTime = '0'
+            activeTime = 0
 
-        webcontainner['createCount']=createCount
-        webcontainner['destroyCount']=destroyCount
-        webcontainner['activeCount']=activeCount
-        webcontainner['poolSize']=poolSize
-        webcontainner['percentMaxed']=percentMaxed
-        webcontainner['declaredThreadHungCount']=declaredThreadHungCount
-        webcontainner['clearedThreadHangCount']=clearedThreadHangCount
-        webcontainner['concurrentHungThreadCount']=concurrentHungThreadCount
-        webcontainner['activeTime']=activeTime
-        data['webcontainner'] = webcontainner
+        webcontainner['CREATECOUNT']=createCount
+        webcontainner['DESTROYCOUNT']=destroyCount
+        webcontainner['ACTIVECOUNT']=activeCount
+        webcontainner['POOLSIZE']=poolSize
+        webcontainner['PERCENTMAXED']=percentMaxed
+        webcontainner['DECLAREDTHREADHUNGCOUNT']=declaredThreadHungCount
+        webcontainner['CLEAREDTHREADHANGCOUNT']=clearedThreadHangCount
+        webcontainner['CONCURRENTHUNGTHREADCOUNT']=concurrentHungThreadCount
+        webcontainner['ACTIVETIME']=activeTime
+        data['WEBCONTAINNER'] = webcontainner
     ############ datasource ################################
-    jdbcList = []
-    jdbcValid = {}
+    dsList = []
+    dsValid = {}
     if stats.getStats('connectionPoolModule') != None :
         for driver in stats.getStats('connectionPoolModule').subCollections():
             for datasource in stats.getStats('connectionPoolModule').getStats(driver.getName()).subCollections():
-                jdbc = {}
-            if jdbcValid.has_key(datasource.getName()) :
+                ds = {}
+            if dsValid.has_key(datasource.getName()) :
                 continue
-            WaitingThreadCount = datasource.getStatistic('WaitingThreadCount').getCurrent()
-            poolSize = datasource.getStatistic('PoolSize').getCurrent()
-            freePoolSize = datasource.getStatistic('FreePoolSize').getCurrent()
-            percentUsed = datasource.getStatistic('PercentUsed').getCurrent()
-            CreateCount = datasource.getStatistic('CreateCount').getCount()
-            jdbc['poolSize'] = str(poolSize)
-            jdbc['WaitingThreadCount'] = str(WaitingThreadCount)
-            jdbc['freePoolSize'] = str(freePoolSize )
-            jdbc['percentUsed'] = str(percentUsed )
-            jdbc['CreateCount'] = str(CreateCount )
-            jdbc['name'] = datasource.getName()
-            jdbcValid[datasource.getName()] = datasource.getName()
-            jdbcList.append(jdbc)
-        data['jdbcList'] = jdbcList
+            waitingThreadCount = datasource.getStatistic('WaitingThreadCount')
+            if waitingThreadCount != None :
+                waitingThreadCount = int(waitingThreadCount.getCurrent())
+            else:
+                waitingThreadCount = 0 
+            
+            poolSize = datasource.getStatistic('PoolSize')
+            if poolSize != None :
+                poolSize = int(poolSize.getCurrent())
+            else:
+                poolSize = 0 
+
+            freePoolSize = datasource.getStatistic('FreePoolSize')
+            if freePoolSize != None :
+                freePoolSize = int(freePoolSize.getCurrent())
+            else:
+                freePoolSize = 0 
+
+            percentUsed = datasource.getStatistic('PercentUsed')
+            if percentUsed != None :
+                percentUsed = float(percentUsed.getCurrent())
+            else:
+                percentUsed = 0 
+
+            createCount = datasource.getStatistic('CreateCount')
+            if createCount != None :
+                createCount = int(createCount.getCount())
+            else:
+                createCount = 0 
+
+            closeCount = datasource.getStatistic('CloseCount')
+            if closeCount != None :
+                closeCount = int(closeCount.getCount())
+            else:
+                closeCount = 0 
+
+            faultCount =  datasource.getStatistic('FaultCount')
+            if faultCount != None :
+                faultCount = int(faultCount.getCount())
+            else:
+                faultCount = 0 
+
+            useTime = datasource.getStatistic('UseTime')
+            if useTime != None :
+                useTime = int(useTime.getCount())
+            else:
+                useTime = 0 
+
+            waitTime = datasource.getStatistic('WaitTime')
+            if waitTime != None :
+                waitTime = int(waitTime.getCount())
+            else:
+                waitTime = 0 
+
+            ds['POOLSIZE'] = poolSize
+            ds['WAITINGTHREADCOUNT'] = waitingThreadCount
+            ds['FREEPOOLSIZE'] = freePoolSize
+            ds['PERCENTUSED'] = percentUsed
+            ds['CREATECOUNT'] = createCount
+            ds['NAME'] = datasource.getName()
+
+            ds['CLOSECOUNT'] = closeCount
+            ds['FAULTCOUNT'] = faultCount
+            ds['USETIME'] = useTime
+            ds['WAITTIME'] = waitTime
+
+            dsValid[datasource.getName()] = datasource.getName()
+            dsList.append(ds)
+        data['DATASOURCE'] = dsList
 except:
     traceback.print_exc()
 print data
@@ -270,7 +321,7 @@ sub runCmd{
     if($result =~ /connection\s+failed/ ){
         $ret = 0 ;
     }
-    unlink($filename);
+    #unlink($filename);
     return ($ret , $result);
 }
 
@@ -361,24 +412,30 @@ sub main {
         $data->{RESPONSE_TIME} = $responseTime;
         print("WARN:: Connection Server $host:$port failed .\n");
     }else{
-        my $inspectCommand = getInspectCommand($serverName);
-        my ($inspectRet,$inspectResult) = runCmd( $wsadminBin , $inspectCommand , $host , $port , $username , $password );
+        if ($serverName !~ /dmgr/ and $serverName !~ /DMGR/ ){
+            my $inspectCommand = getInspectCommand($serverName);
+            my ($inspectRet,$inspectResult) = runCmd( $wsadminBin , $inspectCommand , $host , $port , $username , $password );
 
-        if ($inspectResult =~ /Error/){
-            print("Warn:: Wsadmin found error. \n");
+            if ($inspectResult =~ /Error/){
+                print("Warn:: Wsadmin found error. \n");
+            }
+
+            if($verbose == 1){
+                print($inspectResult);
+            }
+            $data = str2Json($inspectResult);
+            $data->{ERROR_MESSAGE} = '';
+        }else{
+            $data = {};
+            $data->{ERROR_MESSAGE} = 'Dmgr process not perfor data.';
+            print("Warn:: Dmgr process not perfor data.\n");
         }
-
-        $data = str2Json($inspectResult);
         $data->{_OBJ_CATEGORY}  = "INS";
         $data->{_OBJ_TYPE}  ="Websphere";
         $data->{MGMT_IP}  = $host;
         $data->{PORT}  = $port;
         $data->{RESOURCE_ID}  = '0';
         $data->{AVAILABILITY}  = 1;
-        $data->{ERROR_MESSAGE} = '';
-        if($verbose == 1){
-            print($inspectResult);
-        }
     }
     my $out = {};
     $out->{DATA} = [$data];
