@@ -406,7 +406,7 @@ sub main {
         print("ERROR: Release $namePath version:$version with build($buildNo) failed.\n");
     }
     else {
-        eval { $buildUtils->release( $buildEnv, $version, $buildNo ); };
+        eval { $hasError = $buildUtils->release( $buildEnv, $version, $buildNo ); };
         if ($@) {
             print("ERROR: $@\n");
         }
