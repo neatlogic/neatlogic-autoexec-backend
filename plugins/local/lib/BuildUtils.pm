@@ -249,6 +249,10 @@ sub release {
     }
     chdir($cwd);
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -287,6 +291,10 @@ sub release2Env {
     }
 
     chdir($cwd);
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
 
     return $ret;
 }
@@ -360,8 +368,7 @@ sub cleanExpiredVersion {
                 if ( $ret ne 0 );
         }
 
-        $ret = $leftLen <=> $rightLen
-            if ( $ret eq 0 );
+        $ret = $leftLen <=> $rightLen if ( $ret eq 0 );
 
         return $ret;
     };

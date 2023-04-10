@@ -148,6 +148,10 @@ sub sortBundleFiles {
         }
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -248,6 +252,7 @@ sub main {
 
     my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $appDistDir = $dirInfo->{appDist};
+    my $distDir    = $dirInfo->{distribute};
 
     if ( -d $distDir ) {
         my $webCtl = WebCtl->new();

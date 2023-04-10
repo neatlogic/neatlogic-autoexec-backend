@@ -142,6 +142,11 @@ sub main {
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 

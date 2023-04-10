@@ -120,6 +120,10 @@ sub main {
         print("ERROR: Merge baseline changes to version:$version failed.\n");
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
