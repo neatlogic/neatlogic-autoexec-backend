@@ -186,10 +186,6 @@ class Interpreter(object):
                     varVal = self.getVarValue(nodeEnv, varName)
                     if varVal is not None:
                         val = varVal
-                        if re.match(r'^\d+$', varVal):
-                            val = int(val)
-                        elif re.match(r'^[\d\.]+$', varVal):
-                            val = float(val)
         else:
             matchObjs1 = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', val)
             for matchObj in matchObjs1:
@@ -205,6 +201,12 @@ class Interpreter(object):
                 if varVal is not None:
                     val = val.replace(exp, varVal)
 
+        if isinstance(val, str):
+            if re.match(r'^\d+$', val):
+                val = int(val)
+            elif re.match(r'^[\d\.]+$', val):
+                val = float(val)
+
         return val
 
     def resolveExp(self, nodeEnv, AST):
@@ -219,16 +221,6 @@ class Interpreter(object):
         if operandsCount == 2:
             operand1 = self.resolveExp(nodeEnv, AST[1])
             operand2 = self.resolveExp(nodeEnv, AST[2])
-            if isinstance(operand1, str):
-                if re.match(r'^\d+$', operand1):
-                    operand1 = int(operand1)
-                if re.match(r'^[\d\.]+$', operand1):
-                    operand1 = float(operand1)
-            if isinstance(operand2, str):
-                if re.match(r'^\d+$', operand2):
-                    operand2 = int(operand2)
-                if re.match(r'^[\d\.]+$', operand2):
-                    operand2 = float(operand2)
 
             result = op(operand1, operand2)
         else:
