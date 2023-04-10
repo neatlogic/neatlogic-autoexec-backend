@@ -186,10 +186,6 @@ class Interpreter(object):
                     varVal = self.getVarValue(nodeEnv, varName)
                     if varVal is not None:
                         val = varVal
-                        if re.match(r'^\d+$', varVal):
-                            val = int(val)
-                        elif re.match(r'^[\d\.]+$', varVal):
-                            val = float(val)
         else:
             matchObjs1 = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', val)
             for matchObj in matchObjs1:
@@ -204,6 +200,12 @@ class Interpreter(object):
                 varVal = self.getVarValue(nodeEnv, matchObj[1])
                 if varVal is not None:
                     val = val.replace(exp, varVal)
+
+        if isinstance(val, str):
+            if re.match(r'^\d+$', val):
+                val = int(val)
+            elif re.match(r'^[\d\.]+$', val):
+                val = float(val)
 
         return val
 
