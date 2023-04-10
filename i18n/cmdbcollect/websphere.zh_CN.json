@@ -295,6 +295,173 @@
             ]
         },
         {
+            "name": "JVM",
+            "desc": "JVM明细",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "HEAPSIZE",
+                    "desc": "总内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEMEMORY",
+                    "desc": "空闲内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USEDMEMORY",
+                    "desc": "已用内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "AVAILABLESIZE",
+                    "desc": "可用内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USERATE",
+                    "desc": "内存使用率(%)",
+                    "type": "Float"
+                },
+
+                {
+                    "name": "WAITSFORLOCKCOUNT",
+                    "desc": "等待锁定次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITFORLOCKTIME",
+                    "desc": "等待锁定时间",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADSTARTEDCOUNT",
+                    "desc": "启动的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADENDEDCOUNT",
+                    "desc": "线程结束计数",
+                    "type": "Int"
+                },
+                {
+                    "name": "UPTIME",
+                    "desc": "已启动时间",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "WEBCONTAINNER",
+            "desc": "WebContainner",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "创建次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "DESTROYCOUNT",
+                    "desc": "销毁次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVECOUNT",
+                    "desc": "活动次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "池大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTMAXED",
+                    "desc": "平均时间百分比",
+                    "type": "Float"
+                },
+                {
+                    "name": "DECLAREDTHREADHUNGCOUNT",
+                    "desc": "挂起的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLEAREDTHREADHANGCOUNT",
+                    "desc": "清除的线程挂起数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CONCURRENTHUNGTHREADCOUNT",
+                    "desc": "并发挂起的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVETIME",
+                    "desc": "线程平均时间(ms)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "DATASOURCE",
+            "desc": "DataSource",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "连接池大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "创建的连接总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSECOUNT",
+                    "desc": "销毁的连接总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEPOOLSIZE",
+                    "desc": "空闲连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "FAULTCOUNT",
+                    "desc": "空闲连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITINGTHREADCOUNT",
+                    "desc": "等待连接线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTUSED",
+                    "desc": "使用率(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USETIME",
+                    "desc": "平均使用时间(MS)",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITTIME",
+                    "desc": "平均等待时间(MS)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CONN_STATS",
             "desc": "连接统计",
             "type": "JsonObject",
