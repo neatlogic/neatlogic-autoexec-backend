@@ -62,6 +62,10 @@ sub build {
         $ret = DeployUtils->execmd($cmd);
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 

@@ -120,6 +120,10 @@ sub main {
         print("ERROR: $namePath version:$version source code changed after compiled.\n");
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 

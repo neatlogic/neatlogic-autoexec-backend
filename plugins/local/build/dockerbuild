@@ -90,7 +90,7 @@ sub main {
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $image_name = "$registry/$project/$image:$tagname";
-    my $cmd = "sudo docker build -t $image_name $distDir/app";
+    my $cmd        = "sudo docker build -t $image_name $distDir/app";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
@@ -101,11 +101,15 @@ sub main {
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
         print("ERROR: Build $image_name failed.\n");
     }
-    
+
     my $out = {};
     $out->{image_name} = $image_name;
     AutoExecUtils::saveOutput($out);
-    
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 

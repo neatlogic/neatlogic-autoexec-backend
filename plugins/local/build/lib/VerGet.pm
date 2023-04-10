@@ -84,6 +84,10 @@ sub get {
         $ret = $handler->get();
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -97,6 +101,10 @@ sub checkBaseLineMerged {
     my $ret     = 1;
     if ( defined($handler) ) {
         $ret = $handler->checkBaseLineMerged();
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;
@@ -114,6 +122,10 @@ sub mergeToBaseLine {
         $ret = $handler->mergeToBaseLine();
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -127,6 +139,10 @@ sub mergeBaseLine {
     my $ret     = 1;
     if ( defined($handler) ) {
         $ret = $handler->mergeBaseLine();
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;
@@ -145,6 +161,10 @@ sub tag {
         $ret = $handler->tag( $version, $tagPrefix );
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -159,6 +179,10 @@ sub tagRev {
     my $ret     = 1;
     if ( defined($handler) ) {
         $ret = $handler->tagRev( $version, $tagPrefix, $tagRevision );
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;
@@ -177,6 +201,10 @@ sub checkChangedAfterCompiled {
     my $ret     = 1;
     if ( defined($handler) ) {
         $ret = $handler->checkChangedAfterCompiled($version);
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;
@@ -212,6 +240,10 @@ sub getDiffByTag {
     }
     else {
         print("INFO: Get diff files between $version and $cmpDestDesc failed.\n");
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;
@@ -250,6 +282,10 @@ sub getDiffByRev {
         print("INFO: Get diff files between $version and $cmpDestDesc failed.\n");
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -276,6 +312,10 @@ sub getBuildDiff {
         print("ERROR: Can not get diff base(tag|branch|revision).\n");
     }
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
@@ -286,6 +326,10 @@ sub compare {
     my $ret = 1;
     if ( defined($handler) ) {
         $ret = $handler->compare( $callback, $tagName, $startRev, $endRev, $excludeDirs, $isVerbose );
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
     }
 
     return $ret;

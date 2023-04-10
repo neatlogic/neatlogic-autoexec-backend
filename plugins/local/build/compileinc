@@ -407,6 +407,10 @@ sub getBuildDiff {
     my $ret    = $verGet->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir );
     print("----------------------------------------------------------------------\n");
 
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
     return $ret;
 }
 
