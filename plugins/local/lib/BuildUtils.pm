@@ -211,6 +211,7 @@ sub release {
         symlink( "../../build/$buildNo", $buildLnk );
     }
 
+    my $hasError = 0;
     my $syncCmd;
     my $ret = 0;
     $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
@@ -249,11 +250,11 @@ sub release {
     }
     chdir($cwd);
 
-    if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+    if ( $ret != 0 ) {
+        $hasError = 1;
     }
 
-    return $ret;
+    return $hasError;
 }
 
 sub release2Env {
