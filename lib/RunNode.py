@@ -1516,26 +1516,38 @@ class RunNode:
             if uploaded and not self.context.goToStop:
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 try:
+                    ret = 0
                     # 解开package
                     for tarFile in tarFiles:
-                        stderr = ssh.exec_command('cd %s && tar xf %s' % (remotePath, tarFile))
-                        errMsg = stderr.read()
-                        if errMsg != '':
-                            self.writeNodeLog(errMsg)
-                    # 执行主命令
-                    # ret = 0
-                    channel = ssh.get_transport().open_session()
-                    channel.set_combine_stderr(True)
-                    channel.exec_command(remoteCmd)
-                    while True:
-                        r, w, x = select.select([channel], [], [], 10)
-                        # if len(r) > 0:
-                        while channel.recv_ready():
-                            remoteOut = channel.recv(4096)
+                        channel = ssh.get_transport().open_session()
+                        channel.set_combine_stderr(True)
+                        channel.exec_command('cd %s && tar xf %s' % (remotePath, tarFile))
+                        remoteOut = b''
+                        while True:
+                            r, w, x = select.select([channel], [], [], 10)
+                            # if len(r) > 0:
+                            while channel.recv_ready():
+                                remoteOut = remoteOut + channel.recv(4096)
+                            if channel.exit_status_ready():
+                                ret = channel.recv_exit_status()
+                                break
+                        if ret != 0:
+                            self.writeNodeLog("ERROR: Extract dependency package failed.\n")
                             self.writeNodeLog(remoteOut)
-                        if channel.exit_status_ready():
-                            ret = channel.recv_exit_status()
-                            break
+                    # 执行主命令
+                    if ret == 0:
+                        channel = ssh.get_transport().open_session()
+                        channel.set_combine_stderr(True)
+                        channel.exec_command(remoteCmd)
+                        while True:
+                            r, w, x = select.select([channel], [], [], 10)
+                            # if len(r) > 0:
+                            while channel.recv_ready():
+                                remoteOut = channel.recv(4096)
+                                self.writeNodeLog(remoteOut)
+                            if channel.exit_status_ready():
+                                ret = channel.recv_exit_status()
+                                break
 
                     if ret == 0 and op.hasOutput:
                         outFileKey = None
@@ -1586,9 +1598,11 @@ class RunNode:
                                 except:
                                     pass
                     except Exception as ex:
+                        ret = 3
                         self.writeNodeLog("WARN: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
 
                 except Exception as err:
+                    ret = 4
                     self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
                 finally:
                     if sftp is not None:
