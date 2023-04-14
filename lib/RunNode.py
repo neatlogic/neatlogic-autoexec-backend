@@ -1403,19 +1403,21 @@ class RunNode:
                             sftp.put(op.pluginPath, op.scriptFileName)
                             sftp.chmod(op.scriptFileName, stat.S_IRWXU)
                             for dependLib in op.depends:
-                                if uploadRet == 0:
-                                    name = dependLib['name']
-                                    scriptLockFile = open(dependLib['lockPath'])
-                                    try:
-                                        fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
-                                        sftp.put(dependLib['file'], name)
-                                        if name.endswith('.tar'):
-                                            tarFiles.append(name)
-                                    finally:
-                                        if scriptLockFile is not None:
-                                            fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
-                                            scriptLockFile.close()
-                                            scriptLockFile = None
+                                name = dependLib['name']
+                                scriptLockFile = open(dependLib['lockPath'])
+                                try:
+                                    fcntl.flock(scriptLockFile, fcntl.LOCK_SH)
+                                    sftp.put(dependLib['file'], name)
+                                    if name.endswith('.tar'):
+                                        tarFiles.append(name)
+                                except Exception as err:
+                                    hasError = True
+                                    self.writeNodeLog("ERROR: SFTP upload dependcy lib:{} failed:{}\n".format(name, err))
+                                finally:
+                                    if scriptLockFile is not None:
+                                        fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
+                                        scriptLockFile.close()
+                                        scriptLockFile = None
                         except Exception as err:
                             hasError = True
                             self.writeNodeLog("ERROR: SFTP upload operation {} failed:{}\n".format(op.pluginPath, err))
