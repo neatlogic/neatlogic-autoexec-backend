@@ -175,7 +175,7 @@ if __name__ == "__main__":
     parser.add_argument('--port', default=3306, help='mysql db port')
     parser.add_argument('--user', default='root', help='mysql db user')
     parser.add_argument('--password', default='', help='mysql db user password')
-    parser.add_argument('--dbnames', default='codedriver,codedriver_demo', help='export databse name,default:codedriver,codedriver_demo')
+    parser.add_argument('--dbnames', default='neatlogic,neatlogic_demo', help='export databse name,default:neatlogic,neatlogic_demo')
     parser.add_argument('--outpath', default='', help='export output path')
     parser.add_argument('--modules', default='', help='export module ,default all , eg: "流程,自动化"')
 
