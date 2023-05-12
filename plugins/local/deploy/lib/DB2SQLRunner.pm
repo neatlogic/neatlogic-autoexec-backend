@@ -640,6 +640,11 @@ sub run {
                     my $childRet = <$childRdr>;
                     $childDone = 1;
                     &$getLines();
+
+                    if ( not defined($childRet) ) {
+                        next;
+                    }
+
                     if ( $hasError == 1 ) {
                         print $childWtr ("failed\n");
                     }
