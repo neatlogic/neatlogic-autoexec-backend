@@ -48,7 +48,7 @@ class LogFile:
 
     def setFailPattern(self, failIgnore, operator, patOpts, exPatOpt):
         self.failIgnore = failIgnore
-        if(failIgnore):
+        if (failIgnore):
             self.hintKeyBytes = b'WARN:'
         self.failPatsOp = operator
         for reOpt in patOpts:
@@ -1313,7 +1313,7 @@ class RunNode:
             else:
                 remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
                     self.host, str(self.port), self.name, self.context.jobId, json.dumps(self.nodeWithoutPassword, ensure_ascii=False))
-            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv)
+            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType='Unix').replace('&&', remoteEnv, 1)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType='Unix')
             self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
             tarFiles = []
@@ -1426,8 +1426,6 @@ class RunNode:
                                 fcntl.flock(opLockFile, fcntl.LOCK_UN)
                                 opLockFile.close()
                                 opLockFile = None
-                    # remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath).replace('&&', remoteEnv)
-                    # remoteCmdHidePass = op.getCmdOptsHidePassword().replace('&&', remoteEnv)
                 else:
                     # 切换到插件根目录，便于遍历时的文件目录时，文件名为此目录相对路径
                     # 为了从顶向下创建目录，遍历方式为从顶向下的遍历，并follow link
@@ -1524,30 +1522,39 @@ class RunNode:
                         channel.exec_command('cd %s && tar xf %s' % (remotePath, tarFile))
                         remoteOut = b''
                         while True:
-                            r, w, x = select.select([channel], [], [], 10)
-                            # if len(r) > 0:
                             while channel.recv_ready():
                                 remoteOut = remoteOut + channel.recv(4096)
                             if channel.exit_status_ready():
                                 ret = channel.recv_exit_status()
                                 break
+                            time.sleep(0.2)
                         if ret != 0:
                             self.writeNodeLog("ERROR: Extract dependency package failed.\n")
                             self.writeNodeLog(remoteOut)
                     # 执行主命令
                     if ret == 0:
-                        channel = ssh.get_transport().open_session()
-                        channel.set_combine_stderr(True)
-                        channel.exec_command(remoteCmd)
+                        # channel = ssh.get_transport().open_session()
+                        # channel.set_combine_stderr(True)
+                        # channel.exec_command(remoteCmd)
+                        # while True:
+                        #     while channel.recv_ready():
+                        #         remoteOut = channel.recv(4096)
+                        #         self.writeNodeLog(remoteOut)
+                        #     if channel.exit_status_ready():
+                        #         ret = channel.recv_exit_status()
+                        #         break
+                        #     time.sleep(0.2)
+                        channel = ssh.invoke_shell(term='dumb')
+                        channel.settimeout(self.context.rexecReadTimeout)
+                        channel.send(remoteCmd + ';exit $?\n')
                         while True:
-                            r, w, x = select.select([channel], [], [], 10)
-                            # if len(r) > 0:
                             while channel.recv_ready():
                                 remoteOut = channel.recv(4096)
                                 self.writeNodeLog(remoteOut)
                             if channel.exit_status_ready():
                                 ret = channel.recv_exit_status()
                                 break
+                            time.sleep(0.2)
 
                     if ret == 0 and op.hasOutput:
                         outFileKey = None
