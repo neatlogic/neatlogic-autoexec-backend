@@ -21,7 +21,7 @@ sub usage {
     print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
     print("              [--dbdir DBDirectoryInProject] [--docdir DocDirectoryInProject]\n");
     print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames]\n");
-    print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
+    print("              [--exp ExccludeDirs] [--ensureexists 0|1] [-v|--verbose 0|1] target1 target2...\n");
     print("\n");
     print("       --envpath:   system envpath, example:ATM/ATMP/PRD\n");
     print("       --version:   versoin number\n");
@@ -34,6 +34,7 @@ sub usage {
     print("       --prefix:    target prefix\n");
     print("       --packexts:  package extention names, example:zip,tar,tgz\n");
     print("       --exp:       which dirs not to be copy, please use | symbol as the delimiter.\n");
+    print("       --ensureexists: ensure release target files exists.\n");
     print("       target: Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
     exit(1);
 }
@@ -79,30 +80,32 @@ sub copyPerm {
 
 sub main {
     my ( $isHelp, $envPath, $version, $buildNo );
-    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, @targetFiles );
+    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $ensureExists, @targetFiles );
     my $pname = $FindBin::Script;
 
     my $buildResvCount = 10;
     my $verTTL         = 90;
     my $verResvCount   = 6;
     my $isVerbose      = 0;
+    my $ensureExists   = 1;
 
     GetOptions(
-        'h|help'      => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'envpath=s'   => \$envPath,
-        'version=s'   => \$version,
-        'buildno=s'   => \$buildNo,
-        'buildresv=i' => \$buildResvCount,
-        'verttl=i'    => \$verTTL,
-        'verresv=i'   => \$verResvCount,
-        'dbdir=s'     => \$dbDir,
-        'docdir=s'    => \$docDir,
-        'prefix=s'    => \$prefix,
-        'md5check=i'  => \$md5Check,
-        'packexts=s'  => \$packExt,
-        'x|exp=s'     => \$expDir,
-        '<>'          => sub { my $item = shift(@_); push( @targetFiles, $item ); }
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'envpath=s'      => \$envPath,
+        'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
+        'buildresv=i'    => \$buildResvCount,
+        'verttl=i'       => \$verTTL,
+        'verresv=i'      => \$verResvCount,
+        'dbdir=s'        => \$dbDir,
+        'docdir=s'       => \$docDir,
+        'prefix=s'       => \$prefix,
+        'md5check=i'     => \$md5Check,
+        'packexts=s'     => \$packExt,
+        'x|exp=s'        => \$expDir,
+        'ensureexists=i' => \$ensureExists,
+        '<>'             => sub { my $item = shift(@_); push( @targetFiles, $item ); }
     );
 
     usage() if ( defined($isHelp) );
@@ -223,8 +226,13 @@ sub main {
 
         my @oneTargetGlobs = bsd_glob($realFilePath);
         if ( scalar(@oneTargetGlobs) == 0 ) {
-            print("ERROR: $prjPath/$filePath not found.\n");
-            $hasError = 1;
+            if ( $ensureExists == 1 ) {
+                print("ERROR: $prjPath/$filePath not found.\n");
+                $hasError = 1;
+            }
+            else {
+                print("WARN: $prjPath/$filePath not found.\n");
+            }
         }
 
         foreach my $subFilePath (@oneTargetGlobs) {
