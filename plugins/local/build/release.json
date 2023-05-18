@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "release-args",
     "description": "从编译目录中抽取文件生成版本制品",
-    "enabled": 0,
+    "enabled": 1,
     "option": [
         {
             "opt": "verbose",
@@ -112,6 +112,27 @@
                 ]
             },
             "defaultValue": "0"
+        },
+        {
+            "opt": "ensureexists",
+            "name": "确保文件存在",
+            "help": "如果抽取的列表为空或文件不存在则报错",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
         }
     ],
     "argument": {
