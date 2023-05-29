@@ -4,9 +4,11 @@ data/*
 test/*
 tmp/*
 plib/*
+.idea
 .vscode/*
 .DS_Store
 **/.DS_Store
 plugins/local/pllib/*
 plugins/local/media/perl-pkgs/*/*
 tools/*
+
