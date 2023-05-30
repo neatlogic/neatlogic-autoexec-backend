@@ -84,7 +84,7 @@ sub main {
     else {
         $data->{ERROR_MESSAGE} = $ssh->error;
         $data->{AVAILABILITY}  = 0;
-        print( "ERROR: ", $ssh->error, "\n" );
+        print( "WARN: ", $ssh->error, "\n" );
     }
 
     my $out = {};
