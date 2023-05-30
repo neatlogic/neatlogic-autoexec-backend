@@ -1,10 +1,17 @@
-# AUTOEXEC README
+中文 / [English](README.en.md)
+<p align="left">
+    <a href="https://opensource.org/licenses/Apache-2.0" alt="License">
+        <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a>
+<a target="_blank" href="https://join.slack.com/t/neatlogichome/shared_invite/zt-1w037axf8-r_i2y4pPQ1Z8FxOkAbb64w">
+<img src="https://img.shields.io/badge/Slack-Neatlogic-orange" /></a>
+</p>
 
-------
 ## 主要功能
-autoexec是自动化runner上的backend执行工具。用于执行自动化作业，接收控制服务端的作业调度指令，并根据控制端提供的作业参数和执行目标节点执行参数给出的操作，并回调服务端回写状态。
+
+neatlogic-autoexec-backend是自动化runner上的backend执行工具。用于执行自动化作业，接收控制服务端的作业调度指令，并根据控制端提供的作业参数和执行目标节点执行参数给出的操作，并回调服务端回写状态。
 
 ## 参数
+
 ```shell
 usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER] [--paramsfile PARAMSFILE]
                 [--nodesfile NODESFILE] [--force] [--firstfire] [--abort] [--pause]
