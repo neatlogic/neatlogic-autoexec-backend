@@ -79,7 +79,7 @@ sub main {
             my $errMsg = "Connect to $host:$port failed, $!\n";
             $data->{'ERROR_MESSAGE'} = $errMsg;
             $data->{AVAILABILITY}    = 0;
-            print("ERROR: $errMsg");
+            print("WARN: $errMsg");
         }
     };
     if ($@) {
@@ -90,7 +90,7 @@ sub main {
         $errMsg =~ s/ at\s*.*$//;
         $data->{'ERROR_MESSAGE'} = $errMsg;
         $data->{AVAILABILITY}    = 0;
-        print("ERROR: $errMsg");
+        print("WARN: $errMsg");
     }
 
     my $out = {};

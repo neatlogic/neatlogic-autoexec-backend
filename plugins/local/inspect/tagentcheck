@@ -73,7 +73,7 @@ if __name__ == "__main__":
             data['AVAILABILITY'] = 0
             data['ERROR_MESSAGE'] = errMsg
             data['RESPONSE_TIME'] = timeConsume
-            print("FINE: Tagent logon failed.\n")
+            print("WARN: Tagent logon failed.\n")
 
         out = {'DATA': data}
         AutoExecUtils.saveOutput(out)

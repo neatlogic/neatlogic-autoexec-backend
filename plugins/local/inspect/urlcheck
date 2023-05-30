@@ -108,7 +108,7 @@ sub main {
         $errMsg =~ s/ at\s*.*$//;
         $data->{'ERROR_MESSAGE'} = $errMsg;
         $data->{AVAILABILITY}    = 0;
-        print("ERROR: $errMsg");
+        print("WARN: $errMsg");
     }
     else {
         print("FINE: Http requests all complete succeed.\n");

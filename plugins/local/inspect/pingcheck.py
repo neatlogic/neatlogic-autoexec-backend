@@ -91,14 +91,14 @@ if __name__ == "__main__":
             else:
                 data['AVAILABILITY'] = 0
                 data['ERROR_MESSAGE'] = errMsg
-                print("ERROR: Ping failed.\n")
+                print("WARN: Ping failed.\n")
         except Exception as ex:
             timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
             data['AVAILABILITY'] = 0
             data['ERROR_MESSAGE'] = errMsg
             data['RESPONSE_TIME'] = timeConsume
-            print("ERROR: Ping failed.\n")
+            print("WARN: Ping failed.\n")
             exit(2)
 
         out = {'DATA': data}
