@@ -6,583 +6,84 @@
 <img src="https://img.shields.io/badge/Slack-Neatlogic-orange" /></a>
 </p>
 
-## 主要功能
+---
+------
+## 关于
+neatlogic-autoexec-backend是自动化<a href="../../../neatlogic-runner">neatlogic-runner</a>执行代理上的后端执行工具。接收服务端作业调度和控制指令，执行***组合工具***发起自动化作业，根据服务端提供的作业参数、执行目标节点、以及执行参数按阶段、分批次执行作业，并根据执行完成度回写服务端作业状态。
 
-neatlogic-autoexec-backend是自动化runner上的backend执行工具。用于执行自动化作业，接收控制服务端的作业调度指令，并根据控制端提供的作业参数和执行目标节点执行参数给出的操作，并回调服务端回写状态。
+## 适应场景
+* neatlogic-autoexec-backend本质是自动化后台的一个调度工具，理论上满足任何场景的自动化需求。
 
-## 参数
+* 目前产品层面能枚举的自动化场景，包括：
+<ol>
+    <li>CMDB配置数据自动采集</li>
+    <li>CMDB配置关系数据计算</li>
+    <li>IT资产和应用系统自动巡检</li>
+    <li>操作系统、应用系统等关键配置文件巡检和备份</li>
+    <li>软件资源自动安装交付</li>
+    <li>操作系统层面标准化配置检查和标准化配置</li>
+    <li>网络层面、应用层面灾备切换</li>
+    <li>业务系统数据跑批执行</li>
+    <li>网络设备配置备份和比对</li>
+    <li>操作系统、中间件等层面补丁安装</li>
+    <li>日常运维变更批量下发</li>
+    <li>运维应急操作</li>
+    <li>持续集成和应用自动部署(DevOps)</li>
+    <li>...</li>
+</ol>
 
-```shell
-usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER] [--paramsfile PARAMSFILE]
-                [--nodesfile NODESFILE] [--force] [--firstfire] [--abort] [--pause]
-                [--register REGISTER] [--cleanstatus] [--purgejobdata PURGEJOBDATA] [--devmode]
-                [--nofirenext] [--passthroughenv PASSTHROUGHENV] [--phasegroups PHASEGROUPS]
-                [--phases PHASES] [--nodes NODES] [--sqlfiles SQLFILES]
+⭐️说明
+* 支持的场景会不定期更新，请持续关注。
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -v, --verbose         Automation Runner
-  --jobid JOBID, -j JOBID
-                        Job id for this execution
-  --execuser EXECUSER, -u EXECUSER
-                        Operator
-  --paramsfile PARAMSFILE, -p PARAMSFILE
-                        Params file path for this execution
-  --nodesfile NODESFILE, -n NODESFILE
-                        Nodes file path for this execution
-  --force, -f           Force to run all nodes regardless the node status
-  --firstfire, -i       the first phase fired, create new log file
-  --abort, -k           abort the job
-  --pause, -s           puase the job
-  --register REGISTER, -r REGISTER
-                        register all tools to tenent
-  --cleanstatus, -c     clean all stats of job
-  --purgejobdata PURGEJOBDATA
-                        Job reserve days
-  --devmode, -d         develope test in command line
-  --nofirenext          do not fire next job phase
-  --passthroughenv PASSTHROUGHENV
-                        Additinal json parameter while callback to console
-  --phasegroups PHASEGROUPS
-                        Just execute specify group
-  --phases PHASES       Just execute defined phases, Example:phase1,phase2
-  --nodes NODES         Just execute defined node ids, Example:463104705880067,463104705880068
-  --sqlfiles SQLFILES  Example:[{"sqlFile":"mydb.myuser/1.test.sql","nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"},...]
-```
+## 与scripts工程区别
 
-## 使用
-### python3 在Linux上的安装后，更改python3位默认的python执行程序
-执行autoexec目录下的setup.sh切换python3位默认python
-如果目标机器无法联通互联网，则在一个同样版本的Linux上使用yum等包管理工具下载rpm包极其依赖rpm包，拷贝到目标机器上进行安装
-```shell
-cd autoexec
-bin/setup.sh
-```
-### 设置安装用户免密码sudo
-使用root用户编辑/etc/sudoers文件，增加以下内容
-需要sudo到root执行python3执行fast ping（自动发现的IP扫描和巡检的ping检测会用到）
-以autoexec runner的执行用户位app用户为例
-```
-app ALL=(root) NOPASSWD:ALL
-```
+* neatlogic-autoexec-backend工程出厂内置的**工具库**，是[neatlogic-autoexec](../../../neatlogic-autoexec/blob/develop3.0.0/README.md)自动化模块基础固化出厂自带工具，用户无需也无法更改的工具库。
 
-### 安装python3第三方库
-如果目标安装机器无法联通互联网，则在一个同样版本的linux上执行安装，然后把autoexec/plib目录打包拷贝到目标机器上
-```
-cd autoexec/media
-./ins-modules.sh
-```
-### 升级python3第三方库
-```
-cd autoexec/media
-./upgrade-modules.sh
-```
-### 重新安装单个模块例子
-```
-cd autoexec/media
-./ins-modules.sh ijson
-./upgrade-modules.sh ijson
-```
+* neatlogic-autoexec-scripts工程内自定义工具，因管理上、技术方案、架构设计上不同，可能在实际交付过程中需要导入到[neatlogic-autoexec](../../../neatlogic-autoexec/blob/develop3.0.0/README.md)模块的自定义工具中修改后使用。
 
-python3第三方库会安装到目录autoexec/plib下
+* neatlogic-autoexec-scripts为用户提供可扩展工具库管理边界的入口。
 
-### 安装本地工具需要的perl的第三方库
-```shell
-cd autoexec/plugins/local/media
-./setup.sh
-```
+## 关键讲解
+### 执行方式
+* runner执行
+ 在[neatlogic-runner](../../../neatlogic-runner/blob/develop3.0.0/README.md)所在机器上执行，简称本地执行。适用于需要安装依赖，比如vmware创建虚拟机。
+ 
+* runner->target执行，在[neatlogic-runner](../../../neatlogic-runner/blob/develop3.0.0/README.md)所在机器上基于协议或[neatlogic-tagent-client](../../../neatlogic-tagent-client/blob/master/README.md)连远端目标执行。适用于需要安装依赖同时需要连远端目标执行，比如snmp采集。
 
-### 重新安装本地工具需要的perl的某些第三方库
-- 以安装Config-Tiny-2.28和XML-Simple-2.22.tar为例
-```shell
-cd autoexec/plugins/local/media
-./setupone.sh Net-SSLeay-1.92 Config-Tiny-2.28 XML-Simple-2.22
-```
-perl第三方库会安装到autoexec/plugins/local/pllib
+* target执行，远端目标执行。适用于不需要环境依赖的脚本下发，比如应用启停。
 
-### VSCode设置
-- 设置.vscode/settings.json（参考test/examples-files/settings.json)
-- 设置.vscode/launch.json (用python和perl的单步调试，参考test/examples-files/launch.json))
-- 设置python环境变量（参考test/examples-files/.penv，此文件会被settings.json引用）
-- 需要把上述三个文件拷贝到工程的.vscode目录下，根据实际目录进行修改
+* Sql文件执行。适用于数据库类DDL、DML等操作，比如应用部署过程中SQL执行。
 
-### 开发调试模式
-- 运行调试
-```shell
-#设置环境变量
-#设置租户环境变量tenant，以测试租户develop为例
-export TENANT=develop
-#设置Passthrough的json，runnerId属性是必须的，通过页面的runner管理查询当前runner对应的ID
-export PASSTHROUGH_ENV='{"runnerId":1}'
-#设置Python的lib目录
-export AUTOEXEC_HOME=/app/autoexec
-export PYTHONPATH=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/lib:$AUTOEXEC_HOME/plib
-export PERL5LIB=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/plugins/local/lib/perl-lib/lib/perl5
-```
+### 目录概要说明
 
-```shell
-#使用devmode则不会回调服务端更新或者获取数据，仅仅使用作业目录下的nodes.json，params.json文件里的信息执行作业
-$ python3 bin/autoexec --jobid 3247896236758
+### bin目录
+程序主入口和常用小工具
 
-$ python3 bin/autoexec --devmode --paramsfile test/params.json --n test/nodes.json
+### lib 
+程序主程序lib目录
 
-$ python3 bin/autoexec --devmode --jobid 97867868 --n test/nodes.json
+### logs 
+主程序的日志目录
 
-$ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
-```
-> 注意:
-> 
->* 如果没有指定jobid，则使用默认的jobid 0
->* 如果没有设置参数paramsfile，需要指定jobid，告诉autoexec下载哪个作业的运行参数。
->* 如果没有设置参数nodes.json，而且paramsfile中没有"runNode"属性，需要指定jobid，告诉autoexec下载哪个作业的运行的目标节点。否则，autoexec就会认为没有运行目标节点。 
->* 如果在测试模式下或者当前进程关联了TTY，autoexec的console输出日志回直接打印到console。如果在生产模式下运行，console输出会写入日志文件中。运行目标相关的日志，不管在哪个模式下都会写入每个运行目标独立的日志文件中。
+### meaia 
+python3 依赖安装和升级
 
-- VSCode lauch.json配置样例
-```json
-{
-    "version": "0.2.0",
-    "configurations": [{
-            "name": "autoexec",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/bin/autoexec",
-            "env": {
-                "RUNNER_ID": "1",
-                "TENANT": "develop",
-                "PASSTHROUGH_ENV": "{\"runnerId\":1}",
-            },
-            "args": ["--jobid",
-                "623789909794820",
-                "--firstfire",
-                "--execuser",
-                "fccf704231734072a1bf80d90b2d1de2",
-                "--passthroughenv",
-                "{\"runnerId\":1}",
-                "--paramsfile",
-                "${workspaceFolder}/test/params.json",
-                "--nodesfile", "${workspaceFolder}/test/nodes.json"
-            ],
+###  plib 
+python3 依赖安装目录
 
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "autoexec-abort",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/bin/autoexec",
-            "env": {
-                "RUNNER_ID": "1",
-                "TENANT": "develop",
-                "PASSTHROUGH_ENV": "{\"runnerId\":1}",
-            },
-            "args": ["--jobid",
-                "623907543244820",
-                "--execuser",
-                "fccf704231734072a1bf80d90b2d1de2",
-                "--passthroughenv",
-                "{\"runnerId\":1}",
-                "--abort"
-            ],
+### plugins 
+内置插件目录
+### local 
+neatlogic-runner runner执行和runner->target执行插件
 
-            "console": "integratedTerminal"
-        }
-    ]
-}
-```
-- .vscode/settings.json配置样例
-```json
-{
-    "python.envFile": "/Users/wenhb/git/autoexec/.vscode/.env",
-    "perltidy.profile": "/Users/wenhb/git/autoexec/.vscode/.perltidyrc",
-    "perl.perlInc": [
-        ".",
-        "/Users/wenhb/git/autoexec/plugins/remote/wastool/bin",
-        "/Users/wenhb/git/autoexec/plugins/local/build/lib",
-        "/Users/wenhb/git/autoexec/plugins/local/deploy/lib",
-        "/Users/wenhb/git/autoexec/plugins/local/pllib/lib/perl5",
-        "/Users/wenhb/git/autoexec/plugins/local/lib",
-        "/Users/wenhb/git/autoexec/plugins/remote/lib",
-        "/Users/wenhb/git/autoexec/plugins/remote/cmdbcollect/lib"
-    ],
-    "java.configuration.updateBuildConfiguration": "interactive",
-}
-```
+### remote 
+目标机器执行的插件目录
 
-### 生产模式
-- 注册内置工具
+### test
+测试目录
 
-```shell
-$ python3 bin/autoexec --register tenant_name
-```
+### tools 
+第三方依赖目录，如数据库依赖、存储依赖、代码编译、代码扫描等第三方工具库目录
 
-*注册autoexec下的local和remote工具到某个租户下，tenant_name是租户的名称*
-
-- 运行作业
-
-```shell
-$ python3 bin/autoexec --jobid "2983676" --execuser "admin" --paramsfile "params.json"
-```
-*生产模式需要提供--jobid、--execuser、--paramsfile参数，作业运行过程中，某个节点运行结束、某个阶段运行结束，都会对后端服务进行callback，更新对应的状态。*
-
-- 中止作业
-
-```shell
-python3 bin/autoexec --jobid "2983676" --abort
-```
-*停止某个作业的运行，使用--jobid指定需要停止的作业号，被中止的节点会以状态"已中止"callback后台服务。*
-*进程返回值：0:停止成功；1:停止失败；2:作业不存在*
-
-- 暂停作业
-
-```shell
-python3 bin/autoexec --jobid "2983676" --pause
-```
-*暂停某个作业的运行，使用--jobid指定需要停止的作业号，调度器会等到最近发起的节点运行完成。*
-*进程返回值：0:停止成功；1:停止失败；2:作业不存在*
-
-- 清理作业的运行状态记录
-```shell
-python3 bin/autoexec --jobid "374288003424256" --cleanstatus
-```
-*作业运行后会存储了各个节点的状态，运行成功的不会再运行，如为了测试需要，则可以执行此命令清除状态记录*
-
-## 文件目录介绍
-### 程序文件
-- bin/autoexec 
-
-*主程序，进行参数处理和初始化作业运行需要的目录环境变量等信息*
-
-- lib/VContext.py
-- lib/Context.py
-*VContext.py是Context.py的父亲类*
-*保存所有运行相关的信息，在各个环境进行传递。信息包括:作业ID、执行用户、日志和状态等相关路径信息、各个阶段的运行状态、MongoDB的连接等等*
-
-- lib/AutoexecError.py
-
-*运行异常封装类*
-
-- lib/NodeStatus.py
-
-*节点状态的枚举类*
-
-- lib/Operation.py
-
-*操作信息类，用于记录操作相关的属性，完成对操作的运行准备:包括文件参数的文件下载、参数引用的解决，操作命令行生成等。*
-
-- lib/OutputStoe.py
-
-*用于保存每个运行节点的output保存到MongoDB，以及从MongoDB加载。*
-
-- lib/PhaseExecutor.py
-
-*每个阶段的执行器，每个阶段会实例化一个执行器，执行器创建线程池，读取Node节点信息生成RunNode对象，交由线程池的线程进行执行。*
-
-- lib/PhaseStatus.py
-
-*用于记录每个阶段的执行状态:成功、失败、忽略的节点数量。*
-
-- lib/RunNode.py
-
-*运行节点，节点运行的主程序，根据参数和节点类型选择正确的运行方式运行某个阶段的所有操作，并完成节点的状态、output记录。*
-
-- lib/RunNodeFactory.py
-
-*节点信息文件的Iterator*
-
-- lib/ServerAdapter.py
-
-*后台控制端的接口的Adapter类，到后台控制端的所有调用都经过它。*
-
-- lib/TagentClient.py
-
-*Tagent Client的python实现*
-
-- lib/Utils.pm
-
-*工具类，所有小的可以共享的方法存放在这*
-
-### 运行时数据日志目录
-- data
-
-*目录，保存所有作业数据的根目录*
-
-- data/cache
-
-*文件类型参数下载文件的cache目录，以文件id作为保存的名字，下载文件是会传送lastModified属性到服务端，如果没有修改，服务端返回304。作业会建立hard link到这个目录中的文件。*
-
-- data/job/xxx/yyy/zzz
-
-*作业的运行目录，xxx/yyy/zzz是作业ID以3个字节切分得到的子目录，这样做是为了避免一个子目录下的文件目录数量太多，影响性能。*
-
-- data/job/xxx/yyy/zzz/file
-
-*作业运行需要的文件参数的文件存放目录，均是hard link到上述的cache目录*
-
-- data/job/xxx/yyy/zzz/log
-
-*各个阶段运行的日志保存的地方，每个节点保存一个日志。*</br>
-*譬如:data/job/xxx/yyy/zzz/log/post，post就是阶段名，data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.txt，192.168.0.1是节点的IP，22是节点的端；data/job/xxx/yyy/zzz/log/post/192.168.0.1-22.hislog/20210521-112018.anonymous.txt是节点的历史日志，历史日志名称包括了执行开始时间，执行用户，文件的最后修改时间就是执行的结束时间。*
-
-- data/job/xxx/yyy/zzz/output
-
-*节点运行的output目录，保存每个节点的output文件。每个节点一个output文件，譬如:192.168.0.22-3939.json。内容样例子:*
-
-- i18n
-
-*存放cmdb自动采集的各种对象的数据结构描述
-*导入cmdb和巡检对象描述的方法
-```shell
-cd autoexec
-source ./setenv.sh
-cd autoexec/i18n/cmdbcollect
-python3 dicttool 
-```
-
-- plugins/local
-
-* 在Runner上运行的内置工具目录，一个子目录是一个工具组，工具组中存放多个工具，每个工具包括实现的程序和json描述文件
-
-- plugins/remote
-
-* 在目标OS上运行的内置工具目录，一个子目录是一个工具组，工具组中存放多个工具，每个工具包括实现的程序和json描述文件
-
-```json
-{
-    "localdemo": {
-        "outtext": "this is the text out value",
-        "outfile": "this is the output file name",
-        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}",
-        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u5f20\u4e09\u201c,\"\u7537\u201c,\"30\"\\n\"\u674e\u56db\",\"\u5973\u201c,\"35\"",
-        "outpassword": "{RC4}xxxxxxxxxx"
-    },
-    "localremotedemo_tttt": {
-        "outfile": "this is the output file name",
-        "outtext": "this is the text out value",
-        "outpassword": "{RC4}xxxxxxxxxx",
-        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u5f20\u4e09\u201c,\"\u7537\u201c,\"30\"\\n\"\u674e\u56db\",\"\u5973\u201c,\"35\"",
-        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}"
-    },
-    "remotedemo_34234": {
-        "outcsv": "\"name\",\"sex\",\"age\"\\n\"\u00e5\u00bc\u00a0\u00e4\u00b8\u0089\u00e2\u0080\u009c,\"\u00e7\u0094\u00b7\u00e2\u0080\u009c,\"30\"\\n\"\u00e6\u009d\u008e\u00e5\u009b\u009b\",\"\u00e5\u00a5\u00b3\u00e2\u0080\u009c,\"35\"",
-        "outjson": "{\"key1\":\"value1\", \"key2\":\"value2\"}",
-        "outfile": "this is the output file name",
-        "outpassword": "{RC4}xxxxxxxxxx",
-        "outtext": "this is the text out value"
-    }
-}
-```
-
-- data/job/xxx/yyy/zzz/status
-保存每个节点和节点关联操作运行状态的目录。每个节点一个status文件，譬如:post/192.168.0.22-3939.json（post阶段的节点192.168.0.22:3939的执行状态）。内容样例子:
-
-```json
-{
-    "status": "succeed",
-    "localremotedemo_tttt": "succeed",
-    "remotedemo_34234": "succeed"
-}
-```
-
-## 参数文件样例
-
-```json
-{
-    "jobId": 624490098515988,
-    "roundCount": 64,
-    "opt": {},
-    "runFlow": [
-        {
-            "execStrategy": "oneShot",
-            "groupNo": 0,
-            "phases": [
-                {
-                    "operations": [
-                        {
-                            "output": {},
-                            "opt": {},
-                            "opName": "shell倒计时",
-                            "opType": "runner",
-                            "isScript": 1,
-                            "opId": "shell倒计时_624490098515994",
-                            "interpreter": "bash",
-                            "failIgnore": 1,
-                            "desc": {}
-                        }
-                    ],
-                    "phaseName": "oneshot_local"
-                },
-                {
-                    "operations": [
-                        {
-                            "output": {},
-                            "opt": {},
-                            "opName": "shell倒计时_target",
-                            "opType": "target",
-                            "isScript": 1,
-                            "opId": "shell倒计时_target_624490098515998",
-                            "interpreter": "bash",
-                            "failIgnore": 1,
-                            "desc": {}
-                        }
-                    ],
-                    "phaseName": "oneshot_target"
-                }
-            ]
-        },
-        {
-            "execStrategy": "grayScale",
-            "groupNo": 1,
-            "phases": [
-                {
-                    "operations": [
-                        {
-                            "output": {},
-                            "opt": {},
-                            "opName": "shell倒计时",
-                            "opType": "runner",
-                            "isScript": 1,
-                            "opId": "shell倒计时_624490098516001",
-                            "interpreter": "bash",
-                            "failIgnore": 1,
-                            "desc": {}
-                        }
-                    ],
-                    "execRound": "first",
-                    "phaseName": "grayscale_local"
-                },
-                {
-                    "operations": [
-                        {
-                            "output": {},
-                            "opt": {},
-                            "opName": "shell倒计时_target",
-                            "opType": "target",
-                            "isScript": 1,
-                            "opId": "shell倒计时_target_624490098516163",
-                            "interpreter": "bash",
-                            "failIgnore": 1,
-                            "desc": {}
-                        }
-                    ],
-                    "phaseName": "grayscale_target"
-                }
-            ]
-        },
-        {
-            "execStrategy": "oneShot",
-            "groupNo": 2,
-            "phases": [
-                {
-                    "operations": [
-                        {
-                            "output": {},
-                            "opt": {},
-                            "opName": "shell倒计时",
-                            "opType": "runner",
-                            "isScript": 1,
-                            "opId": "shell倒计时_624490098516166",
-                            "interpreter": "bash",
-                            "failIgnore": 1,
-                            "desc": {}
-                        }
-                    ],
-                    "phaseName": "oneshot_local2"
-                }
-            ]
-        }
-    ],
-    "arg": {},
-    "execUser": "system",
-    "tenant": "develop"
-}
-```
-
-说明:
-
-- "jobId": 作业Id，如果定义的跟autoexec的命令行参数--jobid不一致，会强行改成一致。
-- "roundCount": 分组运行分组的数量
-- "preJobId": 前一个作业的Id，用于在ITSM流程串接多个作业时传入，会在callback时回传到控制后台。(deprecated)
-- "runNode":如果含有此属性，运行目标就以此为准，autoexec不会再调用接口获取运行需要的目标节点。
-- "opt": 整个作业的输入参数列表，结构是key value结构
-- "runFlow": 数组结构，包括多个运行组，一个数组元素是一个运行组，autoexec会按顺序执行运行组。运行组是key value结构，key是运行阶段（phase）的名称，运行阶段内容由多个操作组成的数组。一个运行组内的多个阶段会并发运行。
-- 操作内的参数"isScript": 表示此操作是自定义脚本，如果isScript是1，那么必须有另外一个参数"scriptId"给出script的Id，这样autoexec才能根据scriptId到控制端下载脚本。
-
-## nodes文件样例
-
-```json
-{ "resourceId": 456, "nodeName":"myhost", "nodeType": "host", "host": "192.168.0.27", "protocol":"ssh", "protocolPort":22, "username": "root", "password": "xxxxxx" }
-{ "resourceId": 567,"nodeName":"tomcat1", "nodeType": "tomcat", "host": "192.168.0.22", "protocol":"tagent", "protocolPort":3939, "port": 8080, "username": "root", "password": "{RC4}xxxxxxx" }
-{ "resourceId": 458, "nodeName":"tomcat2", "nodeType": "tomcat", "host": "192.168.0.26", "protocol":"tagent", "protocolPort":3939, "port": 8080, "username": "root", "password": "xxxxxxxx" }
-
-```
-
-补充说明:
-
-- "resourceId": 运行目标节点的UUID
-- "nodeName": 节点名称（不一定唯一）
-- "nodeType": 表示连接节点的方式
-- "host": 连接目标的IP
-- "port": 目标节点的端口（IP+服务端口确定一个目标节点）
-- "protocol": 连接节点远程操作的协议，ssh｜tagent
-- "protocolPort": 连接协议对应的端口
-- "username": 在目标节点运行工具的OS用户s
-- "password": 连接目标节点的密码
-
-## 设置Runner的互相信任（制品互相同步需要设置SSH信任）
-### 设置步骤
-选择其中一个runner，登录app用户，使用工具ssh-keygen生成RSA公钥和私钥
-```shell
-ssh-keygen
-cd ~/.ssh
-scp id_rsa id_rsa.pub app@xx.yy.zz.w1:.ssh/
-scp id_rsa id_rsa.pub app@xx.yy.zz.w2:.ssh/
-scp id_rsa id_rsa.pub app@xx.yy.zz.w3:.ssh/
-。。。。
-
-#使用执行用户app分别登录各个runner
-#在所有runner上执行下面的命令，把公钥append到文件~/.ssh/authorized_keys里面
-cat id_rsa.pub >> authorized_keys
-chmod 600 authorized_keys
-chmod 600 id_rsa
-
-#在各个runner验证相互两两的免密登录
-```
-
-## 安装Agent工具
-sshcmd
-### 单个目标
-```shell
-python3 bin/sshcmd --host 192.168.0.26 --port 2020 --user root --password ********  ls -l /tmp
-python3 bin/sshcmd --host 192.168.0.26 --user root --password ********  ls -l /tmp
-```
-
-### 多个目标
-编写文件/tmp/hosts.txt
-```shell
-192.168.0.26:22 root password
-192.168.0.25:22 root password
-```
-
-```shell
-python3 bin/sshcmd --hostsfile /tmp/hosts.txt ls -l /tmp
-```
-
-编写文件/tmp/hosts1.txt
-```shell
-192.168.0.26:22 password
-192.168.0.25:22 password
-```
-
-```shell
-python3 bin/sshcmd --user root --hostsfile /tmp/hosts1.txt ls -l /tmp
-```
-
-编写文件/tmp/hosts2.txt
-```shell
-192.168.0.26:22
-192.168.0.25:22
-```
-
-```shell
-python3 bin/sshcmd --user root --password ****** --hostsfile /tmp/hosts1.txt ls -l /tmp
-```
+## 更多
+参见：[环境搭建和调试](README_env.md)
