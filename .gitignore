@@ -11,5 +11,5 @@ plib/*
 plugins/local/pllib/*
 plugins/local/media/perl-pkgs/*/*
 tools/*
-.iml
+*.iml
 
