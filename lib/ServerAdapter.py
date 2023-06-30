@@ -186,24 +186,27 @@ class ServerAdapter:
         if self.context.devMode:
             return
 
-        response = self.httpGET(self.apiMap['getMongoDBConf'])
+        contextCfg = self.context.config
+        dbUrl = contextCfg['autoexec'].get('db.url')
 
-        try:
-            charset = response.info().get_content_charset()
-            content = response.read().decode(charset, errors='ignore')
-            mongoDBConf = json.loads(content)
+        if dbUrl is None:
+            response = self.httpGET(self.apiMap['getMongoDBConf'])
 
-            contextCfg = self.context.config
-            optionStr = mongoDBConf.get('option')
-            if optionStr:
-                contextCfg['autoexec']['db.url'] = 'mongodb://%s?%s' % (mongoDBConf['host'], optionStr)
-            else:
-                contextCfg['autoexec']['db.url'] = 'mongodb://%s/' % (mongoDBConf['host'])
-            contextCfg['autoexec']['db.name'] = mongoDBConf['database']
-            contextCfg['autoexec']['db.username'] = mongoDBConf['username']
-            contextCfg['autoexec']['db.password'] = mongoDBConf['passwordPlain']
-        except:
-            raise
+            try:
+                charset = response.info().get_content_charset()
+                content = response.read().decode(charset, errors='ignore')
+                mongoDBConf = json.loads(content)
+
+                optionStr = mongoDBConf.get('option')
+                if optionStr:
+                    contextCfg['autoexec']['db.url'] = 'mongodb://%s?%s' % (mongoDBConf['host'], optionStr)
+                else:
+                    contextCfg['autoexec']['db.url'] = 'mongodb://%s/' % (mongoDBConf['host'])
+                contextCfg['autoexec']['db.name'] = mongoDBConf['database']
+                contextCfg['autoexec']['db.username'] = mongoDBConf['username']
+                contextCfg['autoexec']['db.password'] = mongoDBConf['passwordPlain']
+            except:
+                raise
 
     # 获取作业的运行参数文件params.json
     def getParams(self):
