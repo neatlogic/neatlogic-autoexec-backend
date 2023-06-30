@@ -202,7 +202,7 @@ class ServerAdapter:
                 mongoDBConf = contentObj.get('Return')
                 optionStr = mongoDBConf.get('option')
                 if optionStr:
-                    contextCfg['autoexec']['db.url'] = 'mongodb://%s?%s' % (mongoDBConf['host'], optionStr)
+                    contextCfg['autoexec']['db.url'] = 'mongodb://%s/?%s' % (mongoDBConf['host'], optionStr)
                 else:
                     contextCfg['autoexec']['db.url'] = 'mongodb://%s/' % (mongoDBConf['host'])
                 contextCfg['autoexec']['db.name'] = mongoDBConf['database']
