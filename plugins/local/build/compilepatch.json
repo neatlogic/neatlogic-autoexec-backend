@@ -7,7 +7,8 @@
     "defaultProfile": "maven-args",
     "description": "使用代码仓库的diff功能抽取编译后的文件生成补丁",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "verbose",
             "name": "显示明细",
             "help": "执行日志显示详细信息",
@@ -15,7 +16,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -35,7 +37,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "en_US.UTF-8",
                         "value": "en_US.UTF-8"
                     },
@@ -55,7 +58,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "maven",
                         "value": "maven"
                     },
@@ -83,7 +87,8 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "自动",
                         "value": ""
                     },
@@ -127,26 +132,8 @@
         },
         {
             "opt": "tag4cmpto",
-            "name": "基线标签",
-            "help": "基线的标签，当前代码与它比较抽取（如果是基于Revision，留空）",
-            "type": "text",
-            "required": "false",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
-            "opt": "startrev",
-            "name": "起始Revision",
-            "help": "补丁开始的Revision号（如果留空，则根据当前版本的开始Revision号来抽取）",
-            "type": "text",
-            "required": "false",
-            "validate": "",
-            "defaultValue": ""
-        },
-        {
-            "opt": "endrev",
-            "name": "结束Revision",
-            "help": "补丁结束的Revision号（如果留空，则根据当前版本的结束Revision号来抽取）",
+            "name": "比较分支或标签",
+            "help": "基线的标签，当前代码与它比较抽取（如果是基于主干基线，留空）",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -214,7 +201,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "是",
                         "value": "1"
                     },
@@ -234,7 +222,8 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "否",
                         "value": "0"
                     },

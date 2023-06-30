@@ -56,7 +56,7 @@ sub main {
     my $makeToolVer = '';
     my $diffDirName = 'build.diff';
     my $tag4CmpTo   = '';
-    my $startRev    = '';
+    my $startRev;
     my $endRev;
     my $srcPaths     = '';
     my $testSrcPaths = 'src/test';
@@ -220,9 +220,10 @@ sub main {
         my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
 
         #如果没有定义$tag4CmpTo和$startRev则获取getver记录的revision的start和end
-        if ( $tag4CmpTo eq '' and $startRev eq '' ) {
-            ( $startRev, $endRev ) = $verGet->getVerRevRange();
-        }
+        # if ( $tag4CmpTo eq '' and $startRev eq '' ) {
+        #     $startRev = $verInfo->{startRev};
+        #     $endRev   = $verInfo->{endRev};
+        # }
 
         eval {
             #通过代码仓库比较获取差异文件存放到目录$diffDir

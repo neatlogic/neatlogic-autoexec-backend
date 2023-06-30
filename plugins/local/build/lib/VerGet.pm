@@ -301,15 +301,13 @@ sub getBuildDiff {
     }
 
     my $ret = 1;
-    if ( $tag4CmpTo ne '' ) {
-        $ret = $self->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
-    }
-    elsif ( $startRev ne '' ) {
-
+    if ( defined($startRev) and $startRev ne '' and $startRev ne '0' ) {
         $ret = $self->getDiffByRev( $startRev, $endRev, $excludeDirs, $diffDir, $isVerbose );
     }
     else {
-        print("ERROR: Can not get diff base(tag|branch|revision).\n");
+        $ret = $self->getDiffByTag( $tag4CmpTo, $excludeDirs, $diffDir, $isVerbose );
+
+        #print("ERROR: Can not get diff base(tag|branch|revision).\n");
     }
 
     if ( $ret > 255 ) {
