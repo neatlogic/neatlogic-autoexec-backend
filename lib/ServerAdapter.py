@@ -33,6 +33,7 @@ class ServerAdapter:
 
         # api路径的映射
         self.apiMap = {
+            'getMongoDBConf': '/neatlogic/api/rest/mongodb/datasource/get',
             'register': '/neatlogic/api/rest/autoexec/tool/register',
             'getParams': '/neatlogic/api/rest/autoexec/job/create/param/get',
             'getNodes': '/neatlogic/api/binary/autoexec/job/phase/nodes/download',
@@ -71,7 +72,7 @@ class ServerAdapter:
         self.scriptFetched = context.scriptFetched
         self.opFetched = context.opFetched
         serverBaseUrl = context.config['server']['server.baseurl']
-        if(serverBaseUrl[-1] == '/'):
+        if (serverBaseUrl[-1] == '/'):
             serverBaseUrl = serverBaseUrl[0:-1]
         self.serverBaseUrl = serverBaseUrl
 
@@ -129,12 +130,13 @@ class ServerAdapter:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
         return response
 
-    def httpGET(self, apiUri, params):
+    def httpGET(self, apiUri, params=None):
         if apiUri[0] != "/":
             apiUri = '/' + apiUri
 
-        data = urllib.parse.urlencode(params)
-        apiUri = apiUri + '?' + data
+        if params:
+            data = urllib.parse.urlencode(params)
+            apiUri = apiUri + '?' + data
 
         url = self.serverBaseUrl + apiUri
         req = urllib.request.Request(url)
@@ -178,6 +180,30 @@ class ServerAdapter:
             raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
 
         return response
+
+    # 获取租户mongoDB的配置
+    def getMongoDBConf(self):
+        if self.context.devMode:
+            return
+
+        response = self.httpGET(self.apiMap['getMongoDBConf'])
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            mongoDBConf = json.loads(content)
+
+            contextCfg = self.context.config
+            optionStr = mongoDBConf.get('option')
+            if optionStr:
+                contextCfg['autoexec']['db.url'] = 'mongodb://%s?%s' % (mongoDBConf['host'], optionStr)
+            else:
+                contextCfg['autoexec']['db.url'] = 'mongodb://%s/' % (mongoDBConf['host'])
+            contextCfg['autoexec']['db.name'] = mongoDBConf['database']
+            contextCfg['autoexec']['db.username'] = mongoDBConf['username']
+            contextCfg['autoexec']['db.password'] = mongoDBConf['passwordPlain']
+        except:
+            raise
 
     # 获取作业的运行参数文件params.json
     def getParams(self):
@@ -1175,7 +1201,7 @@ class ServerAdapter:
         if conditionLen > 1:
             count = 0
             for i in valueList:
-                if(count + 1 > conditionLen - 1):
+                if (count + 1 > conditionLen - 1):
                     break
                 form = valueList[count]
                 to = valueList[count+1]

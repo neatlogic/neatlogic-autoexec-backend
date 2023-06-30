@@ -134,6 +134,9 @@ def _rc4_decrypt_hex(key, data):
 
 def getDB():
     context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    serverAdapter.getMongoDBConf()
+
     cfg = context.config
     dburl = cfg['autoexec']['db.url']
     dbname = cfg['autoexec']['db.name']

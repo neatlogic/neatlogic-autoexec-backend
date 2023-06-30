@@ -138,6 +138,7 @@ class ListenThread (threading.Thread):  # 继承父类threading.Thread
         context = jobRunner.context
         self.goToStop = False
         self.socketPath = os.getenv('AUTOEXEC_JOB_SOCK')
+        context.serverAdapter.getMongoDBConf()
         context.initDB()
         self.context = context
         self.workQueue = queue.Queue(2048)
@@ -302,7 +303,7 @@ class JobRunner:
         endStatus = NodeStatus.aborted
         phaseStatus = self.context.phases[phaseName]
         try:
-            #serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+            # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
             if failCount == 0:
                 endStatus = NodeStatus.succeed

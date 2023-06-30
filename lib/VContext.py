@@ -92,12 +92,12 @@ class VContext:
         self.rexecWriteTimeout = int(config['autoexec'].get('rexec.writeTimeout', 60))
 
         hasNoEncrypted = False
-        #serverPass = cfg.get('server', 'server.password')
+        # serverPass = cfg.get('server', 'server.password')
         serverPass = config['server']['server.password']
-        #passKey = cfg.get('server', 'password.key')
+        # passKey = cfg.get('server', 'password.key')
         passKey = config['server']['password.key']
-        #autoexecDBPass = cfg.get('autoexec', 'db.password')
-        autoexecDBPass = config['autoexec']['db.password']
+        # autoexecDBPass = cfg.get('autoexec', 'db.password')
+        autoexecDBPass = config['autoexec'].get('db.password')
 
         MY_KEY = 'c3H002LGZRrseEPck9tsNgfXHJcl0USJ'
         if passKey.startswith('{ENCRYPTED}'):
@@ -124,7 +124,7 @@ class VContext:
         if hasNoEncrypted:
             serverPass = config['server']['server.password']
             passKey = config['server']['password.key']
-            autoexecDBPass = config['autoexec']['db.password']
+            autoexecDBPass = config['autoexec'].get('db.password')
 
             if not passKey.startswith('{ENCRYPTED}'):
                 cfg.set('server', 'password.key', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(MY_KEY, self.passKey))
@@ -132,7 +132,7 @@ class VContext:
             if not serverPass.startswith('{ENCRYPTED}'):
                 cfg.set('server', 'server.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.passKey, serverPass))
 
-            if not autoexecDBPass.startswith('{ENCRYPTED}'):
+            if autoexecDBPass and not autoexecDBPass.startswith('{ENCRYPTED}'):
                 cfg.set('autoexec', 'db.password', '{ENCRYPTED}' + Utils._rc4_encrypt_hex(self.passKey, autoexecDBPass))
 
             with FileLock(cfgPath):

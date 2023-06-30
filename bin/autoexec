@@ -236,6 +236,8 @@ if __name__ == "__main__":
     if args.cleanstatus:
         try:
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
+            serverAdapter.getMongoDBConf()
             vContext.initDB()
 
             outputStore = OutputStore.OutputStore(vContext, None, None)
