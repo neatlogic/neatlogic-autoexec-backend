@@ -189,7 +189,7 @@ class ServerAdapter:
         contextCfg = self.context.config
         dbUrl = contextCfg['autoexec'].get('db.url')
 
-        if dbUrl is None:
+        if not dbUrl:
             response = self.httpGET(self.apiMap['getMongoDBConf'])
 
             try:
