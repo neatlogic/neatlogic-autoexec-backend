@@ -195,8 +195,11 @@ class ServerAdapter:
             try:
                 charset = response.info().get_content_charset()
                 content = response.read().decode(charset, errors='ignore')
-                mongoDBConf = json.loads(content)
+                contentObj = json.loads(content)
+                if contentObj.get('Status') != 'OK':
+                    raise AutoExecError("Request failed, {}".format(contentObj.get('Message')))
 
+                mongoDBConf = contentObj.get('Return')
                 optionStr = mongoDBConf.get('option')
                 if optionStr:
                     contextCfg['autoexec']['db.url'] = 'mongodb://%s?%s' % (mongoDBConf['host'], optionStr)

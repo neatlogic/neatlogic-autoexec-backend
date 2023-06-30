@@ -135,12 +135,14 @@ class ListenWorkThread(threading.Thread):
 class ListenThread (threading.Thread):  # 继承父类threading.Thread
     def __init__(self, name, jobRunner=None):
         threading.Thread.__init__(self, name=name, daemon=True)
-        context = jobRunner.context
         self.goToStop = False
+        self.server = None
+        context = jobRunner.context
+        self.context = context
+
         self.socketPath = os.getenv('AUTOEXEC_JOB_SOCK')
         context.serverAdapter.getMongoDBConf()
         context.initDB()
-        self.context = context
         self.workQueue = queue.Queue(2048)
         self.server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.globalLock = GlobalLock.GlobalLock(context)
