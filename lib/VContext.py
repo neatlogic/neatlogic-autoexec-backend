@@ -113,7 +113,7 @@ class VContext:
         else:
             hasNoEncrypted = True
 
-        if autoexecDBPass.startswith('{ENCRYPTED}'):
+        if autoexecDBPass and autoexecDBPass.startswith('{ENCRYPTED}'):
             autoexecDBPass = Utils._rc4_decrypt_hex(self.passKey, autoexecDBPass[11:])
             config['autoexec']['db.password'] = autoexecDBPass
         else:
