@@ -98,11 +98,11 @@
                 "dataList": [
                     {
                         "text": "远程到本地",
-                        "value": "1"
+                        "value": "0"
                     },
                     {
                         "text": "本地到远程",
-                        "value": "0"
+                        "value": "1"
                     }
                 ]
             },
