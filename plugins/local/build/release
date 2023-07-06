@@ -345,7 +345,7 @@ sub main {
     }
 
     my $realDbDir;
-    if ( not defined($dbDir) and $dbDir ne '' ) {
+    if ( not defined($dbDir) or $dbDir eq '' ) {
         $realDbDir = "$dbDir/$version";
     }
     else {
@@ -371,7 +371,7 @@ sub main {
     }
 
     my $realDocDir;
-    if ( not defined($docDir) and $docDir ne '' ) {
+    if ( not defined($docDir) or $docDir eq '' ) {
         $realDocDir = "$docDir/$version";
     }
     else {
