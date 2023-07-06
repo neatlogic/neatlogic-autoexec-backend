@@ -85,7 +85,7 @@ sub new {
     print(qq{INFO: Disql -L "$user"/"******"\@$host:$port\n});
 
     #my $spawn = Expect->spawn("disql -L '$user/\"$pass\"\@$host:$port'");
-    my $spawn = Expect->spawn(qq{disql -L "$user"/"$pass"\@$host:$port});
+    my $spawn = Expect->spawn(qq{disql -L '"$user"'/'"$pass"'\@$host:$port});
 
     if ( not defined($spawn) ) {
         die("launch disql failed, check if it exists and it's permission.\n");
@@ -305,8 +305,9 @@ sub run {
             $spawn->send("SET AUTOCOMMIT OFF;\n");
         }
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
-#        $spawn->send("SET AUTOCOMMIT OFF;\n");
-#        $spawn->expect( undef, [ $PROMPT => sub { } ] );
+
+        #        $spawn->send("SET AUTOCOMMIT OFF;\n");
+        #        $spawn->expect( undef, [ $PROMPT => sub { } ] );
         $spawn->send("SET DEFINE OFF;\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
         $spawn->send("SET LINESIZE 160;\n");

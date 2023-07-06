@@ -154,11 +154,11 @@ sub new {
         #my $sqlFileName = basename($sqlFile);
         if ( $addrsCount == 1 ) {
             print("INFO: Sqlldr userid=$user/******\@//$host:$port/$dbName $dbArgs control='$sqlFileName'\n");
-            $spawn->spawn(qq{sqlldr userid="$user"/\\"$pass\\"\@//$host:$port/$dbName $dbArgs control='$sqlFileName'});
+            $spawn->spawn(qq{sqlldr userid='"$user"'/'"$pass"'\@//$host:$port/$dbName $dbArgs control='$sqlFileName'});
         }
         else {
             print("INFO: Sqlldr userid=$user/******\@orcl $dbArgs control='$sqlFileName'\n");
-            $spawn->spawn(qq{sqlldr userid="$user"/\\"$pass\\"\@orcl $dbArgs control='$sqlFileName'});
+            $spawn->spawn(qq{sqlldr userid='"$user"'/'"$pass"'\@orcl $dbArgs control='$sqlFileName'});
         }
     }
     elsif ( $sqlFile =~ /\.dmp/i ) {
@@ -171,11 +171,11 @@ sub new {
         # oracle import
         if ( $addrsCount == 1 ) {
             print("INFO: Imp $user/******\@//$host:$port/$dbName $dbArgs file=$sqlFileName\n");
-            $spawn->spawn(qq{imp "$user"/\\"$pass\\"\@//$host:$port/$dbName $dbArgs file='$sqlFileName'});
+            $spawn->spawn(qq{imp '"$user"'/'"$pass"'\@//$host:$port/$dbName $dbArgs file='$sqlFileName'});
         }
         else {
             print("INFO: Imp $user/******\@orcl $dbArgs file=$sqlFileName\n");
-            $spawn->spawn(qq{imp "$user"/\\"$pass\\"\@orcl $dbArgs file='$sqlFileName'});
+            $spawn->spawn(qq{imp '"$user"'/'"$pass"'\@orcl $dbArgs file='$sqlFileName'});
         }
     }
     else {
@@ -185,11 +185,11 @@ sub new {
             print("INFO: $sqlRunner -R 1 -L $user/******\@//$host:$port/$dbName \@$sqlFileName\n");
 
             #print( "$sqlRunner -R 1 -L '$user/\"$pass\"'\@//$host:$port/$dbName", "\n" );
-            $spawn->spawn(qq{$sqlRunner -R 1 -L "$user"/\\"$pass\\"\@//$host:$port/$dbName});
+            $spawn->spawn(qq{$sqlRunner -R 1 -L '"$user"'/'"$pass"'\@//$host:$port/$dbName});
         }
         else {
             print("INFO: $sqlRunner -R 1 -L $user/******\@orcl \@$sqlFileName\n");
-            $spawn->spawn(qq{$sqlRunner -R 1 -L "$user"/\\"$pass\\"\@orcl});
+            $spawn->spawn(qq{$sqlRunner -R 1 -L '"$user"'/'"$pass"'\@orcl});
         }
     }
 
