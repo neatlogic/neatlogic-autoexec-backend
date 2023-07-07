@@ -34,12 +34,12 @@ sub new {
 
     my $logonTimeout = $args->{logonTimeout};
     if ( not defined($logonTimeout) ) {
-        $logonTimeout = 5;
+        $logonTimeout = 15;
     }
 
     $logonTimeout = int($logonTimeout);
     if ( $logonTimeout == 0 ) {
-        $logonTimeout = 5;
+        $logonTimeout = 15;
     }
 
     $self->{logonTimeout} = $logonTimeout;
