@@ -126,14 +126,13 @@ sub test {
         [
             timeout => sub {
                 print("ERROR: Connection timeout(exceed $logonTimeout seconds).\n");
-                $hasHardError = 1;
             }
         ],
         [
             eof => sub {
-                $hasHardError = 1;
-
-                #print( DeployUtils->convToUTF8( $spawn->before() ) );
+                if ( $hasLogon != 1 ) {
+                    print( DeployUtils->convToUTF8( $spawn->before() ) );
+                }
             }
         ]
     );

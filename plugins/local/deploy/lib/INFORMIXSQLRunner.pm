@@ -206,9 +206,9 @@ sub test {
         ],
         [
             eof => sub {
-                $hasLogon = 0;
-
-                #print( DeployUtils->convToUTF8( $spawn->before() ) );
+                if ( $hasLogon != 1 ) {
+                    print( DeployUtils->convToUTF8( $spawn->before() ) );
+                }
             }
         ]
     );

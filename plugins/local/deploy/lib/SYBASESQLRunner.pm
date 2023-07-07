@@ -136,8 +136,6 @@ sub test {
         $logonTimeout,
         [
             qr/Msg\s+\d+,\s+Level\s+\d+,\s+State\s+\d+:\s*\n.*?(?=\d>\s)/is => sub {
-                print( $spawn->before() );
-                print( $spawn->match() );
                 $spawn->send("quit\n");
             }
         ],
@@ -148,8 +146,9 @@ sub test {
         ],
         [
             eof => sub {
-
-                #print( DeployUtils->convToUTF8( $spawn->before() ) );
+                if ( $hasLogon != 1 ) {
+                    print( DeployUtils->convToUTF8( $spawn->before() ) );
+                }
             }
         ],
         [

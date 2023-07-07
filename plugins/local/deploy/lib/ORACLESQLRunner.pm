@@ -241,11 +241,17 @@ sub test {
         $logonTimeout,
         [
             qr/Usage(\s*\d*):\s*SQLPLUS/i => sub {
+                print("ERROR:");
+                print( DeployUtils->convToUTF8( $spawn->match() ) );
+                print( DeployUtils->convToUTF8( $spawn->after() ) );
                 $spawn->send("\cC\cC\n");
             }
         ],
         [
             qr/ORA-\d+.*(?=\n)/i => sub {
+                print("ERROR:");
+                print( DeployUtils->convToUTF8( $spawn->match() ) );
+                print( DeployUtils->convToUTF8( $spawn->after() ) );
                 $spawn->send("\cC\cC\n");
             }
         ],
