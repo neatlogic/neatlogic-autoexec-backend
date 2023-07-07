@@ -25,9 +25,14 @@ sub new {
 
     my $self = {
         port        => $args{port},
+        deleteOnly  => $args{deleteOnly},
         tmpDir      => $args{tmpDir},
         deployUtils => DeployUtils->new()
     };
+
+    if ( not defined( $self->{deleteOnly} ) ) {
+        $self->{deleteOnly} = 0;
+    }
 
     bless( $self, $pkg );
 
@@ -742,41 +747,43 @@ sub upgradeFiles {
         }
 
         #找出新增的目录
-        foreach $srcDir ( keys(%$allSrcDirs) ) {
-            if ( $$allSrcDirsPrefix{$srcDir} eq $sourcePath ) {
-                $srcStat = $$allSrcDirs{$srcDir};
-                if ( not exists( $$allTgtDirs{$srcDir} ) ) {
+        if ( $deleteOnly == 0 ) {
+            foreach $srcDir ( keys(%$allSrcDirs) ) {
+                if ( $$allSrcDirsPrefix{$srcDir} eq $sourcePath ) {
+                    $srcStat = $$allSrcDirs{$srcDir};
+                    if ( not exists( $$allTgtDirs{$srcDir} ) ) {
 
-                    push( @newDirs, $srcDir );
+                        push( @newDirs, $srcDir );
 
-                    #print("$targetIP: 预创建目录 $targetPath/$srcDir\n");
-                    if ( $ostype eq 'windows' ) {
-                        my $tmp_srcDir = $srcDir;
-                        $tmp_srcDir =~ s/\//\\/g;
-                        $cmdStr_forwindows = "${cmdStr_forwindows}if not exist $tmp_srcDir mkdir $tmp_srcDir 1>nul 2>nul\n";
-                    }
-                    else {
-                        $cmdStr = "${cmdStr}if [ ! -e '$srcDir' ]; then mkdir -p '$srcDir' || exit 1; fi\n";
-                    }
+                        #print("$targetIP: 预创建目录 $targetPath/$srcDir\n");
+                        if ( $ostype eq 'windows' ) {
+                            my $tmp_srcDir = $srcDir;
+                            $tmp_srcDir =~ s/\//\\/g;
+                            $cmdStr_forwindows = "${cmdStr_forwindows}if not exist $tmp_srcDir mkdir $tmp_srcDir 1>nul 2>nul\n";
+                        }
+                        else {
+                            $cmdStr = "${cmdStr}if [ ! -e '$srcDir' ]; then mkdir -p '$srcDir' || exit 1; fi\n";
+                        }
 
-                    if ( ( not defined($noAttrs) or $noAttrs eq 0 ) and $ostype ne 'windows' ) {
-
-                        #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{" || exit 1\n$chmodCmdStr};
-                    }
-                }
-                else {
-                    $tgtStat = $$allTgtDirs{$srcDir};
-                    if ( $$srcStat[1] ne $$tgtStat[1] ) {
                         if ( ( not defined($noAttrs) or $noAttrs eq 0 ) and $ostype ne 'windows' ) {
-                            push( @modDirs, $srcDir );
 
                             #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
                             $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{" || exit 1\n$chmodCmdStr};
                         }
-                        else {
-                            my $mode = oct( $$tgtStat[1] );
-                            chmod( $mode, $srcDir );
+                    }
+                    else {
+                        $tgtStat = $$allTgtDirs{$srcDir};
+                        if ( $$srcStat[1] ne $$tgtStat[1] ) {
+                            if ( ( not defined($noAttrs) or $noAttrs eq 0 ) and $ostype ne 'windows' ) {
+                                push( @modDirs, $srcDir );
+
+                                #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
+                                $chmodCmdStr = "chmod " . $$srcStat[1] . ' "' . $deployUtils->escapeQuote($srcDir) . qq{" || exit 1\n$chmodCmdStr};
+                            }
+                            else {
+                                my $mode = oct( $$tgtStat[1] );
+                                chmod( $mode, $srcDir );
+                            }
                         }
                     }
                 }
@@ -784,27 +791,29 @@ sub upgradeFiles {
         }
 
         #将所有需要更新的文件分批次打tar包
-        my $countFiles = scalar(@updatedFiles);
-        for ( my $i = 0 ; $i < $countFiles ; $i += 100 ) {
-            $hasTar = 1;
-            my $cmd = "tar r${followLinksOpt}f $tarPath/$tarFileName";
-            if ( $needCreateTar == 1 ) {
-                $cmd           = "tar -c${followLinksOpt}f $tarPath/$tarFileName";
-                $needCreateTar = 0;
-            }
+        if ( $self->{deleteOnly} == 0 ) {
+            my $countFiles = scalar(@updatedFiles);
+            for ( my $i = 0 ; $i < $countFiles ; $i += 100 ) {
+                $hasTar = 1;
+                my $cmd = "tar r${followLinksOpt}f $tarPath/$tarFileName";
+                if ( $needCreateTar == 1 ) {
+                    $cmd           = "tar -c${followLinksOpt}f $tarPath/$tarFileName";
+                    $needCreateTar = 0;
+                }
 
-            my $hasTarFile = 0;
-            foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
-                $hasTarFile = 1;
-                $cmd        = $cmd . ' "' . $deployUtils->escapeQuote($file) . '"';
-            }
-            my $rc = 0;
-            if ( $hasTarFile == 1 ) {
-                $rc = $deployUtils->execmd($cmd);
-            }
-            if ( $rc ne 0 and $rc ne 1 ) {
-                print("ERROR: Package and update files failed.\n");
-                exit(-1);
+                my $hasTarFile = 0;
+                foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
+                    $hasTarFile = 1;
+                    $cmd        = $cmd . ' "' . $deployUtils->escapeQuote($file) . '"';
+                }
+                my $rc = 0;
+                if ( $hasTarFile == 1 ) {
+                    $rc = $deployUtils->execmd($cmd);
+                }
+                if ( $rc ne 0 and $rc ne 1 ) {
+                    print("ERROR: Package and update files failed.\n");
+                    exit(-1);
+                }
             }
         }
     }
@@ -870,7 +879,7 @@ sub upgradeFiles {
         }
     }
 
-    if ( $chmodCmdStr ne '' ) {
+    if ( $self->{deleteOnly} == 0 and $chmodCmdStr ne '' ) {
         $cmdStr = "$cmdStr\n$chmodCmdStr" if ( $ostype ne 'windows' );
     }
 

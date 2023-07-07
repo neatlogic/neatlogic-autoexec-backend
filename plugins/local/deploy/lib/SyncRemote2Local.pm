@@ -24,10 +24,15 @@ sub new {
     }
 
     my $self = {
-        port   => $args{port},
-        tmpdir => $args{tmpDir},
-        tmpDir => $args{tmpDir}
+        port       => $args{port},
+        deleteOnly => $args{deleteOnly},
+        tmpdir     => $args{tmpDir},
+        tmpDir     => $args{tmpDir}
     };
+
+    if ( not defined( $self->{deleteOnly} ) ) {
+        $self->{deleteOnly} = 0;
+    }
 
     bless( $self, $pkg );
 
@@ -502,7 +507,7 @@ sub allLocalFiles {
 
 #更新到发布目录
 sub genUpdateTar {
-    my ( $sourcePath, $inExceptDirs, $ticket, $noDelete, $noAttrs, $followLinks ) = @_;
+    my ( $sourcePath, $inExceptDirs, $ticket, $noDelete, $noAttrs, $followLinks, $deleteOnly ) = @_;
     my ( $allSrcFiles, $allSrcDirs, $allTgtFiles, $allTgtDirs, $srcFile, $srcDir, $tgtFile, $tgtDir, $hasTar );
     my ( $allSrcFilesPrefix, $allSrcDirsPrefix );
     my ( $srcStat, $tgtStat, $srcMode, $tgtMode );
@@ -586,47 +591,51 @@ sub genUpdateTar {
         }
 
         #将所有需要更新的文件分批次打tar包
-        my $countFiles = scalar(@updatedFiles);
-            for ( my $i = 0 ; $i < $countFiles ; $i += 100 ) {
-            $hasTar = 1;
-            my $cmd = "tar r${followLinksOpt}f $tarPath/$tarFileName";
-            if ( $needCreateTar == 1 )
-            {
-                $cmd = "tar c${followLinksOpt}f $tarPath/$tarFileName";
-                $needCreateTar = 0;
-            }
+        if ( $deleteOnly == 0 ){
+            my $countFiles = scalar(@updatedFiles);
+                for ( my $i = 0 ; $i < $countFiles ; $i += 100 ) {
+                $hasTar = 1;
+                my $cmd = "tar r${followLinksOpt}f $tarPath/$tarFileName";
+                if ( $needCreateTar == 1 )
+                {
+                    $cmd = "tar c${followLinksOpt}f $tarPath/$tarFileName";
+                    $needCreateTar = 0;
+                }
 
-            foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
-                $cmd = $cmd . ' ' . escapeQuote($file);
-            }
-            my $rc = system($cmd);
-            if ( $rc ne 0 ) {
-                print("ERROR: Package and update files failed.\n$cmd\n");
-                exit(-1);
+                foreach my $file ( splice( @updatedFiles, 0, 100 ) ) {
+                    $cmd = $cmd . ' ' . escapeQuote($file);
+                }
+                my $rc = system($cmd);
+                if ( $rc ne 0 ) {
+                    print("ERROR: Package and update files failed.\n$cmd\n");
+                    exit(-1);
+                }
             }
         }
 
         #找出新增的目录
-        foreach $srcDir ( keys(%$allSrcDirs) ) {
-            if ( $$allSrcDirsPrefix{$srcDir} eq $sourcePath ) {
-                $srcStat = $$allSrcDirs{$srcDir};
-                if ( not exists( $$allTgtDirs{$srcDir} ) ) {
+        if($deleteOnly == 0){
+            foreach $srcDir ( keys(%$allSrcDirs) ) {
+                if ( $$allSrcDirsPrefix{$srcDir} eq $sourcePath ) {
+                    $srcStat = $$allSrcDirs{$srcDir};
+                    if ( not exists( $$allTgtDirs{$srcDir} ) ) {
 
-                    push( @newDirs, $srcDir );
-                    $cmdStr = "${cmdStr}if [ ! -e '$srcDir' ]; then mkdir -p '$srcDir'; fi\n";
+                        push( @newDirs, $srcDir );
+                        $cmdStr = "${cmdStr}if [ ! -e '$srcDir' ]; then mkdir -p '$srcDir'; fi\n";
 
-                    if ( not defined($noAttrs) or $noAttrs eq 0 ){
-                        #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
-                        $chmodCmdStr = "chmod " . $$srcStat[1] . " " . escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
-                    }
-                }
-                else {
-                    $tgtStat = $$allTgtDirs{$srcDir};
-                    if ( not defined($noAttrs) or $noAttrs eq 0 ){
-                        if ( $$srcStat[1] ne $$tgtStat[1] ) {
-                            push( @modDirs, $srcDir );
+                        if ( not defined($noAttrs) or $noAttrs eq 0 ){
                             #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
                             $chmodCmdStr = "chmod " . $$srcStat[1] . " " . escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                        }
+                    }
+                    else {
+                        $tgtStat = $$allTgtDirs{$srcDir};
+                        if ( not defined($noAttrs) or $noAttrs eq 0 ){
+                            if ( $$srcStat[1] ne $$tgtStat[1] ) {
+                                push( @modDirs, $srcDir );
+                                #print("预更改目录$srcDir权限为", $$srcStat[1], "\n");
+                                $chmodCmdStr = "chmod " . $$srcStat[1] . " " . escapeQuote($srcDir) . " || exit 1\n$chmodCmdStr";
+                            }
                         }
                     }
                 }
@@ -661,7 +670,7 @@ sub genUpdateTar {
         $cmdStr = "tar x${followLinksOpt}f $tarFileName || exit 1\nrm -f $tarFileName || exit 1\n" . $cmdStr;
     }
 
-    if ( $chmodCmdStr ne '' ) {
+    if ( $deleteOnly == 0 and $chmodCmdStr ne '' ) {
         $cmdStr = "$cmdStr\n$chmodCmdStr";
     }
 
@@ -750,8 +759,9 @@ sub genUpdateTar {
     };
     $endSub =~ s/\$sourcePath/$sourcePath/;
 
-    my $perlCmd = "use File::Glob qw(bsd_glob); my \$ticket='$ticket';" . $endSub . $perlSubs . qq{\ngenUpdateTar("$sourcePath","$inExceptDirs", "$ticket", $noDelete, $noAttrs, $followLinks);};
-    my $cmdFile = new IO::File(">$targetPath/._update_$ticket.pl");
+    my $deleteOnly = $self->{deleteOnly};
+    my $perlCmd    = "use File::Glob qw(bsd_glob); my \$ticket='$ticket';" . $endSub . $perlSubs . qq{\ngenUpdateTar("$sourcePath","$inExceptDirs", "$ticket", $noDelete, $noAttrs, $followLinks, $deleteOnly);};
+    my $cmdFile    = new IO::File(">$targetPath/._update_$ticket.pl");
     print $cmdFile ($perlCmd);
     $cmdFile->close();
 

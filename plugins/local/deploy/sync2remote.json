@@ -88,21 +88,25 @@
             "defaultValue": "appdist"
         },
         {
-            "opt": "nodelete",
-            "name": "删除多出内容",
-            "help": "删除目标目录多出的文件或子目录",
+            "opt": "opmode",
+            "name": "同步模式",
+            "help": "对目标目录多出的文件或子目录如何处理",
             "type": "select",
             "required": "true",
             "validate": "",
             "dataSource": {
                 "dataList": [
                     {
-                        "text": "是",
+                        "text": "完全同步",
                         "value": "0"
                     },
                     {
-                        "text": "否",
+                        "text": "不执行删除",
                         "value": "1"
+                    },
+                    {
+                        "text": "仅执行删除",
+                        "value": "2"
                     }
                 ]
             },

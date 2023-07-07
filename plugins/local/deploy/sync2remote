@@ -45,6 +45,8 @@ sub main {
     my ( $host,   $port, $user, $pass, $src, $dest, $expDir );
     my $isPull            = 0;
     my $noDelete          = 0;
+    my $deleteOnly        = 0;
+    my $opMode            = 0;
     my $noAttrs           = 0;
     my $addExecForNewFile = 0;
     my $followLinks       = 0;
@@ -61,6 +63,7 @@ sub main {
         'version=s'           => \$version,
         'pdir=s'              => \$pdir,
         'nodelete=i'          => \$noDelete,
+        'opmode=i'            => \$opMode,
         'noattrs=i'           => \$noAttrs,
         'followlinks=i'       => \$followLinks,
         'addexecfornewfile=i' => \$addExecForNewFile,
@@ -75,6 +78,22 @@ sub main {
     if ( not defined($dest) ) {
         print("ERROR: Must defined option --dest.\n");
         $optionError = 1;
+    }
+
+    if ( $noDelete == 1 and $deleteOnly == 1 ) {
+        print("ERROR: Option --nodelete and --deleteonly can not been set to true at the same time.\n");
+        $optionError = 1;
+    }
+
+    if ( $opMode == 0 ) {
+        $noDelete   = 0;
+        $deleteOnly = 0;
+    }
+    elsif ( $opMode == 1 ) {
+        $noDelete = 1;
+    }
+    elsif ( $opMode == 2 ) {
+        $deleteOnly = 1;
     }
 
     my $deployUtils = DeployUtils->new();
@@ -217,11 +236,11 @@ sub main {
     eval {
         if ( $isPull == 1 ) {
             $directDesc = 'from';
-            my $syncExec = new SyncRemote2Local( port => $port, tmpDir => $tmpDir );
+            my $syncExec = new SyncRemote2Local( port => $port, tmpDir => $tmpDir, deleteOnly => $deleteOnly );
             $syncExec->upgradeFiles( $dest, $user, $pass, $host, $src, $expDir, $noDelete, $noAttrs, $followLinks, $agentType );
         }
         else {
-            my $syncExec = new SyncLocal2Remote( port => $port, tmpDir => $tmpDir );
+            my $syncExec = new SyncLocal2Remote( port => $port, tmpDir => $tmpDir, deleteOnly => $deleteOnly );
             $syncExec->upgradeFiles( $ostype, $src, $user, $pass, $host, $insId, $dest, $expDir, $noDelete, $noAttrs, $followLinks, $addExecForNewFile, $agentType );
         }
     };
