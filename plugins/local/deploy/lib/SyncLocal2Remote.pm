@@ -747,7 +747,7 @@ sub upgradeFiles {
         }
 
         #找出新增的目录
-        if ( $deleteOnly == 0 ) {
+        if ( $self->{deleteOnly} == 0 ) {
             foreach $srcDir ( keys(%$allSrcDirs) ) {
                 if ( $$allSrcDirsPrefix{$srcDir} eq $sourcePath ) {
                     $srcStat = $$allSrcDirs{$srcDir};
