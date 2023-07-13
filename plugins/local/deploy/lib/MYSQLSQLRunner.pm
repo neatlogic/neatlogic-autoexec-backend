@@ -40,7 +40,7 @@ sub new {
     my $self = {};
     bless( $self, $pkg );
 
-    $self->{PROMPT} = qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\])>\s$/;
+    $self->{PROMPT} = qr/(mysql|MariaDB\s\[$dbName\]|MySQL\s\[$dbName\]|$host\s\[$dbName\])>\s$/;
 
     $sqlFile =~ s/^\s*'|'\s*$//g;
 

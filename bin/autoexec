@@ -84,7 +84,8 @@ def _getLogSubPath(jobId):
     return '/'.join(subPath)
 
 
-def registerTools(serverAdapter, pluginsPath, opType):
+def registerTools(serverAdapter, pluginsPath, opType, importTime):
+    result = True
     os.chdir(pluginsPath + '/' + opType)
     with os.scandir() as iterator:
         for entry in iterator:
@@ -100,6 +101,7 @@ def registerTools(serverAdapter, pluginsPath, opType):
                             # 如果工具没有enabled，则略过注册
                             continue
                         pluginObj['opName'] = opName
+                        pluginObj['importTime'] = importTime
                         # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
                         if opType == 'local':
                             if 'opType' in pluginObj:
@@ -117,7 +119,11 @@ def registerTools(serverAdapter, pluginsPath, opType):
                             retObj = serverAdapter.registerTool(pluginObj)
                             if 'Status' in retObj and retObj['Status'] == 'OK':
                                 print("INFO: Register tool:{} {} success.\n".format(opType, opName))
+                            else:
+                                result = False
+                                print("ERROR: Register tool:{} {} failed {}.\n".format(opType, opName, retObj['Message']))
                         except Exception as ex:
+                            result = False
                             print("ERROR: Register tool:{} {} failed, {}\n".format(opType, opName, ex))
 
 
@@ -257,6 +263,7 @@ if __name__ == "__main__":
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         vContext = VContext.VContext(0, execUser=execUser, passThroughEnv=passThroughEnv)
 
+        importTime = int(time.time())
         tenant = args.register
         if tenant is None:
             tenant = vContext.config['server']['tenant']
@@ -266,8 +273,25 @@ if __name__ == "__main__":
         vContext.tenant = tenant
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
-        registerTools(serverAdapter, pluginsPath, 'local')
-        registerTools(serverAdapter, pluginsPath, 'remote')
+        hasError = 0
+        if (not registerTools(serverAdapter, pluginsPath, 'local', importTime)):
+            hasError = 1
+        if (not registerTools(serverAdapter, pluginsPath, 'remote', importTime)):
+            hasError = 1
+
+        try:
+            retObj = serverAdapter.cleanNativeTools(importTime)
+            if 'Status' in retObj and retObj['Status'] == 'OK':
+                print("INFO: Clean discarded tools success.\n")
+            else:
+                hasError = 1
+                print("ERROR: Clean discarded tools failed {}.\n" % (retObj['Message']))
+        except Exception as ex:
+            hasError = 1
+            print("ERROR: Clean discarded tools failed, {}\n".format(ex))
+
+        sys.exit(hasError)
+
     elif args.pause:
         try:
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)

@@ -35,6 +35,7 @@ class ServerAdapter:
         self.apiMap = {
             'getMongoDBConf': '/neatlogic/api/rest/mongodb/datasource/get',
             'register': '/neatlogic/api/rest/autoexec/tool/register',
+            'cleanNativeTools': '/neatlogic/api/rest/autoexec/tool/batch/delete',
             'getParams': '/neatlogic/api/rest/autoexec/job/create/param/get',
             'getNodes': '/neatlogic/api/binary/autoexec/job/phase/nodes/download',
             'fetchFile': '/neatlogic/api/binary/file/download',
@@ -739,6 +740,17 @@ class ServerAdapter:
     # 注册native工具到服务端工具库
     def registerTool(self, toolObj):
         response = self.httpJSON(self.apiMap['register'],  toolObj)
+
+        try:
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            return json.loads(content)
+        except:
+            raise
+
+    # 清除不存在的native工具
+    def cleanNativeTools(self, importTime):
+        response = self.httpJSON(self.apiMap['cleanNativeTools'],  {'importTime': importTime})
 
         try:
             charset = response.info().get_content_charset()
