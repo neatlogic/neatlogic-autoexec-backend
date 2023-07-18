@@ -6,7 +6,7 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "使用IF-ELSE组合多个工具",
-    "enabled": 0,
+    "enabled": 1,
     "condition": "",
     "if": [],
     "else": [],
