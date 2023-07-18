@@ -6,8 +6,6 @@
 <img src="https://img.shields.io/badge/Slack-Neatlogic-orange" /></a>
 </p>
 
----
-------
 ## 关于
 neatlogic-autoexec-backend是自动化<a href="../../../neatlogic-runner">neatlogic-runner</a>执行代理上的后端执行工具。接收服务端作业调度和控制指令，执行***组合工具***发起自动化作业，根据服务端提供的作业参数、执行目标节点、以及执行参数按阶段、分批次执行作业，并根据执行完成度回写服务端作业状态。
 
