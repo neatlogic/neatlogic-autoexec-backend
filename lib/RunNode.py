@@ -1533,28 +1533,22 @@ class RunNode:
                             self.writeNodeLog(remoteOut)
                     # 执行主命令
                     if ret == 0:
-                        # channel = ssh.get_transport().open_session()
-                        # channel.set_combine_stderr(True)
-                        # channel.exec_command(remoteCmd)
-                        # while True:
-                        #     while channel.recv_ready():
-                        #         remoteOut = channel.recv(4096)
-                        #         self.writeNodeLog(remoteOut)
-                        #     if channel.exit_status_ready():
-                        #         ret = channel.recv_exit_status()
-                        #         break
-                        #     time.sleep(0.2)
-                        channel = ssh.invoke_shell(term='dumb')
+                        channel = ssh.invoke_shell(term='dumb', width=2048)
                         channel.settimeout(self.context.rexecReadTimeout)
-                        channel.send(remoteCmd + ';exit $?\n')
-                        while True:
-                            while channel.recv_ready():
-                                remoteOut = channel.recv(4096)
-                                self.writeNodeLog(remoteOut)
-                            if channel.exit_status_ready():
-                                ret = channel.recv_exit_status()
-                                break
-                            time.sleep(0.2)
+                        cmdstdin = channel.makefile('wb')
+                        cmdstdout = channel.makefile('rb')
+                        cmdstdin.write(remoteCmd.encode() + b';exit $?\n')
+
+                        ignoreLineCount = 2
+                        cmdStartBytes = b'cd ' + remotePath.encode() + b' &&'
+                        line = cmdstdout.readline()
+                        while line:
+                            if ignoreLineCount > 0 and line.find(cmdStartBytes) >= 0:
+                                ignoreLineCount = ignoreLineCount - 1
+                            else:
+                                self.writeNodeLog(line)
+                            line = cmdstdout.readline()
+                        ret = channel.recv_exit_status()
 
                     if ret == 0 and op.hasOutput:
                         outFileKey = None
