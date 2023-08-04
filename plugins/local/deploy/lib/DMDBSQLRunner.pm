@@ -311,7 +311,7 @@ sub run {
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
         $spawn->send("SET LINESIZE 160;\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
-        $spawn->send("SET ECHO ON;\n");
+        $spawn->send("SET ECHO OFF;\n");
         $spawn->expect( undef, [ $PROMPT => sub { } ] );
 
         $self->{hasLogon} = 1;
@@ -335,7 +335,8 @@ sub run {
             [
                 #SQL对象错误
                 #[-2106]:Error in line: 1
-                qr/(?<=\n)\[-\d+\]:Error in line:\s*\d+/ => sub {
+                #[-6602]:Violate unique constraint on [ATTRIBUTE_SET].
+                qr/(?<=\n)\[-\d+\]:.*?(?=\n)/ => sub {
                     my $matchContent = $spawn->match();
 
                     $matchContent =~ /^(\[-\d+\]):.*$/s;
