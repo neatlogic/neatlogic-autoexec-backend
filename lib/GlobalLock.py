@@ -147,10 +147,10 @@ class GlobalLock(object):
             print("INFO: Wait because of: {}\n".format(lockInfo.get('message', '')), end='')
 
             # retry
-            timeOut = 3
+            timeOut = 15
             maxWaitCount = 3600/timeOut
             waitCount = 0
-            if not lockEvent.wait(timeout=timeOut):
+            if not lockEvent.wait(timeout=60):
                 while not lockEvent.wait(timeout=timeOut):
                     if waitCount > maxWaitCount:
                         # timeout
