@@ -45,8 +45,8 @@ class GlobalLock(object):
             lockOwner = lockParams.get('lockOwner', '-')
             lockTarget = lockParams.get('lockTarget', '-')
             lockMode = lockParams.get('lockMode', '-')
-            del(self.lockHandles[lockPid + ':' + lockOwner + '/' + lockTarget + '/' + lockMode])
-            del(self.holdLocks[lockId])
+            del (self.lockHandles[lockPid + ':' + lockOwner + '/' + lockTarget + '/' + lockMode])
+            del (self.holdLocks[lockId])
 
     def stop(self):
         self.goToStop = True
@@ -160,7 +160,7 @@ class GlobalLock(object):
                     try:
                         lockInfo = serverAdapter.callGlobalLock(lockParams)
                     except Exception as ex:
-                        print("WARN: Retry lock {}:{} server failed, {}.\n".format(namePath, lockTarget. str(ex)), end='')
+                        print("WARN: Retry lock {}:{} server failed, {}.\n".format(namePath, lockTarget, str(ex)), end='')
                     finally:
                         lockParams['action'] = lockAction
 
