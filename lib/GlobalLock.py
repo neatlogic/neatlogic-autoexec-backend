@@ -147,23 +147,23 @@ class GlobalLock(object):
             print("INFO: Wait because of: {}\n".format(lockInfo.get('message', '')), end='')
 
             # retry
-            timeOut = 15
+            timeOut = 3
             maxWaitCount = 3600/timeOut
             waitCount = 0
-            if not lockEvent.wait(timeout=60):
+            if not lockEvent.wait(timeout=timeOut):
                 while not lockEvent.wait(timeout=timeOut):
                     if waitCount > maxWaitCount:
                         # timeout
                         break
-
                     lockParams['action'] = 'retry'
                     try:
                         lockInfo = serverAdapter.callGlobalLock(lockParams)
+                        if lockInfo and lockInfo.get('wait') == 0:
+                            break
                     except Exception as ex:
                         print("WARN: Retry lock {}:{} server failed, {}.\n".format(namePath, lockTarget, str(ex)), end='')
                     finally:
                         lockParams['action'] = lockAction
-
                     waitCount = waitCount + 1
 
                 if waitCount > maxWaitCount:

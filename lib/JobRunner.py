@@ -106,15 +106,19 @@ class ListenWorkThread(threading.Thread):
                 lockMode = ''
             try:
                 lockInfo = self.globalLock.doLock(lockParams)
-                print("INFO: PID({}) {} {} lockId({}) for {}:{} success.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockInfo.get('lockId'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget', '-')), end='')
-                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
+                if lockInfo:
+                    print("INFO: PID({}) {} {} lockId({}) for {}:{} success.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockInfo.get('lockId'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget', '-')), end='')
+                    self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
             except Exception as ex:
                 lockInfo = {
                     'lockId': None,
                     'message': str(ex)
                 }
                 print("INFO: PID({}) {} {} for {}:{} failed, {}.\n".format(lockParams.get('pid'), lockMode, lockParams.get('action'), lockParams.get('lockOwnerName'), lockParams.get('lockTarget'), str(ex)), end='')
-                self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
+                try:
+                    self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode('utf-8', 'ingore'), addr)
+                except Exception as ex:
+                    print("WARN: Send lockinfo to server failed, {}".format(str(ex)))
 
     def queryCollectDB(self, actionData, addr):
         collection = actionData['collection']

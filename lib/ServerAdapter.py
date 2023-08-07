@@ -125,7 +125,7 @@ class ServerAdapter:
             if ex.code > 500:
                 content = ex.read()
                 errObj = json.loads(content)
-                errMsg = errObj['Message']
+                errMsg = errObj.get('Message', '')
             raise AutoExecError("Request failed, {}\n".format(errMsg))
         except URLError as ex:
             raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
@@ -175,7 +175,7 @@ class ServerAdapter:
             if ex.code > 500:
                 content = ex.read()
                 errObj = json.loads(content)
-                errMsg = errObj['Message']
+                errMsg = errObj.get('Message', '')
             raise AutoExecError("Request failed, {}".format(errMsg))
         except URLError as ex:
             raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
@@ -781,9 +781,8 @@ class ServerAdapter:
         # lockParams = {
         #     'lockId': 83205734845,
         # }
-        response = self.httpJSON(self.apiMap['globalLock'],  lockParams)
-
         try:
+            response = self.httpJSON(self.apiMap['globalLock'],  lockParams)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -791,7 +790,7 @@ class ServerAdapter:
                 lockInfo = retObj.get('Return')
                 return lockInfo
             else:
-                raise AutoExecError("Lock failed, {}".format(retObj['Message']))
+                raise AutoExecError("Lock failed, {}".format(retObj.get('Message')))
         except:
             raise
 
