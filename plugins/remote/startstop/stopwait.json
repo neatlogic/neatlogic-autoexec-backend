@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "调用远程命令停止应用，检测应用是否停止的同时tail日志",
-    "option": [{
+    "option": [
+        {
             "opt": "prescript",
             "name": "停止命令",
             "help": "停止应用所需要的Shell命令",
@@ -18,7 +19,7 @@
         {
             "opt": "addr",
             "name": "服务地址",
-            "help": "URL或者IP:PORT，例如：http://127.0.0.1:8080",
+            "help": "URL或者IP:PORT，多项逗号相隔，例如：http://127.0.0.1:8080,127.0.0.1:8090",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -59,7 +60,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "否",
                         "value": "0"
                     },
