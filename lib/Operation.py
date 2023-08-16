@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+ Copyright © 2017 NeatLogic
  对操作插件参数进行处理，依据插件的参数描述信息进行相关处理：
  文件参数转换为对当前file子目录下文件路径名
  密码参数进行解密
@@ -266,7 +266,7 @@ class Operation:
                             argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[4:])
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
-                elif(argType == 'file'):
+                elif (argType == 'file'):
                     matchObj = re.match(r'^\s*\$\{', str(argValue))
                     if matchObj:
                         argValueStr = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)

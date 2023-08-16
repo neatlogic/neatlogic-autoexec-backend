@@ -882,7 +882,7 @@ sub _getDiff {
 
     chdir($prjPath);
 
-    #[app@techsure project]$ svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir /app/ezdeploy --username wenhb --password xxx diff --old 'svn://192.168.0.89/commander/tags/v1.0.0' --new 'svn://192.168.0.89/co
+    #[app@project]$ svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir /app/ezdeploy --username wenhb --password xxx diff --old 'svn://192.168.0.89/commander/tags/v1.0.0' --new 'svn://192.168.0.89/co
     #mmander/branches/1.0.0'
 ##D       svn://192.168.0.89/commander/branches/v1.0.0/build/classes
 ##M       svn://192.168.0.89/commander/branches/v1.0.0/build.properties
@@ -979,7 +979,7 @@ sub compare {
 
     chdir($prjPath);
 
-    #[app@techsure project]$ svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir /app/ezdeploy --username wenhb --password xxx diff --old 'svn://192.168.0.89/commander/tags/v1.0.0' --new 'svn://192.168.0.89/co
+    #[app@project]$ svn --summarize --no-auth-cache --non-interactive --trust-server-cert --config-dir /app/ezdeploy --username wenhb --password xxx diff --old 'svn://192.168.0.89/commander/tags/v1.0.0' --new 'svn://192.168.0.89/co
     #mmander/branches/1.0.0'
 ##D       svn://192.168.0.89/commander/branches/v1.0.0/build/classes
 ##M       svn://192.168.0.89/commander/branches/v1.0.0/build.properties

@@ -271,7 +271,8 @@ sub fetch {
 
     if ( $ret eq 0 ) {
         DeployUtils->execmd("cd '$prjPath' && git config user.name '$gitUser'");
-        DeployUtils->execmd("cd '$prjPath' && git config user.email '$gitUser\@techsure.com.cn'");
+
+        #DeployUtils->execmd("cd '$prjPath' && git config user.email '$gitUser\@neatlogic.com'");
         print("FINE: Fetch $repoDesc success.\n");
     }
 

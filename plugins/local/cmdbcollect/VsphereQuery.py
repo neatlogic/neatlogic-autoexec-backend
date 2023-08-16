@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+ Copyright © 2017 NeatLogic
 """
 from pyVim import connect
 from pyVim.connect import SmartConnect, Disconnect, SmartConnection
@@ -24,7 +24,7 @@ class VsphereQuery:
 
         if not service_instance:
             raise SystemExit("Unable to connect to host with supplied info.")
-        #content = service_instance.RetrieveContent()
+        # content = service_instance.RetrieveContent()
         vcontent = service_instance.content
         self.service_instance = service_instance
         self.vcontent = vcontent
@@ -109,11 +109,11 @@ class VsphereQuery:
         ins['CPU_THREADS'] = numCpuThreads
         ins['CPU_PACKAGES'] = numCpuPackages
         ins['CPU_SPEED'] = round(hz/1000000000, 0)
-        #ins['CPU_UNIT'] = 'GHZ'
+        # ins['CPU_UNIT'] = 'GHZ'
 
         memorySize = hardware.memorySize
         ins['MEM_MAXIMUM_CAPACITY'] = round(memorySize/1024/1024/1024, 0)
-        #ins['MEMORY_UNIT'] = 'GB'
+        # ins['MEMORY_UNIT'] = 'GB'
 
         biosInfo = hardware.biosInfo
         biosVersion = biosInfo.biosVersion
@@ -135,9 +135,9 @@ class VsphereQuery:
             for net in net_list:
                 net_ins = {}
                 net_ins['NAME'] = net.device
-                #net_ins['DRIVER'] = net.driver
+                # net_ins['DRIVER'] = net.driver
                 net_ins['MAC'] = net.mac
-                #net_ins['SPEED'] = net.linkSpeed.speedMb
+                # net_ins['SPEED'] = net.linkSpeed.speedMb
                 net_ins['IP_ADDRESS'] = self.str_format(net.spec.ip.ipAddress)
                 data_list.append(net_ins)
         ins['ETH_INTERFACES'] = data_list
@@ -173,7 +173,7 @@ class VsphereQuery:
         ipAddress_arry = net[0].ipAddress
         ipv4 = None
         for ip in ipAddress_arry:
-            if(self.validIPAddress(ip) == 'IPv4'):
+            if (self.validIPAddress(ip) == 'IPv4'):
                 ipv4 = ip
                 break
         return ipv4
@@ -185,9 +185,9 @@ class VsphereQuery:
         guest = vm.guest
         config = vm.config
         os_type = config.guestFullName.lower()
-        if("windows" in os_type or "win" in os_type):
+        if ("windows" in os_type or "win" in os_type):
             os_type = 'Windows'
-        elif("aix" in os_type):
+        elif ("aix" in os_type):
             os_type = 'AIX'
         else:
             os_type = 'Linux'
@@ -237,7 +237,7 @@ class VsphereQuery:
 
     def get_vmlist(self, cluster):
         data_list = []
-        if(hasattr(cluster, 'host')):
+        if (hasattr(cluster, 'host')):
             host_list = cluster.host
             if host_list != None:
                 for host in host_list:

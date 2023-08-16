@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+ Copyright © 2017 NeatLogic
 """
 
 import os
@@ -288,7 +288,7 @@ class PhaseExecutor:
         for t in pauseWorkers:
             t.join()
 
-        #self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.paused)
+        # self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.paused)
         print("INFO: Try to pause job complete.\n", end='')
 
     def kill(self):
@@ -315,5 +315,5 @@ class PhaseExecutor:
         for t in killWorkers:
             t.join()
 
-        #self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.aborted)
+        # self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.aborted)
         print("INFO: Try to kill phase:{} complete.\n".format(self.phaseName), end='')

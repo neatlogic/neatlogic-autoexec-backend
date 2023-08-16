@@ -111,7 +111,7 @@ sub main {
     my $workPath = $ENV{AUTOEXEC_WORK_PATH};
     my $jarsPath = "$toolsDir/as400";
 
-    my $as400JavaCmd = "java -cp $jarsPath/as400javaexec.jar:$jarsPath/jt400.jar com.techsure.as400.Main -v --multicmd --multiline --workpath $workPath --host $host --user $user --ccsid $ccsid 2>&1";
+    my $as400JavaCmd = "java -cp $jarsPath/as400javaexec.jar:$jarsPath/jt400.jar com.neatlogic.as400.Main -v --multicmd --multiline --workpath $workPath --host $host --user $user --ccsid $ccsid 2>&1";
     if ( defined($libs) and $libs ne '' ) {
         $as400JavaCmd = $as400JavaCmd . " --libs $libs";
     }

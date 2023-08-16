@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+ Copyright © 2017 NeatLogic
  提供读取节点文件，遍历节点，更新节点运行状态功能
 """
 import os

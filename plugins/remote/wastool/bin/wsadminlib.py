@@ -108,7 +108,7 @@ except:
     print "Warning: Caught exception accessing Admin objects. Continuing."
 
 # Print SVN file and version information.
-print "##Id: wsadminlib.py 115 2013-01-03 15:51:00Z TechSure##"
+print "##Id: wsadminlib.py 115 2013-01-03 15:51:00Z##"
 
 # Define False, True
 (False,True)=(0,1)

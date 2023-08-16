@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 TechSure<http://www.techsure.com.cn/>
+ Copyright © 2017 NeatLogic
 """
 from multiprocessing import Condition
 import sys
@@ -35,7 +35,7 @@ class K8sAdapter:
             'ingresses': 'apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses'
         }
         self.serverBaseUrl = "https://{}:{}/".format(ip, port)
-        if(self.serverBaseUrl[-1] != '/'):
+        if (self.serverBaseUrl[-1] != '/'):
             self.serverBaseUrl = self.serverBaseUrl + '/'
         self.authToken = 'Bearer ' + token
         self.ip = ip
@@ -335,7 +335,7 @@ class K8sAdapter:
                 deploy['STRATEGY'] = specObj['strategy']['type']
 
                 # todo template? 先不采集
-                #templateObj = specObj['template']
+                # templateObj = specObj['template']
 
                 statusObj = deployObj['status']
                 observedGeneration = 0
@@ -489,7 +489,7 @@ class K8sAdapter:
                         ownerReferences.append({"_OBJ_CATEGORY": "K8S", "_OBJ_TYPE": 'K8S_REPLICASET', "UID": owner['uid'], 'NAME': owner['name'], 'KIND': owner['kind']})
                 pod['OWNERREFERENCES'] = ownerReferences
 
-                containerList = [] 
+                containerList = []
                 if 'spec' in podObj:
                     specObj = podObj['spec']
                     pod['RESTARTPOLICY'] = specObj['restartPolicy']
@@ -528,7 +528,7 @@ class K8sAdapter:
                         containerIns['IMAGE'] = image
                         containerList.append(containerIns)
 
-                newContainerList = [] 
+                newContainerList = []
                 if 'status' in podObj:
                     statusObj = podObj['status']
                     pod['PHASE'] = statusObj['phase']
@@ -564,41 +564,41 @@ class K8sAdapter:
                     pod['CONDITIONS'] = conditions
 
                     refContainers = []
-                    if 'containerStatuses' in statusObj :
+                    if 'containerStatuses' in statusObj:
                         containerStatuses = statusObj['containerStatuses']
                         for container in containerStatuses:
                             name = container['name']
                             image = container['image']
                             imageID = container['imageID']
-                            if 'containerID' not in container :
-                                continue 
-                            
+                            if 'containerID' not in container:
+                                continue
+
                             containerID = container['containerID']
                             state = container['started']
-                            
+
                             containerIns = {}
                             for containerd in containerList:
-                                if name == containerd['NAME'] and  image == containerd['IMAGE'] :
+                                if name == containerd['NAME'] and image == containerd['IMAGE']:
                                     containerIns = containerd
                                     break
-                            
+
                             containerIns['IMAGEID'] = imageID
                             containerIns['CONTAINERID'] = containerID
                             status = 'Exited'
-                            if state :
+                            if state:
                                 status = 'Running'
                             containerIns['STATE'] = status
                             newContainerList.append(containerIns)
 
                             ref_containerId = None
                             ref_containerType = None
-                            if 'docker' in containerID :
-                                ref_containerId = containerID.replace('docker://','')
+                            if 'docker' in containerID:
+                                ref_containerId = containerID.replace('docker://', '')
                                 ref_containerType = "Docker"
 
-                            if ref_containerId is not None :
+                            if ref_containerId is not None:
                                 ref_containerId = ref_containerId.strip()
-                                refContainers.append({"_OBJ_CATEGORY": "CONTAINER", "_OBJ_TYPE": ref_containerType , "CONTAINER_ID": ref_containerId })
+                                refContainers.append({"_OBJ_CATEGORY": "CONTAINER", "_OBJ_TYPE": ref_containerType, "CONTAINER_ID": ref_containerId})
 
                     # 容器信息
                     pod['CONTAINER_INFO'] = newContainerList
