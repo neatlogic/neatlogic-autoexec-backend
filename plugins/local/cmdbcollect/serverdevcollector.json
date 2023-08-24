@@ -6,7 +6,7 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "使用IPMI采集服务器硬件信息",
-    "enabled": 0,
+    "enabled": 1,
     "option": [{
             "opt": "user",
             "name": "带外网卡管理用户",
