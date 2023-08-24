@@ -65,7 +65,9 @@ class ServerAdapter:
             'removeUploadedFile': '/neatlogic/api/rest/file/delete',
             'txtFileInspectSave': '/neatlogic/api/rest/inspect/configfile/audit/save',
             'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
-            'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list'
+            'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
+            'saveVersionMetrics': '/neatlogic/api/rest/deploy/version/commit/analyze/save',
+            'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save'
         }
 
         self.context = context
@@ -1245,3 +1247,39 @@ class ServerAdapter:
                 raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, ex))
         else:
             raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip, name, port, type))
+
+    def saveVersionMetrics(self, data):
+        try:
+            response = self.httpJSON(self.apiMap['saveVersionMetrics'], data)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj
+                else:
+                    raise AutoExecError("saveVersionMetrics {} {}".format(data, content))
+            else:
+                raise AutoExecError("saveVersionMetrics: ".format(content))
+        except AutoExecError:
+            raise
+        except Exception as ex:
+            raise AutoExecError("saveVersionMetrics {} failed, {}".format(data, ex))
+
+    def saveVersionCveList(self, data):
+        try:
+            response = self.httpJSON(self.apiMap['saveVersionCveList'], data)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj
+                else:
+                    raise AutoExecError("saveVersionCveList {} {}".format(data, content))
+            else:
+                raise AutoExecError("saveVersionCveList: ".format(content))
+        except AutoExecError:
+            raise
+        except Exception as ex:
+            raise AutoExecError("saveVersionCveList {} failed, {}".format(data, ex))

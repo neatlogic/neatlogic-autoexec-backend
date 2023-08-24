@@ -1,0 +1,22 @@
+{
+    "opDesc": "CVE依赖检查",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "扫描工程或其子目录，生成包依赖CVE漏洞检查信息",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startdir",
+            "name": "工程子目录",
+            "help": "工程下的某个子目录, 如不声明, 则代表扫描整个工程",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

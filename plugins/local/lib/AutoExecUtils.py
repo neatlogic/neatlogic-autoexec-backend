@@ -448,3 +448,13 @@ def getResourceInfoList(ip, port, name, type):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.getResourceInfoList(ip, port, name, type)
+
+def saveVersionMetrics(data):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.saveVersionMetrics(data)
+
+def saveVersionCveList(data):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.saveVersionCveList(data)
