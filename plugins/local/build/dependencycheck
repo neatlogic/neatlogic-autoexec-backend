@@ -1,0 +1,86 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+from pathlib import Path
+import subprocess
+import AutoExecUtils
+import Utils
+import os
+import sys
+import time
+import argparse
+from pyquery import PyQuery
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+
+
+if __name__ == "__main__":
+
+    # for key, value in os.environ.items():
+    #     print(key + " : " + value)
+    # 参数处理
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--startdir', default='', help='dependency check startdir')
+    args = parser.parse_args()
+
+    project_path = os.environ.get('PRJ_PATH')
+    if not project_path or not Path(project_path).exists():
+        print('ERROR: project path not found')
+        exit(1)
+
+    os.environ["PATH"] = "/app/serverware/dependency-check/bin/:" + os.environ["PATH"]
+
+    startdir = str(Path(project_path) / args.startdir)
+    if not project_path or not Path(project_path).exists():
+        print('ERROR: startdir path not found')
+        exit(1)
+    
+    
+    # print(startdir)
+    # print(' '.join(['/app/serverware/dependency-check/bin/dependency-check.sh', '-s', startdir, '-o', startdir]))
+
+    result = subprocess.run(['dependency-check.sh', '-s', startdir, '-o', startdir], stderr=subprocess.STDOUT)
+
+    # print(result)
+    # print(result.returncode)
+    if result.returncode == 0:
+        print("FINE: Execute dependency-check success\n")
+
+        post_data = {}
+        post_data['version'] = os.environ.get('VERSION')
+        post_data['appSystemId'] = int(os.environ.get('SYS_ID'))
+        post_data['appModuleId'] = int(os.environ.get('MODULE_ID'))
+        post_data['cveList'] = []
+
+        data = (Path(startdir) / 'dependency-check-report.html').read_text(encoding='utf-8')
+        doc = PyQuery(data)
+        
+        tr_list = doc('#summaryTable').find('tr').items()
+        for tr in tr_list:
+            if len(tr.find('td')) == 0 or not tr.hasClass('vulnerable'):
+                continue
+
+            cve = {}
+            cve['dependency'] = tr.find('td').eq(0).find('a').text()
+            cve['vulnerabilityIds'] = tr.find('td').eq(1).find('a').text()
+            cve['packageName'] = tr.find('td').eq(2).find('a').text()
+            cve['highestSeverity'] = tr.find('td').eq(3).text()
+            cve['cveCount'] = int(tr.find('td').eq(4).text())
+            cve['confidence'] = tr.find('td').eq(5).text()
+            cve['evidenceCount'] = int(tr.find('td').eq(6).text())
+            post_data['cveList'].append(cve)
+
+        AutoExecUtils.saveOutput(post_data)
+        AutoExecUtils.saveLiveData(post_data)
+        
+        retObj = AutoExecUtils.saveVersionCveList(post_data)
+        if retObj.get('Status') == 'OK':
+            print('INFO: save version dependency check report finished')
+        else:
+            print('ERROR: save version dependency check report failed, error: '+str(retObj))
+            exit(1)
+
+    exit(result.returncode)
