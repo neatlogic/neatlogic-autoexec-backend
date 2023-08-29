@@ -27,7 +27,7 @@
             "defaultValue": "${NAME_PATH}"
         },
         {
-            "opt": "targetversion",
+            "opt": "targetver",
             "name": "目标版本",
             "help": "需要创建作业的应用系统目标版本",
             "type": "text",
@@ -100,7 +100,7 @@
             "defaultValue": "1"
         },
         {
-            "opt": "senrio",
+            "opt": "senario",
             "name": "场景",
             "help": "作业场景",
             "type": "text",
@@ -118,5 +118,12 @@
             "defaultValue": "1"
         }
     ],
-    "output": []
+    "output": [
+        {
+            "opt": "createdJobId",
+            "name": "已创建作业的id",
+            "help": "已创建作业的id，可用于waitjob插件",
+            "type": "text"
+        }
+    ]
 }

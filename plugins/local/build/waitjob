@@ -1,0 +1,77 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import time
+import argparse
+import AutoExecUtils
+
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--proxytourl', type=str, default='', help='其他环境地址，如是等待当前发布系统作业，则留空')
+    parser.add_argument('--jobids', type=str, default='', help='作业的ID列表, 例如: 1234,5678,5000,60100', required=True)
+    parser.add_argument('--ignorefailed', type=int, default=0, help='忽略作业失败，正常退出')
+    args = parser.parse_args()
+
+    jobid_list = args.jobids.split(',')
+    jobCount = len(jobid_list)
+
+    failCount = 0
+    sucCount = 0
+    loopCount = 0
+
+    exit_flag = 0
+    stop_job = set()
+    while failCount + sucCount < jobCount:
+
+        for jobid in jobid_list:
+            if jobid in stop_job:
+                continue
+            
+            job_status = ''
+            err = None
+            try:
+                job_status = AutoExecUtils.getJobStatus({
+                    'jobId': int(jobid),
+                    'proxyToUrl': args.proxytourl
+                })
+            except Exception as e:
+                err = str(e)
+
+            if not job_status:
+                stop_job.add(jobid)
+                failCount += 1
+                exit_flag = 1
+                print('ERROR: can not get job status for job-{} on {}, error {}'.format(jobid, args.proxytourl, err), flush=True)
+
+            elif job_status in ('completed', 'succeed', 'checked'):
+                stop_job.add(jobid)
+                sucCount += 1
+                print('FINEST: job-{} on {}'.format(jobid, job_status), flush=True)
+
+            elif job_status in ('running', 'waiting', 'pending'):
+                if loopCount % 5 == 0:
+                    print('INFO: job-{} on {}, waiting...'.format(jobid, job_status), flush=True)
+
+            else:
+                stop_job.add(jobid)
+                failCount += 1
+                exit_flag = 1
+                print('ERROR: job-{} on {}'.format(jobid, job_status), flush=True)
+
+        loopCount += 1
+        if failCount + sucCount < jobCount:
+            time.sleep(3)
+
+    if args.ignorefailed:
+        exit(0)
+    else:
+        exit(exit_flag)
