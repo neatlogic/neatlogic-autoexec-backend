@@ -1,0 +1,52 @@
+{
+    "opDesc": "等待作业",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "等待作业",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "proxytourl",
+            "name": "其他环境地址",
+            "help": "如是等待当前发布系统作业，则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "jobids",
+            "name": "作业ID列表",
+            "help": "作业的ID列表, 例如: 1234,5678,5000,60100",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ignorefailed",
+            "name": "忽略失败的作业",
+            "help": "忽略失败的作业，也正常退出",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

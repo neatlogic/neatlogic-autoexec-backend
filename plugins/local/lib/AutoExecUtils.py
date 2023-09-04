@@ -458,3 +458,8 @@ def saveVersionCveList(data):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.saveVersionCveList(data)
+
+def getJobStatus(params):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getJobStatus(params)

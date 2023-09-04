@@ -40,6 +40,7 @@ sub usage {
 }
 
 sub main {
+    $| = 1;
     my ( $isHelp, $envPath, $version, $buildNo );
     my ($proxyToUrl);
     my ( $targetEnvPath, $targetVer, $targetBuildNo );
@@ -61,9 +62,9 @@ sub main {
         'version=s'     => \$version,
         'buildno=s'     => \$buildNo,
         'proxytourl=s'  => \$proxyToUrl,
-        'targetenvpath' => \$targetEnvPath,
-        'targetver'     => \$targetVer,
-        'targetBuildNo' => \$targetBuildNo,
+        'targetenvpath=s' => \$targetEnvPath,
+        'targetver=s'     => \$targetVer,
+        'targetBuildNo=s' => \$targetBuildNo,
         'plantime=s'    => \$planTime,
         'trigtype=s'    => \$trigType,
         'wait=i'        => \$waitJob,
@@ -183,7 +184,7 @@ sub main {
 
     my $createdJobId;
     eval {
-        $createdJobId = $serverAdapter->createJob(
+        $createdJobId = $serverAdapter->createMultiJob(
             $jobId,
             sysName       => $targetSysName,
             moduleName    => $targetModuleName,
@@ -207,6 +208,10 @@ sub main {
     }
     else {
         print("INFO: Job $createdJobId created.\n");
+         my $out = {};
+        $out->{'createdJobId'}  = $createdJobId;
+        AutoExecUtils::saveOutput($out);
+
     }
 
     if ( $hasError == 0 and $trigType eq 'now' and $waitJob eq 1 ) {
