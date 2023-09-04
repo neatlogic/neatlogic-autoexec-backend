@@ -66,12 +66,9 @@ class ServerAdapter:
             'txtFileInspectSave': '/neatlogic/api/rest/inspect/configfile/audit/save',
             'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
             'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
-<<<<<<< HEAD
             'saveVersionMetrics': '/neatlogic/api/rest/deploy/version/commit/analyze/save',
             'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save'
-=======
             'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
->>>>>>> core
         }
 
         self.context = context
