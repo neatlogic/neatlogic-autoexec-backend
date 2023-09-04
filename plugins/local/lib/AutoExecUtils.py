@@ -448,3 +448,9 @@ def getResourceInfoList(ip, port, name, type):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.getResourceInfoList(ip, port, name, type)
+
+
+def getJobStatus(params):
+    context = getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    return serverAdapter.getJobStatus(params)

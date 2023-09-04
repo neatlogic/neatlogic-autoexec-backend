@@ -69,7 +69,8 @@ sub new {
             'rollbackEnvVersion'    => '/neatlogic/api/rest/deploy/env/version/rollback',
             'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
             'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
-            'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download'
+            'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download',
+            'createMultiJob'             => '/neatlogic/api/rest/deploy/job/multi/create'
         };
 
         my $username    = $serverConf->{username};
@@ -854,6 +855,7 @@ sub updatePhaseStatus {
     return;
 }
 
+# 该方法不推荐使用，后端已经升级为createMultiJob
 sub createJob {
     my ( $self, $jobId, %args ) = @_;
 
@@ -896,6 +898,63 @@ sub createJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createJob');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    my $chldJobId;
+    if ( scalar(@$rcObj) > 0 ) {
+        $chldJobId = $$rcObj[0]->{jobId};
+        if ( not defined($chldJobId) ) {
+            die( $$rcObj[0]->{errorMsg} . "\n" );
+        }
+    }
+
+    return $chldJobId;
+}
+
+
+sub createMultiJob {
+    my ( $self, $jobId, %args ) = @_;
+
+    # %args说明
+    # {
+    #     name => 'xxxxx', #作业名
+    #     version => 'xxxxx', #目标版本号
+    #     nodeList => [{ip=>'xxxxx', port=>dddd}], #节点列表，默认空就是全部
+    #     scenarioName => 'xxxxx', #场景名
+    #     roudnCount => 2, #分组运行组的数量
+    #     param => {key => 'value',....} #扩展参数
+    # }
+
+    my $params = {
+        proxyToUrl     => $args{proxyToUrl},
+        parentId       => $jobId,
+        assignExecUser => $args{execUser},
+        source         => 'deploy',
+        name           => $args{name},
+        moduleList     => [
+            {
+                abbrName           => $args{moduleName},
+                version        => $args{version},
+                buildNo        => $args{buildNo},
+                selectNodeList => $args{nodeList}
+            }
+        ],
+        scenarioName  => $args{scenarioName},
+        appSystemAbbrName => $args{sysName},
+        envName       => $args{envName},
+        roundCount    => $args{roundCount},
+        planStartTime => $args{planStartTime},
+        isRrunNow     => $args{isRunNow},
+        param         => $args{param}
+    };
+
+    if ( $args{triggerType} ne 'now' ) {
+        $params->{triggerType} = $args{triggerType};
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('createMultiJob');
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 

@@ -65,7 +65,8 @@ class ServerAdapter:
             'removeUploadedFile': '/neatlogic/api/rest/file/delete',
             'txtFileInspectSave': '/neatlogic/api/rest/inspect/configfile/audit/save',
             'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
-            'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list'
+            'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
+            'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
         }
 
         self.context = context
@@ -1245,3 +1246,20 @@ class ServerAdapter:
                 raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, ex))
         else:
             raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip, name, port, type))
+
+    def getJobStatus(self, params):
+        try:
+            jobId = params['jobId']
+            response = self.httpJSON(self.apiMap['getJobStatus'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("getJobStatus {} failed, {}".format(jobId, retObj['Message']))
+                
+                return retObj.get('Return').get('status')
+            else:
+                raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
