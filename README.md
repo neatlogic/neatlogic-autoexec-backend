@@ -83,5 +83,5 @@ neatlogic-runner runner执行和runner->target执行插件
 ### tools 
 第三方依赖目录，如数据库依赖、存储依赖、代码编译、代码扫描等第三方工具库目录
 
-## 更多
+## 环境搭建和调试
 参见：[环境搭建和调试](README_env.md)
