@@ -67,7 +67,7 @@ class ServerAdapter:
             'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
             'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
             'saveVersionMetrics': '/neatlogic/api/rest/deploy/version/commit/analyze/save',
-            'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save'
+            'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save',
             'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
         }
 
@@ -1261,9 +1261,10 @@ class ServerAdapter:
                 else:
                     raise AutoExecError("saveVersionMetrics {} {}".format(data, content))
             else:
+                print(data)
                 raise AutoExecError("saveVersionMetrics: ".format(content))
-        except AutoExecError:
-            raise
+        except AutoExecError as e:
+            raise e
         except Exception as ex:
             raise AutoExecError("saveVersionMetrics {} failed, {}".format(data, ex))
 
@@ -1279,9 +1280,10 @@ class ServerAdapter:
                 else:
                     raise AutoExecError("saveVersionCveList {} {}".format(data, content))
             else:
+                print(data)
                 raise AutoExecError("saveVersionCveList: ".format(content))
-        except AutoExecError:
-            raise
+        except AutoExecError as e:
+            raise e
         except Exception as ex:
             raise AutoExecError("saveVersionCveList {} failed, {}".format(data, ex))
 
@@ -1299,6 +1301,8 @@ class ServerAdapter:
                 return retObj.get('Return').get('status')
             else:
                 raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
+        except AutoExecError as e:
+            raise e
         except Exception as ex:
             raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
 

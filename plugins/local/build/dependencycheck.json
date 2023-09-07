@@ -16,6 +16,15 @@
             "required": "false",
             "validate": "",
             "defaultValue": ""
+        },
+        {
+            "opt": "cveValidForHours",
+            "name": "cve有效检测时间",
+            "help": "设置cve有效检测时间，单位小时",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         }
     ],
     "output": []
