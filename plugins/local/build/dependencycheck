@@ -27,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('--cveValidForHours', default='168', help='cve valid for hours')
     parser.add_argument('--cveUrlModified', default='', help='URL for the modified CVE JSON data feed. When mirroring the NVD you must mirror the *.json.gz and the *.meta files. Optional if your custom')
     parser.add_argument('--cveUrlBase', default='', help='Base URL for each year\'s CVE JSON data feed, the %d will be replaced with the year')
+
     args = parser.parse_args()
 
     project_path = os.environ.get('PRJ_PATH')
