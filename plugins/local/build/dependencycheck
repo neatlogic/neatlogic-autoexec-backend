@@ -25,6 +25,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--startdir', default='', help='dependency check startdir')
     parser.add_argument('--cveValidForHours', default='168', help='cve valid for hours')
+    parser.add_argument('--cveUrlModified', default='', help='URL for the modified CVE JSON data feed. When mirroring the NVD you must mirror the *.json.gz and the *.meta files. Optional if your custom')
+    parser.add_argument('--cveUrlBase', default='', help='Base URL for each year\'s CVE JSON data feed, the %d will be replaced with the year')
     args = parser.parse_args()
 
     project_path = os.environ.get('PRJ_PATH')
@@ -42,7 +44,8 @@ if __name__ == "__main__":
     # print(startdir)
     # print(' '.join(['/app/serverware/dependency-check/bin/dependency-check.sh', '-s', startdir, '-o', startdir]))
 
-    result = subprocess.run(['dependency-check.sh', '--cveValidForHours', args.cveValidForHours, '-s', startdir, '-o', startdir], stderr=subprocess.STDOUT)
+    result = subprocess.run(['dependency-check.sh', '--cveUrlModified', args.cveUrlModified, '--cveUrlBase', args.cveUrlBase,
+                            '--cveValidForHours', args.cveValidForHours, '-s', startdir, '-o', startdir], stderr=subprocess.STDOUT)
 
     # print(result)
     # print(result.returncode)
