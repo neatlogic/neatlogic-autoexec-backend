@@ -35,17 +35,12 @@ if __name__ == "__main__":
         print('ERROR: project path not found')
         exit(1)
 
-    os.environ["PATH"] = "/app/serverware/dependency-check/bin/:" + os.environ["PATH"]
-
     startdir = str(Path(project_path) / args.startdir)
     if not project_path or not Path(project_path).exists():
         print('ERROR: startdir path not found')
         exit(1)
 
-    # print(startdir)
-    # print(' '.join(['/app/serverware/dependency-check/bin/dependency-check.sh', '-s', startdir, '-o', startdir]))
-
-    result = subprocess.run(['dependency-check.sh', '--cveUrlModified', args.cveUrlModified, '--cveUrlBase', args.cveUrlBase,
+    result = subprocess.run([os.environ['TOOLS_PATH'] + '/dependency-check/bin/dependency-check.sh', '--cveUrlModified', args.cveUrlModified, '--cveUrlBase', args.cveUrlBase,
                             '--cveValidForHours', args.cveValidForHours, '-s', startdir, '-o', startdir], stderr=subprocess.STDOUT)
 
     # print(result)
