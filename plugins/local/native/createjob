@@ -73,6 +73,7 @@ if __name__ == "__main__":
             },
             "whenToSpecify": "runtime"
         }
+
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
 
