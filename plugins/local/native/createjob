@@ -26,6 +26,7 @@ class EvenPairsAction(argparse.Action):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--rerunStrategy', type=str,  help='重跑策略', required=False)
     parser.add_argument('--combopName', type=str,  help='组合工具名', required=True)
     parser.add_argument('--name', type=str, help='作业名', required=True)
     parser.add_argument('--scenarioName', type=str, default='', help='场景名', required=False)
@@ -44,7 +45,8 @@ if __name__ == "__main__":
     param = {}
     for i in range(0, len(args.param), 2):
         param[args.param[i]] = args.param[i+1]
-
+    # for key, value in os.environ.items():
+    #     print(f"{key}={value}")
     data = {
         'combopName': args.combopName,
         'name': args.name,
@@ -71,10 +73,33 @@ if __name__ == "__main__":
             },
             "whenToSpecify": "runtime"
         }
-
-    print(data)
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
+
+    if args.rerunStrategy != 'create' and os.path.exists(os.getenv('NODE_OUTPUT_PATH')):
+        prev_data = AutoExecUtils.loadNodeOutput()
+        # 这里需要优化，环境变量里面没有pluginId值
+        name = 'native/' + os.path.splitext(os.path.basename(os.getenv('LIVEDATA_PATH')))[0]
+        if prev_data and name in prev_data:
+            prev_data = prev_data[name]
+            if prev_data and prev_data.get('createdJobId'):
+                createdJobId = prev_data.get('createdJobId')
+                print('之前已创建过作业: ' + str(createdJobId))
+                if args.rerunStrategy == 'rerun':
+                    # 重跑
+                    job_status = AutoExecUtils.getJobStatus({
+                        'jobId': createdJobId,
+                        'proxyToUrl': None
+                    })
+                    print('现在该作业状态：'+job_status)
+                    if job_status in ('aborted', 'paused', 'completed', 'failed'):
+                        # 这个接口没有返回值
+                        serverAdapter.refireJob({
+                            'jobId': createdJobId,
+                            'type': 'refireAll',
+                        })
+                exit(0)
+
     resp = serverAdapter.createJobFromCombop(data)
     print(resp)
     out = {'createdJobId': resp['jobId']}

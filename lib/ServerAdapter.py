@@ -68,6 +68,7 @@ class ServerAdapter:
             'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
             'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
             'createJobFromCombop': '/neatlogic/api/rest/autoexec/job/from/combop/create/public',
+            'refireJob': '/neatlogic/api/rest/autoexec/job/refire',
         }
 
         self.context = context
@@ -79,8 +80,8 @@ class ServerAdapter:
             serverBaseUrl = serverBaseUrl[0:-1]
         self.serverBaseUrl = serverBaseUrl
 
-        self.serverUserName = context.config['server']['server.username']
-        self.serverPassword = context.config['server']['server.password']
+        self.serverUserName = os.environ.get('AUTOEXEC_USER') or context.config['server']['server.username']
+        self.serverPassword = self.context.passThroughEnv.get('EXECUSER_TOKEN') or context.config['server']['server.password']
         # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
@@ -1280,3 +1281,19 @@ class ServerAdapter:
                 raise AutoExecError("createJobFromCombop failed, status code:{} {}".format(response.status, content))
         except Exception as ex:
             raise AutoExecError("createJobFromCombop failed, {}".format(ex))
+
+    def refireJob(self, params):
+        try:
+            response = self.httpJSON(self.apiMap['refireJob'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("refireJob failed, {}".format(retObj['Message']))
+
+                return retObj.get('Return')
+            else:
+                raise AutoExecError("refireJob failed, status code:{} {}".format(response.status, content))
+        except Exception as ex:
+            raise AutoExecError("refireJob failed, {}".format(ex))

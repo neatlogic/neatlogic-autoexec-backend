@@ -70,11 +70,26 @@ sub new {
             'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
             'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
             'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download',
-            'createMultiJob'             => '/neatlogic/api/rest/deploy/job/multi/create'
+            'createMultiJob'        => '/neatlogic/api/rest/deploy/job/multi/create',
+            'refireJob'             => '/neatlogic/api/rest/autoexec/job/refire',
+            'takeover'              => '/neatlogic/api/rest/autoexec/job/takeover',
         };
 
         my $username    = $serverConf->{username};
         my $password    = $serverConf->{password};
+
+        my $passThroughEnv = {};
+        if ($ENV{PASSTHROUGH_ENV} ) {
+            $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
+            my $val = $ENV{AUTOEXEC_USER};
+            if (defined($val) and $val ne '') {
+                $username = $val;
+            }
+            $val = $passThroughEnv->{'EXECUSER_TOKEN'};
+            if (defined($val) and $val ne '') {
+                $password = $val;
+            }
+        }
         my $signHandler = sub {
             my ( $client, $uri, $postBody ) = @_;
             my $signContent = "$username#$uri#";
@@ -985,6 +1000,37 @@ sub getJobStatus {
     my $jobStatus = $rcObj->{status};
 
     return $jobStatus;
+}
+
+sub refireJob {
+    my ( $self, $jobId ) = @_;
+
+    my $params = {
+        jobId      => $jobId,
+        type => 'refireAll'
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('refireJob');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+    
+    return $rcObj;
+}
+
+sub takeover {
+    my ( $self, $jobId ) = @_;
+
+    my $params = {
+        jobId      => $jobId
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('takeover');
+    my $content = $webCtl->postJson( $url, $params );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
 }
 
 sub saveVersionDependency {

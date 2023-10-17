@@ -9,6 +9,31 @@
     "enabled": 1,
     "option": [
         {
+            "opt": "rerunStrategy",
+            "name": "重跑策略",
+            "help": "设置当之前已经创建过作业时的重跑策略",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "若之前已创建过则忽略执行",
+                        "value": "ignore"
+                    },
+                    {
+                        "text": "重跑之前的子作业",
+                        "value": "rerun"
+                    },
+                    {
+                        "text": "新建作业",
+                        "value": "create"
+                    }
+                ]
+            },
+            "defaultValue": "rerun"
+        },
+        {
             "opt": "combopName",
             "name": "组合工具名",
             "help": "组合工具名",
