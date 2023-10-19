@@ -81,13 +81,15 @@ sub new {
         my $passThroughEnv = {};
         if ($ENV{PASSTHROUGH_ENV} ) {
             $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
-            my $val = $ENV{AUTOEXEC_USER};
-            if (defined($val) and $val ne '') {
-                $username = $val;
-            }
             $val = $passThroughEnv->{'EXECUSER_TOKEN'};
             if (defined($val) and $val ne '') {
                 $password = $val;
+
+                $val = $ENV{AUTOEXEC_USER};
+                if (defined($val) and $val ne '') {
+                    $username = $val;
+                }
+
             }
         }
         my $signHandler = sub {

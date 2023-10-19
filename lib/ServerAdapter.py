@@ -80,8 +80,13 @@ class ServerAdapter:
             serverBaseUrl = serverBaseUrl[0:-1]
         self.serverBaseUrl = serverBaseUrl
 
-        self.serverUserName = os.environ.get('AUTOEXEC_USER') or context.config['server']['server.username']
-        self.serverPassword = self.context.passThroughEnv.get('EXECUSER_TOKEN') or context.config['server']['server.password']
+        self.serverUserName = context.config['server']['server.username']
+        self.serverPassword = context.config['server']['server.password']
+
+        if self.context.passThroughEnv.get('EXECUSER_TOKEN'):
+            self.serverPassword = self.context.passThroughEnv.get('EXECUSER_TOKEN')
+            self.serverUserName = os.environ.get('AUTOEXEC_USER')
+
         # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
