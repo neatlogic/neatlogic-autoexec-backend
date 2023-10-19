@@ -1002,6 +1002,7 @@ class RunNode:
         environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['OPERATION_ID'] = op.opId
         environment['LIVEDATA_PATH'] = self._getOpLiveDataPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
@@ -1059,6 +1060,7 @@ class RunNode:
         environment['GROUP_NO'] = str(self.groupNo)
         environment['OUTPUT_DIR'] = self.opOutputDir
         environment['OUTPUT_PATH'] = self._getOpOutputPath(op)
+        environment['OPERATION_ID'] = op.opId
         environment['LIVEDATA_PATH'] = self._getOpLiveDataPath(op)
         environment['NODE_OUTPUT_PATH'] = self.outputPath
         environment['PATH'] = '{}/lib:{}:{}'.format(op.pluginParentPath, op.localLibPath, os.getenv('PATH'))
