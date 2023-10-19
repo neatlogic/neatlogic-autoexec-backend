@@ -81,7 +81,7 @@ sub new {
         my $passThroughEnv = {};
         if ($ENV{PASSTHROUGH_ENV} ) {
             $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
-            $val = $passThroughEnv->{'EXECUSER_TOKEN'};
+            my $val = $passThroughEnv->{'EXECUSER_TOKEN'};
             if (defined($val) and $val ne '') {
                 $password = $val;
 
