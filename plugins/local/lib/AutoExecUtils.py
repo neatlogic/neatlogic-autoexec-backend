@@ -88,6 +88,7 @@ def saveOutput(outputData):
 
 
 def saveLiveData(outputData):
+    # 保存工具产生的特性数据，最终作为json数据提供给个性化的工具执行状态页面
     outputPath = os.getenv('LIVEDATA_PATH')
     print("INFO: Try save output to {}.\n".format(outputPath), end='')
     if outputPath is not None and outputPath != '':
@@ -100,13 +101,6 @@ def saveLiveData(outputData):
         print("INFO: Save output success.\n", end='')
     else:
         print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n", end='')
-
-
-def getOutput(output_path):
-    outputFile = open(output_path, "r", encoding="utf-8")
-    data = json.load(outputFile)
-    outputFile.close()
-    return data
 
 
 def _rc4(key, data):
@@ -178,6 +172,7 @@ def getNode(resourceId):
 
 
 def loadNodeOutput():
+    # 获取当节点级别的输出参数
     output = {}
     outputPath = os.getenv('NODE_OUTPUT_PATH')
     # 加载操作输出并进行合并
@@ -201,17 +196,12 @@ def loadNodeOutput():
     return output
 
 
-def getOutput(varKey):
-    lastDotPos = varKey.rindex('.')
-    varName = varKey[lastDotPos+1:]
-    pluginId = varKey[0:lastDotPos]
-    output = loadNodeOutput()
-    pluginOut = output.get(pluginId)
-
-    val = None
-    if pluginOut is not None:
-        val = pluginOut.get(varName)
-    return val
+def getOpPreOutput():
+    # 获取当前操作前一次执行的输出参数
+    opId = os.getenv('OPERATION_ID')
+    nodeOutput = loadNodeOutput()
+    opPreOutput = nodeOutput.get(opId)
+    return opPreOutput
 
 
 def informNodeWaitInput(resourceId, title=None, opType='button', message='Please select', options=None, role=None, pipeFile=None):
