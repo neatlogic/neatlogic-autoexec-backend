@@ -1,0 +1,83 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+import AutoExecUtils
+import ServerAdapter
+
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+
+
+class EvenPairsAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if len(values) % 2 != 0:
+            raise argparse.ArgumentTypeError("The number of arguments must be even.")
+        setattr(namespace, self.dest, values)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--combopName', type=str,  help='组合工具名', required=True)
+    parser.add_argument('--name', type=str, help='作业名', required=True)
+    parser.add_argument('--scenarioName', type=str, default='', help='场景名', required=False)
+    parser.add_argument('--source', type=str, default='combop', help='来源 itsm|combop ITSM|组合工具发起的等', required=False)
+    parser.add_argument('--roundCount', type=int, default=3, help='轮次', required=False)
+    parser.add_argument('--planStartTime', type=int, help='计划时间', required=False)
+    parser.add_argument('--triggerType', type=str, default='', help='触发方式 auto,manual', required=False)
+    parser.add_argument('--assignExecUser', type=str, default='', help='指定执行用户', required=False)
+    parser.add_argument('--protocol', type=str, default='', help='执行目标，指定执行协议', required=False)
+    parser.add_argument('--executeUser', type=str, default='', help='执行目标，指定执行用户', required=False)
+    parser.add_argument('--inputNodeList', type=str, default='', help='执行目标，指定执行节点', required=False)
+
+    parser.add_argument('param', type=str, nargs='*', action=EvenPairsAction, help='执行参数')
+    args = parser.parse_args()
+
+    param = {}
+    for i in range(0, len(args.param), 2):
+        param[args.param[i]] = args.param[i+1]
+
+    data = {
+        'combopName': args.combopName,
+        'name': args.name,
+        'source': args.source or 'combop',
+        'scenarioName': args.scenarioName,
+        'triggerType': args.triggerType,
+        'planStartTime': args.planStartTime,
+        'roundCount': args.roundCount,
+        'assignExecUser': args.assignExecUser or os.environ.get('USER'),
+        'param': param,
+        'parentId': os.environ.get('AUTOEXEC_JOBID'),
+        'invokeId': os.environ.get('AUTOEXEC_JOBID'),
+    }
+
+    if args.protocol and args.executeUser and args.inputNodeList:
+        data['executeConfig'] = {
+            "protocol": args.protocol,
+            "executeUser": {
+                "mappingMode": "constant",
+                "value": args.executeUser
+            },
+            "executeNodeConfig": {
+                "inputNodeList": json.loads(args.inputNodeList)
+            },
+            "whenToSpecify": "runtime"
+        }
+
+    print(data)
+    context = AutoExecUtils.getAutoexecContext()
+    serverAdapter = ServerAdapter.ServerAdapter(context)
+    resp = serverAdapter.createJobFromCombop(data)
+    print(resp)
+    out = {'createdJobId': resp['jobId']}
+    AutoExecUtils.saveOutput(out)
+
+    exit(0)

@@ -49,8 +49,10 @@ sub isCeFinish {
     my ( $client, $ceUrl, $baseUrl ) = @_;
 
     $client->GET($ceUrl);
+    
     if ( $client->responseCode() ne 200 ) {
-        die("ERROR: Get Compute Engine status failed.\n");
+        my $errMsg = $client->responseContent();
+        die("ERROR: Get Compute Engine status failed, cause by:$ceUrl $errMsg\n");
     }
 
     my $content = convCharSet( $client, $client->responseContent() );
@@ -97,9 +99,8 @@ sub getMeasures {
 
     my $authToken = getAuthToken( $username, $password );
 
-    my $componentId;
-
-    my $url = "$baseUrl/api/components/show?key=$projectKey";
+    # 兼容接口参数，6.x和9.x测试通过
+    my $url = "$baseUrl/api/components/show?component=$projectKey";
 
     my $client = REST::Client->new();
     $client->getUseragent()->ssl_opts( verify_hostname => 0 );
@@ -119,24 +120,16 @@ sub getMeasures {
             }
             die($errMsg);
         }
-        else {
-            $componentId = $rcJson->{'component'}->{'id'};
-        }
     }
     else {
         my $errMsg = $client->responseContent();
         die("ERROR: Get compnent failed, cause by:$errMsg\n");
     }
 
-    if ( not defined($componentId) ) {
-        die("ERROR: Get compnentId failed.\n");
-    }
-
-    #print("DEBUG: componentId is: $componentId\n");
     my $isFinish = 0;
     while ( !$isFinish ) {
         sleep 2;
-        $isFinish = isCeFinish( $client, "$baseUrl/api/ce/activity_status?componentId=$componentId", $baseUrl );
+        $isFinish = isCeFinish( $client, "$baseUrl/api/ce/activity_status?component=$projectKey", $baseUrl );
     }
 
     my $measureKeyMap = {
@@ -200,36 +193,36 @@ sub getMeasures {
 
     my @measureVals;
 
-    if ( defined($componentId) ) {
-        my @measures = keys(%$measureKeyMap);
+ 
+    my @measures = keys(%$measureKeyMap);
 
-        $url = "$baseUrl/api/measures/component?componentId=$componentId\&metricKeys=" . join( ',', @measures );
+    $url = "$baseUrl/api/measures/component?component=$projectKey\&metricKeys=" . join( ',', @measures );
 
-        #print("$url\n");
-        $client->GET($url);
+    #print("$url\n");
+    $client->GET($url);
 
-        if ( $client->responseCode() eq 200 ) {
-            my $content = convCharSet( $client, $client->responseContent() );
-            my $rcJson = from_json($content);
+    if ( $client->responseCode() eq 200 ) {
+        my $content = convCharSet( $client, $client->responseContent() );
+        my $rcJson = from_json($content);
 
-            if ( $rcJson->{'errors'} ) {
-                my $errMsg;
-                my $errors = $rcJson->{'errors'};
-                foreach my $error (@$errors) {
-                    $errMsg = $errMsg . $error->{'msg'} . "\n";
-                }
-                die($errMsg);
+        if ( $rcJson->{'errors'} ) {
+            my $errMsg;
+            my $errors = $rcJson->{'errors'};
+            foreach my $error (@$errors) {
+                $errMsg = $errMsg . $error->{'msg'} . "\n";
             }
-            else {
-                my $rcMeasureVals = $rcJson->{'component'}->{'measures'};
-                push( @measureVals, @$rcMeasureVals );
-            }
+            die($errMsg);
         }
         else {
-            my $errMsg = $client->responseContent();
-            die("ERROR: Get measures failed, cause by:$errMsg\n");
+            my $rcMeasureVals = $rcJson->{'component'}->{'measures'};
+            push( @measureVals, @$rcMeasureVals );
         }
     }
+    else {
+        my $errMsg = $client->responseContent();
+        die("ERROR: Get measures failed, cause by:$errMsg\n");
+    }
+    
 
     my $hasError = 0;
     my %measuresMap;
