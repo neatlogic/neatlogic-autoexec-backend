@@ -69,6 +69,7 @@ class ServerAdapter:
             'saveVersionMetrics': '/neatlogic/api/rest/deploy/version/commit/analyze/save',
             'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save',
             'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
+            'createJobFromCombop': '/neatlogic/api/rest/autoexec/job/from/combop/create/public',
         }
 
         self.context = context
@@ -1297,7 +1298,7 @@ class ServerAdapter:
             if response.status == 200:
                 if retObj.get('Status') != 'OK':
                     raise AutoExecError("getJobStatus {} failed, {}".format(jobId, retObj['Message']))
-                
+
                 return retObj.get('Return').get('status')
             else:
                 raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
@@ -1306,3 +1307,18 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
 
+    def createJobFromCombop(self, params):
+        try:
+            response = self.httpJSON(self.apiMap['createJobFromCombop'],  params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') != 'OK':
+                    raise AutoExecError("createJobFromCombop failed, {}".format(retObj['Message']))
+
+                return retObj.get('Return')
+            else:
+                raise AutoExecError("createJobFromCombop failed, status code:{} {}".format(response.status, content))
+        except Exception as ex:
+            raise AutoExecError("createJobFromCombop failed, {}".format(ex))

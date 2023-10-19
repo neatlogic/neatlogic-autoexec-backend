@@ -1,0 +1,153 @@
+{
+    "opDesc": "创建作业",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "创建作业",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "combopName",
+            "name": "组合工具名",
+            "help": "组合工具名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "name",
+            "name": "作业名",
+            "help": "作业名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "scenarioName",
+            "name": "场景名",
+            "help": "场景名",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "source",
+            "name": "来源",
+            "help": "来源 itsm|combop ITSM|组合工具发起的等",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "ITSM",
+                        "value": "itsm"
+                    },
+                    {
+                        "text": "组合工具",
+                        "value": "combop"
+                    }
+                ]
+            },
+            "defaultValue": "combop"
+        },
+        {
+            "opt": "roundCount",
+            "name": "轮次",
+            "help": "如作业存在多实例, 分多少轮执行完",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "3"
+        },
+        {
+            "opt": "planStartTime",
+            "name": "计划时间",
+            "help": "计划时间",
+            "type": "date",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "triggerType",
+            "name": "触发方式",
+            "help": "触发方式，选择了自动执行，没有选择计划时间的则会立即执行，否则就按计划时间执行",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动执行",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "手动执行",
+                        "value": "manual"
+                    }
+                ]
+            },
+            "defaultValue": "auto"
+        },
+        {
+            "opt": "assignExecUser",
+            "name": "指定执行用户",
+            "help": "指定执行用户",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "protocol",
+            "name": "执行目标，指定执行协议",
+            "help": "执行目标，指定执行协议",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "executeUser",
+            "name": "执行目标，指定执行用户",
+            "help": "执行目标，指定执行用户",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "root"
+        },
+        {
+            "opt": "inputNodeList",
+            "name": "执行目标，指定执行节点",
+            "help": "执行目标，指定执行节点",
+            "type": "node",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        }
+    ],
+    "argument": {
+        "name": "param",
+        "help": "执行参数, 个数为偶数，分别为key和value",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": [
+        {
+            "opt": "createdJobId",
+            "name": "已创建作业的id",
+            "help": "已创建作业的id，可用于waitjob插件",
+            "type": "text"
+        }
+    ]
+}
