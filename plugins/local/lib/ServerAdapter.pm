@@ -515,6 +515,24 @@ sub getAutoCfgConf {
     my $content = $webCtl->postJson( $url, $params );
     my $rcObj   = $self->_getReturn($content);
 
+    #如果autocfg里存在密码相关的配置，进行解密
+    my $serverConf = $self->{serverConf};
+    my $autoCfg = $rcObj->{autoCfg};
+    while ( my ( $key, $val ) = each(%$autoCfg) ) {
+        if ( $key =~ /password/i ) {
+            $autoCfg->{$key} = $serverConf->decryptPwd($val);
+        }
+    }
+    my $insCfgList = $rcObj->{insCfgList};
+    foreach my $insCfg (@$insCfgList){
+        my $insAutoCfg = $insCfg->{autoCfg};
+        while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
+        if ( $key =~ /password/i ) {
+            $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+        }
+    }
+    }
+
     my $autoCfgMap = $rcObj;
 
     return $autoCfgMap;

@@ -12,7 +12,6 @@ use IO::File;
 use File::Copy;
 use File::Find;
 use File::Path;
-use Term::ReadKey;
 use Encode;
 use Encode::Guess;
 use File::Basename;
@@ -21,7 +20,6 @@ use File::Glob qw(bsd_glob);
 use JSON qw(from_json to_json);
 
 my $READ_TMOUT = 86400;
-my $TERM_CHARSET;
 
 sub setEnv {
     umask(022);
@@ -94,6 +92,7 @@ sub saveOutput {
 }
 
 sub saveLiveData {
+    # 保存工具产生的特性数据，最终作为json数据提供给个性化的工具执行状态页面
     my ($outputData) = @_;
     my $outputPath = $ENV{LIVEDATA_PATH};
 
@@ -155,6 +154,7 @@ sub getNodePipeFile {
     return "$jobPath/log/$phaseName/$nodeInfo->{host}-$nodeInfo->{port}-$nodeInfo->{resourceId}.txt.run.pipe";
 }
 
+# 获取当节点级别的输出参数
 sub loadNodeOutput {
     my $output     = {};
     my $outputPath = $ENV{NODE_OUTPUT_PATH};
@@ -178,21 +178,13 @@ sub loadNodeOutput {
     return $output;
 }
 
-sub getOutput {
-    my ($varKey) = @_;
-    my $lastDotPos = rindex( $varKey, '.' );
+# 获取当前操作前一次执行的输出参数
+sub getOpPreOutput {
+    my $opId  = $ENV{OPERATION_ID};
+    my $nodeOutput    = loadNodeOutput();
+    my $opPreOutput = $nodeOutput->{$opId};
 
-    my $varName   = substr( $varKey, $lastDotPos + 1 );
-    my $pluginId  = substr( $varKey, 0, $lastDotPos );
-    my $output    = loadNodeOutput();
-    my $pluginOut = $output->{$pluginId};
-
-    my $val;
-    if ( defined($pluginOut) ) {
-        $val = $pluginOut->{$varName};
-    }
-
-    return $val;
+    return $opPreOutput;
 }
 
 sub doInteract {
