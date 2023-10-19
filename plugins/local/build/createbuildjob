@@ -190,11 +190,7 @@ sub main {
 
     # 加载操作输出并进行合并
     if ( $rerunStrategy ne 'create'  and -f $outputPath ) {
-        my $output    = AutoExecUtils::loadNodeOutput();
-        my ($filename, $directories, $suffix) = fileparse($ENV{LIVEDATA_PATH}, qr/\.[^.]*/);
-        print($filename."\n");
-        my $pluginId = 'build/' . $filename;
-        my $pluginOut = $output->{$pluginId};
+        my $pluginOut = AutoExecUtils::getOpPreOutput();
         if ( defined($pluginOut) ) {
             my $val = $pluginOut->{'createdJobId'};
             if ( defined($val) and $val ne '') {

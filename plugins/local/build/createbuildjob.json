@@ -18,12 +18,12 @@
             "dataSource": {
                 "dataList": [
                     {
-                        "text": "若之前已创建过则忽略执行",
-                        "value": "ignore"
+                        "text": "跳过所有已成功、已忽略节点",
+                        "value": "refireAll"
                     },
                     {
-                        "text": "重跑之前的子作业",
-                        "value": "rerun"
+                        "text": "重跑所有节点",
+                        "value": "refireResetAll"
                     },
                     {
                         "text": "新建作业",
@@ -31,7 +31,7 @@
                     }
                 ]
             },
-            "defaultValue": "rerun"
+            "defaultValue": "refireAll"
         },
         {
             "opt": "proxytourl",

@@ -78,28 +78,24 @@ if __name__ == "__main__":
     serverAdapter = ServerAdapter.ServerAdapter(context)
 
     if args.rerunStrategy != 'create' and os.path.exists(os.getenv('NODE_OUTPUT_PATH')):
-        prev_data = AutoExecUtils.loadNodeOutput()
-        # 这里需要优化，环境变量里面没有pluginId值
-        name = 'native/' + os.path.splitext(os.path.basename(os.getenv('LIVEDATA_PATH')))[0]
-        if prev_data and name in prev_data:
-            prev_data = prev_data[name]
-            if prev_data and prev_data.get('createdJobId'):
-                createdJobId = prev_data.get('createdJobId')
-                print('之前已创建过作业: ' + str(createdJobId))
-                if args.rerunStrategy == 'rerun':
-                    # 重跑
-                    job_status = AutoExecUtils.getJobStatus({
-                        'jobId': createdJobId,
-                        'proxyToUrl': None
-                    })
-                    print('现在该作业状态：'+job_status)
-                    if job_status in ('aborted', 'paused', 'completed', 'failed'):
-                        # 这个接口没有返回值
-                        serverAdapter.refireJob({
-                            'jobId': createdJobId,
-                            'type': 'refireAll',
-                        })
-                exit(0)
+
+        prev_data = AutoExecUtils.getOpPreOutput()
+        if prev_data and prev_data.get('createdJobId'):
+            createdJobId = prev_data.get('createdJobId')
+            print('之前已创建过作业: ' + str(createdJobId))
+            # 重跑
+            job_status = AutoExecUtils.getJobStatus({
+                'jobId': createdJobId,
+                'proxyToUrl': None
+            })
+            print('现在该作业状态：'+job_status)
+            if job_status in ('aborted', 'paused', 'completed', 'failed'):
+                # 这个接口没有返回值
+                serverAdapter.refireJob({
+                    'jobId': createdJobId,
+                    'type': args.rerunStrategy,
+                })
+            exit(0)
 
     resp = serverAdapter.createJobFromCombop(data)
     print(resp)
