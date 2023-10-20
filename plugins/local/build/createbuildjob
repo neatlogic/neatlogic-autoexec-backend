@@ -6,9 +6,10 @@ use File::Basename;
 use Getopt::Long;
 use Time::Local;
 use File::Path;
-
 use DeployUtils;
 use ServerAdapter;
+
+use JSON;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -35,6 +36,7 @@ sub usage {
     print("       --senario:       Senario for system\n");
     print("       --execuser:       Job user\n");
     print("       --instances:     Instances for job, example:192.168.0.1:8080,192.168.0.2:8080\n");
+    print("       --rerunStrategy: rerun strategy\n");
 
     exit(-1);
 }
@@ -54,6 +56,7 @@ sub main {
     my $planTime   = '';
     my $jobUser    = $ENV{AUTOEXEC_USER};
     my $instances  = '';
+    my $rerunStrategy  = 'rerun';
 
     GetOptions(
         'h|help'        => \$isHelp,
@@ -72,6 +75,7 @@ sub main {
         'senario=s'     => \$senario,
         'execuser=s'    => \$jobUser,
         'instances=s'   => \$instances,
+        'rerunStrategy=s'   => \$rerunStrategy,
         '<>'            => \&pushItems
     );
 
@@ -182,10 +186,59 @@ sub main {
         }
     }
 
+
+    my $username = '';
+    my $password = '';
+    my $passThroughEnv = {};
+    if ($ENV{PASSTHROUGH_ENV} ) {
+        $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
+        my $val = $passThroughEnv->{'EXECUSER_TOKEN'};
+        if (defined($val) and $val ne '') {
+            $password = $val;
+
+            $val = $ENV{AUTOEXEC_USER};
+            if (defined($val) and $val ne '') {
+                $username = $val;
+            }
+
+        }
+    }
+
+    print($username);
+    print($password);
+
+    my $outputPath = $ENV{NODE_OUTPUT_PATH};
+
+    # 加载操作输出并进行合并
+    if ( $rerunStrategy ne 'create'  and -f $outputPath ) {
+        my $pluginOut = AutoExecUtils::getOpPreOutput();
+        if ( defined($pluginOut) ) {
+            my $val = $pluginOut->{'createdJobId'};
+            if ( defined($val) and $val ne '') {
+                print('之前已创建过作业: '.$val."\n");
+                if ($rerunStrategy == 'create') {
+                    my $jobStatus = $serverAdapter->getJobStatus( $val, proxyToUrl => $proxyToUrl );
+                    print('作业状态：'.$jobStatus."\n");
+                    if ( $jobStatus eq 'aborted' or $jobStatus eq 'paused' or $jobStatus eq 'completed'  or $jobStatus eq 'failed' ) {
+                        print("重跑作业\n");
+                        my $result = $serverAdapter->refireJob( int ($val),$username,$password);
+              
+                    }
+                }
+                exit(0);
+            }
+
+        }
+
+    }
+
+
     my $createdJobId;
     eval {
         $createdJobId = $serverAdapter->createMultiJob(
             $jobId,
+            $username,
+            $password,
             sysName       => $targetSysName,
             moduleName    => $targetModuleName,
             envName       => $targetEnvName,
