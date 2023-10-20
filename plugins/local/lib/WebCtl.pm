@@ -243,14 +243,14 @@ sub doPost {
 }
 
 sub post {
-    my ( $self, $url, $data, $headers) = @_;
+    my ( $self, $url, $data, $headers ) = @_;
 
     my $client = $self->{restClient};
     $client->addHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
     $self->setHeaders($headers);
 
     my $params = $self->buildData($data);
-    return $self->doPost( $url, $params);
+    return $self->doPost( $url, $params );
 }
 
 sub postJson {
