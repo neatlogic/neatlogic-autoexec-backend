@@ -70,21 +70,35 @@ sub new {
             'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
             'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
             'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download',
-            'createMultiJob'        => '/neatlogic/api/rest/deploy/job/multi/create'
+            'createMultiJob'        => '/neatlogic/api/rest/deploy/job/multi/create',
+            'refireJob'             => '/neatlogic/api/rest/autoexec/job/refire',
+            'takeover'              => '/neatlogic/api/rest/autoexec/job/takeover'
         };
 
-        my $username    = $serverConf->{username};
-        my $password    = $serverConf->{password};
+        my $username = $serverConf->{username};
+        my $password = $serverConf->{password};
+
         my $signHandler = sub {
-            my ( $client, $uri, $postBody ) = @_;
-            my $signContent = "$username#$uri#";
+            my ( $client, $uri, $postBody, $currentUsername, $currentPassword ) = @_;
+
+            my $user = $username;
+            my $pass = $password;
+
+            if ( defined($currentUsername) and $currentUsername ne '' ) {
+                $user = $currentUsername;
+            }
+            if ( defined($currentPassword) and $currentPassword ne '' ) {
+                $pass = $currentPassword;
+            }
+
+            my $signContent = "$user#$uri#";
             if ( defined($postBody) ) {
                 $signContent = $signContent . MIME::Base64::encode( $postBody, '' );
             }
 
-            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
+            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $pass );
             $client->addHeader( 'Authorization', $digest );
-            $client->addHeader( 'x-access-key',  $username );
+            $client->addHeader( 'x-access-key',  $user );
         };
 
         $self->{signHandler} = $signHandler;
@@ -941,7 +955,7 @@ sub createJob {
 }
 
 sub createMultiJob {
-    my ( $self, $jobId, %args ) = @_;
+    my ( $self, $jobId, $currentUsername, $currentPassword, %args ) = @_;
 
     # %args说明
     # {
@@ -982,7 +996,7 @@ sub createMultiJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createMultiJob');
-    my $content = $webCtl->postJson( $url, $params );
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     my $chldJobId;
@@ -1012,6 +1026,35 @@ sub getJobStatus {
     my $jobStatus = $rcObj->{status};
 
     return $jobStatus;
+}
+
+sub refireJob {
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
+
+    my $params = {
+        jobId => $jobId,
+        type  => 'refireAll'
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('refireJob');
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub takeover {
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
+
+    my $params = { jobId => $jobId };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('takeover');
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
 }
 
 sub saveVersionDependency {
