@@ -1275,7 +1275,7 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
 
-    def createJobFromCombop(self, params, currentUsername, currentPassword):
+    def createJobFromCombop(self, params, currentUsername=None, currentPassword=None):
         try:
             response = self.httpJSON(self.apiMap['createJobFromCombop'],  params, currentUsername, currentPassword)
             charset = response.info().get_content_charset()
@@ -1291,7 +1291,7 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("createJobFromCombop failed, {}".format(ex))
 
-    def refireJob(self, params, currentUsername, currentPassword):
+    def refireJob(self, params, currentUsername=None, currentPassword=None):
         try:
             response = self.httpJSON(self.apiMap['refireJob'],  params, currentUsername, currentPassword)
             charset = response.info().get_content_charset()
