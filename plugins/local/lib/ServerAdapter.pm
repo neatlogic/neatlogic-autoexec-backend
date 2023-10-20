@@ -98,7 +98,7 @@ sub new {
 
             my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $pass );
             $client->addHeader( 'Authorization', $digest );
-            $client->addHeader( 'x-access-key',  $username );
+            $client->addHeader( 'x-access-key',  $user );
         };
 
         $self->{signHandler} = $signHandler;
