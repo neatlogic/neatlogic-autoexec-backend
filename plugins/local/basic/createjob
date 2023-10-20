@@ -26,6 +26,7 @@ class EvenPairsAction(argparse.Action):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--rerunStrategy', type=str,  help='重跑策略', required=False)
     parser.add_argument('--combopName', type=str,  help='组合工具名', required=True)
     parser.add_argument('--name', type=str, help='作业名', required=True)
     parser.add_argument('--scenarioName', type=str, default='', help='场景名', required=False)
@@ -44,7 +45,8 @@ if __name__ == "__main__":
     param = {}
     for i in range(0, len(args.param), 2):
         param[args.param[i]] = args.param[i+1]
-
+    # for key, value in os.environ.items():
+    #     print(f"{key}={value}")
     data = {
         'combopName': args.combopName,
         'name': args.name,
@@ -72,10 +74,38 @@ if __name__ == "__main__":
             "whenToSpecify": "runtime"
         }
 
-    print(data)
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
-    resp = serverAdapter.createJobFromCombop(data)
+
+    user = None
+    password = None
+    if os.environ.get('PASSTHROUGH_ENV'):
+        # 优先使用当前用户的token
+        passThroughEnv = json.loads(os.environ.get('PASSTHROUGH_ENV'))
+        if passThroughEnv.get('EXECUSER_TOKEN'):
+            user = os.environ.get('AUTOEXEC_USER')
+            password = passThroughEnv.get('EXECUSER_TOKEN')
+
+
+    if args.rerunStrategy != 'create':
+
+        prev_data = AutoExecUtils.getOpPreOutput()
+        if prev_data and prev_data.get('createdJobId'):
+            createdJobId = prev_data.get('createdJobId')
+            print('之前已创建过作业: ' + str(createdJobId))
+            # 重跑
+            job_status = AutoExecUtils.getJobStatus({
+                'jobId': createdJobId,
+                'proxyToUrl': None
+            })
+            print('现在该作业状态：'+job_status)
+            if job_status in ('aborted', 'paused', 'completed', 'failed'):
+                print('作业重跑')
+                # 这个接口没有返回值
+                serverAdapter.refireJob({'jobId': createdJobId, 'type': args.rerunStrategy}, user, password)
+            exit(0)
+
+    resp = serverAdapter.createJobFromCombop(data, user, password)
     print(resp)
     out = {'createdJobId': resp['jobId']}
     AutoExecUtils.saveOutput(out)

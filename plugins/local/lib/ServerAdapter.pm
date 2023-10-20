@@ -70,21 +70,35 @@ sub new {
             'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
             'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
             'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download',
-            'createMultiJob'             => '/neatlogic/api/rest/deploy/job/multi/create'
+            'createMultiJob'        => '/neatlogic/api/rest/deploy/job/multi/create',
+            'refireJob'             => '/neatlogic/api/rest/autoexec/job/refire',
+            'takeover'              => '/neatlogic/api/rest/autoexec/job/takeover'
         };
 
-        my $username    = $serverConf->{username};
-        my $password    = $serverConf->{password};
+        my $username = $serverConf->{username};
+        my $password = $serverConf->{password};
+
         my $signHandler = sub {
-            my ( $client, $uri, $postBody ) = @_;
-            my $signContent = "$username#$uri#";
+            my ( $client, $uri, $postBody, $currentUsername, $currentPassword ) = @_;
+
+            my $user = $username;
+            my $pass = $password;
+
+            if ( defined($currentUsername) and $currentUsername ne '' ) {
+                $user = $currentUsername;
+            }
+            if ( defined($currentPassword) and $currentPassword ne '' ) {
+                $pass = $currentPassword;
+            }
+
+            my $signContent = "$user#$uri#";
             if ( defined($postBody) ) {
                 $signContent = $signContent . MIME::Base64::encode( $postBody, '' );
             }
 
-            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
+            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $pass );
             $client->addHeader( 'Authorization', $digest );
-            $client->addHeader( 'x-access-key',  $username );
+            $client->addHeader( 'x-access-key',  $user );
         };
 
         $self->{signHandler} = $signHandler;
@@ -475,6 +489,7 @@ sub getAutoCfgConf {
     #         key1 => 'value1',
     #         key2 => 'value2'
     #     },
+    #     passwordKeys => ['key1','key2'],
     #     insCfgList => [
     #         {
     #             insName => "insName1",
@@ -482,6 +497,7 @@ sub getAutoCfgConf {
     #                 key1 => 'value1',
     #                 key2 => 'value2'
     #             }
+    #            passwordKeys => ['key1','key2']
     #         },
     #         {
     #             insName => "insName2",
@@ -489,6 +505,7 @@ sub getAutoCfgConf {
     #                 key1 => 'value1',
     #                 key2 => 'value2'
     #             }
+    #            passwordKeys => ['key1','key2']
     #         }
     #     ]
     # };
@@ -501,21 +518,28 @@ sub getAutoCfgConf {
     my $rcObj   = $self->_getReturn($content);
 
     #如果autocfg里存在密码相关的配置，进行解密
-    my $serverConf = $self->{serverConf};
-    my $autoCfg = $rcObj->{autoCfg};
-    while ( my ( $key, $val ) = each(%$autoCfg) ) {
-        if ( $key =~ /password/i ) {
-            $autoCfg->{$key} = $serverConf->decryptPwd($val);
+    my $serverConf   = $self->{serverConf};
+    my $autoCfg      = $rcObj->{autoCfg};
+    my $passwordKeys = $rcObj->{passwordKeys};
+    if ( defined($passwordKeys) ) {
+        while ( my ( $key, $val ) = each(%$autoCfg) ) {
+            if ( grep { $_ eq $key } @$passwordKeys ) {
+                $autoCfg->{$key} = $serverConf->decryptPwd($val);
+            }
         }
     }
+
     my $insCfgList = $rcObj->{insCfgList};
-    foreach my $insCfg (@$insCfgList){
-        my $insAutoCfg = $insCfg->{autoCfg};
-        while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
-        if ( $key =~ /password/i ) {
-            $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+    foreach my $insCfg (@$insCfgList) {
+        my $insAutoCfg      = $insCfg->{autoCfg};
+        my $insPasswordKeys = $insCfg->{passwordKeys};
+        if ( defined($insPasswordKeys) ) {
+            while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
+                if ( grep { $_ eq $key } @$insPasswordKeys ) {
+                    $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+                }
+            }
         }
-    }
     }
 
     my $autoCfgMap = $rcObj;
@@ -930,9 +954,8 @@ sub createJob {
     return $chldJobId;
 }
 
-
 sub createMultiJob {
-    my ( $self, $jobId, %args ) = @_;
+    my ( $self, $jobId, $currentUsername, $currentPassword, %args ) = @_;
 
     # %args说明
     # {
@@ -952,19 +975,19 @@ sub createMultiJob {
         name           => $args{name},
         moduleList     => [
             {
-                abbrName           => $args{moduleName},
+                abbrName       => $args{moduleName},
                 version        => $args{version},
                 buildNo        => $args{buildNo},
                 selectNodeList => $args{nodeList}
             }
         ],
-        scenarioName  => $args{scenarioName},
+        scenarioName      => $args{scenarioName},
         appSystemAbbrName => $args{sysName},
-        envName       => $args{envName},
-        roundCount    => $args{roundCount},
-        planStartTime => $args{planStartTime},
-        isRrunNow     => $args{isRunNow},
-        param         => $args{param}
+        envName           => $args{envName},
+        roundCount        => $args{roundCount},
+        planStartTime     => $args{planStartTime},
+        isRrunNow         => $args{isRunNow},
+        param             => $args{param}
     };
 
     if ( $args{triggerType} ne 'now' ) {
@@ -973,7 +996,7 @@ sub createMultiJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createMultiJob');
-    my $content = $webCtl->postJson( $url, $params );
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     my $chldJobId;
@@ -1003,6 +1026,35 @@ sub getJobStatus {
     my $jobStatus = $rcObj->{status};
 
     return $jobStatus;
+}
+
+sub refireJob {
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
+
+    my $params = {
+        jobId => $jobId,
+        type  => 'refireAll'
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('refireJob');
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub takeover {
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
+
+    my $params = { jobId => $jobId };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('takeover');
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
 }
 
 sub saveVersionDependency {

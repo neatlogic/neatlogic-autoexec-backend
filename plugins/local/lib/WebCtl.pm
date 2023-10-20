@@ -188,14 +188,14 @@ sub setHeaders {
 }
 
 sub signRequest {
-    my ( $self, $url, $params ) = @_;
+    my ( $self, $url, $params, $currentUsername, $currentPassword ) = @_;
 
     my $signHandler = $self->{signHandler};
     if ( defined($signHandler) ) {
         my $client = $self->{restClient};
         my $uri    = substr( $url, index( $url, '/', 8 ) );
 
-        &$signHandler( $client, $uri, $params );
+        &$signHandler( $client, $uri, $params, $currentUsername, $currentPassword);
     }
     return;
 }
@@ -221,10 +221,10 @@ sub get {
 }
 
 sub doPost {
-    my ( $self, $url, $params ) = @_;
+    my ( $self, $url, $params, $currentUsername, $currentPassword ) = @_;
 
     my $client = $self->{restClient};
-    $self->signRequest( $url, $params );
+    $self->signRequest( $url, $params, $currentUsername, $currentPassword );
     $client->POST( $url, $params );
 
     my $content = $self->convCharSet( $client->responseContent() );
@@ -254,18 +254,18 @@ sub post {
 }
 
 sub postJson {
-    my ( $self, $url, $data, $headers ) = @_;
+    my ( $self, $url, $data, $headers, $currentUsername, $currentPassword ) = @_;
 
     my $client = $self->{restClient};
     $client->addHeader( 'Content-Type', 'application/json;charset=UTF-8' );
     $self->setHeaders($headers);
 
     my $params = to_json($data);
-    return $self->doPost( $url, $params );
+    return $self->doPost( $url, $params, $currentUsername, $currentPassword );
 }
 
 sub doRest {
-    my ( $self, $method, $url, $data, $headers ) = @_;
+    my ( $self, $method, $url, $data, $headers) = @_;
     my $params;
 
     if ( defined($data) ) {
