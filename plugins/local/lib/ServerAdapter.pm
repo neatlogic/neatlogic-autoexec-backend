@@ -78,28 +78,25 @@ sub new {
         my $username    = $serverConf->{username};
         my $password    = $serverConf->{password};
 
-        my $passThroughEnv = {};
-        if ($ENV{PASSTHROUGH_ENV} ) {
-            $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
-            my $val = $passThroughEnv->{'EXECUSER_TOKEN'};
-            if (defined($val) and $val ne '') {
-                $password = $val;
-
-                $val = $ENV{AUTOEXEC_USER};
-                if (defined($val) and $val ne '') {
-                    $username = $val;
-                }
-
-            }
-        }
         my $signHandler = sub {
-            my ( $client, $uri, $postBody ) = @_;
-            my $signContent = "$username#$uri#";
+            my ( $client, $uri, $postBody, $currentUsername, $currentPassword ) = @_;
+
+            my $user = $username;
+            my $pass = $password;
+            
+            if (defined($currentUsername) and $currentUsername ne '' ){
+                $user = $currentUsername;
+            }
+            if (defined($currentPassword) and $currentPassword ne ''){
+                $pass = $currentPassword;
+            }
+
+            my $signContent = "$user#$uri#";
             if ( defined($postBody) ) {
                 $signContent = $signContent . MIME::Base64::encode( $postBody, '' );
             }
 
-            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $password );
+            my $digest = 'Hmac ' . hmac_sha256_hex( $signContent, $pass );
             $client->addHeader( 'Authorization', $digest );
             $client->addHeader( 'x-access-key',  $username );
         };
@@ -949,7 +946,7 @@ sub createJob {
 
 
 sub createMultiJob {
-    my ( $self, $jobId, %args ) = @_;
+    my ( $self, $jobId,  $currentUsername, $currentPassword, %args ) = @_;
 
     # %args说明
     # {
@@ -990,7 +987,7 @@ sub createMultiJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createMultiJob');
-    my $content = $webCtl->postJson( $url, $params );
+    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     my $chldJobId;
@@ -1023,7 +1020,7 @@ sub getJobStatus {
 }
 
 sub refireJob {
-    my ( $self, $jobId ) = @_;
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
 
     my $params = {
         jobId      => $jobId,
@@ -1032,14 +1029,14 @@ sub refireJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('refireJob');
-    my $content = $webCtl->postJson( $url, $params );
+    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
     
     return $rcObj;
 }
 
 sub takeover {
-    my ( $self, $jobId ) = @_;
+    my ( $self, $jobId, $currentUsername, $currentPassword ) = @_;
 
     my $params = {
         jobId      => $jobId
@@ -1047,7 +1044,7 @@ sub takeover {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('takeover');
-    my $content = $webCtl->postJson( $url, $params );
+    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;

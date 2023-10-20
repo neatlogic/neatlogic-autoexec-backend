@@ -77,7 +77,13 @@ if __name__ == "__main__":
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
 
-    if args.rerunStrategy != 'create' and os.path.exists(os.getenv('NODE_OUTPUT_PATH')):
+    user = None
+    password = None
+    if os.environ.get('EXECUSER_TOKEN'):
+        user = os.environ.get('EXECUSER_TOKEN')
+        password = os.environ.get('AUTOEXEC_USER')
+
+    if args.rerunStrategy != 'create':
 
         prev_data = AutoExecUtils.getOpPreOutput()
         if prev_data and prev_data.get('createdJobId'):
@@ -94,10 +100,13 @@ if __name__ == "__main__":
                 serverAdapter.refireJob({
                     'jobId': createdJobId,
                     'type': args.rerunStrategy,
-                })
+                },
+                    user,
+                    password
+                )
             exit(0)
 
-    resp = serverAdapter.createJobFromCombop(data)
+    resp = serverAdapter.createJobFromCombop(data, user, password)
     print(resp)
     out = {'createdJobId': resp['jobId']}
     AutoExecUtils.saveOutput(out)

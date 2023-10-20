@@ -83,10 +83,6 @@ class ServerAdapter:
         self.serverUserName = context.config['server']['server.username']
         self.serverPassword = context.config['server']['server.password']
 
-        if self.context.passThroughEnv.get('EXECUSER_TOKEN'):
-            self.serverPassword = self.context.passThroughEnv.get('EXECUSER_TOKEN')
-            self.serverUserName = os.environ.get('AUTOEXEC_USER')
-
         # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
     def addHeaders(self, request, headers):
@@ -96,26 +92,34 @@ class ServerAdapter:
             else:
                 request.add_header(k, str(v))
 
-    def getSignHeaders(self, apiUri, postBody=None):
-        signContent = self.serverUserName + '#' + apiUri + '#'
+    def getSignHeaders(self, apiUri, postBody=None, currentUsername=None, currentPassword=None):
+        user = self.serverUserName
+        password = self.serverPassword
+
+        if currentUsername:
+            user = currentUsername
+        if currentPassword:
+            password = currentPassword
+
+        signContent = user + '#' + apiUri + '#'
         if postBody is not None and postBody != '':
             signContent = signContent + base64.b64encode(postBody.encode('utf-8')).decode('utf-8')
 
-        digest = 'Hmac ' + hmac.new(self.serverPassword.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
+        digest = 'Hmac ' + hmac.new(password.encode('utf-8'), signContent.encode('utf-8'), digestmod=sha256).hexdigest()
         headers = {
             'Tenant': self.context.tenant,
             'AuthType': 'hmac',
-            'x-access-key': self.serverUserName,
+            'x-access-key': user,
             'Authorization': digest
         }
         return headers
 
-    def signRequest(self, request, apiUri, postBody=None):
-        headers = self.getSignHeaders(apiUri, postBody)
+    def signRequest(self, request, apiUri, postBody=None, currentUsername=None, currentPassword=None):
+        headers = self.getSignHeaders(apiUri, postBody, currentUsername, currentPassword)
         for k, v in headers.items():
             request.add_header(k, v)
 
-    def httpPOST(self, apiUri, params):
+    def httpPOST(self, apiUri, params, currentUsername=None, currentPassword=None):
         if apiUri[0] != "/":
             apiUri = '/' + apiUri
 
@@ -126,7 +130,7 @@ class ServerAdapter:
         req = urllib.request.Request(url, postBody.encode('utf-8'))
         self.addHeaders(req, headers)
         try:
-            self.signRequest(req, apiUri, postBody)
+            self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
             errMsg = ex.code
@@ -165,7 +169,7 @@ class ServerAdapter:
 
         return response
 
-    def httpJSON(self, apiUri, params):
+    def httpJSON(self, apiUri, params, currentUsername=None, currentPassword=None):
         if apiUri[0] != "/":
             apiUri = '/' + apiUri
 
@@ -176,7 +180,7 @@ class ServerAdapter:
         req = urllib.request.Request(url, postBody.encode('utf-8'))
         self.addHeaders(req, headers)
         try:
-            self.signRequest(req, apiUri, postBody)
+            self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
             response = urllib.request.urlopen(req)
         except HTTPError as ex:
             errMsg = ex.code
@@ -1264,16 +1268,16 @@ class ServerAdapter:
             if response.status == 200:
                 if retObj.get('Status') != 'OK':
                     raise AutoExecError("getJobStatus {} failed, {}".format(jobId, retObj['Message']))
-                
+
                 return retObj.get('Return').get('status')
             else:
                 raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
         except Exception as ex:
             raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
 
-    def createJobFromCombop(self, params):
+    def createJobFromCombop(self, params, currentUsername, currentPassword):
         try:
-            response = self.httpJSON(self.apiMap['createJobFromCombop'],  params)
+            response = self.httpJSON(self.apiMap['createJobFromCombop'],  params, currentUsername, currentPassword)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
@@ -1287,9 +1291,9 @@ class ServerAdapter:
         except Exception as ex:
             raise AutoExecError("createJobFromCombop failed, {}".format(ex))
 
-    def refireJob(self, params):
+    def refireJob(self, params, currentUsername, currentPassword):
         try:
-            response = self.httpJSON(self.apiMap['refireJob'],  params)
+            response = self.httpJSON(self.apiMap['refireJob'],  params, currentUsername, currentPassword)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors='ignore')
             retObj = json.loads(content)
