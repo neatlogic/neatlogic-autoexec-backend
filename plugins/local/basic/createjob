@@ -80,10 +80,13 @@ if __name__ == "__main__":
     user = None
     password = None
     if os.environ.get('PASSTHROUGH_ENV'):
+        # 优先使用当前用户的token
         passThroughEnv = json.loads(os.environ.get('PASSTHROUGH_ENV'))
         if passThroughEnv.get('EXECUSER_TOKEN'):
             user = os.environ.get('AUTOEXEC_USER')
             password = passThroughEnv.get('EXECUSER_TOKEN')
+
+
     if args.rerunStrategy != 'create':
 
         prev_data = AutoExecUtils.getOpPreOutput()
