@@ -987,7 +987,7 @@ sub createMultiJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('createMultiJob');
-    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
+    my $content = $webCtl->postJson( $url, $params,undef, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     my $chldJobId;
@@ -1029,7 +1029,7 @@ sub refireJob {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('refireJob');
-    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
     
     return $rcObj;
@@ -1044,7 +1044,7 @@ sub takeover {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('takeover');
-    my $content = $webCtl->postJson( $url, $params, $currentUsername, $currentPassword );
+    my $content = $webCtl->postJson( $url, $params, undef, $currentUsername, $currentPassword );
     my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;
