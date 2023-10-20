@@ -79,10 +79,11 @@ if __name__ == "__main__":
 
     user = None
     password = None
-    if os.environ.get('EXECUSER_TOKEN'):
-        user = os.environ.get('EXECUSER_TOKEN')
-        password = os.environ.get('AUTOEXEC_USER')
-
+    if os.environ.get('PASSTHROUGH_ENV'):
+        passThroughEnv = json.loads(os.environ.get('PASSTHROUGH_ENV'))
+        if passThroughEnv.get('EXECUSER_TOKEN'):
+            user = os.environ.get('AUTOEXEC_USER')
+            password = passThroughEnv.get('EXECUSER_TOKEN')
     if args.rerunStrategy != 'create':
 
         prev_data = AutoExecUtils.getOpPreOutput()
@@ -96,6 +97,7 @@ if __name__ == "__main__":
             })
             print('现在该作业状态：'+job_status)
             if job_status in ('aborted', 'paused', 'completed', 'failed'):
+                print('作业重跑')
                 # 这个接口没有返回值
                 serverAdapter.refireJob({'jobId': createdJobId, 'type': args.rerunStrategy}, user, password)
             exit(0)
