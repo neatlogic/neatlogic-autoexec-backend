@@ -97,13 +97,7 @@ if __name__ == "__main__":
             print('现在该作业状态：'+job_status)
             if job_status in ('aborted', 'paused', 'completed', 'failed'):
                 # 这个接口没有返回值
-                serverAdapter.refireJob({
-                    'jobId': createdJobId,
-                    'type': args.rerunStrategy,
-                },
-                    user,
-                    password
-                )
+                serverAdapter.refireJob({'jobId': createdJobId, 'type': args.rerunStrategy}, user, password)
             exit(0)
 
     resp = serverAdapter.createJobFromCombop(data, user, password)
