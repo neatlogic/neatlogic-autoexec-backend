@@ -70,7 +70,7 @@ sub new {
             'setInsVersion'         => '/neatlogic/api/rest/deploy/instance/version/save',
             'rollbackInsVersion'    => '/neatlogic/api/rest/deploy/instance/version/rollback',
             'getBuild'              => '/neatlogic/api/binary/deploy/appbuild/download',
-            'createMultiJob'             => '/neatlogic/api/rest/deploy/job/multi/create'
+            'createMultiJob'        => '/neatlogic/api/rest/deploy/job/multi/create'
         };
 
         my $username    = $serverConf->{username};
@@ -475,6 +475,7 @@ sub getAutoCfgConf {
     #         key1 => 'value1',
     #         key2 => 'value2'
     #     },
+    #     passwordKeys => ['key1','key2'],
     #     insCfgList => [
     #         {
     #             insName => "insName1",
@@ -482,6 +483,7 @@ sub getAutoCfgConf {
     #                 key1 => 'value1',
     #                 key2 => 'value2'
     #             }
+    #            passwordKeys => ['key1','key2']
     #         },
     #         {
     #             insName => "insName2",
@@ -489,6 +491,7 @@ sub getAutoCfgConf {
     #                 key1 => 'value1',
     #                 key2 => 'value2'
     #             }
+    #            passwordKeys => ['key1','key2']
     #         }
     #     ]
     # };
@@ -501,21 +504,28 @@ sub getAutoCfgConf {
     my $rcObj   = $self->_getReturn($content);
 
     #如果autocfg里存在密码相关的配置，进行解密
-    my $serverConf = $self->{serverConf};
-    my $autoCfg = $rcObj->{autoCfg};
-    while ( my ( $key, $val ) = each(%$autoCfg) ) {
-        if ( $key =~ /password/i ) {
-            $autoCfg->{$key} = $serverConf->decryptPwd($val);
+    my $serverConf   = $self->{serverConf};
+    my $autoCfg      = $rcObj->{autoCfg};
+    my $passwordKeys = $rcObj->{passwordKeys};
+    if ( defined($passwordKeys) ) {
+        while ( my ( $key, $val ) = each(%$autoCfg) ) {
+            if ( grep { $_ eq $key } @$passwordKeys ) {
+                $autoCfg->{$key} = $serverConf->decryptPwd($val);
+            }
         }
     }
+
     my $insCfgList = $rcObj->{insCfgList};
-    foreach my $insCfg (@$insCfgList){
-        my $insAutoCfg = $insCfg->{autoCfg};
-        while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
-        if ( $key =~ /password/i ) {
-            $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+    foreach my $insCfg (@$insCfgList) {
+        my $insAutoCfg      = $insCfg->{autoCfg};
+        my $insPasswordKeys = $insCfg->{passwordKeys};
+        if ( defined($insPasswordKeys) ) {
+            while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
+                if ( grep { $_ eq $key } @$insPasswordKeys ) {
+                    $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+                }
+            }
         }
-    }
     }
 
     my $autoCfgMap = $rcObj;
@@ -930,7 +940,6 @@ sub createJob {
     return $chldJobId;
 }
 
-
 sub createMultiJob {
     my ( $self, $jobId, %args ) = @_;
 
@@ -952,19 +961,19 @@ sub createMultiJob {
         name           => $args{name},
         moduleList     => [
             {
-                abbrName           => $args{moduleName},
+                abbrName       => $args{moduleName},
                 version        => $args{version},
                 buildNo        => $args{buildNo},
                 selectNodeList => $args{nodeList}
             }
         ],
-        scenarioName  => $args{scenarioName},
+        scenarioName      => $args{scenarioName},
         appSystemAbbrName => $args{sysName},
-        envName       => $args{envName},
-        roundCount    => $args{roundCount},
-        planStartTime => $args{planStartTime},
-        isRrunNow     => $args{isRunNow},
-        param         => $args{param}
+        envName           => $args{envName},
+        roundCount        => $args{roundCount},
+        planStartTime     => $args{planStartTime},
+        isRrunNow         => $args{isRunNow},
+        param             => $args{param}
     };
 
     if ( $args{triggerType} ne 'now' ) {
