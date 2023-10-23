@@ -201,24 +201,26 @@ sub main {
         }
     }
 
-   
+    my $outputPath = $ENV{NODE_OUTPUT_PATH};
+    if ( -f $outputPath ) {
     my $pluginOut = AutoExecUtils::getOpPreOutput();
-    if ( defined($pluginOut) ) {
-        my $val = $pluginOut->{'createdJobId'};
-        if ( defined($val) and $val ne '') {
-            print('之前已创建过作业: '.$val."\n");
+        if ( defined($pluginOut) ) {
+            my $val = $pluginOut->{'createdJobId'};
+            if ( defined($val) and $val ne '') {
+                print('之前已创建过作业: '.$val."\n");
 
-            my $jobStatus = $serverAdapter->getJobStatus( $val, proxyToUrl => $proxyToUrl );
-            print('作业状态：'.$jobStatus."\n");
-            if ( $jobStatus eq 'aborted' or $jobStatus eq 'paused' or $jobStatus eq 'completed'  or $jobStatus eq 'failed' ) {
-                print("重跑作业\n");
-                my $result = $serverAdapter->refireJob( int ($val), $username,$password);
-        
-            }
+                my $jobStatus = $serverAdapter->getJobStatus( $val, proxyToUrl => $proxyToUrl );
+                print('作业状态：'.$jobStatus."\n");
+                if ( $jobStatus eq 'aborted' or $jobStatus eq 'paused' or $jobStatus eq 'completed'  or $jobStatus eq 'failed' ) {
+                    print("重跑作业\n");
+                    my $result = $serverAdapter->refireJob( int ($val), $username,$password);
             
-            exit(0);
-        }
+                }
+                
+                exit(0);
+            }
 
+        }
     }
     
 
