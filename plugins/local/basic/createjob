@@ -86,23 +86,23 @@ if __name__ == "__main__":
             user = os.environ.get('AUTOEXEC_USER')
             password = passThroughEnv.get('EXECUSER_TOKEN')
 
-
-
-    prev_data = AutoExecUtils.getOpPreOutput()
-    if prev_data and prev_data.get('createdJobId'):
-        createdJobId = prev_data.get('createdJobId')
-        print('之前已创建过作业: ' + str(createdJobId))
-        # 重跑
-        job_status = AutoExecUtils.getJobStatus({
-            'jobId': createdJobId,
-            'proxyToUrl': None
-        })
-        print('现在该作业状态：'+job_status)
-        if job_status in ('aborted', 'paused', 'completed', 'failed'):
-            print('作业重跑')
-            # 这个接口没有返回值
-            serverAdapter.refireJob({'jobId': createdJobId, 'type': 'refireAll'}, user, password)
-        exit(0)
+    outputPath = os.getenv('NODE_OUTPUT_PATH')
+    if os.path.exists(outputPath):
+        prev_data = AutoExecUtils.getOpPreOutput()
+        if prev_data and prev_data.get('createdJobId'):
+            createdJobId = prev_data.get('createdJobId')
+            print('之前已创建过作业: ' + str(createdJobId))
+            # 重跑
+            job_status = AutoExecUtils.getJobStatus({
+                'jobId': createdJobId,
+                'proxyToUrl': None
+            })
+            print('现在该作业状态：'+job_status)
+            if job_status in ('aborted', 'paused', 'completed', 'failed'):
+                print('作业重跑')
+                # 这个接口没有返回值
+                serverAdapter.refireJob({'jobId': createdJobId, 'type': 'refireAll'}, user, password)
+            exit(0)
 
     resp = serverAdapter.createJobFromCombop(data, user, password)
     print(resp)
