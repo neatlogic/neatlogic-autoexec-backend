@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use JSON;
+use File::Basename;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Cwd;
+
+use AutoExecUtils;
+use DeployUtils;
+use TagentClient;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--np NoPermission] [--followlinks FollowLinks] [--cpifexists CopyIfExists]]\n");
+    print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:        Host node json\n");
+    print("       --direction:   push from local site to remote site or pull from remote site to local site .\n");
+    print("       --np:          not preserve the mode of file\n");
+    print("       --cpifexists:  copy if local dir or file exists.\n");
+    print("       --followlinks: symbol link as directory\n");
+    print("       --src:         copy source path ,many src path , separated .\n");
+    print("       --dest:        remote target path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest, $np, $cpIfExists, $followLinks );
+    AutoExecUtils::setEnv();
+
+    my $pname = $FindBin::Script;
+
+    $isVerbose   = 0;
+    $np          = 0;
+    $followLinks = 0;
+    $cpIfExists  = 0;
+
+    GetOptions(
+        'h|help'        => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'node=s'        => \$node,
+        'direction=s'   => \$direction,
+        'src=s'         => \$src,
+        'dest=s'        => \$dest,
+        'np=i'          => \$np,
+        'followlinks=i' => \$followLinks,
+        'cpifexists=i'  => \$cpIfExists
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    my $nodeInfo = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: Must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: Must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: Src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: Must define src path.\n");
+        usage();
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    my $deployUtils = DeployUtils->new();
+    if ( defined($pass) and $pass ne '' ) {
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = 3939;
+    }
+
+    my $isSuccess = 0;
+    my @src_dirs  = split( /,/, $src );
+    my $tagent    = new TagentClient( $host, $port, $pass );
+
+    if ( $direction eq 'push' ) {
+        foreach my $targetPat (@src_dirs) {
+            foreach my $target ( glob($targetPat) ) {
+                if ( ! -e $target ) {
+                    $isSuccess = 1;
+                    print("ERROR: Src path $target not exists .\n");
+                    last;
+                }
+                $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
+                if ( $isSuccess ne 0 ) {
+                    last;
+                }
+            }
+        }
+    }
+    elsif ( $direction eq 'pull' ) {
+        if ( !-d $dest ) {
+            $isSuccess = 1;
+            print("ERROR: Dest path $dest not exists .\n");
+        }
+        else {
+            foreach my $target (@src_dirs) {
+                $isSuccess = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
+                if ( $isSuccess ne 0 ) {
+                    last;
+                }
+            }
+        }
+    }
+
+    if ( $isSuccess ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+    return $isSuccess;
+}
+
+exit( main() );
+

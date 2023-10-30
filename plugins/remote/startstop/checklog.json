@@ -1,0 +1,103 @@
+{
+    "opDesc": "日志检查",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检查日志是否出现某些关键字",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "详细输出",
+            "help": "显示匹配的详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "maxsize",
+            "name": "最大检查量(MB)",
+            "help": "从日志文件末尾开始检查的最大的大小，单位MB",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "16"
+        },
+        {
+            "opt": "failcheck",
+            "name": "检测方向",
+            "help": "出现关键字是成功还是失败",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "失败",
+                        "value": "1"
+                    },
+                    {
+                        "text": "成功",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "pattern",
+            "name": "关键字",
+            "help": "关键字，支持正则表达式",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ERROR"
+        },
+        {
+            "opt": "op",
+            "name": "多关键字",
+            "help": "多个关键字的操作符号",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "OR",
+                        "value": "or"
+                    },
+                    {
+                        "text": "AND",
+                        "value": "and"
+                    }
+                ]
+            },
+            "defaultValue": "or"
+        }
+    ],
+    "argument": {
+        "name": "日志路径",
+        "help": "日志路径，支持通配符和反引号",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

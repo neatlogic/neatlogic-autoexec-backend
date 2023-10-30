@@ -1,0 +1,614 @@
+{
+    "label": "Oracle Instance",
+    "collection": "COLLECT_DBINS",
+    "docroot": null,
+    "collection_label": "Database Instance",
+    "filter": {
+        "_OBJ_TYPE": "Oracle"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "Int"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_PORTS",
+            "desc": "Service Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Seconds)",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN",
+            "desc": "Listen Addr",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Addr",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "Admin Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "Admin SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "OPEN_FILES_INFO",
+            "desc": "Open Files",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "PID",
+                    "type": "String"
+                },
+                {
+                    "name": "OPEN",
+                    "desc": "Open Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "Max Limit",
+                    "type": "Int"
+                },
+                {
+                    "name": "RATE",
+                    "desc": "Used%",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Config Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "CPU_USAGE",
+            "desc": "CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu Logic Cores",
+            "type": "String"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "Memory%",
+            "type": "Float"
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "Connection Stats",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "Total",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "InBound",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "Syn Recv",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "Close Wait",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "OutBound",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "Recv Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "Recv Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "Recv Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "Recv Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "OutBound Conn Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "Remote Addr",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "Syn Sent",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "Send Queued",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "Send Queued Size",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "Send Queued Size Avg",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "Send Queued Rate",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "DATABASE_ROLE",
+            "desc": "Database Role",
+            "type": "String"
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
+            "type": "String"
+        },
+        {
+            "name": "GRID_BASE",
+            "desc": "Grid Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "GRID_HOME",
+            "desc": "Grid Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "IS_CDB",
+            "desc": "Is CDB",
+            "type": "Int"
+        },
+        {
+            "name": "IS_RAC",
+            "desc": "Is RAC",
+            "type": "Int"
+        },
+        {
+            "name": "LISTENERS",
+            "desc": "TNS Listeners",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_NAMES",
+                    "desc": "Service Names",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_ADDRS",
+                    "desc": "Listen Addrs",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_PORTS",
+                    "desc": "Listen Ports",
+                    "type": "array"
+                }
+            ]
+        },
+        {
+            "name": "LOG_ARCHIVE_DEST",
+            "desc": "Log Archive Dest",
+            "type": "String"
+        },
+        {
+            "name": "LOG_MODE",
+            "desc": "Log Mode",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_TARGET",
+            "desc": "Memory Target",
+            "type": "String"
+        },
+        {
+            "name": "NLS_CHARACTERSET",
+            "desc": "NLS Charset",
+            "type": "String"
+        },
+        {
+            "name": "NODE_NAME",
+            "desc": "Node Name",
+            "type": "String"
+        },
+        {
+            "name": "NODE_VIP",
+            "desc": "Node VIP",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_BASE",
+            "desc": "Oralce Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_HOME",
+            "desc": "Oralce Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_SID",
+            "desc": "Oralce SID",
+            "type": "String"
+        },
+        {
+            "name": "RAC_CLUSTER",
+            "desc": "Belong to RAC Cluster",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Cluster Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "Run On Os",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SGA_MAX_SIZE",
+            "desc": "SGA Max Size(MB)",
+            "type": "String"
+        },
+        {
+            "name": "TABLE_SPACESES",
+            "desc": "Table Space List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "AUTOEXTENSIBLE",
+                    "desc": "Auto Extensible",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "Data File List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "FILE_NAME",
+                            "desc": "File Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SIZE",
+                            "desc": "File Size(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AUTOEXTENSIBLE",
+                            "desc": "Auto Extensible",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use WebCtl;
+use File::Path;
+use File::Spec;
+
+use ServerConf;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--addr FtpAddress] [--dest DestinationDirectory] \n");
+    print("              [--user username] [--pass password] \n");
+    print("\n");
+    print("       --addr:      Ftp address\n");
+    print("       --dir:       Remote target path .\n");
+    print("       --user:      Ftp user name .\n");
+    print("       --pass:      Password .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $addr, $localDir, $user, $pass );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'addr=s'      => \$addr,
+        'dir=s'       => \$localDir,
+        'user=s'      => \$user,
+        'pass=s'      => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($addr) or $addr eq '' ) {
+        print("ERROR: Must define ftp url.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($localDir) or $localDir eq '' ) {
+        print("ERROR: Must define dest path.\n");
+        usage();
+    }
+    if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
+        print("ERROR: Local file path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $addr !~ /^https?:\/\// ) {
+        $optionError = 1;
+        print("ERROR: Invalid http address:$addr, example: http://192.168.0.222/test\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    if ( defined($pass) and $pass ne '' ) {
+        my $serverConf = ServerConf->new();
+        $pass = $serverConf->decryptPwd($pass);
+    }
+
+    my $uploadResponse;
+    my $errorCode = 0;
+
+    if ( !-e $localDir ) {
+        $errorCode = 1;
+        print("ERROR: Directory $localDir not exists.\n");
+    }
+    else {
+        my $webCtl = WebCtl->new();
+        if ( defined($user) and $user ne '' ) {
+            $webCtl->addCredentials( $addr, $user, $pass );
+        }
+        eval {
+            my $content = $webCtl->upload( $addr, 'file', $localDir, {}, {} );
+            print("FINE: Upload $localDir to $addr success.\n");
+            $uploadResponse = $content;
+        };
+        if ($@) {
+            $errorCode = $errorCode + 1;
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print("ERROR: $errMsg\n");
+        }
+    }
+
+    my $out = {};
+    $out->{uploadResponse} = $uploadResponse;
+    AutoExecUtils::saveOutput($out);
+
+    return $errorCode;
+}
+
+exit main();
+

@@ -1,0 +1,83 @@
+{
+    "opDesc": "SSH Expect工具",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SSH通过Expect执行命令",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "libs",
+            "name": "AS400LIB",
+            "help": "AS400的LIB名称, 多个逗号相隔, 例如: USRLIB,SYSLIB",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "USRLIB"
+        },
+        {
+            "opt": "ccsid",
+            "name": "字符集",
+            "help": "远端OS的字符集",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "1208"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "1386"
+                    }
+                ]
+            },
+            "defaultValue": "1208"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "调用超时时间（秒）",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "15"
+        }
+    ],
+    "argument": {
+        "name": "命令",
+        "help": "命令内容",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

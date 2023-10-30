@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use File::Path;
+use File::Copy;
+
+use VerGet;
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--dbdir DBDirectoryInProject] [--docdir DocDirectoryInProject]\n");
+    print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames]\n");
+    print("              [-exp ExccludeDirs] [-v|--verbose 0|1] target1 target2...\n");
+    print("\n");
+    print("       --envpath:  system envpath, example:ATM/ATMP/PRD\n");
+    print("       --version:  versoin number\n");
+    print("       --buildno:  Build number\n");
+    print("       --dbdir:    db resource start directory(relative to project directory)\n");
+    print("       --docdir:   doc resource start diretory(relative to project directory)\n");
+    print("       --prefix:   target prefix\n");
+    print("       --exp:      which dirs not to be copy, please use | symbol as the delimiter.\n");
+    print("       target:     Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp,   $envPath, $version, $buildNo );
+    my ( $userName, $password );
+    my ( $dbDir,    $docDir, $prefix, $expDir, $isVerbose, @targetFiles );
+    my $pname     = $FindBin::Script;
+    my $isVerbose = 0;
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'user=s'      => \$userName,
+        'password=s'  => \$password,
+        'dbdir=s'     => \$dbDir,
+        'docdir=s'    => \$docDir,
+        'prefix=s'    => \$prefix,
+        'x|exp=s'     => \$expDir,
+        '<>'          => sub { my $item = shift(@_); push( @targetFiles, $item ); }
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $cmd = "release --envpath $envPath --version $version --buildno $buildNo ";
+    if ( defined($expDir) and $expDir ne '' ) {
+        $cmd = "$cmd --exp '$expDir' ";
+    }
+    if ( defined($prefix) and $prefix ne '' ) {
+        $cmd = "$cmd --prefix '$prefix' ";
+    }
+    if ( defined($dbDir) and $dbDir ne '' ) {
+        $cmd = "$cmd --dbdir '$dbDir' ";
+    }
+    if ( defined($docDir) and $docDir ne '' ) {
+        $cmd = "$cmd --docdir '$docDir' ";
+    }
+
+    my @excludeDirs;
+    if ( defined($expDir) and $expDir ne '' ) {
+        $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
+
+        foreach my $aDir ( split( /,/, $expDir ) ) {
+            push( @excludeDirs, $aDir );
+        }
+    }
+
+    my $targets  = {};
+    my $callback = sub {
+        my ($line) = @_;
+        if ( $line !~ /\/target$/ and $line !~ /\/target\// ) {
+            if ($isVerbose) {
+                print("$line\n");
+            }
+
+            if ( $line =~ /(com\.csii\.[^\/]+)\// ) {
+                my $filePath = $1;
+                $targets->{"$filePath/target/*.jar"} = 1;
+            }
+        }
+    };
+
+    if ($isVerbose) {
+        print("INFO: ========ver diff info(M:modify, A:append, D:delete)======\n");
+    }
+
+    my $namePath      = $buildEnv->{NAME_PATH};
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer($buildEnv);
+
+    if ( not defined($verInfo) ) {
+        print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    if ( defined($userName) and $userName ne '' ) {
+        $verInfo->{username} = $userName;
+    }
+    if ( defined($password) and $password ne '' ) {
+        $password = $deployUtils->decryptPwd($password);
+        $verInfo->{password} = $password;
+    }
+
+    my $verGet = VerGet->new( $buildEnv, $verInfo, $isVerbose );
+
+    my $ret = $verGet->compare( $callback, undef, \@excludeDirs );
+
+    if ($isVerbose) {
+        print("==============================================================\n");
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
+    my $versionInfo   = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    my $hasError = 0;
+    if ( $ret != 0 ) {
+        $hasError = $hasError + 1;
+        print("ERROR: $pname $envPath $version diff to master failed.\n");
+    }
+    else {
+        my @targetPatterns = keys(%$targets);
+        if ( scalar(@targetPatterns) == 0 ) {
+            if ( scalar(@targetFiles) == 0 ) {
+                $hasError = $hasError + 1;
+                print("ERROR: 工程没有任何修改, 没有任何需要抽取的物料.\n");
+            }
+        }
+        else {
+            foreach my $targetFile (@targetPatterns) {
+                $cmd = "$cmd '$targetFile'";
+            }
+
+            foreach my $targetFile (@targetFiles) {
+                $cmd = "$cmd '$targetFile'";
+            }
+
+            print("INFO: $cmd\n");
+            my $ret = system($cmd);
+            $hasError = $hasError + $ret;
+        }
+    }
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'released';
+    }
+    else {
+        $versionInfo->{status} = 'release-failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    return $hasError;
+}
+
+exit main();

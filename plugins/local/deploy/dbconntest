@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../pllib/lib/perl5";
+
+use strict;
+use JSON;
+use Getopt::Long;
+
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --dbtype DBType(oracle|mysql|...)\n");
+    print("              [--host Host] [--port Port] [--dbname DBNameOrServiceName]\n");
+    print("              [--username UserName] [--password Password]\n");
+
+    exit(1);
+}
+
+sub main() {
+    my ( $isHelp, $node, $dbType, $host, $port, $dbName, $user, $pass );
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'node=s'     => \$node,
+        'dbtype=s'   => \$dbType,
+        'host=s'     => \$host,
+        'port=i'     => \$port,
+        'dbname=s'   => \$dbName,
+        'username=s' => \$user,
+        'password=s' => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $nodeInfo = {};
+    if ( defined($node) and $node ne '' ) {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($dbType) ) {
+        $dbType = $nodeInfo->{nodeType};
+    }
+    if ( not defined($dbName) ) {
+        $dbName = $nodeInfo->{nodeName};
+    }
+    if ( not defined($host) ) {
+        $host = $nodeInfo->{host};
+    }
+    if ( not defined($port) ) {
+        $port = $nodeInfo->{port};
+    }
+    if ( not defined($user) ) {
+        $user = $nodeInfo->{username};
+    }
+    if ( not defined($pass) ) {
+        $pass = $nodeInfo->{password};
+    }
+
+    if ( defined($pass) and $pass ne '' ) {
+        my $deployUtils = DeployUtils->new();
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+    }
+
+    my $hasError = 0;
+
+    my $sqlFileRunner = SQLFileRunner->new(
+        toolsDir => $autoexecHome . '/tools',
+        tmpDir   => $autoexecHome . '/tmp'
+    );
+
+    my $hasLogon = $sqlFileRunner->testByIpPort( $dbType, $host, $port, $dbName, $user, $pass );
+
+    if ( $hasLogon != 1 ) {
+        $hasError = 1;
+    }
+
+    return $hasError;
+}
+
+exit main();
+

@@ -1,0 +1,54 @@
+{
+    "label": "UnknowDevice",
+    "collection": "COLLECT_UNKNOWN",
+    "docroot": null,
+    "collection_label": "UnknowDevice",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "ConfigStatus",
+            "type": "String"
+        },
+        {
+            "name": "SYS_DESCR",
+            "desc": "sysDescr",
+            "type": "String"
+        },
+        {
+            "name": "SYS_NAME",
+            "desc": "sysName",
+            "type": "String"
+        },
+        {
+            "name": "SYS_OBJECT_ID",
+            "desc": "sysObjectID",
+            "type": "String"
+        }
+    ]
+}

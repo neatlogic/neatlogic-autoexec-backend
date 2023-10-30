@@ -1,0 +1,351 @@
+{
+    "label": "Docker",
+    "collection": "COLLECT_CONTAINER",
+    "docroot": null,
+    "collection_label": "Docker",
+    "filter": {
+        "_OBJ_TYPE": "Docker"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "HOSTNAME",
+            "desc": "主机名称",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "容器名称",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "管理PORT",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "运行时间",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "CPU_USAGE",
+            "desc": "CPU使用率",
+            "type": "String"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "内存使用率",
+            "type": "String"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "已用内存",
+            "type": "String"
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "连接统计",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "入方向",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "半打开",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "待关闭",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "出方向",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "接收积压",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "接收积压字节",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "接收积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "接收平均积压",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送平均积压",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "出方向连接统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "远程地址",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "半连接数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送积压平均",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "BLOCK_IO",
+            "desc": "读写I/O",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Cmd",
+            "type": "Text"
+        },
+        {
+            "name": "CONTAINER_ID",
+            "desc": "容器ID",
+            "type": "String"
+        },
+        {
+            "name": "CREATED",
+            "desc": "创建时间",
+            "type": "Int"
+        },
+        {
+            "name": "DRIVER",
+            "desc": "驱动",
+            "type": "String"
+        },
+        {
+            "name": "ENV",
+            "desc": "环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "GATEWAY",
+            "desc": "网关",
+            "type": "String"
+        },
+        {
+            "name": "IMAGE",
+            "desc": "镜像名称",
+            "type": "String"
+        },
+        {
+            "name": "IPADDRESS",
+            "desc": "IP",
+            "type": "Int"
+        },
+        {
+            "name": "MACADDRESS",
+            "desc": "MAC地址",
+            "type": "String"
+        },
+        {
+            "name": "MANAGED_METHOD",
+            "desc": "运行方式",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_LIMIT",
+            "desc": "总内存",
+            "type": "String"
+        },
+        {
+            "name": "MOUNTS",
+            "desc": "挂载",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SOURCE",
+                    "desc": "挂载源",
+                    "type": "String"
+                },
+                {
+                    "name": "DESTINATION",
+                    "desc": "挂载目标",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "模式",
+                    "type": "String"
+                },
+                {
+                    "name": "RW",
+                    "desc": "读写",
+                    "type": "String"
+                },
+                {
+                    "name": "PROPAGATION",
+                    "desc": "传播",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NET_IO",
+            "desc": "网络I/O",
+            "type": "String"
+        },
+        {
+            "name": "OS_PID",
+            "desc": "操作系统进程ID",
+            "type": "String"
+        },
+        {
+            "name": "PLATFORM",
+            "desc": "运行环境",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "端口",
+            "type": "String"
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "STATUS",
+            "desc": "状态",
+            "type": "String"
+        }
+    ]
+}

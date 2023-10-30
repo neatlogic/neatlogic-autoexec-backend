@@ -1,0 +1,438 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import traceback
+import time
+import json
+import argparse
+import re
+import requests
+import urllib
+import urllib3
+
+
+import AutoExecUtils
+
+
+class VplexCollector:
+    def __init__(self, baseUrl, userName, password, timeout, inspect):
+        self.data = {}
+        self.baseUrl = baseUrl
+        self.cookieJar = requests.cookies.RequestsCookieJar()
+        if timeout is None:
+            self.timeout = 30
+        else:
+            self.timeout = timeout
+        self.inspect = inspect
+
+        self.initiatorsMap = {}
+
+        self.headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
+                        'Content-type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json;format=0;prettyprint=1',
+                        'username': userName,
+                        'password': password}
+
+    def wwnAddColon(self, wwn):
+        pattern = re.compile('.{2}')
+        return ':'.join(pattern.findall(wwn))
+
+    def parseTableHeader(self, headerLines, fieldLenArray):
+        head = []
+        for fieldLen in fieldLenArray:
+            head.append('')
+
+        for line in headerLines:
+            if line == '':
+                continue
+            pos = 0
+            for k in range(0, len(fieldLenArray)):
+                fieldLen = fieldLenArray[k]
+                head[k] = head[k] + line[pos:pos+fieldLen].strip() + ' '
+                pos = pos + fieldLen
+
+        for k in range(0, len(head)):
+            head[k] = head[k].strip()
+
+        return head
+
+    def parseTableBody(self, bodyLines, fieldLenArray):
+        body = []
+        for line in bodyLines:
+            if line == '':
+                continue
+
+            record = []
+            pos = 0
+            for k in range(0, len(fieldLenArray)):
+                fieldLen = fieldLenArray[k]
+                record.append(line[pos:pos+fieldLen].strip())
+                pos = pos + fieldLen
+
+            body.append(record)
+
+        return body
+
+    def parseTable(self, lines):
+        lineCount = len(lines)
+
+        fieldLenArray = []
+        headerLines = []
+        idx = 0
+        for idx in range(0, lineCount):
+            line = lines[idx]
+            headerLines.append(line)
+            if re.match(r'^[- ]+$', line):
+                for placeholder in line.split('  '):
+                    fieldLenArray.append(len(placeholder) + 2)
+                headerLines.pop()
+                break
+
+        head = self.parseTableHeader(headerLines, fieldLenArray)
+        body = self.parseTableBody(lines[idx+1:], fieldLenArray)
+
+        return (head, body)
+
+    def getContext(self, contextDir):
+        url = self.baseUrl + '/' + contextDir
+        try:
+            response = requests.get(url, verify=False, headers=self.headers, cookies=self.cookieJar)
+            resObj = response.json()
+            return resObj
+        except Exception as ex:
+            errorMsg = str(ex)
+            print("ERROR: ", errorMsg)
+
+    def execCommand(self, command, args):
+        tmp = urllib.parse.urlencode({'x': command})
+        url = self.baseUrl + '/' + tmp[2:]
+        resObj = {}
+        try:
+            response = requests.post(url, verify=False, data=json.dumps(args), headers=self.headers, cookies=self.cookieJar)
+            if response.status_code == 202:
+                resultUrl = response.headers['Location']
+                statusCode = 517
+                while statusCode == 517:
+                    res = requests.get(resultUrl, verify=False, headers=self.headers, cookies=self.cookieJar)
+                    statusCode = res.status_code
+                    time.sleep(10)
+                if res.status_code == 200:
+                    resObj = res.json()
+            elif response.status_code == 200:
+                resObj = response.json()
+            return resObj
+        except Exception as ex:
+            errorMsg = str(ex)
+            print("ERROR: ", errorMsg)
+
+    # What                             Version         Info
+    # -------------------------------  --------------  ------------------------------
+    # Product Version                  5.5.2.02.00.03  -
+    # SMSv2                            D35.55.0.3.0    -
+    # Mgmt Server Base                 D35.55.0.3      -
+    # Mgmt Server Software             D35.55.0.5      -
+    # Cluster Witness Server Software  D35.55.0.3      Built against GeoSynchrony
+    #                                                 version - D35.55.0.3
+    def getVersion(self):
+        versionRes = self.execCommand('version', {})
+        verTxt = versionRes['response']['custom-data']
+        verLines = verTxt.split('\n')
+        for line in verLines:
+            matchObj = re.match(r'Product Version\s+([\d\.]+)', line)
+            if matchObj:
+                version = matchObj.group(1)
+                self.data['VERSION'] = version
+
+    def getEnginesInfo(self):
+        enginsObj = self.getContext('/engines')
+        engins = enginsObj['response']['context'][0]['children']
+
+        serialNumbers = {}
+        enginsArray = []
+        for aEngine in engins:
+            if aEngine['type'] != 'engine':
+                continue
+
+            enginCtx = self.getContext('/engines/' + aEngine['name'])
+            enginAttrs = enginCtx['response']['context'][0]['attributes']
+
+            enginInfo = {}
+            for enginAttr in enginAttrs:
+                enginInfo[enginAttr['name']] = enginAttr['value']
+            serialNumbers[enginInfo['top-level-assembly']] = 1
+            enginsArray.append(enginInfo)
+
+        serialNumberList = []
+        for serialNumber in serialNumbers.keys():
+            serialNumberList.append(serialNumber)
+
+        serialNumberList.sort()
+        self.data['SN'] = ','.join(serialNumberList)
+        self.data['ENGINS'] = enginsArray
+
+    def getClusterNames(self):
+        resObj = self.getContext('clusters')
+        clusters = resObj['response']['context'][0]['children']
+        clusterNames = []
+        for cluster in clusters:
+            clusterNames.append(cluster['name'])
+        return clusterNames
+
+    def getInitiators(self, clusterNames):
+        initiatorsMap = {}
+        for clusterName in clusterNames:
+            initiatorsObj = self.getContext('clusters/' + clusterName + '/exports/initiator-ports')
+            initiators = initiatorsObj['response']['context'][0]['children']
+
+            initiatorAttrs = []
+            for initiator in initiators:
+                initiatorName = initiator['name']
+                initiatorObj = self.getContext('clusters/' + clusterName + '/exports/initiator-ports/' + initiatorName)
+                initiatorAttrs = initiatorObj['response']['context'][0]['attributes']
+
+                initiatorInfo = {}
+                for attr in initiatorAttrs:
+                    initiatorInfo[attr['name']] = attr['value']
+                initiatorsMap[initiatorInfo['name']] = initiatorInfo
+
+        return initiatorsMap
+
+    def parseSizeStr(self, sizeStr):
+        size = sizeStr
+        matchObj = re.match(r'(\d+)([MGTP]?)', sizeStr, re.IGNORECASE)
+        if matchObj:
+            size = float(matchObj.group(1))
+            unit = matchObj.group(2).upper()
+            if unit == 'M':
+                size = round(size / 1000, 2)
+            elif unit == 'T':
+                size = size * 1000
+            elif unit == 'P':
+                size = size * 1000 * 1000
+        return size
+
+    def getVolumeByStorageViews(self, clusterNames):
+        initiatorsMap = self.getInitiators(clusterNames)
+
+        volsMap = {}
+        for clusterName in clusterNames:
+            viewsObj = self.getContext('clusters/' + clusterName + '/exports/storage-views')
+            views = viewsObj['response']['context'][0]['children']
+
+            viewAttrs = []
+            for view in views:
+                viewName = view['name']
+                viewObj = self.getContext('clusters/' + clusterName + '/exports/storage-views/' + viewName)
+                viewAttrs = viewObj['response']['context'][0]['attributes']
+
+            viewInfo = {}
+            for attr in viewAttrs:
+                viewInfo[attr['name']] = attr['value']
+
+            #volsMap[viewInfo['name']] = viewInfo
+            for volsLine in viewInfo.get('virtual-volumes'):
+                volInfo = {}
+                volAttrs = volsLine[1:-1].split(',')
+                volName = volAttrs[1]
+                volInfo = volsMap.get(volName)
+                volSize = self.parseSizeStr(volAttrs[3])
+
+                if volInfo is None:
+                    volInfo = {
+                        'NAME': volName,
+                        'ID': volAttrs[0],
+                        'WWN': volAttrs[2],
+                        'CAPACITY': volSize,
+                        'VISABLE_GROUPS': [],
+                        'VISABLE_INITIATORS': []
+                    }
+                    volsMap[volName] = volInfo
+
+                volInfo['VISABLE_GROUPS'].append(viewInfo['name'])
+
+                for visInitiator in viewInfo.get('initiators'):
+                    hbaInfo = initiatorsMap.get(visInitiator)
+                    if hbaInfo:
+                        volInfo['VISABLE_INITIATORS'].append(
+                            {
+                                'NAME': hbaInfo['name'],
+                                'WWNN': self.wwnAddColon(hbaInfo['node-wwn'][2:]),
+                                'WWPN': self.wwnAddColon(hbaInfo['port-wwn'][2:]),
+                                'TYPE': hbaInfo['type']
+                            }
+                        )
+
+            luns = []
+            for k, v in volsMap.items():
+                luns.append(v)
+            self.data['LUNS'] = luns
+
+        return volsMap
+
+    def getStorageVolumeSummary(self, clusterNames):
+        unhealthVols = []
+        summarys = []
+
+        for clusterName in clusterNames:
+            storVolSummaryRes = self.execCommand('storage-volume summary', {'args': '--clusters ' + clusterName})
+            cmdOut = storVolSummaryRes['response']['custom-data']
+            outLines = cmdOut.split('\n')
+            idx = 0
+            for idx in range(0, len(outLines)):
+                line = outLines[idx]
+                if re.match(r'Storage-Volume Summary', line):
+                    break
+            if idx > 0:
+                (head, body) = self.parseTable(outLines[0:idx])
+                for record in body:
+                    unhealthVolInfo = {}
+                    for k in range(0, len(head)):
+                        if head[k] == 'StorageVolume Name':
+                            unhealthVolInfo['NAME'] = record[k]
+                        elif head[k] == 'IO Status':
+                            unhealthVolInfo['IO_STATUS'] = record[k]
+                        elif head[k] == 'Operational Status':
+                            unhealthVolInfo['OPER_STATUS'] = record[k]
+                        elif head[k] == 'Health State':
+                            unhealthVolInfo['HEALTH_STATE'] = record[k]
+                    unhealthVols.append(unhealthVolInfo)
+
+            (head, body) = self.parseTable(outLines[idx:])
+            summaryInfo = {}
+            summaryInfo['CLUSTER_NAME'] = clusterName
+            vendorInfos = []
+            summaryInfo['VENDOR'] = vendorInfos
+            preFType = None
+            for record in body:
+                fType = record[0]
+                subSegs = re.split('\s+', record[1])
+                if fType == '':
+                    fType = preFType
+                if fType == 'Vendor':
+                    vendorInfos.append({'NAME': subSegs[0], 'VOLUME_COUNT': int(subSegs[1])})
+                elif fType == 'Capacity':
+                    summaryInfo['CAPACITY'] = subSegs[1]
+                else:
+                    summaryInfo[subSegs[0].upper()] = int(subSegs[1])
+
+            summarys.append(summaryInfo)
+
+        self.data['STORAGE_VOLUMES_UNHEALTH'] = unhealthVols
+        self.data['STORAGE_VOLUME_SUMMARY'] = summarys
+
+    def getStorageArrays(self, clusterNames):
+        storArrayInfos = []
+        for clusterName in clusterNames:
+            storArraysObj = self.getContext('clusters/' + clusterName + '/storage-elements/storage-arrays')
+            storArrays = storArraysObj['response']['context'][0]['children']
+
+            storArrayAttrs = []
+            for storArray in storArrays:
+                storArrayName = storArray['name']
+                storArrayObj = self.getContext('clusters/' + clusterName + '/storage-elements/storage-arrays/' + storArrayName)
+                storArrayAttrs = storArrayObj['response']['context'][0]['attributes']
+
+            storArrayInfo = {}
+            for attr in storArrayAttrs:
+                storArrayInfo[attr['name'].upper()] = attr['value']
+            storArrayInfos.append(storArrayInfo)
+
+        self.data['STORAGE_ARRAYS'] = storArrayInfos
+
+        return storArrayInfos
+
+    def healthCheck(self):
+        healthRes = self.execCommand('health-check', {'args': '--highlevel'})
+        self.data['HEALTH_CHECK'] = healthRes['response']['custom-data']
+
+    def collect(self):
+        # self.getVersion()
+        print("INFO: Try to collect engine information.\n")
+        self.getEnginesInfo()
+
+        print("INFO: Try to collect cluster config information.\n")
+        clusterNames = self.getClusterNames()
+
+        print("INFO: Try to collect volumes information.\n")
+        self.getVolumeByStorageViews(clusterNames)
+
+        print("INFO: Try to collect storage arrays information.\n")
+        self.getStorageArrays(clusterNames)
+
+        print("INFO: Try to collect volumes summary information.\n")
+        self.getStorageVolumeSummary(clusterNames)
+
+        if self.inspect == 1:
+            print("INFO: Try to do health check.\n")
+            self.healthCheck()
+
+        self.data['_OBJ_CATEGORY'] = 'STORAGE'
+        self.data['_OBJ_TYPE'] = 'Virtual_Storage'
+        self.data['BRAND'] = 'EMC'
+        self.data['VENDOR'] = 'EMC'
+        self.data['MODEL'] = 'VPLEX'
+        self.data['APP_TYPE'] = 'VPLEX'
+        self.data['PK'] = ['MGMT_IP']
+
+        print("INFO: Information collcted.\n")
+        return self.data
+
+
+def usage():
+    pass
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--verbose', default=0, help='Verbose')
+    parser.add_argument('--timeout', default=10, help='Timeout seconds')
+    parser.add_argument('--inspect', default=0, help='Health check')
+    parser.add_argument('otherthings', nargs=argparse.REMAINDER)
+
+    args = parser.parse_args()
+
+    inspect = int(args.inspect)
+    timeOut = int(args.timeout)
+    verbose = int(args.verbose)
+
+    if timeOut == 0:
+        timeOut = 5
+
+    node = args.node
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None or node == '':
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if hasOptError:
+            usage()
+
+        hasError = False
+
+        ip = nodeInfo['host']
+        #port = nodeInfo['protocolPort']
+        username = nodeInfo['username']
+        password = nodeInfo['password']
+
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, timeOut, inspect)
+        data = vplexCollector.collect()
+        data['RESOURCE_ID'] = nodeInfo.get('resourceId')
+        data['MGMT_IP'] = nodeInfo.get('host')
+        out = {'DATA': [data]}
+        AutoExecUtils.saveOutput(out)
+        if verbose == 1:
+            print(json.dumps(data, ensure_ascii=True, indent=4))
+    except Exception as ex:
+        errorMsg = str(ex)
+        print("ERROR: ", errorMsg)
+        traceback.print_exc()

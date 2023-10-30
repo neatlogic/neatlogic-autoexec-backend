@@ -1,0 +1,256 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Cwd;
+use JSON;
+
+use ServerAdapter;
+use SCPExec;
+use DeployUtils;
+use DeployLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--verbose 0|1] [--np 0|1] [--cpifexists 0|1] [--pull 0|1]\n");
+    print("              [--pdir approot|project|release|appdist|dbscript|mirror]\n");
+    print("              <src1> <src2> <dest>\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version: version number of sub system\n");
+    print("       --np    : not preserve the mode of file\n");
+    print("       --cpifexists: copy if local dir or file exists.\n");
+    print("       --pull: pull from remote site to local site\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version );
+    my ( $isPull, $isPush, $cpIfExists, $pdir, $src, $dest, $np, $node );
+
+    my $pname = $FindBin::Script;
+
+    $isPull    = 0;
+    $isPush    = 1;
+    $isVerbose = 0;
+    $pdir      = undef;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'envpath=s{0,1}' => \$envPath,
+        'version=s'      => \$version,
+        'pull=i'         => \$isPull,
+        'np=i'           => \$np,
+        'cpifexists=i'   => \$cpIfExists,
+        'pdir=s'         => \$pdir,
+        'node=s'         => \$node,
+        '<>'             => \&pushItems
+    );
+
+    my @dirs;
+
+    sub pushItems {
+        my ($item) = @_;
+        push( @dirs, $item );
+    }
+
+    my $optionError = 0;
+
+    if ( $isPull == 0 ) {
+        $isPush = 1;
+    }
+
+    my $deployUtils = DeployUtils->new();
+
+    if ( scalar(@dirs) < 2 ) {
+        print("ERROR: Must define local path and remote path.\n");
+        $optionError = 1;
+    }
+
+    for ( my $i = 0 ; $i < scalar(@dirs) ; $i++ ) {
+        my $dir = $dirs[$i];
+        if ( $dir =~ /\/\.\.\// or $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ ) {
+            print("ERROR: Path can not has parent dir opertor:\"..\".\n");
+            $optionError = 1;
+        }
+        else {
+            $dir = $deployUtils->charsetConv( $dirs[$i], 'utf-8' );
+            $dirs[$i] = $dir;
+        }
+    }
+
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    my $namePath = $deployEnv->{NAME_PATH};
+    my $envName  = $deployEnv->{ENV_NAME};
+
+    my $serverAdapter = ServerAdapter->new();
+
+    my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
+    my $verStatus = $verInfo->{status};
+    my $buildNo   = $verInfo->{buildNo};
+    my $isMirror  = $verInfo->{isMirror};
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version is not released to $envName.\n");
+        return 3;
+    }
+
+    if ( $isMirror == 1 ) {
+        $pdir = 'mirror';
+    }
+    else {
+        $pdir = 'appdist';
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
+    my $verPath = $dirInfo->{$pdir};
+
+    if ( defined($pdir) ) {
+        if ( not defined($verPath) ) {
+            print("ERROR: $pdir not valid, not in appsync|mirror|appbuild|version.\n");
+            $optionError = 1;
+        }
+    }
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my ( @srcs, $dest );
+    $dest = pop(@dirs);
+
+    my $direction = 'push';
+    if ( $isPull == 1 ) {
+        $direction = 'pull';
+    }
+
+    my $src     = '';
+    my $envName = $deployEnv->{ENV_NAME};
+    my $verRoot = $dirInfo->{appRoot};
+
+    my $host        = $nodeInfo->{host};
+    my $port        = $nodeInfo->{protocolPort};
+    my $user        = $nodeInfo->{username};
+    my $pass        = $nodeInfo->{password};
+    my $insId       = $nodeInfo->{resourceId};
+    my $insName     = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        if ( $pass =~ s/^\{ENCRYPTED\}// ) {
+            $pass = $deployUtils->decryptPwd($pass);
+        }
+    }
+
+    $port = 22 if ( not defined($port) );
+
+    my $lock = DeployLock->new($deployEnv);
+    my $appLockId;
+
+    if ( $isMirror == 1 ) {
+        $appLockId = $lock->lockMirror($DeployLock::WRITE);
+    }
+    else {
+        $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    }
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            if ( $isMirror == 1 ) {
+                $lock->unlockMirror($appLockId);
+            }
+            else {
+                $lock->unlockEnvApp($appLockId);
+            }
+        }
+    }
+
+    my $verDiffPath = "$verPath.ins/$insUniqName";
+
+    if ($isPush) {
+        foreach my $dir (@dirs) {
+            my $aSrc = "$verPath/$dir";
+
+            my @aSrcExpanded = bsd_glob($aSrc);
+            if ( defined($cpIfExists) and scalar(@aSrcExpanded) == 0 ) {
+                print("WARN: The src $aSrc does not exist !\n");
+                next;
+            }
+
+            $src = "$src $aSrc";
+
+            my $hasDiff  = 0;
+            my @diffDirs = bsd_glob("$verDiffPath/$dir");
+            foreach my $diffDir (@diffDirs) {
+                if ( -e $diffDir ) {
+                    $hasDiff = 1;
+                    last;
+                }
+            }
+            if ( $hasDiff == 1 ) {
+                $src = "$src $verDiffPath/$dir";
+            }
+        }
+        $dest = "$user\@$host:$dest";
+    }
+    elsif ($isPull) {
+        foreach my $dir (@dirs) {
+            $src = "$src $user\@$host:$dir";
+        }
+        $dest = "$verPath/$dest";
+    }
+
+    my $ret = 0;
+    if ( $src !~ /^\s*$/ ) {
+        my $scpExec = new SCPExec(
+            host        => $host,
+            port        => $port,
+            username    => $user,
+            password    => $pass,
+            source      => $src,
+            destination => $dest,
+            verbose     => $isVerbose,
+            notpreserve => $np
+        );
+        $ret = $scpExec->exec();
+    }
+
+    if ( $ret == 0 ) {
+        print("FINE: $pname --$direction $src $dest success.\n");
+    }
+    else {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+exit main();
+

@@ -1,0 +1,123 @@
+{
+    "opDesc": "SQL文件执行",
+    "opType": "sqlfile",
+    "typeName": "SQL_FILE",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SQL文件执行工具（非自动发布）",
+    "enabled": 1,
+    "option": [{
+            "opt": "sqlfilejson",
+            "name": "SQL文件",
+            "help": "上传到系统的多个SQL文件, SQL文件和SQL脚本至少一个非空",
+            "type": "file",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "sql",
+            "name": "SQL文本",
+            "help": "需要执行的SQL脚本, SQL文件和SQL脚本至少一个非空",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "encoding",
+            "name": "SQL文件编码",
+            "help": "SQL文件的编码",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "自动识别",
+                        "value": ""
+                    },
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "dryrun",
+            "name": "测试运行",
+            "help": "测试运行，并没有真正执行SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "force",
+            "name": "强制运行",
+            "help": "不管SQL处于什么状态，重复强制执行SQL文件",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "autocommit",
+            "name": "自动提交",
+            "help": "SQL执行，每执行一条SQL自动提交",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "dbargs",
+            "name": "DB自定义参数",
+            "help": "数据库执行工具的自定义参数",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

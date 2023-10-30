@@ -1,0 +1,11 @@
+{
+    "opDesc": "CMDB字典更新插件字典",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "更新采集插件数据字典",
+    "option": [],
+    "output": []
+}

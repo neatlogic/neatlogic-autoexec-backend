@@ -1,0 +1,110 @@
+{
+    "opName": "光交信息采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "采集光交设备信息,支持基于Brocade的类型",
+    "option": [{
+            "opt": "community",
+            "name": "默认团体字",
+            "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "public"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "type",
+            "name": "光交类别",
+            "help": "光交的类别型号",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "自动选择",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "Brocade",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "IBM",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "EMC",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "HP",
+                        "value": "Brocade"
+                    },
+                    {
+                        "text": "Huawei",
+                        "value": "Brocade"
+                    }
+                ]
+            },
+            "defaultValue": "auto"
+        },
+        {
+            "opt": "inspect",
+            "name": "巡检检查",
+            "help": "采集更详细的巡检数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

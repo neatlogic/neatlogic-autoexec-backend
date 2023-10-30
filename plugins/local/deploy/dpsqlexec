@@ -1,0 +1,250 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Digest::MD5;
+use Getopt::Long;
+use Expect;
+use JSON;
+
+use DeployUtils;
+use DeployLock;
+use ServerAdapter;
+use DBInfo;
+use SQLBatchUtils;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("              [--maxparallel MaxParallelCount] [--extnames SqlExtNames]\n");
+    print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
+    print("              [--encoding SqlFileEncoding] [--filter SqlFileNamePattern]\n");
+    print("              [--index SqlIndexFiles] [--rollback 0|1]\n");
+    print("\n");
+    print("       --maxparallel: max parallel running sql files\n");
+    print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
+    print("       --dryrun:      only test, not realy execute the sql script\n");
+    print("       --autocommit:  permit autocommit on mysql, postgresql\n");
+    print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
+    print("       --dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       --encoding:    encoding for sql file\n");
+    print("       --filter:      sql file name pattern, just execute matched sql file\n");
+    print("       --index:       index file names\n");
+    print("       --rollback:    execute sql files in sub directory:rollback\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $isHelp    = 0;
+    my $isVerbose = 0;
+    my $envPath;
+    my $version;
+    my $maxParallelCount = 1;
+    my $sqlExtNamesStr   = '';
+    my $isDryRun         = 0;
+    my $isForce          = 0;
+    my $isAutoCommit     = 0;
+    my $isRollback       = 0;
+    my $filter;
+    my $index;
+
+    GetOptions(
+        'help'          => \$isHelp,
+        'v|verbose=i'   => \$isVerbose,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'maxparallel=i' => \$maxParallelCount,
+        'extnames=s'    => \$sqlExtNamesStr,
+        'force=i'       => \$isForce,
+        'dryrun=i'      => \$isDryRun,
+        'autocommit=i'  => \$isAutoCommit,
+        'rollback=i'    => \$isRollback,
+        'filter=s'      => \$filter,
+        'index=s'       => \$index
+    );
+
+    #$ENV{IS_INTERACT} = 1;
+    my $optionError = 0;
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $optionError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo = DeployUtils->getDataDirStruct($deployEnv);
+
+    #作业目录，日志
+    #jobpath/
+    #|-- log
+    #|   `-- phase-db
+    #|       `-- asm.root
+    #|          |-- 2.sql.hislog
+    #|          |   |-- 20210625-163515.failed.anonymous.txt
+    #|          |   |-- 20210625-163607.failed.anonymous.txt
+    #|          |   `-- 20210625-164543.failed.anonymous.txt
+    #|          `-- 2.sql.txt
+
+    #环境制品目录，sql文件和sql执行状态
+    #distributePath/
+    #|-- db
+    #|   `-- asm.root
+    #|       `-- 2.sql
+    #`-- db.status
+    #    `-- asm.root
+    #        `-- 2.sql.txt
+
+    my $distPath     = $dirInfo->{distribute};
+    my $sqlFileDir   = "$distPath/db";
+    my $logFileDir   = "$jobPath/log/$phaseName";
+    my $sqlStatusDir = "$distPath/db.status";
+
+    if ( -d $sqlFileDir ) {
+        if ( not -e "$jobPath/sqlfile" ) {
+            mkdir("$jobPath/sqlfile");
+        }
+        my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
+        if ( not -e $jobSqlFileDir ) {
+            symlink( $sqlFileDir, $jobSqlFileDir );
+        }
+    }
+
+    my @sqlExtNames = ( 'sql', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
+    if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
+        @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
+    }
+
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
+    my $batchUtils = SQLBatchUtils->new(
+        sqlExtNames => \@sqlExtNames,
+        deployEnv   => $deployEnv,
+        dirInfo     => $dirInfo
+    );
+
+    my $sqlFilesJson = $deployEnv->{SQL_FILES};
+
+    my $sqlFiles = [];
+    my $sqlInfosInArg;
+    if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
+        $sqlInfosInArg = from_json($sqlFilesJson);
+
+        my $sqlFilesMap = {};
+        foreach my $sqlInfo (@$sqlInfosInArg) {
+            $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
+        }
+        my @sqlFilesArray = keys(%$sqlFilesMap);
+        $sqlFiles = \@sqlFilesArray;
+    }
+    else {
+        if ( defined($index) and $index ne '' ) {
+            $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+        }
+        else {
+            $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+        }
+    }
+
+    my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
+
+    my $dbSchemasMap = {};
+
+    my $serverAdapter = ServerAdapter->new();
+    my $dbConf        = $serverAdapter->getDBConf($deployEnv);
+    while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
+        my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
+        if ( defined($isAutoCommit) and $isAutoCommit == 1 ) {
+            $dbInfo->{autocommit} = 1;
+        }
+        $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
+    }
+
+    my $rc = 0;
+    if ( scalar(@$sqlFileSets) > 0 ) {
+        my $sqlFileRunner = SQLFileRunner->new(
+            jobId        => $jobId,
+            jobPath      => $jobPath,
+            phaseName    => $phaseName,
+            deployEnv    => $deployEnv,
+            toolsDir     => $deployEnv->{TOOLS_PATH},
+            tmpDir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
+            dbSchemasMap => $dbSchemasMap,
+            nodeInfo     => { resourceId => 0 },
+            sqlFiles     => $sqlFiles,
+            sqlFileDir   => $sqlFileDir,
+            sqlStatusDir => $sqlStatusDir,
+            logFileDir   => $logFileDir,
+            isForce      => $isForce,
+            isDryRun     => $isDryRun,
+            autocommit   => $isAutoCommit,
+            istty        => 0,
+            isInteract   => 1
+        );
+
+        my $sqlInfoInServer;
+        if ( defined($sqlInfosInArg) ) {
+            $sqlInfoInServer = $sqlInfosInArg;
+
+            #当接口支持只返回部分sql时
+            #$sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv, $sqlFiles );
+        }
+        else {
+            $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+        }
+
+        my $lock      = DeployLock->new($deployEnv);
+        my $sqlLockId = $lock->lockEnvSql($DeployLock::WRITE);
+
+        END {
+            local $?;
+            if ( defined($lock) ) {
+                $lock->unlockEnvSql($sqlLockId);
+            }
+        }
+
+        if ( not defined($sqlInfosInArg) ) {
+            $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+        }
+        $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
+    }
+
+    return $rc;
+}
+
+exit main();

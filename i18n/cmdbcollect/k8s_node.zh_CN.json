@@ -1,0 +1,282 @@
+{
+    "label": "K8S_NODE",
+    "collection": "COLLECT_K8S",
+    "docroot": "NODES",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_NODE"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "ADDRESS",
+            "desc": "地址",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "ADDRESS",
+                    "desc": "地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ALLOCATABLE",
+            "desc": "消耗资源量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CPU",
+                    "desc": "CPU",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "内存",
+                    "type": "String"
+                },
+                {
+                    "name": "PODS",
+                    "desc": "pods总量",
+                    "type": "Int"
+                },
+                {
+                    "name": "EPHEMERAL-STORAGE",
+                    "desc": "临时存储",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-1GI",
+                    "desc": "巨页1GI",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-2MI",
+                    "desc": "巨页2MI",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "注释",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "注释名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "注释值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ARCHITECTURE",
+            "desc": "CPU架构",
+            "type": "String"
+        },
+        {
+            "name": "BOOTID",
+            "desc": "boot ID",
+            "type": "String"
+        },
+        {
+            "name": "CAPACITY",
+            "desc": "资源总量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CPU",
+                    "desc": "CPU",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "内存",
+                    "type": "String"
+                },
+                {
+                    "name": "PODS",
+                    "desc": "pods总量",
+                    "type": "Int"
+                },
+                {
+                    "name": "EPHEMERAL-STORAGE",
+                    "desc": "临时存储",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-1GI",
+                    "desc": "巨页1GI",
+                    "type": "String"
+                },
+                {
+                    "name": "HUGEPPAGES-2MI",
+                    "desc": "巨页2MI",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONDITIONS",
+            "desc": "状态",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTHEARTBEATTIME",
+                    "desc": "最后的检测时间",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTTRANSITIONTIME",
+                    "desc": "最后的迁移时间",
+                    "type": "String"
+                },
+                {
+                    "name": "REASON",
+                    "desc": "原因",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "信息",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAINERRUNTIMEVERSION",
+            "desc": "docker版本",
+            "type": "String"
+        },
+        {
+            "name": "CREATEDATA",
+            "desc": "创建时间",
+            "type": "String"
+        },
+        {
+            "name": "KERNELVERSION",
+            "desc": "OS内核版本",
+            "type": "String"
+        },
+        {
+            "name": "KIND",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "KUBELETVERSION",
+            "desc": "kubelet版本",
+            "type": "String"
+        },
+        {
+            "name": "KUBEPROXYVERSION",
+            "desc": "kubeproxy版本",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MACHINEID",
+            "desc": "机器ID",
+            "type": "String"
+        },
+        {
+            "name": "OPERATINGSYSTEM",
+            "desc": "OS版本",
+            "type": "String"
+        },
+        {
+            "name": "PODCIDR",
+            "desc": "CIDR区段",
+            "type": "String"
+        },
+        {
+            "name": "PODCIDRS",
+            "desc": "CIDR区段集合",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "区段",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ROLE",
+            "desc": "节点角色",
+            "type": "String"
+        },
+        {
+            "name": "RUN_OS",
+            "desc": "所在操作系统",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "MGMT_IP",
+                    "desc": "操作系统IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SYSTEMUUID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        }
+    ]
+}

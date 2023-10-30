@@ -1,0 +1,21 @@
+{
+    "opDesc": "是否继续",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "执行过程中确认是否继续，不继续则中止运行",
+    "option": [
+        {
+            "opt": "message",
+            "name": "交互说明",
+            "help": "交互主体中显示的说明文案",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

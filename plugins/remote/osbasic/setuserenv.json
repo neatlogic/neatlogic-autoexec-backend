@@ -1,0 +1,38 @@
+{
+    "opDesc": "设置用户ENV",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改用户profile文件，设置用户环境变量",
+    "option": [{
+            "opt": "user",
+            "name": "用户名",
+            "help": "只需要通过root设置其他用户的profile时才需要定义, 否则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "filename",
+            "name": "Profile文件名",
+            "help": "文件名，例如：.bash_profile或者.profile",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ".bash_profile"
+        },
+        {
+            "opt": "content",
+            "name": "需修改内容",
+            "help": "支持多行, 例如：export ORACLE_HOME=/app/oracle",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

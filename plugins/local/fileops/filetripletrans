@@ -1,0 +1,130 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import _thread
+import argparse
+import json
+import uuid
+
+import TagentClient
+import AutoExecUtils
+import LocalRemoteExec
+
+exitCode = 0
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <ip> --port <port> --user <user> --password <password> --interpreter <script interpreter> --script <script>")
+    print("       --node:        Host node json\n")
+    exit(1)
+
+
+def launchRecv(recvNodeInfo, recvScriptDef, port, authToken, destDir, verbose):
+    rexec = LocalRemoteExec.LocalRemoteExec()
+    (ret, errorMsg) = rexec._remoteExecute(recvNodeInfo, recvScriptDef, '{} {} "{}" {}'.format(port, authToken, destDir, verbose))
+    if errorMsg:
+        print(errorMsg)
+    if not ret:
+        # failed
+        exitCode = 1
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', default='0', help='Verbose')
+    parser.add_argument('--node', default='', help='Copy to node')
+    parser.add_argument('--srcnode', default='[]', help='Copy from node')
+    parser.add_argument('--srcusername', default='', help='Copy from node username')
+    parser.add_argument('--srcdir', default='', help='Copy from directory')
+    parser.add_argument('--destdir', default='', help='Copy to directory')
+
+    args = parser.parse_args()
+    node = args.node
+    srcNode = args.srcnode
+
+    hasOptError = False
+    nodeInfo = {}
+
+    if node is None or node == '':
+        node = os.getenv('AUTOEXEC_NODE')
+    if node is None or node == '':
+        print("ERROR: Can not find node definition.\n")
+        hasOptError = True
+    else:
+        nodeInfo = json.loads(node)
+
+    if srcNode is None or srcNode == '':
+        print("ERROR: Must defined node info to copy from by option --srcnode.")
+        hasOptError = True
+
+    srcNodes = json.loads(srcNode)
+    if len(srcNodes) == 0:
+        print("ERROR: Source node not defined for copy from with option --srcnode.")
+        hasOptError = True
+
+    if hasOptError:
+        usage()
+
+    binPaths = os.path.split(os.path.realpath(__file__))
+    scriptHome = os.path.realpath(binPaths[0])
+
+    authToken = str(uuid.uuid1())
+    srcScriptName = str(uuid.uuid1())
+
+    srcProtocol = nodeInfo.get('protocol')
+    srcProtocolPort = nodeInfo.get('protocolPort')
+    srcUserName = args.srcusername
+    if srcUserName is None or srcUserName == '':
+        srcUserName = nodeInfo.get('username')
+
+    srcNodeInfo = {}
+    srcNodeInfo.update(srcNodes[0])
+    srcNodeInfo['host'] = srcNodeInfo.pop('ip')
+
+    if (srcNodeInfo.get('host') == nodeInfo.get('host')):
+        print("ERROR: Two endpoint host are the same host, not supported.")
+        sys.exit(-1)
+
+    srcNodeInfo['protocol'] = srcProtocol
+    srcNodeInfo['protocolPort'] = srcProtocolPort
+    srcNodeInfo['username'] = srcUserName
+
+    srcNodePwd = ''
+    try:
+        srcNodePwd = AutoExecUtils.getNodePwd(srcNodeInfo.get('resourceId'), srcNodeInfo.get('host'), srcNodeInfo.get('port'), srcUserName, srcProtocol)
+    except Exception as ex:
+        print("ERROR: Can not find passwford for {}://{}@{} {}.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), str(ex)))
+        sys.exit(-1)
+
+    srcNodeInfo['password'] = srcNodePwd
+    if srcNodeInfo.get('resourceId') is None:
+        srcNodeInfo['resourceId'] = srcScriptName
+
+    protocol = nodeInfo.get('protocol')
+    if protocol == 'tagent':
+        tagent = TagentClient.TagentClient(nodeInfo.get('host'), nodeInfo.get('protocolPort'), nodeInfo.get('password'), readTimeout=360, writeTimeout=10)
+        exitCode = tagent.transFile(srcNodeInfo.get('host'),
+                                    srcNodeInfo.get('protocolPort'),
+                                    srcNodeInfo.get('username'),
+                                    srcNodeInfo.get('password'),
+                                    args.srcdir,
+                                    nodeInfo.get('username'),
+                                    args.destdir,
+                                    args.verbose)
+    elif protocol == 'ssh':
+        cmd = '%s/filesshtripletrans --verbose "%s" --srchost "%s" --srcport "%s" --srcuser "%s" --srcpassword "%s" --srcdir "%s" --desthost "%s" --destport "%s" --destuser "%s" --destpassword "%s" --destdir "%s"' % (
+            scriptHome, args.verbose, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), srcNodeInfo.get('username'), srcNodeInfo.get('password'), args.srcdir, nodeInfo.get('host'), nodeInfo.get('protocolPort'), nodeInfo.get('username'), nodeInfo.get('password'), args.destdir)
+        exitCode = os.system(cmd)
+    else:
+        exitCode = -1
+        print("ERROR: Protocol {} not supported.".format(protocol))
+
+    if exitCode == 0:
+        print("FINE: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} success.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
+    else:
+        print("ERROR: Transfer {}://{}@{}:{}:{} to {}://{}@{}:{}:{} failed.".format(srcProtocol, srcUserName, srcNodeInfo.get('host'), srcNodeInfo.get('protocolPort'), args.srcdir, nodeInfo.get('protocol'), nodeInfo.get('username'), nodeInfo.get('host'), nodeInfo.get('port'), args.destdir))
+
+    sys.exit(exitCode)

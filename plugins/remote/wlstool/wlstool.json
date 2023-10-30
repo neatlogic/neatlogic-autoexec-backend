@@ -1,0 +1,402 @@
+{
+    "opDesc": "Weblogic发布",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "wls-args",
+    "description": "Weblogic发布",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "LANG",
+            "name": "LANG",
+            "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "LC_ALL",
+            "name": "LC_ALL",
+            "help": "WAS启动使用的语言设置，一般不需要设置，保持为自动",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "umask",
+            "name": "umask",
+            "help": "umask设置，如果留空则不对umask进行修改，例如：0022",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0022"
+        },
+        {
+            "opt": "action",
+            "name": "动作",
+            "help": "WAS操作动作",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "admin-start",
+                        "value": "admin-start"
+                    },
+                    {
+                        "text": "admin-stop",
+                        "value": "admin-stop"
+                    },
+                    {
+                        "text": "app-start",
+                        "value": "app-start"
+                    },
+                    {
+                        "text": "app-stop",
+                        "value": "app-stop"
+                    },
+                    {
+                        "text": "check",
+                        "value": "check"
+                    },
+                    {
+                        "text": "clean",
+                        "value": "clean"
+                    },
+                    {
+                        "text": "clean-extract",
+                        "value": "clean-extract"
+                    },
+                    {
+                        "text": "deploy",
+                        "value": "deploy"
+                    },
+                    {
+                        "text": "extract",
+                        "value": "extract"
+                    },
+                    {
+                        "text": "node-start",
+                        "value": "node-start"
+                    },
+                    {
+                        "text": "node-stop",
+                        "value": "node-stop"
+                    },
+                    {
+                        "text": "patch",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "stop",
+                        "value": "stop"
+                    },
+                    {
+                        "text": "undeploy",
+                        "value": "undeploy"
+                    },
+                    {
+                        "text": "unpatch",
+                        "value": "unpatch"
+                    }
+                ]
+            },
+            "defaultValue": "admin-start"
+        },
+        {
+            "opt": "java_home",
+            "name": "JAVA_HOME",
+            "help": "JAVA HOME目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/jdk"
+        },
+        {
+            "opt": "wls_home",
+            "name": "WLS_HOME",
+            "help": "Weblogic的安装目录，例如：/app/serverware/wls/wls1036",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/wls1036"
+        },
+        {
+            "opt": "domain_home",
+            "name": "DOMAIN_HOME",
+            "help": "Weblogic的Domain目录，例如：/app/serverware/wls/domains/tsdomain",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/domains/tsdomain"
+        },
+        {
+            "opt": "admin_url",
+            "name": "Admin URL",
+            "help": "Weblogic当前domain的admin server访问地址，例如：http://127.0.0.1:7001",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "http://${INS_HOST}:${INS_PORT}"
+        },
+        {
+            "opt": "wls_user",
+            "name": "console用户名",
+            "help": "Weblogic console登录界面的用户名",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "weblogic"
+        },
+        {
+            "opt": "wls_pwd",
+            "name": "console用户的密码",
+            "help": "Weblogic console登录界面的用户的密码",
+            "type": "password",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "start_timeout",
+            "name": "启动超时",
+            "help": "启动超时时间（秒），默认180秒",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "stop_timeout",
+            "name": "停止超时",
+            "help": "停止超时时间（秒），默认180秒",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "standalone",
+            "name": "独立运行",
+            "help": "是否独立Server运行，不需要nodeagent和dmgr的运行方式",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "need_deploy",
+            "name": "新应用自动部署",
+            "help": "是否需要调用was接口部署应用，对应dmgr的情况，只需要在一个机器上进行部署，其他节点都会自动同步",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "servername",
+            "name": "Server名称",
+            "help": "Server名称，",
+            "type": "text",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "appname",
+            "name": "部署名",
+            "help": "应用部署名，在weblogic console部署界面，应用对应的部署“名称”值",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "demo_war"
+        },
+        {
+            "opt": "appfile",
+            "name": "包路径",
+            "help": "包路径，从当前目录更新到weblogic安装路径的中转目录",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/tmp/demo.war"
+        },
+        {
+            "opt": "source-path",
+            "name": "安装路径",
+            "help": "在weblogic console应用安装时，指定的目录或包的路径",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/app/systems/test/sample/sample.war"
+        },
+        {
+            "opt": "target",
+            "name": "部署目标",
+            "help": "应用部署的目标weblogic实例名或者Cluster名，在weblogic console部署界面，应用对应的部署“目标”值",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "myserver"
+        },
+        {
+            "opt": "staging-mode",
+            "name": "Staging Mode",
+            "help": "部署模式，nostage代表Managed server不会从admin server下载应用，而是需要在所有Server上同构的目录上上传应用，建议使用nostage模式，否则每次重启都要从Admin Server下载应用",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "nostage",
+                        "value": "nostage"
+                    },
+                    {
+                        "text": "stage",
+                        "value": "stage"
+                    }
+                ]
+            },
+            "defaultValue": "nostage"
+        },
+        {
+            "opt": "checkurl",
+            "name": "检测URL",
+            "help": "应用访问URL，注意端口，例如：http://127.0.0.1:9082/demo/",
+            "type": "text",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "custom_stdoutfiles",
+            "name": "客户化日志路径",
+            "help": "可以设置多个路径，逗号相隔，第一个路径是标准输出文件路径",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "max_logsize",
+            "name": "日志单文件大小",
+            "help": "控制台输出日志，单文件最大的大小（单位M），默认是2048M",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "2048"
+        },
+        {
+            "opt": "max_logfiles",
+            "name": "最大日志数量",
+            "help": "控制台输出日志最大的文件数，超过会自动清理",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "123"
+        },
+        {
+            "opt": "max_logdays",
+            "name": "日志最大保留天数",
+            "help": "控制台输出日志最大保留天数，超过会自动清理",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "93"
+        },
+        {
+            "opt": "USER_MEM_ARGS",
+            "name": "JAVA内存参数",
+            "help": "JAVA内存参数，用于设置内存相关参数，例如：-Xms256m -Xmx1024m -XX:MaxPermSize=256m",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "JAVA_EXT_OPTS",
+            "name": "JAVA参数",
+            "help": "JAVA扩展参数，用于设置JAVA扩展参数",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "-Djava.security.egd=file:/dev/./urandom"
+        }
+    ],
+    "output": []
+}

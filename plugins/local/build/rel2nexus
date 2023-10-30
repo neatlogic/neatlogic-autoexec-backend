@@ -1,0 +1,253 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Cwd;
+use IO::File;
+use MIME::Base64;
+use File::Basename;
+use Data::Dumper;
+use LWP::UserAgent;
+use Getopt::Long;
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
+    print("              --repo Repository --group Group --artifact Artifact\n");
+    print("              --pkgfile FilePath --pomfile PomFilePath\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version: version number of module\n");
+    print("       --buildno: Build number\n");
+    print("       --baseurl: Nexus base url, example:http://192.168.0.13:8080\n");
+    print("       --user:    User name to login nexus\n");
+    print("       --password:User password to login nexus\n");
+    print("       --repo:    Nexus repository, example:public.\n");
+    print("       --group:   Group of artifact, example:com.any\n");
+    print("       --artifact:Artifact, example: log4j\n");
+    print("       --ver:     Version or artifact.\n");
+    print("       --pkgfile: Package file, war|war file path relative to project.\n");
+    print("       --pomfile: pom.xml file path relative to project.\n");
+
+    exit(-1);
+}
+
+sub getBoundary {
+    my @charsSet;
+    push( @charsSet, chr($_) ) for 48 .. 57;
+    push( @charsSet, chr($_) ) for 97 .. 122;
+    push( @charsSet, chr($_) ) for 65 .. 90;
+
+    my $randStr = '----';
+    $randStr = $randStr . $charsSet[ rand 62 ] for 1 .. 28;
+    return $randStr;
+}
+
+#TODO: 测试nexus上传
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $artifactVer, $pkgPath, $pom );
+
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath:s'  => \$envPath,
+        'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
+        'baseurl=s'  => \$baseUrl,
+        'user:s'     => \$user,
+        'password:s' => \$pass,
+        'repo=s'     => \$repo,
+        'group=s'    => \$group,
+        'artifact=s' => \$artifact,
+        'ver=s'      => \$artifactVer,
+        'pkgfile=s'  => \$pkgPath,
+        'pomfile:s'  => \$pom,
+
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus base url not defined by option --baseurl\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Nexus password not defined by option --password\n");
+    }
+
+    if ( not defined($repo) or $repo eq '' ) {
+        print("ERROR: Must defind repository id\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($group) or $group eq '' ) {
+        print("ERROR: Must defind group id\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($artifact) or $artifact eq '' ) {
+        print("ERROR: Must defind artifact id\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($artifactVer) or $artifactVer eq '' ) {
+        $optionError = 1;
+        print("ERROR: Artifact version not defined by option --ver or Environment:VERSION\n");
+    }
+
+    if ( not defined($pkgPath) or $pkgPath eq '' ) {
+        print("ERROR: Must defind filepath path\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    $baseUrl =~ s/\/+$//;
+
+    my $hasError = 0;
+
+    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
+    my $distDir = $dirInfo->{distribute};
+
+    my $prjPath = $buildEnv->{PRJ_PATH};
+
+    my $pkgRealPath  = "$prjPath/$pkgPath";
+    my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
+    my $TMPDIR       = "$autoexecHome/tmp";
+
+    my $tmp    = File::Temp->newdir( "nexusupd-XXXXX", DIR => $TMPDIR, UNLINK => 1 );
+    my $tmpDir = $tmp->dirname();
+
+    my $tmpPomPath = "$tmpDir/pom.xml";
+    if ( defined($pom) ) {
+        my $pomFilePath = "$prjPath/$pom";
+        my $content     = $deployUtils->getFileContent("$pomFilePath");
+        $content =~ s/<version>.*?<\/version>/<version>$artifactVer<\/version>/g;
+        my $fh = IO::File->new(">$tmpPomPath");
+        if ( defined($fh) ) {
+            print $fh ($content);
+            $fh->close();
+        }
+        else {
+            $hasError = $hasError + 1;
+            print("ERROR: Can not write to file $tmpPomPath, $!\n");
+            return $hasError;
+        }
+    }
+    else {
+        my $pomInZip = "META-INF/maven/$group/$artifact/pom.xml";
+
+        my $unzipRet = system("unzip -jod '$tmpDir' '$pkgRealPath' '$pomInZip'");
+        if ( $unzipRet != 0 ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Unzip $pomInZip from $pkgRealPath failed.\n");
+            return $hasError;
+        }
+
+        my $content = $deployUtils->getFileContent($tmpPomPath);
+        $content =~ s/<version>.*?<\/version>/<version>$artifactVer<\/version>/g;
+
+        my $fh = IO::File->new(">$tmpPomPath");
+        if ( defined($fh) ) {
+            print $fh ($content);
+            $fh->close();
+        }
+        else {
+            $hasError = $hasError + 1;
+            print("ERROR: Can not write to file $tmpPomPath, $!\n");
+            return $hasError;
+        }
+    }
+
+    my $ext = '';
+    if ( $pkgPath =~ /\.([^\.])$/ ) {
+        $ext = $1;
+    }
+
+    my $contentMap = [
+        'maven2.groupId'           => $group,
+        'maven2.artifactId'        => $artifact,
+        'maven2.version'           => $artifactVer,
+        'maven2.asset1'            => [ $pkgRealPath, basename($pkgRealPath), Content_Type => 'application/octet-stream' ],
+        'maven2.asset1.classifier' => '',
+        'maven2.asset1.extension'  => $ext
+    ];
+
+    if ( defined($pom) and -f $tmpPomPath ) {
+        push(
+            @$contentMap,
+            'maven2.asset2'            => [ $tmpPomPath, basename($tmpPomPath), Content_Type => 'application/octet-stream' ],
+            'maven2.asset2.extension'  => 'pom',
+            'maven2.asset2.classifier' => ''
+        );
+    }
+
+    my $url = "$baseUrl/service/rest/v1/components?repository=$repo";
+
+    my $authToken = 'Basic ' . MIME::Base64::encode( $user . ':' . $pass );
+    $authToken =~ s/\s*$//;
+
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
+
+    my $ua = LWP::UserAgent->new( timeout => 600 );
+
+    #Content_Type是multipart/form-data;boundary就会触发LWP执行上传逻辑，使用multipart上传相关的属性和文件
+    my $response = $ua->post(
+        $url,
+        'Authorization' => $authToken,
+        'Content_Type'  => 'multipart/form-data;boundary=' . getBoundary(),
+        'Content'       => $contentMap
+    );
+    my $statusCode = $response->code();
+    if ( $statusCode == 200 ) {
+        print("FINE: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
+    }
+    else {
+        $hasError = $hasError + 1;
+        my $content = $response->content();
+        print("ERROR: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version faiiled.\n$content\n");
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
+    }
+
+    return $hasError;
+}
+
+exit main();

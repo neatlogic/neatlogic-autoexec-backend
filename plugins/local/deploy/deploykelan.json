@@ -1,0 +1,49 @@
+{
+    "opDesc": "科蓝OSGI部署工具",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "发布版本目录中的osgi包",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "console",
+            "name": "管理URL",
+            "help": "科蓝管理控制台URL",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "访问科蓝管理控制台的用户名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问科蓝管理控制台用户密码",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "servername",
+            "name": "SERVER名",
+            "help": "科蓝应用的SERVER名",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

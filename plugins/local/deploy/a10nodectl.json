@@ -1,0 +1,88 @@
+{
+    "opDesc": "A10 POOL节点控制",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "A10-args",
+    "description": "Disable或Enable负载均衡A10 POOL的节点",
+    "enabled": 1,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "接口URL",
+            "help": "A10接口URL地址，例如：https://10.16.185.1",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "执行操作的用户名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "操作用户的密码",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pool",
+            "name": "POOL名称",
+            "help": "A10目标POOL名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "action",
+            "name": "操作",
+            "help": "操作（enable｜disable）",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "Disable",
+                        "value": "disable"
+                    },
+                    {
+                        "text": "enable",
+                        "value": "enable"
+                    }
+                ]
+            },
+            "defaultValue": "disable"
+        }
+    ],
+    "output": []
+}

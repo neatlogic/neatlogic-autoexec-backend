@@ -1,0 +1,106 @@
+{
+    "opDesc": "打版本标签",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "对于基于标签的版本，自动打标签（需要在verget后才能使用）",
+    "enabled": 1,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "tagprefix",
+            "name": "仓库地址",
+            "help": "GIT的仓库地址或SVN仓库的根路径",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "访问仓库的用户名(如GIT使用ssh方式，留空)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问仓库的密码(如GIT使用ssh方式，留空)",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "branch",
+            "name": "版本分支",
+            "help": "GIT的版本分支或SVN的版本子目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "tagsdir",
+            "name": "SVN标签目录",
+            "help": "只有SVN需要配置，SVN存放标签的仓库子目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "tags"
+        },
+        {
+            "opt": "startpath",
+            "name": "子目录",
+            "help": "存放代码仓库的子目录，用于多个代码仓库联合编译的情况",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

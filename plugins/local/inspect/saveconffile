@@ -1,0 +1,148 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import time
+import traceback
+import argparse
+import json
+import hashlib
+from functools import partial
+
+import AutoExecUtils
+
+
+def md5sum(filename):
+    with open(filename, mode='rb') as f:
+        d = hashlib.md5()
+        for buf in iter(partial(f.read, 128), b''):
+            d.update(buf)
+    return d.hexdigest()
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--fileslist', default='[]', help='File list json string')
+    parser.add_argument('--reservevercount', default=5, help='Reserve file version count')
+    parser.add_argument('--inspectlogttl', default=30, help='Days for inspect log ttl')
+    parser.add_argument('--timeout', default=60, help='Timeout seconds')
+    args = parser.parse_args()
+
+    timeOut = int(args.timeout)
+    if timeOut == 0:
+        timeOut = 60
+
+    reserveVerCount = int(args.reservevercount)
+    inspectLogTTL = int(args.inspectlogttl)
+
+    node = args.node
+    fileListJson = args.fileslist
+
+    hasError = 0
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None or node == '':
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        filesList = []
+        if fileListJson is not None and fileListJson != '':
+            filesList = json.loads(fileListJson)
+
+        if len(filesList) == 0:
+            print("WARN: No files to save.")
+            exit(0)
+
+        if hasOptError:
+            usage()
+
+        resourceId = nodeInfo['resourceId']
+
+        fileInfoDict = {}
+        for fileInfo in AutoExecUtils.getCITxtFilePathList(resourceId):
+            fileInfoDict[fileInfo['path']] = {
+                'id': fileInfo['id'],
+                'md5': fileInfo.get('md5')
+            }
+
+        jobId = os.getenv('AUTOEXEC_JOBID')
+        fileId = None
+        for fileInfo in filesList:
+            try:
+                fileId = None
+                fullPath = fileInfo['fullPath']
+                serverPath = fileInfo['serverPath']
+                modifyTime = fileInfo.get('modifyTime')
+
+                nowTime = int(time.time() * 1000)
+                if modifyTime is None:
+                    modifyTime = nowTime
+                else:
+                    modifyTime = modifyTime * 1000
+
+                print("INFO: Backup and inspect file %s begin..." % (serverPath))
+
+                pathId = None
+                oldMd5 = None
+                oldFileInfo = fileInfoDict.get(serverPath)
+                if oldFileInfo is not None:
+                    pathId = oldFileInfo['id']
+                    oldMd5 = oldFileInfo['md5']
+
+                fileMd5 = md5sum(fullPath)
+
+                if fileMd5 != oldMd5:
+                    result = AutoExecUtils.uploadFile(fullPath, 'inspectconfigfile')
+                    print("FINE: Upload file %s to storage success." % (serverPath))
+                    fileId = result['id']
+                    result = AutoExecUtils.txtFileInspectSave({
+                        "jobId": jobId,
+                        "resourceId": resourceId,
+                        "pathId": pathId,
+                        "path": fileInfo['serverPath'],
+                        "inspectTime": nowTime,
+                        "modifyTime": modifyTime,
+                        "md5": fileMd5,
+                        "fileId": fileId,
+                        'reserveVerCount': reserveVerCount,
+                        'inspectLogTTL': inspectLogTTL
+                    })
+                else:
+                    result = AutoExecUtils.txtFileInspectSave({
+                        "jobId": jobId,
+                        "resourceId": resourceId,
+                        "pathId": pathId,
+                        "path": fileInfo['serverPath'],
+                        "inspectTime": nowTime,
+                        'modifyTime': None,
+                        "md5": None,
+                        "fileId": None,
+                        'reserveVerCount': reserveVerCount,
+                        'inspectLogTTL': inspectLogTTL
+                    })
+                print("FINE: Save file %s inspect information success." % (serverPath))
+            except Exception as ex:
+                hasError = 2
+                if fileId is not None:
+                    try:
+                        AutoExecUtils.removeUploadedFile(fileId)
+                    except:
+                        pass
+                print('ERROR: Save file({}) failed, {}, {}'.format(json.dumps(fileInfo), str(ex), traceback.format_exc()))
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)
+
+    exit(hasError)

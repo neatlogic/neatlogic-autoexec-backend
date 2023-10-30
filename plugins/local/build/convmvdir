@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use Getopt::Long;
+use Cwd;
+use Encode;
+use Encode::Guess;
+use File::Find;
+
+use DeployUtils;
+use DeployLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--pdir approot|project|release|distribute|mirror]\n");
+    print("              --from FromCharset --to ToCharset\n");
+    print("\n");
+    print("       --envpath:   sub system envrionment path\n");
+    print("       --version:   Version number of module version\n");
+    print("       --buildno:   Build number\n");
+    print("       --from:      file name origin encoding charset\n");
+    print("       --to:        file name destination encoding charset\n");
+
+    exit(1);
+}
+
+sub guessEncoding {
+    my ( $data, $encodings ) = @_;
+
+    my $encoding;
+    my $charSet;
+    foreach $encoding (@$encodings) {
+        my $enc = guess_encoding( $data, $encoding );
+        if ( ref($enc) ) {
+            $charSet = uc( $enc->mime_name );
+            last;
+        }
+    }
+
+    return $charSet;
+}
+
+sub convmvdir {
+    my ( $dir, $from, $to ) = @_;
+
+    my $succeed = 1;
+    my $cwd     = getcwd();
+    chdir($dir);
+
+    $from = uc($from);
+    $to   = uc($to);
+
+    my @encodings = ( $from, $to );
+
+    find(
+        {
+            bydepth => 1,
+            wanted  => sub {
+                my $dir     = $File::Find::dir;
+                my $srcPath = $_;
+                if ( index( $dir, '/.svn/' ) >= 0 or index( $dir, '/.git/' ) >= 0 ) {
+                    $File::Find::prune = 1;
+                    return;
+                }
+
+                if ( -e $srcPath ) {
+                    my $hasConverted = 0;
+                    my $destPath;
+
+                    my $guessCharset = guessEncoding( $srcPath, \@encodings );
+
+                    if ( not defined($guessCharset) ) {
+                        my $destPathTmp = Encode::encode( $to,   Encode::decode( $from, $srcPath ) );
+                        my $srcPathTmp  = Encode::encode( $from, Encode::decode( $to,   $destPathTmp ) );
+                        if ( $srcPathTmp eq $srcPath ) {
+                            $hasConverted = 1;
+                            $destPath     = $destPathTmp;
+                        }
+                        else {
+                            $succeed = 0;
+                            print("ERROR: 无法识别文件名$dir/$srcPath的编码\n");
+                        }
+                    }
+                    elsif ( $guessCharset eq $to ) {
+                        print("WARN: 文件名$dir/$srcPath, 已经是编码$to, 不需要转换\n");
+                    }
+                    elsif ( $guessCharset ne 'US-ASCII' and $guessCharset ne $from ) {
+                        print("WARN: $srcPath encoding is not $from but $guessCharset\n");
+                        $destPath     = Encode::encode( $to, Encode::decode( $guessCharset, $srcPath ) );
+                        $hasConverted = 1;
+                    }
+                    elsif ( $guessCharset eq $from ) {
+                        $destPath     = Encode::encode( $to, Encode::decode( $from, $srcPath ) );
+                        $hasConverted = 1;
+                    }
+
+                    if ( $hasConverted == 1 and $destPath ne $srcPath ) {
+                        print("INFO: 转换编码($from\->$to):$dir/$srcPath\->$dir/$destPath\n");
+                        if ( not rename( $srcPath, $destPath ) ) {
+                            $succeed = 0;
+                            print("ERROR: 重命名文件失败, $!\n");
+                        }
+                    }
+                }
+            },
+            follow => 0
+        },
+        '.'
+    );
+
+    chdir($cwd);
+
+    return $succeed;
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo );
+    my ( $from, $to );
+    my $pname = $FindBin::Script;
+    my $pdir  = 'project';
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'pdir=s'      => \$pdir,
+        'from=s'      => \$from,
+        'to=s'        => \$to
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
+    my $verPath = $dirInfo->{$pdir};
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $hasError = 0;
+    print("INFO: Begin to transfer directory and file name:${from}->${to}\n");
+    if ( -d $verPath ) {
+        my $succeed = convmvdir( $verPath, $from, $to );
+        if ( $succeed == 0 ) {
+            $hasError = 1;
+        }
+    }
+
+    if ( -d "$verPath.insdiff" ) {
+        my $succeed = convmvdir( "$verPath.ins", $from, $to );
+        if ( $succeed == 0 ) {
+            $hasError = 1;
+        }
+    }
+    print("INFO: Transfer directory and file name complete:${from}->${to}\n");
+
+    return $hasError;
+}
+
+exit main();
+

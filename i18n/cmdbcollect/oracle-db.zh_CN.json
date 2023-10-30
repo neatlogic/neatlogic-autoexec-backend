@@ -1,0 +1,251 @@
+{
+    "label": "Oracle库",
+    "collection": "COLLECT_DB",
+    "docroot": null,
+    "collection_label": "DB库",
+    "filter": {
+        "_OBJ_TYPE": "Oracle-DB"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "管理PORT",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "监听统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "监听地址",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "队列滞留连接",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "USERNAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "默认表空间",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CAN_IP_FLOAT",
+            "desc": "主IP浮动",
+            "type": "Int"
+        },
+        {
+            "name": "CDB",
+            "desc": "所属CDB",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCES",
+            "desc": "关联实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
+                    "name": "NODE_NAME",
+                    "desc": "集群节点名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "服务地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "IS_CDB",
+            "desc": "是否CDB",
+            "type": "Int"
+        },
+        {
+            "name": "IS_RAC",
+            "desc": "是否RAC",
+            "type": "Int"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "服务地址",
+            "type": "String"
+        },
+        {
+            "name": "TABLE_SPACESES",
+            "desc": "表空间列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "表空间名",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTOEXTENSIBLE",
+                    "desc": "自动扩展",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "容量(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "数据文件列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "FILE_NAME",
+                            "desc": "文件名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SIZE",
+                            "desc": "大小(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AUTOEXTENSIBLE",
+                            "desc": "自动扩展",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "opDesc": "CMDB采集关系回填插件",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "对采集到的数据进行关系检索计算和回填",
+    "option": [
+        {
+            "opt": "type",
+            "name": "关系类别",
+            "help": "关系类别[OS|NET]",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "操作系统相关",
+                        "value": "OS"
+                    },
+                    {
+                        "text": "网络相关",
+                        "value": "NET"
+                    }
+                ]
+            },
+            "defaultValue": "OS"
+        }
+    ],
+    "output": []
+}

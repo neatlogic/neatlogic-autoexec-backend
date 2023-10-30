@@ -1,0 +1,456 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Getopt::Long;
+use Encode;
+use IO::File;
+
+use DeployUtils;
+use ApolloCtl;
+use File::Path;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --envpath <env path> --version <version> --env <environment> --appid <app Id> --cluster <cluster name>\n");
+    print("       env:          config environment.\n");
+    print("       appid: 	config app id.\n");
+    print("       cluster:	config cluster name.\n");
+
+    exit(1);
+}
+
+#遍历某个目录获取下面的namespace配置更新的文件名称, 以map的形式返回，key就是文件名
+sub getUpdateNameSpaces {
+    my ($apolloPath) = @_;
+
+    #获取apollo发布目录下的所有namespace配置更新和delete文件, 文件名是namespace名称
+    my $namespacesMap = {};
+    my @confFiles     = glob("$apolloPath/*");
+    foreach my $confFile (@confFiles) {
+        if ( not -f $confFile ) {
+            next;
+        }
+
+        my $namespace = basename($confFile);
+
+        #这里的处理是避免目录中有readme文件？
+        if ( $namespace =~ /^(readme$|readme.\w+)$/i ) {
+            next;
+        }
+
+        #如果是delete文件, 下面是为了兼容多种删除文件扩展名设置
+        if ( $namespace =~ /\.txt\.delete\.txt$/ ) {
+            $namespace =~ s/\.txt\.delete\.txt$//;
+            $namespacesMap->{$namespace} = '.txt.delete.txt';
+        }
+        elsif ( $namespace =~ /\.delete\.txt$/ ) {
+            $namespace =~ s/\.delete\.txt$//;
+            $namespacesMap->{$namespace} = '.delete.txt';
+        }
+        elsif ( $namespace =~ /\.txt\.delete$/ ) {
+            $namespace =~ s/\.txt\.delete$//;
+            $namespacesMap->{$namespace} = '.txt.delete';
+        }
+        elsif ( $namespace =~ /\.delete$/ ) {
+            $namespace =~ s/\.delete$//;
+            $namespacesMap->{$namespace} = '.delete';
+        }
+        else {
+            $namespacesMap->{$namespace} = '';
+        }
+    }
+
+    return $namespacesMap;
+}
+
+sub _writeConfItem {
+    my ( $fh, $itemKey, $itemValue ) = @_;
+
+    my @values = split( "\n", $itemValue );
+
+    #写入第一行
+    if ( not print $fh ("$itemKey=$values[0]\n") ) {
+        die("Backup config item $itemKey failed:$!\n");
+    }
+
+    #如果配置是多行，则写入剩下的行，以tab开头
+    my $valuesCount = scalar(@values);
+    for ( my $i = 1 ; $i < $valuesCount ; $i++ ) {
+        if ( not print $fh ("\t$values[$i]\n") ) {
+            die("Backup config item $itemKey failed:$!\n");
+        }
+    }
+
+    $fh->flush();
+}
+
+sub backupNameSpace {
+    my ( $apolloCtl, $namespace, $backupPath ) = @_;
+
+    my $allItems;
+    $allItems = $apolloCtl->getAllItems($namespace);
+    my @allKeys = sort( keys(%$allItems) );
+    if ( scalar(@allKeys) == 0 ) {
+        print("INFO: $namespace配置为空，无需备份\n");
+        return;
+    }
+
+    #备份namespace下的所有配置项
+    my $nsBackupPath = "$backupPath/$namespace.txt";
+    if ( -e "$nsBackupPath" ) {
+        print("INFO: $namespace备份文件已存在, 无需备份\n");
+    }
+    else {
+        print("INFO: 开始备份$namespace\n");
+        my $fh = IO::File->new(">$nsBackupPath");
+        if ( not defined($fh) ) {
+            die("创建$namespace备份文件$nsBackupPath失败\n");
+        }
+
+        foreach my $key (@allKeys) {
+            _writeConfItem( $fh, $key, $allItems->{$key} );
+        }
+        $fh->close();
+    }
+
+    return $allItems;
+}
+
+sub getConfInNSFile {
+    my ( $apolloPath, $nsFilePath ) = @_;
+
+    my $fileCharset = uc( Utils::guessEncoding($nsFilePath) );
+
+    my $nsFH = IO::File->new("<$nsFilePath");
+    if ( not defined($nsFH) ) {
+        die("打开namespace配置更新文件$nsFilePath失败\n");
+    }
+
+    my $preKey;
+    my $config    = {};
+    my $firstLine = 1;
+    while ( my $line = $nsFH->getline() ) {
+        if ( $firstLine == 1 ) {
+            $firstLine = 0;
+            if ( $line =~ s/^\x{FEFF}// ) {
+                $fileCharset = 'UTF-8';
+                print("WARN: 文件$nsFilePath文件头有BOM标记，已删除\n");
+            }
+        }
+
+        if ( $fileCharset ne 'UTF-8' ) {
+            $line = Encode::encode( 'UTF-8', Encode::decode( $fileCharset, $line ) );
+        }
+
+        $line =~ s/\s*$//g;
+        if ( $line =~ /^([^\s].+?)\s*=\s*(.*)$/ ) {
+            my $key   = $1;
+            my $value = $2;
+
+            #如果是从文件里读取内容作为value，则使用格式：${file://xxxxxx}的方式，xxxxxxx就是相对于当前文件的路径
+            if ( $value =~ /^\$\{file:\/\/(.+)\}$/ ) {
+                my $valFilePath = "$apolloPath/$1";
+                if ( -f $valFilePath ) {
+                    $value = Utils::getFileContent($valFilePath);
+                }
+                else {
+                    die("ERROR: $key=$value 定义的参数文件$valFilePath不存在.\n");
+                }
+            }
+
+            $config->{$key} = $value;
+            $preKey = $key;
+        }
+        else {
+            $line =~ s/^\s*//;
+            $config->{$preKey} = $config->{$preKey} . "\n" . $line;
+        }
+    }
+
+    return $config;
+}
+
+sub _addRollbackRecord {
+    my ( $backupFile, $key, $value ) = @_;
+
+    if ( defined($backupFile) and -f $backupFile ) {
+        my $fh = IO::File->new("<$backupFile");
+        if ( not defined($fh) ) {
+            die("Open backup file:$backupFile failed:$!\n");
+        }
+
+        #检查此key是否已经做过备份,如果已经备份过，就不再写入备份文件
+        my $keyExists = 0;
+        while ( my $line = $fh->getline() ) {
+            if ( $line =~ /^$key\s*=/ ) {
+                $keyExists = 1;
+                last;
+            }
+        }
+
+        $fh->close();
+
+        #此Key没有备份过
+        if ( $keyExists == 0 ) {
+            my $fh = IO::File->new(">>$backupFile");
+            if ( not defined($fh) ) {
+                die("Open backup file:$backupFile failed:$!\n");
+            }
+            _writeConfItem( $fh, $key, $value );
+            $fh->close();
+        }
+    }
+}
+
+sub updateNameSpace {
+    my ( $apolloCtl, $namespace, $allItems, $apolloPath, $rollbackPath ) = @_;
+
+    my $hasError  = 0;
+    my $hasUpdate = 0;
+
+    my $nsFilePath = "$apolloPath/$namespace";
+
+    my ( $nsRollbackPath, $nsRollbackDelPath );
+    if ( defined($rollbackPath) ) {
+        $nsRollbackPath    = "$rollbackPath/$namespace";
+        $nsRollbackDelPath = "$rollbackPath/$namespace.delete";
+    }
+
+    #更新或创建配置项的处理
+    if ( -f $nsFilePath ) {
+        print("INFO: Namespace($namespace):$nsFilePath config item update processing...\n");
+        my $config = getConfInNSFile( $apolloPath, $nsFilePath );
+        my @keys   = keys(%$config);
+        foreach my $key (@keys) {
+            if ( exists( $allItems->{$key} ) ) {
+
+                #apollo服务端已经存在的配置则进行update
+                if ( $config->{$key} ne $allItems->{$key} ) {
+                    print("INFO: Begin update namespace($namespace) config item: $key=$config->{$key}\n");
+                    _addRollbackRecord( $nsRollbackPath, $key, $config->{$key} );
+                    $apolloCtl->updateItem( $namespace, $key, $config->{$key} );
+                    print("INFO: Namespace($namespace) config item:$key updated.\n");
+                    $hasUpdate = 1;
+                }
+                else {
+                    print("INFO: Namespace($namespace) config item: $key=$config->{$key} is same as in server, no need to update.\n");
+                }
+            }
+            else {
+                #如果不存在，则创建
+                print("INFO: Begin create namespace($namespace) config item: $key=$config->{$key}\n");
+                _addRollbackRecord( $nsRollbackDelPath, $key, 'to be deleted' );
+                $apolloCtl->createItem( $namespace, $key, $config->{$key} );
+                print("INFO: Namespace($namespace) config item:$key created.\n");
+                $hasUpdate = 1;
+            }
+        }
+    }
+
+    #删除配置项的处理
+    my $nsDelFilePath;
+    if ( -f "$nsFilePath.txt.delete.txt" ) {
+        $nsDelFilePath = "$nsFilePath.txt.delete.txt";
+    }
+    elsif ( -f "$nsFilePath.delete.txt" ) {
+        $nsDelFilePath = "$nsFilePath.delete.txt";
+    }
+    elsif ( -f "$nsFilePath.txt.delete" ) {
+        $nsDelFilePath = "$nsFilePath.txt.delete";
+    }
+    elsif ( -f "$nsFilePath.delete" ) {
+        $nsDelFilePath = "$nsFilePath.delete";
+    }
+
+    if ( -f $nsDelFilePath ) {
+        print("INFO: Begin namespace($namespace):$nsDelFilePath config item delete processing...\n");
+        my $delConfig = getConfInNSFile( $apolloPath, $nsDelFilePath );
+        my @delKeys   = keys(%$delConfig);
+        foreach my $key (@delKeys) {
+            if ( exists( $allItems->{$key} ) ) {
+
+                #如果apollo服务端存在才进行删除
+                print("INFO: Begin delete namespace($namespace) config item: $key=$allItems->{$key}\n");
+                _addRollbackRecord( $nsRollbackPath, $key, $allItems->{$key} );
+                $apolloCtl->deleteItem( $namespace, $key );
+                print("INFO: Namespace($namespace) config item:$key deleted.\n");
+                $hasUpdate = 1;
+            }
+            else {
+                print("WARN: Namespace($namespace) config item:$key not exists, no need to delete.\n");
+            }
+        }
+    }
+
+    #如果有更新的config项，则发布更新
+    if ( $hasUpdate == 1 ) {
+        $apolloCtl->releaseItems($namespace);
+    }
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $env );
+    my ( $apolloAddr, $token, $appId, $cluster, $namespace, $operator, $key, $value, $isRollback );
+    $isRollback = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'verbose=i'   => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'baseurl=s'   => \$apolloAddr,
+        'token=s'     => \$token,
+        'env=s'       => \$env,
+        'appid=s'     => \$appId,
+        'cluster=s'   => \$cluster,
+        'namespace=s' => \$namespace,
+        'rollback=i'  => \$isRollback,
+        'operator=s'  => \$operator,
+        'key=s'       => \$key,
+        'value=s'     => \$value
+    );
+
+    usage() if ( defined($isHelp) );
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit($envPath);
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    $apolloAddr =~ s/\/+$//;
+
+    if ( not defined($cluster) or $cluster eq '' ) {
+        $cluster = $deployEnv->{ENV_NAME};
+    }
+
+    #$apolloEnv对应system.conf里的apollo地址, ${appoloEnv}.appolo.url, ${appoloEnv}.appolo.token
+    #如果参数--env没有定义，从envInfo里计算, 譬如：HSY_SIT_3, HSY_SIT_MAIN，apollo环境名取中间环境名称：SIT、UAT、PROD
+    my $apolloEnv;
+
+    if ( defined($env) and $env ne '' ) {
+        $apolloEnv = $env;
+    }
+    else {
+        $apolloEnv = $deployEnv->{ENV_NAME};
+        $env       = $deployEnv->{ENV_NAME};
+        $apolloEnv =~ s/_[^_]+$//;    #去掉最末端的_XXXX, 如果有的话
+        $apolloEnv =~ s/^[^_]+_//;    #去掉最前端的XXX_，如果有的话
+    }
+
+    my $apolloCtl = ApolloCtl->new(
+        url      => $apolloAddr,
+        env      => $env,
+        appId    => $appId,
+        cluster  => $cluster,
+        operator => $operator,
+        token    => $token
+    );
+
+    #用于如果直接给出key value参数，直接更新key value值, 仅用于测试
+    if ( defined($key) and $key ne '' and defined($namespace) and $namespace ne '' ) {
+        print("INFO: UPDATE $key => $value in $apolloAddr\n");
+        $apolloCtl->updateItem( $namespace, $key, $value );
+        print("INFO: 发布 $appId $namespace in $apolloAddr\n");
+        $apolloCtl->releaseItems($namespace);
+        return (0);
+    }
+
+    my $dirInfo       = $deployUtils->getDataDirStruct($deployEnv);
+    my $buildPath     = $dirInfo->{release};
+    my $envRealPath   = $dirInfo->{distribute};
+    my $apolloResPath = $envRealPath . "/apollo";
+
+    my $apolloPath   = "$buildPath/db/apollo/$appId/$env/$cluster";
+    my $backupPath   = "$apolloResPath/apollo.backup/$appId/$env/$cluster";      #namespace下的所有配置的备份
+    my $rollbackPath = "$apolloResPath/apollo.rollback/$appId/$env/$cluster";    #namespace下的回退记录
+
+    my $hasError = 0;
+    if ( $isRollback == 0 ) {
+
+        #如果没有apollo发布对应的目录，则给出WARN提示，然后直接返回成功
+        if ( not -d $apolloPath ) {
+            print("WARN: Apollo发布配置的目录$apolloPath不存在, 无需发布Apollo配置\n");
+            return (0);
+        }
+
+        #获取指定目录下的namepace更新设置文件，如果回退，则使用回退目录$rollbackPath
+        my $namespacesMap = getUpdateNameSpaces($apolloPath);
+        my @namespaces    = keys(%$namespacesMap);
+
+        #如果不是执行回退而且有namespace需要更新配置，则创建备份和回退目录
+        if ( scalar(@namespaces) > 0 ) {
+            if ( not -e $backupPath ) {
+                if ( not mkpath($backupPath) ) {
+                    print("ERROR: Create path $backupPath failed.\n");
+                    return 1;
+                }
+            }
+            if ( not -e $rollbackPath ) {
+                if ( not mkpath($rollbackPath) ) {
+                    print("ERROR: Create path $rollbackPath failed.\n");
+                    return 1;
+                }
+            }
+        }
+
+        #便利所有的namespace更新文件，逐个namespace进行处理
+        foreach my $namespace (@namespaces) {
+            eval {
+                my $allItems = backupNameSpace( $apolloCtl, $namespace, $backupPath );
+                updateNameSpace( $apolloCtl, $namespace, $allItems, $apolloPath, $rollbackPath );
+            };
+            if ($@) {
+                $hasError = 1;
+                my $errMsg = $@;
+                print("ERROR: $errMsg\n");
+                next;
+            }
+        }
+    }
+    else {
+        #执行回退
+        #如果没有apollo回退对应的目录，则给出WARN提示，然后直接返回成功
+        if ( not -d $rollbackPath ) {
+            print("WARN: Apollo发布配置的回退目录$rollbackPath不存在, 无需回退Apollo配置\n");
+            return (0);
+        }
+
+        #获取指定rollback目录下的namepace更新设置文件
+        my $namespacesMap = getUpdateNameSpaces($rollbackPath);
+        my @namespaces    = keys(%$namespacesMap);
+
+        #便利所有的namespace更新文件，逐个namespace进行处理
+        foreach my $namespace (@namespaces) {
+            eval {
+                #不提供$rollbackPath代表不做备份，只执行更新，用于执行回退
+                updateNameSpace( $apolloCtl, $namespace, $apolloCtl->getItems($namespace), $rollbackPath );
+            };
+            if ($@) {
+                $hasError = 1;
+                my $errMsg = $@;
+                print("ERROR: $errMsg\n");
+                next;
+            }
+        }
+    }
+
+    return $hasError;
+}
+
+exit( main() );

@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+
+use REST::Client;
+use HTTP::Tiny;
+use MIME::Base64;
+use JSON;
+use Cwd;
+use Data::Dumper;
+use Getopt::Long;
+use File::Basename;
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --baseurl NexusBaseUrl --user UserName --password Password\n");
+    print("              --job JenkinsJobName --wait 0|1 [--islib 0|1]\n");
+    print("\n");
+    print("       --envpath:  Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version:  Version number of module version\n");
+    print("       --buildno:  Build number\n");
+    print("       --baseurl:  Nexus base url, example:http://192.168.0.13:8080/nexus\n");
+    print("       --user:     User name to login nexus\n");
+    print("       --password: User password to login nexus\n");
+    print("       --job:      Jenkins job name, example:mysys-build.\n");
+    print("       --wait:     If wait job completed\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $jdk, $jenkins, $baseUrl, $user, $pass );
+    my $jobName;
+    my $isVerbose = 0;
+    my $isWait    = 0;
+    my $isLib     = 0;
+
+    GetOptions(
+        'v|verbose=i' => \$isVerbose,
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'jdk=s'       => \$jdk,
+        'jenkins=s'   => \$jenkins,
+        'baseurl=s'   => \$baseUrl,
+        'user=s'      => \$user,
+        'password=s'  => \$pass,
+        'job=s'       => \$jobName,
+        'wait=i'      => \$isWait,
+        'islib=i'     => \$isLib
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( not defined($baseUrl) or $baseUrl eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jenkins base url not defined by option --baseurl\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jenkins user name not defined by option --user\n");
+    }
+
+    if ( not defined($pass) or $pass eq '' ) {
+        $optionError = 1;
+        print("ERROR: Jenkins password not defined by option --password\n");
+    }
+
+    if ( not defined($jobName) or $jobName eq '' ) {
+        print("ERROR: Must defind Jenkins pipe line by option --job\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    if ( defined $jdk ) {
+        if ( -d "$toolsPath/jdk$jdk" ) {
+            $jdk = "$toolsPath/jdk$jdk";
+        }
+        elsif ( -d "$toolsPath/$jdk" ) {
+            $jdk = "$toolsPath/$jdk";
+        }
+        else {
+            print("jdk $jdk is not supported\n");
+            return 3;
+        }
+    }
+    else {
+        $jdk = "$toolsPath/jdk";
+    }
+
+    if ( defined $jenkins ) {
+        if ( -d "$toolsPath/jenkins$jenkins" ) {
+            $jenkins = "$toolsPath/jenkins$jenkins";
+        }
+        elsif ( -d "$toolsPath/jenkins$jenkins" ) {
+            $jenkins = "$toolsPath/jenkins$jenkins";
+        }
+        else {
+            print("jenkins $jenkins is not supported\n");
+            return 3;
+        }
+    }
+    else {
+        $jenkins = "$toolsPath/jenkins";
+    }
+
+    my $jenkinsCliJar = "$jenkins/lib/jenkins-cli.jar";
+    if ( not -e $jenkinsCliJar ) {
+        print("ERROR: $jenkinsCliJar not exists.\n");
+        return 2;
+    }
+
+    $ENV{JAVA_HOME} = $jdk;
+    $ENV{PATH}      = "$jdk/bin:" . $ENV{PATH};
+
+    my $jenkinsOpts = '';
+    if ( $isWait == 1 ) {
+        $jenkinsOpts = "$jenkinsOpts -s";
+
+        if ( $isVerbose == 1 ) {
+            $jenkinsOpts = "$jenkinsOpts -v";
+        }
+    }
+
+    my $paramStr = '';
+    foreach my $arg (@ARGV) {
+        $paramStr = $paramStr . "-p $arg ";
+    }
+
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $versionInfo = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'compiling'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    my $cmd       = "java -jar '$jenkinsCliJar' -s '$baseUrl' -auth '$user':'$pass' build '$jobName' $jenkinsOpts $paramStr";
+    my $cmd2Print = $cmd;
+    $cmd2Print =~ s/$pass/******/g;
+    print("$cmd2Print\n");
+    my $hasError = system($cmd);
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'compiled';
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
+    }
+    else {
+        $versionInfo->{status} = 'compile-failed';
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
+    }
+
+    return $hasError;
+}
+
+#TODO: 没有经过验证，需要Jenkins进行测试
+exit main();

@@ -1,0 +1,154 @@
+{
+    "opDesc": "SQL文件发布工具",
+    "opType": "sqlfile",
+    "typeName": "SQL_FILE",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": "sqlexec-args",
+    "description": "SQL文件自动发布执行",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "maxparallel",
+            "name": "最大并行",
+            "help": "可以同时运行的SQL的最大并行运行数量",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "extnames",
+            "name": "扩展名",
+            "help": "逗号相隔的SQL扩展名，例如：sql,prc,pck,pkg,pkgh,pkgb",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sql.extnames}"
+        },
+        {
+            "opt": "dryrun",
+            "name": "测试运行",
+            "help": "测试运行，并没有真正执行SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "force",
+            "name": "强制运行",
+            "help": "不管SQL处于什么状态，重复强制执行SQL文件",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "autocommit",
+            "name": "自动提交",
+            "help": "SQL执行，每执行一条SQL自动提交",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "rollback",
+            "name": "回退",
+            "help": "检入回退用的SQL脚本",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "filter",
+            "name": "目录过滤",
+            "help": "只检入文件名匹配filter的文件，例如：after或before（留空，检入所有）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "index",
+            "name": "SQL顺序文件",
+            "help": "SQL文件执行顺序索引文件名或Pattern（留空，按照文件名顺序执行）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "index.txt"
+        }
+    ],
+    "output": []
+}

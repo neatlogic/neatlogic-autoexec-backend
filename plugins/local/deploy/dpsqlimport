@@ -1,0 +1,257 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use Cwd;
+use Digest::MD5;
+use Getopt::Long;
+use JSON;
+
+use DeployUtils;
+use DeployLock;
+use SQLBatchUtils;
+use ServerAdapter;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [--verbose 0|1] \n");
+    print("              [--targetphase TargetPhaseName]\n");
+    print("              [--extnames SqlExtNames] [--rollback 0|1]\n");
+    print("              [--index IndexFileNames] [--filter SqlFileNamePattern]\n");
+    print("\n");
+    print("       --targetphase:   Import sql to which phase.\n");
+    print("       --rbtargetphase: Import rollback sql to which phase.\n");
+    print("       --extnames:      sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
+    print("       --filter:        sql file name pattern, just execute matched sql file\n");
+    print("       --index:         index file names, example:index.txt\n");
+    print("       --rollback:      execute sql files in sub directory:rollback\n");
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $envPath;
+    my $version;
+    my $targetPhase;
+    my $rbTargetPhase;
+    my $sqlExtNamesStr = '';
+    my $isHelp         = 0;
+    my $isVerbose      = 0;
+    my $isRollback     = 0;
+    my $filter;
+    my $index;
+
+    GetOptions(
+        'help'            => \$isHelp,
+        'v|verbose=i'     => \$isVerbose,
+        'envpath=s'       => \$envPath,
+        'version=s'       => \$version,
+        'targetphase=s'   => \$targetPhase,
+        'rbtargetphase=s' => \$rbTargetPhase,
+        'extnames=s'      => \$sqlExtNamesStr,
+        'rollback=i'      => \$isRollback,
+        'filter=s'        => \$filter,
+        'index=s'         => \$index
+    );
+
+    my $optionError = 0;
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $optionError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
+
+    #sqlfile, log, status
+    #jobpath/
+    #|-- file
+    #|   |-- 1.sql
+    #|   `-- 2.sql
+    #|-- log
+    #|   `-- phase-run
+    #|       `-- 192.168.0.26-3306-bsm
+    #|           |-- 2.sql.hislog
+    #|           |   |-- 20210625-163515-failed-anonymous.txt
+    #|           |   |-- 20210625-163607-failed-anonymous.txt
+    #|           |   `-- 20210625-164543-failed-anonymous.txt
+    #|           `-- 2.sql.txt
+    #|-- sqlfile
+    #|   `-- phase-run
+    #|       `-- 2.sql
+    #`-- status
+    #    `-- phase-run
+    #            `-- 192.168.0.26-3306-bsm
+    #                        `-- 2.sql.txt
+
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
+    my $distPath     = $dirInfo->{distribute};
+    my $sqlFileDir   = "$distPath/db";
+    my $logFileDir   = "$jobPath/log/$phaseName";
+    my $sqlStatusDir = "$distPath/db.status";
+
+    my @sqlExtNames = ( 'sql', 'exp', 'imp', 'prc', 'pck', 'pkg', 'pkgh', 'pkgb' );
+    if ( defined($sqlExtNamesStr) and $sqlExtNamesStr ne '' ) {
+        @sqlExtNames = split( /\s*,\s*/, $sqlExtNamesStr );
+    }
+
+    my $batchUtils = SQLBatchUtils->new(
+        sqlExtNames => \@sqlExtNames,
+        deployEnv   => $deployEnv,
+        dirInfo     => $dirInfo
+    );
+
+    my $serverAdapter = ServerAdapter->new();
+    my $dbSchemasMap  = {};
+    my $dbConf        = $serverAdapter->getDBConf($deployEnv);
+    while ( my ( $dbSchema, $conf ) = each(%$dbConf) ) {
+        my $dbInfo = DBInfo->new( $conf->{node}, $conf->{args} );
+        $dbSchemasMap->{ lc($dbSchema) } = $dbInfo;
+    }
+
+    my $sqlFiles         = [];
+    my $rollbackSqlFiles = [];
+    if ( defined($index) and $index ne '' ) {
+        $sqlFiles         = $batchUtils->getSqlFilePathByIdx( $index, $filter, 0 );
+        $rollbackSqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, 1 );
+    }
+    else {
+        $sqlFiles         = $batchUtils->getSqlFilePath( $filter, 0 );
+        $rollbackSqlFiles = $batchUtils->getSqlFilePath( $filter, 1 );
+    }
+
+    #普通SQL的导入
+    my $sqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        jobPath      => $jobPath,
+        deployEnv    => $deployEnv,
+        toolsDir     => $deployEnv->{TOOLS_PATH},
+        tmpDir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
+        dbSchemasMap => $dbSchemasMap,
+        nodeInfo     => { resourceId => 0 },
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $sqlFiles
+    );
+
+    #回退SQL的导入
+    my $rbSqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        jobPath      => $jobPath,
+        deployEnv    => $deployEnv,
+        toolsDir     => $deployEnv->{TOOLS_PATH},
+        tmpDir       => $deployEnv->{AUTOEXEC_HOME} . '/tmp',
+        dbSchemasMap => $dbSchemasMap,
+        nodeInfo     => { resourceId => 0 },
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $rollbackSqlFiles
+    );
+
+    my $hasError = 0;
+    my $ret      = 0;
+
+    my $lock      = DeployLock->new($deployEnv);
+    my $sqlLockId = $lock->lockEnvSql($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockEnvSql($sqlLockId);
+        }
+    }
+
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+    $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+
+    $ret      = $sqlFileRunner->checkSqlFiles();
+    $hasError = $hasError + $ret;
+
+    $ret      = $rbSqlFileRunner->checkSqlFiles();
+    $hasError = $hasError + $ret;
+
+    #创建sqlfiles软链接
+    if ( -d $sqlFileDir ) {
+        if ( not -e "$jobPath/sqlfile" ) {
+            mkdir("$jobPath/sqlfile");
+        }
+
+        my $jobSqlFileDir = "$jobPath/sqlfile/$targetPhase";
+        if ( not -e $jobSqlFileDir ) {
+            symlink( $sqlFileDir, $jobSqlFileDir );
+        }
+
+        my $jobRbSqlFileDir = "$jobPath/sqlfile/$rbTargetPhase";
+
+        if ( not -e $jobRbSqlFileDir ) {
+            symlink( $sqlFileDir, $jobRbSqlFileDir );
+        }
+    }
+
+    my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
+
+    my $rbSqlFileInfos = $sqlFileRunner->{sqlFileInfos};
+    $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
+
+    $lock->unlockEnvSql($sqlLockId);
+    undef($lock);
+
+    #在检查SQL脚本后，抽取了schema信息，进行db schema的连通性检查
+    $ret      = $sqlFileRunner->checkDBSchemas();
+    $hasError = $hasError + $ret;
+
+    my $schemasNotDefined = $sqlFileRunner->{schemasNotDefined};
+    my @schemasToAdd      = keys(%$schemasNotDefined);
+    if (@schemasToAdd) {
+        $serverAdapter->addDBSchemas( $deployEnv, \@schemasToAdd );
+        print( 'WARN: Unknown DB schemas:' . join( ',', @schemasToAdd ) . " are added to config panel, please go to the config panel and do the configuration.\n" );
+    }
+
+    if ( $hasError != 0 ) {
+        $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
+    }
+    return $hasError;
+}
+
+exit main();

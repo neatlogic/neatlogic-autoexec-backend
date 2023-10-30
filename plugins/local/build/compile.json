@@ -1,0 +1,150 @@
+{
+    "opDesc": "编译",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "maven-args",
+    "description": "对拉取的代码进行编译",
+    "enabled": 1,
+    "option": [{
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "type",
+            "name": "编译类型",
+            "help": "编译类型",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "maven",
+                        "value": "maven"
+                    },
+                    {
+                        "text": "ant",
+                        "value": "ant"
+                    },
+                    {
+                        "text": "gradle",
+                        "value": "gradle"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    }
+                ]
+            },
+            "defaultValue": "maven"
+        },
+        {
+            "opt": "jdk",
+            "name": "JDK版本",
+            "help": "JDK版本",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "args",
+            "name": "自定义参数",
+            "help": "编译工具的自定义参数（譬如：ant或mvn的参数）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "startpath",
+            "name": "起始子目录",
+            "help": "编译配置所在子目录（相对于工程根）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "islib",
+            "name": "是否子模块",
+            "help": "当前获取的代码仓库是子模块，用于多个代码仓库联合编译的情况",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

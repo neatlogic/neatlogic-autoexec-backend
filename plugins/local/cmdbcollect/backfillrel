@@ -1,0 +1,475 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import re
+import traceback
+import argparse
+from bson import ObjectId
+from bson.json_util import dumps, loads
+
+
+def genInsRel(db):
+    # 生成应用实例调用应用实例和DB实例的关系数据，存放于REF_INS和REF_DB下
+    insCollection = db['COLLECT_INS']
+    relSrcCollection = db['RELATION_INS_NETCONN']
+    relDestCollection = db['RELATION_INS_NETCONN']
+    dbInsCollection = db['COLLECT_DBINS']
+    clusterCollection = db['COLLECT_CLUSTER']
+
+    for ins in relSrcCollection.find({'_OBJ_CATEGORY': 'INS'},
+                                     {'_OBJ_CATEGORY': 1,
+                                      '_OBJ_TYPE': 1,
+                                      'OS_ID': 1,
+                                      'MGMT_IP': 1,
+                                      'PORT': 1,
+                                      'BIND': 1,
+                                      'PEER': 1}).batch_size(500):
+        try:
+            # print(dumps(ins))
+            refIns = []
+            refDbs = []
+            refCls = []
+
+            peer = ins.get('PEER')
+            if peer is not None:
+                # 计算调用的应用实例
+                for rel in relDestCollection.find({'BIND':
+                                                   {'$in': peer}
+                                                   },
+                                                  {'OS_ID': 1,
+                                                   'MGMT_IP': 1,
+                                                   'PORT': 1,
+                                                   '_OBJ_CATEGORY': 1,
+                                                   '_OBJ_TYPE': 1}
+                                                  ).batch_size(500):
+
+                    if rel['_OBJ_CATEGORY'] == 'DBINS':
+                        for dbIns in dbInsCollection.find({'MGMT_IP': rel['MGMT_IP'], 'PORT': rel['PORT']},
+                                                          {'OS_ID': 1,
+                                                           'MGMT_IP': 1,
+                                                           'PORT': 1,
+                                                           'INSTANCE_NAME': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1}
+                                                          ).batch_size(500):
+
+                            refInfo = {'_OBJ_CATEGORY': dbIns['_OBJ_CATEGORY'],
+                                       '_OBJ_TYPE': dbIns['_OBJ_TYPE'],
+                                       'OS_ID': dbIns['OS_ID'],
+                                       'MGMT_IP': dbIns['MGMT_IP'],
+                                       'PORT': dbIns['PORT'],
+                                       'INSTANCE_NAME': dbIns['INSTANCE_NAME']
+                                       }
+                            refDbs.append(refInfo)
+
+                    else:
+                        refInfo = {'_OBJ_CATEGORY': rel['_OBJ_CATEGORY'],
+                                   '_OBJ_TYPE': rel['_OBJ_TYPE'],
+                                   'OS_ID': rel['OS_ID'],
+                                   'MGMT_IP': rel['MGMT_IP'],
+                                   'PORT': rel['PORT']
+                                   }
+                        refIns.append(refInfo)
+
+                # 计算调用的集群
+                for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                       {'$in': peer}
+                                                       }, {'UNIQUE_NAME': 1,
+                                                           'VIP': 1,
+                                                           'PRIMARY_IP': 1,
+                                                           'PORT': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1,
+                                                           'CLUSTER_MODE': 1,
+                                                           'CLUSTER_SOFTWARE': 1}
+                                                      ).batch_size(500):
+                    refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                               '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                               'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                               'PRIMARY_IP': cluster['PRIMARY_IP'],
+                               'VIP': cluster.get('VIP'),
+                               'PORT': cluster.get('PORT'),
+                               'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                               'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                               }
+                    refCls.append(refInfo)
+            else:
+                print("WARN: Object({}/{} {}:{}) Key 'PEER' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
+
+            # 计算属于哪个集群
+            bind = ins.get('BIND')
+            if bind is not None:
+                belongCls = []
+                for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                       {'$in': bind}
+                                                       }, {'UNIQUE_NAME': 1,
+                                                           'VIP': 1,
+                                                           'PRIMARY_IP': 1,
+                                                           'PORT': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1,
+                                                           'CLUSTER_MODE': 1,
+                                                           'CLUSTER_SOFTWARE': 1}
+                                                      ).batch_size(500):
+                    belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                                '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                                'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                                'PRIMARY_IP': cluster['PRIMARY_IP'],
+                                'VIP': cluster.get('VIP'),
+                                'PORT': cluster.get('PORT'),
+                                'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                                'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                                }
+                    belongCls.append(belongCl)
+            else:
+                print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(ins.get('_OBJ_CATEGORY'), ins.get('_OBJ_TYPE'), ins.get('MGMT_IP'), ins.get('PORT')))
+
+            insCollection.update_many({'MGMT_IP': ins['MGMT_IP'],
+                                       'PORT': ins['PORT']},
+                                      {'$set':
+                                       {
+                                           'BELONG_CLUSTER': belongCls,
+                                           'REF_DB': refDbs,
+                                           'REF_INS': refIns,
+                                           'REF_CLUSTER': refCls
+                                       }
+                                       })
+
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+def genDBInsRel(db):
+    # 生成DB的集群关系数据，存放在DB实例的REF_CLUSTER下
+    dbCollection = db['COLLECT_DBINS']
+    relSrcCollection = db['RELATION_INS_NETCONN']
+    clusterCollection = db['COLLECT_CLUSTER']
+
+    for db in relSrcCollection.find({'_OBJ_CATEGORY': 'DBINS'},
+                                    {'_OBJ_CATEGORY': 1,
+                                     '_OBJ_TYPE': 1,
+                                     'OS_ID': 1,
+                                     'MGMT_IP': 1,
+                                     'PORT': 1,
+                                     'BIND': 1,
+                                     'PEER': 1}).batch_size(500):
+        try:
+            # print(dumps(ins))
+            # 计算DB调用哪个DB集群
+            refCls = []
+            belongCls = []
+
+            peer = db.get('PEER')
+            if peer is not None:
+                for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                       {'$in': peer}
+                                                       }, {'UNIQUE_NAME': 1,
+                                                           'VIP': 1,
+                                                           'PRIMARY_IP': 1,
+                                                           'PORT': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1,
+                                                           'CLUSTER_MODE': 1,
+                                                           'CLUSTER_SOFTWARE': 1}
+                                                      ).batch_size(500):
+                    refInfo = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                               '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                               'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                               'PRIMARY_IP': cluster['PRIMARY_IP'],
+                               'VIP': cluster.get('VIP'),
+                               'PORT': cluster.get('PORT'),
+                               'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                               'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                               }
+                    refCls.append(refInfo)
+            else:
+                print("WARN: Object({}/{} {}:{}) Key 'PEER' not defined.".format(db.get('_OBJ_CATEGORY'), db.get('_OBJ_TYPE'), db.get('MGMT_IP'), db.get('PORT')))
+
+            # 计算DB属于哪个集群
+            bind = db.get('BIND')
+            if bind is not None:
+                for cluster in clusterCollection.find({'MEMBER_PEER':
+                                                       {'$in': bind}
+                                                       }, {'UNIQUE_NAME': 1,
+                                                           'VIP': 1,
+                                                           'PRIMARY_IP': 1,
+                                                           'PORT': 1,
+                                                           '_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1,
+                                                           'CLUSTER_MODE': 1,
+                                                           'CLUSTER_SOFTWARE': 1}
+                                                      ).batch_size(500):
+                    belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                                '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                                'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                                'PRIMARY_IP': cluster['PRIMARY_IP'],
+                                'VIP': cluster.get('VIP'),
+                                'PORT': cluster.get('PORT'),
+                                'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                                'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                                }
+                    belongCls.append(belongCl)
+            else:
+                print("WARN: Object({}/{} {}:{}) Key 'BIND' not defined.".format(db.get('_OBJ_CATEGORY'), db.get('_OBJ_TYPE'), db.get('MGMT_IP'), db.get('PORT')))
+
+            dbCollection.update_one({'MGMT_IP': db['MGMT_IP'],
+                                     'PORT': db['PORT']},
+                                    {'$set':
+                                     {
+                                         'BELONG_CLUSTER': belongCls,
+                                         'REF_CLUSTER': refCls
+                                     }
+                                     })
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+def genOSRel(db):
+    # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
+    osCollection = db['COLLECT_OS']
+    macTblCollection = db['RELATION_NET_MACTABLE']
+    fcSwCollection = db['COLLECT_FCDEV']
+    osUpdCollection = db['COLLECT_OS']
+    clusterCollection = db['COLLECT_CLUSTER']
+
+    for os in osCollection.find({},
+                                {'OS_ID': 1,
+                                 'MGMT_IP': 1,
+                                 'ETH_INTERFACES': 1
+                                 }).batch_size(500):
+        try:
+            # 计算网卡连接的交换机端口信息
+            nics = os.get('ETH_INTERFACES', [])
+            if nics is None:
+                print("WARN: No eth interfaces found for os:{}".format(os.get('MGMT_IP')))
+                nics = []
+            for nic in nics:
+                # macCount = sys.maxsize
+                remotePort = macTblCollection.find_one({'MAC_TABLE': {
+                    '$elemMatch': {
+                        'MACS': nic['MAC'],
+                        'MAC_COUNT': 1,
+                        'PORT': {'$ne': None, '$regex': r'/'}
+                    }
+                }
+                },
+                    {'_OBJ_CATEGORY': 1,
+                     '_OBJ_TYPE': 1,
+                     'MGMT_IP': 1,
+                     'DEV_NAME': 1,
+                     'SN': 1,
+                     'MAC_TABLE': {
+                         '$elemMatch': {'MACS': nic['MAC'],
+                                        'PORT': {'$ne': None, '$regex': r'/'},
+                                        'MAC_COUNT': 1}
+                     }
+                     })
+
+                refSwPorts = []
+                refSwPort = {}
+                if remotePort is not None and 'MAC_TABLE' in remotePort:
+                    refSwPort = {'_OBJ_CATEGORY': remotePort['_OBJ_CATEGORY'],
+                                 '_OBJ_TYPE': remotePort['_OBJ_TYPE'],
+                                 'MGMT_IP': remotePort['MGMT_IP'],
+                                 'DEV_NAME': remotePort['DEV_NAME'],
+                                 'SN': remotePort['SN'],
+                                 'PORT': remotePort['MAC_TABLE'][0]['PORT']}
+                    refSwPorts.append(refSwPort)
+
+                nic['REMOTE_PORTS'] = refSwPorts
+
+            # 计算HBA卡连接的光交
+            hbas = os.get('HBA_INTERFACES', [])
+            if hbas is None:
+                print("INFO: No HBA interfaces found for os:{}".format(os.get('MGMT_IP')))
+                hbas = []
+            for hba in hbas:
+                wwpn = hba.get('WWPN')
+                if wwpn is None:
+                    continue
+
+                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE': {
+                    '$elemMatch': {
+                        'PEER_WWPN': wwpn,
+                        'LINK_COUNT': 1
+                    }
+                }
+                },
+                    {'_OBJ_CATEGORY': 1,
+                     '_OBJ_TYPE': 1,
+                     'MGMT_IP': 1,
+                     'DEV_NAME': 1,
+                     'SN': 1,
+                     'LINK_TABLE': {
+                         '$elemMatch': {
+                             'PEER_WWPN': wwpn,
+                             'LINK_COUNT': 1
+                         }
+                     }
+                     })
+                refFcPorts = []
+                refFcPort = {}
+                if remoteFcPort is not None and 'LINK_TABLE' in remoteFcPort:
+                    refFcPort = {'_OBJ_CATEGORY': remoteFcPort['_OBJ_CATEGORY'],
+                                 '_OBJ_TYPE': remoteFcPort['_OBJ_TYPE'],
+                                 'MGMT_IP': remoteFcPort['MGMT_IP'],
+                                 'DEV_NAME': remotePort['DEV_NAME'],
+                                 'SN': remoteFcPort['SN'],
+                                 'PORT': remoteFcPort['LINK_TABLE'][0]['PORT_NAME']}
+                    refFcPorts.append(refFcPort)
+
+                hba['REMOTE_PORTS'] = refFcPorts
+
+            # 计算操作系统属于哪个操作系统集群
+            belongCls = []
+            for cluster in clusterCollection.find({'MEMBER_PEER': os['MGMT_IP']
+                                                   }, {'UNIQUE_NAME': 1,
+                                                       'VIP': 1,
+                                                       'PRIMARY_IP': 1,
+                                                       'PORT': 1,
+                                                       '_OBJ_CATEGORY': 1,
+                                                       '_OBJ_TYPE': 1,
+                                                       'CLUSTER_MODE': 1,
+                                                       'CLUSTER_SOFTWARE': 1}
+                                                  ).batch_size(500):
+                belongCl = {'_OBJ_CATEGORY': cluster['_OBJ_CATEGORY'],
+                            '_OBJ_TYPE': cluster['_OBJ_TYPE'],
+                            'UNIQUE_NAME': cluster['UNIQUE_NAME'],
+                            # 'PRIMARY_IP': cluster['PRIMARY_IP'],
+                            # 'VIP': cluster.get('VIP'),
+                            # 'PORT': cluster.get('PORT'),
+                            'CLUSTER_MODE': cluster['CLUSTER_MODE'],
+                            'CLUSTER_SOFTWARE': cluster['CLUSTER_SOFTWARE']
+                            }
+                belongCls.append(belongCl)
+
+            osUpdCollection.update_one({'MGMT_IP': os['MGMT_IP']},
+                                       {'$set':
+                                        {
+                                            'ETH_INTERFACES': nics,
+                                            'HBA_INTERFACES': hbas,
+                                            'BELONG_CLUSTER': belongCls
+                                        }
+                                        })
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+def genStorageRel(db):
+    storageCollection = db['COLLECT_STORAGE']
+    storUpdCollection = db['COLLECT_STORAGE']
+    fcSwCollection = db['COLLECT_FCDEV']
+    for storage in storageCollection.find({},
+                                          {'SN': 1,
+                                           'MGMT_IP': 1,
+                                           'HBA_INTERFACES': 1
+                                           }).batch_size(500):
+        try:
+            # 计算HBA卡连接的光交
+            hbas = storage.get('HBA_INTERFACES', [])
+            for hba in hbas:
+                wwpn = hba.get('WWPN')
+                if wwpn is None:
+                    continue
+
+                remoteFcPort = fcSwCollection.find_one({'LINK_TABLE.PEER_WWPN': wwpn,
+                                                        'LINK_TABLE.LINK_COUNT': 1},
+                                                       {'_OBJ_CATEGORY': 1,
+                                                        '_OBJ_TYPE': 1,
+                                                        'MGMT_IP': 1,
+                                                        'SN': 1,
+                                                        'LINK_TABLE': {
+                                                            '$elemMatch': {'PEER_WWPN': wwpn,
+                                                                           'LINK_COUNT': 1}
+                                                        },
+                                                        })
+                refFcPorts = []
+                refFcPort = {}
+                if remoteFcPort is not None and 'LINK_TABLE' in remoteFcPort:
+                    refFcPort = {'_OBJ_CATEGORY': remoteFcPort['_OBJ_CATEGORY'],
+                                 '_OBJ_TYPE': remoteFcPort['_OBJ_TYPE'],
+                                 'MGMT_IP': remoteFcPort['MGMT_IP'],
+                                 'SN': remoteFcPort['SN'],
+                                 'PORT': remoteFcPort['LINK_TABLE'][0]['PORT_NAME']}
+                    refFcPorts.append(refFcPort)
+
+                hba['REMOTE_PORTS'] = refFcPorts
+
+                storUpdCollection.update_one({'MGMT_IP': os['MGMT_IP']},
+                                             {'$set':
+                                              {
+                                                  'HBA_INTERFACES': hbas
+                                              }
+                                              })
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+def genSwitchRel(db):
+    # 生成交换机和交换机的关系数据，存放于PORTS.NEIGHBORS下
+    cdpSrcCollection = db['COLLECT_SWITCH']
+    cdpDestCollection = db['COLLECT_SWITCH']
+
+    for swInfo in cdpSrcCollection.find({},
+                                        {'MGMT_IP': 1,
+                                         'SN': 1,
+                                         'PORTS': 1
+                                         }).batch_size(500):
+        try:
+            needUpdate = False
+            ports = swInfo.get('PORTS', [])
+            for port in ports:
+                if 'NEIGHBORS' not in port:
+                    continue
+
+                neighbors = port.get('NEIGHBORS', [])
+                for neighbor in neighbors:
+                    if 'DEV_NAME' in neighbor:
+                        remoteCount = 0
+                        for dev in cdpDestCollection.find({'$or': [{'DEV_NAME': neighbor['DEV_NAME']}, {'DEV_NAME': neighbor['DEV_NAME_1']}]},
+                                                          {'_OBJ_CATEGORY': 1,
+                                                           '_OBJ_TYPE': 1,
+                                                           'MGMT_IP': 1,
+                                                           'SN': 1}
+                                                          ).limit(2):
+                            remoteCount = remoteCount + 1
+                        if remoteCount == 1:
+                            needUpdate = True
+                            neighbor['_OBJ_CATEGORY'] = dev['_OBJ_CATEGORY']
+                            neighbor['_OBJ_TYPE'] = dev['_OBJ_TYPE']
+                            neighbor['MGMT_IP'] = dev['MGMT_IP']
+                            neighbor['SN'] = dev['SN']
+
+            if needUpdate:
+                cdpDestCollection.update_one({'MGMT_IP': swInfo['MGMT_IP'],
+                                              'SN': swInfo['SN']},
+                                             {'$set':
+                                             {'PORTS': ports}
+                                              })
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--type', default='OS', help='关系类别[OS|NET]')
+    args = parser.parse_args()
+
+    (dbclient, db) = AutoExecUtils.getDB()
+
+    try:
+        if args.type == 'OS' or args.type is None:
+            genInsRel(db)
+            genDBInsRel(db)
+            genOSRel(db)
+            genSwitchRel(db)
+        elif args.type == 'NET' or args.type is None:
+            genSwitchRel(db)
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

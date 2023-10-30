@@ -1,0 +1,21 @@
+{
+    "opDesc": "空间检查",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检查挂载点的空间是否足够",
+    "option": [],
+    "argument": {
+        "name": "检查表达式",
+        "help": "例如：'/app/mysystem1 100M 50','/app/mysystem2 10G 50'",
+        "count": 0,
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

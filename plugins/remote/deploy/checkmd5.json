@@ -1,0 +1,73 @@
+{
+    "opDesc": "MD5检查",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "根据MD5列表检查文件MD5是否正确",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "详细输出",
+            "help": "显示匹配的详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "md5listfile",
+            "name": "MD5列表文件",
+            "help": "文件路径，每行格式例子：2ac723bd99d4c359b4b8cba54a42de3f  /test/myfile.txt",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "delmd5",
+            "name": "删除MD5文件",
+            "help": "检查成功后是否删除MD5列表文件",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "检查目录",
+        "help": "检查目录，支持通配符和反引号",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

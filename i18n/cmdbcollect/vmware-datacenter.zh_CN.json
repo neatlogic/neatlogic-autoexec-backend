@@ -1,0 +1,188 @@
+{
+    "label": "Vmware-DataCenter",
+    "collection": "COLLECT_VIRTUALIZED",
+    "docroot": "DATACENTER",
+    "collection_label": "虚拟化",
+    "filter": {
+        "_OBJ_TYPE": "VMWARE-DATACENTER"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER",
+            "desc": "集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MOID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "DATASTORE",
+                    "desc": "存储",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MOID",
+                            "desc": "id",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CAPACITY",
+                            "desc": "容量(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AVAILABLE",
+                            "desc": "可用容量(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "已用容量(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "使用率%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "状态",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PATH",
+                            "desc": "URL",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UNIT",
+                            "desc": "单位",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "NETWORK",
+                    "desc": "网络",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MOID",
+                            "desc": "id",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "状态",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAIN_HOST",
+                    "desc": "包含物理机",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UUID",
+                            "desc": "uuid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "BOARD_SERIAL",
+                            "desc": "主板序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "ESXI_IP",
+                            "desc": "ESXI IP",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAIN_VMS",
+                    "desc": "包含虚拟机",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "VM IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VM_ID",
+                            "desc": "虚拟机ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOST_ON",
+                            "desc": "所在物理机",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UUID",
+                                    "desc": "uuid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "BOARD_SERIAL",
+                                    "desc": "主板序列号",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "ESXI_IP",
+                                    "desc": "ESXI IP",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        }
+    ]
+}

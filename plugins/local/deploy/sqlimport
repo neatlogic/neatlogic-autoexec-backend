@@ -1,0 +1,167 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Digest::MD5;
+use Getopt::Long;
+use JSON;
+
+use ServerAdapter;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] --sqlfilejson SqlFileJsonArray\n");
+    print("       --sqlfilejson: sql file json array, example:[\"1.sql\",\"2.sql\"]\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $node;
+    my $isHelp    = 0;
+    my $isVerbose = 0;
+
+    my $targetPhase;
+    my $dbNodeJson;
+    my $sqlFileJson;
+
+    GetOptions(
+        'help'          => \$isHelp,
+        'node=s'        => \$node,
+        'v|verbose=i'   => \$isVerbose,
+        'targetphase=s' => \$targetPhase,
+        'sqlfilejson=s' => \$sqlFileJson
+    );
+
+    my $hasOptError = 0;
+
+    my $dbNode;
+    if ( defined($node) and $node ne '' ) {
+        $dbNode = from_json($node);
+    }
+    else {
+        my $dbNodeJson = $ENV{AUTOEXEC_NODE};
+        if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+            $dbNode = from_json($dbNodeJson);
+        }
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with envirment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $sqlFiles = [];
+    if ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
+        my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
+        foreach my $sqlFile (@sqlFileArray) {
+            $sqlFile =~ s/^\/?file\///;
+            push( @$sqlFiles, $sqlFile );
+        }
+    }
+    if ( scalar(@$sqlFiles) == 0 ) {
+        $hasOptError = 1;
+        print("ERROR: Must define sql files with option --sqlfiles in json string.\n");
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    #sqlfile, log, status
+    #jobpath/
+    #|-- file
+    #|   |-- 1.sql
+    #|   `-- 2.sql
+    #|-- log
+    #|   `-- phase-run
+    #|       `-- 192.168.0.26-3306-bsm
+    #|           |-- 2.sql.hislog
+    #|           |   |-- 20210625-163515-failed-anonymous.txt
+    #|           |   |-- 20210625-163607-failed-anonymous.txt
+    #|           |   `-- 20210625-164543-failed-anonymous.txt
+    #|           `-- 2.sql.txt
+    #|-- sqlfile
+    #|   `-- phase-run
+    #|       `-- 2.sql
+    #`-- status
+    #    `-- phase-run
+    #            `-- 192.168.0.26-3306-bsm
+    #                        `-- 2.sql.txt
+
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
+    my $toolsDir;
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
+        $toolsDir           = "$autoexecHome/tools";
+        $ENV{AUTOEXEC_HOME} = $autoexecHome;
+        $ENV{TOOLS_PATH}    = $toolsDir;
+    }
+
+    my $sqlUploadDir = "$jobPath/file";
+    my $sqlFileDir   = "$jobPath/sqlfile/$targetPhase";
+    my $logFileDir   = "$jobPath/log/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+    my $sqlStatusDir = "$jobPath/status/$phaseName/$dbNode->{host}-$dbNode->{port}-$dbNode->{resourceId}";
+
+    my $dbExtArgs = {};
+    my $dbInfo    = DBInfo->new( $dbNode, $dbExtArgs );
+
+    my $sqlFileRunner = SQLFileRunner->new(
+        jobId        => $jobId,
+        jobPath      => $jobPath,
+        deployEnv    => undef,
+        toolsDir     => $toolsDir,
+        tmpDir       => "$autoexecHome/tmp",
+        dbInfo       => $dbInfo,
+        nodeInfo     => $dbNode,
+        sqlUploadDir => $sqlUploadDir,
+        sqlFileDir   => $sqlFileDir,
+        sqlStatusDir => $sqlStatusDir,
+        logFileDir   => $logFileDir,
+        sqlFiles     => $sqlFiles
+    );
+
+    my $ret = $sqlFileRunner->checkSqlFiles();
+
+    my $sqlFileInfos  = $sqlFileRunner->{sqlFileInfos};
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos );
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+exit main();

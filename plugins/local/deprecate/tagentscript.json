@@ -1,0 +1,154 @@
+{
+    "opDesc": "Tagent执行脚本",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Tagent执行远程脚本",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "调用超时时间（秒）",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "15"
+        },
+        {
+            "opt": "eofstr",
+            "name": "结束字串",
+            "help": "对于不会结束的命令，当输出此字串时，成功并结束执行",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "async",
+            "name": "异步执行",
+            "help": "异步执行，不等待执行结束",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "destencoding",
+            "name": "服务端字符集",
+            "help": "指定服务端的执行字符集",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "zh_CN.GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "脚本语言",
+            "help": "编写脚本的语言",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "bash",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    }
+                ]
+            },
+            "defaultValue": "sh"
+        },
+        {
+            "opt": "script",
+            "name": "脚本",
+            "help": "执行脚本内容",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "脚本参数",
+        "help": "自定义脚本执行需要的参数",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

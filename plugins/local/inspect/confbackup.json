@@ -1,0 +1,45 @@
+{
+    "opDesc": "配置文件备份",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "拷贝远程OS的文件到本地并备份到文件服务",
+    "enabled": 1,
+    "option": [{
+            "opt": "maxsize",
+            "name": "最大Size",
+            "help": "最大文件大小，单位:K",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "32"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "argument": {
+        "name": "需备份文件",
+        "help": "需要备份的文件表达式，忽略目录只会备份文件。如：/opt/tagent/conf/*.conf,/tmp/*",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": [{
+        "opt": "fileList",
+        "name": "文件备份路径",
+        "help": "文件信息列表，[{'fileName':'xxx', 'fullPath':'yyyy', 'serverPath':'zzz', 'modifyTime':1661323868}]",
+        "type": "json"
+    }]
+}

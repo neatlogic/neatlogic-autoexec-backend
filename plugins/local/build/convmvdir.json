@@ -1,0 +1,55 @@
+{
+    "opDesc": "修正文件名编码",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "转换目录或文件名编码为一致的编码",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "from",
+            "name": "源编码",
+            "help": "目录或文件名的源编码",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "GBK"
+        },
+        {
+            "opt": "to",
+            "name": "目标编码",
+            "help": "目录或文件名的目标编码",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
+        }
+    ],
+    "output": []
+}

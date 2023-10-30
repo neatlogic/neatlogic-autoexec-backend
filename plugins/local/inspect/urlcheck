@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd qw(abs_path);
+use Getopt::Long;
+use AutoExecUtils;
+use JSON;
+use WebCtl;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --timeout <timeout seconds> .\n");
+    exit(-1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ($node);
+
+    my $timeout = 10;
+
+    GetOptions(
+        'node=s'    => \$node,
+        'timeout=i' => \$timeout
+    );
+    my @requests = @ARGV;
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $host       = $nodeInfo->{host};
+    my $port       = int( $nodeInfo->{port} );
+    my $user       = $nodeInfo->{username};
+    my $pass       = $nodeInfo->{password};
+    my $resourceId = $nodeInfo->{resourceId};
+
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int( $nodeInfo->{protocolPort} );
+    }
+
+    my $data = {
+        MGMT_IP      => $host,
+        PORT         => $port,
+        RESOURCE_ID  => $resourceId,
+        AVAILABILITY => 0
+    };
+
+    my $webCtl = WebCtl->new();
+    print("INFO: Begin url check...\n");
+    my $startTime = time();
+    eval {
+        foreach my $req (@requests) {
+            my @reqInfo = split( /\s*,\s*/, $req );
+            my $method  = uc( $reqInfo[0] );
+            my $url     = $reqInfo[1];
+            my $data    = $reqInfo[2];
+
+            $url =~ s/\$\{host\}|\$\{ip\}/$host/g;
+            $url =~ s/\$\{port\}/$port/g;
+            $url =~ s/\$\{username\}|\$\{user\}/$user/g;
+            $url =~ s/\$\{password\}|\$\{pass\}/$pass/g;
+
+            print("INFO: Http request $url.\n");
+            if ( $method eq 'POST' ) {
+                my $jsonData;
+                eval { $jsonData = from_json($data); };
+                if ( defined($jsonData) ) {
+                    $webCtl->doRest( 'POST', $url, $jsonData );
+                }
+                else {
+                    $webCtl->doPost( $url, $data );
+                }
+            }
+            elsif ( $method eq 'GET' ) {
+                $webCtl->get($url);
+            }
+            else {
+                my $jsonData;
+                if ( defined($data) and $data ne '' ) {
+                    $jsonData = from_json($data);
+                }
+                $webCtl->doRest( $method, $url, $jsonData );
+            }
+            print("INFO: Http request succeed.\n");
+        }
+    };
+    my $responseTime = time() - $startTime;
+    $data->{RESPONSE_TIME} = $responseTime;
+
+    if ($@) {
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        $data->{'ERROR_MESSAGE'} = $errMsg;
+        $data->{AVAILABILITY}    = 0;
+        print("WARN: $errMsg");
+    }
+    else {
+        print("FINE: Http requests all complete succeed.\n");
+        $data->{ERROR_MESSAGE} = '';
+        $data->{AVAILABILITY}  = 1;
+    }
+
+    my $out = {};
+    $out->{DATA} = $data;
+    AutoExecUtils::saveOutput($out);
+    print Dumper ($data);
+
+    return 0;
+}
+
+exit main();

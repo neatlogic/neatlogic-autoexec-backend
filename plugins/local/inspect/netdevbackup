@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use Getopt::Long;
+use JSON;
+use File::Spec;
+use IO::File;
+
+use AutoExecUtils;
+use NetExpect;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --protocol <protocol> --vendor <vendor> --timeout <timeout> \n");
+    exit(1);
+}
+
+sub storeFile {
+    my ( $host, $result ) = @_;
+    my $jobPath = $ENV{'JOB_PATH'};
+    $jobPath = File::Spec->catfile( $jobPath, 'output' );
+    if ( !-e $jobPath ) {
+        mkdir($jobPath);
+    }
+
+    my $fileName = File::Spec->catfile( $jobPath, "$host.txt" );
+    my $fh       = IO::File->new(">$fileName");
+    if ( defined($fh) ) {
+        $fh->print($result);
+        $fh->close();
+    }
+    else {
+        die("can't open $fileName $!");
+    }
+    print("FINE: Save backup file: $fileName success.\n");
+
+    my $res = {};
+    $res->{'fullPath'}   = $fileName;
+    $res->{'serverPath'} = "$host.txt";
+    $res->{'fileName'}   = "$host.txt";
+    $res->{'modifyTime'} = undef;
+    return $res;
+}
+
+sub defindVendor {
+    my ($vendor) = @_;
+    ###############################
+    #configCmd : 查看交换机配置命令
+    #fullPageCmd : 全屏打印（不出现 ----  More ----）
+    ##############################
+    my $vendorInfo = {
+        "h3c"       => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length disable' },
+        "cisco"     => { "configCmd" => "show run",                      "fullPageCmd" => 'terminal length 0' },
+        "hillstone" => { "configCmd" => "show configuration",            "fullPageCmd" => 'terminal length 0' },
+        "huawei"    => { "configCmd" => "display current-configuration", "fullPageCmd" => 'screen-length 0 temporary' },
+        "ruijie"    => { "configCmd" => "show running-config", "fullPageCmd" => 'terminal length 0' },
+        "maipu"    => { "configCmd" => "show running-config", "fullPageCmd" => 'more off' },
+        "zte"    => { "configCmd" => "show run", "fullPageCmd" => 'terminal length 0' }
+    };
+    my $info = $vendorInfo->{$vendor};
+    return $info;
+}
+
+sub main {
+    $| = 1;
+    AutoExecUtils::setEnv();
+    my ( $ishelp, $isVerbose );
+    my ( $node, $vendor, $protocol, $backupdir, $timeout, $exitCmd );
+
+    usage() if ( defined($ishelp) );
+    $isVerbose = 0;
+
+    GetOptions(
+        'help'        => \$ishelp,
+        'node:s'      => \$node,
+        'protocol:s'  => \$protocol,
+        'vendor:s'    => \$vendor,
+        'timeout:i'   => \$timeout,
+        'v|verbose=i' => \$isVerbose,
+        'exitCmd:s'   => \$exitCmd
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( not defined($vendor) or $vendor eq '' ) {
+        print("ERROR: Must define vendor by option --vendor.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($protocol) or $protocol eq '' ) {
+        $protocol = 'ssh';
+    }
+
+    if ( not defined($timeout) or $timeout == 0 ) {
+        $timeout = 10;
+    }
+
+    if ( not defined($exitCmd) or $exitCmd eq '' ) {
+        $exitCmd = 'exit';
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $vendorInfo = defindVendor($vendor);
+    if ( not defined($vendorInfo) ) {
+        print("ERROR: : $vendor model not support .\n");
+        exit(1);
+    }
+
+    my ( $host, $port, $username, $password );
+    $host     = $nodeInfo->{'host'};
+    $port     = $nodeInfo->{'protocolPort'};
+    $username = $nodeInfo->{'username'};
+    $password = $nodeInfo->{'password'};
+
+    my $fullPageCmd = $vendorInfo->{fullPageCmd};
+    my $configCmd   = $vendorInfo->{configCmd};
+
+    print("INFO: :config back start.\n");
+    my $sep = NetExpect->new(
+        host     => $host,
+        port     => $port,
+        protocol => $protocol,
+        username => $username,
+        password => $password,
+        timeout  => $timeout,
+        verbose  => $isVerbose
+    );
+    my $spawn = $sep->login();
+
+    if ( not defined($spawn) ) {
+        print("ERROR: : $vendor config backup failed.\n");
+        return 1;
+    }
+    else {
+        my $rsConfig = $sep->backup( $fullPageCmd, $configCmd, $exitCmd );
+        my $filePath = storeFile( $host, $rsConfig );
+        $sep->close($exitCmd);
+        my $out = {};
+        $out->{fileList} = [$filePath];
+        AutoExecUtils::saveOutput($out);
+        print("INFO: : $vendor config backup success.\n");
+        return 0;
+    }
+}
+
+exit main();
+

@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
+use strict;
+use IO::File;
+use Getopt::Long;
+use Cwd 'abs_path';
+use File::Basename;
+use POSIX;
+
+use Patcher;
+
+Getopt::Long::Configure("pass_through");
+
+my $homePath = abs_path("$FindBin::Bin/..");
+my $progName = $FindBin::Script;
+my @uname    = uname();
+my $osType   = 'unix';
+$osType = 'windows' if ( $uname[0] =~ /Windows/i );
+
+sub usage {
+    print("Usage:$progName --ins <instance name> --version <version> --backupdir <backup dir> --backupcount <backup count> --backuplastdays <backup longest days> --targetdir <target dir>\n");
+    exit(-1);
+}
+
+sub main {
+    if ( $osType eq 'windows' ) {
+        $ENV{PATH} = "$homePath/../7-Zip;$ENV{ProgramFiles}/7-Zip;" . $ENV{PATH};
+    }
+
+    my $isHelp;
+    my $isVerbose = 0;
+    my $insName;
+    my $version;
+    my $backupDir;
+    my $backupCount    = 5;
+    my $backupLastDays = 90;
+    my $targetDir;
+
+    GetOptions(
+        'h|help'           => \$isHelp,
+        'v|verbose=i'      => \$isVerbose,
+        'ins=s'            => \$insName,
+        'version=s'        => \$version,
+        'backupcount=i'    => \$backupCount,
+        'backuplastdays=i' => \$backupLastDays,
+        'backupdir=s'      => \$backupDir,
+        'targetdir=s'      => \$targetDir
+    );
+
+    usage() if defined($isHelp);
+
+    my $backupType = 'fullbackup';
+    $backupCount = int($backupCount);
+    if ( $backupCount == 0 ) {
+        $backupCount = 5;
+    }
+
+    my $hasOptionError = 0;
+    if ( not defined($version) or $version eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Version not defined(option --version).\n");
+    }
+
+    if ( not defined($targetDir) or $targetDir eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Target directory not defined(option --targetdir).\n");
+    }
+    elsif ( not -e $targetDir ) {
+        print("ERROR: Target directory:$targetDir not exist.\n");
+    }
+
+    if ( not defined($backupDir) or $backupDir eq '' ) {
+        $hasOptionError = 1;
+        print("ERROR: Backup directory not defined(option --backupdir).\n");
+    }
+    else {
+        my $backupParent = dirname($backupDir);
+        my $backupRoot   = dirname($backupParent);
+        if ( not -d $backupRoot ) {
+            $hasOptionError = 1;
+            print("ERROR: Backup directory:$backupRoot not exist.\n");
+        }
+        else {
+            mkdir($backupParent);
+        }
+    }
+
+    if ( $hasOptionError == 1 ) {
+        usage();
+    }
+
+    my $patcher = Patcher->new( $homePath, $backupDir, $backupCount, $backupLastDays );
+
+    my $status = 0;
+    $status = $patcher->backup( $insName, $version, '', $targetDir, $backupType );
+
+    return $status;
+}
+
+exit main();
+

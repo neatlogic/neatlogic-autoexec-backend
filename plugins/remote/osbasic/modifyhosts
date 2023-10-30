@@ -1,0 +1,284 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(uname strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --backup 0|1 --ip2hostnamemap <ip to hostname josn> --content <hosts content>\n");
+    exit(1);
+}
+
+sub backup {
+    my ($filePath)  = @_;
+    my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
+    my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
+    return $exitCode;
+}
+
+sub collectIp {
+    my @uname    = uname();
+    my $osType   = $uname[0];
+    my $ipString = "";
+    my @ipTxtList;
+    if ( $osType =~ /Windows/i ) {
+        @ipTxtList = `ipconfig /all | findstr "IP"`;
+    }
+    else {
+        @ipTxtList = `ifconfig -a 2>/dev/null`;
+        if ( $? != 0 ) {
+            @ipTxtList = `ip addr 2>/dev/null`;
+        }
+    }
+
+    my $allIps = {};
+    foreach (@ipTxtList) {
+        my $ip = $_;
+        if ( $ip =~ /(\d+\.\d+\.\d+\.\d+)/ or $ip =~ /([a-f0-9:]+)/ ) {
+            my $realIp = $1;
+            if ( $realIp ne '127.0.0.1' and $realIp ne '::1' ) {
+                $allIps->{$realIp} = 1;
+            }
+        }
+    }
+
+    return $allIps;
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    my $filePath = '/etc/hosts';
+
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
+    if ( $osType eq 'Windows' ) {
+        my $winDir = $ENV{WINDIR};
+        $winDir =~ s/\\/\//g;
+        $filePath = "$winDir/system32/drivers/etc/hosts";
+    }
+
+    my $hostNamesJson;
+    my $reset      = 1;
+    my $needBackup = 0;
+    my $content;
+    my $datakey;
+
+    GetOptions(
+        'backup=i'         => \$needBackup,
+        'reset=i'          => \$reset,
+        'ip2hostnamemap=s' => \$hostNamesJson,
+        'content=s'        => \$content,
+        'datakey=s'        => \$datakey
+    );
+
+    if ( not defined($hostNamesJson) or $hostNamesJson eq '' ) {
+        print("ERROR: Must defined modify hostNamesJson by option --hostNamesJson\n");
+        usage();
+    }
+
+    #允许content为空，默认根据ip2host map生成hosts内容
+    if ( not defined($content) or $content eq '' ) {
+        my $ip2HostnameMap = from_json($hostNamesJson);
+        foreach my $key ( keys(%$ip2HostnameMap) ) {
+            my $val = $ip2HostnameMap->{$key};
+            $content = $content . "$key $val\n";
+        }
+        print("INFO: Host config content is empty, use config content:$content.\n");
+    }
+
+    #默认在hosts文件内ip与名称映射的规则为：1对1，主键为ip
+    my $ip_key = 1;
+    if ( defined($datakey) && $datakey eq 'name' ) {
+        $ip_key = 0;
+    }
+
+    my $hasError = 0;
+
+    if ( $reset == 1 ) {
+        my $fh = IO::File->new( $filePath, 'w' );
+        if ( defined($fh) ) {
+            print $fh ('');
+            $fh->close();
+        }
+        else {
+            $hasError = 1;
+            print("ERROR: Can not write to file $filePath.\n");
+            return $hasError;
+        }
+    }
+
+    my $allIpsMap = collectIp();
+
+    my $hostName;
+    my $hostIp;
+
+    my $ip2HostnameMap = from_json($hostNamesJson);
+    foreach my $ip ( keys(%$allIpsMap) ) {
+        $hostName = $ip2HostnameMap->{$ip};
+        if ( defined($hostName) and $hostName ne '' ) {
+            $hostIp = $ip;
+            last;
+        }
+    }
+
+    my $scriptDir = $FindBin::Bin;
+    chdir($scriptDir);
+
+    my @confKeysArray = ();
+    my $confMap       = {};
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line eq '' or $line =~ /^#/ ) {
+            next;
+        }
+
+        my ( $ip, $name ) = split( /\s+/, $line, 2 );
+
+        if ( $ip_key == 1 && not defined( $confMap->{$ip} ) ) {
+            $confMap->{$ip} = $name;
+            push( @confKeysArray, $ip );
+        }
+
+        if ( $ip_key == 0 && not defined( $confMap->{$name} ) ) {
+            $confMap->{$name} = $ip;
+            push( @confKeysArray, $name );
+        }
+    }
+
+    if ( defined($hostName) and $hostName ne '' and not defined( $confMap->{$hostIp} ) ) {
+
+        if ( $ip_key == 1 && not defined( $confMap->{$hostIp} ) ) {
+            $confMap->{$hostIp} = $hostName;
+            push( @confKeysArray, $hostIp );
+        }
+
+        if ( $ip_key == 0 && not defined( $confMap->{$hostName} ) ) {
+            $confMap->{$hostName} = $hostIp;
+            push( @confKeysArray, $hostName );
+        }
+    }
+
+    my $processedMap = {};
+    my $isChanged    = 0;
+    my $newContent   = '';
+    my $fh           = IO::File->new( $filePath, 'r+' );
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            if ( $line !~ /^\s*$/ and $line !~ /^\s*#/ ) {
+                my $tmpLine = $line;
+                $tmpLine =~ s/^\s*|\s*$//g;
+                my ( $ip, $name ) = split( /\s+/, $tmpLine, 2 );
+
+                my $newValue;
+                if ( $ip_key == 1 ) {
+                    $newValue = $confMap->{$ip};
+                }
+                else {
+                    $newValue = $confMap->{$name};
+                }
+
+                if ( defined($newValue) and not defined( $processedMap->{$ip} ) and not defined( $processedMap->{$name} ) ) {
+                    if ($ip_key) {
+                        $processedMap->{$ip} = 1;
+                        if ( $newValue ne $name ) {
+                            $isChanged = 1;
+                            $line =~ s/\s+.*$/\t$newValue/;
+                            print("Replace: $tmpLine -> $line");
+                        }
+                        else {
+                            print("NotChanged: $line");
+                        }
+                    }
+                    else {
+                        $processedMap->{$name} = 1;
+                        if ( $newValue ne $ip ) {
+                            $isChanged = 1;
+                            $line      = "$newValue\t$name\n";
+                            print("Replace: $tmpLine -> $line");
+                        }
+                        else {
+                            print("NotChanged: $line");
+                        }
+                    }
+
+                }
+            }
+            $newContent = $newContent . $line;
+        }
+
+        foreach my $key (@confKeysArray) {
+            if ( $processedMap->{$key} == 1 ) {
+                next;
+            }
+            my $value = $confMap->{$key};
+            $isChanged = 1;
+            if ($ip_key) {
+                $newContent = $newContent . "$key\t$value\n";
+                print("Append: $key\t$value\n");
+            }
+            else {
+                $newContent = $newContent . "$value\t$key\n";
+                print("Append: $value\t$key\n");
+            }
+        }
+
+        if ( $isChanged == 1 ) {
+            if ( $needBackup == 1 ) {
+                my $exitCode = backup($filePath);
+                if ( $exitCode != 0 ) {
+                    print("ERROR: Backup file:$filePath failed, $!\n");
+                    $hasError = 2;
+                }
+            }
+
+            if ( $hasError == 0 ) {
+                $fh->seek( 0, 0 );
+                $fh->truncate(0);
+                $fh->write( $newContent, length($newContent) );
+            }
+        }
+        $fh->close();
+
+        my $out = { hostsConf => $newContent };
+        AutoExecUtils::saveOutput($out);
+
+        if ( $hasError == 0 ) {
+            if ( defined($hostName) and $hostName ne '' ) {
+                if ( -f "/etc/hostname" ) {
+                    my $fh = IO::File->new('>/etc/hostname');
+                    if ( defined($fh) ) {
+                        print $fh ($hostName);
+                        $fh->close();
+                    }
+                }
+                $hasError = system("hostname '$hostName'");
+
+                if ( $hasError == 0 ) {
+                    print("Set hostname:$hostName success.\n");
+                }
+                else {
+                    print("ERROR: Set hostname:$hostName failed.\n");
+                }
+            }
+        }
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file:$filePath, $!\n");
+    }
+
+    return $hasError;
+}
+
+exit main();

@@ -1,0 +1,138 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd qw(abs_path);
+use Getopt::Long;
+use AutoExecUtils;
+use JSON;
+use WebCtl;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --server_name <server name> --timeout <timeout seconds> .\n");
+    exit(-1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ($node);
+
+    my $timeout = 10;
+    my $server_name ;
+
+    GetOptions(
+        'node=s'    => \$node,
+        'server_name=s' => \$server_name,
+        'timeout=i' => \$timeout
+    );
+    my @requests = @ARGV;
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $host       = $nodeInfo->{host};
+    my $port       = int( $nodeInfo->{port} );
+    my $resourceId = $nodeInfo->{resourceId};
+
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int( $nodeInfo->{protocolPort} );
+    }
+
+    my $data = {
+        MGMT_IP      => "$host",
+        PORT         => "$port",
+        _OBJ_CATEGORY => "INS",
+        _OBJ_TYPE     => "Nginx",
+        RESOURCE_ID  => $resourceId,
+        AVAILABILITY => 0
+    };
+
+    my $webCtl = WebCtl->new();
+    my $url = "http://$host:$port/$server_name";
+    print("INFO: Begin inspect url:$url...\n");
+    my $startTime = time();
+    my $Status = {};
+    my $content = $webCtl->get($url);
+    my $responseTime = time() - $startTime;
+    $data->{RESPONSE_TIME} = $responseTime;
+    if ($@) {
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        $data->{'ERROR_MESSAGE'} = $errMsg;
+        $data->{AVAILABILITY}    = 0;
+        print("ERROR: $errMsg");
+    }
+    else {
+        #print($content);
+        if ($content =~ /\s*302\s*Found/){
+            $data->{'ERROR_MESSAGE'} = "Not config nginx monitor stub_status : $server_name.";
+            $data->{AVAILABILITY}    = 0;
+        }else{
+            my $ActiveConn = 0;
+            if($content =~ m/Active connections: (.*?)\n/) {
+                $ActiveConn = $1;
+                $ActiveConn =~ s/^\s+|\s+$//g;
+            }
+            $Status->{ACTIVE_CONNECTIONS} = int($ActiveConn);#活动连接数
+
+            my $counters = '';
+            my $AcceptedConn = 0;
+            my $HandledConn = 0;
+            my $NbRequests = 0;
+            if($content =~ m/\nserver accepts handled requests\n(.*?)\n/) {
+                $counters = $1;
+                $counters =~ s/^\s+|\s+$//g;
+                ($AcceptedConn,$HandledConn,$NbRequests) = split(' ', $counters);
+                $AcceptedConn =~ s/^\s+|\s+$//g;
+                $HandledConn =~ s/^\s+|\s+$//g;
+                $NbRequests =~ s/^\s+|\s+$//g;
+            }
+            $Status->{SERVER_ACCEPTS} = int($AcceptedConn);#接收请求数
+            $Status->{SERVER_HANDLED} = int($HandledConn);#处理请求数
+            $Status->{SERVERR_EQUESTS} = int($NbRequests);#请求数
+
+            my $Reading = 0;
+            my $Writing = 0;
+            my $Waiting = 0;
+            if($content =~ m/Reading: (.*?)Writing: (.*?)Waiting: (.*?)$/) {
+                $Reading = $1;
+                $Writing = $2;
+                $Waiting = $3;
+                $Reading =~ s/^\s+|\s+$//g;
+                $Writing =~ s/^\s+|\s+$//g;
+                $Waiting =~ s/^\s+|\s+$//g;
+            }
+
+            $Status->{READING} = int($Reading);
+            $Status->{WRITING}  = int($Writing);
+            $Status->{WAITING}  = int($Waiting);
+
+            $data->{ERROR_MESSAGE} = '';
+            $data->{AVAILABILITY}  = 1;
+        }
+    }
+    $data->{MON_STATUS} = $Status;
+    my $out = {};
+    $out->{DATA} = [$data];
+    AutoExecUtils::saveOutput($out);
+
+    return 0;
+}
+
+exit main();

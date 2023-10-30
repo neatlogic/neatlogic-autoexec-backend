@@ -1,0 +1,280 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use File::Basename;
+use Cwd 'realpath';
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+
+use ServerAdapter;
+use WebCtl;
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --console KelanHttpAddr --user LoginUser --password Password --servername ServerName\n");
+    print("       --envpath:   system envpath, example:ATM/ATMP/PRD\n");
+    print("       --version:   versoin number\n");
+    print("       --console:   http address\n");
+    print("       --user:      user for login to the osgi console.\n");
+    print("       --password:   password for login to the osgi console.\n");
+    print("       --servername: osgi server name in the console.\n");
+
+    exit(1);
+}
+
+sub login {
+    my ( $webCtl, $consoleAddr, $serverName, $user, $pass ) = @_;
+
+    $webCtl->get("$consoleAddr/console");
+    my $content = $webCtl->post(
+        "$consoleAddr/console/login.do",
+        {
+            _viewReferer => 'user/login',
+            _locale      => 'zh_CN',
+            UserId       => $user,
+            Password     => $pass,
+            Submit       => '提交'
+        }
+    );
+
+    if ( $content =~ /登录以使用  PowerEngine Dynamic/ ) {
+        die("ERROR: 使用用户$user登录$consoleAddr失败，请检查用户和密码是否正确\n");
+    }
+
+    switchServer( $webCtl, $consoleAddr, $serverName );
+}
+
+sub switchServer {
+    my ( $webCtl, $consoleAddr, $serverName ) = @_;
+    $webCtl->get("$consoleAddr/console/ChangeCurrentServerPre.do");
+
+    my $content = $webCtl->post( "$consoleAddr/console/ChangeCurrentServer.do", { ServerId => $serverName, _viewReferer => 'server/ChangeCurrentServer' } );
+
+    #<frame name="businessfrm"  scrolling="auto" src="welcome.do">
+
+    if ( $content =~ /businessfrm/ and $content =~ /welcome.do/ ) {
+        print("INFO: Switch to server $serverName success.\n");
+    }
+    else {
+        die("ERROR: Switch to server $serverName faled.\n");
+    }
+}
+
+sub getBundleSeqAndId {
+    my ( $webCtl, $consoleAddr, $bundleName ) = @_;
+
+    my $content = $webCtl->post( "$consoleAddr/console/BundleList.do", { BundleName => $bundleName } );
+
+    #get bundleId
+    my ( $bundleSeq, $bundleId );
+    while ( $content =~ /(<tr.*?<\/tr>)/gs ) {
+        my $trContent = $1;
+        if ( $trContent =~ /\W$bundleName\((\d+)\)/ ) {
+            $bundleSeq = $1;
+            if ( $trContent =~ /BundleId=(\d+)/ ) {
+                $bundleId = $1;
+            }
+            last;
+        }
+    }
+
+    return ( $bundleSeq, $bundleId );
+}
+
+sub waitBundleStart {
+    my ( $webCtl, $consoleAddr, $bundleName ) = @_;
+
+    my $isSuccess  = 0;
+    my $checkCount = 25;
+
+    do {
+        my $content = $webCtl->post( "$consoleAddr/console/BundleList.do", { BundleName => $bundleName } );
+
+        #get bundleId
+        my $trContent;
+        while ( $content =~ /(<tr.*?<\/tr>)/gs ) {
+            my $tmpContent = $1;
+            if ( $tmpContent =~ /\W$bundleName\(\d+\)/ ) {
+                $trContent = $tmpContent;
+                last;
+            }
+        }
+
+        if ( $trContent =~ /已启动/ ) {
+            $isSuccess = 1;
+            last;
+        }
+        elsif ( $checkCount % 5 == 0 ) {
+            print("INFO: Wait bundle $bundleName to start...\n");
+        }
+        sleep(5);
+        $checkCount--;
+    } while ( $checkCount > 0 );
+
+    if ( $isSuccess == 1 ) {
+        print("INFO: Bundle $bundleName start success.\n");
+    }
+    else {
+        die("ERROR: Bundle $bundleName start failed.\n");
+    }
+}
+
+sub sortBundleFiles {
+    my ( $leftName, $rightName, $seqMap ) = @_;
+
+    my $leftSeq  = $seqMap->{$leftName}[0];
+    my $rightSeq = $seqMap->{$rightName}[0];
+
+    #my $ret = $leftSeq <=> $rightSeq;
+    my $ret;
+
+    if ( not defined($leftSeq) ) {
+        if ( defined($rightSeq) ) {
+            $ret = 1;
+        }
+        else {
+            $ret = 0;
+        }
+    }
+    else {
+        if ( not defined($rightSeq) ) {
+            $ret = -1;
+        }
+        else {
+            $ret = $leftSeq <=> $rightSeq;
+        }
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+sub getBundleSeqAndIds {
+    my ( $webCtl, $consoleAddr, $bundleFiles ) = @_;
+
+    my $bundleSeqsMap = {};
+
+    foreach my $bundleFile (@$bundleFiles) {
+        my $bundleName = basename($bundleFile);
+        $bundleName =~ s/_[\d\.]+\.jar$//;
+        my ( $bundleSeq, $bundleId ) = getBundleSeqAndId( $webCtl, $consoleAddr, $bundleName );
+        $bundleSeqsMap->{$bundleFile} = [ $bundleSeq, $bundleId ];
+    }
+
+    return $bundleSeqsMap;
+}
+
+sub updateBundle {
+    my ( $webCtl, $consoleAddr, $bundleFile, $bundleId ) = @_;
+
+    my $content = $webCtl->get( "$consoleAddr/console/BundleUpdatePre.do?BundleId=" . $bundleId );
+
+    $content = $webCtl->upload( "$consoleAddr/console/BundleUpdate.do", "BundleFile", $bundleFile, { _viewReferer => 'bundle/BundleUpdatePre', BundleId => $bundleId } );
+
+    my $bundleFileName = basename($bundleFile);
+
+    my $ret = 0;
+
+    #judge if upload success
+    while ( $content =~ /(<tr.*?<\/tr>)/gs ) {
+        my $trContent = $1;
+        if ( $trContent =~ /错误信息/ ) {
+            if ( $trContent =~ /OK/ ) {
+                my $bundleName = $bundleFileName;
+                $bundleName =~ s/_[\d\.]+\.jar$//;
+                my ( $bundleSeq, $newBundleId ) = getBundleSeqAndId( $webCtl, $consoleAddr, $bundleName );
+                print("INFO: Update bundle($bundleId) $bundleFileName to new bundleId($newBundleId) success.\n");
+                waitBundleStart( $webCtl, $consoleAddr, $bundleName );
+            }
+            else {
+                die("ERROR: Update bundle($bundleId) $bundleFileName failed.\n");
+            }
+        }
+    }
+}
+
+sub deployBundle {
+
+    my ( $webCtl, $consoleAddr, $bundleFile ) = @_;
+
+    my $content = $webCtl->get("$consoleAddr/console/BundleDeployPre.do");
+
+    $content = $webCtl->upload( "$consoleAddr/console/BundleDeploy.do", "BundleFile", $bundleFile, { _viewReferer => 'bundle/BundleList', BundleAutoStart => 'true' } );
+
+    my $bundleFileName = basename($bundleFile);
+
+    my $bundleName = $bundleFile;
+    $bundleName =~ s/_[\d\.]+\.jar$//;
+    my ( $bundleSeq, $bundleId ) = getBundleSeqAndId( $webCtl, $consoleAddr, $bundleName );
+
+    if ( defined($bundleId) ) {
+        print("INFO: Deploy bundle $bundleFileName success, bundleId=$bundleId.\n");
+        waitBundleStart( $webCtl, $consoleAddr, $bundleName );
+    }
+    else {
+        die("ERROR: Deploy bundle $bundleFileName failed.\n");
+    }
+}
+
+sub batchUpdate {
+
+    #TODO
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version );
+    my ( $consoleAddr, $user, $pass, $serverName );
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'envpath:s'    => \$envPath,
+        'version:s'    => \$version,
+        'console:s'    => \$consoleAddr,
+        'user:s'       => \$user,
+        'password:s'   => \$pass,
+        'servername:s' => \$serverName
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+
+    $consoleAddr =~ s/\/$//;
+
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
+    my $appDistDir = $dirInfo->{appDist};
+    my $distDir    = $dirInfo->{distribute};
+
+    if ( -d $distDir ) {
+        my $webCtl = WebCtl->new();
+        login( $webCtl, $consoleAddr, $serverName, $user, $pass );
+
+        #chdir($distDir);
+        my @jarFiles = bsd_glob("$appDistDir/*.jar");
+
+        my $bundleSeqsMap  = getBundleSeqAndIds( $webCtl, $consoleAddr, \@jarFiles );
+        my @sortedJarFiles = sort { sortBundleFiles { $a, $b, $bundleSeqsMap } } @jarFiles;
+
+        for my $bundleFile (@sortedJarFiles) {
+            my $bundleId = $bundleSeqsMap->{$bundleFile}[1];
+            if ( defined($bundleId) ) {
+                updateBundle( $webCtl, $consoleAddr, $bundleFile, $bundleId );
+            }
+            else {
+                deployBundle( $webCtl, $consoleAddr, $bundleFile, $bundleId );
+            }
+        }
+    }
+}
+
+exit main();
+

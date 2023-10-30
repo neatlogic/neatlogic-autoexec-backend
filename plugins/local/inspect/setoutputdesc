@@ -1,0 +1,116 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import chardet
+import traceback
+import argparse
+import json
+import datetime
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    exit(1)
+
+
+def createPKIndex(collection, pkDef):
+    pkIdx = []
+    for field in pkDef:
+        pkIdx.append((field, 1))
+    collection.create_index(pkIdx, name='idx_pk', unique=True)
+    collection.create_index([('_updatetime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('params', nargs=argparse.REMAINDER, help="export tool or script param")
+
+    args = parser.parse_args()
+    params = args.params
+    node = args.node
+
+    nodeInfo = {}
+    hasOptError = False
+    if node is None or node == '':
+        node = os.getenv('AUTOEXEC_NODE')
+    if node is None or node == '':
+        print("ERROR: Can not find node definition.")
+        hasOptError = True
+    else:
+        nodeInfo = json.loads(node)
+
+    if(params is None or len(params) == 0):
+        hasOptError = True
+
+    if hasOptError:
+        usage()
+
+    resourceId = nodeInfo['resourceId']
+    host = nodeInfo['host']
+    port = ''
+    if 'port' in nodeInfo:
+        port = nodeInfo['port']
+    jobId = os.getenv('AUTOEXEC_JOBID')
+
+    # 参数数据格式
+    # {test.test_699960005763109.outpassword},#{test.test_699960005763109.outfile}
+
+    try:
+        paramMap = {}
+        for param in params:
+            if (param != ""):
+                param = param[2:]
+                param = param[0:len(param)-1]
+                paramArray = param.split(".")
+                phase = paramArray[0]
+                pluginId = paramArray[1]
+                paramName = paramArray[2]
+
+                paramList = []
+                key = phase + "-" + pluginId
+                if key in paramMap:
+                    paramList = paramMap[key]
+                if paramName not in paramList:
+                    paramList.append(paramName)
+                paramMap[key] = paramList
+
+        (dbclient, db) = AutoExecUtils.getDB()
+        existsCollection = False
+        for collection in db.list_collection_names():
+            try:
+                if(collection == '_job_output_desc'):
+                    existsCollection = True
+                    break
+            except:
+                pass
+
+        currentTime = datetime.datetime.utcnow()
+        collection = db['_job_output_desc']
+        for key in paramMap:
+            insArray = key.split("-")
+            data = {}
+            data['phase'] = insArray[0]
+            data['pluginId'] = insArray[1]
+            data['field'] = paramMap[key]
+            data['jobId'] = jobId
+            data['_updatetime'] = currentTime
+
+            primaryKey = {'jobId': jobId, 'phase': data['phase'], 'pluginId': data['pluginId']}
+            collection.replace_one(primaryKey, data, upsert=True)
+
+            if(existsCollection == False):
+                pkDef = ['jobId', 'phase', 'pluginId']
+                createPKIndex(collection, pkDef)
+
+            print('INFO: Update {}/{}/{} report output desc success.'.format(data['phase'], data['pluginId'], paramMap[key]))
+
+        print('FINE: Save Job report output desc data success.')
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

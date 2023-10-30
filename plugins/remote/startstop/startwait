@@ -1,0 +1,219 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
+use strict;
+use POSIX;
+use Encode;
+use Getopt::Long;
+use File::Basename;
+use LogTailer;
+
+Getopt::Long::Configure qw(gnu_getopt);
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --addr <url | host:port> --eofstr <eof string pattern> [--timeout <seconds>] [--prescript <script to execute>] [--closetty 0|1] [--endprescript 0|1] [--postscript <script to execute> <log file pattern1>,<log file pattern2> ...\n");
+    print("       url | host:port: example: http://10.0.0.1:8080/test or 10.0.0.1:8080\n");
+    print("       eof string pattern: end tail log while match this pattern, low priority\n");
+    print("       closetty:          close start script process tty\n");
+    print("       timeout:           timeout seconds\n");
+    print("       prescript:         script to be execute before tail log\n");
+    print("       postscript:        script to be execute after tail log ended\n");
+    print("       endprescript:      kill prescript before exit.\n");
+    print("       log file pattern:  not or more log file patterns, wildcard is ok\n");
+
+    exit(1);
+}
+
+sub main {
+    my $rc = 0;
+
+    $ENV{TERM} = 'dumb';
+
+    my $pname = $FindBin::Script;
+
+    my ( $isVerbose, $addr, $eofStr, $timeout, $preScript, $closeTTY, $postScript, $endPreScript, @logPatterns );
+    $timeout  = 300;
+    $closeTTY = 0;
+
+    GetOptions(
+        'verbose=i'      => \$isVerbose,
+        'addr=s'         => \$addr,
+        'eofstr=s'       => \$eofStr,
+        'timeout=i'      => \$timeout,
+        'prescript=s'    => \$preScript,
+        'closetty=i'     => \$closeTTY,
+        'postscript=s'   => \$postScript,
+        'endprescript=i' => \$endPreScript,
+        '<>'             => sub { my $item = shift(@_); push( @logPatterns, $item ); }
+    );
+
+    if ( $eofStr =~ /^\{([\w\-\d]+)\}/ ) {
+        my $charset = lc($1);
+        $eofStr =~ s/^\{[\w\-\d]+\}//;
+
+        my $eofStrDecoded   = Encode::encode( $charset, Encode::decode( 'utf-8',  $eofStr ) );
+        my $eofStrReEncoded = Encode::encode( 'utf-8',  Encode::decode( $charset, $eofStr ) );
+        if ( $eofStr eq $eofStrReEncoded ) {
+            $eofStr = $eofStrDecoded;
+        }
+    }
+
+    my $optError = 0;
+    if ( not defined($addr) and not defined($eofStr) ) {
+        $optError = 1;
+        print("ERROR: Option --addr not defined.\n");
+        $rc = 1;
+    }
+
+    #if ( scalar(@logPatterns) == 0 ) {
+    #    $optError = 1;
+    #    print("ERROR: There is no log pattern provided.\n");
+    #    $rc = 1;
+    #}
+
+    if ( $optError == 1 ) {
+        usage();
+    }
+
+    my @uname  = POSIX::uname();
+    my $ostype = $uname[0];
+
+    my $logPatternsMap = {};
+    my $logPaths       = {};
+    my @serverLogInfos;
+    push( @serverLogInfos, $logPatternsMap );
+    push( @serverLogInfos, $logPaths );
+
+    foreach my $logPattern (@logPatterns) {
+        if ( $ostype !~ /Windows/i ) {
+            my $pipe;
+            my $pid        = open( $pipe, "echo \"$logPattern\" |" );
+            my $logPattern = <$pipe>;
+            close($pipe);
+            if ( $? == 0 ) {
+                $logPattern =~ s/\s*$//;
+                print("INFO: Get log pattern:$logPattern\n");
+            }
+            else {
+                print("WARN: Execute 'echo \"$logPattern\"' failed:\n");
+                system("echo \"$logPattern\"");
+            }
+        }
+
+        my @logFiles = glob($logPattern);
+
+        if ( not( scalar(@logFiles) == 1 and $logFiles[0] eq $logPattern ) ) {
+            $logPatternsMap->{$logPattern} = scalar(@logFiles);
+        }
+
+        foreach my $logFile (@logFiles) {
+            $logPaths->{$logFile} = 1;
+
+            my $logInfo = {};
+            $logInfo->{server} = '';
+            $logInfo->{path}   = $logFile;
+            $logInfo->{name}   = basename($logFile);
+
+            my $fh = IO::File->new("<$logFile");
+            if ( defined($fh) ) {
+                print("INFO: Log file $logFile found.\n");
+                $fh->seek( 0, 2 );
+                $logInfo->{pos} = $fh->tell();
+                $fh->close();
+            }
+            else {
+                $logInfo->{pos} = 0;
+                print("INFO: Log file $logFile not exist, it will be opened while created.\n");
+            }
+
+            push( @serverLogInfos, $logInfo );
+        }
+    }
+
+    my $pid;
+    if ( defined($preScript) and $preScript ne '' ) {
+        print("INFO: Execte script:$preScript\n");
+        $pid = fork();
+        if ( defined($pid) and $pid == 0 ) {
+
+            eval {
+                if ( $ostype !~ /Windows/i ) {
+                    if ( $closeTTY == 1 ) {
+                        open( STDIN,  '/dev/null' );
+                        open( STDOUT, '>>/dev/null' );
+                        open( STDERR, '>>/dev/null' );
+                    }
+                    POSIX::setsid();
+                }
+
+                chdir('/');
+            };
+
+            $SIG{CHLD} = 'IGNORE';
+            if ( not exec($preScript) ) {
+                exit(2);
+            }
+        }
+
+        END {
+            local $?;
+            if ( defined($endPreScript) ) {
+                my $isStop = 0;
+
+                kill( 'INT', $pid );
+                for ( my $i = 0 ; $i < 10 ; $i++ ) {
+                    if ( waitpid( $pid, 1 ) < 0 ) {
+                        $isStop = 1;
+                        last;
+                    }
+                }
+
+                if ( $isStop == 0 ) {
+                    kill( 'KILL', $pid );
+                }
+            }
+
+            if ( $ostype =~ /Windows/i ) {
+                for ( my $i = 1 ; $i <= 3 ; $i++ ) {
+                    print("\x1b[[-=-exec finish-=-\x1b]]\r\n$rc\r\n");
+                    sleep(1);
+                }
+                close(STDIN);
+                close(STDOUT);
+            }
+        }
+    }
+
+    my $svcStatus = 0;
+
+    my $logTailer = LogTailer->new( $preScript, $pid );
+    if ( defined($addr) and $addr ne '' ) {
+        $svcStatus = $logTailer->checkUntilServiceUp( $addr, $eofStr, $timeout, \@serverLogInfos );
+    }
+    elsif ( defined($eofStr) and $eofStr ne '' ) {
+        $svcStatus = $logTailer->checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+    }
+
+    if ( $svcStatus != 1 ) {
+        $rc = 1;
+    }
+
+    if ( defined($postScript) and $postScript ne '' ) {
+        print("INFO: Execte post script:$postScript\n");
+        my $ret = system($postScript);
+
+        if ( $ret ne 0 ) {
+            print("WARN: Execute post script:$postScript failed.\n");
+        }
+    }
+
+    return $rc;
+}
+
+exit main();
+

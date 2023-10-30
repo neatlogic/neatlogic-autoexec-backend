@@ -1,0 +1,144 @@
+{
+    "label": "K8S_REPLICASET",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.REPLICASETS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_REPLICASET"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "注释",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "AVAILABLEREPLICAS",
+            "desc": "存活pod总数",
+            "type": "Int"
+        },
+        {
+            "name": "FULLYLABELEDREPLICAS",
+            "desc": "与副本集标签相同的pod数量",
+            "type": "Int"
+        },
+        {
+            "name": "GENERATION",
+            "desc": "第几代",
+            "type": "Int"
+        },
+        {
+            "name": "KIND",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "命名空间",
+            "type": "String"
+        },
+        {
+            "name": "OBSERVEDGENERATION",
+            "desc": "监控relicaset生成",
+            "type": "Int"
+        },
+        {
+            "name": "OWNERREFERENCES",
+            "desc": "依赖控制对象",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "KIND",
+                    "desc": "类型",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "READYREPLICAS",
+            "desc": "StatefulSet创建的Pod数量",
+            "type": "Int"
+        },
+        {
+            "name": "REPLICAS",
+            "desc": "期望pod数量",
+            "type": "Int"
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "已选择标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        }
+    ]
+}

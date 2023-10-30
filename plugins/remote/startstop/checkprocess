@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
+use strict;
+use Getopt::Long;
+use File::Basename;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-verbose <0|1>] [--op <and|or>] [--checkexp <expression for count check>] <pattern1>,<pattern2>...\n");
+    print("       -verbose <0|1>:          verbose\n");
+    print("       --checkexp <expression>: expression to check the process count, example: '>10' or '==10' or '<10' or '>=10'\n");
+    print("       --op <and|or>:           patterns operator and or or\n");
+    print("       <pattern>:               command line pattern\n");
+
+    exit(1);
+}
+
+sub matchPatterns {
+    my ( $txt, $patterns, $operator ) = @_;
+    my $matched = 0;
+
+    if ( $operator eq 'and' ) {
+        $matched = 1;
+        foreach my $pattern (@$patterns) {
+            if ( $txt !~ /$pattern/ ) {
+                $matched = 0;
+                last;
+            }
+        }
+    }
+    else {
+        $matched = 0;
+        foreach my $pattern (@$patterns) {
+            if ( $txt =~ /$pattern/ ) {
+                $matched = 1;
+                last;
+            }
+        }
+
+    }
+
+    return $matched;
+}
+
+sub findProcess {
+    my ( $patterns, $operator, $isVerbose ) = @_;
+
+    my $cmd       = 'ps auxww';
+    my $procCount = 0;
+
+    my $line;
+    my $PROCLISTFILE;
+    if ( open( $PROCLISTFILE, "$cmd |" ) ) {
+        while ( $line = <$PROCLISTFILE> ) {
+            if ( matchPatterns( $line, $patterns, $operator ) ) {
+                if ( $isVerbose == 1 ) {
+                    print($line);
+                }
+
+                $procCount = $procCount + 1;
+            }
+        }
+        close($PROCLISTFILE);
+    }
+
+    return $procCount;
+}
+
+sub main {
+    my $rc = 0;
+
+    my $pname = $FindBin::Script;
+
+    my ( $isVerbose, $countExp, $patternOp, @patterns );
+
+    $isVerbose = 0;
+    $patternOp = 'and';
+
+    GetOptions(
+        'verbose:i'  => \$isVerbose,
+        'checkexp:s' => \$countExp,
+        'op:s'       => \$patternOp,
+        '<>'         => sub { my $item = shift(@_); push( @patterns, $item ); }
+    );
+
+    my $optError = 0;
+    if ( not defined($countExp) ) {
+        $optError = 1;
+        $rc       = 1;
+        print("ERROR: Option --checkexp not defined.\n");
+    }
+    else {
+        if ( $countExp !~ />\d+|<\d+|>=\d+|<=\d+|==\d+/ ) {
+            $optError = 1;
+            $rc       = 1;
+            print("ERROR: Malform expression for --checkexp. check arguments of option checkexp\n");
+        }
+    }
+
+    if ( scalar(@patterns) == 0 ) {
+        $optError = 1;
+        $rc       = 1;
+        print("ERROR: There is no pattern provided.\n");
+    }
+
+    if ( $optError == 1 ) {
+        usage();
+    }
+
+    my $procCount = findProcess( \@patterns, $patternOp, $isVerbose );
+    my $satisfied = eval("$procCount$countExp");
+    if ($@) {
+        print("ERROR: $@\n");
+        $rc = 1;
+    }
+    else {
+        if ( $satisfied ne 1 ) {
+            print("ERROR: Not passed, process count:$procCount$countExp.\n");
+            $rc = 1;
+        }
+        else {
+            print("INFO: Passed, process count:$procCount$countExp.\n");
+        }
+    }
+
+    return $rc;
+}
+
+exit main();
+

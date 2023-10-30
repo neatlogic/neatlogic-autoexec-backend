@@ -1,0 +1,94 @@
+{
+    "opDesc": "修改/etc/hosts",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改/etc/hosts里的IP和域名设置",
+    "option": [{
+            "opt": "backup",
+            "name": "备份文件",
+            "help": "在修改前备份/etc/hosts文件为/etc/hosts.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "reset",
+            "name": "清空hosts文件",
+            "help": "在修改前清空/etc/hosts文件",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP主机名对照表",
+            "help": "引用工具basic/seqhostname输出参数ip2Hostname",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "content",
+            "name": "需修改内容",
+            "help": "支持多行,若内容为空自动把“IP主机名对照表”的数据拼接成修改内容, 例如：10.10.0.1 myhost",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "datakey",
+            "name": "数据主键",
+            "help": "数据主键，默认是以IP为主键不允许出现一个IP对应的名称配置，如为映射名称则以名称为主允许一个IP对应多个名称的配置",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "IP",
+                        "value": "ip"
+                    },
+                    {
+                        "text": "映射名称",
+                        "value": "name"
+                    }
+                ]
+            },
+            "defaultValue": "ip"
+        }
+    ],
+    "output": [{
+        "opt": "hostsConf",
+        "name": "Hosts配置内容",
+        "help": "更新后的Hosts配置内容",
+        "type": "textarea"
+    }]
+}

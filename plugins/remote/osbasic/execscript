@@ -1,0 +1,178 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use FindBin;
+use POSIX;
+use Encode;
+use Getopt::Long;
+use IO::File;
+use File::Spec;
+use File::Basename;
+use File::Temp;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-h]\n");
+    print("       --interpreter:  Interpreter \n");
+    print("       --script:  Script\n");
+    print("       --destencoding: Server Side encoding\n");
+    exit(1);
+}
+
+sub getScriptFilePath {
+    my ($interpreter) = @_;
+
+    my $extNameMap = {
+        'perl'         => '.pl',
+        'python'       => '.py',
+        'ruby'         => '.rb',
+        'cmd'          => '.bat',
+        'powershell'   => '.ps1',
+        'vbscript'     => '.vbs',
+        'bash'         => '.sh',
+        'ksh'          => '.sh',
+        'csh'          => '.sh',
+        'sh'           => '.sh',
+        'javascript=>' => '.js'
+    };
+
+    my $ext = $extNameMap->{$interpreter};
+    if ( not defined($ext) ) {
+        print("Error: Can not determine script file extension name.\n");
+        exit(1);
+    }
+    my $fileTmp = File::Temp->new( DIR => $FindBin::Bin, SUFFIX => "$ext", CLEANUP => 0 );
+    return $fileTmp;
+}
+
+sub getScriptCmd {
+    my ( $scriptPath, $interpreter, $args ) = @_;
+    my $cmd = '';
+    if ( $interpreter eq 'cmd' ) {
+        $cmd = "cmd /c $scriptPath $args";
+    }
+    elsif ( $interpreter eq 'sh' or $interpreter eq 'bash' or $interpreter eq 'csh' ) {
+        $cmd = "$interpreter -l $scriptPath $args";
+    }
+    elsif ( $interpreter eq 'vbscript' or $interpreter eq 'javascript' ) {
+        $cmd = "cscript $scriptPath $args";
+    }
+    else {
+        $cmd = "$interpreter $scriptPath $args";
+    }
+    return $cmd;
+}
+
+sub main {
+    my ( $node, $interpreter, $script, $isHelp );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+    my $encoding;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'interpreter=s'  => \$interpreter,
+        'script=s'       => \$script,
+        'destencoding=s' => \$encoding
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($interpreter) or $interpreter eq '' ) {
+        print("ERROR: Must define script interpreter.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($script) or $script eq '' ) {
+        print("ERROR: Must define script.\n");
+        usage();
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my @uname  = uname();
+    my $osType = $uname[0];
+
+    if ( not defined($encoding) or $encoding eq 'auto' ) {
+        if ( $osType =~ /Windows/i ) {
+            eval(
+                q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+            );
+        }
+        else {
+            my $lang = $ENV{LANG};
+            if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+                $encoding = $1;
+            }
+            else {
+                $encoding = 'utf-8';
+            }
+        }
+    }
+    if ( defined($encoding) ) {
+        $encoding = lc($encoding);
+    }
+
+    my $args = '';
+    foreach my $line (@ARGV) {
+        $args = $args . ' ' . qq{"$line"};
+    }
+    my $scriptFilePath = getScriptFilePath($interpreter);
+    $script =~ s/\\n/\n/sg;
+
+    if ( $encoding ne 'utf-8' and $encoding ne 'cp65001' ) {
+        my $decodedScript   = Encode::encode( $encoding, Encode::decode( 'utf-8',   $script ) );
+        my $reEncodedScript = Encode::encode( 'utf-8',   Encode::decode( $encoding, $decodedScript ) );
+        if ( $script eq $reEncodedScript ) {
+            print("INFO: Convert script encoding from utf-8 to $encoding.\n");
+            $script = $decodedScript;
+            if ( $args ne '' ) {
+                $args = Encode::encode( $encoding, Encode::decode( 'utf-8', $args ) );
+            }
+        }
+    }
+
+    my $fh = IO::File->new( $scriptFilePath, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($script);
+        $fh->close();
+    }
+    else {
+        print("ERROR: Can not open file:$scriptFilePath to write, $!\n");
+        exit(1);
+    }
+    my $cmd      = getScriptCmd( $scriptFilePath, $interpreter, $args );
+    my $exitCode = system($cmd);
+    if ( $exitCode > 255 ) {
+        $exitCode = $exitCode >> 8;
+    }
+
+    if ( $exitCode == 0 ) {
+        print("FINE: Exec script success.\n");
+    }
+    else {
+        print("ERROR: Exec script failed.\n");
+    }
+    return $exitCode;
+}
+
+exit main();

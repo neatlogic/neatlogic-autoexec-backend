@@ -1,0 +1,156 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use Cwd;
+$Expect::Multiline_Matching = 1;
+use IO::File;
+use Getopt::Long;
+use File::Path;
+use File::Basename;
+use IPC::Open3;
+use Encode;
+
+my $IS_VERBOSE = 0;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] --node NodeJson\n");
+    print("              --timeout TimeoutSecs -libs AS400Libs\n");
+    print("              --ccsid AS400 CCSID\n");
+    print("              cmd1 cmd2 ...\n");
+    print("\n");
+    print("       --node:    Host node json\n");
+    print("       --libs:    AS400 LIB name, example:USRLIB,SYSLIB\n");
+
+    #print("       --timeout: tiemout for ssh execute\n");
+    print("       --ccsid:   AS400 CCSID (1386:GBK, 1208:UTF-8)\n");
+
+    exit(1);
+}
+
+sub execCmd {
+    my ( $pipe, $pipeIn ) = @_;
+
+    my $retCode = 0;
+
+    my $in  = $pipe->{in};
+    my $out = $pipe->{out};
+    my $err = $pipe->{err};
+
+    print $in ( $pipeIn . "\n" . "/\n" );
+
+    while ( my $line = <$out> ) {
+        if ( $line =~ /^<retcode>:(\d+)$/ ) {
+            $retCode = $1;
+            last;
+        }
+        else {
+            print($line);
+        }
+    }
+
+    return int($retCode);
+}
+
+sub main {
+    my ( $isHelp, $node, $libs );
+    my ( $ccsid, @cmds );
+
+    $ENV{TERM} = 'dumb';
+
+    my $isVerbose = 0;
+    my $timeout   = 15;
+
+    sub addCmd {
+        my $item = shift(@_);
+        push( @cmds, $item );
+    }
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'libs=s'      => \$libs,
+        'ccsid=s'     => \$ccsid,
+        'timeout=i'   => \$timeout,
+        '<>'          => \&addCmd
+    );
+
+    usage() if ( defined($isHelp) );
+
+    $IS_VERBOSE = $isVerbose;
+
+    my $optionError = 0;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    my $desc;
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    $desc = $user . "\@" . $host . "/" . $insName;
+
+    my $toolsDir = Cwd::abs_path("$FindBin::Bin/../../../tools");
+
+    my $workPath = $ENV{AUTOEXEC_WORK_PATH};
+    my $jarsPath = "$toolsDir/as400";
+
+    my $as400JavaCmd = "java -cp $jarsPath/as400javaexec.jar:$jarsPath/jt400.jar com.neatlogic.as400.Main -v --multicmd --multiline --workpath $workPath --host $host --user $user --ccsid $ccsid 2>&1";
+    if ( defined($libs) and $libs ne '' ) {
+        $as400JavaCmd = $as400JavaCmd . " --libs $libs";
+    }
+
+    my ( $cmdIn, $cmdOut, $cmdErr );
+
+    my $pid = open2( $cmdOut, $cmdIn, $as400JavaCmd );
+
+    if ( not defined($pid) or $pid == 0 ) {
+        print("ERROR: Spawn $as400JavaCmd failed.\n");
+        exit(1);
+    }
+
+    my $pipe = {};
+    $pipe->{in}  = $cmdIn;
+    $pipe->{out} = $cmdOut;
+    $pipe->{err} = $cmdErr;
+
+    my $hasError = 0;
+    my $ret      = 0;
+    $ret = execCmd( $pipe, $pass );
+
+    if ( $ret == 0 ) {
+        for my $cmd (@cmds) {
+            $ret = execCmd( $pipe, $cmd );
+            if ( $ret != 0 ) {
+                $hasError = $hasError + 1;
+                print("ERROR: Execute cmd:$cmd failed.\n");
+                last;
+            }
+        }
+    }
+    else {
+        $hasError = $hasError + 1;
+        print("ERROR: Login $desc failed.\n");
+    }
+
+    $cmdIn->close();
+}
+
+exit main();
+

@@ -1,0 +1,467 @@
+{
+    "label": "Oracle-RAC",
+    "collection": "COLLECT_CLUSTER",
+    "docroot": null,
+    "collection_label": "Cluster",
+    "filter": {
+        "_OBJ_TYPE": "Oracle-RAC"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "RAC Unique Name",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Managment Port",
+            "type": "Int"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "Admin Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "Admin SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "MON_PORT",
+            "desc": "Monitor Port",
+            "type": "String"
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL Port",
+            "type": "String"
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS User",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Config Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "DATABASES",
+            "desc": "DB List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP(Not LB)",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "Service Addr",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DISK_GROUPS",
+            "desc": "Disk Group List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "Size(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Use(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used Percent",
+                    "type": "Float"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "Disk List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "Fail Group",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "Mount Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_PATH",
+                            "desc": "Disk Path",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL",
+                            "desc": "Size(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "Use(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "FREE",
+                            "desc": "Free(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "Used Percent",
+                            "type": "Float"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "GRID_BASE",
+            "desc": "Grid Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "GRID_HOME",
+            "desc": "Grid Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_ADDRS",
+            "desc": "Listen Addresses",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "LOCAL_NODE",
+            "desc": "Node Name",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_PUB_IP",
+            "desc": "Local Node Pub IP",
+            "type": "String"
+        },
+        {
+            "name": "LOCAL_NODE_VIP",
+            "desc": "Local Node VIP",
+            "type": "String"
+        },
+        {
+            "name": "LOG_ARCHIVE_DEST",
+            "desc": "Log归档目标",
+            "type": "String"
+        },
+        {
+            "name": "LOG_MODE",
+            "desc": "Log Mode",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_TARGET",
+            "desc": "内存目标",
+            "type": "String"
+        },
+        {
+            "name": "NLS_CHARACTERSET",
+            "desc": "NLS Charset",
+            "type": "String"
+        },
+        {
+            "name": "NODES",
+            "desc": "Cluster Nodes",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP_NAME",
+                    "desc": "VIP Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Vip",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIV_NET",
+                    "desc": "Private Net",
+                    "type": "String"
+                },
+                {
+                    "name": "HOST_ON",
+                    "desc": "Host On",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Host Management IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOST",
+                            "desc": "Host IP",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ORACLE_BASE",
+            "desc": "Oralce Base Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_HOME",
+            "desc": "Oralce Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "ORACLE_SID",
+            "desc": "Oralce SID",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_IPS",
+            "desc": "Scan Ip Addrs",
+            "type": "array"
+        },
+        {
+            "name": "SCAN_LISTENERS",
+            "desc": "Scan Listeners",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVICE_NAMES",
+                    "desc": "Service Names",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_PORTS",
+                    "desc": "Listen Ports",
+                    "type": "array"
+                },
+                {
+                    "name": "LISTEN_ADDRS",
+                    "desc": "Listen Addrs",
+                    "type": "array"
+                }
+            ]
+        },
+        {
+            "name": "SCAN_NAME",
+            "desc": "Scan Name",
+            "type": "String"
+        },
+        {
+            "name": "SCAN_PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SGA_MAX_SIZE",
+            "desc": "SGA Max Size(MB)",
+            "type": "String"
+        },
+        {
+            "name": "SLAVE_IPS",
+            "desc": "Slave IP Addrs",
+            "type": "array"
+        }
+    ]
+}

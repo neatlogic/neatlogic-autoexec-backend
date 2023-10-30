@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+
+use FindBin;
+
+use strict;
+use Cwd;
+use File::Temp;
+use Digest::MD5 qw(md5 md5_hex);
+use JSON qw(to_json from_json);
+
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--lang LANG] [--version VERSION] \n");
+    print("       [--basedir SubDirectoryInSysDataPath] --script EncodedScript\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+    print("       --version: version number of sub system\n");
+    print("       --buildno: Build number\n");
+    print("       --basedir: Base directory for execution\n");
+    print("       --script:       Script content, example: '#!/bin/bash\\necho helloworld!\\n\"'\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
+    my ( $baseDir, $scriptContent );
+    my $interpreter = 'sh';
+    my $pname       = $FindBin::Script;
+
+    GetOptions(
+        'h|help'        => \$isHelp,
+        'envpath=s'     => \$envPath,
+        'version=s'     => \$version,
+        'buildno=s'     => \$buildNo,
+        'lang=s'        => \$lang,
+        'v|verbose=i'   => \$isVerbose,
+        'basedir=s'     => \$baseDir,
+        'interpreter=s' => \$interpreter,
+        'script=s'      => \$scriptContent
+    );
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($scriptContent) or $scriptContent eq '' );
+    $scriptContent =~ s/\\n/\n/sg;
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
+    my $namePath     = $buildEnv->{NAME_PATH};
+    my $dataPath     = $buildEnv->{DATA_PATH};
+    my $toolsPath    = $buildEnv->{TOOLS_PATH};
+
+    if ( not defined($baseDir) ) {
+        $baseDir = Cwd::realpath($dataPath);
+    }
+    else {
+        $baseDir = Cwd::realpath("$dataPath/$baseDir");
+    }
+
+    my $isFail = 0;
+
+    my $TMPDIR  = "$autoexecHome/tmp";
+    my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );
+
+    my $cmd = getScriptCmd( $fileTmp, $autoexecHome, $scriptContent, $lang, $interpreter, \@ARGV );
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
+        print("ERROR: Exec $cmd has error.\n");
+        $isFail = 1;
+    }
+    else {
+        print("INFO: Exec $cmd has successed.\n");
+    }
+
+    return $isFail;
+}
+
+sub getScriptCmd {
+    my ( $fileTmp, $autoexecHome, $scriptContent, $lang, $interpreter, $args ) = @_;
+    my $scriptInterpreter = $interpreter;
+
+    my $deployUtils = DeployUtils->new();
+    my $scriptExt   = $deployUtils->getScriptExtName($scriptInterpreter);
+
+    if ( defined($lang) ) {
+        $ENV{LANG} = $lang;
+    }
+
+    my $destCharset;
+    if ( $lang =~ /\.([^\.]+)$/ ) {
+        $destCharset = lc($1);
+    }
+
+    if ( defined($scriptContent) and $scriptContent ne '' ) {
+        my $unHexContent = pack( 'H*', $scriptContent );
+        my $hexContent   = unpack( 'H*', $unHexContent );
+
+        if ( $hexContent eq lc($scriptContent) ) {
+            $scriptContent = $unHexContent;
+        }
+    }
+
+    if ( defined($destCharset) and $destCharset ne '' ) {
+        $scriptContent = Encode::encode( lc($destCharset), Encode::decode( 'utf-8', $scriptContent ) );
+    }
+    my $tmpPath = $fileTmp->filename;
+    print $fileTmp ($scriptContent);
+    $fileTmp->flush();
+
+    my $arguments = '';
+    foreach my $arg (@$args) {
+        $arguments = qq{$arguments "$arg"};
+    }
+    my $cmd = "$scriptInterpreter $tmpPath $arguments";
+
+    return $cmd;
+}
+
+exit main();

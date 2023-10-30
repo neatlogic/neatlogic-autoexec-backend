@@ -1,0 +1,170 @@
+{
+    "label": "Mysql库",
+    "collection": "COLLECT_DB",
+    "docroot": null,
+    "collection_label": "DB库",
+    "filter": {
+        "_OBJ_TYPE": "Mysql-DB"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "管理PORT",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "监听统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "监听地址",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "队列滞留连接",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CAN_IP_FLOAT",
+            "desc": "主IP浮动",
+            "type": "Int"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_CHARACTER_SET",
+            "desc": "默认字符集",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_COLLATION",
+            "desc": "排序方法",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCES",
+            "desc": "关联实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
+                    "name": "NODE_NAME",
+                    "desc": "集群节点名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "服务地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "服务地址",
+            "type": "String"
+        },
+        {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        }
+    ]
+}

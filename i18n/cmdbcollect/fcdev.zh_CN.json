@@ -1,0 +1,101 @@
+{
+    "label": "存储网络设备",
+    "collection": "COLLECT_FCDEV",
+    "docroot": null,
+    "collection_label": "存储网络设备",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "BOOT_DATE",
+            "desc": "启动时间",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "固件版本",
+            "type": "String"
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
+            "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "设备WWN",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,154 @@
+{
+    "opDesc": "创建作业",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "创建作业",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "rerunStrategy",
+            "name": "重跑策略",
+            "help": "设置当之前已经创建过作业时的重跑策略",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "跳过所有已成功、已忽略节点",
+                        "value": "refireAll"
+                    },
+                    {
+                        "text": "重跑所有节点",
+                        "value": "refireResetAll"
+                    },
+                    {
+                        "text": "新建作业",
+                        "value": "create"
+                    }
+                ]
+            },
+            "defaultValue": "refireAll"
+        },
+        {
+            "opt": "proxytourl",
+            "name": "其他环境地址",
+            "help": "如是在当前发布系统创建作业，则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "targetenvpath",
+            "name": "目标路径",
+            "help": "需要创建作业的应用系统路径, 例如: MY-SYS/MY-MODULE/SIT",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${NAME_PATH}"
+        },
+        {
+            "opt": "targetver",
+            "name": "目标版本",
+            "help": "需要创建作业的应用系统目标版本",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "plantime",
+            "name": "计划执行",
+            "help": "作业计划执行时间",
+            "type": "datetime",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "trigtype",
+            "name": "触发方式",
+            "help": "计划作业创建后, 到计划时间自动执行还是手动执行",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "立刻执行",
+                        "value": "now"
+                    },
+                    {
+                        "text": "自动执行",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "手动执行",
+                        "value": "manual"
+                    }
+                ]
+            },
+            "defaultValue": "now"
+        },
+        {
+            "opt": "wait",
+            "name": "等作业完成",
+            "help": "等待作业执行完成",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "round",
+            "name": "轮次",
+            "help": "如作业存在多实例, 分多少轮执行完",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "senario",
+            "name": "场景",
+            "help": "作业场景",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "instances",
+            "name": "实例IP端口",
+            "help": "实例的IP端口列表, 例如: 192.168.0.1:8080,192.168.0.2:8080(留空，代表所有)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "1"
+        }
+    ],
+    "output": [
+        {
+            "opt": "createdJobId",
+            "name": "已创建作业的id",
+            "help": "已创建作业的id，可用于waitjob插件",
+            "type": "text"
+        }
+    ]
+}

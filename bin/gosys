@@ -1,0 +1,38 @@
+#!/bin/bash
+BIN_DIR=$0
+HAS_DIR=$(echo $BIN_DIR | grep /)
+if [ -z "$HAS_DIR" ]; then
+    BIN_DIR=$(which gosys)
+fi
+
+GOSYS_DIR=$(dirname "$BIN_DIR")
+AUTOEXEC_DIR=$(
+    cd $GOSYS_DIR/..
+    pwd
+)
+
+DEPLOY_PATH=$1
+DEPLOY_ID_PATH=$($GOSYS_DIR/pconv "$DEPLOY_PATH")
+DEPLOY_DATA_PATH="$AUTOEXEC_DIR/data/verdata/$DEPLOY_ID_PATH"
+
+if [ -e "$DEPLOY_DATA_PATH" ]; then
+    cd "$DEPLOY_DATA_PATH"
+else
+    DEPLOY_DATA_PATH=${DEPLOY_DATA_PATH%/*}
+
+    if [ -e "$DEPLOY_DATA_PATH" ]; then
+        cd "$DEPLOY_DATA_PATH"
+    else
+        echo "ERROR: Directory $DEPLOY_DATA_PATH not exists."
+        exit 2
+    fi
+fi
+
+export DEPLOY_PATH
+export DEPLOY_ID_PATH
+export DEPLOY_DATA_PATH
+
+unset GOSYS_DIR
+unset AUTOEXEC_DIR
+
+exec bash

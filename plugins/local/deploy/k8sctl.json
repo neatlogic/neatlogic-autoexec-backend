@@ -1,0 +1,126 @@
+{
+    "opDesc": "K8S应用部署工具",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "k8s-args",
+    "description": "K8S应用的部署",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "host",
+            "name": "管理IP或域名",
+            "help": "K8S 管理IP或域名，例如：192.168.99.100",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "apiport",
+            "name": "API端口",
+            "help": "K8S API端口，例如:8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "8443"
+        },
+        {
+            "opt": "mgmtport",
+            "name": "k8s管理端口",
+            "help": "K8S 管理端口，例如：30001",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "30001"
+        },
+        {
+            "opt": "token",
+            "name": "验证TOKEN",
+            "help": "K8S API服务的验证TOKEN",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:k8s.token}"
+        },
+        {
+            "opt": "action",
+            "name": "动作",
+            "help": "执行的动作",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "更新",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "回滚",
+                        "value": "rollback"
+                    },
+                    {
+                        "text": "重启",
+                        "value": "restart"
+                    }
+                ]
+            },
+            "defaultValue": "patch"
+        },
+        {
+            "opt": "image",
+            "name": "镜像",
+            "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "name",
+            "name": "应用名",
+            "help": "K8S中定义的应用名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
+        },
+        {
+            "opt": "namespace",
+            "name": "命令空间",
+            "help": "应用所在的K8S命令空间",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "deployment",
+            "name": "部署名",
+            "help": "K8S中定义的deployment名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "超时时间,循环检查k8s滚动更新pods状态的最大超时时间",
+            "type": "text",
+            "required": "true",
+            "validate": ["integer_p"],
+            "defaultValue": "120"
+        }
+    ],
+    "output": [
+        {
+            "opt": "k8s_data",
+            "name": "滚动更新数据",
+            "help": "滚动更新数据",
+            "type": "text"
+        }
+    ]
+}

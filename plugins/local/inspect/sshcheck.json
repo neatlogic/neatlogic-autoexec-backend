@@ -1,0 +1,24 @@
+{
+    "opName": "节点SSH登录检查",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检查当前节点SSH是否可以登录",
+    "option": [{
+        "opt": "timeout",
+        "name": "超时时间",
+        "help": "查询超时时间，单位秒",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": "10"
+    }],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

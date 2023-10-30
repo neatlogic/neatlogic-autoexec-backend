@@ -1,0 +1,127 @@
+{
+    "opDesc": "本地连远程执行命令",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "本地连远程执行命令",
+    "enabled": 1,
+    "option": [{
+            "opt": "protocol",
+            "name": "连接协议",
+            "help": "连接目标的协议",
+            "type": "select",
+            "dataSource": {
+                "dataList": [{
+                        "text": "ssh",
+                        "value": "ssh"
+                    },
+                    {
+                        "text": "tagent",
+                        "value": "tagent"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "ip",
+            "name": "IP",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": ["ip"],
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "端口",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": ["integer_p"],
+            "defaultValue": "22"
+        },
+        {
+            "opt": "username",
+            "name": "用户名",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "脚本解析器",
+            "help": "脚本解析器",
+            "type": "select",
+            "dataSource": {
+                "dataList": [{
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "bash",
+                        "value": "bash"
+                    },
+                    {
+                        "text": "ruby",
+                        "value": "ruby"
+                    },
+                    {
+                        "text": "bat",
+                        "value": "bat"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    },
+                    {
+                        "text": "javascript",
+                        "value": "javascript"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "script",
+            "name": "脚本",
+            "help": "自定义脚本",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "脚本动态参数",
+        "help": "脚本内如需获取作业参数、上游步骤输出参数、静态配置参数，需在此定义，脚本内可按顺序获取。",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

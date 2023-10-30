@@ -1,0 +1,118 @@
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+
+import os
+import argparse
+import sys
+import json
+
+binPaths = os.path.split(os.path.realpath(__file__))
+dictPath = os.path.realpath(binPaths[0])
+homePath = os.path.realpath(binPaths[0]+'/..')
+sys.path.append(homePath+'/lib')
+sys.path.append(homePath+'/plugins/local/lib')
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --action [savetodb|exporttofile] ,default value: savetodb --savepath [export save file path] \n")
+    print("Example: {} --action savetodb ".format(pname))
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--action', default='savetodb', help='Actions:（savetodb|exportfile')
+    parser.add_argument('--savepath', default='', help='export save file path')
+
+    args = parser.parse_args()
+    action = args.action
+    savepath = args.savepath
+
+    binPaths = os.path.split(os.path.realpath(__file__))
+    dictPath = os.path.abspath(binPaths[0])
+
+    #默认导出到当前目录
+    if savepath is None or savepath == '':
+        savepath = dictPath
+
+    import AutoExecUtils
+    (dbclient, db) = AutoExecUtils.getDB()
+    ruletable = '_discovery_rule'
+    vendortable = '_discovery_vendor'
+    collection = db[ruletable]
+
+    if action == 'savetodb':
+        pkIdx = []
+        pkIdx.append(('sysObjectId', 1))
+        pkIdx.append(('_OBJ_CATETORY', 1))
+        pkIdx.append(('_OBJ_TYPE', 1))
+        collection.create_index(pkIdx, name='idx_pk', unique=True)
+        collection.create_index([('sysObjectId', 1)], name='idx_sysObjectId')
+        collection.create_index([('VENDOR', 1)], name='idx_vendor')
+
+        dirs = os.listdir(dictPath)
+        vendorMap = {}
+        for dfile in dirs:
+            filename = dictPath + "/" + dfile
+            info = dfile.split('.')
+            if (len(info) == 2 and info[1] == 'txt'):
+                print("INFO: Try to load feature library file:", dfile, "...")
+                txtfile = open(filename)
+                lines = txtfile.readlines()
+                for line in lines:
+                    line = line.strip()
+                    if (line.startswith('#') or line == ''):
+                        continue
+
+                    line_data = line.split(',')
+                    if(len(line_data) >= 6):
+                        data = {}
+                        sysObjectId = line_data[0].strip()
+                        data['sysObjectId'] = sysObjectId
+                        data['sysDescrPattern'] = line_data[1].strip()
+                        data['_OBJ_CATEGORY'] = line_data[2].strip()
+                        data['_OBJ_TYPE'] = line_data[3].strip()
+                        vendor = line_data[4].strip()
+                        data['VENDOR'] = vendor
+                        data['MODEL'] = line_data[5].strip()
+                        collection.replace_one({'sysObjectId': sysObjectId}, data, upsert=True)
+                        if vendor not in vendorMap :
+                            vendorMap[vendor] = vendor
+                    else:
+                        print("ERROR: {} feature library line: {} data incomplete .\n".format(dfile, line.strip()))
+                print("INFO: Import feature library file:", dfile, "success.")
+                txtfile.close()
+
+        #厂商列表
+        vendor_collection = db[vendortable]
+        vendor_pkIdx = []
+        vendor_pkIdx.append(('VENDOR', 1))
+        vendor_collection.create_index(vendor_pkIdx, name='idx_pk', unique=True)
+        for vendor in vendorMap :
+            vendor_collection.replace_one({'VENDOR': vendor}, {'VENDOR':vendor}, upsert=True)
+    else :
+        print("INFO: Export dict library to file start.")
+        vendor_collection = db[vendortable]
+        collection = db[ruletable]
+        for vendor in vendor_collection.find({}):
+            vendor = vendor['VENDOR']
+            if not os.path.exists(savepath):
+                os.mkdir(savepath)
+            
+            filepath = savepath + '/' + vendor.lower() + '.txt'
+            if os.path.isfile(filepath) :
+                os.unlink(filepath)
+            
+            fileTmp = open(filepath, 'w')
+            content = '#sysObjectId,sysDescrPattern,_OBJ_CATEGORY,_OBJ_TYPE,VENDOR,MODEL\n'
+            fileTmp.write(content)
+            for rule in collection.find({'VENDOR':{'$eq': vendor}},{'sysObjectId':1,'sysDescrPattern':1,'_OBJ_CATEGORY':1,'VENDOR':1,"MODEL":1}).batch_size(500) :
+                content = rule['sysObjectId'] + ',' + rule['sysDescrPattern'] + ',' + rule['_OBJ_CATEGORY'] + ',' + rule['VENDOR'] + ',' + rule['MODEL'] +'\n'
+                fileTmp.write(content)
+            fileTmp.close()
+            print("INFO: Export {} dict library to file success.".format(vendor))
+        print("FINE: Export dict library to file success.")
+
+    if dbclient is not None:
+        dbclient.close()

@@ -1,0 +1,93 @@
+{
+    "opDesc": "从Nexus下载包",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "nexus-args",
+    "description": "从Nexus上下载包",
+    "enabled": 1,
+    "option": [{
+            "opt": "baseurl",
+            "name": "Nexus地址",
+            "help": "Nexus地址，例如：https://192.168.0.8:8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.baseurl}"
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "Nexus登录用户名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.user}"
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "Nexus登录用户密码",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.password}"
+        },
+        {
+            "opt": "repo",
+            "name": "Nexus库",
+            "help": "Nexus中的包含此Artifact的库名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "group",
+            "name": "组名",
+            "help": "Artifact的组名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "artifact",
+            "name": "包名",
+            "help": "Artifact的包名(不含版本号)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ext",
+            "name": "扩展名",
+            "help": "包的扩展名，例如: jar|war|pom",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ver",
+            "name": "版本号",
+            "help": "包的版本号",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}${VERSION}"
+        },
+        {
+            "opt": "saveto",
+            "name": "保存目录",
+            "help": "相对于工程目录的保存下载的子目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

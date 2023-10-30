@@ -1,0 +1,295 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import chardet
+import traceback
+import argparse
+import json
+import logging
+import TagentClient
+import select
+import paramiko
+from paramiko.sftp import SFTPError
+from paramiko.ssh_exception import SSHException
+
+import AutoExecUtils
+
+
+class RemoteConfBackup:
+    def __init__(self, nodeInfo, maxSize):
+        self.nodeInfo = nodeInfo
+        self.maxSize = maxSize
+        self.jobId = os.getenv('AUTOEXEC_JOBID')
+        self.filePatterns = {}
+        self.filePaths = {}
+        self.outputFiles = {}
+        self.output = ''
+        self.IS_FAIELD = False
+        self.remoteOsType = 'Linux'
+
+    def resetOutput(self):
+        self.output = ''
+
+    def getOutputLine(self, line):
+        if not isinstance(line, bytes):
+            line = line.encode()
+
+        detectInfo = chardet.detect(line)
+        detectEnc = detectInfo['encoding']
+        if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
+            line = line.decode(self.srcEncoding, 'ignore')
+        else:
+            line = line.decode('utf-8', errors='ignore')
+
+        print(line, end='')
+        self.output = self.output + line
+        outLen = len(self.output)
+        if (outLen > 4906):
+            self.output = self.output[outLen-4906:]
+
+    def getRemoteFilePath(self, pattern):
+        jobId = self.jobId
+        host = self.nodeInfo['host']
+        protocol = self.nodeInfo['protocol']
+        protocolPort = self.nodeInfo['protocolPort']
+        username = self.nodeInfo['username']
+        password = self.nodeInfo['password']
+
+        remoteCmd = 'my @files=glob("%s");foreach my $file (@files){if(-f $file){my $mt=(stat($file))[9]; print("$mt $file\\n");}} ' % (pattern)
+        ret = -1
+        if protocol == 'tagent':
+            try:
+                runEnv = {'AUTOEXEC_JOBID': jobId, 'HISTSIZE': '0'}
+                tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
+                tagent.getConnection(1)
+                if tagent.agentOsType == None:
+                    self.IS_FAIELD = True
+                    print("ERROR: Connection remote {}:{} failed .".format(host, protocolPort))
+                    raise ex
+
+                if tagent.agentOsType == 'windows':
+                    self.resetOutput()
+                    remoteCmd = remoteCmd.replace("\"", "\\\"")
+                    remoteCmd = 'perl -e "' + remoteCmd + '"'
+                    ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
+                else:
+                    remoteCmd = 'perl -e \'' + remoteCmd + '\''
+                    ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
+            except Exception as ex:
+                self.IS_FAIELD = True
+                print("ERROR: Execute remote command {} failed, {}".format(remoteCmd, ex))
+                raise ex
+
+            if ret != 0:
+                print("ERROR: Execute remote command by agent failed: {}".format(remoteCmd))
+
+        elif protocol == 'ssh':
+            logging.getLogger("paramiko").setLevel(logging.FATAL)
+            scp = None
+            remoteCmd = 'perl -e \'' + remoteCmd + '\''
+            remoteCmd = 'AUTOEXEC_JOBID={} {}'.format(jobId, remoteCmd)
+            ssh = None
+            try:
+                ret = 0
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(host, protocolPort, username, password)
+                channel = ssh.get_transport().open_session()
+                channel.set_combine_stderr(True)
+                #print('INFO: Try to execute remote command:{}'.format(remoteCmd))
+                channel.exec_command(remoteCmd)
+                while True:
+                    r, w, x = select.select([channel], [], [], 10)
+                    while channel.recv_ready():
+                        out = channel.recv(4096).decode()
+                        print(out, end='')
+                        self.output = self.output + out
+                        outLen = len(self.output)
+                        if (outLen > 4906):
+                            self.output = self.output[outLen-4906:]
+                    if channel.exit_status_ready():
+                        ret = channel.recv_exit_status()
+                        break
+            except Exception as err:
+                self.IS_FAIELD = True
+                print("ERROR: Execute remote command {} failed, {}".format(remoteCmd, err))
+                print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+            finally:
+                if ssh:
+                    ssh.close()
+
+            if ret != 0:
+                print("ERROR: Execute remote command by ssh failed:{}".format(remoteCmd))
+
+        filesPathsTxt = self.output
+        self.resetOutput()
+
+        filePathCount = 0
+        for fileInfoLine in filesPathsTxt.split("\n"):
+            if(fileInfoLine != ''):
+                mtime, filePath = fileInfoLine.split(' ', 1)
+                filePathCount = filePathCount + 1
+                self.filePaths[filePath] = int(mtime)
+        if filePathCount == 0:
+            print("WARN: Can not find any file for {} on host:{}.\n".format(pattern, host), end='')
+
+    def copyRemoteFile(self, remotePath, savePath, modifyTime=None):
+        host = self.nodeInfo['host']
+        protocol = self.nodeInfo['protocol']
+        protocolPort = self.nodeInfo['protocolPort']
+        username = self.nodeInfo['username']
+        password = self.nodeInfo['password']
+
+        path = os.path.dirname(remotePath)
+        filename = os.path.basename(remotePath)
+        savePath = savePath + '/' + path
+
+        if not os.path.exists(savePath):
+            os.makedirs(savePath, exist_ok=True)
+        savePath = savePath + '/' + filename
+
+        fileJson = {}
+        fileJson['fullPath'] = os.path.realpath(os.environ.get('JOB_PATH') + '/' + savePath)
+        fileJson['fileName'] = filename
+        fileJson['serverPath'] = remotePath
+        fileJson['modifyTime'] = modifyTime
+
+        if protocol == 'tagent':
+            try:
+                tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
+                status = tagent.download(username, remotePath, savePath)
+                if status == 0:
+                    self.addOutputFiles(fileJson)
+                    print('FINE: Download file:{} success.\n'.format(remotePath), end='')
+                else:
+                    self.IS_FAIELD = True
+                    print('ERROR: Download file:{} failed.\n'.format(remotePath), end='')
+            except Exception as ex:
+                self.IS_FAIELD = True
+                print('ERROR: Download file:{} failed, {}\n'.format(remotePath, str(ex)), end='')
+                raise ex
+
+        elif protocol == 'ssh':
+            logging.getLogger("paramiko").setLevel(logging.FATAL)
+            scp = None
+            sftp = None
+            try:
+                # 建立连接
+                scp = paramiko.Transport((host, protocolPort))
+                scp.connect(username=username, password=password)
+
+                # 建立一个sftp客户端对象，通过ssh transport操作远程文件
+                sftp = paramiko.SFTPClient.from_transport(scp)
+                sftp.get(remotePath, savePath)
+                self.addOutputFiles(fileJson)
+                print('FINE: Download file:{} success.\n'.format(remotePath), end='')
+            except Exception as err:
+                self.IS_FAIELD = True
+                print('ERROR: Download file:{} failed, {}\n'.format(remotePath, err), end='')
+                print('ERROR: Unknow Error, {}'.format(traceback.format_exc()), end='')
+
+        if os.path.getsize(savePath) > self.maxSize * 1024:
+            print("ERROR: File {} exceed maxSize:{}K, store file failed.\n".format(remotePath, self.maxSize), end='')
+
+    def addBackupPattern(self, filePath):
+        self.filePatterns[filePath] = 1
+
+    def addOutputFiles(self, fileJson):
+        serverPath = fileJson['serverPath']
+        self.outputFiles[serverPath] = fileJson
+
+    def backup(self):
+        host = self.nodeInfo['host']
+        localDir = 'output/{}'.format(host)
+
+        for pattern in (self.filePatterns.keys()):
+            self.getRemoteFilePath(pattern)
+
+        os.chdir(os.environ.get('AUTOEXEC_WORK_PATH'))
+        if not os.path.exists(localDir):
+            os.makedirs(localDir, exist_ok=True)
+
+        for remotePath, modifyTime in self.filePaths.items():
+            try:
+                self.copyRemoteFile(remotePath, localDir, modifyTime)
+            except Exception as err:
+                self.IS_FAIELD = True
+                print('ERROR: Save file:{} to backup server failed, {}\n'.format(remotePath, err), end='')
+                print('ERROR: Unknow Error, {}'.format(traceback.format_exc()), end='')
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--maxsize', default=32, help='Maximum file size, unit:K')
+    parser.add_argument('--timeout', default=10, help='Timeout seconds')
+    parser.add_argument('remotefiles', nargs=argparse.REMAINDER, help="Remote files to backup")
+    args = parser.parse_args()
+
+    maxSize = int(args.maxsize)
+    if maxSize == 0:
+        maxSize = 32
+
+    timeOut = int(args.timeout)
+    if timeOut == 0:
+        timeOut = 5
+
+    node = args.node
+    remoteFilePatterns = args.remotefiles
+    if len(remoteFilePatterns) == 0:
+        print("WARN: Remote files not defined.\n", end='')
+        AutoExecUtils.saveOutput({'fileList': []})
+        exit(0)
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None or node == '':
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if hasOptError:
+            usage()
+
+        hasError = False
+
+        confBackup = RemoteConfBackup(nodeInfo, maxSize)
+
+        ip = nodeInfo['host']
+        port = nodeInfo['protocolPort']
+        resourceId = nodeInfo['resourceId']
+
+        for remotePattern in remoteFilePatterns:
+            confBackup.addBackupPattern(remotePattern)
+
+        # 获取CMDB里CI项的配置文件目录和自定义需要备份的文件列表，加入备份类的属性中
+        txtFilePathList = AutoExecUtils.getCITxtFilePathList(resourceId)
+        for confPathInfo in txtFilePathList:
+            confPath = confPathInfo.get('path')
+            if confPath is not None and confPath != '':
+                confBackup.addBackupPattern(confPath)
+
+        try:
+            confBackup.backup()
+            out = {}
+            out['fileList'] = list(confBackup.outputFiles.values())
+            AutoExecUtils.saveOutput(out)
+
+            if (confBackup.IS_FAIELD):
+                exit(1)
+        except Exception as ex:
+            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+            exit(2)
+    except Exception as ex:
+        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        exit(-1)

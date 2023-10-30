@@ -1,0 +1,40 @@
+{
+    "opDesc": "输出连接",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "对多节点输出的某个变量进行连接, 支持字符串和数组连接, 建议节点数不超过32",
+    "option": [{
+            "opt": "delimiter",
+            "name": "字符串拼接分界符",
+            "help": "如果输出是字符串，拼接符号",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ","
+        },
+        {
+            "opt": "outputkey",
+            "name": "变量名",
+            "help": "上游输出的变量名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [{
+        "opt": "aggTxtData",
+        "name": "聚合文本数据",
+        "help": "多节点输出聚合后的文本数据",
+        "type": "textarea"
+    },
+    {
+        "opt": "aggJsonData",
+        "name": "聚合Json数据",
+        "help": "多节点输出聚合后的Json数据",
+        "type": "textarea"
+    }]
+}

@@ -1,0 +1,67 @@
+{
+    "opDesc": "k8s采集插件",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "k8s采集插件",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "管理IP",
+            "help": "k8s master 管理IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "管理端口",
+            "help": "k8s管理端口",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "token",
+            "name": "令牌",
+            "help": "k8s管理用户令牌",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "采集数据",
+            "help": "采集数据输出",
+            "type": "json"
+        }
+    ]
+}

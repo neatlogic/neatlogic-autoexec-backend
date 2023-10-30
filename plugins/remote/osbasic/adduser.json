@@ -1,0 +1,42 @@
+{
+    "opDesc": "创建OS用户",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "创建Unix/Linux操作系统用户",
+    "option": [
+        {
+            "opt": "content",
+            "name": "需修改内容",
+            "help": "支持多行, 例如：oracle oinstall dba,admadm 或者 oracle oinstall 或者 oracle 1000 oinstall 或者 oracle 1000 oinstall dba,admadm",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "modifyifexist",
+            "name": "存在就修改",
+            "help": "如果用户已经存在，则修改存在的组",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": []
+}

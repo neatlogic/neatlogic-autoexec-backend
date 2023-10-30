@@ -1,0 +1,72 @@
+{
+    "opDesc": "开启或关闭防火墙策略",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "开启或关闭防火墙策略",
+    "option": [
+        {
+            "opt": "operat",
+            "name": "操作类型",
+            "help": "操作类型",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "打开",
+                        "value": "open"
+                    },
+                    {
+                        "text": "关闭",
+                        "value": "close"
+                    }
+                ]
+            },
+            "defaultValue": "open"
+        },
+        {
+            "opt": "protocol",
+            "name": "协议",
+            "help": "端口协议",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "tcp",
+                        "value": "TCP"
+                    },
+                    {
+                        "text": "udp",
+                        "value": "UDP"
+                    }
+                ]
+            },
+            "defaultValue": "TCP"
+        },
+        {
+            "opt": "input",
+            "name": "访问端口",
+            "help": "其他目标访问操作系统服务访问端口，多个逗号分隔。如：3306,8080",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "output",
+            "name": "访出端口",
+            "help": "操作系统访问外面放行端口，多个逗号分隔。如：8804,8888",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --user <User Name> --recreate 0|1 --keylen <key bits>\n");
+    exit(1);
+}
+
+sub main {
+    my $user;
+    my $recreate = 0;
+    my $keyLen   = 2048;
+
+    GetOptions(
+        'user=s'     => \$user,
+        'keylen=i'   => \$keyLen,
+        'recreate=i' => \$recreate
+    );
+
+    my $uid = $<;
+
+    if ( defined($user) and $user ne '' ) {
+        my $curUid  = $<;
+        my $curUser = getpwuid($<);
+        if ( $curUser ne $user ) {
+            if ( $curUid ne 0 ) {
+                print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
+                exit(3);
+            }
+        }
+    }
+    else {
+        $user = getpwuid($uid);
+    }
+
+    my @userInfo = getpwnam($user);
+    my $homePath = $userInfo[7];
+    my $uid      = $userInfo[2];
+    my $gid      = $userInfo[3];
+    my $group    = getgrgid($gid);
+
+    my $hasError = 0;
+
+    my $keyPath    = "$homePath/.ssh/id_rsa";
+    my $pubKeyPath = "$homePath/.ssh/id_rsa.pub";
+    if ( -f $pubKeyPath and $recreate == 1 ) {
+        if ( not unlink($keyPath) ) {
+            $hasError = 1;
+            print("ERROR: Can not remove file $keyPath, $!.\n");
+        }
+        if ( not unlink($pubKeyPath) ) {
+            $hasError = 1;
+            print("ERROR: Can not remove file $pubKeyPath, $!.\n");
+        }
+    }
+
+    if ( not -e "$homePath/.ssh" ) {
+        if ( not mkdir("$homePath/.ssh") ) {
+            $hasError = 1;
+            print("ERROR: Can not create directory $homePath/.ssh, $!.\n");
+        }
+        else {
+            chown( $uid, $gid, "$homePath/.ssh" );
+        }
+    }
+
+    if ( not -f $pubKeyPath ) {
+        if ( system(qq{ssh-keygen -b 2048 -t rsa -f "$keyPath" -q -N ""}) != 0 ) {
+            $hasError = 1;
+            print("ERROR: Execute ssh-keygen failed.\n");
+        }
+        else {
+            if ( not chown( $uid, $gid, $keyPath ) ) {
+                $hasError = 1;
+                print("ERROR: Can not change file $keyPath owner to $user:$group, $!.\n");
+            }
+
+            if ( not chown( $uid, $gid, $pubKeyPath ) ) {
+                $hasError = 1;
+                print("ERROR: Can not change file $pubKeyPath owner to $user:$group, $!.\n");
+            }
+        }
+    }
+
+    if ( not chmod( 0700, "$homePath/.ssh" ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh permission mode to 0700, $!.\n");
+    }
+    if ( not chmod( 0600, $keyPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $keyPath permission mode to 0600, $!.\n");
+    }
+    if ( not chmod( 0600, $pubKeyPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $pubKeyPath permission mode to 0600, $!.\n");
+    }
+
+    my $pubKey = AutoExecUtils::getFileContent($pubKeyPath);
+
+    if ( defined($pubKey) ) {
+        $pubKey =~ s/^\s*|\s*$//g;
+    }
+
+    if ( not defined($pubKey) or $pubKey eq '' ) {
+        $hasError = 1;
+        print("ERROR: Public key is empty in file $pubKeyPath\n");
+
+    }
+
+    my $out = {};
+    $out->{pubKey} = $pubKey;
+    AutoExecUtils::saveOutput($out);
+
+    return $hasError;
+}
+
+exit main();

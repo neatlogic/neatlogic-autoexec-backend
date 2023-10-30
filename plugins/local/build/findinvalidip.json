@@ -1,0 +1,40 @@
+{
+    "opDesc": "查找代码中IP",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检查代码中是否出现非法IP",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "netblacklist",
+            "name": "网络ID",
+            "help": "是否出现定义的网络ID的IP, 例如: 10.10.0.0/16,10.20.0.0/24",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "autocfgenvs",
+            "name": "检查环境",
+            "help": "需要检查的环境, 譬如只需要检查UAT、PRD: UAT,PRD",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "PRD"
+        },
+        {
+            "opt": "excludeexts",
+            "name": "排除扩展名",
+            "help": "对指定扩展名的文件不做检查, 例如: dat,xls",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,155 @@
+{
+    "label": "负载均衡",
+    "collection": "COLLECT_LOADBALANCER",
+    "docroot": null,
+    "collection_label": "负载均衡",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS版本",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS信息",
+            "type": "String"
+        },
+        {
+            "name": "VIRTUAL_SERVERS",
+            "desc": "VS服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "POOL名",
+                    "type": "String"
+                },
+                {
+                    "name": "POOL",
+                    "desc": "POOL",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "LB_MODE",
+                            "desc": "均衡模式",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MONITOR_RULE",
+                            "desc": "监控规则",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "MEMBERS",
+                    "desc": "成员列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "POOL_NAME",
+                            "desc": "POOL名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP",
+                            "desc": "IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

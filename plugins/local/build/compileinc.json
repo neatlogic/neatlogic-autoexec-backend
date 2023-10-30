@@ -1,0 +1,261 @@
+{
+    "opDesc": "增量代码编译",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "maven-args",
+    "description": "使用代码仓库的diff功能抽取增量源代码并编译出补丁",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "语言",
+            "help": "工程代码的语言和编码",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "type",
+            "name": "编译类型",
+            "help": "编译类型",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "maven",
+                        "value": "maven"
+                    },
+                    {
+                        "text": "ant",
+                        "value": "ant"
+                    },
+                    {
+                        "text": "gradle",
+                        "value": "gradle"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    }
+                ]
+            },
+            "defaultValue": "maven"
+        },
+        {
+            "opt": "jdk",
+            "name": "JDK版本",
+            "help": "JDK版本",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "自动",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "args",
+            "name": "自定义参数",
+            "help": "编译工具的自定义参数（譬如：ant或mvn的参数）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "startpath",
+            "name": "起始子目录",
+            "help": "编译配置所在子目录（相对于工程根）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "tag4cmpto",
+            "name": "基线标签",
+            "help": "基线的标签，当前代码与它比较抽取增量代码，如直接跟主干比较，则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "baseline"
+        },
+        {
+            "opt": "diffdirname",
+            "name": "增量保存目录",
+            "help": "相对工程根的子目录，用于保存diff出来的文件和目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "build.diff"
+        },
+        {
+            "opt": "skipfullcmp",
+            "name": "不先执行全量编译",
+            "help": "一般情况先执行一次全量编译生成所有class，再对增量文件进行编译",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "libpaths",
+            "name": "lib目录",
+            "help": "例如：target/webapp/WEB-INF/lib,*/target/webapp/WEB-INF/lib",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "target/webapp/WEB-INF/lib"
+        },
+        {
+            "opt": "addlibtoclasspath",
+            "name": "把lib加入CLASSPATH",
+            "help": "把lib目录中的所有jar加入CLASSPATH",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "srcpaths",
+            "name": "Java代码目录",
+            "help": "例如：src,*/src",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "src"
+        },
+        {
+            "opt": "cmpoutpaths",
+            "name": "编译输出目录",
+            "help": "例如：target/webapp/WEB-INF/classes,*/target/webapp/WEB-INF/classes",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "target/webapp/WEB-INF/classes"
+        },
+        {
+            "opt": "reservepaths",
+            "name": "其他需要目录",
+            "help": "为了build成功而需要的其他目录，例如：target/webapp/WEB-INF/web.xml,*/target/webapp/WEB-INF/web.xml",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "target/webapp/WEB-INF/web.xml"
+        },
+        {
+            "opt": "classpaths",
+            "name": "CLASSPATH",
+            "help": "工程下的需要加入到CLASSPATH的目录，例如：staticclasses,*/staticclasses",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "staticclasses"
+        },
+        {
+            "opt": "islib",
+            "name": "是否子模块",
+            "help": "当前获取的代码仓库是子模块，用于多个代码仓库联合编译的情况",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

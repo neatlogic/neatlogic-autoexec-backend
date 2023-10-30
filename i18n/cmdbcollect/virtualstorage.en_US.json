@@ -1,0 +1,364 @@
+{
+    "label": "Virtual Storage",
+    "collection": "COLLECT_STORAGE",
+    "docroot": null,
+    "collection_label": "Storage Device",
+    "filter": {
+        "_OBJ_TYPE": "Virtual_Storage"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "Brand",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CAPACITY",
+            "desc": "Capacity(TB)",
+            "type": "Float"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Connted FC Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Cat",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HEALTH_CHECK",
+            "desc": "健康检查报告",
+            "type": "Text"
+        },
+        {
+            "name": "LUNS",
+            "desc": "LUN List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "Lun WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "Visable Initiator Group",
+                    "type": "array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "Visable Initiator",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NODE_WWN",
+                            "desc": "Node WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT_WWN",
+                            "desc": "Port WWN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUMES_UNHEALTH",
+            "desc": "Storage Vol Unhealth",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IO_STATUS",
+                    "desc": "IO Status",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Oper Status",
+                    "type": "String"
+                },
+                {
+                    "name": "HEALTH_STATE",
+                    "desc": "Health State",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "STORAGE_VOLUME_SUMMARY",
+            "desc": "Storage Vol Summary",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "CLUSTER_NAME",
+                    "desc": "Cluster Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "String"
+                },
+                {
+                    "name": "STORAGE-VOLUMES",
+                    "desc": "Vols Count",
+                    "type": "Int"
+                },
+                {
+                    "name": "VENDOR",
+                    "desc": "Vendor Storage",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Vendor",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VOLUME_COUNT",
+                            "desc": "Count",
+                            "type": "Int"
+                        }
+                    ]
+                },
+                {
+                    "name": "OUT-OF-DATE",
+                    "desc": "Out of Date",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNHEALTHY",
+                    "desc": "Unhealth",
+                    "type": "Int"
+                },
+                {
+                    "name": "META-DATA",
+                    "desc": "Meta Data",
+                    "type": "Int"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used",
+                    "type": "Int"
+                }
+            ]
+        }
+    ]
+}

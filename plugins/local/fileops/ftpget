@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use Net::FTP::Recursive;
+use File::Path;
+use File::Spec;
+
+use ServerConf;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--addr FtpAddress] [--dest DestinationDirectory] \n");
+    print("              [--user username] [--pass password] \n");
+    print("\n");
+    print("       --addr:      Ftp address\n");
+    print("       --dir:       Remote target path .\n");
+    print("       --user:      Ftp user name .\n");
+    print("       --pass:      Password .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $addr, $localDir, $user, $pass );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'addr=s'      => \$addr,
+        'dir=s'       => \$localDir,
+        'user=s'      => \$user,
+        'pass=s'      => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($addr) or $addr eq '' ) {
+        print("ERROR: Must define ftp url.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($localDir) or $localDir eq '' ) {
+        $localDir = '.';
+    }
+    if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    my ( $host, $port, $srvDir );
+    if ( $addr =~ /ftp:\/\/([^\/]+)(.*)$/i ) {
+        ( $host, $port ) = split( ':', $1 );
+        if ( not defined($port) ) {
+            $port = 21;
+        }
+        $srvDir = $2;
+        $srvDir =~ s/^\s*|\s*$//g;
+        if ( $srvDir eq '' ) {
+            $srvDir = '/';
+        }
+    }
+    else {
+        $optionError = 1;
+        print("ERROR: Invalid ftp address:$addr, example: ftp://192.168.0.222/test\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    if ( defined($pass) and $pass ne '' ) {
+        my $serverConf = ServerConf->new();
+        $pass = $serverConf->decryptPwd($pass);
+    }
+
+    my $saveTargetPath;
+    my $errorCode = 0;
+
+    if ( !-e $localDir ) {
+        $errorCode = 1;
+        print("ERROR: Directory $localDir not exists.\n");
+    }
+    else {
+        my $ftp = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
+        if ( defined($user) and $user ne '' ) {
+            $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
+        }
+        $ftp->binary();
+        print("INFO: Login ftp success.\n");
+
+        my $isFile = 0;
+        unless ( $ftp->cwd($srvDir) ) {
+            $isFile = 1;
+        }
+        else {
+            $isFile = 0;
+        }
+
+        chdir($localDir);
+        if ( $isFile == 0 ) {
+            my $folder = File::Spec->catfile( $localDir, basename($srvDir) );
+            print("INFO: Download folder $srvDir to $folder.\n");
+
+            if ( !-d $folder ) {
+                mkpath($folder);
+            }
+            chdir($folder);
+            $ftp->rget( $srvDir, $folder );
+            $saveTargetPath = File::Spec->canonpath($folder);
+        }
+        else {
+            print("INFO: Download file $srvDir.\n");
+            $ftp->get($srvDir);
+            my $fileName = basename($srvDir);
+            $saveTargetPath = File::Spec->canonpath("$localDir/$fileName");
+        }
+
+        $ftp->quit;
+    }
+
+    if ( $errorCode != 0 ) {
+        undef($saveTargetPath);
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
+    return $errorCode;
+}
+
+exit main();
+

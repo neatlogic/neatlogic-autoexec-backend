@@ -1,0 +1,459 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 NeatLogic
+"""
+import os
+import sys
+import atexit
+import traceback
+import threading
+import subprocess
+
+import io
+import shutil
+import initenv
+import platform
+import argparse
+import time
+import signal
+import re
+import json
+import glob
+import logging
+from logging.handlers import RotatingFileHandler
+
+import JobRunner
+import Utils
+import VContext
+import Context
+import ServerAdapter
+import GlobalLock
+import OutputStore
+import JobPurger
+
+
+class ConsoleLog(io.TextIOWrapper):
+    def __init__(self, consoleLogFile):
+        super().__init__(consoleLogFile)
+        self.preLineEnded = True
+
+    def write(self, text, encoding=sys.getdefaultencoding()):
+        if isinstance(text, bytes):
+            text = text.decode(encoding)
+
+        isTTY = sys.__stdout__.isatty()
+
+        for line in text.splitlines(True):
+            if isTTY:
+                sys.__stdout__.write(line)
+
+            if self.preLineEnded:
+                super().write(Utils.getTimeStr() + line)
+            else:
+                super().write(line)
+
+            super().flush()
+
+            self.preLineEnded = line.endswith("\n")
+
+
+def threadDump(signum, frame):
+    id2name = {}
+    for th in threading.enumerate():
+        id2name[th.ident] = th.name
+
+    code = []
+    for threadId, stack in sys._current_frames().items():
+        subcode = []
+        subcode.append("\n# Thread: %s(%d)\n" % (id2name.get(threadId, ""), threadId))
+        for filename, lineno, name, line in traceback.extract_stack(stack):
+            if line:
+                subcode.insert(1, "  at %s (%s, line %d, in %s)\n" % (line.strip(), filename, lineno, name))
+            else:
+                subcode.insert(1, "  at (%s, line %d, in %s)\n" % (filename, lineno, name))
+        code.append("".join(subcode))
+
+    print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
+
+
+def _getLogSubPath(jobId):
+    jobIdStr = str(jobId)
+    jobIdLen = len(jobIdStr)
+    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
+    return '/'.join(subPath)
+
+
+def registerTools(serverAdapter, pluginsPath, opType, importTime):
+    result = True
+    os.chdir(pluginsPath + '/' + opType)
+    with os.scandir() as iterator:
+        for entry in iterator:
+            if entry.is_dir():
+                for descPath in glob.glob(entry.name + '/' + '*.json'):
+                    toolSubName = os.path.basename(descPath)[:-5]
+                    opName = entry.name + '/' + toolSubName
+                    if entry.name == 'native' or toolSubName.startswith(entry.name) or os.path.isfile(opName):
+                        print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
+                        descFile = open(descPath, 'r')
+                        pluginObj = json.loads(descFile.read())
+                        if 'enabled' in pluginObj and pluginObj['enabled'] == 0:
+                            # 如果工具没有enabled，则略过注册
+                            continue
+                        pluginObj['opName'] = opName
+                        pluginObj['importTime'] = importTime
+                        # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
+                        if opType == 'local':
+                            if 'opType' in pluginObj:
+                                if pluginObj['opType'] == 'localremote':
+                                    pluginObj['opType'] = 'runner_target'
+                                elif pluginObj['opType'] == 'local':
+                                    pluginObj['opType'] = 'runner'
+                            else:
+                                pluginObj['opType'] = 'runner'
+
+                        if opType == 'remote':
+                            pluginObj['opType'] = 'target'
+
+                        try:
+                            retObj = serverAdapter.registerTool(pluginObj)
+                            if 'Status' in retObj and retObj['Status'] == 'OK':
+                                print("INFO: Register tool:{} {} success.\n".format(opType, opName))
+                            else:
+                                result = False
+                                print("ERROR: Register tool:{} {} failed {}.\n".format(opType, opName, retObj['Message']))
+                        except Exception as ex:
+                            result = False
+                            print("ERROR: Register tool:{} {} failed, {}\n".format(opType, opName, ex))
+
+
+def findJobProcesses(jobId):
+    mypid = os.getpid()
+    autoexecPids = []
+    if os.path.exists('/proc'):
+        with os.scandir('/proc') as it:
+            for entry in it:
+                if not entry.name.startswith('.') and entry.is_dir():
+                    if re.match('^\d+$', entry.name):
+                        pid = int(entry.name)
+                        try:
+                            cf = open(entry.path + '/comm')
+                            comm = cf.read()
+                            comm = comm.strip()
+                            if comm == 'autoexec':
+                                f = open(entry.path + '/cmdline')
+                                content = f.read()
+                                if content.index(jobId) > 0 and pid != mypid:
+                                    autoexecPids.append(pid)
+                        except:
+                            pass
+    else:
+        # 为了便于在MacOS上测试
+        jobId = jobId.encode('UTF-8')
+        result = subprocess.Popen('ps auxww',  shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        while True:
+            # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
+            line = result.stdout.readline(4096)
+            if not line:
+                break
+            try:
+                if line.index(b'autoexec') > 0 and line.index(jobId) > 0:
+                    lineParts = re.split('\s+', line, 2)
+                    pid = int(lineParts[1])
+                    if pid != mypid:
+                        autoexecPids.append(pid)
+            except:
+                pass
+        result.wait()
+
+    return autoexecPids
+
+
+def killProcesses(pids, sig):
+    for pid in pids:
+        try:
+            os.kill(pid, sig)
+        except:
+            pids.remove(pid)
+            print("INFO: Process {} killed.\n".format(pid))
+
+
+def _getSubPath(jobId):
+    jobIdStr = str(jobId)
+    jobIdLen = len(jobIdStr)
+    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
+    return '/'.join(subPath)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
+    parser.add_argument('--jobid', '-j', default='0', help='Job id for this execution')
+    parser.add_argument('--execuser', '-u', default='anonymous',  help='Operator')
+    parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
+    parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
+    parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
+    parser.add_argument('--firstfire', '-i', default=False, action='store_true', help='the first phase fired, create new log file')
+    parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
+    parser.add_argument('--pause', '-s', default=False, action='store_true', help='puase the job')
+    parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
+    parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
+    parser.add_argument('--purgejobdata', default='0', help='Job reserve days')
+    parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
+    parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
+    parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
+    parser.add_argument('--phasegroups', default='', help='Just execute specify group')
+    parser.add_argument('--phases', default='', help='Just execute defined phases, Example:phase1,phase2')
+    parser.add_argument('--nodes', default='', help='Just execute defined node ids, Example:463104705880067,463104705880068')
+    parser.add_argument('--sqlfiles', default='', help='Just execute defined sql files, Example:[{"sqlFile":"mydb.myuser/1.test.sql","nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"},...]')
+
+    os.environ['TERM'] = 'dumb'
+    args = parser.parse_args()
+    execUser = args.execuser
+    os.environ['AUTOEXEC_PID'] = str(os.getpid())
+    os.environ['AUTOEXEC_USER'] = execUser
+
+    binPaths = os.path.split(os.path.realpath(__file__))
+    homePath = os.path.realpath(binPaths[0]+'/..')
+    os.environ['AUTOEXEC_HOME'] = homePath
+
+    if args.devmode:
+        os.environ['AUTOEXEC_DEV_MODE'] = '1'
+
+    passThroughEnv = {}
+    if args.passthroughenv != '{}':
+        os.environ['PASSTHROUGH_ENV'] = args.passthroughenv
+        passThroughEnv = json.loads(args.passthroughenv)
+    else:
+        passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
+        if passThroughEnvJson:
+            passThroughEnv = json.loads(passThroughEnvJson)
+
+    progName = binPaths[1]
+
+    logFilePath = '{}/logs/{}.log'.format(homePath, progName)
+    logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
+    logger = logging.getLogger('')
+    logger.setLevel(logging.ERROR)
+    formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
+    logHandler.setFormatter(formatter)
+    logger.addHandler(logHandler)
+
+    if args.cleanstatus:
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
+            serverAdapter.getMongoDBConf()
+            vContext.initDB()
+
+            outputStore = OutputStore.OutputStore(vContext, None, None)
+            outputStore.removeJobStatus()
+
+            statusPath = '{}/status'.format(vContext.runPath)
+            if os.path.exists(statusPath):
+                shutil.rmtree(statusPath)
+            if os.path.exists(statusPath):
+                sys.exit(1)
+        except Exception as ex:
+            logger.error("Unknow error occurred while clean job status.\n" + traceback.format_exc())
+
+    elif args.register:
+        pluginsPath = homePath + '/plugins'
+
+        # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
+        vContext = VContext.VContext(0, execUser=execUser, passThroughEnv=passThroughEnv)
+
+        importTime = int(time.time())
+        tenant = args.register
+        if tenant is None:
+            tenant = vContext.config['server']['tenant']
+        if tenant is None:
+            tenant = 'none'
+
+        vContext.tenant = tenant
+        serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+        hasError = 0
+        if (not registerTools(serverAdapter, pluginsPath, 'local', importTime)):
+            hasError = 1
+        if (not registerTools(serverAdapter, pluginsPath, 'remote', importTime)):
+            hasError = 1
+
+        try:
+            retObj = serverAdapter.cleanNativeTools(importTime)
+            if 'Status' in retObj and retObj['Status'] == 'OK':
+                print("INFO: Clean discarded tools success.\n")
+            else:
+                hasError = 1
+                print("ERROR: Clean discarded tools failed {}.\n" % (retObj['Message']))
+        except Exception as ex:
+            hasError = 1
+            print("ERROR: Clean discarded tools failed, {}\n".format(ex))
+
+        sys.exit(hasError)
+
+    elif args.pause:
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+            ret = 0
+            print("INFO: try to pause job:{}\n".format(args.jobid))
+            autoexecIsPaused = False
+            autoexecPids = findJobProcesses(args.jobid)
+
+            if len(autoexecPids) > 0:
+                pidsStr = ','.join([str(x) for x in autoexecPids])
+                print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
+                killProcesses(autoexecPids, signal.SIGUSR1)
+
+                # for i in range(1800):
+                while len(autoexecPids) > 0:
+                    killProcesses(autoexecPids, 0)
+                    time.sleep(3)
+                    killProcesses(autoexecPids, signal.SIGUSR1)
+
+                if len(autoexecPids) == 0:
+                    serverAdapter.jobPaused()
+                    print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
+                else:
+                    ret = 1
+                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
+            else:
+                ret = 2
+                serverAdapter.jobPaused()
+                print("INFO: Can not find job {} process.\n".format(args.jobid))
+            sys.exit(ret)
+        except Exception as ex:
+            logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
+    elif args.abort:
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            serverAdapter = ServerAdapter.ServerAdapter(vContext)
+
+            ret = 0
+            print("INFO: try to kill job:{}...\n".format(args.jobid))
+            autoexecIsKilled = False
+            autoexecPids = findJobProcesses(args.jobid)
+            if len(autoexecPids) > 0:
+                pidsStr = ','.join([str(x) for x in autoexecPids])
+                print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
+                killProcesses(autoexecPids, signal.SIGTERM)
+                for i in range(15):
+                    if len(autoexecPids) == 0:
+                        break
+                    time.sleep(1)
+
+                if len(autoexecPids) > 0:
+                    killProcesses(autoexecPids, signal.SIGKILL)
+
+                if len(autoexecPids) > 0:
+                    time.sleep(1)
+                    killProcesses(autoexecPids, 0)
+
+                if len(autoexecPids) == 0:
+                    serverAdapter.jobKilled()
+                else:
+                    ret = 1
+                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
+            else:
+                ret = 2
+                serverAdapter.jobKilled()
+                print("INFO: Can not find job {} process.\n".format(args.jobid))
+            sys.exit(ret)
+        except Exception as ex:
+            logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
+    elif args.purgejobdata != '0':
+        # purge expired job
+        try:
+            vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
+            purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
+            purger.purge()
+        except Exception as ex:
+            logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
+    else:
+        # 初始化运行context
+        dataPath = homePath + '/data'
+        runPath = dataPath + '/job/' + _getSubPath(args.jobid)
+
+        # 初始化console日志文件
+        logDir = runPath + '/log'
+        if not os.path.exists(logDir):
+            os.makedirs(logDir, exist_ok=True)
+
+        consoleLogPath = logDir + '/console.txt'
+        consoleLogFile = None
+
+        fileDir = runPath + '/file'
+        if not os.path.exists(fileDir):
+            os.mkdir(fileDir)
+
+        if args.firstfire:
+            # 作业的第一个阶段执行，需要创建新的console 日志文件
+            if os.path.exists(consoleLogPath):
+                os.unlink(consoleLogPath)
+
+            consoleLogFile = open(consoleLogPath, 'w').detach()
+
+            consoleHisLogDir = logDir + '/console.hislog'
+            if not os.path.isdir(consoleHisLogDir):
+                os.mkdir(consoleHisLogDir)
+            consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+            os.link(consoleLogPath, consoleHisLogPath)
+        else:
+            # 后续阶段执行，不需要新建文件，在原来的console文件中追加日志
+            consoleLogFile = open(consoleLogPath, 'a').detach()
+
+        # console输出重定向到console log文件
+        sys.stdout = ConsoleLog(consoleLogFile)
+        sys.stderr = ConsoleLog(consoleLogFile)
+
+        sqlFilesJson = args.sqlfiles
+        if sqlFilesJson is not None and sqlFilesJson != '':
+            os.environ['_SQL_FILES'] = sqlFilesJson
+
+        context = Context.Context(args.jobid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases,
+                                  nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, runPath=runPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
+        os.environ['AUTOEXEC_JOBID'] = context.jobId
+        os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
+        os.environ['AUTOEXEC_TENANT'] = context.tenant
+        jobSock = '{}/job{}.sock'.format(context.runPath, os.getpid())
+        os.environ['AUTOEXEC_JOB_SOCK'] = jobSock
+
+        def removeJobSock(sockPath):
+            try:
+                if os.path.exists(sockPath):
+                    os.unlink(sockPath)
+            except:
+                pass
+        atexit.register(removeJobSock, jobSock)
+
+        # 初始化单例的GlobalLocks
+        GlobalLock.GlobalLock(context)
+
+        # Java启动的进程，SIGQUIT信号被block了，所以设置所有信号handler前，unblock那些用到的信号
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGQUIT, signal.SIGHUP, signal.SIGTERM, signal.SIGINT, signal.SIGUSR1])
+        signal.signal(signal.SIGQUIT, threadDump)
+
+        # 开始运行作业
+        if args.firstfire:
+            print("INFO: JobId:{} start...\n".format(args.jobid))
+        runner = JobRunner.JobRunner(context, nodesFile=args.nodesfile)
+
+        # 信号处理函数，pause runner
+        def pauseHandler(signum, frame):
+            runner.pause()
+
+        # 信号处理函数，kill runner
+        def killHandler(signum, frame):
+            runner.kill()
+
+        # 注册TERM、INT的信号，当kill是响应信号进行退出处理，kill是另外独立的autoexec进程，仅仅发送一个信号
+        signal.signal(signal.SIGTERM, killHandler)
+        signal.signal(signal.SIGINT, killHandler)
+
+        if platform.system() != 'Windows':
+            signal.signal(signal.SIGHUP, killHandler)
+            signal.signal(signal.SIGUSR1, pauseHandler)
+
+        sys.exit(runner.execute())

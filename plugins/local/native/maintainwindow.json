@@ -1,0 +1,20 @@
+{
+    "opDesc": "维护窗口检查",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "检查当前时间是否在维护窗口内，支持多参数，每个参数设置若干个窗口设置。",
+    "option": [],
+    "argument": {
+        "name": "时间窗口",
+        "help": "例如:\n    20:00-21:00 23:00-03:00\n    WeekDay 7 20:00-21:00 23:00-06:00\n    MonthDay 02-31 23:00-06:00\n    Date 2060-12-31 22:00-06:00\n",
+        "isConst": "false",
+        "count": 0,
+        "type": "textarea",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}

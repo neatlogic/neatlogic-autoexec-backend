@@ -1,0 +1,88 @@
+{
+    "opDesc": "应用停止",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "调用远程命令停止应用，检测应用是否停止的同时tail日志",
+    "option": [
+        {
+            "opt": "prescript",
+            "name": "停止命令",
+            "help": "停止应用所需要的Shell命令",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "addr",
+            "name": "服务地址",
+            "help": "URL或者IP:PORT，多项逗号相隔，例如：http://127.0.0.1:8080,127.0.0.1:8090",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "eofstr",
+            "name": "停止成功字串",
+            "help": "如果日志编码不是UTF-8, 则配置:{GBK}启动完成; 尽量留空少用，少用服务地址检测替代",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "超时(秒)",
+            "help": "停止超时的秒数，超时后停止失败",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "300"
+        },
+        {
+            "opt": "postscript",
+            "name": "停止后置命令",
+            "help": "应用停止，检测成功停止后执行此命令",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "endprescript",
+            "name": "Kill停止命令",
+            "help": "用于某些停止命令停止成功后，需要Ctrl+C的情况",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "日志路径",
+        "help": "日志路径，支持通配符和反引号，用于执行启动命令后展示启动日志",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

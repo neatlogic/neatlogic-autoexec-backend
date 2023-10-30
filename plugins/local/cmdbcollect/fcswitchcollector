@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+use FindBin;
+use lib $FindBin::Bin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../plib/lib/perl5";
+
+use strict;
+
+use JSON;
+use Getopt::Long;
+use AutoExecUtils;
+use CollectObjCat;
+use FCSwitchBase;
+use Data::Dumper;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("INFO: :option --node or --type not defined.\n");
+    print("$pname --node <node> --type <type> .\n");
+    exit(0);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ( $node, $type );
+
+    my $defaultCommunity;
+    my $timeout   = 10;
+    my $isVerbose = 0;
+    my $inspect   = 0;
+
+    GetOptions(
+        'verbose=i'   => \$isVerbose,
+        'node=s'      => \$node,
+        'type=s'      => \$type,
+        'community=s' => \$defaultCommunity,
+        'inspect=i'   => \$inspect,
+        'timeout=i'   => \$timeout
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    if ( not defined($timeout) ) {
+        $timeout = 10;
+    }
+
+    my $hostname  = $nodeInfo->{host};
+    my $community = $nodeInfo->{password};
+    if ( not defined($community) or $community eq '' ) {
+        $community = $defaultCommunity;
+    }
+    if ( not defined($community) or $community eq '' ) {
+        $community = 'public';
+    }
+
+    my $brand        = $type;
+    my $fcswitchBase = FCSwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
+        $brand = $fcswitchBase->getBrand();
+    }
+
+    if ( not defined($brand) or $brand eq '' ) {
+        print("ERROR: Can not discover the fcswitch device brand.\n");
+    }
+    else {
+        print("INFO: FCSwitch brand: $brand.\n");
+    }
+
+    my $fcswitchIns;
+    my $fcswitchClass = "FCSwitch$brand";
+    if ( -e "$FindBin::Bin/$fcswitchClass.pm" or -e "$FindBin::Bin/lib/$fcswitchClass.pm" ) {
+        print("INFO: Has defined class $fcswitchClass, try to load it.\n");
+        eval {
+            require "$fcswitchClass.pm";
+            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
+        };
+        if ($@) {
+            print("WARN: Load $fcswitchClass failed, $@");
+            print("WARN: Fall back to FCSwitchBase class.\n");
+            $fcswitchIns = $fcswitchBase;
+        }
+        else {
+            print("INFO: Class $fcswitchClass loaded.\n");
+        }
+    }
+    else {
+        print("INFO: $fcswitchClass not found.\n");
+        print("INFO: Fall back to FCSwitchBase class.\n");
+        $fcswitchIns = $fcswitchBase;
+    }
+
+    my $data = $fcswitchIns->collect();
+    $data->{BRAND} = $brand;
+    if ( not defined( $data->{VENDOR} ) ) {
+        $data->{VENDOR} = $data->{BRAND};
+    }
+
+    my $objCat = CollectObjCat->get('FCSWITCH');
+    $data->{_OBJ_CATEGORY} = $objCat;
+    $data->{_OBJ_TYPE}     = 'FCSwitch';
+    $data->{_APP_TYPE}     = $brand;
+    $data->{MGMT_IP}       = $nodeInfo->{host};
+    $data->{PK}            = CollectObjCat->getPK($objCat);
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
+
+    my $out = {};
+    $out->{DATA} = [$data];
+    AutoExecUtils::saveOutput($out);
+    if ( $isVerbose == 1 ) {
+        print("==================\n");
+        print( to_json( $data, { pretty => 1 } ) );
+        print("==================\n");
+    }
+}
+
+exit main();

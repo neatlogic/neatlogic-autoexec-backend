@@ -1,0 +1,461 @@
+{
+    "label": "存储设备",
+    "collection": "COLLECT_STORAGE",
+    "docroot": null,
+    "collection_label": "存储设备",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "交换机品牌",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BATTERIES",
+            "desc": "电池",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTROLLERS",
+            "desc": "机头节点",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DESC",
+                    "desc": "描述",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "序列号",
+                    "type": "String"
+                },
+                {
+                    "name": "IOS_VERSION",
+                    "desc": "IOS版本",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "FANS",
+            "desc": "风扇",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "转速",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "POWERSUPPLY_NAME",
+                    "desc": "所属电源",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA卡列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "节点WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "端口WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "接线状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接光交端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "光交名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "光交管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "光交序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HEALTH_CHECK",
+            "desc": "健康报告",
+            "type": "Text"
+        },
+        {
+            "name": "LUNS",
+            "desc": "逻辑磁盘列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "Lun WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "已用(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "status"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "所属存储池",
+                    "type": "String"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "可见组",
+                    "type": "array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "可见组",
+                    "type": "array"
+                }
+            ]
+        },
+        {
+            "name": "POOLS",
+            "desc": "盘池列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "已用(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "POWER_SUPPLIES",
+            "desc": "电源",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "设备ID",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTROLLER_NAME",
+                    "desc": "所属控制器",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VOLUMES",
+            "desc": "NFS卷列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "所属存储池",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

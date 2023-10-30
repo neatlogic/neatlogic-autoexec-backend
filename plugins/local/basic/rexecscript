@@ -1,0 +1,74 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import LocalRemoteExec
+
+import os
+import argparse
+import uuid
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <ip> --port <port> --user <user> --password <password> --interpreter <script interpreter> --script <script>")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--protocol', default='ssh', help='Protocol')
+    parser.add_argument('--ip', default='', help='connect remote ip')
+    parser.add_argument('--port', default=22, help='connect remote port')
+    parser.add_argument('--username', default='', help='connect remote ip username')
+    parser.add_argument('--password', default='', help='connect remote ip password')
+    parser.add_argument('--interpreter', default='', help='custom script interpreter')
+    parser.add_argument('--script', default='', help='custom script')
+    parser.add_argument('param', nargs=argparse.REMAINDER, help="custom scrip dynamic param")
+
+    args = parser.parse_args()
+    ip = args.ip
+    port = args.port
+    username = args.username
+    password = args.password
+    script = args.script
+    interpreter = args.interpreter
+    param = args.param
+
+    if(ip is None or username is None or password is None):
+        print("ERROR:: Must defined remote ip 、username、password.")
+        usage()
+
+    if(script is None):
+        print("ERROR:: Must defined script or scriptid.")
+        usage()
+
+    param = args.param
+    scriptName = str(uuid.uuid1())
+
+    exec = LocalRemoteExec.LocalRemoteExec()
+    scriptDef = {}
+    scriptDef['script'] = script.replace('\\n', '\n')
+    scriptDef['config'] = {'parser': interpreter, 'scriptName': scriptName}
+
+    nodeInfo = {}
+    nodeInfo['resourceId'] = '0000'
+    nodeInfo['host'] = ip
+    nodeInfo['protocol'] = args.protocol
+    nodeInfo['protocolPort'] = int(port)
+    nodeInfo['username'] = username
+    nodeInfo['password'] = password
+
+    params = ''
+    if (len(param) > 0):
+        for p in (param):
+            params = params + ' "' + p + '"'
+
+    ret = False
+    errorMsg = ''
+    (ret, errorMsg) = exec._remoteExecute(nodeInfo, scriptDef, params)
+    if ret:
+        print('INFO:: Exec remote script success .')
+        exit(0)
+    else:
+        print('ERROR:: Exec remote script failed . reason:{}'.format(errorMsg))
+        exit(1)

@@ -1,0 +1,136 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import initenv
+import os
+import sys
+import stat
+import os.path
+import select
+import getpass
+import paramiko
+from paramiko.ssh_exception import SSHException
+
+import argparse
+
+
+def execOneHost(host, port, user, password, cmdList):
+    cmd = ''
+    for cmdPart in cmdList:
+        cmd = cmd + "'{}' ".format(cmdPart)
+
+    errCode = 0
+    ssh = None
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(host, port, user, password)
+        channel = ssh.get_transport().open_session()
+        channel.set_combine_stderr(True)
+        channel.exec_command(cmd)
+
+        while True:
+            r, w, x = select.select([channel], [], [], 10)
+            while channel.recv_ready():
+                print(channel.recv(4096).decode(errors='ignore'))
+            if channel.exit_status_ready():
+                errCode = channel.recv_exit_status()
+                break
+
+        if errCode == 0:
+            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end='')
+        else:
+            print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end='')
+    except Exception as ex:
+        errCode = 2
+        print("ERROR: {}@{}:{} execute failed, {}\n".format(user, host, port, ex), end='')
+    finally:
+        if ssh is not None:
+            ssh.close()
+
+    return errCode
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", action='store_true', default=False, help="Output verbose")
+    parser.add_argument('--host', default='', help='SSH to host')
+    parser.add_argument('--port', default='22', help='SSH Port')
+    parser.add_argument('--password', default='', help='Default password')
+    parser.add_argument('--user', default='root',  help='Connect user')
+
+    args = parser.parse_args()
+    port = args.port
+    if port == "":
+        port = 22
+    else:
+        port = int(port)
+
+    password = args.password
+    if password == '':
+        password = getpass.getpass()
+
+    HOME = os.environ.get('HOME')
+    if HOME is None or HOME == '':
+        print("ERROR: Can not determine HOME directory.")
+        sys.exit(2)
+
+    sshConfPath = '%s/.ssh' % (HOME)
+    if not os.path.exists(sshConfPath):
+        os.makedirs(sshConfPath, exist_ok=True)
+    os.chmod(sshConfPath, stat.S_IRWXU)
+
+    identiyPath = '%s/.ssh/id_rsa' % (HOME)
+    pubKeyPath = '%s/.ssh/id_rsa.pub' % (HOME)
+    auhKeyPath = '%s/.ssh/authorized_keys' % (HOME)
+
+    if not os.path.exists(identiyPath):
+        os.system('ssh-keygen -t rsa -b 2048 -f "%s" -N "" -C "autoexec-runner@local"' % (identiyPath))
+        os.system('cat "%s" >> "%s" && chmod 600 "%s"' % (pubKeyPath, auhKeyPath, auhKeyPath))
+
+    pubKey = ''
+    privateKey = ''
+    with open(identiyPath, 'r') as f:
+        privateKey = f.read()
+        privateKey = privateKey.strip()
+    with open(pubKeyPath, 'r') as f:
+        pubKey = f.read()
+        pubKey = pubKey.strip()
+
+    cmdList = ['sh', '-c']
+
+    cmd = '''
+if [ ! -e "$HOME/.ssh" ];then
+    mkdir "$HOME/.ssh";
+fi;
+chmod 700 "$HOME/.ssh";
+
+cd "$HOME/.ssh" || echo "ERROR: Directory .ssh create failed."
+
+cat <<EOF > id_rsa;
+%s
+EOF
+
+cat <<EOF > id_rsa.pub;
+%s
+EOF
+
+KEYCONF=""
+if [ -e "authorized_keys" ]; then
+    KEYCONF=$(grep "%s" authorized_keys 2>/dev/null);
+fi
+
+if [ "$KEYCONF" = "" ]; then
+    cat id_rsa.pub >> authorized_keys;
+fi;
+
+chmod 600 id_rsa id_rsa.pub authorized_keys;
+echo "Config %s@%s complete"
+
+    ''' % (privateKey, pubKey, pubKey, args.user, args.host)
+
+    cmdList.append(cmd)
+
+    errCode = execOneHost(args.host, port, args.user, password, cmdList)
+
+    exit(errCode)

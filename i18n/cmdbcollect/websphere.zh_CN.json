@@ -1,0 +1,843 @@
+{
+    "label": "Websphere",
+    "collection": "COLLECT_INS",
+    "docroot": null,
+    "collection_label": "应用实例",
+    "filter": {
+        "_OBJ_TYPE": "WebSphere"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "WAS_TYPE",
+            "desc": "WAS类型(Server|DMGR|NodeAgent)",
+            "type": "String"
+        },
+        {
+            "name": "SERVER_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "管理端口",
+            "type": "Int"
+        },
+        {
+            "name": "MAJOR_VERSION",
+            "desc": "主版本",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_PORTS",
+            "desc": "服务监听端口",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "UPTIME",
+            "desc": "运行时间（秒）",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN",
+            "desc": "端口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_APPLICATION",
+            "desc": "所属应用",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_NAME",
+                    "desc": "应用名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "所属应用模块",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "应用模块名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "管理端口",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "管理SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "SSL_PORT",
+            "desc": "SSL端口",
+            "type": "String"
+        },
+        {
+            "name": "OPEN_FILES_INFO",
+            "desc": "打开文件数",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PID",
+                    "desc": "进程号",
+                    "type": "String"
+                },
+                {
+                    "name": "OPEN",
+                    "desc": "打开数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "MAX",
+                    "desc": "最大值",
+                    "type": "Int"
+                },
+                {
+                    "name": "RATE",
+                    "desc": "使用率%",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "OS_USER",
+            "desc": "OS用户",
+            "type": "String"
+        },
+        {
+            "name": "INSTALL_PATH",
+            "desc": "安装目录",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "执行文件路径",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM类型",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM版本",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA目录",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA版本",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX端口",
+            "type": "Int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX使用SSL",
+            "type": "String"
+        },
+        {
+            "name": "CPU_USAGE",
+            "desc": "CPU使用率%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "CPU逻辑核数",
+            "type": "String"
+        },
+        {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "最小Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "最大Heap(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "内存使用率%",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存(M)",
+            "type": "Float"
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "监听统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "监听地址",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "队列滞留连接",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "JVM",
+            "desc": "JVM明细",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "HEAPSIZE",
+                    "desc": "总内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEMEMORY",
+                    "desc": "空闲内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USEDMEMORY",
+                    "desc": "已用内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "AVAILABLESIZE",
+                    "desc": "可用内存(M)",
+                    "type": "Int"
+                },
+                {
+                    "name": "USERATE",
+                    "desc": "内存使用率(%)",
+                    "type": "Float"
+                },
+
+                {
+                    "name": "WAITSFORLOCKCOUNT",
+                    "desc": "等待锁定次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITFORLOCKTIME",
+                    "desc": "等待锁定时间",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADSTARTEDCOUNT",
+                    "desc": "启动的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "THREADENDEDCOUNT",
+                    "desc": "线程结束计数",
+                    "type": "Int"
+                },
+                {
+                    "name": "UPTIME",
+                    "desc": "已启动时间",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "WEBCONTAINNER",
+            "desc": "WebContainner",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "创建次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "DESTROYCOUNT",
+                    "desc": "销毁次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVECOUNT",
+                    "desc": "活动次数",
+                    "type": "Int"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "池大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTMAXED",
+                    "desc": "平均时间百分比",
+                    "type": "Float"
+                },
+                {
+                    "name": "DECLAREDTHREADHUNGCOUNT",
+                    "desc": "挂起的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLEAREDTHREADHANGCOUNT",
+                    "desc": "清除的线程挂起数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CONCURRENTHUNGTHREADCOUNT",
+                    "desc": "并发挂起的线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "ACTIVETIME",
+                    "desc": "线程平均时间(ms)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "DATASOURCE",
+            "desc": "DataSource",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "POOLSIZE",
+                    "desc": "连接池大小",
+                    "type": "Int"
+                },
+                {
+                    "name": "CREATECOUNT",
+                    "desc": "创建的连接总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSECOUNT",
+                    "desc": "销毁的连接总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "FREEPOOLSIZE",
+                    "desc": "空闲连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "FAULTCOUNT",
+                    "desc": "空闲连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITINGTHREADCOUNT",
+                    "desc": "等待连接线程数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PERCENTUSED",
+                    "desc": "使用率(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USETIME",
+                    "desc": "平均使用时间(MS)",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITTIME",
+                    "desc": "平均等待时间(MS)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CONN_STATS",
+            "desc": "连接统计",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "TOTAL_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "INBOUND_COUNT",
+                    "desc": "入方向",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_RECV_COUNT",
+                    "desc": "半打开",
+                    "type": "Int"
+                },
+                {
+                    "name": "CLOSE_WAIT_COUNT",
+                    "desc": "待关闭",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "出方向",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_COUNT",
+                    "desc": "接收积压",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE",
+                    "desc": "接收积压字节",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节",
+                    "type": "Int"
+                },
+                {
+                    "name": "RECV_QUEUED_RATE",
+                    "desc": "接收积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                },
+                {
+                    "name": "RECV_QUEUED_SIZE_AVG",
+                    "desc": "接收平均积压",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送平均积压",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "CONN_OUTBOUND_STATS",
+            "desc": "出方向连接统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "REMOTE_ADDR",
+                    "desc": "远程地址",
+                    "type": "String"
+                },
+                {
+                    "name": "OUTBOUND_COUNT",
+                    "desc": "总数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SYN_SENT_COUNT",
+                    "desc": "半连接数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_COUNT",
+                    "desc": "发送积压数量",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE",
+                    "desc": "发送积压字节数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SEND_QUEUED_SIZE_AVG",
+                    "desc": "发送积压平均",
+                    "type": "Float"
+                },
+                {
+                    "name": "SEND_QUEUED_RATE",
+                    "desc": "发送积压比例",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "APPLICATIONS",
+            "desc": "应用包",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "应用名",
+                    "type": "String"
+                },
+                {
+                    "name": "SOURCE_PATH",
+                    "desc": "应用目录",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_CLUSTER",
+            "desc": "所属集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP(非LB)",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLIENT_CONNECTOR_INSTALL_ROOT",
+            "desc": "客户Connector安装目录",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "Text"
+        },
+        {
+            "name": "CONFIG_ROOT",
+            "desc": "配置根目录",
+            "type": "String"
+        },
+        {
+            "name": "OSGI_INSTALL",
+            "desc": "OSGI Install",
+            "type": "String"
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_DB",
+            "desc": "调用的数据库",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_INS",
+            "desc": "调用的其他实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SOAP_PORT",
+            "desc": "Soap端口",
+            "type": "Int"
+        },
+        {
+            "name": "USER_INSTALL_ROOT",
+            "desc": "Profile目录",
+            "type": "String"
+        },
+        {
+            "name": "WAS_CELL",
+            "desc": "WAS Cell",
+            "type": "String"
+        },
+        {
+            "name": "WAS_HOME",
+            "desc": "WAS HOME目录",
+            "type": "String"
+        },
+        {
+            "name": "WAS_NODE",
+            "desc": "WAS Node",
+            "type": "String"
+        }
+    ]
+}

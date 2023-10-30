@@ -1,0 +1,95 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+from ssl import create_default_context
+import sys
+import fcntl
+import json
+import argparse
+import re
+import datetime
+
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('rest', nargs=argparse.REMAINDER, help="Output key")
+    args = parser.parse_args()
+
+    outputKeys = args.rest
+
+    exitCode = 0
+
+    dbclient = None
+    outCollection = None
+    try:
+        (dbclient, db) = AutoExecUtils.getDB()
+        outCollection = db['_node_output']
+    except Exception as err:
+        exitCode = 2
+        print("ERROR: Can not connect to database, {}".format(err))
+
+    dataConverted = {}
+    for outputKey in outputKeys:
+        hasOptError = False
+        if outputKey == '':
+            hasOptError = True
+            print("ERROR: Must define output key name by option --outputkey")
+
+        if hasOptError:
+            sys.exit(2)
+
+        outputKey = re.sub(r'^#\{', '', outputKey)
+        outputKey = re.sub(r'\}$', '', outputKey)
+        outputKeyInfo = outputKey.split('.')
+
+        if len(outputKeyInfo) != 3:
+            print("ERROR: Malform output key %s." % (outputKey))
+            sys.exit(3)
+
+        opId = outputKeyInfo[1]
+        varKey = outputKeyInfo[2]
+
+        jobId = os.getenv('AUTOEXEC_JOBID')
+
+        aggDatas = []
+
+        try:
+            queryCond = {
+                'jobId': jobId,
+                'resourceId': {'$ne': 0},
+                'data.%s' % opId: {'$ne': None}
+            }
+
+            print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
+            for nodeOut in outCollection.find(
+                    queryCond,
+                    {
+                        'data.%s' % opId: 1
+                    }).limit(2):
+
+                val = nodeOut['data'].get(opId).get(varKey)
+                aggDatas.append(val)
+
+            if len(aggDatas) == 0:
+                print("WARN: Can not find any output for:%s." % (outputKey))
+                exitCode = 2
+            else:
+                if len(aggDatas) > 1:
+                    print("WARN: More than one remote node output found, suggest to use aggoutput.")
+                opData = dataConverted.get(opId, {})
+                opData[varKey] = aggDatas[0]
+                dataConverted[opId] = opData
+                print("INFO: Output for operation id:%s output:%s convert to local success." % (opId, varKey))
+        except Exception as err:
+            exitCode = 1
+            print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
+
+    out = {'dataConverted': dataConverted}
+    AutoExecUtils.saveOutput(out)
+
+    if dbclient is not None:
+        dbclient.close()
+
+    sys.exit(exitCode)

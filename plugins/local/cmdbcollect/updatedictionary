@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import argparse
+import sys
+import json
+
+binPaths = os.path.split(os.path.realpath(__file__))
+libPath = os.path.realpath(binPaths[0]+'/../lib')
+sys.path.append(libPath)
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
+    print('         --mode <mode> eg : truncate or append ,default value truncate.\n ')
+    exit(1)
+
+
+def loadJson(path):
+    f = open(path, "r", encoding="utf-8")
+    data = json.load(f)
+    f.close()
+    return data
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lang', default='', help='导入语言')
+    parser.add_argument('--mode', default='', help='更新模式')
+    args = parser.parse_args()
+    lang = args.lang
+    mode = args.mode
+
+    if lang == None or lang == '':
+        lang = 'zh_CN'
+    if mode == None or mode == '':
+        mode = 'truncate'
+
+    (dbclient, db) = AutoExecUtils.getDB()
+
+    current_path = os.path.abspath(__file__)
+    path = current_path + "/../../../../i18n/cmdbcollect"
+    path = os.path.abspath(path)
+    dirs = os.listdir(path)
+    table = '_dictionary'
+    collection = db[table]
+
+    for dfile in dirs:
+        info = dfile.split('.')
+        if (info[1] == lang):
+            name = info[0]
+            print("INFO: Import", dfile, "start...")
+            data = loadJson(path + "/" + dfile)
+            hasError = False
+            if 'collection' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'collection'.\n")
+            if 'filter' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'filter'.\n")
+            if 'label' not in data:
+                hasError = True
+                print("ERROR: Object decription data does not defined attribue 'label'.\n")
+
+            if hasError == False:
+                tableName = data['collection']
+                if mode == 'truncate':
+                    collection.delete_one({'name': name})
+
+                data['name'] = name
+                collection.replace_one({'name': name}, data, upsert=True)
+                collection.create_index([('name', 1)], name='idx_pk', unique=True)
+                print("INFO: Import", dfile, "success.")
+            else:
+                print("ERROR: Import", dfile, "failed.")
+    # 关闭连接
+    dbclient.close()

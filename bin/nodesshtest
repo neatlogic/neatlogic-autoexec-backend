@@ -1,0 +1,82 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 NeatLogic
+"""
+import sys
+import json
+import argparse
+import paramiko
+
+import initenv
+import VContext
+import Utils
+
+if __name__ == "__main__":
+    # 参数处理
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='{}', help='Json, example:{"nodeName":"myNode","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544471568384,"host":"192.168.0.101","nodeType":"Linux","protocolPort":22,"username":"root"}')
+    parser.add_argument('--host', default=None, help="Host name or Ip address, use this option if node not defined.")
+    parser.add_argument('--port', default=None, help="SSH port, default 22, use this option if node not defined.")
+    parser.add_argument('--username', default=None, help="UserName, use this option if node not defined.")
+    parser.add_argument('--password', default=None, help="Password, use this option if node not defined.")
+
+    args = parser.parse_args()
+    nodeInfo = json.loads(args.node)
+
+    if args.host is not None:
+        nodeInfo['host'] = args.host
+    if args.port is not None:
+        nodeInfo['port'] = int(args.port)
+    if args.username is not None:
+        nodeInfo['username'] = args.username
+    if args.password is not None:
+        nodeInfo['password'] = args.password
+
+    password = nodeInfo['password']
+    if password.startswith('{ENCRYPTED}'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
+    elif password.startswith('{RC4}'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[5:])
+    if password.startswith('RC:'):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[3:])
+
+    nodeInfo['password'] = password
+
+    protocol = nodeInfo.get('protocol')
+    protocolPort = nodeInfo.get('protocolPort')
+    servicePorts = nodeInfo.get('servicePorts')
+
+    if servicePorts is not None:
+        servicePort = servicePorts.get(protocol)
+        if servicePort is not None and servicePort != '':
+            protocolPort = servicePort
+
+    if protocol.startswith('tagent.'):
+        protocol = 'tagent'
+        protocolPortTxt = protocol[7:]
+        if protocolPortTxt != '':
+            protocolPort = int(protocolPortTxt)
+
+    if protocolPort is None or protocolPort == '':
+        protocolPort = nodeInfo.get('port', 0)
+
+    hasError = 0
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    sys.tracebacklimit = -1
+    try:
+        ssh.connect(hostname=nodeInfo['host'], port=protocolPort, username=nodeInfo['username'], password=nodeInfo['password'], banner_timeout=10, timeout=10)
+        print("INFO: Connect to {}@{}:{} success.".format(nodeInfo['username'], nodeInfo['host'], protocolPort))
+    except BaseException as ex:
+        hasError = 1
+        print("ERROR: Connect to {}@{}:{} failed, {}".format(nodeInfo['username'], nodeInfo['host'], protocolPort, ex))
+    finally:
+        if ssh is not None:
+            ssh.close()
+
+    exit(hasError)

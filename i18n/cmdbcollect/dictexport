@@ -1,0 +1,245 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+from docx import Document
+from docx import Document
+from docx.oxml.ns import qn
+from docx.shared import Pt, RGBColor
+from docx.shared import Inches
+import os
+import re
+import json
+import argparse
+
+
+class wordManager:
+    def __init__(self, outpath, lang, isVerbose):
+        if lang is None:
+            lang = 'zh_CN'
+        self.lang = lang
+
+        if isVerbose is None:
+            isVerbose = 0
+        self.isVerbose = isVerbose
+
+        filepath = os.path.split(os.path.realpath(__file__))[0]
+        filepath = os.path.realpath(filepath)
+        self.filepath = filepath
+
+        if outpath is None or outpath == '':
+            outpath = filepath + '/cmdb&inspect_attribute.docx'
+        self.outpath = outpath
+
+        table_titles = ["属性", "属性类型", "子集合", "描述"]
+        #按类型顺序生成文档内容
+        typeMap = {
+            "COLLECT_OS" : "操作系统",
+            "COLLECT_INS" : "中间件",
+            "COLLECT_DB" : "数据库",
+            "COLLECT_DBINS" : "数据库",
+            "COLLECT_CLUSTER" : "集群",
+            "COLLECT_K8S" : "K8S",
+            "COLLECT_VIRTUALIZED" : "虚拟化",
+            "COLLECT_HOST" : "服务器",
+            "COLLECT_SERVERDEV" : "服务器",
+            "COLLECT_LOADBALANCER" : "负载均衡",
+            "COLLECT_NETDEV" : "网络设备",
+            "COLLECT_SECDEV" : "安全设备",
+            "COLLECT_FIREWALL" : "防火墙",
+            "COLLECT_SWITCH" : "交换机",
+            "COLLECT_STORAGE" : "存储设备",
+            "COLLECT_FCSWITCH" : "光纤交换机",
+            "COLLECT_UNKNOWN" : "未知设备"
+        }
+        if lang != 'zh_CN' :
+            table_titles = ["Name", "Type", "Subset", "Describe"]
+            typeMap = {
+                "COLLECT_OS" : "OS",
+                "COLLECT_INS" : "Middleware",
+                "COLLECT_DB" : "Database",
+                "COLLECT_DBINS" : "Database",
+                "COLLECT_CLUSTER" : "Cluster",
+                "COLLECT_K8S" : "K8S",
+                "COLLECT_VIRTUALIZED" : "Virtualized",
+                "COLLECT_HOST" : "Host",
+                "COLLECT_SERVERDEV" : "Host",
+                "COLLECT_LOADBALANCER" : "LoadBalancer",
+                "COLLECT_NETDEV" : "Netdev",
+                "COLLECT_SECDEV" : "Secdev",
+                "COLLECT_FIREWALL" : "Firewall",
+                "COLLECT_SWITCH" : "Switch",
+                "COLLECT_STORAGE" : "Storage",
+                "COLLECT_FCSWITCH" : "Fcswitch",
+                "COLLECT_UNKNOWN" : "Unknown"
+            }
+        self.table_titles = table_titles
+        self.typeMap = typeMap
+        
+
+    def init_doc(self):
+        document = Document()
+        document.styles['Normal'].font.name = u'宋体'
+        document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+        document.styles['Normal'].font.size = Pt(10.5)
+        document.styles['Normal'].font.color.rgb = RGBColor(0, 0, 0)
+        return document
+
+    def add_titile(self, doc ,title , number):
+        title = doc.add_heading( title , number )
+        #title.add_run('\n' )
+
+    def add_paragraph(self, doc, data, text=None):
+        if text is None:
+            docroot = data['docroot']
+            if docroot is None or docroot == 'NULL':
+                docroot = ''
+            text = "逻辑集合:" + data['collection'] + "\t逻辑集合根目录:" + docroot + '\n详细指标:'
+            if self.lang != 'zh_CN' :
+                text = "Logicalset:" + data['collection'] + "\tLogicalset Root:" + docroot + '\nDetail Attribute:'
+        else:
+            if self.lang != 'zh_CN' :
+                text = text + 'Detail Attribute:'
+            else:
+                text = text + '详细指标:'
+
+        paragraph = doc.add_paragraph(text)
+        paragraph.paragraph_format.space_before = Pt(0)  # 设置段落 段前 0 磅
+        paragraph.paragraph_format.space_after = Pt(0)  # 设置段落   段后 0 磅
+        paragraph.paragraph_format.line_spacing = 1.5  # 设置该段落 行间距为 1.5倍
+#    paragraph.paragraph_format.first_line_indent=Inches(0.3346457)#相当于小四两个字符的缩进
+        paragraph.paragraph_format.left_indent = Inches(0)  # 设置左缩进 1英寸
+        paragraph.paragraph_format.right_indent = Inches(0)  # 设置右缩进 0.5 英寸
+#    paragraph.add_run('\n')
+
+    def add_childtable(self, doc, data, text):
+        # 关联table的text
+        self.add_paragraph(doc, data, text)
+
+        # 数据
+        self.add_table(doc, data)
+
+    def add_table(self, doc, data):
+        table = doc.add_table(rows=1, cols=len(self.table_titles))
+        # 设置表格样式
+        table.style = 'Light List Accent 1'
+        # 设置标题
+        title_cells = table.rows[0].cells
+        for i in range(len(self.table_titles)):
+            title_cells[i].text = self.table_titles[i]
+
+        data_list = []
+        if 'fields' in data:
+            data_list = data['fields']
+        elif isinstance(data, list):
+            data_list = data
+
+        # 设置内容
+        for field in data_list:
+            row_cells = table.add_row().cells
+            tp = field['type']
+            name = field['name']
+            desc = field['desc']
+            child_res = ''
+            if tp == 'JsonArray' or tp == 'JsonObject':
+                # 集合名
+                if 'label' in data:
+                    dic_name = data['label'].replace(' ', '')
+                    child_res = dic_name + '_' + name
+
+            for i in range(len(self.table_titles)):
+                if i == 0:
+                    row_cells[i].text = name
+                elif i == 1:
+                    row_cells[i].text = tp
+                elif i == 2:
+                    row_cells[i].text = child_res
+                else:
+                    row_cells[i].text = desc
+
+            if child_res != '' and 'subset' in field:
+                self.add_childtable(doc, field['subset'], child_res)
+
+    def save(self, doc):
+        if os.path.isfile(self.outpath):
+            try:
+                os.remove(self.outpath)
+            except BaseException as e:
+                print(e)
+
+        doc.save(self.outpath)
+        if isVerbose == 1:
+            print('FINE:: Save dict word file', self.outpath)
+
+    def scan_data(self):
+        data_map = {}
+        define_map = self.typeMap
+        for filename in os.listdir(self.filepath):
+            filepath = os.path.join(self.filepath, filename)
+            if os.path.isfile(filepath):
+                info = filepath.split(".")
+                if (len(info) != 3):
+                    continue
+                suffix = info[2]
+                lang = info[1]
+                if suffix == "json" and lang == self.lang:
+                    if isVerbose == 1:
+                        print('INFO:: Load file data', filepath)
+                    with open(filepath, 'r', encoding='utf8') as fp:
+                        data_obj = json.load(fp)
+                        key = data_obj['collection']
+                        value = "Other"
+                        if key in define_map:
+                            value = define_map[key]
+
+                        data_list = []
+                        if value in data_map :
+                            data_list = data_map[value]
+                        data_list.append(data_obj)
+                        data_map[value] = data_list
+        return data_map
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lang', default='zh_CN', help='')
+    parser.add_argument('--outpath', default='', help='output file path')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+
+    args = parser.parse_args()
+    lang = args.lang
+    outpath = args.outpath
+    isVerbose = int(args.verbose)
+
+    word = wordManager(outpath, lang, isVerbose)
+    doc = word.init_doc()
+    data_map = word.scan_data()
+    define_map = word.typeMap
+
+    typecount = 1
+    validMap = {}
+    for tp in define_map:
+        value = define_map[tp]
+        tcount = 1
+        
+        if value not in data_map or value in validMap :
+            continue 
+        
+        #第一层分类
+        frist_title = str(typecount) + value
+        word.add_titile(doc , frist_title , 1)
+
+        data_list = data_map[value]
+        for data in data_list :
+            # 具体类型
+            second_title = str(typecount) + '.' + str(tcount)  + data['label'].replace(' ', '')
+            if isVerbose == 1:
+                print('INFO:: Add chapter to word', data['label'])
+            word.add_titile(doc, second_title , 2 )
+            # 段落
+            word.add_paragraph(doc, data)
+            # 数据
+            word.add_table(doc, data)
+            tcount = tcount + 1
+        typecount = typecount + 1
+        validMap[value] = 1
+    word.save(doc)

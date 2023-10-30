@@ -1,0 +1,197 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use POSIX;
+use Encode;
+use Getopt::Long;
+use Net::Netmask;
+
+use AutoExecUtils;
+
+sub getWindowsDiskSize {
+    my ($driver) = @_;
+
+    $driver = substr( $driver, 0, 2 );
+    my $totalSize;
+
+    eval {
+        require Win32::DriveInfo;
+        my @diskInfo = Win32::DriveInfo::DriveSpace($driver);
+        $totalSize = int( int( $diskInfo[5] ) / 1024 / 1024 + 0.5 );
+    };
+
+    if ( $@ or not defined($totalSize) or $totalSize eq '' ) {
+        my $info  = `wmic logicaldisk get DeviceID,size`;
+        my @lines = split( "\n", $info );
+        if ( scalar(@lines) >= 2 ) {
+            my $firstLine = shift(@lines);
+            foreach my $line (@lines) {
+                $line =~ s/^\s*|\s*$//g;
+                my ( $drv, $size ) = split( /\s+/, $line );
+                if ( uc($drv) eq uc($driver) ) {
+                    $totalSize = int( int($size) / 1024 / 1024 + 0.5 );
+                }
+            }
+        }
+    }
+
+    return $totalSize;
+}
+
+sub main {
+    my $blockDevListTxt = '';
+
+    GetOptions( 'blockdevs=s' => \$blockDevListTxt );
+
+    my @uname  = uname();
+    my $osType = $uname[0];
+
+    my $hasError         = 0;
+    my @blockDevSizeInfo = ();
+
+    $blockDevListTxt =~ s/\\n/\n/sg;
+
+    foreach my $devPath ( split( /\n/, $blockDevListTxt ) ) {
+        $devPath =~ s/^\s*|\s*$//g;
+        if ( $devPath eq '' ) {
+            next;
+        }
+
+        my $diskInfo = { device => $devPath, size => undef };
+
+        if ( $osType =~ /Windows/i ) {
+            my $diskSize = getWindowsDiskSize($devPath);
+            if ( defined($diskSize) ) {
+                $diskInfo->{size} = $diskSize;
+                print("$devPath\t${diskSize}MB\n");
+            }
+            else {
+                $hasError = 1;
+                print("ERROR: $devPath is not exists or is not a block device.\n");
+            }
+        }
+        else {
+            my $blockCmdPath;
+            for my $binDir ( '/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin' ) {
+                if ( -x "$binDir/blockdev" ) {
+                    $blockCmdPath = "$binDir/blockdev";
+                    last;
+                }
+            }
+
+            if ( defined($blockCmdPath) ) {
+                ## blockdev --getsize64 /dev/sdb
+                #107374182400
+                my $diskSize = `$blockCmdPath --getsize64 "$devPath"`;
+                if ( $? == 0 ) {
+                    $diskSize = int( $diskSize / 1024 / 1024 + 0.5 );
+                    $diskInfo->{size} = $diskSize;
+                    print("$devPath\t${diskSize}MB\n");
+                }
+                else {
+                    $hasError = 1;
+                    print("ERROR: $devPath is not exists or is not a block device.\n");
+                }
+            }
+            else {
+                if ( $osType =~ /AIX/i ) {
+
+                    # getconf DISK_SIZE /dev/hdiskxx
+                    #* 1048576
+                    my $blockCmdPath;
+                    for my $binDir ( '/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin' ) {
+                        if ( -x "$binDir/getconf" ) {
+                            $blockCmdPath = "$binDir/getconf";
+                            last;
+                        }
+                        if ( defined($blockCmdPath) ) {
+                            my $diskSize = `$blockCmdPath DISK_SIZE "$devPath"`;
+                            if ( $? == 0 ) {
+                                $diskSize = int($diskSize);
+                                $diskInfo->{size} = $diskSize;
+                                print("$devPath\t${diskSize}MB\n");
+                            }
+                            else {
+                                $hasError = 1;
+                                print("ERROR: $devPath is not exists or is not a block device.\n");
+                            }
+                        }
+                    }
+                }
+                elsif ( $osType - ~/SunOS/i ) {
+
+                    # # prtvtoc /dev/dsk/c0t1d0
+                    # * /dev/dsk/c0t1d0 partition map
+                    # *
+                    # * Dimensions:
+                    # *     512 bytes/sector
+                    # * 3907029167 sectors
+                    # * 3907029100 accessible sectors
+                    # *
+                    # * Flags:
+                    # *   1: unmountable
+                    # *  10: read-only
+                    # *
+                    # * Unallocated space:
+                    # *       First     Sector    Last
+                    # *       Sector     Count    Sector
+                    # *          34       222       255
+                    # *
+                    # *                          First     Sector    Last
+                    # * Partition  Tag  Flags    Sector     Count    Sector  Mount Directory
+                    #     0      4    00        256 3907012494 3907012749
+                    #     8     11    00  3907012750     16384 3907029133
+                    my $blockCmdPath;
+                    for my $binDir ( '/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin' ) {
+                        if ( -x "$binDir/prtvtoc" ) {
+                            $blockCmdPath = "$binDir/prtvtoc";
+                            last;
+                        }
+                        if ( defined($blockCmdPath) ) {
+                            my $diskInfoTxt = `$blockCmdPath "$devPath"`;
+                            if ( $? == 0 ) {
+                                my $sectors   = 0;
+                                my $blockSize = 512;
+                                if ( $diskInfoTxt =~ /(\d+)\s*sectors/is ) {
+                                    $sectors = int($1);
+                                }
+                                if ( $diskInfoTxt =~ /(\d+)\s*bytes\/sector/is ) {
+                                    $blockSize = int($1);
+                                }
+                                my $diskSize = int( $sectors * $blockSize / 1024 / 1024 + 0.5 );
+                                $diskInfo->{size} = $diskSize;
+                                print("$devPath\t${diskSize}MB\n");
+                            }
+                            else {
+                                $hasError = 1;
+                                print("ERROR: $devPath is not exists or is not a block device.\n");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        push( @blockDevSizeInfo, $diskInfo );
+    }
+
+    my $blockDevSizeList = '';
+    foreach my $blockDevInfo (@blockDevSizeInfo) {
+        my $diskSizeLine = $blockDevInfo->{device} . "\t" . $blockDevInfo->{size} . "\n";
+        $blockDevSizeList = $blockDevSizeList . $diskSizeLine;
+    }
+
+    my $out = {};
+    $out->{blockDevSizeInfo} = \@blockDevSizeInfo;
+    $out->{blockDevSizeList} = $blockDevSizeList;
+
+    AutoExecUtils::saveOutput($out);
+
+    return $hasError;
+}
+
+exit main();

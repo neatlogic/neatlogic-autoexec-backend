@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import time
+import argparse
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seconds', default='3', help='sleep seconds')
+    args = parser.parse_args()
+
+    sleepSeconds = int(args.seconds)
+    print("INFO: Start : %s" % time.ctime())
+    time.sleep(sleepSeconds)
+    print("INFO: End : %s" % time.ctime())

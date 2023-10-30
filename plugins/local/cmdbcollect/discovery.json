@@ -1,0 +1,97 @@
+{
+    "opName": "CMDB自动发现",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "使用SNMP协议查询线上设备,识别设备类型并采集信息",
+    "option": [
+        {
+            "opt": "nets",
+            "name": "网段",
+            "help": "扫描的网段, 例如: 192.168.0.0/24,192.168.1.0/24",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "192.168.0.0/24,192.168.1.0/24"
+        },
+        {
+            "opt": "ports",
+            "name": "端口列表",
+            "help": "扫描的的端口列表, 例如: 22,161,135,139,445,3389,3939",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "22,161,135,139,445,3389,3939"
+        },
+        {
+            "opt": "snmpport",
+            "name": "SNMP端口",
+            "help": "SNMP端口号",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "161"
+        },
+        {
+            "opt": "communities",
+            "name": "团体字",
+            "help": "扫描用的SNMP团体字JSON数组",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "[\"public\",\"mary\"]"
+        },
+        {
+            "opt": "workercount",
+            "name": "WORKER数量",
+            "help": "WOKER线程数量",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "16"
+        },
+        {
+            "opt": "timingtmpl",
+            "name": "速度级别",
+            "help": "1最慢,5最快",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "1",
+                        "value": "1"
+                    },
+                    {
+                        "text": "2",
+                        "value": "2"
+                    },
+                    {
+                        "text": "3",
+                        "value": "3"
+                    },
+                    {
+                        "text": "4",
+                        "value": "4"
+                    },
+                    {
+                        "text": "5",
+                        "value": "5"
+                    }
+                ]
+            },
+            "defaultValue": "4"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
+}

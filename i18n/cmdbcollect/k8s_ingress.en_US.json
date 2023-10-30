@@ -1,0 +1,129 @@
+{
+    "label": "K8S_INGRESS",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.INGRESS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_INGRESS"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "Annotations",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_SERVICES",
+            "desc": "Contain Services",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CREATEDATE",
+            "desc": "CreateDate",
+            "type": "String"
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "Namespace",
+            "type": "String"
+        },
+        {
+            "name": "RULES",
+            "desc": "Rules",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "HOST",
+                    "desc": "Host",
+                    "type": "String"
+                },
+                {
+                    "name": "METHOD",
+                    "desc": "Method",
+                    "type": "String"
+                },
+                {
+                    "name": "PATH",
+                    "desc": "Path",
+                    "type": "String"
+                },
+                {
+                    "name": "PATHTYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "Selector",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "UID",
+            "desc": "Uid",
+            "type": "String"
+        }
+    ]
+}

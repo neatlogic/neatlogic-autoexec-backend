@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+use strict;
+use FindBin;
+
+use File::Basename;
+use Cwd 'realpath';
+use Getopt::Long;
+
+use DeployUtils;
+use CheckService;
+
+sub usage {
+    my $pname = basename($0);
+
+    print("Usage: $pname [--timeout TimeOutSecs] [--keyword MatchecKeyword] addr1...addrN\n");
+    print("       --timeout:   checking timeout in seconds.\n");
+    print("       --keyword:   http reponse keyword, if the addr is not url, it will be ignore.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $timeout, $keyword );
+    my $isVerbose = 0;
+    my @items     = ();
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'timeout=i'   => \$timeout,
+        'keyword=s'   => \$keyword,
+        '<>'          => sub { my $item = shift(@_); push( @items, $item ); }
+    );
+
+    usage() if ($isHelp);
+
+    if ( not defined($timeout) ) {
+        $timeout = 300;
+    }
+
+    my $status = CheckService::checkServiceAvailable( \@items, $keyword, 'GET', $timeout );
+
+    if ( $status == 0 ) {
+        return 2;
+    }
+
+    return 0;
+}
+
+exit main();
+

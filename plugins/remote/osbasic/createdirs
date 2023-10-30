@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use File::Spec;
+use JSON;
+use Getopt::Long;
+use File::Basename qw(dirname);
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname <directorys> <directorys2> ...\n");
+    exit(1);
+}
+
+sub main {
+    my $pname = $FindBin::Script;
+
+    my $mode = '0775';
+    my $user;
+    my $group;
+
+    GetOptions(
+        'mode=s'  => \$mode,
+        'user=s'  => \$user,
+        'group=s' => \$group
+    );
+
+    $mode = oct($mode);
+
+    my $allDirTxt = '';
+    foreach my $dirTxt (@ARGV) {
+        $dirTxt =~ s/\\n/\n/sg;
+        $dirTxt =~ s/^\s*|\s*$//sg;
+        $allDirTxt = $allDirTxt . "\n" . $dirTxt;
+    }
+
+    my $hasError = 0;
+
+    my ( $login, $pass, $uid, $gid );
+    if ( defined($user) and $user ne '' ) {
+        ( $login, $pass, $uid, $gid ) = getpwnam($user);
+        if ( not defined($uid) ) {
+            $hasError = 1;
+            print("ERROR: User:$user not exists.\n");
+        }
+    }
+    if ( defined($group) and $group ne '' ) {
+        $gid = getgrnam($group);
+        if ( not defined($gid) ) {
+            $hasError = 1;
+            print("ERROR: Group:$group not exists.\n");
+        }
+    }
+
+    $allDirTxt =~ s/^\s*|\s*$//sg;
+    if ( $allDirTxt eq '' ) {
+        print("WARN: Directory list is empty.\n");
+    }
+    else {
+        foreach my $dir ( split( "\n", $allDirTxt ) ) {
+            my @dirPathNames = File::Spec->splitdir($dir);
+            my $count        = scalar(@dirPathNames);
+            my $dirPath      = '';
+            for ( my $i = 0 ; $i < $count ; $i++ ) {
+                $dirPath = File::Spec->catdir( $dirPath, $dirPathNames[$i] );
+                if ( not -e $dirPath ) {
+                    if ( not mkdir( $dirPath, $mode ) ) {
+                        $hasError = 1;
+                        print("ERROR: Create directory:$dir failed, $!\n");
+                        last;
+                    }
+                    if ( defined($uid) and defined($gid) ) {
+                        if ( not chown( $uid, $gid, $dirPath ) ) {
+                            $hasError = 1;
+                            print("ERROR: Change directory:$dir owner to $uid:$gid failed, $!\n");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

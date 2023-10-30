@@ -1,0 +1,306 @@
+{
+    "opName": "OS和应用CMDB",
+    "opType": "target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
+    "option": [{
+            "opt": "class",
+            "name": "采集类列表",
+            "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
+            "type": "multiselect",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "全部",
+                        "value": ""
+                    },
+                    {
+                        "text": "操作系统",
+                        "value": "OS"
+                    },
+                    {
+                        "text": "Informix",
+                        "value": "Informix"
+                    },
+                    {
+                        "value": "IIS",
+                        "text": "IIS"
+                    },
+                    {
+                        "value": "Elasticsearch",
+                        "text": "Elasticsearch"
+                    },
+                    {
+                        "text": "Hadoop",
+                        "value": "Hadoop"
+                    },
+                    {
+                        "text": "Java",
+                        "value": "Java"
+                    },
+                    {
+                        "text": "JBoss",
+                        "value": "JBoss"
+                    },
+                    {
+                        "text": "Jetty",
+                        "value": "Jetty"
+                    },
+                    {
+                        "value": "Kafka",
+                        "text": "Kafka"
+                    },
+                    {
+                        "value": "Keepalived",
+                        "text": "Keepalived"
+                    },
+                    {
+                        "value": "Lighttpd",
+                        "text": "Lighttpd"
+                    },
+                    {
+                        "value": "Memcached",
+                        "text": "Memcached"
+                    },
+                    {
+                        "value": "Mongodb",
+                        "text": "Mongodb"
+                    },
+                    {
+                        "value": "MSSQLServer",
+                        "text": "MSSQLServer"
+                    },
+                    {
+                        "value": "Mysql",
+                        "text": "Mysql"
+                    },
+                    {
+                        "value": "Nginx",
+                        "text": "Nginx"
+                    },
+                    {
+                        "value": "Oracle",
+                        "text": "Oracle"
+                    },
+                    {
+                        "text": "OracleRAC",
+                        "value": "OracleRAC"
+                    },
+                    {
+                        "value": "PHP",
+                        "text": "PHP"
+                    },
+                    {
+                        "value": "Postgresql",
+                        "text": "Postgresql"
+                    },
+                    {
+                        "value": "Python",
+                        "text": "Python"
+                    },
+                    {
+                        "value": "RabbitMQ",
+                        "text": "RabbitMQ"
+                    },
+                    {
+                        "value": "Redis",
+                        "text": "Redis"
+                    },
+                    {
+                        "text": "Resin",
+                        "value": "Resin"
+                    },
+                    {
+                        "value": "Sybase",
+                        "text": "Sybase"
+                    },
+                    {
+                        "value": "ActiveMQ",
+                        "text": "ActiveMQ"
+                    },
+                    {
+                        "value": "Apache",
+                        "text": "Apache"
+                    },
+                    {
+                        "value": "DB2",
+                        "text": "DB2"
+                    },
+                    {
+                        "text": "Tomcat",
+                        "value": "Tomcat"
+                    },
+                    {
+                        "text": "Tuxedo",
+                        "value": "Tuxedo"
+                    },
+                    {
+                        "text": "Weblogic",
+                        "value": "Weblogic"
+                    },
+                    {
+                        "text": "WebSphere",
+                        "value": "WebSphere"
+                    },
+                    {
+                        "text": "WebSphereMQ",
+                        "value": "WebSphereMQ"
+                    },
+                    {
+                        "text": "Zookeeper",
+                        "value": "Zookeeper"
+                    },
+                    {
+                        "text": "Docker",
+                        "value": "Docker"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "Mysql",
+            "name": "Mysql账户",
+            "help": "例如：采集数据需要用到的Mysql的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Postgresql",
+            "name": "Postgresql账户",
+            "help": "例如：采集数据需要用到的Postgresql的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "MSSQLServer",
+            "name": "MSSQLServer账户",
+            "help": "例如：采集数据需要用到的MSSQLServer的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Mongodb",
+            "name": "Mongdb账户",
+            "help": "例如：采集数据需要用到的MongoDB的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "defaultpassconf",
+            "name": "默认密码设置",
+            "help": "如没有选择账号，请输入，例如：Mysql:root/pass1234,Postgresql:demo/test1234",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "inspect",
+            "name": "巡检检查",
+            "help": "采集更详细的巡检数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "containner",
+            "name": "采集容器",
+            "help": "是否采集容器信息，如:docker",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不采集",
+                        "value": "0"
+                    },
+                    {
+                        "text": "采集",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "procenvname",
+            "name": "进程特征环境变量",
+            "help": "对于未识别的进程，如果含有此环境变量则自动采集",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "debug",
+            "name": "显示明细",
+            "help": "显示命令执行的详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [{
+        "opt": "DATA",
+        "name": "JSON数据",
+        "help": "采集到的数据",
+        "type": "json"
+    }]
+}

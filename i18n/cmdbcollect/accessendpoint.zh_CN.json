@@ -1,0 +1,49 @@
+{
+    "label": "访问入口",
+    "collection": "COLLECT_ACCESSENDPOINT",
+    "docroot": null,
+    "collection_label": "接入点",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "监听端口",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "访问地址",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_TYPE",
+            "desc": "访问类型",
+            "type": "String"
+        }
+    ]
+}

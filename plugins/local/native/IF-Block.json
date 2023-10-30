@@ -1,0 +1,14 @@
+{
+    "opDesc": "条件判断IF-ELSE",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "使用IF-ELSE组合多个工具",
+    "enabled": 1,
+    "condition": "",
+    "if": [],
+    "else": [],
+    "option": []
+}
