@@ -181,6 +181,11 @@ sub main {
         }
     }
 
+    if ( not defined($sqlFiles) ) {
+        print("ERROR: Get sql files failed.\n");
+        return 3;
+    }
+
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
 
     my $dbSchemasMap = {};
