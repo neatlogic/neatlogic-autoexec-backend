@@ -9,31 +9,6 @@
     "enabled": 1,
     "option": [
         {
-            "opt": "rerunStrategy",
-            "name": "重跑策略",
-            "help": "设置当之前已经创建过作业时的重跑策略",
-            "type": "select",
-            "required": "false",
-            "validate": "",
-            "dataSource": {
-                "dataList": [
-                    {
-                        "text": "跳过所有已成功、已忽略节点",
-                        "value": "refireAll"
-                    },
-                    {
-                        "text": "重跑所有节点",
-                        "value": "refireResetAll"
-                    },
-                    {
-                        "text": "新建作业",
-                        "value": "create"
-                    }
-                ]
-            },
-            "defaultValue": "refireAll"
-        },
-        {
             "opt": "proxytourl",
             "name": "其他环境地址",
             "help": "如是在当前发布系统创建作业，则留空",

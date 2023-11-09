@@ -26,7 +26,7 @@ class EvenPairsAction(argparse.Action):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rerunStrategy', type=str,  help='重跑策略', required=False)
+    # parser.add_argument('--rerunStrategy', type=str,  help='重跑策略', required=False)
     parser.add_argument('--combopName', type=str,  help='组合工具名', required=True)
     parser.add_argument('--name', type=str, help='作业名', required=True)
     parser.add_argument('--scenarioName', type=str, default='', help='场景名', required=False)
@@ -86,9 +86,8 @@ if __name__ == "__main__":
             user = os.environ.get('AUTOEXEC_USER')
             password = passThroughEnv.get('EXECUSER_TOKEN')
 
-
-    if args.rerunStrategy != 'create':
-
+    outputPath = os.getenv('NODE_OUTPUT_PATH')
+    if os.path.exists(outputPath):
         prev_data = AutoExecUtils.getOpPreOutput()
         if prev_data and prev_data.get('createdJobId'):
             createdJobId = prev_data.get('createdJobId')
@@ -102,7 +101,7 @@ if __name__ == "__main__":
             if job_status in ('aborted', 'paused', 'completed', 'failed'):
                 print('作业重跑')
                 # 这个接口没有返回值
-                serverAdapter.refireJob({'jobId': createdJobId, 'type': args.rerunStrategy}, user, password)
+                serverAdapter.refireJob({'jobId': createdJobId, 'type': 'refireAll'}, user, password)
             exit(0)
 
     resp = serverAdapter.createJobFromCombop(data, user, password)
