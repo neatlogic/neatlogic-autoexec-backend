@@ -396,6 +396,8 @@ sub replacePlaceHolder {
 
     $env = lc($env);
 
+    my @filesToBeDeleted = ();
+
     #$instance = lc($instance);
     if ( defined($insInfo) and $fileName =~ /\.$env\.(.+)\.$suffix(\/|$)/i ) {
         my $expectIns = lc($1);
@@ -455,8 +457,11 @@ sub replacePlaceHolder {
                 }
                 chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
                 if ( $cleanAutoCfgFiles == 1 ) {
-                    rmtree($fileName);
-                    rmtree("$fileName.md5");
+
+                    #rmtree($fileName);
+                    #rmtree("$fileName.md5");
+                    push( @filesToBeDeleted, $fileName );
+                    push( @filesToBeDeleted, "$fileName.md5" );
                 }
                 $fileName   = "$orgFileName.$suffix";
                 $recfgAgain = 1;
@@ -497,8 +502,11 @@ sub replacePlaceHolder {
             }
             chmod( ( stat($fileName) )[2], "$orgFileName.$suffix" );
             if ( $cleanAutoCfgFiles == 1 ) {
-                rmtree($fileName);
-                rmtree("$fileName.md5");
+
+                #rmtree($fileName);
+                #rmtree("$fileName.md5");
+                push( @filesToBeDeleted, $fileName );
+                push( @filesToBeDeleted, "$fileName.md5" );
             }
             $fileName   = "$orgFileName.$suffix";
             $recfgAgain = 1;
@@ -644,14 +652,23 @@ sub replacePlaceHolder {
             print("ERROR: Copy file $fileName to $orgFileName failed:$!\n");
         }
 
-        if ( $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
+        if ( $self->{hasError} == 0 and $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
             rmtree($fileName);
         }
     }
 
     if ( $cleanAutoCfgFiles == 1 and -e $fileName ) {
-        rmtree($fileName);
-        rmtree("$fileName.md5");
+
+        #rmtree($fileName);
+        #rmtree("$fileName.md5");
+        push( @filesToBeDeleted, $fileName );
+        push( @filesToBeDeleted, "$fileName.md5" );
+    }
+
+    if ( $self->{hasError} == 0 ) {
+        for my $filePath (@filesToBeDeleted) {
+            rmtree($filePath);
+        }
     }
 
     #print("DEBUG:instance has replace, count:$insCount\n") if ( $insCount > 0 );
