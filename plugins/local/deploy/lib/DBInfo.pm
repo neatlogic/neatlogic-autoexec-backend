@@ -46,6 +46,7 @@ sub new {
 
     $self->{node} = $nodeInfo;
 
+    my @addrs       = ();
     my $addrsMap    = {};
     my $serviceAddr = $nodeInfo->{serviceAddr};
     if ( defined($serviceAddr) ) {
@@ -59,9 +60,15 @@ sub new {
             my $port = $2;
             $addrsMap->{"$host:$port"} = { host => $host, port => int($port) };
         }
-        my @addrs = values(%$addrsMap);
-        $self->{addrs} = \@addrs;
+        @addrs = values(%$addrsMap);
     }
+    if ( scalar(@addrs) == 0 ) {
+        my $host = $self->{host};
+        my $port = $self->{port};
+        @addrs = ("$host:$port");
+    }
+
+    $self->{addrs} = \@addrs;
 
     my $dbName = $args->{dbName};
     if ( defined($dbName) ) {
