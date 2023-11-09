@@ -95,6 +95,9 @@ sub main {
         usage();
     }
 
+    my $hasError = 0;
+    my $ret      = 0;
+
     my $dirInfo = $deployUtils->getDataDirStruct($deployEnv);
 
     #sqlfile, log, status
@@ -158,6 +161,11 @@ sub main {
         $rollbackSqlFiles = $batchUtils->getSqlFilePath( $filter, 1 );
     }
 
+    if ( not defined($sqlFiles) or not defined($rollbackSqlFiles) ) {
+        print("ERROR: Get sql files by index:$index failed.\n");
+        return 3;
+    }
+
     #普通SQL的导入
     my $sqlFileRunner = SQLFileRunner->new(
         jobId        => $jobId,
@@ -187,9 +195,6 @@ sub main {
         logFileDir   => $logFileDir,
         sqlFiles     => $rollbackSqlFiles
     );
-
-    my $hasError = 0;
-    my $ret      = 0;
 
     my $lock      = DeployLock->new($deployEnv);
     my $sqlLockId = $lock->lockEnvSql($DeployLock::READ);
