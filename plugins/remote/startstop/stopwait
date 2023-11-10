@@ -150,19 +150,21 @@ sub main {
 
         END {
             local $?;
-            if ( defined($endPreScript) ) {
+            if ( defined($endPreScript) and $endPreScript ne '' ) {
                 my $isStop = 0;
 
-                kill( 'INT', $pid );
-                for ( my $i = 0 ; $i < 10 ; $i++ ) {
-                    if ( waitpid( $pid, 1 ) < 0 ) {
-                        $isStop = 1;
-                        last;
+                if ( defined($pid) and $pid != 0 ) {
+                    kill( 'INT', $pid );
+                    for ( my $i = 0 ; $i < 10 ; $i++ ) {
+                        if ( waitpid( $pid, 1 ) < 0 ) {
+                            $isStop = 1;
+                            last;
+                        }
                     }
-                }
 
-                if ( $isStop == 0 ) {
-                    kill( 'KILL', $pid );
+                    if ( $isStop == 0 ) {
+                        kill( 'KILL', $pid );
+                    }
                 }
             }
         }
