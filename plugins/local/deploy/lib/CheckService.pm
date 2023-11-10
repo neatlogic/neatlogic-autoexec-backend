@@ -159,7 +159,7 @@ sub checkServiceAvailable {
 }
 
 sub checkServiceDown {
-    my ( $addrs, $method, $timeout ) = @_;
+    my ( $addrs, $method ) = @_;
 
     my $isDowned     = 0;
     my $addrCheckMap = {};
@@ -170,7 +170,7 @@ sub checkServiceDown {
     for my $addr (@$addrs) {
         if ( $addrCheckMap->{$addr} != 1 ) {
             if ( $addr =~ /^([\d\.]+):(\d+)$/ ) {
-                if ( not _checkTcp( $1, $2, undef, $timeout ) == 1 ) {
+                if ( not _checkTcp( $1, $2, undef, 5 ) == 1 ) {
                     $addrCheckMap->{$addr} = 1;
                 }
                 else {
@@ -178,7 +178,7 @@ sub checkServiceDown {
                 }
             }
             else {
-                if ( not _checkUrl( $addr, undef, $method, $timeout ) == 1 ) {
+                if ( not _checkUrl( $addr, undef, $method, 5 ) == 1 ) {
                     $addrCheckMap->{$addr} = 1;
                 }
                 else {

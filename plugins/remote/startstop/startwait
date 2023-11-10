@@ -136,12 +136,12 @@ sub main {
         }
     }
 
-    my $isStarted = 1;
+    my $isStopped = 1;
     if ( defined($addr) and $addr ne '' ) {
-        $isStarted = CheckService::checkServiceAvailable( [$addr], undef, 'GET', $timeout );
+        $isStopped = CheckService::checkServiceDown( [$addr], 'GET' );
     }
 
-    if ( $isStarted == 1 ) {
+    if ( $isStopped == 0 ) {
         print("INFO: Service is already started.\n");
         return 0;
     }
