@@ -187,7 +187,6 @@ sub checkServiceDown {
     }
     if ( $allDowned == 1 ) {
         $isDowned = 1;
-        last;
     }
 
     if ( $isDowned == 1 ) {
