@@ -158,5 +158,46 @@ sub checkServiceAvailable {
     return $isSuccess;
 }
 
+sub checkServiceDown {
+    my ( $addrs, $method, $timeout ) = @_;
+
+    my $isDowned     = 0;
+    my $addrCheckMap = {};
+
+    print("INFO: Check if service is downed....\n");
+
+    my $allDowned = 1;
+    for my $addr (@$addrs) {
+        if ( $addrCheckMap->{$addr} != 1 ) {
+            if ( $addr =~ /^([\d\.]+):(\d+)$/ ) {
+                if ( not _checkTcp( $1, $2, undef, $timeout ) == 1 ) {
+                    $addrCheckMap->{$addr} = 1;
+                }
+                else {
+                    $allDowned = 0;
+                }
+            }
+            else {
+                if ( not _checkUrl( $addr, undef, $method, $timeout ) == 1 ) {
+                    $addrCheckMap->{$addr} = 1;
+                }
+                else {
+                    $allDowned = 0;
+                }
+            }
+        }
+    }
+    if ( $allDowned == 1 ) {
+        $isDowned = 1;
+        last;
+    }
+
+    if ( $isDowned == 1 ) {
+        print("INFO: Service is downed.\n");
+    }
+
+    return $isDowned;
+}
+
 1;
 
