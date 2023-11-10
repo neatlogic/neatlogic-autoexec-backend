@@ -7,13 +7,15 @@
     "defaultProfile": null,
     "description": "远程执行命令",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "interpreter",
             "name": "脚本解析器",
             "help": "脚本解析器",
             "type": "select",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "perl",
                         "value": "perl"
                     },
@@ -26,12 +28,28 @@
                         "value": "bash"
                     },
                     {
+                        "text": "sh",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "ksh",
+                        "value": "ksh"
+                    },
+                    {
+                        "text": "csh",
+                        "value": "csh"
+                    },
+                    {
                         "text": "ruby",
                         "value": "ruby"
                     },
                     {
-                        "text": "bat",
-                        "value": "bat"
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
                     },
                     {
                         "text": "vbscript",
@@ -62,7 +80,8 @@
             "help": "远程服务端执行编码",
             "type": "select",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "自动(仅支持Agent)",
                         "value": "auto"
                     },
