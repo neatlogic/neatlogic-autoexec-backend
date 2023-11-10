@@ -36,6 +36,7 @@ sub new {
         #如果EUID是0，那么运行用户就是root
         $isRoot = 1;
     }
+    $self->{isRoot} = $isRoot;
 
     bless( $self, $type );
 
@@ -113,7 +114,7 @@ sub new {
             }
             else {
                 $sqlplusCmd = qq(sqlplus -s -R 1 -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
-                if ( $isRoot and defined( $args{osUser} ) ) {
+                if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
                     $sqlplusCmd = qq(su - $osUser -c "ORACLE_SID=$oraSid sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
                 }
             }
@@ -142,7 +143,7 @@ sub getOraEnv {
         $evalCmd = '. ~/.bash_profile;env';
     }
 
-    if ( defined($osUser) and $osUser ne '' ) {
+    if ( $self->{isRoot} == 1 and defined($osUser) and $osUser ne 'root' and $osUser ne '' and $self->{osType} ne 'Windows' ) {
         $evalCmd = "su - $osUser -c env";
     }
 
