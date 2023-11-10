@@ -8,6 +8,7 @@ use Encode;
 use Getopt::Long;
 use File::Basename;
 use LogTailer;
+use CheckService;
 
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
@@ -74,6 +75,16 @@ sub main {
 
     if ( $optError == 1 ) {
         usage();
+    }
+
+    my $isStopped = 1;
+    if ( defined($addr) and $addr ne '' ) {
+        $isStopped = CheckService::checkServiceDown( [$addr], 'GET', $timeout );
+    }
+
+    if ( $isStopped == 1 ) {
+        print("INFO: Service is already stopped.\n");
+        return 0;
     }
 
     my $logPatternsMap = {};

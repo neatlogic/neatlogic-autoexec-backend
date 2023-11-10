@@ -9,6 +9,7 @@ use Encode;
 use Getopt::Long;
 use File::Basename;
 use LogTailer;
+use CheckService;
 
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
@@ -133,6 +134,16 @@ sub main {
 
             push( @serverLogInfos, $logInfo );
         }
+    }
+
+    my $isStarted = 1;
+    if ( defined($addr) and $addr ne '' ) {
+        $isStarted = CheckService::checkServiceAvailable( [$addr], undef, 'GET', $timeout );
+    }
+
+    if ( $isStarted == 1 ) {
+        print("INFO: Service is already started.\n");
+        return 0;
     }
 
     my $pid;
