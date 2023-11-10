@@ -58,6 +58,8 @@ sub getAllSchema {
 sub getSqlFilePathByIdx {
     my ( $self, $indexes, $nameFilter, $isRollback ) = @_;
 
+    my $hasError = 0;
+
     if ( not defined($isRollback) ) {
         $isRollback = 0;
     }
@@ -72,7 +74,11 @@ sub getSqlFilePathByIdx {
     my $idxFileMap  = {};
     my @allSqlFiles = ();
     for my $idxPattern (@idxPatterns) {
-        for my $idxFile ( bsd_glob("$distDir/db/$idxPattern") ) {
+        my @idxFilePaths = bsd_glob("$distDir/db/$idxPattern");
+        if ( scalar(@idxFilePaths) == 0 ) {
+            print("WARN: Can not find index file for: $idxPattern\n");
+        }
+        for my $idxFile (@idxFilePaths) {
             if ( defined( $idxFileMap->{$idxFile} ) ) {
                 next;
             }
@@ -130,11 +136,21 @@ sub getSqlFilePathByIdx {
                         }
                     }
                 }
+                $idxFh->close();
+            }
+            else {
+                $hasError = 1;
+                print("ERROR: Open pen index file $idxFile failed, $!\n");
             }
         }
     }
 
-    return \@allSqlFiles;
+    if ( $hasError == 1 ) {
+        return undef;
+    }
+    else {
+        return \@allSqlFiles;
+    }
 }
 
 sub getSqlFilePath {
@@ -267,10 +283,12 @@ sub getSqlFilePath {
 sub getRunRoundSets {
     my ( $self, $sqlFiles, $parallelCount ) = @_;
 
-    my $parCount = 0;
-    my $prefix   = 0;
-    my ( $prefix, @runSqlSet, @runSqlSets );
+    my $parCount   = 0;
+    my $prefix     = 0;
+    my @runSqlSet  = ();
+    my @runSqlSets = ();
     my $oneSqlFile;
+
     foreach $oneSqlFile (@$sqlFiles) {
         my $myPrefix;
         my $sqlName = substr( $oneSqlFile, rindex( $oneSqlFile, '/' ) + 1 );

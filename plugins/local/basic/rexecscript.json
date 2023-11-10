@@ -7,13 +7,15 @@
     "defaultProfile": null,
     "description": "本地连远程执行命令",
     "enabled": 1,
-    "option": [{
+    "option": [
+        {
             "opt": "protocol",
             "name": "连接协议",
             "help": "连接目标的协议",
             "type": "select",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "ssh",
                         "value": "ssh"
                     },
@@ -33,7 +35,9 @@
             "help": "",
             "type": "text",
             "required": "true",
-            "validate": ["ip"],
+            "validate": [
+                "ip"
+            ],
             "defaultValue": ""
         },
         {
@@ -42,7 +46,9 @@
             "help": "",
             "type": "text",
             "required": "true",
-            "validate": ["integer_p"],
+            "validate": [
+                "integer_p"
+            ],
             "defaultValue": "22"
         },
         {
@@ -69,7 +75,8 @@
             "help": "脚本解析器",
             "type": "select",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "perl",
                         "value": "perl"
                     },
@@ -82,12 +89,28 @@
                         "value": "bash"
                     },
                     {
+                        "text": "sh",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "ksh",
+                        "value": "ksh"
+                    },
+                    {
+                        "text": "csh",
+                        "value": "csh"
+                    },
+                    {
                         "text": "ruby",
                         "value": "ruby"
                     },
                     {
-                        "text": "bat",
-                        "value": "bat"
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
                     },
                     {
                         "text": "vbscript",
