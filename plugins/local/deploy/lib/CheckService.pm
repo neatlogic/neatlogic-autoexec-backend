@@ -164,8 +164,6 @@ sub checkServiceDown {
     my $isDowned     = 0;
     my $addrCheckMap = {};
 
-    print("INFO: Check if service is downed....\n");
-
     my $allDowned = 1;
     for my $addr (@$addrs) {
         if ( $addrCheckMap->{$addr} != 1 ) {
@@ -189,11 +187,13 @@ sub checkServiceDown {
     }
     if ( $allDowned == 1 ) {
         $isDowned = 1;
-        last;
     }
 
     if ( $isDowned == 1 ) {
-        print("INFO: Service is downed.\n");
+        print("INFO: Service is down.\n");
+    }
+    else {
+        print("INFO: Service is up.\n");
     }
 
     return $isDowned;
