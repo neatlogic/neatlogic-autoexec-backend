@@ -79,7 +79,7 @@ sub main {
 
     my $isStopped = 1;
     if ( defined($addr) and $addr ne '' ) {
-        $isStopped = CheckService::checkServiceDown( [$addr], 'GET', $timeout );
+        $isStopped = CheckService::checkServiceDown( [$addr], 'GET' );
     }
 
     if ( $isStopped == 1 ) {
