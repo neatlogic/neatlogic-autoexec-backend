@@ -719,6 +719,9 @@ sub getPerformanceInfo {
             $procInfo->{RES}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
             $procInfo->{SHR}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
             $procInfo->{CPU_USAGE}         = delete( $procInfo->{'%CPU'} );
+            if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+                $osInfo->{CPU_LOGIC_CORES} = 1;
+            }
             $procInfo->{CPU_USAGE_PERCORE} = $procInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
             $procInfo->{MEM_USAGE}         = delete( $procInfo->{'%MEM'} );
             push( @memTopProc, $procInfo );
@@ -728,6 +731,9 @@ sub getPerformanceInfo {
     $osInfo->{TOP_CPU_RPOCESSES} = \@cpuTopProc;
     $osInfo->{TOP_MEM_PROCESSES} = \@memTopProc;
     $osInfo->{CPU_USAGE}         = $userCpu + $sysCpu;
+    if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+        $osInfo->{CPU_LOGIC_CORES} = 1;
+    }
     $osInfo->{CPU_USAGE_PERCORE} = $osInfo->{CPU_USAGE} / $osInfo->{CPU_LOGIC_CORES};
     $osInfo->{IOWAIT_PCT}        = $iowait;
 }
