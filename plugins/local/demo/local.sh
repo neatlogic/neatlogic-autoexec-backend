@@ -77,6 +77,8 @@ parseOpts() {
 }
 
 parseOpts "$@"
+shift $((OPTIND - 1))
+OTHERARGS=$@
 
 echo "===get options======"
 echo "tinput: $tinput"
@@ -89,6 +91,10 @@ echo "tnode: $tnode"
 echo "tdate: $tdate"
 echo "ttime: $ttime"
 echo "tdatetime: $tdatetime"
+
+echo remaining parameters=[$*]
+echo remaining parameters=[$@]
+echo remaining parameters=[$OTHERARGS]
 
 #Do some job
 ###########################################
