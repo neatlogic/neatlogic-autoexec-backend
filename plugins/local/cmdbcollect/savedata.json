@@ -7,5 +7,15 @@
     "defaultProfile": null,
     "description": "对采集插件生成的output数据存储到DB插件",
     "option": [],
+    "argument": {
+        "name": "自定义采集工具名",
+        "help": "进行CMDB采集的自定义工具名，支持输入多个",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
     "output": []
 }
