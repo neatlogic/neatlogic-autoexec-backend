@@ -29,9 +29,9 @@ sub main {
     my $srcFileConf;
     my $isHelp      = 0;
     my $isVerbose   = 0;
-    my $node        = '';
     my $srcFileConf = '';
-    my $dest        = '';
+    my $node;
+    my $dest;
 
     GetOptions(
         'h|help'      => \$isHelp,
@@ -41,8 +41,15 @@ sub main {
         'dest=s'      => \$dest
     );
 
-    my $srcFiles = from_json($srcFileConf);
-    my $src      = join( ',', @$srcFiles );
+    my $srcFiles = [];
+    if ( $srcFileConf =~ /^\[/ ) {
+        $srcFiles = from_json($srcFileConf);
+    }
+    else {
+        $srcFiles = [$srcFileConf];
+    }
+
+    my $src = join( ',', @$srcFiles );
 
     my $deployUtils = DeployUtils->new();
     my $optionError = 0;
