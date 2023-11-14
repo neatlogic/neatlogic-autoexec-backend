@@ -11,9 +11,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print(
-"$pname --node <node json> --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate> --ttime <ttime> --tdatetime <tdatetime>\n"
-    );
+    print("$pname --node <node json> --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate> --ttime <ttime> --tdatetime <tdatetime>\n");
     exit(1);
 }
 
@@ -21,11 +19,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my (
-        $ishelp,  $node,         $tinput,    $tjson,
-        $tselect, $tmultiselect, $tpassword, $tfile,
-        $tnode,   $tdate,        $ttime,     $tdatetime
-    );
+    my ( $ishelp, $node, $tinput, $tjson, $tselect, $tmultiselect, $tpassword, $tfile, $tnode, $tdate, $ttime, $tdatetime );
 
     GetOptions(
         'help'           => \$ishelp,
@@ -41,6 +35,7 @@ sub main {
         'ttime:s'        => \$ttime,
         'tdatetime:s'    => \$tdatetime
     );
+    my @remainderArgv = @ARGV;
 
     my $hasOptErr = 0;
 
@@ -72,8 +67,7 @@ sub main {
     print("=========GetOptions:\n");
     if ( defined($nodeObj) ) {
         $nodeObj->{password} = '********';
-        print( "execute for node:", to_json( $nodeObj, { pretty => 1 } ),
-            "\n" );
+        print( "execute for node:", to_json( $nodeObj, { pretty => 1 } ), "\n" );
     }
 
     print("tinput:$tinput\n");
@@ -87,6 +81,7 @@ sub main {
     print("ttime:$ttime\n");
     print("tdatetime:$tdatetime\n");
     print("===================\n");
+    print( "Free arguments: ", join( ',', @remainderArgv ), "\n" );
 
     my $fh = IO::File->new(">testfile.txt");
     if ( defined($fh) ) {

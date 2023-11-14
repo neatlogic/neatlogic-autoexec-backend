@@ -206,6 +206,7 @@ class Operation:
             elif optType == 'account' and resourceId != '':
                 # format username/accountId
                 if optValue is not None and optValue != '':
+                    optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     accountDesc = optValue.split('/')
                     retObj = {}
                     try:
@@ -221,7 +222,7 @@ class Operation:
                             password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
                         optValue = username + '/' + password
                     except Exception as err:
-                        self.writeLog("WARN: {}\n".format(err.value))
+                        self.writeLog("WARN: {}\n".format(str(err)))
 
             elif optType == 'file':
                 matchObj = re.match(r'^\s*\$\{', str(optValue))

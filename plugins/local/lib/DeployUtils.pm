@@ -248,7 +248,7 @@ sub getNodeInfo {
     my ( $self, $node ) = @_;
 
     my $nodeInfo = {};
-    if ( not defined($node) ) {
+    if ( not defined($node) or $node eq '' ) {
         $node = $ENV{AUTOEXEC_NODE};
     }
 

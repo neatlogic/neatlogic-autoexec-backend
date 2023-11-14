@@ -6,6 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "基于tagent文件传输",
+    "enabled": 0,
     "option": [
         {
             "opt": "verbose",
