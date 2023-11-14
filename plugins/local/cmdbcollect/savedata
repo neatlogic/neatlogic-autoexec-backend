@@ -178,7 +178,7 @@ if __name__ == "__main__":
                         help='Output json file path for node')
     parser.add_argument('--node', default='', help='Execution node json')
     parser.add_argument('toolnames', nargs=argparse.REMAINDER,
-                        help="export tool or script param")
+                        help="CMDB data collect custome tool names")
     args = parser.parse_args()
     outputPath = args.outputfile
 
