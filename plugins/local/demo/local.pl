@@ -10,9 +10,7 @@ use AutoExecUtils;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print(
-"$pname --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate> --ttime <ttime> --tdatetime <tdatetime>\n"
-    );
+    print("$pname --tinput <tinput> --tjson <tjson> --tselect <tselect> --tmultiselect <tmultiselect> --tpassword <tpassword> --tfile <tfile> --tnode <node id> --tdate <tdate> --ttime <ttime> --tdatetime <tdatetime>\n");
     exit(1);
 }
 
@@ -22,11 +20,7 @@ sub main {
     $| = 1;    #不对输出进行buffer，便于实时看到输出日志
     AutoExecUtils::setEnv();
 
-    my (
-        $ishelp,       $tinput,    $tjson, $tselect,
-        $tmultiselect, $tpassword, $tfile, $tnode,
-        $tdate,        $ttime,     $tdatetime
-    );
+    my ( $ishelp, $tinput, $tjson, $tselect, $tmultiselect, $tpassword, $tfile, $tnode, $tdate, $ttime, $tdatetime );
 
     GetOptions(
         'help'           => \$ishelp,
@@ -41,6 +35,8 @@ sub main {
         'ttime:s'        => \$ttime,
         'tdatetime:s'    => \$tdatetime
     );
+
+    my @remainderArgv = @ARGV;
 
     my $hasOptErr = 0;
     if ( not defined($tinput) or $tinput eq '' ) {
@@ -70,6 +66,8 @@ sub main {
     print("ttime:$ttime\n");
     print("tdatetime:$tdatetime\n");
     print("===================\n");
+
+    print( "Free arguments: ", join( ',', @remainderArgv ), "\n" );
 
     print("INFO: Sleep 5 seconds to pretend do some jobs.\n");
     for ( my $i = 0 ; $i < 5 ; $i++ ) {

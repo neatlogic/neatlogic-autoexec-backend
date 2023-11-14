@@ -31,6 +31,8 @@ if __name__ == "__main__":
     parser.add_argument('--tdate', default='', help='XXXXXXX')
     parser.add_argument('--ttime', default='', help='XXXXXXX')
     parser.add_argument('--tdatetime', default='', help='XXXXXXX')
+    parser.add_argument('rest', nargs=argparse.REMAINDER,
+                        help="Free arguments")
 
     args = parser.parse_args()
 
@@ -73,7 +75,7 @@ if __name__ == "__main__":
             "key3": {"key11": "value11", "key22": "value22"}
         }
     ]
-    
+
     out['outjsonobj'] = {
         "mydata": [
             {
