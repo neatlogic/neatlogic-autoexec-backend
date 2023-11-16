@@ -298,7 +298,8 @@ class TagentClient:
         # 挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
         plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode('latin-1')
         if ',' not in plainChlg:
-            return 0
+            sock.shutdown(2)
+            raise AuthError("ERROR: Auth failed: invalid credential.")
         chlgArray = plainChlg.split(',')
         factor1 = chlgArray[0]
         factor2 = chlgArray[1]
@@ -309,7 +310,9 @@ class TagentClient:
             serverTime = str(time.time())
 
         if str(factor1).isdigit() == False or str(factor2).isdigit() == False:
-            return 0
+            sock.shutdown(2)
+            raise AuthError("ERROR: Auth failed: invalid credential.")
+
         reverseChlg = str(int(factor1) * int(factor2)) + ',' + serverTime
         encryptChlg = _rc4_encrypt_hex(
             authKey, reverseChlg.encode('latin-1', 'replace'))
@@ -317,7 +320,8 @@ class TagentClient:
         authResult = self.__readChunk(sock).decode(errors='ignore')
         # 如果返回内容中不出现auth succeed，则验证失败
         if authResult != "auth succeed":
-            return 0
+            sock.shutdown(2)
+            raise AuthError("ERROR: %s" % (authResult))
         return 1
 
     def updateCred(self, cred, isVerbose=0):
