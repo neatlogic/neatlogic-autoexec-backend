@@ -235,17 +235,13 @@ class TagentClient:
             if plat == 'Darwin':
                 TCP_KEEPALIVE = 0x10
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-                sock.setsockopt(socket.IPPROTO_TCP,
-                                TCP_KEEPALIVE, interval_sec)
+                sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, interval_sec)
             if plat == 'Windows':
-                sock.ioctl(socket.SIO_KEEPALIVE_VALS,
-                           (1, interval_sec * 1000, interval_sec * 1000))
+                sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, interval_sec * 1000, interval_sec * 1000))
             else:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-                sock.setsockopt(socket.IPPROTO_TCP,
-                                socket.TCP_KEEPIDLE, interval_sec)
-                sock.setsockopt(socket.IPPROTO_TCP,
-                                socket.TCP_KEEPINTVL, interval_sec)
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, interval_sec)
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
 
             sock.settimeout(self.connectTimeout)
