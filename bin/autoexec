@@ -194,6 +194,7 @@ if __name__ == "__main__":
     parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
     parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
     parser.add_argument('--firstfire', '-i', default=False, action='store_true', help='the first phase fired, create new log file')
+    parser.add_argument('--reuseconslog', default=False, action='store_true', help='the first phase fired, create new log file')
     parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
     parser.add_argument('--pause', '-s', default=False, action='store_true', help='puase the job')
     parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
@@ -389,8 +390,8 @@ if __name__ == "__main__":
             os.mkdir(fileDir)
 
         if args.firstfire:
-            # 作业的第一个阶段执行，需要创建新的console 日志文件
-            if os.path.exists(consoleLogPath):
+            # 没有声明重用console日志文件，而且是作业的第一个阶段执行，需要创建新的console 日志文件
+            if not args.reuseconslog and os.path.exists(consoleLogPath):
                 os.unlink(consoleLogPath)
 
             consoleLogFile = open(consoleLogPath, 'w').detach()
