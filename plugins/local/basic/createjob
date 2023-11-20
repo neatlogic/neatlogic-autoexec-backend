@@ -16,7 +16,7 @@ binPaths = os.path.split(os.path.realpath(__file__))
 libPath = os.path.realpath(binPaths[0]+'/../lib')
 sys.path.append(libPath)
 
-
+# 这个类确保传递给程序的所有参数都是偶数对的。如果参数的数目不是偶数，它会抛出一个错误。
 class EvenPairsAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if len(values) % 2 != 0:
@@ -77,6 +77,7 @@ if __name__ == "__main__":
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
 
+    # 检查环境变量PASSTHROUGH_ENV。如果该环境变量存在，它将从环境变量中获取用户名（AUTOEXEC_USER）和密码（EXECUSER_TOKEN）
     user = None
     password = None
     if os.environ.get('PASSTHROUGH_ENV'):
@@ -86,6 +87,8 @@ if __name__ == "__main__":
             user = os.environ.get('AUTOEXEC_USER')
             password = passThroughEnv.get('EXECUSER_TOKEN')
 
+
+    # 获取环境变量NODE_OUTPUT_PATH的值，并检查这个路径是否存在。如果存在，则获取上次操作的结果数据（prev_data），并从中获取已创建的作业ID
     outputPath = os.getenv('NODE_OUTPUT_PATH')
     if os.path.exists(outputPath):
         prev_data = AutoExecUtils.getOpPreOutput()
