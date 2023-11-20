@@ -1,0 +1,51 @@
+{
+    "opDesc": "上传附件",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "上传附件到目标服务器",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "输出详细信息",
+            "help": "",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "src",
+            "name": "源文件",
+            "help": "多个文件",
+            "type": "file",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "目标目录",
+            "help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -35,7 +35,7 @@ def getObjCatPkDef(objCat, customPkDef):
         'FCSWITCH': ['MGMT_IP', 'SN'],
         'FCDEV': ['MGMT_IP', 'SN'],
         'K8S': ['MGMT_IP'],
-        'CONTAINER' :['MGMT_IP' , 'CONTAINER_ID'],
+        'CONTAINER': ['MGMT_IP', 'CONTAINER_ID'],
         'UNKNOWN': ['MGMT_IP']
     }
     fixPkDef = pkDefs.get(objCat)
@@ -67,22 +67,25 @@ def createPKIndex(collection, pkDef):
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name='idx_pk', unique=True)
-    collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+    collection.create_index([('_renewtime', 1)],
+                            name='idx_ttl', expireAfterSeconds=15811200)
 
 
 def createIndex(collection, data, objCat):
     collection.create_index([('_OBJ_TYPE', 1)], name='idx_obj_type')
     if 'INDEX_FIELDS' in data:
         for idxField in data['INDEX_FIELDS']:
-            collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
+            collection.create_index(
+                [(idxField, 1)], name='idx_' + idxField.lower())
     else:
         for idxField in getObjCatIndexDef(objCat):
-            collection.create_index([(idxField, 1)], name='idx_' + idxField.lower())
+            collection.create_index(
+                [(idxField, 1)], name='idx_' + idxField.lower())
 
 
 # 目的通过PEER信息搜索到应用进程
 def saveAppConnData(db, existsCollections, data):
-    if data['_OBJ_CATEGORY'] in ('INS', 'DBINS') and 'OS_ID' in data :
+    if data['_OBJ_CATEGORY'] in ('INS', 'DBINS') and 'OS_ID' in data:
         connInfo = {}
         connInfo['OS_ID'] = data['OS_ID']
         connInfo['_OBJ_CATEGORY'] = data['_OBJ_CATEGORY']
@@ -108,10 +111,12 @@ def saveAppConnData(db, existsCollections, data):
         # BIND和PEER都是简单数组，建立索引后，可以使用$in操作符进行配合，结合$elemMatch可以过滤命中的BIND和PEER
         collection.replace_one(primaryKey, connInfo, upsert=True)
         if 'RELATION_INS_NETCONN' not in existsCollections:
-            collection.create_index([('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
+            collection.create_index(
+                [('MGMT_IP', 1), ('PORT', 1)], name='idx_pk')
             collection.create_index([('BIND', 1)], name='idx_bind')
             collection.create_index([('PEER', 1)], name='idx_peer')
-            collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+            collection.create_index(
+                [('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
             existsCollections['RELATION_INS_NETCONN'] = 1
 
         print('INFO: Save connection data success.')
@@ -132,18 +137,20 @@ def saveSwMacTableData(db, existsCollections, data):
             macTableInfo['RESOURCE_ID'] = None
         macTableInfo['MAC_TABLE'] = data['MAC_TABLE']
 
-        primaryKey = {'MGMT_IP': macTableInfo['MGMT_IP'], 'SN': macTableInfo['SN']}
+        primaryKey = {
+            'MGMT_IP': macTableInfo['MGMT_IP'], 'SN': macTableInfo['SN']}
         collection = db['RELATION_NET_MACTABLE']
         collection.replace_one(primaryKey, macTableInfo, upsert=True)
         if 'RELATION_NET_MACTABLE' not in existsCollections:
             collection.create_index([('MGMT_IP', 1), ('SN', 1)], name='idx_pk')
             # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
             collection.create_index([('MAC_TABLE.MACS', 1)], name='idx_mac')
-            collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+            collection.create_index(
+                [('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
             existsCollections['RELATION_NET_MACTABLE'] = 1
 
         print('INFO: Save mac table data success.')
-        del(data['MAC_TABLE'])
+        del (data['MAC_TABLE'])
 
 
 def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
@@ -160,14 +167,18 @@ def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
     if table not in existsCollections:
         createPKIndex(collection, pkDef)
         createIndex(collection, data, objCat)
-        collection.create_index([('_renewtime', 1)], name='idx_ttl', expireAfterSeconds=15811200)
+        collection.create_index([('_renewtime', 1)],
+                                name='idx_ttl', expireAfterSeconds=15811200)
         existsCollections[table] = 1
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--outputfile', default='', help='Output json file path for node')
+    parser.add_argument('--outputfile', default='',
+                        help='Output json file path for node')
     parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('toolnames', nargs=argparse.REMAINDER,
+                        help="CMDB data collect custome tool names")
     args = parser.parse_args()
     outputPath = args.outputfile
 
@@ -179,6 +190,10 @@ if __name__ == "__main__":
     if outputPath is None:
         print("ERROR: Must set environment variable NODE_OUTPUT_PATH or defined option --outputfile.\n")
         usage()
+
+    toolNamesMap = {}
+    for toolName in args.toolnames:
+        toolNamesMap[toolName] = 1
 
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
@@ -200,13 +215,14 @@ if __name__ == "__main__":
                 if key == 'DATA':
                     collectData = value
                 else:
-                    #svcinspect巡检插件，包含补充CMDB采集数据对象的数据
-                    if (not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/")):
+                    # svcinspect巡检插件，包含补充CMDB采集数据对象的数据
+                    if (not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/") and not key in toolNamesMap):
                         continue
 
                     collectData = value['DATA']
                     if collectData is None:
-                        print('WARN: Plugin {} did not return collect data.'.format(key))
+                        print(
+                            'WARN: Plugin {} did not return collect data.'.format(key))
                         continue
 
             if collectData is None:
@@ -220,7 +236,8 @@ if __name__ == "__main__":
                 pkDef = data.get('PK')
                 pkDef = getObjCatPkDef(objCat, pkDef)
 
-                print('INFO: Try to validate data PID:{} OBJ_TYPE:{} IP:{} PORT:{} ...'.format(data.get('PID'), objType, data.get('MGMT_IP'), data.get('PORT')))
+                print('INFO: Try to validate data PID:{} OBJ_TYPE:{} IP:{} PORT:{} ...'.format(
+                    data.get('PID'), objType, data.get('MGMT_IP'), data.get('PORT')))
                 isMalformData = 0
                 if pkDef is None:
                     isMalformData = 1
@@ -247,12 +264,14 @@ if __name__ == "__main__":
                         pVal = data[pKey]
                         primaryKey[pKey] = data[pKey]
                         if pVal is None or pVal == '':
-                            #pkInvalid = True
-                            print("WARN: {} PK attribute:{} is empty.".format(typeName, pKey))
+                            # pkInvalid = True
+                            print("WARN: {} PK attribute:{} is empty.".format(
+                                typeName, pKey))
                     else:
                         primaryKey[pKey] = None
                         pkInvalid = True
-                        print("WARN: {} not contain PK attribute:{}.".format(typeName, pKey))
+                        print("WARN: {} not contain PK attribute:{}.".format(
+                            typeName, pKey))
 
                 if pkInvalid:
                     continue
@@ -260,7 +279,8 @@ if __name__ == "__main__":
                 pkJson = json.dumps(primaryKey)
 
                 try:
-                    print('INFO: Begin save data {}:{} ...'.format(typeName, pkJson))
+                    print('INFO: Begin save data {}:{} ...'.format(
+                        typeName, pkJson))
                     currentTime = datetime.datetime.utcnow()
                     data['_updatetime'] = currentTime
                     data['STATE'] = 'InUse'
@@ -273,11 +293,13 @@ if __name__ == "__main__":
                         pkDef = getObjCatPkDef(objCat, pkDef)
                     print('INFO: Save connection information success.')
 
-                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat)
+                    mergeAndSaveData(existsCollections, table,
+                                     pkDef, primaryKey, data, objCat)
 
                     print('INFO: Save data success.\n'.format(typeName, pkJson))
                 except Exception as ex:
-                    print('ERROR: Save data for {}({}) failed, {}'.format(typeName, pkJson, ex))
+                    print('ERROR: Save data for {}({}) failed, {}'.format(
+                        typeName, pkJson, ex))
                     traceback.print_exc()
     except Exception as ex:
         print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))

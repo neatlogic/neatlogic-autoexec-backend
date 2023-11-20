@@ -10,5 +10,18 @@
         "/Users/wenhb/git/autoexec/plugins/local/lib",
         "/Users/wenhb/git/autoexec/plugins/remote/lib",
         "/Users/wenhb/git/autoexec/plugins/remote/cmdbcollect/lib"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.rulers": [
+            88
+        ],
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": true
+        },
+        "ruff.args": [
+            "--ignore=E501"
+        ]
+    }
 }
