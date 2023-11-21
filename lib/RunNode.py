@@ -4,7 +4,6 @@
  Copyright © 2017 NeatLogic
  运行节点类
 """
-from distutils.command.upload import upload
 import os
 import traceback
 import fcntl
@@ -21,6 +20,7 @@ import chardet
 import traceback
 
 from setuptools import find_namespace_packages
+from distutils.command.upload import upload
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
