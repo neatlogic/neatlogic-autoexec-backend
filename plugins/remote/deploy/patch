@@ -76,6 +76,7 @@ sub main {
         print("ERROR: Target directory not defined(option --targetdir).\n");
     }
     elsif ( not -e $targetDir ) {
+        $hasOptionError = 1;
         print("ERROR: Target directory:$targetDir not exist.\n");
     }
 
@@ -109,7 +110,7 @@ sub main {
     }
 
     my $patcher = Patcher->new( $homePath, $backupDir, $backupCount );
-    my $status = 0;
+    my $status  = 0;
     $status = $patcher->backup( $insName, $version, $patchSrcPath, $targetDir, $backupType );
 
     if ( $status == 0 ) {
