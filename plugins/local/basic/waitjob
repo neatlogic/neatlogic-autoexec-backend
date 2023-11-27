@@ -46,6 +46,7 @@ if __name__ == "__main__":
             except Exception as e:
                 err = str(e)
 
+            # 这里用了flush=True，是因为控制台日志输出不及时，可能有别的方法可以解决
             if not job_status:
                 stop_job.add(jobid)
                 failCount += 1
