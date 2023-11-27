@@ -440,8 +440,10 @@ class LocalRemoteExec:
             cmd = 'cmd /c {}/{} {}'.format(remotePath, scriptFileName, args)
         elif interpreter in ('sh', 'bash', 'csh'):
             cmd = '{} -l {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
-        elif interpreter == 'vbscript' or interpreter == 'javascript':
+        elif interpreter == 'vbscript':
             cmd = 'cscript {}/{} {}'.format(remotePath, scriptFileName, args)
+        elif interpreter == 'javascript':
+            cmd = 'node {}/{} {}'.format(remotePath, scriptFileName, args)
         else:
             cmd = '{} {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
         return cmd
