@@ -33,9 +33,9 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp,   $isVerbose,  $envPath, $version, $buildNo );
+    my ( $isHelp,   $verbose,  $envPath, $version, $buildNo );
     my ( $sonarUrl, $sonarLogin, $sonarPwd );
-    my ( $prefix,   $language,   $encode, $level, $threshold, $src, $bin, $tmout, $projectKey, $projectVersion, $projectName, $modules );
+    my ( $prefix,   $language,   $encode, $level, $threshold, $src, $bin, $timeout, $projectKey, $projectVersion, $projectName, $modules ,$intervalDay);
     my $pname = $FindBin::Script;
 
     GetOptions(
@@ -53,11 +53,13 @@ sub main {
         'threshold=i'      => \$threshold,
         'src=s'            => \$src,
         'bin=s'            => \$bin,
-        'tmout=s'          => \$tmout,
+        'timeout=s'          => \$timeout,
         'projectKey=s'     => \$projectKey,
         'projectVersion=s' => \$projectVersion,
         'projectName=s'    => \$projectName,
-        'modules=s'        => \$modules
+        'modules=s'        => \$modules,
+        'intervalDay=i'    => \$intervalDay,
+        'verbose=i'        => \$verbose
     );
 
     usage() if ( defined($isHelp) );
@@ -104,6 +106,13 @@ sub main {
         $prjDir = $prjDir . "/" . $prefix;
     }
 
+    # 保证api接口准确性，多个反斜杠api调用会出问题
+    my $urlLen = length($sonarUrl);
+    my $endStr = substr($sonarUrl , $urlLen-1 , $urlLen);
+    if( $endStr eq '/' ){
+        $sonarUrl = substr( $sonarUrl, 0 , $urlLen-1);
+    }
+
     print("INFO: Encode:$encode \n");
     print("INFO: Sonar-scanner code start, it will take a few minutes, please wait...\n");
 
@@ -121,13 +130,30 @@ sub main {
         . " -Dsonar.sourceEncoding='$encode'"
         . " -Dsonar.sources='$src'"
         . " -Dsonar.java.binaries='$bin'"
-        . " -Dsonar.ws.timeout='$tmout'"
+        . " -Dsonar.ws.timeout='$timeout'"
         . " -Dsonar.projectKey='$projectKey'"
         . " -Dsonar.projectVersion='$projectVersion'"
         . " -Dsonar.modules='$modules'";
+        #. " -Dsonar.qualitygate.wait=true"
+        #. " -Dsonar.qualitygate.timeout='$timeout'";
+
+    #按时间增量代码扫描
+    if( defined($intervalDay) and $intervalDay > 0 ){
+        my $projectDate = `date -d "-$intervalDay days" '+%Y-%m-%d'`;
+        chomp($projectDate);
+        $cmd = $cmd . " -Dsonar.projectDate='$projectDate'";
+    }
+
+    # 扫描详情
+    if( $verbose == 1 ){
+        $cmd = $cmd . " -Dsonar.verbose=true";
+    }
+
+    my $cmdText = $cmd ; 
+    $cmdText =~ s/$sonarPwd/******/g;
 
     print("INFO: Begin to execute cmd:\n");
-    print("INFO: $cmd\n");
+    print("INFO: $cmdText\n");
 
     my $hasError = 0;
     my $ret      = system($cmd);
@@ -148,7 +174,7 @@ sub main {
         }
         else {
             print("FINE: Sonar-scanner code end .\r\n");
-            print("<a target=\"_blank\" style=\"color:white;font-size:16px;\"  href=\"$sonarUrl/dashboard?id=$projectKey\">---&gt;点击查看代码扫描报告</a>\n");
+            print("<a target=\"_blank\" style=\"color:#a3cf62;font-size:16px;\"  href=\"$sonarUrl/dashboard?id=$projectKey\">---&gt;点击查看代码扫描报告</a>\n");
         }
     }
 

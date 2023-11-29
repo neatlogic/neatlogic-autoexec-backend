@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 declare -a INS_SUC_PKGS
 declare -a INS_FAIL_PKGS
 
-PKGS=(virtualenv pyOpenSSL pymongo paramiko python-dateutil pyVim pyvmomi bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp sqlparse chardet ms-active-directory python-docx pymysql jmxquery)
+PKGS=(virtualenv pyOpenSSL pymongo paramiko python-dateutil pyVim pyvmomi bigsuds pyparsing ping3 requests pywbem pywbemtools ijson pysnmp sqlparse chardet ms-active-directory python-docx pymysql jmxquery pyquery)
 
 if [[ $# > 0 ]]; then
     PKGS=($*)

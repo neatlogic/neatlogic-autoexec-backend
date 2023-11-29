@@ -73,22 +73,22 @@
             "dataSource": {
                 "dataList": [{
                         "text": "Java",
-                        "value": "Java"
+                        "value": "java"
                     },
                     {
                         "text": "C",
-                        "value": "C"
+                        "value": "c"
                     },
                     {
                         "text": "C++",
-                        "value": "C++"
+                        "value": "c++"
                     }
                 ]
             },
             "defaultValue": "Java"
         },
         {
-            "opt": "编码",
+            "opt": "encode",
             "name": "文件编码",
             "help": "工程中程序文件的字符编码",
             "type": "select",
@@ -143,7 +143,7 @@
             "type": "text",
             "required": "false",
             "validate": "",
-            "defaultValue": "80"
+            "defaultValue": ""
         },
         {
             "opt": "bin",
@@ -152,7 +152,7 @@
             "type": "text",
             "required": "false",
             "validate": "",
-            "defaultValue": "80"
+            "defaultValue": ""
         },
         {
             "opt": "tmout",
@@ -195,9 +195,18 @@
             "name": "项目的模块",
             "help": "SonarQube里的项目的模块，例如：module1,module2",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
-            "defaultValue": "$VERSION"
+            "defaultValue": ""
+        },
+        {
+            "opt": "intervalDay",
+            "name": "最新代码时间(天)",
+            "help": "Sonar-Scanner代码增量扫描启始时间,此处填写的是间隔天数，如：7,代表只扫描7天内提交的代码,默认为全量扫描",
+            "type": "text",
+            "required": "false",
+            "validate": ["number"],
+            "defaultValue": "0"
         }
     ],
     "output": []

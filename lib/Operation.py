@@ -206,6 +206,7 @@ class Operation:
             elif optType == 'account' and resourceId != '':
                 # format username/accountId
                 if optValue is not None and optValue != '':
+                    optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                     accountDesc = optValue.split('/')
                     retObj = {}
                     try:
@@ -221,7 +222,7 @@ class Operation:
                             password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
                         optValue = username + '/' + password
                     except Exception as err:
-                        self.writeLog("WARN: {}\n".format(err.value))
+                        self.writeLog("WARN: {}\n".format(str(err)))
 
             elif optType == 'file':
                 matchObj = re.match(r'^\s*\$\{', str(optValue))
@@ -669,9 +670,11 @@ class Operation:
                     if self.interpreter == 'cmd':
                         # cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & cmd /c {}'.format(remotePath, self.scriptFileName)
-                    elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                    elif self.interpreter == 'vbscript':
                         # cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & cscript {}'.format(remotePath, self.scriptFileName)
+                    elif self.interpreter == 'javascript':
+                        cmd = 'cd {} & node {}'.format(remotePath, self.scriptFileName)
                     elif self.interpreter == 'powershell':
                         # cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell {}/{}'.format(remotePath, self.scriptFileName)
                         cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.scriptFileName)
@@ -682,6 +685,8 @@ class Operation:
                     if self.interpreter in ('sh', 'bash', 'csh'):
                         # cmd = '{} -l {}/{}'.format(self.interpreter,  remotePath, self.scriptFileName)
                         cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.scriptFileName)
+                    elif  self.interpreter == 'javascript':
+                        cmd = 'cd {} && node {}'.format(remotePath, self.scriptFileName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
                         cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
@@ -701,9 +706,11 @@ class Operation:
                         if self.interpreter == 'cmd':
                             # cmd = 'cmd /c {}/{}'.format(remotePath, self.opSubName)
                             cmd = 'cd {} & cmd /c {}'.format(remotePath, self.opSubName)
-                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                        elif self.interpreter == 'vbscript':
                             # cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
                             cmd = 'cd {} & cscript {}'.format(remotePath, self.opSubName)
+                        elif self.interpreter == 'javascript':
+                            cmd = 'cd {} & node {}'.format(remotePath, self.opSubName)
                         elif self.interpreter == 'powershell':
                             cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.opSubName)
                         else:
@@ -714,9 +721,11 @@ class Operation:
                         if self.interpreter == 'cmd':
                             # cmd = 'cd {} & copy /y {} {}>NUL & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
                             cmd = 'cd {} & copy /y {} {} >NUL & cmd /c {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
-                        elif self.interpreter == 'vbscript' or self.interpreter == 'javascript':
+                        elif self.interpreter == 'vbscript':
                             # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
                             cmd = 'cd {} & copy /y {} {} >NUL & cscript {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
+                        elif self.interpreter == 'javascript':
+                            cmd = 'cd {} & copy /y {} {} >NUL & node {}'.format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         else:
                             # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
                             cmd = 'cd {} & copy /y {} {} >NUL & {} {}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, nameWithExt)
@@ -724,6 +733,8 @@ class Operation:
                     if self.interpreter in ('sh', 'bash', 'csh'):
                         # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = 'cd {} && {} -l {}'.format(remotePath, self.interpreter,  self.opSubName)
+                    elif  self.interpreter == 'javascript':
+                        cmd = 'cd {} && node {}'.format(remotePath, self.opSubName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter,  self.opSubName)

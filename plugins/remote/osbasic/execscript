@@ -61,8 +61,11 @@ sub getScriptCmd {
     elsif ( $interpreter eq 'sh' or $interpreter eq 'bash' or $interpreter eq 'csh' ) {
         $cmd = "$interpreter -l $scriptPath $args";
     }
-    elsif ( $interpreter eq 'vbscript' or $interpreter eq 'javascript' ) {
+    elsif ( $interpreter eq 'vbscript' ) {
         $cmd = "cscript $scriptPath $args";
+    }
+    elsif ( $interpreter eq 'javascript' ) {
+        $cmd = "node $scriptPath $args";
     }
     else {
         $cmd = "$interpreter $scriptPath $args";
@@ -104,8 +107,8 @@ sub main {
         usage();
     }
 
-    my @uname  = uname();
-    my $osType = $uname[0];
+    my @osInfo = uname();
+    my $osType = $osInfo[0];
 
     if ( not defined($encoding) or $encoding eq 'auto' ) {
         if ( $osType =~ /Windows/i ) {

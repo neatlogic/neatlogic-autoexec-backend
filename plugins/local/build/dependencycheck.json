@@ -1,0 +1,49 @@
+{
+    "opDesc": "CVE依赖检查",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "扫描工程或其子目录，生成包依赖CVE漏洞检查信息",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startdir",
+            "name": "工程子目录",
+            "help": "工程下的某个子目录, 如不声明, 则代表扫描整个工程",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveValidForHours",
+            "name": "cve有效检测时间",
+            "help": "设置cve有效检测时间，单位小时",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveUrlModified",
+            "name": "本地NVD库 Url Modified",
+            "help": "用于本地NVD镜像，以获取修改后的CVE JSON数据提要，URL for the modified CVE JSON data feed. When mirroring the NVD you must mirror the *.json.gz and the *.meta files. Optional if your custom dependencyCheckCveUrlBase is just a domain name change",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveUrlBase",
+            "name": "本地NVD库 URL Base",
+            "help": "用于本地NVD镜像，每年的CVE JSON数据源的基础URL，Base URL for each year's CVE JSON data feed, the %d will be replaced with the year",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

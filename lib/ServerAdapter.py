@@ -66,6 +66,8 @@ class ServerAdapter:
             'txtFileInspectSave': '/neatlogic/api/rest/inspect/configfile/audit/save',
             'inspectReport': '/neatlogic/api/rest/inspect/autoexec/job/report/notify',
             'getResourceInfo': '/neatlogic/api/rest/resourcecenter/resource/custom/list',
+            'saveVersionMetrics': '/neatlogic/api/rest/deploy/version/commit/analyze/save',
+            'saveVersionCveList': '/neatlogic/api/rest/deploy/version/cvelist/save',
             'getJobStatus': '/neatlogic/api/rest/autoexec/job/status/get',
             'createJobFromCombop': '/neatlogic/api/rest/autoexec/job/from/combop/create/public',
             'refireJob': '/neatlogic/api/rest/autoexec/job/refire',
@@ -1258,6 +1260,44 @@ class ServerAdapter:
         else:
             raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip, name, port, type))
 
+    def saveVersionMetrics(self, data):
+        try:
+            response = self.httpJSON(self.apiMap['saveVersionMetrics'], data)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj
+                else:
+                    raise AutoExecError("saveVersionMetrics {} {}".format(data, content))
+            else:
+                print(data)
+                raise AutoExecError("saveVersionMetrics: ".format(content))
+        except AutoExecError as e:
+            raise e
+        except Exception as ex:
+            raise AutoExecError("saveVersionMetrics {} failed, {}".format(data, ex))
+
+    def saveVersionCveList(self, data):
+        try:
+            response = self.httpJSON(self.apiMap['saveVersionCveList'], data)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors='ignore')
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get('Status') == 'OK':
+                    return retObj
+                else:
+                    raise AutoExecError("saveVersionCveList {} {}".format(data, content))
+            else:
+                print(data)
+                raise AutoExecError("saveVersionCveList: ".format(content))
+        except AutoExecError as e:
+            raise e
+        except Exception as ex:
+            raise AutoExecError("saveVersionCveList {} failed, {}".format(data, ex))
+
     def getJobStatus(self, params):
         try:
             jobId = params['jobId']
@@ -1272,6 +1312,8 @@ class ServerAdapter:
                 return retObj.get('Return').get('status')
             else:
                 raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
+        except AutoExecError as e:
+            raise e
         except Exception as ex:
             raise AutoExecError("getJobStatus {} failed, {}".format(jobId, ex))
 
