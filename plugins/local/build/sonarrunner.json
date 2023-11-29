@@ -155,7 +155,7 @@
             "defaultValue": ""
         },
         {
-            "opt": "tmout",
+            "opt": "timeout",
             "name": "超时时间",
             "help": "扫描超时时间（秒）",
             "type": "text",
