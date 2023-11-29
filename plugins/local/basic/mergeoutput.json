@@ -6,19 +6,23 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "对多节点输出key-value集合进行并集处理, 如下游传值使用, 建议节点数不超过32",
-    "option": [{
-        "opt": "outputkey",
-        "name": "变量名",
-        "help": "上游输出的变量名",
-        "type": "text",
-        "required": "true",
-        "validate": "",
-        "defaultValue": ""
-    }],
-    "output": [{
-        "opt": "mergedData",
-        "name": "合并后数据",
-        "help": "多节点输出合并后的数据",
-        "type": "json"
-    }]
+    "option": [
+        {
+            "opt": "outputkey",
+            "name": "变量名",
+            "help": "上游输出的变量名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "mergedData",
+            "name": "合并后数据",
+            "help": "多节点输出合并后的数据，合并后节点信息丢失，如上游节点存在key相同的数据，会发生互相覆盖",
+            "type": "json"
+        }
+    ]
 }
