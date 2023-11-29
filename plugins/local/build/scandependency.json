@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "扫描工程或其子目录，生成包依赖信息",
-    "enabled": 1,
+    "enabled": 0,
     "option": [
         {
             "opt": "startdir",
