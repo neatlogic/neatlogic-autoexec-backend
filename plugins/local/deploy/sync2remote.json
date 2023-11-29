@@ -88,6 +88,27 @@
             "defaultValue": "appdist"
         },
         {
+            "opt": "nodelete",
+            "name": "不删除文件",
+            "help": "同步时，不删除目标不存在的目录或文件",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
             "opt": "opmode",
             "name": "同步模式",
             "help": "对目标目录多出的文件或子目录如何处理",
