@@ -19,8 +19,6 @@ import re
 import chardet
 import traceback
 
-from setuptools import find_namespace_packages
-from distutils.command.upload import upload
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
