@@ -773,6 +773,7 @@ sub collectOsInfo {
 
     my $osInfo = {};
     if ( $self->{justBaseInfo} == 0 ) {
+        $self->getUpTime($osInfo);
         $self->getMiscInfo($osInfo);
         $self->getOsVersion($osInfo);
         $self->getVendorInfo($osInfo);
@@ -789,6 +790,7 @@ sub collectOsInfo {
         $self->getUserInfo($osInfo);
     }
     else {
+        $self->getUpTime($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
