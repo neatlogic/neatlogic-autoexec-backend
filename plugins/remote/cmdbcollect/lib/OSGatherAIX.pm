@@ -322,6 +322,10 @@ sub getIpAddrs {
         if ( $line =~ /^\s*inet\s+([\d\.]+)\s+netmask\s+(\S+)/ ) {
             $ip = $1;
             my $mask = $2;
+
+            #兼容tunnel，例如：10.10.10.2 peer 10.10.20.2/32
+            $ip =~ s/\s*peer\s.*$//i;
+
             if ( $ip !~ /^127\./ ) {
                 my $netmask = join( '.', unpack( "C4", pack( "N", hex($mask) ) ) );
                 push( @ipv4, { IP => $ip, NETMASK => $netmask } );
@@ -330,6 +334,10 @@ sub getIpAddrs {
         elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/(\d+)/ ) {
             $ip = $1;
             my $maskBit = $2;
+
+            #兼容tunnel，例如：10.10.10.2 peer 10.10.20.2/32
+            $ip =~ s/\s*peer\s.*$//i;
+
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
                 my $block = Net::Netmask->safe_new("$ip/$maskBit");
                 my $netmask;

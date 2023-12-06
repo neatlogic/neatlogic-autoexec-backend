@@ -367,6 +367,10 @@ sub getIpAddrs {
         if ( $line =~ /^\s*inet\s+(.*?)\/(\d+)/ ) {
             $ip      = $1;
             $maskBit = $2;
+
+            #兼容tunnel，例如：10.10.10.2 peer 10.10.20.2/32
+            $ip =~ s/\s*peer\s.*$//i;
+
             if ( $ip !~ /^127\./ ) {
                 my $block = Net::Netmask->safe_new("$ip/$maskBit");
                 my $netmask;
@@ -382,6 +386,10 @@ sub getIpAddrs {
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/(\d+)/ ) {
             $ip      = $1;
             $maskBit = $2;
+
+            #兼容tunnel，例如：10.10.10.2 peer 10.10.20.2/32
+            $ip =~ s/\s*peer\s.*$//i;
+
             if ( $ip ne '::1' ) {    #TODO: ipv6 loop back addr range
                 my $block = Net::Netmask->safe_new("$ip/$maskBit");
                 my $netmask;
@@ -714,12 +722,12 @@ sub getPerformanceInfo {
         if ( $procInfo->{'%MEM'} > 10 ) {
             my $command = $self->getFileContent( '/proc/' . $procInfo->{PID} . '/cmdline' );
             $command =~ s/\x0/ /g;
-            $procInfo->{COMMAND}           = $command;
-            $procInfo->{VIRT}              = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{RES}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{SHR}               = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
-            $procInfo->{CPU_USAGE}         = delete( $procInfo->{'%CPU'} );
-            
+            $procInfo->{COMMAND}   = $command;
+            $procInfo->{VIRT}      = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{RES}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{SHR}       = $utils->getMemSizeFromStr( $procInfo->{VIRT}, 'K' );
+            $procInfo->{CPU_USAGE} = delete( $procInfo->{'%CPU'} );
+
             if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
                 $osInfo->{CPU_LOGIC_CORES} = 1;
             }
@@ -923,8 +931,8 @@ sub getNicInfo {
         my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
         if ( $line =~ /^\d+:\s+(\S+):/ ) {
             $ethName = $1;
-            if ($ethName =~ /@/){
-                $ethName = substr($ethName , 0, index( $ethName, '@' ));
+            if ( $ethName =~ /@/ ) {
+                $ethName = substr( $ethName, 0, index( $ethName, '@' ) );
             }
             if ( -e "/sys/class/net/$ethName" and not -e "/sys/class/net/$ethName/device" ) {
 
@@ -965,7 +973,7 @@ sub getNicInfo {
                 next;
             }
 
-            if ( defined($speed) and $speed ne '' ) {
+            if ( defined($speed) and $speed ne '' and defined($macAddr) and $macAddr ne '' ) {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
 

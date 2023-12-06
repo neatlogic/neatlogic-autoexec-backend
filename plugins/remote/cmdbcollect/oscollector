@@ -769,7 +769,7 @@ sub main {
     my $out = {};
     $out->{DATA} = \@data;
     AutoExecUtils::saveOutput( $out, 1 );
-    print("INFO: All is completed.\n");
+    print("INFO: All are completed.\n");
 
     if ( $isVerbose == 1 ) {
         print("==================\n");
