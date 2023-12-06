@@ -15,7 +15,7 @@ use Win32::API;
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 
-sub getUptime {
+sub getUpTime {
     my ( $self, $osInfo ) = @_;
 
     my $uptimeSeconds;
@@ -451,6 +451,7 @@ sub collectOsInfo {
     my $osInfo = {};
 
     if ( $self->{justBaseInfo} == 0 ) {
+        $self->getUpTime($osInfo);
         $self->getMiscInfo($osInfo);
         $self->getDNSInfo($osInfo);
         $self->getNTPInfo($osInfo);
@@ -464,6 +465,7 @@ sub collectOsInfo {
         $self->getDiskInfo($osInfo);
     }
     else {
+        $self->getUpTime($osInfo);
         $self->getSystemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
