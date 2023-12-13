@@ -52,6 +52,10 @@ sub new {
             'addAutoCfgKeys' => '/neatlogic/api/rest/deploy/app/config/env/autoCfgKeys/save/forautoexec',
             'addDBSchemas'   => '/neatlogic/api/rest/deploy/app/config/env/db/config/schemas/save/forautoexec',
 
+            #代码分析
+            'saveVersionMetrics' => '/neatlogic/api/rest/deploy/version/commit/analyze/save',
+            'saveVersionCveList' => '/neatlogic/api/rest/deploy/version/cvelist/save',
+
             #环境制品状态：pending|succeed｜failed
             'getAccountPwd'         => '/neatlogic/api/rest/resourcecenter/resource/account/get',
             'getAutoCfgConf'        => '/neatlogic/api/rest/deploy/app/env/all/autoconfig/get',
@@ -475,6 +479,36 @@ sub addDBSchemas {
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('addDBSchemas');
     my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub saveVersionMetrics {
+    my ( $self, $data ) = @_;
+
+    if ( not defined($data) ) {
+        return;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('saveVersionMetrics');
+    my $content = $webCtl->postJson( $url, $data );
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
+sub saveVersionCveList {
+    my ( $self, $data ) = @_;
+
+    if ( not defined($data) ) {
+        return;
+    }
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('saveVersionCveList');
+    my $content = $webCtl->postJson( $url, $data );
     my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;
