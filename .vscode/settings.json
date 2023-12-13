@@ -18,7 +18,7 @@
         ],
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports.ruff": true
+            "source.organizeImports.ruff": "explicit"
         },
         "ruff.args": [
             "--ignore=E501"

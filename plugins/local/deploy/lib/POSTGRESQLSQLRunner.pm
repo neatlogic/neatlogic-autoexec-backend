@@ -119,7 +119,7 @@ sub test {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/Password for user $user: $/ => sub {
+            qr/Password: $|Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
             }
@@ -277,7 +277,7 @@ sub run {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/Password for user $user: $/ => sub {
+            qr/Password: $|Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
             }
