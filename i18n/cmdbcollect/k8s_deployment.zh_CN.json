@@ -1,0 +1,157 @@
+{
+    "label": "K8S_DEPLOYMENT",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.DEPLOYMENTS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_DEPLOYMENT"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "注释",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "AVAILABLEREPLICAS",
+            "desc": "存活pod总数",
+            "type": "Int"
+        },
+        {
+            "name": "CONDITIONS",
+            "desc": "状态",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTHEARTBEATTIME",
+                    "desc": "最后的检测时间",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTTRANSITIONTIME",
+                    "desc": "最后的迁移时间",
+                    "type": "String"
+                },
+                {
+                    "name": "REASON",
+                    "desc": "原因",
+                    "type": "String"
+                },
+                {
+                    "name": "MESSAGE",
+                    "desc": "信息",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "GENERATION",
+            "desc": "第几代",
+            "type": "Int"
+        },
+        {
+            "name": "KIND",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "命名空间",
+            "type": "String"
+        },
+        {
+            "name": "OBSERVEDGENERATION",
+            "desc": "监控relicaset生成",
+            "type": "Int"
+        },
+        {
+            "name": "PROGRESSDEADLINESECONDS",
+            "desc": "最大等待时间",
+            "type": "Int"
+        },
+        {
+            "name": "READYREPLICAS",
+            "desc": "Ready状态Pod数量",
+            "type": "Int"
+        },
+        {
+            "name": "REPLICAS",
+            "desc": "期望pod数量",
+            "type": "Int"
+        },
+        {
+            "name": "REVISIONHISTORYLIMIT",
+            "desc": "修改限制",
+            "type": "Int"
+        },
+        {
+            "name": "STRATEGY",
+            "desc": "部署策略",
+            "type": "String"
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        },
+        {
+            "name": "UPDATEDREPLICAS",
+            "desc": "StatefulSet创建的Pod数量",
+            "type": "Int"
+        }
+    ]
+}

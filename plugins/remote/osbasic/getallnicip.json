@@ -1,0 +1,23 @@
+{
+    "opDesc": "获取IP信息",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "获取操作系统配置的IP信息(IP 掩码 网卡名 MAC地址)",
+    "option": [],
+    "output": [{
+            "opt": "allNics",
+            "name": "所有网卡",
+            "help": "操作系统所有的MAC地址和网卡名",
+            "type": "json"
+        },
+        {
+            "opt": "allIpInfo",
+            "name": "IP信息",
+            "help": "操作系统配置的IP和网卡信息列表",
+            "type": "json"
+        }
+    ]
+}

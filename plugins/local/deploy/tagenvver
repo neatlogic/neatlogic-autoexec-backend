@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+use DeployUtils;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath <instance path>] [--version <version>]\n");
+    print("              [--node NodeJson] [--rollback 0|1]\n");
+    print("       tag instance version.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+
+    my $isRollback = 0;
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath=s'  => \$envPath,
+        'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
+        'rollback=i' => \$isRollback
+    );
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version, $buildNo );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+    $buildNo = $deployEnv->{BUILD_NO};
+
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        my $serverAdapter = ServerAdapter->new();
+        my $verInfo       = $serverAdapter->getEnvVer( $deployEnv, $version );
+        $buildNo = $verInfo->{buildNo};
+        $deployEnv->{BUILD_NO} = $buildNo;
+    }
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $execUser      = $ENV{AUTOEXEC_USER};
+    my $serverAdapter = ServerAdapter->new();
+    if ( $isRollback == 0 ) {
+        $serverAdapter->setEnvVersion( $deployEnv, $execUser, time() );
+    }
+    else {
+        $serverAdapter->rollbackEnvVersion( $deployEnv, $execUser, time() );
+    }
+}
+
+exit main();
+

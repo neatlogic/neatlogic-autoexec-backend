@@ -1,0 +1,34 @@
+{
+    "opDesc": "分析CMDB采集输出数据",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "分析CMDB采集输出数据，形成巡检报告",
+    "option": [{
+        "opt": "statustarget",
+        "name": "保存目标",
+        "help": "检查状态保存目标",
+        "type": "select",
+        "required": "true",
+        "validate": "",
+        "dataSource": {
+            "dataList": [{
+                    "text": "巡检",
+                    "value": "inspect"
+                },
+                {
+                    "text": "监控",
+                    "value": "monitor"
+                },
+                {
+                    "text": "巡检和监控",
+                    "value": "both"
+                }
+            ]
+        },
+        "defaultValue": "inspect"
+    }],
+    "output": []
+}

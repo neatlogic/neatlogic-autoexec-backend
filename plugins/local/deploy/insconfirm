@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+use DeployUtils;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION] insName1 insName2\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:SYS-A/MODULE-A/SIT\n");
+    print("       --version: Version Number\n");
+
+    exit(1);
+}
+
+sub _initDir {
+    my $hasError = 0;
+    my $jobPath  = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasError = $hasError + 1;
+    }
+
+    if ( not -e "$jobPath/log/$phaseName" ) {
+        mkpath("$jobPath/log/$phaseName");
+        my $err = $!;
+        if ( not -e "$jobPath/log/$phaseName" ) {
+            $hasError = 1;
+            print("ERROR: Create dir '$jobPath/log/$phaseName' failed $err\n");
+        }
+    }
+
+    if ( $hasError > 0 ) {
+        exit($hasError);
+    }
+
+    return ( $jobPath, $phaseName );
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version );
+    my @insNames = ();
+    my $node;
+    Utils::setEnv();
+
+    GetOptions(
+        'h|help'    => \$isHelp,
+        'envpath=s' => \$envPath,
+        'version=s' => \$version,
+        'node=s'    => \$node,
+        '<>'        => \&pushItems
+    );
+
+    sub pushItems {
+        my ($item) = @_;
+        push( @insNames, $item );
+    }
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    my $pauseInsNames = {};
+
+    foreach my $pauseInsName (@insNames) {
+        $pauseInsNames->{$pauseInsName} = 1;
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $insId   = $deployEnv->{INS_ID};
+    my $insName = $deployEnv->{INS_NAME};
+
+    if ( defined($insId) ) {
+        if ( defined( $pauseInsNames->{$insName} ) ) {
+            my ( $jobPath, $phaseName ) = _initDir();
+            my $pipePath = AutoExecUtils::getNodePipeFile( $jobPath, $phaseName, $nodeInfo );
+
+            AutoExecUtils::informNodeWaitInput(
+                phaseName  => $phaseName,
+                resourceId => $nodeInfo->{resourceId},
+                pipeFile   => $pipePath,
+                message    => 'Do you want to continue?',
+                opType     => 'button',
+                title      => 'Continue?',
+                options    => [ "Yes", "No" ],
+                role       => undef
+            );
+
+            my $decideRet = $deployUtils->decideContinue( "Do you want to continue?", $pipePath );
+
+            if ( $decideRet ne 1 ) {
+                print("WARN: Operation break, exit.\n");
+                exit(1);
+            }
+        }
+    }
+}
+
+exit main();

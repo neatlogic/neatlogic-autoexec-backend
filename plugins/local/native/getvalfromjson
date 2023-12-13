@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import sys
+import json
+import re
+import argparse
+
+import AutoExecUtils
+
+
+def extractByJsonSelector(txtData, selectorTxt):
+    extractVal = None
+    jsonObj = None
+    if isinstance(txtData, str):
+        try:
+            jsonObj = json.loads(txtData)
+        except:
+            print("ERROR: Data:%s is not in json format." % (txtData))
+            return None
+    else:
+        jsonObj = txtData
+
+    curObj = jsonObj
+    selectorTxt = selectorTxt.strip()
+    if selectorTxt.startswith('data['):
+        selectorTxt = selectorTxt[5:-1]
+        selectorTxt = selectorTxt.replace(r'\]\s+\[', '][')
+        print('Extract', end='')
+        for fieldIdx in re.split(r'[\[\]]+', selectorTxt):
+            if curObj is not None:
+                print('->%s' % fieldIdx, end='')
+                identity = fieldIdx
+                if fieldIdx.startswith('"') or fieldIdx.startswith("'"):
+                    identity = fieldIdx[1:-1]
+                    nextObj = curObj.get(identity)
+                elif re.match('\d+', fieldIdx):
+                    identity = int(fieldIdx)
+                    if identity < len(curObj):
+                        nextObj = curObj[identity]
+                else:
+                    nextObj = curObj.get(identity)
+
+                if nextObj is None:
+                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end='')
+                curObj = nextObj
+        extractVal = curObj
+
+        if extractVal is not None:
+            if isinstance(extractVal, list):
+                extractVal = ','.join(extractVal)
+            elif not isinstance(extractVal, str):
+                extractVal = json.dumps(extractVal)
+            print(' = %s\n' % (extractVal), end='')
+    else:
+        print('ERROR: Json object selector syntax error: must start with key word data.')
+
+    return extractVal
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jsontxt', default='{}', help='JSON text')
+    parser.add_argument('--selector', default='', help='Field selector')
+
+    exitCode = 0
+
+    args = parser.parse_args()
+    val = json.loads(args.jsontxt)
+    fieldSelector = args.selector
+
+    if exitCode == 0 and val is not None:
+        try:
+            extractVal = extractByJsonSelector(val, fieldSelector)
+
+            if extractVal is None:
+                exitCode = 2
+            else:
+                print('Extrace value:{}'.format(extractVal))
+        except Exception as err:
+            exitCode = 3
+            print('ERROR: Extract value failed, %s' % (err))
+
+    if extractVal is not None:
+        out = {'extractTxtVal': extractVal}
+        AutoExecUtils.saveOutput(out)
+
+    sys.exit(exitCode)

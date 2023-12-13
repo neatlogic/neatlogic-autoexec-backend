@@ -1,0 +1,574 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use Cwd;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use File::Path;
+use File::Copy;
+use File::Find;
+
+use DeployUtils;
+use ServerAdapter;
+use BuildUtils;
+use FileUtils;
+use DeployLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              [--dbdir DBDirectoryInProject] [--docdir DocDirectoryInProject]\n");
+    print("              [--prefix Preifix] [--md5check 0|1 [--packexts PackageExtNames]\n");
+    print("              [--exp ExccludeDirs] [--ensureexists 0|1] [-v|--verbose 0|1] target1 target2...\n");
+    print("\n");
+    print("       --envpath:   system envpath, example:ATM/ATMP/PRD\n");
+    print("       --version:   versoin number\n");
+    print("       --buildno:   build number\n");
+    print("       --buildresv: build reserved count\n");
+    print("       --verttl:    version artifact ttl days\n");
+    print("       --verresv:   version reserved count\n");
+    print("       --dbdir:     db resource start directory(relative to project directory)\n");
+    print("       --docdir:    doc resource start diretory(relative to project directory)\n");
+    print("       --prefix:    target prefix\n");
+    print("       --packexts:  package extention names, example:zip,tar,tgz\n");
+    print("       --exp:       which dirs not to be copy, please use | symbol as the delimiter.\n");
+    print("       --ensureexists: ensure release target files exists.\n");
+    print("       target: Example:target/*.war:myWar/test/ target/youWar.war target/hisWar.war:test.war\n");
+    exit(1);
+}
+
+sub copyPerm {
+    my ( $from, $to ) = @_;
+
+    my (@fromstat) = stat($from);
+    my (@tostat)   = stat($to);
+
+    my $perm = $fromstat[2] & ~( umask || 0 );
+    @tostat = stat($to);
+
+    # Might be more robust to look for S_I* in Fcntl, but we're
+    # trying to avoid dependence on any XS-containing modules,
+    # since File::Copy is used during the Perl build.
+    $perm &= 07777;
+    if ( $perm & 06000 ) {
+        croak("Unable to check setuid/setgid permissions for $to: $!")
+            unless @tostat;
+
+        if (
+            $perm & 04000 and    # setuid
+            $fromstat[4] != $tostat[4]
+            )
+        {                        # owner must match
+            $perm &= ~06000;
+        }
+
+        if ( $perm & 02000 && $> != 0 ) {    # if not root, setgid
+            my $ok = $fromstat[5] == $tostat[5];    # group must match
+            if ($ok) {                              # and we must be in group
+                $ok = grep { $_ == $fromstat[5] } split /\s+/, $);
+            }
+            $perm &= ~06000 unless $ok;
+        }
+    }
+
+    return 0 unless @tostat;
+    return 1 if $perm == ( $tostat[2] & 07777 );
+    return eval { chmod $perm, $to; } ? 1 : 0;
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $dbDir, $docDir, $prefix, $md5Check, $packExt, @packExts, $expDir, $ensureExists, @targetFiles );
+    my $pname = $FindBin::Script;
+
+    my $buildResvCount = 10;
+    my $verTTL         = 90;
+    my $verResvCount   = 6;
+    my $isVerbose      = 0;
+    my $ensureExists   = 1;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'v|verbose=i'    => \$isVerbose,
+        'envpath=s'      => \$envPath,
+        'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
+        'buildresv=i'    => \$buildResvCount,
+        'verttl=i'       => \$verTTL,
+        'verresv=i'      => \$verResvCount,
+        'dbdir=s'        => \$dbDir,
+        'docdir=s'       => \$docDir,
+        'prefix=s'       => \$prefix,
+        'md5check=i'     => \$md5Check,
+        'packexts=s'     => \$packExt,
+        'x|exp=s'        => \$expDir,
+        'ensureexists=i' => \$ensureExists,
+        '<>'             => sub { my $item = shift(@_); push( @targetFiles, $item ); }
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( defined($packExt) ) {
+        @packExts = split( /\s*,\s*/, lc($packExt) );
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $prjPath   = $buildEnv->{PRJ_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $buildRoot = $buildEnv->{BUILD_ROOT};
+
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        print("ERROR: Build number is empty, it is not provided by version:$version\n");
+        return 2;
+    }
+
+    my $releasePath = "$buildRoot/$buildNo";
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{isFreeze} ne 0 ) {
+        print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
+        return 3;
+    }
+
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, release again.\n");
+    }
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockBuild($buildLock);
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $versionInfo = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'releasing'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    my $destDir = "$releasePath/app";
+    if ( -e $destDir ) {
+        if ( not rmtree($destDir) ) {
+            print("ERROR: Remove directory $destDir failed, $!\n");
+            return 4;
+        }
+    }
+    if ( not mkpath($destDir) ) {
+        print("ERROR: Create directory $destDir failed, $!\n");
+        return 5;
+    }
+
+    if ( defined($prefix) and $prefix ne '' ) {
+        mkpath("$destDir/$prefix") if ( not -e "$destDir/$prefix" );
+    }
+
+    my %excludeDirsMap;
+    if ( defined($expDir) and $expDir ne '' ) {
+        $expDir = $deployUtils->charsetConv( $expDir, 'utf-8' );
+
+        my $aDir;
+        foreach $aDir ( split( /,/, $expDir ) ) {
+            my $bDir;
+            foreach $bDir ( bsd_glob("$prjPath/$aDir") ) {
+                $excludeDirsMap{$bDir} = 1;
+            }
+        }
+    }
+
+    my $hasError = 0;
+
+    my $filePath;
+    foreach my $filePath (@targetFiles) {
+        $filePath = $deployUtils->charsetConv( $filePath, 'utf-8' );
+        my $filePattern = $filePath;
+
+        my $destFilePath;
+        if ( index( $filePath, ':' ) > 0 ) {
+            ( $filePath, $destFilePath ) = split( /\s*:\s*/, $filePath );
+            $filePattern = $filePath;
+        }
+
+        my $realFilePath = "$prjPath/$filePath";
+
+        my @oneTargetGlobs = bsd_glob($realFilePath);
+        if ( scalar(@oneTargetGlobs) == 0 ) {
+            if ( $ensureExists == 1 ) {
+                print("ERROR: $prjPath/$filePath not found.\n");
+                $hasError = 1;
+            }
+            else {
+                print("WARN: $prjPath/$filePath not found.\n");
+            }
+        }
+
+        foreach my $subFilePath (@oneTargetGlobs) {
+            if ( exists( $excludeDirsMap{$subFilePath} ) ) {
+                next;
+            }
+
+            $destDir = "$releasePath/app";
+
+            if ( defined($prefix) and $prefix ne '' ) {
+                $destDir = "$destDir/$prefix";
+            }
+
+            my $isPack  = 0;
+            my $packExt = '';
+            foreach my $extName (@packExts) {
+                if ( rindex( lc($subFilePath), $extName ) > 0 ) {
+                    $isPack  = 1;
+                    $packExt = lc($extName);
+                    last;
+                }
+            }
+
+            if ( $isPack eq 0 ) {
+                my $dest;
+                my $ret = 0;
+                if ( not defined($destFilePath) ) {
+                    $dest = "$destDir/";
+                    $ret  = copyTarget( $subFilePath, $dest, \%excludeDirsMap, $md5Check );
+                }
+                else {
+                    if ( scalar(@oneTargetGlobs) == 1 or $destFilePath =~ /\/$/ ) {
+                        $dest = "$destDir/$destFilePath";
+                        my $destFileDir = substr( $dest, 0, rindex( $dest, '/' ) );
+                        if ( not -e $destFileDir ) {
+                            mkpath($destFileDir);
+                        }
+
+                        $ret = copyTarget( $subFilePath, $dest, \%excludeDirsMap, $md5Check );
+                    }
+                    else {
+                        $hasError = 1;
+                        print( "ERROR: Rename target failed, $filePattern match more than one targets:", join( ',', @oneTargetGlobs ), "\n" );
+                    }
+                }
+
+                if ( $ret ne 0 ) {
+                    $hasError = 1;
+                }
+                else {
+                    print("INFO: Copy $subFilePath to $dest success.\n");
+                }
+            }
+            else {
+                my $ret = 0;
+                if ( defined($md5Check) and -f $subFilePath ) {
+                    my ( $md5Provided, $md5Sum );
+                    eval {
+                        if ( -f "$subFilePath.md5" ) {
+                            $md5Provided = FileUtils::getFileContent("$subFilePath.md5");
+                            $md5Sum      = FileUtils::getFileMd5($subFilePath);
+                            if ( $md5Provided ne $md5Sum ) {
+                                $hasError = 1;
+                                print("ERROR: $subFilePath md5 check failed, actual md5checksum($md5Sum) not equal to($md5Provided).\n");
+                            }
+                            else {
+                                print("INFO: $subFilePath md5 check success.\n");
+                            }
+                        }
+                    };
+                    if ($@) {
+                        $hasError = 1;
+                        my $errMsg = $@;
+                        $errMsg =~ s/ at\s*.*$//;
+                        print($errMsg );
+                    }
+                }
+
+                if ( $packExt eq 'tgz' or $packExt eq 'tar.gz' ) {
+                    $ret = $deployUtils->execmd("tar -C $destDir -xzf '$subFilePath'");
+                }
+                elsif ( $packExt eq 'tar' ) {
+                    $ret = $deployUtils->execmd("tar -C $destDir -xf '$subFilePath'");
+                }
+                elsif ( $packExt eq 'zip' ) {
+                    $ret = $deployUtils->execmd("unzip -oqd $destDir '$subFilePath'");
+                }
+
+                if ( $ret != 0 ) {
+                    $hasError = 1;
+                }
+                else {
+                    print("ERROR: Extract package $subFilePath failed.\n");
+                }
+            }
+        }
+    }
+
+    if ( -e "$releasePath/db" ) {
+        rmtree("$releasePath/db");
+    }
+    if ( -e "$releasePath/doc" ) {
+        rmtree("$releasePath/doc");
+    }
+    if ( -d "$releasePath/app/db" and defined($packExt) ) {
+        if ( not rename( "$releasePath/app/db", "$releasePath/db" ) ) {
+            $hasError = 1;
+            print("ERROR: Move $releasePath/app/db to $releasePath/db failed.\n");
+        }
+    }
+
+    my $realDbDir;
+    if ( not defined($dbDir) or $dbDir eq '' ) {
+        $realDbDir = "$dbDir/$version";
+    }
+    else {
+        $realDbDir = $dbDir;
+    }
+
+    my $dbCopied = 0;
+
+    my $ret = 0;
+    if ( -d "$prjPath/$realDbDir" ) {
+        $ret      = copyTarget( "$prjPath/$realDbDir", "$releasePath/db", undef, $md5Check );
+        $dbCopied = 1;
+    }
+    if ( $ret != 0 ) {
+        $hasError = 1;
+    }
+
+    if ( $dbCopied == 1 ) {
+        print("INFO: Get db scripts in $realDbDir\n");
+    }
+    else {
+        print("WARN: There are no db scripts in $dbDir or $realDbDir\n");
+    }
+
+    my $realDocDir;
+    if ( not defined($docDir) or $docDir eq '' ) {
+        $realDocDir = "$docDir/$version";
+    }
+    else {
+        $realDocDir = $docDir;
+    }
+
+    my $ret = 0;
+    if ( -d "$prjPath/$realDocDir" ) {
+        $ret = copyTarget( "$prjPath/$realDocDir", "$releasePath/doc", undef, $md5Check );
+    }
+    if ( $ret != 0 ) {
+        $hasError = 1;
+    }
+
+    if ( defined($md5Check) ) {
+        eval { FileUtils::genMd5("$releasePath/app"); };
+        if ($@) {
+            $hasError = 1;
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print($errMsg );
+        }
+
+        if ( -d "$releasePath/db" ) {
+            eval { FileUtils::genMd5("$releasePath/db"); };
+            if ($@) {
+                $hasError = 1;
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+    }
+
+    my $buildUtils = BuildUtils->new();
+    $buildUtils->cleanExpiredBuild( $buildEnv, $buildResvCount );
+    $buildUtils->cleanExpiredVersion( $buildEnv, $verResvCount, $verTTL );
+
+    if ( $hasError ne 0 ) {
+        print("ERROR: Release $namePath version:$version with build($buildNo) failed.\n");
+    }
+    else {
+        eval { $hasError = $buildUtils->release( $buildEnv, $version, $buildNo ); };
+        if ($@) {
+            print("ERROR: $@\n");
+        }
+        else {
+            print("FINE: Release $namePath version:$version with build($buildNo) success.\n");
+        }
+    }
+
+    if ( $hasError == 0 ) {
+        $versionInfo->{status} = 'released';
+    }
+    else {
+        $versionInfo->{status} = 'release-failed';
+    }
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    if ( $hasError > 255 ) {
+        $hasError = $hasError >> 8;
+    }
+
+    return $hasError;
+}
+
+sub copyTarget {
+    my ( $src, $dest, $excludeMap, $md5Check ) = @_;
+
+    my $hasError = 0;
+
+    if ( not -e $src ) {
+        die("ERROR: $src is not exist.\n");
+    }
+
+    if ( -l $src ) {
+        if ( defined($excludeMap) and not defined( $excludeMap->{$src} ) ) {
+            if ( substr( $dest, -1 ) eq '/' ) {
+                if ( not -e $dest ) {
+                    mkdir($dest);
+                }
+                my $fileName = basename($src);
+                $dest = "$dest/$fileName";
+            }
+
+            symlink( readlink($src), $dest );
+        }
+    }
+    elsif ( -f $src ) {
+        if ( defined($excludeMap) and not defined( $excludeMap->{$src} ) ) {
+            if ( substr( $dest, -1 ) eq '/' ) {
+                if ( not -e $dest ) {
+                    mkdir($dest);
+                }
+                my $fileName = basename($src);
+                $dest = "$dest/$fileName";
+            }
+
+            if ( not copy( $src, $dest ) ) {
+                $hasError = 1;
+                print("ERROR: Copy $src to $dest failed, $!\n");
+            }
+            else {
+                copyPerm( $src, $dest );
+            }
+        }
+    }
+    else {
+        my $dirName;
+        if ( substr( $dest, -1 ) eq '/' ) {
+            $dirName = basename($src);
+            $dest    = "$dest/$dirName";
+            if ( not -e $dest ) {
+                mkdir($dest);
+            }
+        }
+        else {
+            $dirName = '';
+            if ( not -e $dest ) {
+                mkdir($dest);
+            }
+        }
+
+        my $cwd = getcwd();
+        chdir($src);
+
+        eval {
+            find(
+                {
+                    wanted => sub {
+                        my $fileName = $_;
+
+                        my $srcFile = $_;
+                        if ( $srcFile eq '.svn' or $srcFile eq '.git' ) {
+                            $File::Find::prune = 1;
+                            return;
+                        }
+                        elsif ( $srcFile eq '.' or $srcFile eq '..' ) {
+                            return;
+                        }
+
+                        my $fileName  = $srcFile;
+                        my $dirName   = substr( $File::Find::dir, 2 );
+                        my $targetDir = "$dest/$dirName";
+
+                        my $checkPath = "$src/$dirName/$fileName";
+                        if ( not defined($dirName) or $dirName eq "" ) {
+                            $checkPath = "$src/$fileName";
+                        }
+
+                        if ( defined($excludeMap) and $excludeMap->{"$checkPath"} == 1 ) {
+                            $File::Find::prune = 1;
+                            return;
+                        }
+
+                        my $destFile = "$dest/$dirName/$fileName";
+                        if ( -l $srcFile ) {
+                            mkdir($targetDir);
+                            if ( -e $destFile ) {
+                                unlink($destFile);
+                            }
+                            symlink( readlink($srcFile), $destFile ) || die("ERROR: Create symbol link $destFile failed:$!\n");
+                        }
+                        elsif ( -d $srcFile ) {
+                            if ( not -e $destFile ) {
+                                mkdir($destFile) || die("ERROR: Mkdir $destFile failed:$!\n");
+                            }
+                        }
+                        else {
+                            mkdir($targetDir);
+
+                            if ( not copy( $srcFile, $destFile ) ) {
+                                $hasError = 1;
+                                print("ERROR: Copy $srcFile to $destFile failed, $!\n");
+                            }
+                            else {
+                                copyPerm( $srcFile, $destFile );
+                            }
+                        }
+                    },
+                    follow => 0
+                },
+                '.'
+            );
+        };
+        if ($@) {
+            $hasError = 1;
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print($errMsg );
+        }
+
+        chdir($cwd);
+    }
+
+    return $hasError;
+}
+
+exit main();
+

@@ -1,0 +1,224 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use POSIX;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--help]\n");
+    print("       --operat:  operation type \n");
+    print("       --protocol:  connect port protocol \n");
+    print("       --output:  connect output ports \n");
+    print("       --input: connect input ports .\n");
+    exit(1);
+}
+
+sub main {
+    my ($isHelp);
+    my ( $output, $input, $protocol, $operat );
+
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'operat:s'   => \$operat,
+        'protocol:s' => \$protocol,
+        'input:s'    => \$input,
+        'output:s'   => \$output
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( not defined($operat) or $operat eq '' ) {
+        $operat = 'open';
+    }
+
+    if ( not defined($protocol) or $protocol eq '' ) {
+        $protocol = 'TCP';
+    }
+
+    if ( ( not defined($output) or $output eq '' ) && ( not defined($input) or $input eq '' ) ) {
+        print("ERROR: Must define input ports or output ports .\n");
+        usage();
+    }
+
+    my $exitCode = 0;
+    my @uname    = POSIX::uname();
+    my $ostype   = $uname[0];
+    if ( $ostype =~ /Windows/i ) {
+
+        my $runCmd;
+        my @inputPorts  = split( /,/, $input );
+        my @outputPorts = split( /,/, $output );
+        my $ret         = `perl -e "system('powershell -command (Get-WmiObject -class Win32_OperatingSystem).Caption')"`;
+        if ( $ret =~ /2003/ or $ret =~ /xp/ ) {
+            ###==========demo===============#########
+            #netsh firewall add portopening TCP 3939 "NetBIOS Port 3939"
+            #netsh firewall delete portopening protocol=UDP port=500
+
+            foreach my $port (@inputPorts) {
+                if ( $operat eq "open" ) {
+                    $runCmd = "netsh firewall add portopening $protocol $port \"NetBIOS Port $port\" ";
+                }
+                else {
+                    $runCmd = "netsh firewall delete portopening protocol=$protocol port=$port";
+                }
+                $exitCode = system($runCmd);
+                if ( $exitCode == 0 ) {
+                    print("INFO:: Firewall $operat input $protocol port $port success.\n");
+                }
+                else {
+                    print("WARN:: Firewall $operat input $protocol port $port failed. $@\n");
+                }
+            }
+
+            foreach my $port (@outputPorts) {
+                if ( $operat eq "open" ) {
+                    $runCmd = "netsh firewall add portopening $protocol $port \"NetBIOS Port $port\" ";
+                }
+                else {
+                    $runCmd = "netsh firewall delete portopening protocol=$protocol port=$port";
+                }
+                $exitCode = system($runCmd);
+                if ( $exitCode == 0 ) {
+                    print("INFO:: Firewall $operat input $protocol port $port success.\n");
+                }
+                else {
+                    print("WARN:: Firewall $operat input $protocol port $port failed. $@\n");
+                }
+            }
+        }
+        else {
+            #netsh advfirewall firewall add rule name ="NetBIOS TCP Port 3939" dir=in localport=3939 protocol=tcp action=allow
+            #netsh advfirewall firewall add rule name="NetBIOS TCP Port 8848" dir=out localport=8848 protocol=TCP action=allow
+            #"netsh advfirewall firewall delete rule name="NetBIOS Port 3939";
+
+            foreach my $port (@inputPorts) {
+                if ( $operat eq "open" ) {
+                    $runCmd = "netsh advfirewall firewall add rule name =\"NetBIOS Port $port\" dir=in localport=$port protocol=$protocol action=allow";
+                }
+                else {
+                    $runCmd = "netsh advfirewall firewall delete rule name=\"NetBIOS Port $port\"";
+                }
+                $exitCode = system($runCmd);
+                if ( $exitCode == 0 ) {
+                    print("INFO:: Firewall $operat input $protocol port $port success.\n");
+                }
+                else {
+                    print("WARN:: Firewall $operat input $protocol port $port failed. $@\n");
+                }
+            }
+
+            foreach my $port (@outputPorts) {
+                if ( $operat eq "open" ) {
+                    $runCmd = "netsh advfirewall firewall add rule name =\"NetBIOS Port $port\" dir=out localport=$port protocol=$protocol action=allow";
+                }
+                else {
+                    $runCmd = "netsh advfirewall firewall delete rule name=\"NetBIOS Port $port\"";
+                }
+                $exitCode = system($runCmd);
+                if ( $exitCode == 0 ) {
+                    print("INFO:: Firewall $operat output $protocol port $port success.\n");
+                }
+                else {
+                    print("WARN:: Firewall $operat output $protocol port $port failed. $@\n");
+                }
+            }
+        }
+    }
+    else {
+        my ( $inputOpt, $outputOpt );
+        $protocol = lc($protocol);
+        my $ret = `ps -p1 | grep systemd >/dev/null && initType="systemd" || initType="sysvinit" &&  echo \$initType`;
+
+        #>=redhat7
+        if ( $ret =~ /systemd/ ) {
+            ###==========demo===============#########
+            ##firewall-cmd --permanent --add-port=3939/tcp
+            ##firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -p tcp -m multiport --dport 8084,8888 -j ACCEPT
+            ##firewall-cmd --reload
+
+            my $status = `systemctl status firewalld`;
+            if ( $status =~ /inactive \(dead\)/ ) {
+                print("Fine:: Os not start Firewall services .\n");
+                exit(0);
+            }
+
+            if ( $operat eq "open" ) {
+                $inputOpt  = 'add-port';
+                $outputOpt = 'add-rule';
+            }
+            else {
+                $inputOpt  = 'remove-port';
+                $outputOpt = 'remove-rule';
+            }
+
+            my @inputPorts = split( /,/, $input );
+            foreach my $port (@inputPorts) {
+                $exitCode = system("firewall-cmd --permanent --$inputOpt=$port/$protocol");
+                if ( $exitCode == 0 ) {
+                    print("INFO:: Firewall $inputOpt input $protocol port $port success.\n");
+                }
+                else {
+                    print("WARN:: Firewall $inputOpt input $protocol port $port failed. $@\n");
+                }
+            }
+
+            $exitCode = system("firewall-cmd --permanent --direct --$outputOpt ipv4 filter OUTPUT 0 -p $protocol -m multiport --dport $output -j ACCEPT");
+            if ( $exitCode == 0 ) {
+                print("INFO:: Firewall $outputOpt output $protocol port $output success.\n");
+            }
+            else {
+                print("WARN:: Firewall $outputOpt output $protocol port $output failed. $@\n");
+            }
+
+            system("firewall-cmd --reload");
+        }
+        else {    #<=redhat6
+            ###==========demo===============#########
+            ##iptables -I OUTPUT -p tcp -m multiport --dports 8084,8888 -j ACCEPT
+            ##iptables -I INPUT -p tcp -m multiport --dports 3939 -j ACCEPT
+            ##service iptables save
+
+            my $status = `service iptables status`;
+            if ( $status =~ /Firewall is not running/ ) {
+                print("Fine:: Os not start Firewall services .\n");
+                exit(0);
+            }
+
+            if ( $operat eq "open" ) {
+                $inputOpt  = 'I';
+                $outputOpt = 'I';
+            }
+            else {
+                $inputOpt  = 'D';
+                $outputOpt = 'D';
+            }
+
+            $exitCode = system("iptables -$inputOpt INPUT -p $protocol -m multiport --dports $input -j ACCEPT");
+            if ( $exitCode == 0 ) {
+                print("INFO:: Iptables $operat input $protocol port $input success.\n");
+            }
+            else {
+                print("WARN:: Iptables $operat input $protocol port $input failed. $@\n");
+            }
+
+            $exitCode = system("iptables -$outputOpt OUTPUT -p $protocol -m multiport --dports $output -j ACCEPT");
+            if ( $exitCode == 0 ) {
+                print("INFO:: Iptables $operat output $protocol port $output success.\n");
+            }
+            else {
+                print("WARN:: Iptables $operat output $protocol port $output failed. $@\n");
+            }
+
+            system("service iptables save");
+        }
+    }
+    return 0;
+}
+
+exit( main() );

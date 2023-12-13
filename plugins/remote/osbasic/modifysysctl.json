@@ -1,0 +1,65 @@
+{
+    "opDesc": "修改sysctl.conf",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改/etc/sysctl.conf设置",
+    "option": [{
+            "opt": "backup",
+            "name": "备份文件",
+            "help": "在修改前备份文件到/etc/sysctl.conf.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "autotuneshm",
+            "name": "自动SHM参数",
+            "help": "自动调整kernel.shmmax和kernel.shmall为内存的一半",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "content",
+            "name": "需修改内容",
+            "help": "支持多行, 例如：kernel.shmmni=4096",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [{
+        "opt": "sysctlConf",
+        "name": "sysctl配置内容",
+        "help": "更新后的sysctl.conf配置内容",
+        "type": "textarea"
+    }]
+}

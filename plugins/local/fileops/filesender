@@ -1,0 +1,127 @@
+#!/usr/bin/perl -w
+use strict;
+use POSIX;
+use IO::File;
+use File::Basename;
+use Socket;
+
+# 初始化地址与端口
+my $host    = shift || "{RECV_HOST}";
+my $port    = shift || "{RECV_PORT}";
+my $token   = shift || "{AUTH_TOKEN}";
+my $destDir = shift || "{DEST_DIR}";
+
+my $socket;
+
+END {
+    if ( defined($socket) ) {
+        $socket->close();
+    }
+}
+
+my $realDestDir = $destDir;
+if ( -l $destDir ) {
+    $realDestDir = readlink($destDir);
+}
+
+my $transType;
+if ( -d $realDestDir ) {
+    $transType = "dir";
+}
+else {
+    $transType = "file";
+}
+
+my $fileName = basename($destDir);
+
+# 创建 socket 并连接
+socket( $socket, PF_INET, SOCK_STREAM, ( getprotobyname("tcp") )[2] ) or die "ERROR: Can not open socket $!\n";
+
+$SIG{ALRM} = sub {
+    print("ERROR: Connect to $host:$port timeout.\n");
+    exit(-1);
+};
+alarm(15);
+connect( $socket, pack_sockaddr_in( $port, inet_aton($host) ) ) or die "ERROR: Can not connect $host:$port $!\n";
+alarm(0);
+
+binmode($socket);
+
+if ( not -e $realDestDir ) {
+    print("ERROR: Directory $realDestDir not exists.\n");
+    syswrite( $socket, "failed|failed|failed\n" );
+    exit(-1);
+}
+syswrite( $socket, "$transType|$fileName|$token\n" );
+
+my $exitCode = 0;
+
+my @uname  = uname();
+my $ostype = $uname[0];
+
+if ( $transType eq "dir" ) {
+    my $cmd = "tar cf - .";
+    if ( $ostype =~ /Windows/ ) {
+        $cmd = "7z.exe a dummy -ttar -y -so .";
+    }
+
+    my $curDir = getcwd();
+    if ( chdir($destDir) ) {
+        my $pipe;
+        my $pid = open( $pipe, "$cmd |" );
+
+        if ( defined($pid) and $pid != 0 ) {
+            my ( $len, $buf );
+            while ( $len = read( $pipe, $buf, 8 * 4096 ) ) {
+                syswrite( $socket, $buf, $len );
+            }
+            waitpid( $pid, 0 );
+            my $exitStatus = $?;
+            if ( $exitStatus ne 0 ) {
+                $exitCode = $exitStatus;
+                print("ERROR: Tar directory $destDir failed.\n");
+            }
+            close($pipe);
+        }
+        else {
+            $exitCode = 3;
+            print("ERROR: Can not launch command $cmd.\n");
+        }
+
+        chdir($curDir);
+    }
+    else {
+        print("ERROR: Can not cd directory $destDir:$!.\n");
+        $exitCode = 2;
+    }
+}
+else {
+    my $fh = IO::File->new("<$destDir");
+    if ( not defined($fh) ) {
+        print("ERROR: Open file $destDir failed, $!\n");
+    }
+    binmode($fh);
+
+    my $buf;
+    my $readLen;
+    my $wrtLen = 0;
+    while ( $readLen = read( $fh, $buf, 8 * 4096 ) ) {
+        $wrtLen = syswrite( $socket, $buf, $readLen );
+        if ( not defined($wrtLen) and $buf !~ /^\x00+$/ ) {
+            $exitCode = 1;
+            print("ERROR: Write to $host:$port failed, $!\n");
+            last;
+        }
+    }
+
+    $fh->close();
+}
+
+setsockopt( $socket, SOL_SOCKET, SO_RCVTIMEO, pack( 'L!L!', 15, 0 ) );
+shutdown( $socket, 1 );
+my $sendStatus = <$socket>;
+if ( not defined($sendStatus) or $sendStatus !~ /success/i ) {
+    $exitCode = 1;
+}
+
+exit($exitCode);

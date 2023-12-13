@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --registry Registry --project Project --image ImageName --tag tagname\n");
+    print("              --username UserName --password Password");
+    print("\n");
+    print("       --registry: Docker registry\n");
+    print("       --project: Project\n");
+    print("       --image:   Image name\n");
+    print("       --tagname: Tag name.\n");
+    print("       --user:    Registry user name\n");
+    print("       --password:Registry user password\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $registry, $project, $image, $tagname );
+    my ( $username, $password );
+
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'registry=s' => \$registry,
+        'project=s'  => \$project,
+        'image=s'    => \$image,
+        'tagname=s'  => \$tagname,
+        'user=s'     => \$username,
+        'password=s' => \$password
+    );
+
+    if ( not defined($image) or not defined($registry) or not defined($tagname) ) {
+        usage();
+    }
+
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
+
+    my $hasError = 0;
+    #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
+    
+    # login first
+    my $loginCmd      = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
+    my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
+    print("INFO: Execute->$loginCmdPrint\n");
+    my $loginRet = system($loginCmd);
+    if ( $loginRet eq 0 ) {
+        print("INFO: Docker login success!\n");
+    }
+    else {
+        $hasError = $hasError + 1;
+        print("ERROR: Docker login failed!\n");
+        return $hasError;
+    }
+
+    my $image_name = "$registry/$project/$image:$tagname";
+    my $cmd = "docker rmi $image_name $image:$tagname";
+    print("INFO: Execute->$cmd\n");
+
+    my $ret = system($cmd );
+    if ( $ret eq 0 ) {
+        print("INFO: Remove local $image success!\n");
+    }
+    else {
+        print("INFO: Local $image is not exist!\n");
+    }
+
+    $cmd = "docker pull $image_name";
+    print("INFO: Execute->$cmd\n");
+    $ret = system($cmd );
+
+    if ( $ret eq 0 ) {
+        print("INFO: Pull image $image_name success!\n");
+    }
+    else {
+        $hasError = $hasError + 1;
+        print("ERROR: Pull image $image_name failed.\n");
+        return $hasError;
+    }
+
+    #my $cmd = "docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H$host:$h_port tag $registry/library/$image:$env-$version $image:$env-$version";
+    $cmd = "docker tag $image_name $image:$tagname";
+    print("INFO: Execute->$cmd\n");
+    $ret = system($cmd );
+
+    if ( $ret eq 0 ) {
+        print("INFO: Tag image $image_name to $image:$tagname success.\n");
+    }
+    else {
+        $hasError = $hasError + 1;
+        print("ERROR: Tag image $image_name to $image:$tagname failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();

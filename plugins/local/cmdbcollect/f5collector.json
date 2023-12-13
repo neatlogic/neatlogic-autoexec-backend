@@ -1,0 +1,58 @@
+{
+    "opName": "F5CMDB采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "使用SNMP采集F5的VS、POOL、MEMBER信息",
+    "option": [
+        {
+            "opt": "community",
+            "name": "默认团体字",
+            "help": "当在节点信息中没有密码是，使用此默认SNMP团体字",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "public"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "单次SNMP查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
+}

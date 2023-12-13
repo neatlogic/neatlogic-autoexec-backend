@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import LocalRemoteExec
+
+import os
+import sys
+import argparse
+import json
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --timeout <timeout> --command <command>")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='connect remote ip password')
+    parser.add_argument('--timeout', default=15, help='timeout')
+    parser.add_argument('--command', default='', help='custom command')
+
+    args = parser.parse_args()
+    node = args.node
+    timeout = args.timeout
+    command = args.command
+
+    if(command is None):
+        print("ERROR:: Must defined command.")
+        hasOptError = True
+
+    nodeInfo = {}
+    hasOptError = False
+    if node is None or node == '':
+        node = os.getenv('AUTOEXEC_NODE')
+    if node is None or node == '':
+        print("ERROR: Can not find node definition.\n")
+        hasOptError = True
+    else:
+        nodeInfo = json.loads(node)
+
+    if hasOptError:
+        usage()
+        sys.exit(1)
+
+    exec = LocalRemoteExec.LocalRemoteExec()
+    command = command.replace('\\n', '\n')
+
+    ret = False
+    errorMsg = ''
+    (ret, errorMsg) = exec._remoteExecCmd(nodeInfo, command, timeout)
+    if ret:
+        print('INFO: Exec remote command success.')
+    else:
+        print('ERROR: Exec remote command failed.')
+        sys.exit(1)

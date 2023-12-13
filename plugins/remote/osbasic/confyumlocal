@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --clean <0|1> --isofile <ISO file path>\n");
+    exit(1);
+}
+
+sub main {
+    my $clean = 0;
+    my $isofile;
+    my $mountPoint;
+
+    GetOptions(
+        'mountpoint=s' => \$mountPoint,
+        'isofile=i'    => \$isofile,
+        'clean=i'      => \$clean
+    );
+
+    my $hasError = 0;
+
+    my $config = "[local]\n" . "name=local]\n" . "baseurl=file://$mountPoint\n" . "gpgcheck=0\n" . "enabled=1\n";
+
+    if ( $clean == 1 ) {
+        if ( system('rm -f /etc/yum.repos.d/*') != 0 ) {
+            $hasError = 1;
+            print("ERROR: Remove /etc/yum.repos.d/* failed.\n");
+        }
+    }
+
+    my $localConfFile = '/etc/yum.repos.d/local.repo';
+    my $fh            = IO::File->( $localConfFile, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($config);
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Cant open file $localConfFile, $!\n");
+    }
+
+    my $exitCode = 0;
+
+    $exitCode = system("perl -i -pe 's/^\s*multilib_policy\s*=.*/multilib_policy=all/' /etc/yum.conf");
+    if ( $exitCode != 0 ) {
+        $hasError = 1;
+        print("ERROR: Change 'multilib_policy=all' in file /etc/yum.conf failed.\n");
+    }
+
+    $exitCode = system("mount -u -o loop -t iso9660 '$isofile' '$mountPoint'");
+    if ( $exitCode != 0 ) {
+        $hasError = 1;
+        print("ERROR: Mount $isofile to directory $mountPoint failed, $!\n");
+    }
+
+    system("yum clean all");
+    system("yum makecache");
+
+    return $hasError;
+}
+
+exit main();

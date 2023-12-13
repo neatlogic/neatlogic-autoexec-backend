@@ -1,0 +1,278 @@
+#!/usr/bin/perl
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use IO::File;
+use File::Basename;
+
+use AutoExecUtils;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --node <node json> --aliasprefix <ASM disk prefix> --listdevcmd <command to list disk dev> --owner <Dev owner> --group <Owner group>\n");
+    exit(1);
+}
+
+sub getScsiIdCmd {
+    my $SCSI_ID_CMD;
+    if ( -e '/usr/lib/udev/scsi_id' ) {
+        $SCSI_ID_CMD = '/usr/lib/udev/scsi_id -g -u -d';
+    }
+    elsif ( -e '/lib/udev/scsi_id' ) {
+        $SCSI_ID_CMD = '/lib/udev/scsi_id -g -u -d';
+    }
+    elsif ( -e '/sbin/scsi_id' ) {
+        $SCSI_ID_CMD = '/sbin/scsi_id -g -u -d';
+    }
+    else {
+        die("ERROR: Can not find tools scsi_id in dirtories:/usr/lib/udev,/lib/udev,/sbin.\n");
+    }
+
+    return $SCSI_ID_CMD;
+}
+
+sub getDiskScsiId {
+    my ( $scsiIdCmd, $devPath ) = @_;
+
+    #获取SCSI 磁盘的SCSI ID
+    my $scsiId = `$scsiIdCmd $devPath`;
+
+    if ( $? != 0 ) {
+        die("ERROR: Can not get dev $devPath scsi id, only support scsi disk.\n");
+    }
+
+    $scsiId =~ s/^\s*|\s*$//g;
+
+    return $scsiId;
+}
+
+sub getDiskAliases {
+    my ( $scsiIdCmd, $diskAliasPrefix ) = @_;
+
+    #获取已经存在指定别名前缀的磁盘别名，返回一个从SCSI ID到设备别名的一个MAP
+    #返回的别名是去掉了/dev/前缀的
+    my $maxAliasSeqNumber = 0;
+    my $scsiIdAliasMap    = {};
+    for my $diskAliasPath ( glob("$diskAliasPrefix*") ) {
+        my $scsiId = getDiskScsiId( $scsiIdCmd, $diskAliasPath );
+        $diskAliasPath =~ s/^\/dev\///;
+        $scsiIdAliasMap->{$scsiId} = $diskAliasPath;
+
+        if ( $diskAliasPath =~ /(\d+)$/ ) {
+            my $diskAliasSeq = int($1);
+            if ( $diskAliasSeq > $maxAliasSeqNumber ) {
+                $maxAliasSeqNumber = $diskAliasSeq;
+            }
+        }
+    }
+
+    return ( $scsiIdAliasMap, $maxAliasSeqNumber );
+}
+
+sub getDiskSize {
+    my ($devPath) = @_;
+
+    my $diskInfoTxt = `LANG=en_US.UTF-8 fdisk -l '$devPath'`;
+    my $diskSize    = 0;
+    if ( $diskInfoTxt =~ /^Disk\s+$devPath\b.*?(\d+)\s*bytes/ ) {
+        $diskSize = int( $1 / 1024 / 1024 );
+    }
+
+    return $diskSize;
+}
+
+sub main {
+    AutoExecUtils::setEnv();
+
+    my ( $ishelp, $node, $diskAliasPrefix, $listDevCmd, $selectRange );
+    my ( $sortMethod, $owner, $group );
+    GetOptions(
+        'help'          => \$ishelp,
+        'node=s'        => \$node,
+        'aliasprefix=s' => \$diskAliasPrefix,
+        'listdevcmd=s'  => \$listDevCmd,
+        'selectrange=s' => \$selectRange,
+        'sortmethod=s'  => \$sortMethod,
+        'owner=s'       => \$owner,
+        'group=s'       => \$group
+    );
+
+    my $hasOptErr = 0;
+
+    if ( not defined($diskAliasPrefix) or $diskAliasPrefix eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined disk alias prefix by option --aliasprefix.\n");
+    }
+
+    if ( not defined($listDevCmd) or $listDevCmd eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined list dev command by option --listdevcmd.\n");
+    }
+
+    if ( not defined($owner) or $owner eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined dev alias owner user by option --owner.\n");
+    }
+
+    if ( not defined($group) or $group eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined dev alias owner group by option --group.\n");
+    }
+
+    if ( defined($ishelp) or $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $scsiIdCmd = getScsiIdCmd();
+
+    #获取已经建立了别名的SCSI磁盘的信息，包括SCSI ID到别名的映射MAP和最大序号
+    my ( $scsiIdAliasMap, $maxAliasSeqNumber ) = getDiskAliases( $scsiIdCmd, $diskAliasPrefix );
+
+    my $diskAliasRelPrefix = $diskAliasPrefix;
+    $diskAliasRelPrefix =~ s/^\/dev\///;
+
+    #获取磁盘的序号范围
+    my $rangeCount;
+    my ( $startSeq, $endSeq ) = split( /\s*,\s*/, $selectRange );
+    $startSeq = int($startSeq);
+    $endSeq   = int($endSeq);
+    if ( $endSeq == 0 ) {
+        $endSeq = 99999999999;
+    }
+    else {
+        $rangeCount = $endSeq - $startSeq + 1;
+    }
+
+    if ( $startSeq > $endSeq ) {
+        $hasError = 1;
+        print("ERROR: Malform disk range:$selectRange, end index must bigger or equal start index.\n");
+        return $hasError;
+    }
+
+    #根据提供的命令获取原始的设备列表
+    my @diskDevs  = ();
+    my $udevRules = '';
+    $listDevCmd =~ s/\\n/\n/g;
+    my $diskListTxt = `$listDevCmd`;
+    $diskListTxt =~ s/^\s*|\s*$//g;
+
+    my @allDisks        = ();
+    my $scsiIdProcessed = {};
+    foreach my $diskDev ( split( /\s+/, $diskListTxt ) ) {
+        my $diskScsiId = getDiskScsiId( $scsiIdCmd, $diskDev );
+
+        if ( defined( $scsiIdProcessed->{$diskScsiId} ) ) {
+
+            #防止存在分区的情况，同一个磁盘的多个分区，SCSI ID是一样的
+            next;
+        }
+        else {
+            $scsiIdProcessed->{$diskScsiId} = 1;
+        }
+
+        my $scsiIdAlias = $scsiIdAliasMap->{$diskScsiId};
+        my $diskSize    = getDiskSize($diskDev);
+        if ( defined($scsiIdAlias) ) {
+            push( @diskDevs, "/dev/$scsiIdAlias" );
+            push( @allDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize, isNew => 0 } );
+
+            #如果别名已经存在，则使用原来的信息建立规则
+            my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$scsiIdAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+            print("Exist: $rule");
+            $udevRules = $udevRules . $rule;
+        }
+        else {
+            #如果是没有对应别名的磁盘，把信息存到一个数组
+            push( @allDisks, { dev => $diskDev, scsiId => $diskScsiId, size => $diskSize, isNew => 1 } );
+        }
+    }
+
+    #对没有建立别名的磁盘数组进行排序
+    my @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
+    if ( $sortMethod eq 'size' ) {
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @allDisks;
+    }
+    elsif ( $sortMethod eq 'id' ) {
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
+    }
+    elsif ( $sortMethod eq 'name' ) {
+
+        #@sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
+    }
+    elsif ( $sortMethod eq 'sizeandid' ) {
+        @sortedDisks = sort { $a->{scsiId} cmp $b->{scsiId} } @allDisks;
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
+    }
+    elsif ( $sortMethod eq 'sizeandname' ) {
+        @sortedDisks = sort { $a->{dev} cmp $b->{dev} } @allDisks;
+        @sortedDisks = sort { $a->{size} <=> $b->{size} } @sortedDisks;
+    }
+    else {
+        @sortedDisks = @allDisks;
+    }
+
+    my $matchRangeCount = 0;
+    my $idx             = 0;
+    my $seqNumber       = $maxAliasSeqNumber + 1;
+    foreach my $diskInfo (@sortedDisks) {
+        $idx = $idx + 1;
+        if ( $idx < $startSeq ) {
+            next;
+        }
+        elsif ( $idx > $endSeq ) {
+            last;
+        }
+
+        $matchRangeCount = $matchRangeCount + 1;
+        if ( $diskInfo->{isNew} == 0 ) {
+            next;
+        }
+
+        my $diskScsiId = $diskInfo->{scsiId};
+
+        #如果是新发现的设备，则根据别名前缀和序号建立设备软链接
+        my $diskAlias = "$diskAliasRelPrefix$seqNumber";
+        push( @diskDevs, "/dev/$diskAlias" );
+        my $rule = qq[ENV{DEVTYPE}=="disk", SUBSYSTEM=="block", PROGRAM=="$scsiIdCmd \$devnode", RESULT=="$diskScsiId", SYMLINK+="$diskAlias" OWNER="$owner", GROUP="$group", MODE="0660"\n];
+        print("New: $rule");
+        $udevRules = $udevRules . $rule;
+        $seqNumber = $seqNumber + 1;
+    }
+
+    @diskDevs = sort(@diskDevs);
+
+    my $out = {};
+    $out->{diskDiscoveryString} = dirname($diskAliasPrefix) . '/*';
+    $out->{udevRules}           = $udevRules;
+    $out->{diskDevs}            = join( "\n", @diskDevs );
+    $out->{diskDevsArray}       = \@diskDevs;
+    AutoExecUtils::saveOutput($out);
+
+    #udevadm control --reload-rules && udevadm trigger
+    if ( defined($rangeCount) ) {
+
+        #设置了startSeq和endSeq，校验数量是否一致
+        if ( $rangeCount != $matchRangeCount ) {
+            $hasError = 1;
+            print("ERROR: Can not get disks from line:$startSeq to line:$endSeq, not enough disk infomation lines.\n");
+        }
+    }
+    else {
+        #没有设置endSeq
+        if ( $matchRangeCount == 0 ) {
+            $hasError = 1;
+            print("ERROR: Can not get disks from line:$startSeq not enough disk infomation lines.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

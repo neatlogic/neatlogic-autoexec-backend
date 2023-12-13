@@ -1,0 +1,149 @@
+{
+    "opDesc": "生成版本制品",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "release-args",
+    "description": "从编译目录中抽取文件生成版本制品",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "buildresv",
+            "name": "Build保留数量",
+            "help": "Build的保留数量，超过此数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verttl",
+            "name": "版本保留天数",
+            "help": "版本的保留天数，超过保留天数和保留数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "90"
+        },
+        {
+            "opt": "verresv",
+            "name": "版本保留数量",
+            "help": "版本的保留数量，超过保留天数和保留数量的将会自动删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "6"
+        },
+        {
+            "opt": "dbdir",
+            "name": "DB目录",
+            "help": "存放数据库SQL脚本的子目录（相对于工程目录的相对目录，留空代表：db/${VERSION}）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "db/${VERSION}"
+        },
+        {
+            "opt": "docdir",
+            "name": "DOC目录",
+            "help": "存放文档的子目录（相对于工程目录的相对目录，留空代表：doc/${VERSION}）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "doc/${VERSION}"
+        },
+        {
+            "opt": "packexts",
+            "name": "包制品扩展名",
+            "help": "如果是非代码工程，可能对zip包等进行解压抽取，例如：zip,tar,tgz,tar.gz",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exp",
+            "name": "排除目录",
+            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "md5check",
+            "name": "生成文件MD5",
+            "help": "生成制品中文件的md5 checksum（正常不需要，除非客户要求）",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "ensureexists",
+            "name": "确保文件存在",
+            "help": "如果抽取的列表为空或文件不存在则报错",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "argument": {
+        "name": "抽取列表",
+        "help": "从工程目录中抽取的文件或目录，例如：target/*.war或者target/*.war:webapp/",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "target/*.war",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

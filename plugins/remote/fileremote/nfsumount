@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("       --mountpoint:    Local mount path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node,   $mountPoint );
+
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'v|verbose=i'  => \$isVerbose,
+        'mountpoint=s' => \$mountPoint
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($mountPoint) or $mountPoint eq '' ) {
+        print("ERROR: Must define local mount path.\n");
+        usage();
+    }
+    if ( $mountPoint =~ /\/\.\.\// or $mountPoint =~ /^\.\.\// or $mountPoint =~ /\/\.\.$/ ) {
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    #umount -l /mnt/nas
+    my $cmd = "umount";
+    if ( $isVerbose == 1 ) {
+        $cmd = $cmd . ' --verbose';
+    }
+    $cmd = "$cmd $mountPoint";
+    my $exitCode = system($cmd);
+
+    if ( $exitCode == 0 ) {
+        print("FINE: Umount $mountPoint success.\n");
+    }
+    else {
+        print("ERROR: Umount $mountPoint failed.\n");
+    }
+    return $exitCode;
+}
+
+exit( main() );
+

@@ -1,0 +1,247 @@
+{
+    "label": "路由器",
+    "collection": "COLLECT_SWITCH",
+    "docroot": null,
+    "collection_label": "网络设备",
+    "filter": {
+        "_OBJ_TYPE": "Router"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "IP_ADDRS",
+            "desc": "IP地址列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "掩码",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS信息",
+            "type": "String"
+        },
+        {
+            "name": "PORTS",
+            "desc": "SWitch Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "操作状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "管理状态",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "端口类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC",
+                    "type": "String"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_QLEN",
+                    "desc": "发送队列",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_OCTETS",
+                    "desc": "流入流量(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UCAST_PKTS",
+                    "desc": "流入单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_NUCAST_PKTS",
+                    "desc": "流入非单播放pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_DISCARDS",
+                    "desc": "流入丢弃pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_ERRORS",
+                    "desc": "流入错误pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UNKNOWN_PROTOS",
+                    "desc": "未知协议pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_OCTETS",
+                    "desc": "流出bps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_UCAST_PKTS",
+                    "desc": "流出单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_NUCAST_PKTS",
+                    "desc": "流出非单播pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_DISCARDS",
+                    "desc": "流出丢弃pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_ERRORS",
+                    "desc": "流出错误pps",
+                    "type": "Int"
+                },
+                {
+                    "name": "NEIGHBORS",
+                    "desc": "网络邻居",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "管理IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "设备名(包括序列号后缀)",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME_1",
+                            "desc": "设备名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "序列号",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
+            "type": "Int"
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "opDesc": "人工延迟",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "通过休眠实现人工延迟",
+    "enabled": 1,
+    "option": [{
+        "opt": "seconds",
+        "name": "延迟秒数",
+        "help": "",
+        "type": "text",
+        "required": "true",
+        "validate": null,
+        "defaultValue": "3"
+    }],
+    "output": []
+}

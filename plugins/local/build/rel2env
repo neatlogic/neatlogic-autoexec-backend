@@ -1,0 +1,173 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Getopt::Long;
+use File::Path;
+
+use DeployUtils;
+use DeployLock;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+    print("       --version: version number of module\n");
+    print("       --buildno: Build number\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'v|verbose=i' => \$isVerbose
+    );
+    usage() if ( defined($isHelp) );
+    my $optionError = 0;
+
+    usage() if ( $optionError == 1 );
+    my $deployUtils = DeployUtils->new();
+
+    my $buildEnv = $deployUtils->deployInit( $envPath, $version, $buildNo );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $dataPath = $buildEnv->{DATA_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    my $verStatus     = $verInfo->{status};
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version build $buildNo($verStatus) is not released, can not release to env.\n");
+        return 3;
+    }
+
+    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir = $dirInfo->{release};
+    my $distDir    = $dirInfo->{distribute};
+
+    my $hasError = 0;
+    my $ret      = 0;
+    if ( not -e $distDir ) {
+        if ( not mkpath($distDir) ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Can not Create directory:$distDir $!\n");
+        }
+    }
+
+    if ( -e "$distDir/app" ) {
+        if ( not rmtree("$distDir/app") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/app failed, $!\n");
+        }
+    }
+
+    if ( -e "$distDir/db" ) {
+        if ( not rmtree("$distDir/db") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/db failed, $!\n");
+        }
+    }
+
+    if ( -e "$distDir/doc" ) {
+        if ( not rmtree("$distDir/doc") ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Remove directory $distDir/doc failed, $!\n");
+        }
+    }
+
+    if ( $hasError > 0 ) {
+        return $hasError;
+    }
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $appLockId   = $lock->lockEnvApp($DeployLock::WRITE);
+    my $sqlLockId   = $lock->lockEnvSql($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockEnvSql($sqlLockId);
+            $lock->unlockEnvApp($appLockId);
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
+    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
+
+    eval {
+        my $relItemCount = 0;
+        print("INFO: Try to release $namePath $version build:$buildNo to $envName...\n");
+        if ( -d "$releaseDir/app" ) {
+            $deployUtils->copyTree( "$releaseDir/app", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release application to $envName success.\n");
+        }
+
+        if ( -d "$releaseDir/db" ) {
+            $deployUtils->copyTree( "$releaseDir/db", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release DB scripts to $envName success.\n");
+        }
+
+        if ( -d "$releaseDir/doc" ) {
+            $deployUtils->copyTree( "$releaseDir/doc", "$distDir/" );
+            $relItemCount = $relItemCount + 1;
+            print("INFO: Release documents to $envName success.\n");
+        }
+
+        if ( $relItemCount == 0 ) {
+            print("WARN: Artifacts of $namePath $version build:$buildNo are empty.\n");
+        }
+    };
+    if ($@) {
+        $hasError = 1;
+        print($@);
+    }
+
+    if ( $hasError == 0 ) {
+
+        #此处不需要更新环境版本状态为成功，需要通过工具envrelease进行最后成功的更新
+        print("FINE: Release $namePath $version build:$buildNo to $envName success.\n");
+    }
+    else {
+        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
+        print("ERROR: Release $namePath $version build:$buildNo to $envName failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+

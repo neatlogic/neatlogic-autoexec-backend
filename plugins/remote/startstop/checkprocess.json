@@ -1,0 +1,73 @@
+{
+    "opDesc": "进程数量检查",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "检查进程数量是否符合预期",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "详细输出",
+            "help": "显示匹配的详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "checkexp",
+            "name": "数量表达式",
+            "help": "进程数量的不等式，例如：'>10'或者'==10'或者'<10'或者'>=10'",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "op",
+            "name": "多关键字",
+            "help": "多个关键字的操作符号",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "OR",
+                        "value": "or"
+                    },
+                    {
+                        "text": "AND",
+                        "value": "and"
+                    }
+                ]
+            },
+            "defaultValue": "or"
+        }
+    ],
+    "argument": {
+        "name": "关键字",
+        "help": "关键字，支持正则表达式",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "ERROR",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

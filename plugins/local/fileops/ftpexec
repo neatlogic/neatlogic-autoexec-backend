@@ -1,0 +1,170 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use Net::FTP::Recursive;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:      Host node json\n");
+    print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       --src:       copy source path ,many src path , separated .\n");
+    print("       --dest:      remote target path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'direction:s' => \$direction,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: Must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: Must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: Src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: Must define directory in ftp server.\n");
+        usage();
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: Directory in ftp server can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $nodeInfo    = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $host = $nodeInfo->{host};
+    my $port = $nodeInfo->{protocolPort};
+    my $user = $nodeInfo->{username};
+    my $pass = $nodeInfo->{password};
+
+    if ( defined($pass) and $pass ne '' ) {
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    if ( not defined($port) or $port eq '' ) {
+        $port = 21;
+    }
+
+    my $isSuccess = 0;
+    my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
+    if ( defined($user) and $user ne '' ) {
+        $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
+    }
+    $ftp->binary();
+    print("INFO: Login ftp success.\n");
+
+    my @src_dirs = split( /,/, $src );
+    if ( $direction eq 'push' ) {
+        foreach my $target (@src_dirs) {
+            my $isFile = 0;
+            if ( !-d $target and !-e $target ) {
+                $isSuccess = 1;
+                print("ERROR: Local directory $target not exists.\n");
+                last;
+            }
+            if ( -d $target ) {
+                $isFile = 0;
+            }
+            else {
+                $isFile = 1;
+            }
+            if ( $isFile == 0 ) {
+                my $target_name = basename($target);
+                print("INFO: Upload folder $target.\n");
+
+                #切换目标根路径
+                $ftp->cwd($dest);
+                $ftp->mkdir($target_name);
+                $ftp->cwd($target_name);
+                chdir($target);
+                $ftp->rput($target);
+            }
+            else {
+                print("INFO: Upload file $target.\n");
+                $ftp->put($target);
+            }
+        }
+    }
+    elsif ( $direction eq 'pull' ) {
+        if ( !-d $dest ) {
+            $isSuccess = 1;
+            print("ERROR: Local directory $dest not exists.\n");
+        }
+        else {
+            foreach my $target (@src_dirs) {
+                my $isFile = 0;
+                unless ( $ftp->cwd($target) ) {
+                    $isFile = 1;
+                }
+                else {
+                    $isFile = 0;
+                }
+                chdir($dest);
+                if ( $isFile == 0 ) {
+                    print("INFO: Download folder $target.\n");
+                    my $folder = File::Spec->catfile( $dest, $target );
+                    if ( !-d $folder ) {
+                        system("mkdir -p $folder");
+                    }
+                    chdir($folder);
+                    $ftp->rget( $target, $folder );
+                }
+                else {
+                    print("INFO: Download file $target.\n");
+                    $ftp->get($target);
+                }
+            }
+        }
+    }
+    $ftp->quit;
+
+    return $isSuccess;
+}
+
+exit( main() );
+

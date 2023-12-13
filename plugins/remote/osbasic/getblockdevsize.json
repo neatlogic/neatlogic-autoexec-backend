@@ -1,0 +1,31 @@
+{
+    "opDesc": "获取块设备大小",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "获取块设备大小(单位MB)",
+    "option": [{
+        "opt": "blockdevs",
+        "name": "块设备列表",
+        "help": "块设备路径列表",
+        "type": "textarea",
+        "required": "true",
+        "validate": "",
+        "defaultValue": "/dev/sda\n/dev/sdb"
+    }],
+    "output": [{
+            "opt": "blockDevSizeInfo",
+            "name": "块设备大小信息",
+            "help": "块设备大小信息, 单位MB",
+            "type": "json"
+        },
+        {
+            "opt": "blockDevSizeList",
+            "name": "块设备大小列表",
+            "help": "块设备大小列表, 单位MB",
+            "type": "textarea"
+        }
+    ]
+}

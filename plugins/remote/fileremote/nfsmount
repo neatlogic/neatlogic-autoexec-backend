@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use FindBin;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use POSIX qw(uname);
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("       --username:  Username \n");
+    print("       --password:  Password\n");
+    print("       --iocharset: Default utf8\n");
+    print("       --location:      Remote locationess path .\n");
+    print("       --mountpoint:    Local mount path .\n");
+    print("       --type:      Mount filesystem types.\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $username, $password, $iocharset, $type, $location, $mountPoint );
+
+    AutoExecUtils::setEnv();
+    my $pname = $FindBin::Script;
+
+    my $isVerbose = 0;
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'v|verbose=i'  => \$isVerbose,
+        'username=s'   => \$username,
+        'password=s'   => \$password,
+        'iocharset=s'  => \$iocharset,
+        'type=s'       => \$type,
+        'location=s'   => \$location,
+        'mountpoint=s' => \$mountPoint
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($location) or $location eq '' ) {
+        print("ERROR: Must define nas path.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($mountPoint) or $mountPoint eq '' ) {
+        print("ERROR: Must define local mount path.\n");
+        usage();
+    }
+    if ( !-d $mountPoint ) {
+        system("mkdir -p $mountPoint && chmod 775 $mountPoint");
+    }
+    else {
+        system("chmod 775 $mountPoint");
+    }
+    if ( $mountPoint =~ /\/\.\.\// or $mountPoint =~ /^\.\.\// or $mountPoint =~ /\/\.\.$/ ) {
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    #mount -o username=flt,password=a^6r9SDy,iocharset=utf8 //192.168.2.90/data /mnt/nas
+    #mount -t nfs 192.168.10.204:/DataVolume/Public /mnt/Public
+    #mount -t cifs -o username=Everyone //192.168.199.123/win  /home/sk/win
+    my $cmd    = "mount";
+    my $osType = ( uname() )[0];
+    $osType =~ s/\s.*$//;
+    if ( defined($type) and $type ne '' and $osType eq 'Linux' ) {
+        $cmd = $cmd . " -t $type";
+    }
+    if ( defined($username) and $username ne '' ) {
+        $cmd = $cmd . " -o 'username=$username";
+        if ( defined($password) and $password ne '' ) {
+            $cmd = $cmd . ",password=$password";
+        }
+        if ( defined($iocharset) and $iocharset ne '' ) {
+            $cmd = $cmd . ",iocharset=$iocharset";
+        }
+        $cmd = $cmd . "'";
+    }
+
+    if ( $isVerbose == 1 ) {
+        $cmd = $cmd . ' --verbose';
+    }
+    $cmd = $cmd . " $location $mountPoint";
+
+    my $exitCode = 0;
+    if ( not glob("$mountPoint/*") ) {
+        $exitCode = system($cmd);
+    }
+    else {
+        print("WARN: Mount point directory $mountPoint is not an empty directory, maybe already mounted.\n");
+    }
+
+    if ( $exitCode == 0 ) {
+        print("FINE: Mount $location to $mountPoint success.\n");
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Mount $location to $mountPoint failed.\n");
+    }
+
+    my $out = {};
+    $out->{mountPoint} = $mountPoint;
+    AutoExecUtils::saveOutput($out);
+
+    return $hasError;
+}
+
+exit( main() );
+

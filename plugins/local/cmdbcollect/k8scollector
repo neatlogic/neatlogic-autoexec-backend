@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+import json
+import os
+import argparse
+import sys
+import AutoExecUtils
+import K8sAdapter
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <k8s ip> --port <k8s port> --token <token> --verbose")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='k8s master node ip')
+    parser.add_argument('--port', default='443', help='k8s api http port')
+    parser.add_argument('--token', default='', help='k8s user auth token')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+    args = parser.parse_args()
+
+    ip = args.ip
+    port = args.port
+    token = args.token
+    isVerbose = int(args.verbose)
+    node = os.getenv('AUTOEXEC_NODE')
+    if node != None and node != '':
+        node = json.loads(node)
+
+    if ((ip == None or ip == '' or  token == None or token == '') and (node == None or node == '')):
+        usage()
+
+    if ((ip == None or ip == '' or token == '' or token == None) and node != None):
+        ip = node['host']
+        port = node['port']
+        if port is None or port == '' : 
+            port = node['protocolPort']
+        token = node['password']
+
+    data = []
+    k8s = K8sAdapter.K8sAdapter(ip, port, token)
+    result = k8s.collect()
+    data.append(result)
+
+    # 定义插件的输出变量output
+    out = {}
+    out['DATA'] = data
+    AutoExecUtils.saveOutput(out)
+
+    if isVerbose == 1:
+        print("==================\n")
+        print(json.dumps(data))
+        print("==================\n")

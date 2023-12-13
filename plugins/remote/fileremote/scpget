@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use File::Basename;
+use File::Spec;
+use Cwd;
+use POSIX;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1]\n");
+    print("              [--addr SCPAddress] [--dest DestinationDirectory] \n");
+    print("              [--user username] [--pass password] \n");
+    print("\n");
+    print("       --addr:      SCP address, example:192.168.0.222:/tmp/test.tgz\n");
+    print("       --dir:       Remote target path .\n");
+    print("       --pass:      Password .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $addr, $remoteDir, $localDir, $user, $pass );
+
+    my $pname = $FindBin::Script;
+
+    my $askPass = $ENV{'SSH_ASKPASS_PASSWORD'};
+    if ( defined($askPass) and $askPass ne '' ) {
+        print($askPass);
+        exit(0);
+    }
+
+    $isVerbose = 0;
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'addr=s'      => \$addr,
+        'remotedir=s' => \$remoteDir,
+        'dir=s'       => \$localDir,
+        'user=s'      => \$user,
+        'pass=s'      => \$pass
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    if ( not defined($addr) or $addr eq '' ) {
+        print("ERROR: Must define scp address by option --addr.\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($localDir) or $localDir eq '' ) {
+        print("ERROR: Must define local directory by option --dir.\n");
+        $optionError = 1;
+    }
+
+    if ( $localDir =~ /\/\.\.\// or $localDir =~ /^\.\.\// or $localDir =~ /\/\.\.$/ ) {
+        print("ERROR: Local directory path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my ( $host, $port ) = split( ':', $addr );
+    if ( not defined($port) ) {
+        $port = 22;
+    }
+
+    my $scpPath     = "$user\@$host:$remoteDir";
+    my $quietOpt    = '';
+    my $notpreserve = 0;
+    $quietOpt = 'q' if ( $isVerbose == 0 );
+    my $preserveOpt = 'p';
+    $preserveOpt = '' if ($notpreserve);
+
+    my $saveTargetPath;
+    if ( not -e $localDir and $localDir !~ /\/$/ ) {
+        $saveTargetPath = File::Spec->canonpath($localDir);
+    }
+    else {
+        my $fileName = basename($scpPath);
+        $saveTargetPath = File::Spec->canonpath("$localDir/$fileName");
+    }
+
+    my $cmd = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P$port -r$preserveOpt$quietOpt $scpPath $localDir  ";
+    my $pid = fork();
+    if ( not defined($pid) ) {
+        die("ERROR: :Fork failed:$!\n");
+    }
+    elsif ( $pid == 0 ) {
+        setsid();
+
+        $ENV{SSH_ASKPASS}          = "$FindBin::Bin/$pname";
+        $ENV{SSH_ASKPASS_PASSWORD} = $pass;
+        $ENV{DISPLAY}              = ':0';
+        open( STDIN, '<', '/dev/null' );
+        exec($cmd);
+        die "Can't exec $pname: $!\n";
+    }
+
+    $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+        kill( 'TERM', $pid );
+
+        my $maxWait = 5;
+        my $loop    = 0;
+        while ( $loop < $maxWait and kill( 0, $pid ) ) {
+            $loop = $loop + 1;
+            sleep(1);
+        }
+
+        if ( $loop >= $maxWait ) {
+            kill( 'KILL', $pid );
+        }
+    };
+
+    waitpid( $pid, 0 );
+
+    my $errorCode = $?;
+    if ( $errorCode > 0 ) {
+        undef($saveTargetPath);
+        print("ERROR: Download $scpPath to $localDir failed.\n");
+    }
+    else {
+        print("INFO: Download $scpPath to $localDir success.\n");
+    }
+
+    my $out = {};
+    $out->{filePath} = $saveTargetPath;
+    AutoExecUtils::saveOutput($out);
+
+    return $errorCode;
+}
+
+exit( main() );

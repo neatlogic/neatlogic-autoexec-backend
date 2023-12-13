@@ -1,0 +1,242 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+use POSIX qw(strftime);
+use IO::File;
+use JSON;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --user <User name> --ip2hostnamemap <ip to hostname josn> --pubkeys <pub keys json>\n");
+    exit(1);
+}
+
+sub appendPubKey {
+    my ( $keysPath, $pubKey ) = @_;
+
+    $pubKey =~ s/^\s*|\s*$//g;
+
+    my $hasError = 0;
+    my $fh       = IO::File->new( $keysPath, 'a+' );
+    if ( defined($fh) ) {
+        $fh->seek( 0, 0 );
+        my $exist = 0;
+        my $line;
+        while ( $line = $fh->getline() ) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line eq $pubKey ) {
+                $exist = 1;
+            }
+        }
+        if ( $exist == 0 ) {
+            $fh->seek( 0, 2 );
+            if ( not $fh->write( $pubKey . "\n", length($pubKey) + 1 ) ) {
+                $hasError = 1;
+                print("ERROR: Write to file $keysPath failed, $!\n");
+            }
+        }
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file $keysPath, $!\n");
+    }
+
+    return $hasError;
+}
+
+sub appendKnownHost {
+    my ( $knownHostsPath, $pubKeysSet, $ip2HostnameMap ) = @_;
+
+    my $content  = '';
+    my $hasError = 0;
+    my $fh;
+
+    my $knownKeys = {};
+    while ( my ( $ip, $pubKey ) = each(%$pubKeysSet) ) {
+        $pubKey =~ s/^\s*|\s*$//g;
+        my ( $type, $keyTxt, $user ) = split( /\s+/, $pubKey );
+
+        my $fingerPrint = `ssh-keyscan -t $type $ip 2>/dev/null`;
+        if ( $? == 0 ) {
+            $fingerPrint =~ s/^\s*|\s*$//g;
+            my $hostName = $ip2HostnameMap->{$ip};
+
+            if ( ( not defined($hostName) or $hostName eq '' ) or ref($hostName) ne '' ) {
+
+                #如果ip到hostname的映射没有对应ip的主机名，则从fingerprint获取
+                if ( $user =~ /\@(.+)$/ ) {
+                    $hostName = $1;
+                }
+            }
+
+            if ( defined($hostName) and $hostName ne '' ) {
+                $knownKeys->{"$hostName,$ip"} = "$hostName,$fingerPrint";
+            }
+            else {
+                $knownKeys->{$ip} = $fingerPrint;
+            }
+        }
+    }
+
+    if ( -e $knownHostsPath ) {
+        $fh = IO::File->new( $knownHostsPath, 'r' );
+        if ( defined($fh) ) {
+            my $exist = 0;
+            my $line;
+            while ( $line = $fh->getline() ) {
+                $line =~ s/^\s*|\s*$//g;
+                my ( $thisIp, $thsiPubKey ) = split( /\s+/, $line, 2 );
+                if ( not defined( $knownKeys->{$thisIp} ) ) {
+                    delete( $knownKeys->{$thisIp} );
+                    $content = $content . $line . "\n";
+                }
+            }
+            $fh->close();
+        }
+        else {
+            $hasError = 1;
+            print("ERROR: Can not open file $knownHostsPath, $!\n");
+        }
+    }
+
+    while ( my ( $knownKey, $fingerPrint ) = each(%$knownKeys) ) {
+        $content = $content . $fingerPrint . "\n";
+    }
+
+    $fh = IO::File->new( $knownHostsPath, 'w' );
+    if ( defined($fh) ) {
+        print $fh ($content);
+        $fh->close();
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Can not open file $knownHostsPath, $!\n");
+    }
+
+    return $hasError;
+}
+
+sub main {
+    my $user;
+    my $hostNamesJson;
+    my $pubKeysJson;
+
+    GetOptions(
+        'user=s'           => \$user,
+        'ip2hostnamemap=s' => \$hostNamesJson,
+        'pubkeys=s'        => \$pubKeysJson
+    );
+
+    my $uid = $<;
+
+    if ( defined($user) and $user ne '' ) {
+        my $curUid  = $<;
+        my $curUser = getpwuid($<);
+        if ( $curUser ne $user ) {
+            if ( $curUid ne 0 ) {
+                print("ERROR: Can not generate user:$user ssh-key by user:$curUser.\n");
+                exit(3);
+            }
+        }
+    }
+    else {
+        $user = getpwuid($uid);
+    }
+
+    if ( not defined($pubKeysJson) or $pubKeysJson eq '' ) {
+        print("ERROR: Must defined pubkeys by option --pubkeys.\n");
+        return 3;
+    }
+
+    my $ip2HostnameMap = {};
+    if ( defined($hostNamesJson) and $hostNamesJson ne '' ) {
+        $ip2HostnameMap = from_json($hostNamesJson);
+    }
+
+    my $pubKeysSet = from_json($pubKeysJson);
+
+    my $hasError = 0;
+
+    my @userInfo = getpwnam($user);
+    my $homePath = $userInfo[7];
+    my $uid      = $userInfo[2];
+    my $gid      = $userInfo[3];
+    my $group    = getgrgid($gid);
+
+    my $keysPath       = "$homePath/.ssh/authorized_keys";
+    my $knownHostsPath = "$homePath/.ssh/known_hosts";
+
+    if ( not -e "$homePath/.ssh" ) {
+        if ( not mkdir("$homePath/.ssh") ) {
+            $hasError = 1;
+            print("ERROR: Can not create directory $homePath/.ssh, $!.\n");
+        }
+        else {
+            chown( $uid, $gid, "$homePath/.ssh" );
+        }
+    }
+    if ( not chown( $uid, $gid, "$homePath/.ssh" ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh owner to $user:$group, $!.\n");
+    }
+
+    if ( ref($pubKeysSet) eq 'HASH' ) {
+        while ( my ( $key, $val ) = each(%$pubKeysSet) ) {
+            $hasError = appendPubKey( $keysPath, $val );
+            if ( $hasError != 0 ) {
+                last;
+            }
+        }
+        if ( $hasError == 0 ) {
+            $hasError = appendKnownHost( $knownHostsPath, $pubKeysSet, $ip2HostnameMap );
+        }
+    }
+    elsif ( ref($pubKeysSet) eq 'ARRAY' ) {
+        foreach my $pubKey (@$pubKeysSet) {
+            $hasError = appendPubKey( $keysPath, $pubKey );
+            if ( $hasError != 0 ) {
+                last;
+            }
+        }
+    }
+    elsif ( ref($pubKeysSet) eq '' ) {
+        $hasError = appendPubKey( $keysPath, $pubKeysSet );
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Malform pubKey options defined: $pubKeysJson\n");
+    }
+
+    if ( not chmod( 0700, "$homePath/.ssh" ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change directory $homePath/.ssh permission mode to 0700, $!.\n");
+    }
+
+    if ( not chmod( 0600, $keysPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $keysPath permission mode to 0600, $!.\n");
+    }
+
+    if ( not chown( $uid, $gid, $keysPath ) ) {
+        $hasError = 1;
+        print("ERROR: Can not change file $keysPath owner to $user:$group, $!.\n");
+    }
+
+    if ( -e $knownHostsPath ) {
+        if ( not chown( $uid, $gid, $knownHostsPath ) ) {
+            $hasError = 1;
+            print("ERROR: Can not change file $knownHostsPath owner to $user:$group, $!.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();
+

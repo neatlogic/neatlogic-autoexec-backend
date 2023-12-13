@@ -1,0 +1,96 @@
+{
+    "label": "Storage NetDev",
+    "collection": "COLLECT_FCDEV",
+    "docroot": null,
+    "collection_label": "Storage Net Device",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "BOOT_DATE",
+            "desc": "Last Boot Date",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "Firmware version",
+            "type": "String"
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "Ports Count",
+            "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "Node WWN",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Zone Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

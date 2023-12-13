@@ -1,0 +1,85 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import json
+import traceback
+import argparse
+import re
+
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--outputkey', default='', help='Output key')
+    args = parser.parse_args()
+
+    outputKey = args.outputkey
+
+    hasOptError = False
+    if outputKey == '':
+        hasOptError = True
+        print("ERROR: Must define output key name by option --outputkey")
+
+    if hasOptError:
+        sys.exit(2)
+
+    outputKey = re.sub(r'^#\{', '', outputKey)
+    outputKey = re.sub(r'\}$', '', outputKey)
+    outputKeyInfo = outputKey.split('.')
+
+    if len(outputKeyInfo) != 3:
+        print("ERROR: Malform output key %s." % (outputKey))
+        sys.exit(3)
+
+    opId = outputKeyInfo[1]
+    varKey = outputKeyInfo[2]
+
+    jobId = os.getenv('AUTOEXEC_JOBID')
+
+    isStr = False
+    mergedData = None
+    dbclient = None
+
+    try:
+        (dbclient, db) = AutoExecUtils.getDB()
+        outCollection = db['_node_output']
+
+        print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
+        for nodeOut in outCollection.find(
+                {
+                    'jobId': jobId,
+                    'data.%s' % opId: {'$ne': None},
+                    'host': {'$ne': 'local'}
+                },
+                {
+                    'data.%s' % opId: 1
+                }).batch_size(500):
+
+            val = nodeOut['data'].get(opId).get(varKey)
+            if isinstance(val, list):
+                if mergedData is None:
+                    mergedData = []
+                mergedData = mergedData + val
+            elif isinstance(val, dict):
+                if mergedData is None:
+                    mergedData = {}
+                mergedData.update(val)
+            else:
+                print("ERROR: Value for {} can not to be merged, only support dictionary or list object.".format(outputKey))
+
+        if not mergedData:
+            print("WARN: Can not find any output for:%s." % (outputKey))
+        else:
+            print("FINE: Aggregate output for:%s success." % (outputKey))
+
+        out = {}
+        out['mergedData'] = mergedData
+        AutoExecUtils.saveOutput(out)
+    except:
+        print('ERROR: Merge output for {} failed, {}'.format(outputKey, traceback.format_exc()))
+        sys.exit(1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

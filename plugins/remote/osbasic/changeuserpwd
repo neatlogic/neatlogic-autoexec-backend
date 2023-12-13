@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../lib";
+
+use strict;
+
+use FindBin;
+use POSIX qw(strftime);
+use IO::File;
+use Getopt::Long;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --modifyifexist 0|1 --content <user config content>\n");
+    exit(1);
+}
+
+sub main {
+    AutoExecUtils::setEnv();
+
+    my $user;
+    my $password;
+
+    GetOptions(
+        'user:s'     => \$user,
+        'password:i' => \$password
+    );
+
+    my $hasOptErr = 0;
+    if ( not defined($user) or $user eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined user name by option --user\n");
+    }
+    if ( not defined($password) or $password eq '' ) {
+        $hasOptErr = 1;
+        print("ERROR: Must defined user password by option --password\n");
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $exitCode = 2;
+    my $pipe;
+    my $pid = open( $pipe, '|chpasswd' );
+    if ( not defined($pid) ) {
+        print("ERROR: Can not launch chpasswd, $!\n");
+    }
+    else {
+        print {$pipe} ("$user:$password\n");
+        close($pipe);
+        $exitCode = $?;
+    }
+
+    return $exitCode;
+}
+
+exit main();

@@ -1,0 +1,152 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/lib/perl-lib/lib/perl5";
+
+use strict;
+use IO::File;
+use Getopt::Long;
+use File::Basename;
+use File::Copy;
+use File::Find;
+
+my $md5ListFileName = "md5checksum.list.txt";
+my $MD5_DIGEST;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [-verbose <0|1>] [--md5listfile <md5 file>] [--delmd5 <0|1>] <dir1>,<dir2>\n");
+    print("       -verbose <0|1>:       verbose\n");
+    print("       --delmd5:             remove the md5 file if check success.\n");
+
+    exit(1);
+}
+
+sub getFileMd5 {
+    my ($filePath) = @_;
+
+    my $md5Hash = '';
+
+    if ( defined($MD5_DIGEST) ) {
+        my $fileFH = new IO::File("<$filePath");
+
+        if ( defined($fileFH) ) {
+            binmode($fileFH);
+            $md5Hash = $MD5_DIGEST->addfile(*$fileFH)->hexdigest();
+            $fileFH->close();
+        }
+        else {
+            die("ERROR: Get file:$filePath md5 failed, $!\n");
+        }
+    }
+    else {
+        $md5Hash = `md5sum '$filePath'`;
+        if ( $? == 0 ) {
+            $md5Hash = substr( $md5Hash, 0, index( $md5Hash, ' ' ) );
+        }
+        else {
+            print("ERROR: Execute md5sum failed, $!.\n");
+            exit(-1);
+        }
+    }
+
+    return $md5Hash;
+}
+
+sub checkOneDir {
+    my ( $dest, $delMd5 ) = @_;
+
+    my $hasError = 0;
+
+    my $md5SumList = "$dest/$md5ListFileName";
+    if ( not -f $md5SumList ) {
+        die("ERROR: Md5 sum list file:$md5SumList not exists.\n");
+    }
+
+    my $fh = IO::File->new("<$md5SumList");
+
+    if ( not defined($fh) ) {
+        die("ERROR: Open file $md5SumList failed, $!\n");
+    }
+
+    chdir($dest);
+
+    my $filePath;
+    my $md5Provided;
+    my $md5Sum;
+
+    my $line;
+    while ( $line = $fh->getline() ) {
+        chomp($line);
+        ( $md5Provided, $filePath ) = split( '  ', $line );
+        eval { $md5Sum = getFileMd5($filePath); };
+        if ($@) {
+            $hasError = 1;
+            my $errMsg = $@;
+            $errMsg =~ s/ at\s*.*$//;
+            print($errMsg );
+            next;
+        }
+        if ( $md5Sum ne $md5Provided ) {
+            $hasError = 1;
+            print("ERROR: $filePath md5 check failed, actual md5checksum($md5Sum) not equal to($md5Provided).\n");
+        }
+    }
+
+    if ( $hasError == 1 ) {
+        die("ERROR: Check md5 for $dest failed.\n");
+    }
+    else {
+        if ( defined($delMd5) ) {
+            unlink($md5SumList);
+        }
+        print("INFO: Check md5 for $dest success.\n");
+    }
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $delMd5, @dirPatterns );
+
+    GetOptions(
+        'h|help'        => \$isHelp,
+        'verbose=i'     => \$isVerbose,
+        'delmd5=i'      => \$delMd5,
+        'md5listfile=s' => \$md5ListFileName,
+        '<>'            => sub { my $item = shift(@_); push( @dirPatterns, $item ); }
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( scalar(@dirPatterns) == 0 ) {
+        print("ERROR: No directory pattern specified.\n");
+        usage();
+    }
+
+    eval {
+        q{
+            use Digest::MD5;
+            $MD5_DIGEST = Digest::MD5->new();
+        }
+    };
+
+    my $rc = 0;
+
+    foreach my $dirPattern (@dirPatterns) {
+        foreach my $oneDir ( glob($dirPattern) ) {
+            eval { checkOneDir( $oneDir, $delMd5 ); };
+            if ($@) {
+                $rc = 1;
+                my $errMsg = $@;
+                $errMsg =~ s/ at\s*.*$//;
+                print($errMsg );
+            }
+        }
+    }
+
+    return $rc;
+}
+
+exit main();
+

@@ -1,0 +1,145 @@
+{
+    "opDesc": "本地目录同步",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "同步本地的两个目录内容",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "显示明细",
+            "help": "执行日志显示详细信息",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "nomd5",
+            "name": "文件MD5",
+            "help": "同步时比较文件的MD5",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "nodelete",
+            "name": "删除多出内容",
+            "help": "删除目标目录多出的文件或子目录",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "noattrs",
+            "name": "同步文件权限",
+            "help": "把源目录下的文件和子目录的权限同步到目标目录",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "notime",
+            "name": "比较修改时间",
+            "help": "如果目标目录下的内容的修改时间与源目录下的不一致，则认为需要同步",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "0"
+                    },
+                    {
+                        "text": "否",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "exp",
+            "name": "排除目录",
+            "help": "排除子目录，逗号相隔，不对这些子目录进行同步",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "src",
+            "name": "源目录",
+            "help": "同步的源目录（相对于当前系统存储物料的根目录）",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "目标目录",
+            "help": "同步的目标目录（相对于当前系统存储物料的根目录）",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

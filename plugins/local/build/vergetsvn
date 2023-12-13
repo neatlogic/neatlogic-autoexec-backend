@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath]  [--lang LANG] --repotype GIT|SVN --repo REPO \n");
+    print("              --trunk TRUNK [--branch BRANCH] [--tagsdir TAGSDIR] [--tag TAG]\n");
+    print("              [--username USERNAME] [--password PASSWORD]\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --repo\tSVN repo address, example:https://xxxx/abc/branch\n");
+    print("  --trunk\tSVN trunk address, example https://xxxx/abc/trunk\n");
+    print("  --tagsdir\tSVN directory to save tagsdir. example https://xxxx/abc/tags\n");
+    print("  --tag\tGIT tag or SVN tag address");
+
+    exit(1);
+}
+
+sub main() {
+    my ( $isHelp,   $isVerbose, $envPath, $lang );
+    my ( $repo,     $trunk,     $branch,  $tagsDir, $tag, $startPath );
+    my ( $userName, $password );
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'lang=s'      => \$lang,
+        'envpath=s'   => \$envPath,
+        'repo=s'      => \$repo,
+        'trunk=s'     => \$trunk,
+        'branch=s'    => \$branch,
+        'tagsdir'     => \$tagsDir,
+        'tag=s'       => \$tag,
+        'startpath=s' => \$startPath,
+        'user=s'      => \$userName,
+        'password=s'  => \$password
+    );
+    usage() if ( defined($isHelp) );
+
+    my $toolDir = $FindBin::Bin;
+    exec(qq{$toolDir/getver -v $isVerbose --envpath '$envPath' --lang '$lang' --repotype SVN --repo '$repo' --trunk '$trunk' --branch '$branch' --tagsdir '$tagsDir' --tag '$tag' --startpath '$startPath' --username '$userName', --password '$password'});
+}
+
+exit main();

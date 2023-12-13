@@ -1,0 +1,426 @@
+{
+    "COLLECT_OS": [{
+            "level": "WARN",
+            "ruleUuid": "bbbb6e8b95604b9bbfa427debbea9cf0",
+            "name": "内存使用率超过80%",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "234d3f986ec74f9d9487a48818b75e69",
+            "name": "CPU使用率超过80%",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "3cf254c979df49fa925503e8d8431467",
+            "name": "CPU使用率超过90%",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "3bb83386af914df0a4f6286905832731",
+            "name": "CPU使用率超过98%",
+            "rule": "$.CPU_USAGE >= 98"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "8efd8f7cd7a4411e85a754f7bcfb6aba",
+            "name": "磁盘空间使用率超过80%",
+            "rule": "$.MOUNT_POINTS.USED_PCT >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "b575a7537ac342b4b745dbab43f1a9c7",
+            "name": "磁盘空间使用率超过95%",
+            "rule": "$.MOUNT_POINTS.USED_PCT >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "ef62772a37fd43a7a5709a0e048e1739",
+            "name": "进程CPU消耗超过30%",
+            "rule": "$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "c97e00c4345446adbdd228d882a36403",
+            "name": "进程内存消耗超过75%",
+            "rule": "$.TOP_MEM_PROCESSES.MEM_USAGE >= 75"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "ac72b30d6e824f1b9d666ec68fbe5954",
+            "name": "IOWAIT超过20%",
+            "rule": "$.IOWAIT_PCT > 20"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "d6476d9439a3480ab8fd516d4773fd8c",
+            "name": "存在僵尸进程",
+            "rule": "$.DEFUNC_PROCESSES_COUNT > 0"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "d3e35c45d5544d6fb024cdfe228d43dc",
+            "name": "僵尸进程数量超过25",
+            "rule": "$.DEFUNC_PROCESSES_COUNT > 25"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "930473bd17a74b50b7f74c167a207e21",
+            "name": "NTP偏移超过5分钟",
+            "rule": "$.NTP_OFFSET_SECS > 300"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "51f8d0ff3b69420d8f21fa5c13655c20",
+            "name": "NTP偏移超过30分钟",
+            "rule": "$.NTP_OFFSET_SECS > 1800"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "8590d85e16ab43bf82ac2c0ea5612d7f",
+            "name": "内存使用率超过90%",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "b699886801bb418a889785a60c88e68f",
+            "name": "内存使用率超过98%",
+            "rule": "$.MEM_USAGE >= 98"
+        }
+    ],
+    "COLLECT_DBINS": [{
+            "level": "WARN",
+            "ruleUuid": "3f1547aa150742e0a46f92a5765c2590",
+            "name": "CPU使用率超过80%",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "18b671a759384d7e87922a3232c5eb20",
+            "name": "CPU使用率超过90%",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "a5c567110e8d43198f9fb1490eab0296",
+            "name": "CPU使用率超过95%",
+            "rule": "$.CPU_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "14fe6dc885684bd5ac57afac13722d43",
+            "name": "内存使用率超过80%",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "4173f6d47beb4dd9951087d1de13cdaf",
+            "name": "内存使用率超过90%",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "5d28af15c5564e6c8369e7eb4ba5172f",
+            "name": "内存使用率超过95%",
+            "rule": "$.MEM_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "8b9acbaa903047df9f290b4fd6d47218",
+            "name": "打开文件使用率超80%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "2a52fa9d10dc4edb99e06965cf88302a",
+            "name": "打开文件使用率超90%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "e4a9f6788cb84b5a9f2827c8809a2ad4",
+            "name": "打开文件使用率超99%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 99"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "f79fc53bc1344f43ab7740bac7c38d89",
+            "name": "监听BackLog大于0,服务响应不及时",
+            "rule": "$.LISTEN_STATS.QUEUED > 0"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "1a376ccc17f541efa00affff6fef65b7",
+            "name": "监听BackLog超25,服务响应不足",
+            "rule": "$.LISTEN_STATS.QUEUED > 25"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "dd7a728675394896af3b0b62756d65e7",
+            "name": "监听BackLog已满，服务失去响应",
+            "rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "d07d78015009458c99afbd775c30fd32",
+            "name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
+            "rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "16095e29794a4f7b992a43c79e721025",
+            "name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
+            "rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "bb5e086be27041948a10809f079d7148",
+            "name": "下游应用失去响应，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "5d551f4eba0048e4ab83980a01b0cd72",
+            "name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
+        }
+    ],
+    "Oracle": [{
+            "level": "WARN",
+            "ruleUuid": "0adcc748378240a2ad35c15bfc6d4528",
+            "name": "CPU使用率超过80%",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "a6ae216cca9e42d59048f1d7b9382696",
+            "name": "CPU使用率超过90%",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "4f24e5a1fe5746f79913948e37d0ab51",
+            "name": "CPU使用率超过95%",
+            "rule": "$.CPU_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "5269b2ab8cf3412098bf65b9be435191",
+            "name": "内存使用率超过80%",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "b0892fdfed804d25a2f1507f3c160f44",
+            "name": "内存使用率超过90%",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "3cbcdcd89b2948f4a5cc9628235bdf8b",
+            "name": "内存使用率超过95%",
+            "rule": "$.MEM_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "86b097da54df49e38fdbbd7044e2e2f7",
+            "name": "打开文件使用率超80%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "9beca383c734489baad746fccb90debb",
+            "name": "打开文件使用率超90%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "9f1a98c78d6c43d4a628074a71f76280",
+            "name": "打开文件使用率超99%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 99"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "d491dbd6447846e0953acbef68467b28",
+            "name": "监听BackLog大于0,服务响应不及时",
+            "rule": "$.LISTEN_STATS.QUEUED > 0"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "239553d559744664b93a2dc3816b3107",
+            "name": "监听BackLog超25,服务响应不足",
+            "rule": "$.LISTEN_STATS.QUEUED > 25"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "8e22f412354847629a97b0efc615bc41",
+            "name": "监听BackLog已满，服务失去响应",
+            "rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "06c3c1413cf24dbdb012ab9d9d918c9f",
+            "name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
+            "rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "da79fe5331314bd9878387b8454e4e12",
+            "name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
+            "rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "eaf74db10028417eb8abb0d8ac2445f4",
+            "name": "下游应用失去响应，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "762b657d4785496abd0a49acf8ceee49",
+            "name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
+        }
+    ],
+    "COLLECT_INS": [{
+            "level": "WARN",
+            "ruleUuid": "9ad5c28fac3a4112bee5031e179396b5",
+            "name": "CPU使用率超过80%",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "8d10e1b6a20e4e4cb274224c1290f088",
+            "name": "CPU使用率超过90%",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "2e19b8f776a74af682623060efadccf7",
+            "name": "CPU使用率超过95%",
+            "rule": "$.CPU_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "26e136db28c449a3b7a83ef9c7d57c8e",
+            "name": "内存使用率超过80%",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "7e7fad3111fd4d80bd03de4f990b5d0c",
+            "name": "内存使用率超过90%",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "e25b4407fbcc4a5db32318517b130c1b",
+            "name": "内存使用率超过95%",
+            "rule": "$.MEM_USAGE >= 95"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "5e4dd5f43f364eaf99a923cdd4f387c5",
+            "name": "打开文件使用率超80%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 80"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "4c7e5508a8e6408da6737c7eb3257893",
+            "name": "打开文件使用率超90%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 90"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "768b279749b24b42889b22bc46d56522",
+            "name": "打开文件使用率超99%",
+            "rule": "$.OPEN_FILES_INFO.RATE >= 99"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "71782cd35a83495b851768ce95a8c930",
+            "name": "监听BackLog大于0,服务响应不及时",
+            "rule": "$.LISTEN_STATS.QUEUED > 0"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "11c99f42279543a69da3952690fe624e",
+            "name": "监听BackLog超25,服务响应不足",
+            "rule": "$.LISTEN_STATS.QUEUED > 25"
+        },
+        {
+            "level": "FATAL",
+            "ruleUuid": "a1d45e9dec06401e9d861bc541f0b61c",
+            "name": "监听BackLog已满，服务失去响应",
+            "rule": "$.CONN_STATS.SYN_RECV_COUNT > 8"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "e1ad09979c0840dc8b83770d6880758f",
+            "name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
+            "rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
+        },
+        {
+            "level": "CRITICAL",
+            "ruleUuid": "84b472f9fdee476db02ac3eceee56eaa",
+            "name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
+            "rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "820768e4fd0143159189bb5929701510",
+            "name": "下游应用失去响应，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SYN_SENT_COUNT > 4"
+        },
+        {
+            "level": "WARN",
+            "ruleUuid": "545a5fdba8de49b6b6bef0e5bfc78ec9",
+            "name": "下游应用响应变慢，超过50%调用出现积压，可能引发本应用性能问题",
+            "rule": "$.CONN_OUTBOUND_STATS.SEND_QUEUED_COUNT > 16 and $.CONN_OUTBOUND_STATS.SEND_QUEUED_RATE > 40"
+        }
+    ],
+    "COLLECT_CONTAINER": [
+        {
+            "name": "内存使用率超过80%",
+            "level": "WARN",
+            "rule": "$.MEM_USAGE >= 80"
+        },
+        {
+            "name": "内存使用率超过90%",
+            "level": "CRITICAL",
+            "rule": "$.MEM_USAGE >= 90"
+        },
+        {
+            "name": "内存使用率超过98%",
+            "level": "FATAL",
+            "rule": "$.MEM_USAGE >= 98"
+        },
+        {
+            "name": "CPU使用率超过80%",
+            "level": "WARN",
+            "rule": "$.CPU_USAGE >= 80"
+        },
+        {
+            "name": "CPU使用率超过90%",
+            "level": "CRITICAL",
+            "rule": "$.CPU_USAGE >= 90"
+        },
+        {
+            "name": "CPU使用率超过98%",
+            "level": "FATAL",
+            "rule": "$.CPU_USAGE >= 98"
+        },
+        {
+            "name": "服务未及时关闭客户连接，服务响应不及时或鲁棒性问题，没有及时关闭连接",
+            "level": "WARN",
+            "rule": "$.CONN_STATS.CLOSE_WAIT_COUNT > 16"
+        },
+        {
+            "name": "服务响应变慢，超过50%服务请求积压，未能及时响应",
+            "level": "CRITICAL",
+            "rule": "$.CONN_STATS.RECV_QUEUED_COUNT > 16 and $.CONN_STATS.RECV_QUEUED_RATE > 40"
+        }
+    ]
+}

@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use POSIX;
+use Encode;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--help]\n");
+    print("       --verbose:  0|1 \n");
+    print("       --destencoding: Server Side encoding\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $encoding, $isVerbose );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'verbose=i'      => \$isVerbose,
+        'destencoding=s' => \$encoding
+    );
+
+    usage() if ( defined($isHelp) );
+
+    if ( scalar(@ARGV) == 0 ) {
+        print("ERROR:: Must defined check port argument.");
+        exit(1);
+    }
+
+    my $hasUsed = 0;
+    my @uname   = POSIX::uname();
+    my $ostype  = $uname[0];
+
+    if ( not defined($encoding) or $encoding eq 'auto' ) {
+        if ( $ostype =~ /Windows/i ) {
+            eval(
+                q{
+                use Win32::API;
+                if ( Win32::API->Import( 'kernel32', 'int GetACP()' ) ) {
+                    $encoding = 'cp' . GetACP();
+                }
+            }
+            );
+        }
+        else {
+            my $lang = $ENV{LANG};
+            if ( defined($lang) and $lang =~ /[^\.]+\.(.*)\s*$/ ) {
+                $encoding = $1;
+            }
+            else {
+                $encoding = 'utf-8';
+            }
+        }
+    }
+
+    if ( defined($encoding) ) {
+        $encoding = lc($encoding);
+    }
+
+    my $cmd;
+    my $startCut = 0;
+    foreach my $port (@ARGV) {
+
+        if ( $ostype =~ /Windows/i ) {
+            $cmd      = "netstat -aon | findstr LISTEN | findstr $port";
+            $startCut = 2;
+        }
+        else {
+            $cmd      = "netstat -ano | grep LISTEN | grep $port";
+            $startCut = 3;
+        }
+
+        if ( $isVerbose == 1 ) {
+            print("INFO: Execute Command: $cmd\n");
+        }
+
+        my @out = `$cmd`;
+
+        my $status = $?;
+        if ( defined($encoding) ) {
+            for ( my $i = 0 ; $i <= $#out ; $i++ ) {
+                $out[$i] = Encode::encode( "utf-8", Encode::decode( $encoding, $out[$i] ) );
+            }
+        }
+
+        if ( $isVerbose == 1 ) {
+            foreach my $line (@out) {
+                print($line);
+            }
+        }
+
+        #TCP    0.0.0.0:7890           0.0.0.0:0              LISTENING  --windows
+        #tcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN      off (0.00/0/0)  --unix
+        #精确匹配端口
+        my $isUsed = 0;
+        foreach my $line (@out) {
+            my @fields   = split( /\s+|\s+$/, $line );
+            my @values   = split( /:/,        @fields[$startCut] );
+            my $listport = @values[1];
+            $listport =~ s/^\s+|\s+$//g;
+            if ( $listport eq $port ) {
+                $isUsed = 1;
+                last;
+            }
+        }
+
+        if ( $isUsed == 1 ) {
+            print("ERROR:: Port $port is used.\n");
+            $hasUsed++;
+        }
+        else {
+            print("INFO:: Port $port is not used.\n");
+        }
+    }
+
+    return $hasUsed;
+}
+
+exit( main() );

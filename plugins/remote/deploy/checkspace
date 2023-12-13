@@ -1,0 +1,187 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use POSIX;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname \"/app/mysystem1 100M 50\" \"/app/mysystem2 10G 50\" ...\n");
+    exit(1);
+}
+
+sub getMountPointFreeSize {
+    my ($dir) = @_;
+
+    my $freeSize;
+
+    my @uname  = POSIX::uname();
+    my $ostype = $uname[0];
+    if ( $ostype =~ /Windows/i ) {
+        $ostype = 'windows';
+    }
+
+    if ( $ostype ne 'windows' ) {
+        my $hasError = 0;
+        chdir($dir);
+        my $dfOut = `df -m $dir`;
+
+        my @lines = split( /\n/, $dfOut );
+        if ( scalar(@lines) >= 2 ) {
+            my $firstLine = shift(@lines);
+            my $info = join( ' ', @lines );
+
+            #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
+            if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
+                $freeSize = int($3);
+            }
+            else {
+                $hasError == 1;
+            }
+        }
+        else {
+            $hasError = 1;
+        }
+
+        if ( $hasError == 1 ) {
+            print("WARN: Check free space for $dir failed.\n$dfOut\n");
+        }
+    }
+    else {
+        my $driver = substr( $dir, 0, 2 );
+
+        eval {
+            require Win32::DriveInfo;
+            my @diskInfo = Win32::DriveInfo::DriveSpace($driver);
+            $freeSize = int( int( $diskInfo[6] ) / 1024 / 1024 );
+        };
+
+        if ( $@ or not defined($freeSize) or $freeSize eq '' ) {
+            my $info = `wmic logicaldisk get DeviceID,FreeSpace`;
+            my @lines = split( "\n", $info );
+            if ( scalar(@lines) >= 2 ) {
+                my $firstLine = shift(@lines);
+                foreach my $line (@lines) {
+                    $line =~ s/^\s*|\s*$//g;
+                    my ( $drv, $size ) = split( /\s+/, $line );
+                    if ( uc($drv) eq uc($driver) ) {
+                        $freeSize = int( int($size) / 1024 / 1024 );
+                    }
+                }
+            }
+            else {
+                print("WARN: Check free space for $dir failed.\n$info\n");
+            }
+        }
+    }
+
+    return $freeSize;
+}
+
+sub getMountPointInodeUsage {
+    my ($dir) = @_;
+
+    my $inodeUsage;
+
+    my @uname  = POSIX::uname();
+    my $ostype = $uname[0];
+    if ( $ostype =~ /Windows/i ) {
+        $ostype = 'windows';
+    }
+
+    if ( $ostype ne 'windows' ) {
+        my $hasError = 0;
+        chdir($dir);
+        my $dfOut = `df -i $dir`;
+
+        my @lines = split( /\n/, $dfOut );
+        if ( scalar(@lines) >= 2 ) {
+            my $firstLine = shift(@lines);
+            my $info = join( ' ', @lines );
+
+            #if ( $info =~ /^.*?(\d+)\s+(\d+)\s+(\d+)\s+/ ) {
+            if ( $info =~ /^\S+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)%\s+/ ) {
+                $inodeUsage = int($4);
+            }
+            else {
+                $hasError == 1;
+            }
+        }
+        else {
+            $hasError = 1;
+        }
+
+        if ( $hasError == 1 ) {
+            print("WARN: Check inode usage for $dir failed.\n$dfOut\n");
+        }
+    }
+    else {
+        $inodeUsage = 0;
+        print("INFO: Windows need't to check inode usage .");
+    }
+
+    return $inodeUsage;
+}
+
+sub main() {
+    my $isHelp;
+    GetOptions( 'h|help' => \$isHelp );
+
+    usage() if ( defined($isHelp) );
+
+    my $hasError = 0;
+
+    foreach my $arg (@ARGV) {
+        my ( $dir, $minSize, $unit, $inodeMaxSize );
+        if ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)\s+(\d+)/i ) {
+            $dir          = $1;
+            $minSize      = int($2);
+            $unit         = uc($3);
+            $inodeMaxSize = $4;
+        }
+        elsif ( $arg =~ /^\s*(.*?)\s+(\d+)([MGK]?)/i ) {
+            $dir          = $1;
+            $minSize      = int($2);
+            $unit         = uc($3);
+            $inodeMaxSize = 50;
+        }
+        else {
+            usage();
+        }
+
+        if ( $unit eq 'K' ) {
+            $minSize = $minSize / 1024;
+        }
+        elsif ( $unit eq 'G' ) {
+            $minSize = 1024 * $minSize;
+        }
+
+        my $freeSize = getMountPointFreeSize($dir);
+
+        if ( $freeSize < $minSize ) {
+            $hasError = 1;
+            print("ERROR: $dir free space ${freeSize}M less than ${minSize}M\n");
+        }
+        else {
+            print("INFO: $dir free space ${freeSize}M larger than ${minSize}M\n");
+        }
+
+        my $inodeUsage = getMountPointInodeUsage($dir);
+
+        if ( $inodeUsage > $inodeMaxSize ) {
+            $hasError = 1;
+            print("ERROR: $dir inode usage ${inodeUsage}% more than ${inodeMaxSize}%\n");
+        }
+        else {
+            print("INFO: $dir inode usage ${inodeUsage}% less than ${inodeMaxSize}%\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit( main() );

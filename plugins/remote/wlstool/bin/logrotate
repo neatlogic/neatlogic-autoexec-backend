@@ -1,0 +1,262 @@
+#!/usr/bin/perl
+package LogRotate;
+use strict;
+use warnings;
+
+use Fcntl qw(:DEFAULT);
+use POSIX;
+use File::Basename;
+use IO::File;
+use Getopt::Long;
+
+sub new {
+    my ( $pkg, %args ) = @_;
+
+    my $self = {};
+    if ( defined( my $v = delete $args{path} ) ) {
+        $self->{log_path} = $v;
+        $self->{log_dir}  = dirname($v);
+
+        my $logname = basename($v);
+        $self->{log_orgname} = $logname;
+
+        my $dotPos = rindex( $logname, '.' );
+        $self->{log_name} = substr( $logname, 0, $dotPos );
+
+        my $extname = substr( $logname, $dotPos + 1 );
+        $self->{log_ext} = $extname;
+
+        my $logprefix = "$self->{log_dir}/$self->{log_name}";
+        $self->{log_prefix} = $logprefix;
+
+        my @fileInfo = stat($v);
+        if (@fileInfo) {
+            $self->{log_size} = $fileInfo[7];
+            $self->{log_day}  = int( $fileInfo[10] / 86400 ) * 86400;
+        }
+        else {
+            $self->{log_size} = 0;
+            $self->{log_day}  = ( time() / 86400 ) * 86400;
+        }
+
+        my $logfh = IO::File->new(">>$v");
+        if ( defined($logfh) ) {
+            $self->{log_fh} = $logfh;
+        }
+        else {
+            die("ERROR: Open log file $v failed:$!\n");
+        }
+    }
+    else {
+        die("ERROR: Please specify path\n");
+    }
+
+    if ( defined( my $v = delete $args{filename_pattern} ) ) {
+        $self->{filename_pattern} = $v;
+    }
+    else {
+        $self->{filename_pattern} = '%Y-%m-%d';
+    }
+    if ( defined( my $v = delete $args{max_size} ) ) {
+        $self->{max_size} = 1024 * 1024 * $v;
+    }
+    if ( defined( my $v = delete $args{max_files} ) ) {
+        $self->{max_files} = $v;
+    }
+    if ( defined( my $v = delete $args{max_age} ) ) {
+        $self->{max_age} = 86400 * $v;
+    }
+
+    if ( keys %args ) {
+        die( "ERROR: Unknown argument(s): " . join( ", ", sort keys %args ) . "\n" );
+    }
+
+    eval{
+        POSIX::setsid();
+    };
+
+    close(STDOUT);
+    close(STDERR);
+
+    bless( $self, $pkg );
+}
+
+sub log {
+    my $self = shift(@_);
+    my $msg  = shift(@_);
+
+    my $logfh = $self->_rotate();
+    if ( defined($logfh) ) {
+        syswrite($logfh, $msg);
+        $self->{log_size} = $self->{log_size} + length($msg);
+    }
+}
+
+sub _rotate {
+    my $self = shift(@_);
+
+    my $needRotate = 0;
+    if ( time() - $self->{log_day} > 86400 ) {
+        $needRotate = 1;
+    }
+
+    if ( $needRotate == 0 ) {
+        if ( $self->{log_size} > $self->{max_size} ) {
+            $needRotate = 1;
+        }
+    }
+
+    if ($needRotate) {
+        my $logExt = $self->_resolve_pattern();
+
+        my $randNum = rand(10000) * 1000;
+        my $tmpRotateTo;
+        my $i = 0;
+        while ( $tmpRotateTo = "$self->{log_prefix}\.$logExt.$randNum\.$self->{log_ext}" ) {
+            if ( not -e $tmpRotateTo ) {
+                last;
+            }
+            $randNum = rand(10000) * 1000;
+        }
+        rename( $self->{log_path}, $tmpRotateTo );
+
+        my $logfh = $self->{log_fh};
+        if ( defined($logfh) ) {
+            $logfh->close();
+            $self->{log_fh} = undef;
+        }
+
+        $logfh = IO::File->new(">>$self->{log_path}");
+        $self->{log_fh} = $logfh;
+
+        $self->{log_size} = 0;
+        $self->{log_day}  = ( time() / 86400 ) * 86400;
+
+        my $pid = fork();
+        if ( $pid == 0 ) {
+            my $rotateTo;
+            my $i = 0;
+            while ( $rotateTo = "$self->{log_prefix}\.$logExt.$i\.$self->{log_ext}" ) {
+                if ( not -e $rotateTo ) {
+                    last;
+                }
+                $i = $i + 1;
+            }
+            rename( $tmpRotateTo, $rotateTo );
+
+            my $logDir = $self->{log_dir};
+            my $dirh;
+            opendir( $dirh, $logDir );
+
+            my @logFiles;
+            my $logName;
+            while ( $logName = readdir($dirh) ) {
+                if ( $logName =~ /^$self->{log_name}/ and $logName ne $self->{log_orgname} ) {
+                    my @info = ( "$logDir/$logName", ( stat("$logDir/$logName") )[10] );
+                    push( @logFiles, \@info );
+                }
+            }
+            my $logFilesCount = scalar(@logFiles);
+
+            my $maxFiles = $self->{max_files};
+            if ( defined($maxFiles) and $maxFiles > 0 and $logFilesCount - $maxFiles > 0 ) {
+                my @logFilesArray = sort { $a->[1] <=> $b->[1] } @logFiles;
+
+                for ( my $i = 0 ; $i < $logFilesCount - $maxFiles ; $i++ ) {
+                    unlink( $logFilesArray[$i][0] );
+                }
+            }
+
+            my $maxAge = $self->{max_age};
+            if ( defined($maxAge) and $maxAge > 0 ) {
+                my @logFilesArray = sort { $a->[1] <=> $b->[1] } @logFiles;
+
+                my $nowTime = time() / 86400;
+                for ( my $i = 0 ; $i < $logFilesCount - 1 and ( $nowTime - $logFilesArray[$i][1] ) / 86400 > $maxAge ; $i++ ) {
+                    unlink( $logFilesArray[$i][0] );
+                }
+            }
+
+            exit(0);
+        }
+
+        return $logfh;
+    }
+    else {
+        my $logfh = $self->{log_fh};
+
+        if ( not defined($logfh) ) {
+            $logfh = IO::File->new(">>$self->{log_path}");
+            $self->{log_fh} = $logfh;
+        }
+
+        return $logfh;
+    }
+}
+
+sub _resolve_pattern {
+    my ($self) = @_;
+
+    my $pat = $self->{filename_pattern};
+    my $now = time;
+
+    my @vars = qw(Y y m d H M S z Z %);
+    my $strftime = POSIX::strftime( join( "|", map { "%$_" } @vars ), localtime($now) );
+    my %vars;
+    my $i = 0;
+    for ( split /\|/, $strftime ) {
+        $vars{ $vars[$i] } = $_;
+        $i++;
+    }
+
+    my $res = $pat;
+    eval{
+        $res =~ s/%(\{\w+\}|\S)/defined($vars{$1}) ? $vars{$1} : die("Invalid format in filename_pattern '%$1'")/eg;
+    };
+    if ($@) {
+        $res = '%Y-%m-%d';
+        $res =~ s/%(\{\w+\}|\S)/$vars{$1}/g;
+    }
+
+    return $res;
+}
+
+sub main() {
+    $SIG{CHLD} = 'IGNORE';
+
+    my $logPath;
+    my $timePattern = '%Y-%m-%d';
+    my $maxSize = 2048;
+    my $maxFiles = 10;
+    my $maxDays = 31;
+
+    GetOptions(
+        'timepat=s'    => \$timePattern,
+        'maxsize=i'    => \$maxSize,
+        'maxfiles=i'   => \$maxFiles,
+        'maxdays=i'    => \$maxDays,
+        '<>'           => sub { my $item = shift(@_); $logPath = $item; }
+    );
+
+    if ( not defined($logPath) or $logPath eq '' ){
+        print("ERROR: Must defined logpath.\n");
+        print("Usage: example: logrotate --maxsize 100 --maxfiles 10 --maxdays=31 --timepat '%Y-%m-%d' /tmp/log/mylog.log\n");
+        exit(-1);
+    }
+
+    my $dwr = LogRotate->new(
+        path             => $logPath,
+        filename_pattern => $timePattern,
+        max_size         => $maxSize,
+        max_files        => $maxFiles,
+        max_age          => $maxDays
+    );
+
+    while ( my $line = <STDIN> ) {
+        $dwr->log($line);
+    }
+}
+
+exit( main() );
+
+1;

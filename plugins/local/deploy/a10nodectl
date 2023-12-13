@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use Getopt::Long;
+use JSON qw(to_json from_json);
+
+use DeployUtils;
+use WebCtl;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --envpath EnvPath\n");
+    print("              --baseurl BaseUrl [--username UserName] [--password PassWord]\n");
+    print("              --pool PoolName --action enable|disable\n");
+    print("\n");
+    print("       --envpath\tEnvPath\n");
+    print("       --baseurl\tA10 api base url, \$\{baseurl\}/axapi/...\n");
+    print("       --username\tuser name\n");
+    print("       --password\tpassword\n");
+    print("       --node\tnode json\n");
+    print("       --pool\tA10 pool name\n");
+    print("       --action\tAction: enable|disable\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath );
+    my ( $a10Url, $user, $pass, $pool, $action, $node );
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'verbose=i'  => \$isVerbose,
+        'envpath:s'  => \$envPath,
+        'baseurl=s'  => \$a10Url,
+        'username=s' => \$user,
+        'password=s' => \$pass,
+        'pool=s'     => \$pool,
+        'action=s'   => \$action,
+        'node=s'     => \$node
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+    if ( not defined($a10Url) or $a10Url eq '' ) {
+        $optionError = 1;
+        print("ERROR: Must define --baseurl.\n");
+    }
+
+    if ( not defined($user) or $user eq '' ) {
+        $optionError = 1;
+        print("ERROR: Must define --username.\n");
+    }
+
+    if ( not defined($pool) or $pool eq '' ) {
+        $optionError = 1;
+        print("ERROR: Must define --pool.\n");
+    }
+
+    if ( $action ne 'disable' and $action ne 'enable' ) {
+        $optionError = 1;
+        print("ERROR: Action must to be enable or disable.\n");
+    }
+
+    my $deployUtils = DeployUtils->new();
+    my $deployEnv   = $deployUtils->deployInit($envPath);
+
+    $envPath = $deployEnv->{NAME_PATH};
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+    if ( not defined($pass) or $pass eq '' ) {
+
+        #TODO: A10密码的获取方法需要修改
+        my $serverAdapter = ServerAdapter->new();
+        $pass = $serverAdapter->getAppPassWord( $a10Url, $user );
+    }
+
+    my $webCtl = WebCtl->new();
+    $a10Url =~ s/\/+$//;
+
+    #curl -k https://20.16.185.1/axapi/v3/auth -H 'Content-Type: application/json' -X POST -d '{"credentials":{"username":"itsm","password":"123456"}}'
+    #get auth token
+    my $resp = $webCtl->doRest( 'POST', "$a10Url/axapi/v3/auth", { "credentials" => { "username" => $user, "password" => $pass } } );
+
+    my $authContent = from_json($resp);
+
+    my $authHeader = $authContent->{authresponse}->{signature};
+
+    if ( defined($authHeader) and $authHeader ne '' ) {
+        print("INFO: Login $a10Url success.\n");
+    }
+    else {
+        print("ERROR: Login $a10Url failed.\n");
+        print($resp);
+        $hasError = $hasError + 1;
+        return $hasError;
+    }
+
+    #curl -k https://20.16.185.1/axapi/v3/slb/service-group/OA_8080_pool/member/OA_01+8080 -H 'Authorization: A10 618a942a22dd0506c03b987f914071' -H 'Content-Type: application/json' -X POST -d '{"member":{"member-state":"enable"}}'
+    my $url = "$a10Url/axapi/v3/slb/service-group/$pool/member";
+
+    eval {
+        my $lbNode = $nodeInfo->{host} . '+' . $nodeInfo->{port};
+        $webCtl->doRest( 'POST', "$url/$lbNode", { "member" => { "member-state" => $action }, { "Authorization" => "A10 $authHeader" } } );
+        print("INFO: $action $pool member $node success.\n");
+    };
+    if ($@) {
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print("$msg\n");
+        $hasError = $hasError + 1;
+    }
+
+    return $hasError;
+}
+
+exit main();

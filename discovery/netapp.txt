@@ -1,0 +1,5 @@
+#数据格式：sysObjectId,sysDescrPattern,_OBJ_CATEGORY,_OBJ_TYPE,VENDOR,MODEL
+.1.3.6.1.4.1.789.2.1,,STORAGE,Storage,Netapp,NetAppsDevice
+.1.3.6.1.4.1.789.2.2,,STORAGE,Storage,Netapp,NetAppsDevice
+.1.3.6.1.4.1.789.2.3,,STORAGE,Storage,Netapp,NetAppsDevice
+

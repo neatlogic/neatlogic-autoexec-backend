@@ -1,0 +1,20 @@
+{
+    "opDesc": "echo",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "回显文本",
+    "option": [],
+    "argument": {
+        "name": "回显内容",
+        "help": "",
+        "type": "text",
+        "count": 1,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }
+}

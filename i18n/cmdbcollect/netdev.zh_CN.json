@@ -1,0 +1,84 @@
+{
+    "label": "网络设备",
+    "collection": "COLLECT_NETDEV",
+    "docroot": null,
+    "collection_label": "网络设备",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属对象类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "BRAND",
+            "desc": "品牌",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "设备型号",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "IOS信息",
+            "type": "String"
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "端口数量",
+            "type": "Int"
+        }
+    ]
+}

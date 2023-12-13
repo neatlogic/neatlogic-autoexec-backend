@@ -1,0 +1,68 @@
+{
+    "opDesc": "设置环境变量",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "设置全局环境变量并导出, 提供给外部流程工具引用",
+    "option": [{
+            "opt": "name",
+            "name": "变量名",
+            "help": "在环境变量中的名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "value",
+            "name": "变量值",
+            "help": "环境变量的值, 支持$()shell展开, 含有高危指令会失效",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "scope",
+            "name": "作用域",
+            "help": "环境变量的作用域",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "当前节点",
+                        "value": "node"
+                    },
+                    {
+                        "text": "所有节点",
+                        "value": "global"
+                    }
+                ]
+            },
+            "defaultValue": "node"
+        },
+        {
+            "opt": "hidden",
+            "name": "是否隐藏",
+            "help": "如果变量存放的是敏感信息，请设置为隐藏",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ]
+}

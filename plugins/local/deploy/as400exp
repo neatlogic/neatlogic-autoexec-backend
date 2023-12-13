@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Expect;
+$Expect::Multiline_Matching = 1;
+use IO::File;
+use Getopt::Long;
+use File::Path;
+use File::Basename;
+use IPC::Open3;
+use Encode;
+
+my $IS_VERBOSE = 0;
+my $CHARSET    = 'utf-8';
+
+my $PROMPT  = '[\]\$\>\#]\s$';
+my $TIMEOUT = 30;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] --node NodeJson\n");
+    print("              --timeout TimeoutSecs -libs AS400Libs\n");
+    print("              --ccsid AS400 CCSID\n");
+    print("              cmd1 cmd2 ...\n");
+    print("\n");
+    print("       --node:    Host node json\n");
+    print("       --libs:    AS400 LIB name, example:USRLIB,SYSLIB\n");
+    print("       --timeout: tiemout for ssh execute\n");
+    print("       --ccsid:   AS400 CCSID (1386:GBK, 1208:UTF-8)\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $node );
+    my ( $ccsid, $libs, @cmds );
+
+    $ENV{TERM} = 'dumb';
+
+    my $isVerbose = 0;
+    my $timeout   = 30;
+
+    sub addCmd {
+        my $item = shift(@_);
+        push( @cmds, $item );
+    }
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'libs=s'      => \$libs,
+        'ccsid=s'     => \$ccsid,
+        'timeout=i'   => \$timeout,
+        '<>'          => \&addCmd
+    );
+
+    usage() if ( defined($isHelp) );
+    $IS_VERBOSE = $isVerbose;
+    $TIMEOUT    = $timeout;
+
+    my $optionError = 0;
+    my $nodeInfo    = {};
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $optionError = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    my $desc;
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    $desc = $user . "\@" . $host . "/" . $insName;
+
+    my $toolsDir = Cwd::abs_path("$FindBin::Bin/../../../tools");
+    my $x3270Exec;
+    eval { $x3270Exec = X3270Runner->new( toolsDir => $toolsDir, host => $host, port => $port, user => $user, pass => $pass, ccsid => $ccsid, connectTimeout => $timeout ); };
+
+    foreach my $cmd (@cmds) {
+        $x3270Exec->execCmd($cmd);
+    }
+    $x3270Exec->disconnect();
+
+    return;
+}
+
+exit main();
+

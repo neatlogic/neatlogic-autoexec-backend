@@ -1,0 +1,63 @@
+{
+    "opDesc": "修改limit.conf",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改/etc/security下的limit.conf或limit.d下的设置",
+    "option": [{
+            "opt": "defaultdomain",
+            "name": "默认配置域",
+            "help": "规则使用范围，例如：用户名(user), 组名(@group), 所有(*)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "backup",
+            "name": "备份文件",
+            "help": "修改前备份, 例如：/etc/security/limit.conf.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "filename",
+            "name": "文件名",
+            "help": "如果修改/etc/security下的limit.conf则保持空,如需修改limit.d下的文件, 需给出文件名",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "content",
+            "name": "需修改内容",
+            "help": "支持多行, 例如：oracle soft nproc 2047",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [{
+        "opt": "limitConf",
+        "name": "limit配置内容",
+        "help": "更新后的limit.conf配置内容",
+        "type": "textarea"
+    }]
+}

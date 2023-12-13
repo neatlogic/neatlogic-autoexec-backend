@@ -1,0 +1,511 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import traceback
+import time
+import json
+import argparse
+import re
+import pywbem
+
+
+import AutoExecUtils
+
+
+class HP3parCollector:
+    def __init__(self, host, userName, password, timeout, inspect):
+        self.data = {}
+        self.host = host
+        if timeout is None:
+            self.timeout = 30
+        else:
+            self.timeout = timeout
+        self.inspect = inspect
+
+        self.iGroupMap = None
+        self.dev2GroupMap = None
+        self.devId2NodeMap = None
+        self.devName2NodeMap = None
+        self.poolMapByInsId = None
+
+        try:
+            conn = pywbem.WBEMConnection('https://' + host, (userName, password), default_namespace='root/tpd', no_verification=True)
+            self.conn = conn
+        except:
+            conn = None
+            print("ERROR: Could not create smi-s connection to {} with user {}".format(host, userName))
+            exit(-1)
+
+    def wwnAddColon(self, wwn):
+        pattern = re.compile('.{2}')
+        return ':'.join(pattern.findall(wwn))
+
+    def getCIMClassInstances(self, className):
+        conn = self.conn
+        # 返回所有的 pywbem.CIMInstance
+        # 所有属性都在CIMInstance的properties dict集合元素是 pywbem.CIMProperty
+        # 如果查询的是关联对象的CIMInstance，则里面的Property会表示两个对象的关联，关联使用的对象是
+        # CIMInstanceName来进行关联，CIMInstanceName表示CIMInsntace的唯一路径
+        instances = []
+        try:
+            instances = conn.EnumerateInstances(className)
+        except ex as Exception:
+            print('WARN: Enumerate instance for class ' + className + ' Failed, ' + str(ex))
+
+        return instances
+
+    def getHealthStateDesc(self, healthCode):
+        code2Txt = {
+            30: "Non-recoverable Error",
+            25: "Critical Failure",
+            20: "Major Failure",
+            15: "Minor Failure",
+            10: "Degraded/Warning",
+            5: "OK",
+            0: "Unknown"
+        }
+        return code2Txt.get(healthCode)
+
+    def getDev2GroupMap(self):
+        if self.dev2GroupMap is not None:
+            return self.dev2GroupMap
+
+        dev2GroupMap = {}
+        instances = self.getCIMClassInstances('CIM_SystemDevice')
+        for ins in instances:
+            groupComponent = ins.get('GroupComponent').get('Name')
+            partComponent = ins.get('PartComponent').get('DeviceID')
+            dev2GroupMap[partComponent] = groupComponent
+
+        self.dev2GroupMap = dev2GroupMap
+        return dev2GroupMap
+
+    def getDeviceInfo(self):
+        instances = self.getCIMClassInstances('TPD_StorageSystem')
+        sysIns = instances[0]
+        self.data['DEV_NAME'] = sysIns.get('ElementName')
+        self.data['MACHINE_ID'] = sysIns.get('Name')
+        descs = sysIns.get('Description').split(',')
+        self.data['MODEL'] = descs[0]
+        for desc in descs:
+            matchObj = re.match(r'Serial\s+number:\s*(\S*?)$', desc, re.IGNORECASE)
+            if matchObj:
+                self.data['SN'] = matchObj.group(1)
+                continue
+            matchObj = re.match(r'OS\s+version:\s*(\S*?)$', desc, re.IGNORECASE)
+            if matchObj:
+                self.data['IOS_VERSION'] = matchObj.group(1)
+                continue
+
+    def getControllerNameMap(self):
+        self.getControllersMap()
+        return self.devName2NodeMap
+
+    def getControllersMap(self):
+        if self.devName2NodeMap is not None:
+            return self.devName2NodeMap
+
+        devName2NodeMap = {}
+        nodes = []
+        instances = self.getCIMClassInstances('TPD_NodeSystem')
+        for ins in instances:
+            name = ins.get('Name')
+            eleName = ins.get('ElementName')
+            nodeInfo = {
+                'NAME': eleName,
+                'DESC': ins.get('Description'),
+                'SN': ins.get('Name'),
+                'IOS_VERSION': ins.get('KernelVersion'),
+                'STATUS': self.getHealthStateDesc(ins.get('HealthState'))
+            }
+            nodes.append(nodeInfo)
+            devName2NodeMap[name] = nodeInfo
+        self.data['CONTROLLERS'] = nodes
+        self.devName2NodeMap = devName2NodeMap
+
+        return devName2NodeMap
+
+    def getControlerFCPortMap(self):
+        controllerFcPortMap = {}
+        # CIM类CIM_SystemFCPort是Controller节点和FC口的关系类，关系类通过value中的keybindings属性来关联
+        instances = self.getCIMClassInstances('TPD_SystemFCPort')
+        for ins in instances:
+            controllerName = ins.get('GroupComponent').get('Name')
+            fcDevId = ins.get('PartComponent').get('DeviceID')
+            controllerFcPortMap[fcDevId] = controllerName
+        return controllerFcPortMap
+
+    def getInitiators(self):
+        if self.iGroupMap is not None:
+            return self.iGroupMap
+
+        iGroupMap = {}
+        initiatorsMap = {}
+        instances = self.getCIMClassInstances('CIM_SCSIProtocolController')
+        for ins in instances:
+            iGroupName = ins.get('ElementName')
+            devId = ins.get('DeviceID')
+            iGroup = {
+                'NAME': iGroupName,
+                'DEVICE_ID': devId,
+                'MEMBERS': []
+            }
+            initiatorsMap[iGroupName] = iGroup
+            iGroupMap[devId] = iGroup
+
+        instances = self.getCIMClassInstances('TPD_MemberOfStorageHardwareIDCollection')
+        for ins in instances:
+            iGroupName = ins.get('Collection').get('InstanceID').split(':')[1]
+            member = ins.get('Member').get('InstanceID').split(':')[1]
+            (memType, memAddr) = member.split('-')
+
+            iGroup = initiatorsMap.get(iGroupName)
+            if iGroup is not None:
+                memberInfo = {
+                    'TYPE': memType,
+                    'WWN': self.wwnAddColon(memAddr)
+                }
+                iGroup['MEMBERS'].append(memberInfo)
+
+        return iGroupMap
+
+    def getAllocatedMap(self):
+        allocatedMap = {}
+        for mapClass in ['CIM_AllocatedFromStoragePool']:
+            instances = self.getCIMClassInstances(mapClass)
+            for ins in instances:
+                poolInstanceId = ins.get('Antecedent').get('InstanceID')
+                depInsName = ins.get('Dependent')
+                uuid = depInsName.get('DeviceID')
+                if not uuid:
+                    uuid = depInsName.get('InstanceId')
+                allocatedMap[uuid] = poolInstanceId
+        return allocatedMap
+
+    def getPoolInfo(self):
+        if self.poolMapByInsId is not None:
+            return self.poolMapByInsId
+
+        poolMapByInsId = {}
+        pools = []
+        for poolClass in ['CIM_StoragePool']:
+            instances = self.getCIMClassInstances(poolClass)
+            for ins in instances:
+                name = ins.get('ElementName')
+                instanceId = ins.get('InstanceID')
+                status = self.getHealthStateDesc(ins.get('HealthState'))
+
+                poolType = 'Concrete'
+                thinProvision = ins.get('ThinProvisionMetaDataSpace')
+                totalManagedSize = ins.get('TotalManagedSpace')
+                spaceLimitDetermination = ins.get('SpaceLimitDetermination')
+
+                if thinProvision is None:
+                    if totalManagedSize == 0:
+                        poolType = 'Empty'
+                    else:
+                        poolType = 'Dynamic'
+
+                capacity = round(totalManagedSize / 1000 / 1000 / 1000, 2)
+                spaceLimit = round(ins.get('SpaceLimit') / 1000 / 1000 / 1000, 2)
+                if capacity == 0:
+                    capacity = spaceLimit
+
+                available = round(ins.get('RemainingManagedSpace')/1000/1000/1000, 2)
+                used = capacity - available
+                if used < 0:
+                    used = capacity
+
+                poolInfo = {
+                    'NAME': name,
+                    'TYPE': poolType,
+                    'CAPACITY': capacity,
+                    'AVAILABLE': available,
+                    'USED': used,
+                    'STATUS': status
+                }
+                if spaceLimitDetermination == 2:
+                    poolInfo['USED_PCT'] = round(used * 100/capacity, 2)
+
+                pools.append(poolInfo)
+                poolMapByInsId[instanceId] = poolInfo
+        self.data['POOLS'] = pools
+        self.poolMapByInsId = poolMapByInsId
+
+        return poolMapByInsId
+
+    def getLunInfo(self):
+        poolMapByInsId = self.getPoolInfo()
+        lunInPoolMap = self.getAllocatedMap()
+        iGroupMap = self.getInitiators()
+        #print(json.dumps(iGroupMap, indent=4, ensure_ascii=True))
+        lunsMap = {}
+        instances = self.getCIMClassInstances('CIM_StorageVolume')
+        for ins in instances:
+            wwn = ins.get('DeviceID')
+
+            poolInsId = lunInPoolMap[wwn]
+            poolInfo = poolMapByInsId[poolInsId]
+
+            name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+
+            blockSize = ins.get('BlockSize')
+            numberOfBlocks = ins.get('NumberOfBlocks')
+            consumableBlocks = ins.get('ConsumableBlocks')
+            capacity = round(numberOfBlocks * blockSize / 1000 / 1000 / 1000, 2)
+            used = round(consumableBlocks * blockSize / 1000 / 1000 / 1000, 2)
+            lunInfo = {
+                'NAME': name,
+                'WWN': wwn,
+                'CAPACITY': capacity,
+                'USED': used,
+                'USED_PCT': round(used * 100 / capacity, 2),
+                'POOL_NAME': poolInfo['NAME'],
+                'STATUS': status,
+                'VISABLE_GROUPS': [],
+                'VISABLE_INITIATORS': []
+            }
+            lunsMap[wwn] = lunInfo
+            # poolInfo['LUNS'].append(lunInfo)
+
+        instances = self.getCIMClassInstances('CIM_ProtocolControllerForUnit')
+        for ins in instances:
+            lunWWN = ins.get('Dependent').get('DeviceID')
+            iGroupId = ins.get('Antecedent').get('DeviceID')
+            iGroup = iGroupMap[iGroupId]
+            lunInfo = lunsMap[lunWWN]
+            lunInfo['VISABLE_GROUPS'].append(iGroup['NAME'])
+            members = {}
+            for wwnInfo in iGroup['MEMBERS']:
+                members[wwnInfo['WWN']] = 1
+            for wwn in members.keys():
+                lunInfo['VISABLE_INITIATORS'].append(wwn)
+
+        self.data['LUNS'] = list(lunsMap.values())
+
+    def getHealthInfo(self):
+        servities = ['NULL', 'DEBUG', 'INFORMATIONAL', 'DEGRADED', 'MINOR', 'MAJOR', 'CRITICAL', 'FATAL']
+
+        content = ''
+        instances = self.getCIMClassInstances('CIM_AlertIndication')
+        for ins in instances:
+            if 'IndicationTime' in ins.properties:
+                indicationTime = str(ins.get('IndicationTime'))
+                content = content + indicationTime + "\t"
+            if 'PerceivedSeverity' in ins.properties:
+                severity = servities[ins.get('PerceivedSeverity')]
+                content = content + severity + "\t"
+            if 'IndicationIdentifier' in ins.properties:
+                indentifier = str(ins.get('IndicationIdentifier'))
+                content = content + indentifier + "\t"
+            if 'Message' in ins.properties:
+                message = str(ins.get('Message'))
+                content = content + message + "\t"
+            content = content + "\n"
+        self.data['HEALTH_CHECK'] = content
+
+    def getEthInfo(self):
+        pass
+
+    def getFcInfo(self):
+        controllersMap = self.getControllerNameMap()
+        fcControllerMap = self.getDev2GroupMap()
+
+        hbas = []
+        instances = self.getCIMClassInstances('CIM_FCPort')
+        for ins in instances:
+            connectTo = []
+            connectToStr = ins.get('ConnectedTo')
+            if connectToStr is not None:
+                connectTo = connectToStr.split(';')
+
+            deviceId = ins.get('DeviceID')
+            controllerName = fcControllerMap[deviceId]
+
+            hbaInfo = {
+                'NAME': ins.get('ElementName'),
+                'CONTROLLER_NAME': controllersMap.get(controllerName).get('DESC'),
+                'WWNN': self.wwnAddColon(hex(ins.get('NodeWWN'))[2:]),
+                'WWPN': self.wwnAddColon(ins.get('PermanentAddress')),
+                'SPEED': int(ins.get('MaxSpeed')/1000/1000/1000),
+                'STATUS': self.getHealthStateDesc(ins.get('HealthState')),
+                'CONNECT_TO': connectTo
+            }
+            hbas.append(hbaInfo)
+
+        self.data['HBA_INTERFACES'] = hbas
+
+    def getIPAddrs(self):
+        pass
+
+    def getFanPowSupplyMap(self):
+        fanPowSupplyMap = {}
+        instances = self.getCIMClassInstances('CIM_AssociatedCooling')
+        for ins in instances:
+            fanDevId = ins.get('Antecedent').get('DeviceID')
+            powSupplyDevId = ins.get('Dependent').get('DeviceID')
+            fanPowSupplyMap[fanDevId] = powSupplyDevId
+        return fanPowSupplyMap
+
+    def getFanInfo(self):
+        fans = []
+        fanPowSupplyMap = self.getFanPowSupplyMap()
+        instances = self.getCIMClassInstances('CIM_Fan')
+        for ins in instances:
+            name = ins.get('ElementName')
+            devId = ins.get('DeviceID')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            speed = ins.get('VariableSpeed')
+            powSupplyDevId = fanPowSupplyMap.get(devId)
+            fanInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'SPEED': speed,
+                'POWERSUPPLY_NAME': powSupplyDevId,
+                'STATUS': status
+            }
+            fans.append(fanInfo)
+        self.data['FANS'] = fans
+
+    def getPowerInfo(self):
+        controllersMap = self.getControllersMap()
+        powSupplies = []
+        instances = self.getCIMClassInstances('CIM_PowerSupply')
+        for ins in instances:
+            devId = ins.get('DeviceID')
+            name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            sysNodeDevId = self.getDev2GroupMap().get(devId)
+            powSupplyInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'STATUS': status
+            }
+            sysNodeDevInfo = controllersMap.get(sysNodeDevId)
+            if sysNodeDevInfo is not None:
+                powSupplyInfo['CONTROLLER_NAME'] = sysNodeDevInfo.get('DESC')
+            else:
+                powSupplyInfo['CONTROLLER_NAME'] = None
+
+            powSupplies.append(powSupplyInfo)
+        self.data['POWER_SUPPLIES'] = powSupplies
+
+    def getBatteryInfo(self):
+        controllersMap = self.getControllersMap()
+        batteries = []
+        instances = self.getCIMClassInstances('CIM_Battery')
+        for ins in instances:
+            devId = ins.get('DeviceID')
+            name = ins.get('ElementName')
+            status = self.getHealthStateDesc(ins.get('HealthState'))
+            sysNodeDevId = self.getDev2GroupMap().get(devId)
+            batteryInfo = {
+                'NAME': name,
+                'DEVICE_ID': devId,
+                'STATUS': status
+            }
+            sysNodeDevInfo = controllersMap.get(sysNodeDevId)
+            if sysNodeDevInfo is not None:
+                batteryInfo['CONTROLLER_NAME'] = sysNodeDevInfo.get('DESC')
+            else:
+                batteryInfo['CONTROLLER_NAME'] = None
+
+            batteries.append(batteryInfo)
+        self.data['BATTERIES'] = batteries
+
+    def healthCheck(self):
+        pass
+
+    def collect(self):
+        print("INFO: Try to colelct device information.")
+        self.getDeviceInfo()
+        print("INFO: Try to colelct fc information.")
+        self.getFcInfo()
+        print("INFO: Try to colelct ethernet information.")
+        self.getEthInfo()
+        print("INFO: Try to colelct power information.")
+        self.getPowerInfo()
+        print("INFO: Try to colelct battery information.")
+        self.getBatteryInfo()
+        print("INFO: Try to colelct fan information.")
+        self.getFanInfo()
+        print("INFO: Try to colelct pool information.")
+        self.getPoolInfo()
+        print("INFO: Try to colelct lun information.")
+        self.getLunInfo()
+        print("INFO: Try to colelct ip address information.")
+        self.getIPAddrs()
+
+        if self.inspect == 1:
+            print("INFO: Try to do health check.")
+            self.healthCheck()
+
+        self.data['_OBJ_CATEGORY'] = 'STORAGE'
+        self.data['_OBJ_TYPE'] = 'Storage'
+        self.data['BRAND'] = 'HP-3Par'
+        self.data['VENDOR'] = 'HP'
+        self.data['MODEL'] = 'HP-3Par'
+        self.data['APP_TYPE'] = 'HP-3Par'
+        self.data['PK'] = ['MGMT_IP']
+        print("INFO: Information collected.")
+        return self.data
+
+
+def usage():
+    pass
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--verbose', default=0, help='Verbose')
+    parser.add_argument('--timeout', default=10, help='Timeout seconds')
+    parser.add_argument('--inspect', default=0, help='Health check')
+    parser.add_argument('otherthings', nargs=argparse.REMAINDER)
+
+    args = parser.parse_args()
+
+    inspect = int(args.inspect)
+    timeOut = int(args.timeout)
+    verbose = int(args.verbose)
+
+    if timeOut == 0:
+        timeOut = 5
+
+    node = args.node
+
+    try:
+        nodeInfo = {}
+        hasOptError = False
+        if node is None or node == '':
+            node = os.getenv('AUTOEXEC_NODE')
+        if node is None or node == '':
+            print("ERROR: Can not find node definition.")
+            hasOptError = True
+        else:
+            nodeInfo = json.loads(node)
+
+        if hasOptError:
+            usage()
+
+        hasError = False
+
+        ip = nodeInfo['host']
+        # port = nodeInfo['protocolPort']
+        username = nodeInfo['username']
+        password = nodeInfo['password']
+
+        hp3parCollector = HP3parCollector(ip, username, password, timeOut, inspect)
+        data = hp3parCollector.collect()
+        data['RESOURCE_ID'] = nodeInfo.get('resourceId')
+        data['MGMT_IP'] = nodeInfo.get('host')
+        out = {'DATA': [data]}
+        AutoExecUtils.saveOutput(out)
+        if verbose == 1:
+            print(json.dumps(data, ensure_ascii=True, indent=4))
+    except Exception as ex:
+        errorMsg = str(ex)
+        print("ERROR: ", errorMsg)
+        traceback.print_exc()

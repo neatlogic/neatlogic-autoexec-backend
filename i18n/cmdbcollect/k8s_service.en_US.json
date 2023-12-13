@@ -1,0 +1,117 @@
+{
+    "label": "K8S_SERVICE",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.SERVICES",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_SERVICE"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTERIP",
+            "desc": "Cluster Ip",
+            "type": "String"
+        },
+        {
+            "name": "CONTAIN_PODS",
+            "desc": "Contain Pods",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "Uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "EXTERNALTRAFFICPOLICY",
+            "desc": "Externaltraffic Policy",
+            "type": "String"
+        },
+        {
+            "name": "INTERNALTRAFFICPOLICY",
+            "desc": "Internaltraffic Policy",
+            "type": "String"
+        },
+        {
+            "name": "IPFAMILYPOLICY",
+            "desc": "Ipfamily Policy",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "Labels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "Namespace",
+            "type": "String"
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "Selector",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SESSIONAFFINITY",
+            "desc": "Session Affinity",
+            "type": "String"
+        },
+        {
+            "name": "TYPE",
+            "desc": "Type",
+            "type": "String"
+        },
+        {
+            "name": "UID",
+            "desc": "Uid",
+            "type": "String"
+        }
+    ]
+}

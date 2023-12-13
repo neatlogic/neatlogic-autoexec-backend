@@ -1,0 +1,56 @@
+{
+    "label": "Application Module",
+    "collection": "COLLECT_APPLICATION",
+    "docroot": null,
+    "collection_label": "Application",
+    "filter": {
+        "_OBJ_TYPE": "APPLICATION_MODULE"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Module Name",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "APPMODULE_NAME",
+            "desc": "Module Abbr Name",
+            "type": "String"
+        },
+        {
+            "name": "APP_NAME",
+            "desc": "App Abbr Name",
+            "type": "String"
+        }
+    ]
+}

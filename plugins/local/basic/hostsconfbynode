@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import sys
+import argparse
+import json
+
+import AutoExecUtils
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--nodes', default='', help='Nodes json')
+    parser.add_argument('--nameprefix', default='', help='Host name prefix')
+    args = parser.parse_args()
+    hostNamePrefix = args.nameprefix
+    nodesJson = args.nodes
+
+    hasOptError = False
+    if hostNamePrefix == '':
+        hasOptError = True
+        print("ERROR: Must defined nameprefix prefix by option --nameprefix")
+
+    if nodesJson == '':
+        hasOptError = True
+        print("ERROR: Must defined nodes by option --nodes")
+
+    if hasOptError:
+        sys.exit(2)
+
+    nodes = json.loads(nodesJson)
+
+    out = {}
+    hostIps = {}
+    for node in nodes:
+        hostIp = node.get('ip')
+
+        if hostIp is not None and hostIp != '':
+            hostIps[hostIp] = 1
+
+    sortedHostIps = list(hostIps.keys())
+    sortedHostIps.sort()
+
+    hostsConfTxt = ''
+    ip2Hostname = {}
+    hostCount = len(hostIps)
+    idx = 1
+    for hostIp in sortedHostIps:
+        ip2Hostname[hostIp] = '%s%i' % (hostNamePrefix, idx)
+        hostsConfTxt = hostsConfTxt + '%s\t%s%s\n' % (hostIp, hostNamePrefix, idx)
+        idx = idx + 1
+
+    out['nodeIp2Hostname'] = ip2Hostname
+    out['hostsConfTxt'] = hostsConfTxt
+
+    AutoExecUtils.saveOutput(out)

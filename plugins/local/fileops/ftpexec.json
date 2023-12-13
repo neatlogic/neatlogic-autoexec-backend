@@ -1,0 +1,72 @@
+{
+    "opDesc": "FTP远程拷贝",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "基于FTP文件传输",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "输出详细信息",
+            "help": "",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "direction",
+            "name": "拷贝方向",
+            "help": "拷贝方向",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "远程到本地",
+                        "value": "pull"
+                    },
+                    {
+                        "text": "本地到远程",
+                        "value": "push"
+                    }
+                ]
+            },
+            "defaultValue": "pull"
+        },
+        {
+            "opt": "src",
+            "name": "源目录",
+            "help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "目标目录",
+            "help": "多个目录/文件逗号分隔，如：/tmp/a,/tmp/b",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

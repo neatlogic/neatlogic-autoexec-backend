@@ -1,0 +1,115 @@
+{
+    "opDesc": "生成SCSI磁盘Udev规则",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "多主机共享SCSI磁盘, 在其中一个主机上生成统一的Udev规则，通过其他步骤把此规则配置到其主机",
+    "option": [{
+            "opt": "aliasprefix",
+            "name": "磁盘别名前缀",
+            "help": "别名的前缀，例如：/dev/asmdisk/asm-disk-",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/dev/asmdisk/asm-disk-"
+        },
+        {
+            "opt": "listdevcmd",
+            "name": "列取磁盘命令",
+            "help": "例如: ls /dev/sd* | grep -v /dev/sda",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ls /dev/sd* | grep -v /dev/sda"
+        },
+        {
+            "opt": "selectrange",
+            "name": "磁盘序号范围",
+            "help": "例如: 取第1个到第3个磁盘:1,3; 取第6个及后续所有盘:6,",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1,3"
+        },
+        {
+            "opt": "sortmethod",
+            "name": "设备排序",
+            "help": "通过排序方法影响别名序号",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "默认",
+                        "value": "origin"
+                    },
+                    {
+                        "text": "大小",
+                        "value": "size"
+                    },
+                    {
+                        "text": "名称",
+                        "value": "name"
+                    },
+                    {
+                        "text": "SCSI ID",
+                        "value": "id"
+                    },
+                    {
+                        "text": "大小+ID",
+                        "value": "sizeandid"
+                    },
+                    {
+                        "text": "大小+名称",
+                        "value": "sizeandname"
+                    }
+                ]
+            },
+            "defaultValue": "sizeandid"
+        },
+        {
+            "opt": "owner",
+            "name": "设备用户",
+            "help": "设备的Owner用户",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "grid"
+        },
+        {
+            "opt": "group",
+            "name": "设备用户组",
+            "help": "设备的Owner组",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "asmadmin"
+        }
+    ],
+    "output": [{
+            "opt": "diskDiscoveryString",
+            "name": "磁盘通配符",
+            "help": "磁盘通配符, 磁盘路径目录加上/*",
+            "type": "text"
+        }, {
+            "opt": "udevRules",
+            "name": "udev规则文本",
+            "help": "生成的udev多条规则文本",
+            "type": "textarea"
+        },
+        {
+            "opt": "diskDevsArray",
+            "name": "磁盘列表数组",
+            "help": "多个磁盘的数据",
+            "type": "json"
+        },
+        {
+            "opt": "diskDevs",
+            "name": "磁盘列表",
+            "help": "多个磁盘列,每个磁盘单独一行",
+            "type": "textarea"
+        }
+    ]
+}

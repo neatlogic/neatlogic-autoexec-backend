@@ -1,0 +1,96 @@
+#!/usr/bin/python3 -u
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import re
+import argparse
+import json
+import ipaddress
+
+import AutoExecUtils
+
+
+def usage():
+    # 帮助信息
+    pname = os.path.basename(__file__)
+    print(pname + "--nameprefix <host name prefix> --net <public net> --nodesipinfo <all nodes ip json obj>")
+
+
+if __name__ == "__main__":
+    # 参数处理
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--nameprefix', default='', help='Cluster node host name prefix')
+    parser.add_argument('--net', default='', help='Config which ip in net with this hostname, example: 10.10.10.0/24')
+    parser.add_argument('--nodesipinfo', default='{}', help='All nodes ip information')
+
+    args = parser.parse_args()
+
+    hasOptError = 0
+    if args.nameprefix == '':
+        print("ERROR: Must defined host name preifx by option --nameprefix")
+        hasOptError = 1
+    if args.net == '':
+        print("ERROR: Must defined net by option --net, example: --net 10.10.10.0/24\n")
+        hasOptError = 1
+
+    if hasOptError == 1:
+        usage()
+
+    hostNamePrefix = args.nameprefix
+
+    netTxt = args.net
+    net = ipaddress.ip_network(netTxt, strict=False)
+
+    # 传入的集群节点的管理IP获取和排序，基础工具osbasic/getallnicip输出的参数：allIpInfo（操作系统配置的IP和网卡信息列表）
+    nodesIpInfo = json.loads(args.nodesipinfo)
+    nodeIps = list(nodesIpInfo.keys())
+    nodeIps.sort()
+    nodesCount = len(nodeIps)
+
+    hasError = 0
+
+    hostConfTxt = ''
+
+    pubNicName = None
+    privNicName = None
+
+    hostNameMap = {}
+    nicNameMap = {}
+    matchedIpConf = []
+
+    idx = 1
+    for nodeIp in nodeIps:
+        matchedIp = None
+        for nodeIpInfo in nodesIpInfo.get(nodeIp):
+            nicName = nodeIpInfo.get('nic')
+            ip = nodeIpInfo.get('ip')
+            prefixLen = nodeIpInfo.get('netmask')
+
+            thisNet = ipaddress.ip_network('%s/%s' % (ip, prefixLen), strict=False)
+
+            if ipaddress.ip_address(ip) in net:
+                if matchedIp is None:
+                    matchedIp = ip
+                    nicNameMap[nicName] = thisNet.network_address
+        if matchedIp is None:
+            hasError = 1
+            print("ERROR: Node:%s does not config network:%s ip" % (nodeIp, netTxt))
+        else:
+            matchedIpConf.append('%s\t%s%s' % (matchedIp, hostNamePrefix, idx))
+            hostNameMap[matchedIp] = '%s%s' % (hostNamePrefix, idx)
+        idx = idx + 1
+
+
+    hostConfTxt = "\n".join(matchedIpConf) + "\n"
+    hostConfTxt = "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6\n" + hostConfTxt
+    hostConfTxt = "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n" + hostConfTxt
+
+    out = {}
+    out['hostNames'] = hostNameMap
+    out['hostsConfTxt'] = hostConfTxt
+
+    AutoExecUtils.saveOutput(out)
+
+    sys.exit(hasError)

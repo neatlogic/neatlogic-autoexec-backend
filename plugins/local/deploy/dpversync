@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use File::Spec;
+use JSON;
+use Cwd;
+
+sub syncDir2OtherMembers {
+    my $myRunnerId      = $ENV{RUNNER_ID};
+    my $runnerGroupConf = $ENV{RUNNER_GROUP};
+    my $targetPathsConf = $ENV{DEPLOY_TARGET_PATH};
+    my $cwd             = getcwd();
+
+    my $hasOptErr = 0;
+    if ( not defined($myRunnerId) or $myRunnerId eq '' ) {
+        print("ERROR: Runner id not provided.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($targetPathsConf) or $targetPathsConf eq '' ) {
+        print("ERROR: No file or directory path to sync.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( not defined($runnerGroupConf) or $runnerGroupConf eq '' ) {
+        print("ERROR: No runner group members to sync.\n");
+        $hasOptErr = 1;
+    }
+
+    if ( $hasOptErr == 1 ) {
+        return 3;
+    }
+
+    $hasOptErr = 0;
+    my $runnerGroup = from_json($runnerGroupConf);
+    if ( not defined($runnerGroup) ) {
+        print("ERROR: malform RUNNER_GROUP format.\n");
+        $hasOptErr = 1;
+    }
+
+    my $targetPaths = from_json($targetPathsConf);
+    if ( not defined($targetPaths) ) {
+        print("ERROR: malform DEPLOY_TARGET_PATH format.\n");
+        $hasOptErr = 1;
+    }
+    if ( $hasOptErr == 1 ) {
+        return 3;
+    }
+
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+    }
+
+    my $ret = 0;
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
+    for my $targetPath (@$targetPaths) {
+        if ( not $targetPath =~ /^\Q$autoexecHome\E\// ) {
+            print("ERROR: Directory $targetPath not in autoexec home directory.\n");
+            $ret = 3;
+            last;
+        }
+
+        if ( not -e $targetPath ) {
+            print("ERROR: Directory $targetPath not exists.\n");
+            $ret = 3;
+            last;
+        }
+
+        my $targetDir = dirname($targetPath);
+
+        while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
+            if ( $runnerId eq $myRunnerId ) {
+                next;
+            }
+
+            print("INFO: Sync '$targetPath' to $runnerIp:'$targetPath'.\n");
+            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$targetDir' && rsync" '$targetPath' $runnerIp:'/'};
+            $ret = system($syncCmd);
+            if ( $ret != 0 ) {
+                print("ERROR: Sync '$targetPath' to $runnerIp:'$targetPath' failed.\n");
+                last;
+            }
+        }
+    }
+
+    chdir($cwd);
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+exit syncDir2OtherMembers();

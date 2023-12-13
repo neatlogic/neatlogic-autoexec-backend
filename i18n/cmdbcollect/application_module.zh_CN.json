@@ -1,0 +1,56 @@
+{
+    "label": "应用模块",
+    "collection": "COLLECT_APPLICATION",
+    "docroot": null,
+    "collection_label": "应用",
+    "filter": {
+        "_OBJ_TYPE": "APPLICATION_MODULE"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "OS类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "模块名",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "APPMODULE_NAME",
+            "desc": "模块简称",
+            "type": "String"
+        },
+        {
+            "name": "APP_NAME",
+            "desc": "应用简称",
+            "type": "String"
+        }
+    ]
+}

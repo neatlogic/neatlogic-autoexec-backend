@@ -1,0 +1,300 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Digest::MD5;
+use Getopt::Long;
+use Expect;
+use IO::File;
+use JSON;
+
+use DBInfo;
+use SQLFileRunner;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
+    print("              [--encoding SqlFileEncoding] --sqlfilejson SqlFileJsonArray\n");
+    print("       --dryrun:      only test, not realy execute the sql script\n");
+    print("       --autocommit:  permit autocommit on mysql, postgresql\n");
+    print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
+    print("       --dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
+    print("       --encoding:    encoding for sql file\n");
+    print("       --sqlfilejson: sql file json array, example:[\"1.sql\",\"2.sql\"]\n");
+
+    exit(1);
+}
+
+sub main {
+    my $isforce = 0;
+
+    my $node;
+    my $isHelp        = 0;
+    my $isVerbose     = 0;
+    my $isDryRun      = 0;
+    my $isForce       = 0;
+    my $isAutoCommit  = 0;
+    my $parallelCount = 0;
+
+    my $dbVersion;
+    my $dbArgs;
+    my $charSet;
+    my $dbNodeJson;
+    my $sqlFileJson;
+    my $sqlTxt;
+
+    GetOptions(
+        'help'          => \$isHelp,
+        'node=s'        => \$node,
+        'v|verbose=i'   => \$isVerbose,
+        'force=i'       => \$isForce,
+        'dryrun=i'      => \$isDryRun,
+        'parallel=i'    => \$parallelCount,
+        'autocommit=i'  => \$isAutoCommit,
+        'dbversion=s'   => \$dbVersion,
+        'dbargs=s'      => \$dbArgs,
+        'encoding=s'    => \$charSet,
+        'sqlfilejson=s' => \$sqlFileJson,
+        'sql=s'         => \$sqlTxt
+    );
+
+    #$ENV{IS_INTERACT} = 1;
+    my $hasOptError = 0;
+
+    my $dbNode;
+    if ( defined($node) and $node ne '' ) {
+        $dbNode = from_json($node);
+    }
+    else {
+        my $dbNodeJson = $ENV{AUTOEXEC_NODE};
+        if ( defined($dbNodeJson) and $dbNodeJson ne '' ) {
+            $dbNode = from_json($dbNodeJson);
+        }
+    }
+
+    if ( not defined($dbNode) ) {
+        $hasOptError = 1;
+        print("ERROR: Must define db schema with environment varialble AUTOEXEC_NODE in json string.\n");
+    }
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    if ( not defined($phaseName) or $phaseName eq '' ) {
+        $hasOptError = 1;
+        print("ERROR: Must define phase name with envirment varialble AUTOEXEC_PHASE_NAME.\n");
+    }
+
+    my $execUser = $ENV{AUTOEXEC_USER};
+    if ( not defined($execUser) or $execUser eq '' ) {
+        $ENV{AUTOEXEC_USER} = 'anonymous';
+    }
+
+    my $sqlFiles         = [];
+    my $sqlFileArrayJson = $ENV{_SQL_FILES};
+    my $sqlInfosInArg;
+    if ( defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
+        $sqlInfosInArg = from_json($sqlFileArrayJson);
+        my $sqlFilesMap = {};
+        foreach my $sqlInfo (@$sqlInfosInArg) {
+            $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
+        }
+        my @sqlFilesArray = keys(%$sqlFilesMap);
+        $sqlFiles = \@sqlFilesArray;
+    }
+    elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
+        my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
+        foreach my $sqlFile (@sqlFileArray) {
+            $sqlFile =~ s/^\/?file\///;
+            push( @$sqlFiles, $sqlFile );
+        }
+    }
+
+    if ( defined($sqlTxt) and $sqlTxt ne '' ) {
+        $sqlTxt =~ s/^\s*|\s*$//sg;
+        $sqlTxt =~ s/\\n/\n/sg;
+        $sqlTxt = $sqlTxt . "\n";
+        my $jobId      = $ENV{AUTOEXEC_JOBID};
+        my $sqlTxtFile = "sqltext.$jobId.sql";
+        my $fh         = IO::File->new(">file/$sqlTxtFile");
+        if ( defined($fh) ) {
+            print $fh ($sqlTxt);
+            $fh->close();
+            push( @$sqlFiles, $sqlTxtFile );
+        }
+        else {
+            $hasOptError = 1;
+            print("ERROR: Can not write sql text to file file/$sqlTxtFile.\n");
+        }
+    }
+
+    if ( scalar(@$sqlFiles) == 0 ) {
+        $hasOptError = 1;
+        print("ERROR: Must define sql files with option --sqlfiles in json string or --sql with sql scripts.\n");
+    }
+
+    if ( $hasOptError == 1 ) {
+        usage();
+    }
+
+    my $jobPath = $ENV{AUTOEXEC_WORK_PATH};
+    if ( not defined($jobPath) or $jobPath eq '' ) {
+        $jobPath = getcwd();
+    }
+
+    #sqlfile, log, status
+    #jobpath/
+    #|-- file
+    #|   |-- 1.sql
+    #|   `-- 2.sql
+    #|-- log
+    #|   `-- phase-run
+    #|       `-- 192.168.0.26-3306-bsm
+    #|           |-- 2.sql.hislog
+    #|           |   |-- 20210625-163515-failed-anonymous.txt
+    #|           |   |-- 20210625-163607-failed-anonymous.txt
+    #|           |   `-- 20210625-164543-failed-anonymous.txt
+    #|           `-- 2.sql.txt
+    #|-- sqlfile
+    #|   `-- phase-run
+    #|       `-- 2.sql
+    #`-- status
+    #    `-- phase-run
+    #            `-- 192.168.0.26-3306-bsm
+    #                        `-- 2.sql.txt
+
+    my $jobId = $ENV{AUTOEXEC_JOBID};
+    if ( not defined($jobId) or $jobId eq '' ) {
+        $jobId = 0;
+    }
+
+    my $toolsDir;
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
+        $ENV{AUTOEXEC_HOME} = $autoexecHome;
+        $ENV{TOOLS_PATH}    = $toolsDir;
+    }
+    $toolsDir = "$autoexecHome/tools";
+
+    my $dbExtArgs = {
+        fileCharset => $charSet,
+        autocommit  => $isAutoCommit,
+        version     => $dbVersion,
+        args        => $dbArgs
+    };
+
+    my $hasError = 0;
+
+    my $serverAdapter = ServerAdapter->new();
+    my $sqlNodesMap   = {};
+
+    my $sqlInfoInServer;
+    if ( defined($sqlInfosInArg) ) {
+        $sqlInfoInServer = $sqlInfosInArg;
+    }
+    else {
+        $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+    }
+
+    foreach my $sqlInfo (@$sqlInfoInServer) {
+        my $resourceId = $sqlInfo->{resourceId};
+        if ( not defined( $sqlNodesMap->{$resourceId} ) ) {
+            my $host     = $sqlInfo->{host};
+            my $port     = $sqlInfo->{port};
+            my $userName = $sqlInfo->{username};
+
+            my $sqlNodeInfo = {
+                resourceId  => $sqlInfo->{resourceId},
+                nodeName    => $sqlInfo->{nodeName},
+                nodeType    => $sqlInfo->{nodeType},
+                host        => $host,
+                port        => $port,
+                username    => $userName,
+                serviceAddr => $sqlInfo->{serviceAddr}
+            };
+
+            eval {
+                my $pass = $serverAdapter->getAccountPwd(
+                    jobId      => $jobId,
+                    resourceid => $resourceId,
+                    nodeType   => $sqlInfo->{nodeType},
+                    nodeName   => $sqlInfo->{nodeName},
+                    username   => $userName,
+                    protocol   => 'database',
+                    host       => $host,
+                    port       => $port
+                );
+                $sqlNodeInfo->{password} = $pass;
+            };
+            if ($@) {
+                my $errMsg = $@;
+                $errMsg =~ s/ at .*$//;
+                print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
+                $hasError = $hasError + 1;
+            }
+            $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
+        }
+    }
+
+    if ( $hasError > 0 ) {
+        return $hasError;
+    }
+
+    my $sqlUploadDir = "$jobPath/file";
+    my $sqlFileDir   = "$jobPath/sqlfile/$phaseName";
+
+    foreach my $sqlNodeInfo ( values(%$sqlNodesMap) ) {
+        my $resourceId = $sqlNodeInfo->{resourceId};
+        my $host       = $sqlNodeInfo->{host};
+        my $port       = $sqlNodeInfo->{port};
+        my $userName   = $sqlNodeInfo->{username};
+
+        my $logFileDir   = "$jobPath/log/$phaseName/$host-$port-$resourceId";
+        my $sqlStatusDir = "$jobPath/status/$phaseName/$host-$port-$resourceId";
+
+        print("INFO: Execute sql files -> $userName\@$host:$port\n");
+        my $dbInfo = DBInfo->new( $sqlNodeInfo, $dbExtArgs );
+
+        my $sqlFileRunner = SQLFileRunner->new(
+            jobId        => $jobId,
+            jobPath      => $jobPath,
+            phaseName    => $phaseName,
+            deployEnv    => undef,
+            toolsDir     => $toolsDir,
+            tmpDir       => "$autoexecHome/tmp",
+            dbInfo       => $dbInfo,               #单DB目标执行需要的特有的属性
+            nodeInfo     => $sqlNodeInfo,
+            sqlUploadDir => $sqlUploadDir,         #单DB目标执行需要的上传sql的上传路径（相对于作业路径）
+
+            sqlFileDir   => $sqlFileDir,
+            sqlStatusDir => $sqlStatusDir,
+            logFileDir   => $logFileDir,
+            sqlFiles     => $sqlFiles,
+            isForce      => $isForce,
+            isDryRun     => $isDryRun,
+            istty        => 0,
+            isInteract   => 1
+        );
+        my $rc = 0;
+        $rc = $sqlFileRunner->checkSqlFiles();
+
+        if ( $rc == 0 ) {
+            $rc = $sqlFileRunner->execSqlFiles();
+        }
+
+        if ( $rc != 0 ) {
+            $hasError = $hasError + 1;
+            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
+            last;
+        }
+        else {
+            print("FINE: Execute sql files -> $userName\@$host:$port success.\n\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();
+

@@ -1,0 +1,54 @@
+{
+    "opDesc": "创建RSA密钥",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "创建Unix/Linux操作系统用户的SSH RSA密钥",
+    "option": [{
+            "opt": "user",
+            "name": "用户名",
+            "help": "只需要通过root生成其他用户的key时才需要定义, 否则留空",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "keylen",
+            "name": "密钥长度",
+            "help": "密钥长度，多少Bits",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "2048"
+        },
+        {
+            "opt": "recreate",
+            "name": "重新创建",
+            "help": "如果Key已经存在，则重新创建",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": [{
+        "opt": "pubKey",
+        "name": "SSH公钥",
+        "help": "生成的SSH公钥内容",
+        "type": "text"
+    }]
+}

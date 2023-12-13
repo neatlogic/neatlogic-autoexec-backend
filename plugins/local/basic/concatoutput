@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import json
+import traceback
+import argparse
+import re
+
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--delimiter', default=',', help='String concat delimiter')
+    parser.add_argument('--outputkey', default='', help='Output key')
+    args = parser.parse_args()
+
+    delimiter = args.delimiter
+    outputKey = args.outputkey
+
+    hasOptError = False
+    if outputKey == '':
+        hasOptError = True
+        print("ERROR: Must define output key name by option --outputkey")
+
+    if hasOptError:
+        sys.exit(2)
+
+    outputKey = re.sub(r'^#\{', '', outputKey)
+    outputKey = re.sub(r'\}$', '', outputKey)
+    outputKeyInfo = outputKey.split('.')
+
+    if len(outputKeyInfo) != 3:
+        print("ERROR: Malform output key %s." % (outputKey))
+        sys.exit(3)
+
+    opId = outputKeyInfo[1]
+    varKey = outputKeyInfo[2]
+
+    jobId = os.getenv('AUTOEXEC_JOBID')
+
+    isStr = False
+    aggData = None
+    dbclient = None
+
+    try:
+        (dbclient, db) = AutoExecUtils.getDB()
+        outCollection = db['_node_output']
+
+        print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
+        for nodeOut in outCollection.find(
+                {
+                    'jobId': jobId,
+                    'data.%s' % opId: {'$ne': None},
+                    'host': {'$ne': 'local'}
+                },
+                {
+                    'data.%s' % opId: 1
+                }).batch_size(500):
+
+            val = nodeOut['data'].get(opId).get(varKey)
+            if isinstance(val, str):
+                isStr = True
+                if aggData is None:
+                    aggData = ''
+                aggData = delimiter + aggData + val
+            elif isinstance(val, list):
+                if aggData is None:
+                    aggData = []
+                aggData = aggData + val
+            else:
+                if aggData is None:
+                    aggData = []
+                aggData.append(val)
+
+        if not aggData:
+            print("WARN: Can not find any output for:%s." % (outputKey))
+        else:
+            if isStr:
+                if aggData.startswith(delimiter):
+                    aggData = aggData[len(delimiter):]
+            print("FINE: Aggregate output for:%s success." % (outputKey))
+
+        out = {}
+        if isStr:
+            out['aggTxtData'] = aggData
+            out['aggJsonData'] = {varKey: aggData}
+        else:
+            out['aggTxtData'] = json.dumps(aggData, ensure_ascii=False)
+            out['aggJsonData'] = aggData
+
+        AutoExecUtils.saveOutput(out)
+    except:
+        print('ERROR: Aggregate output for {} failed, {}'.format(outputKey, traceback.format_exc()))
+        sys.exit(1)
+    finally:
+        if dbclient is not None:
+            dbclient.close()

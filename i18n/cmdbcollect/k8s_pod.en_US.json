@@ -1,0 +1,255 @@
+{
+    "label": "K8S_POD",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.PODS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_POD"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "CONDITIONS",
+            "desc": "Conditions",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTPROBETIME",
+                    "desc": "Lastprobetime",
+                    "type": "String"
+                },
+                {
+                    "name": "LASTTRANSITIONTIME",
+                    "desc": "Lasttransitiontime",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAINER_INFO",
+            "desc": "Container Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "IMAGE",
+                    "desc": "Image",
+                    "type": "String"
+                },
+                {
+                    "name": "IMAGEID",
+                    "desc": "Image Id",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTAINERID",
+                    "desc": "Container Id",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAINS_CONTAINER",
+            "desc": "Contains Container",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CONTAINER_ID",
+                    "desc": "Container Id",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DNSPOLICY",
+            "desc": "Dns Policy",
+            "type": "String"
+        },
+        {
+            "name": "GENERATENAME",
+            "desc": "Generatename",
+            "type": "Int"
+        },
+        {
+            "name": "HOSTIP",
+            "desc": "HostIp",
+            "type": "String"
+        },
+        {
+            "name": "LABELS",
+            "desc": "Labels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "Key",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "Namespace",
+            "type": "String"
+        },
+        {
+            "name": "NODENAME",
+            "desc": "NodeName",
+            "type": "String"
+        },
+        {
+            "name": "OWNERREFERENCES",
+            "desc": "OwnerReferences",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "Uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "KIND",
+                    "desc": "Kind",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PHASE",
+            "desc": "Phase",
+            "type": "String"
+        },
+        {
+            "name": "PODIP",
+            "desc": "Pod IP",
+            "type": "String"
+        },
+        {
+            "name": "PODIPS",
+            "desc": "Pod IPS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PRIORITY",
+            "desc": "Priority",
+            "type": "Int"
+        },
+        {
+            "name": "RESTARTPOLICY",
+            "desc": "RestartPolicy",
+            "type": "String"
+        },
+        {
+            "name": "RUN_NODE",
+            "desc": "Run Node",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "k8s node uid",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SCHEDULERNAME",
+            "desc": "SchedulerName",
+            "type": "String"
+        },
+        {
+            "name": "SERVICEACCOUNT",
+            "desc": "ServiceAccount",
+            "type": "String"
+        },
+        {
+            "name": "SERVICEACCOUNTNAME",
+            "desc": "ServiceAccountname",
+            "type": "String"
+        },
+        {
+            "name": "STARTTIME",
+            "desc": "StartTime",
+            "type": "String"
+        },
+        {
+            "name": "TERMINATIONGRACEPERIODSECONDS",
+            "desc": "TerminationGraceperiodSeconds",
+            "type": "Int"
+        },
+        {
+            "name": "UID",
+            "desc": "Uid",
+            "type": "String"
+        }
+    ]
+}

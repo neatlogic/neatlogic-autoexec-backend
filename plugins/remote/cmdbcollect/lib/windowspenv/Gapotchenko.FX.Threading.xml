@@ -1,0 +1,993 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Gapotchenko.FX.Threading</name>
+    </assembly>
+    <members>
+        <member name="T:Gapotchenko.FX.Linq.ParallelEnumerableEx">
+            <summary>
+            Provides an extended set of methods for querying objects that implement <see cref="T:System.Linq.ParallelQuery`1"/>
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Linq.ParallelEnumerableEx.AsDebuggable``1(System.Linq.ParallelQuery{``0})">
+            <summary>
+            Enables debugging-friendly execution of a parallelized query by running it sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <typeparam name="TSource">The type of elements of source.</typeparam>
+            <param name="source">A <see cref="T:System.Linq.ParallelQuery`1"/> on which to set a debug-friendly limit on the degrees of parallelism.</param>
+            <returns><see cref="T:System.Linq.ParallelQuery`1"/> representing the same query as <paramref name="source"/>, with the debugging-friendly limit on the degrees of parallelism set.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Linq.ParallelEnumerableEx.WithMaxDegreeOfParallelism``1(System.Linq.ParallelQuery{``0},System.Int32)">
+            <summary>
+            Sets the maximum degree of parallelism to use in a query.
+            Maximum degree of parallelism is the upper limit of concurrently executing processor tasks that can be used to process the query.
+            </summary>
+            <typeparam name="TSource"></typeparam>
+            <param name="source">A <see cref="T:System.Linq.ParallelQuery`1"/> on which to set the upper limit on the degrees of parallelism.</param>
+            <param name="maxDegreeOfParallelism">The maximum degree of parallelism.</param>
+            <returns><see cref="T:System.Linq.ParallelQuery`1"/> representing the same query as <paramref name="source"/>, with the upper limit on the degrees of parallelism set.</returns>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.Poll">
+            <summary>
+            Provides efficient primitives for polling.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Poll.WaitUntilAsync(System.Func{System.Threading.Tasks.Task{System.Boolean}},System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously waits for a condition to come true by executing an efficient polling strategy.
+            This method can be used to bridge a poll operation to an asynchronous wait task.
+            </summary>
+            <remarks>
+            The efficiency of a polling strategy is achieved by randomizing the delays between the polling attempts.
+            In this way, the peak pressure on a thread pool is minimized by dispersing the thread activation requests on time axis.
+            </remarks>
+            <param name="condition">The asynchronous predicate which defines the condition to wait for.</param>
+            <param name="millisecondsInterval">The amount of time, in milliseconds, to wait between condition polling attempts.</param>
+            <param name="millisecondsTimeout">The amount of time, in milliseconds, to wait for the condition to come true.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns><c>true</c> when the wait condition is met; <c>false</c> when operation is timed out.</returns>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallel">
+            <summary>
+            Provides a drop-in replacement for <see cref="T:System.Threading.Tasks.Parallel"/> class that by default performs a sequential execution of operations when the debugger is attached and parallel execution otherwise.
+            <see cref="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallel"/> is used for writing a debug-friendly code that has a deterministic behavior under debugger.
+            </summary>
+        </member>
+        <member name="P:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.Mode">
+            <summary>
+            Gets or sets the mode of operation.
+            </summary>
+        </member>
+        <member name="P:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.IsParallel">
+            <summary>
+            Gets a value indicating whether to perform parallel execution of operations in the current context.
+            By default, operations are executed sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For``1(System.Int32,System.Int32,System.Func{``0},System.Func{System.Int32,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with thread-local data in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For``1(System.Int64,System.Int64,System.Func{``0},System.Func{System.Int64,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes and thread-local data in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For``1(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Func{``0},System.Func{System.Int32,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with thread-local data in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For``1(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Func{``0},System.Func{System.Int64,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes and thread-local data in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int32,System.Int32,System.Action{System.Int32})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int64,System.Int64,System.Action{System.Int64})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Action{System.Int32})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and loop options can be configured.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Action{System.Int64})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and loop options can be configured.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int32,System.Int32,System.Action{System.Int32,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int64,System.Int64,System.Action{System.Int64,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Action{System.Int32,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.For(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Action{System.Int64,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data and 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data and 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Concurrent.Partitioner{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.OrderablePartitioner{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``1(System.Collections.Concurrent.OrderablePartitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Concurrent.OrderablePartitioner{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes and with thread-local data on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.ForEach``2(System.Collections.Concurrent.OrderablePartitioner{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes and with thread-local data on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially when the debugger is attached or in parallel otherwise,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.Invoke(System.Action[])">
+            <summary>
+            Executes each of the provided actions, sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <param name="actions">An array of <see cref="T:System.Action"/> to execute.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.DebuggableParallel.Invoke(System.Threading.Tasks.ParallelOptions,System.Action[])">
+            <summary>
+            Executes each of the provided actions, sequentially when the debugger is attached or in parallel otherwise.
+            </summary>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="actions">An array of <see cref="T:System.Action"/> to execute.</param>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallelMode">
+            <summary>
+            Defines modes of operation for <see cref="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallel"/> primitive.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Threading.Tasks.DebuggableParallelMode.Auto">
+            <summary>
+            The sequential or parallel execution is automatically selected based on presence of an attached debugger.
+            This is the default mode.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Threading.Tasks.DebuggableParallelMode.AlwaysSequential">
+            <summary>
+            <see cref="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallel"/> always executes operations sequentially.
+            </summary>
+        </member>
+        <member name="F:Gapotchenko.FX.Threading.Tasks.DebuggableParallelMode.AlwaysParallel">
+            <summary>
+            <see cref="T:Gapotchenko.FX.Threading.Tasks.DebuggableParallel"/> always executes operations in parallel.
+            </summary>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.Tasks.Sequential">
+            <summary>
+            Provides a drop-in replacement for <see cref="T:System.Threading.Tasks.Parallel"/> class that performs a sequential execution of operations instead of parallel.
+            Such a replacement is useful for debugging purposes.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For``1(System.Int32,System.Int32,System.Func{``0},System.Func{System.Int32,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with thread-local data in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For``1(System.Int64,System.Int64,System.Func{``0},System.Func{System.Int64,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes and thread-local data in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For``1(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Func{``0},System.Func{System.Int32,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with thread-local data in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For``1(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Func{``0},System.Func{System.Int64,System.Threading.Tasks.ParallelLoopState,``0,``0},System.Action{``0})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes and thread-local data in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int32,System.Int32,System.Action{System.Int32})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially
+            and loop options can be configured,
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int64,System.Int64,System.Action{System.Int64})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially
+            and loop options can be configured.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Action{System.Int32})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially
+            and loop options can be configured.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Action{System.Int64})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially
+            and loop options can be configured,
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int32,System.Int32,System.Action{System.Int32,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int64,System.Int64,System.Action{System.Int64,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int32,System.Int32,System.Threading.Tasks.ParallelOptions,System.Action{System.Int32,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.For(System.Int64,System.Int64,System.Threading.Tasks.ParallelOptions,System.Action{System.Int64,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>for</c> (<c>For</c> in Visual Basic) loop with 64-bit indexes in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <param name="fromInclusive">The start index, inclusive.</param>
+            <param name="toExclusive">The end index, exclusive.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data and 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data and 64-bit indexes on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the data in the source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">An enumerable data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially
+            and loop options can be configured.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Concurrent.Partitioner{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Concurrent.Partitioner{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with thread-local data on a <see cref="T:System.Collections.Concurrent.Partitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.OrderablePartitioner{``0},System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``1(System.Collections.Concurrent.OrderablePartitioner{``0},System.Threading.Tasks.ParallelOptions,System.Action{``0,System.Threading.Tasks.ParallelLoopState,System.Int64})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Concurrent.OrderablePartitioner{``0},System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes and with thread-local data on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.ForEach``2(System.Collections.Concurrent.OrderablePartitioner{``0},System.Threading.Tasks.ParallelOptions,System.Func{``1},System.Func{``0,System.Threading.Tasks.ParallelLoopState,System.Int64,``1,``1},System.Action{``1})">
+            <summary>
+            Executes a <c>foreach</c> (<c>For Each</c> in Visual Basic) operation with 64-bit indexes and with thread-local data on a <see cref="T:System.Collections.Concurrent.OrderablePartitioner`1"/> in which iterations are run sequentially,
+            loop options can be configured,
+            and the state of the loop can be monitored and manipulated.
+            </summary>
+            <typeparam name="TSource">The type of the elements in source.</typeparam>
+            <typeparam name="TLocal">The type of the thread-local data.</typeparam>
+            <param name="source">The orderable partitioner that contains the original data source.</param>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="localInit">The function delegate that returns the initial state of the local data for each task.</param>
+            <param name="body">The delegate that is invoked once per iteration.</param>
+            <param name="localFinally">The delegate that performs a final action on the local state of each task.</param>
+            <returns>A structure that contains information about which portion of the loop completed.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.Invoke(System.Action[])">
+            <summary>
+            Executes each of the provided actions, sequentially.
+            </summary>
+            <param name="actions">An array of <see cref="T:System.Action"/> to execute.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.Sequential.Invoke(System.Threading.Tasks.ParallelOptions,System.Action[])">
+            <summary>
+            Executes each of the provided actions, sequentially.
+            </summary>
+            <param name="parallelOptions">An object that configures the behavior of this operation.</param>
+            <param name="actions">An array of <see cref="T:System.Action"/> to execute.</param>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.Tasks.TaskBridge">
+            <summary>
+            Bridges together synchronous and asynchronous task execution models.
+            </summary>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute(System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Synchronously executes an async task with a void return value.
+            </summary>
+            <param name="task">The async task to execute.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute(System.Threading.Tasks.Task)">
+            <summary>
+            Synchronously completes execution of an already started async task.
+            </summary>
+            <param name="task">The async task to execute.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Synchronously completes execution of an already started async task that returns a value of type <typeparamref name="T"/>.
+            </summary>
+            <param name="task">The async task to execute.</param>
+            <returns>The return value.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Synchronously executes a cancelable async task with a void return value.
+            If the current thread is being aborted or interrupted then a corresponding cancellation request is issued for the given task.
+            </summary>
+            <param name="task">The cancelable async task to execute.</param>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute``1(System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Synchronously executes an async task with a return value of type <typeparamref name="T"/>.
+            </summary>
+            <param name="task">The async task to execute.</param>
+            <returns>The return value.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.Execute``1(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Synchronously executes an async task with a return value of type <typeparamref name="T"/>.
+            If the current thread is being aborted or interrupted then a corresponding cancellation request is issued for the given task.
+            </summary>
+            <param name="task">The cancelable async task to execute.</param>
+            <returns>The return value.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.ExecuteAsync(System.Action)">
+            <summary>
+            Asynchronously executes a synchronous long-running action.
+            </summary>
+            <param name="action">The synchronous action to execute.</param>
+            <returns>The task.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.ExecuteAsync``1(System.Func{``0})">
+            <summary>
+            Asynchronously executes a synchronous long-running function with a return value of type <typeparamref name="T"/>.
+            </summary>
+            <param name="func">The synchronous function to execute.</param>
+            <returns>The task.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.ExecuteAsync(System.Action,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously executes a synchronous and cancelable long-running action.
+            If the asynchronous task is canceled via cancellation token then a thread abort is issued for the execution thread of a synchronous action.
+            </summary>
+            <param name="action">The cancelable synchronous action to execute.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The task.</returns>
+        </member>
+        <member name="M:Gapotchenko.FX.Threading.Tasks.TaskBridge.ExecuteAsync``1(System.Func{``0},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously executes a synchronous and cancelable long-running function with a return value of type <typeparamref name="T"/>.
+            If the asynchronous task is canceled via cancellation token then a thread abort is issued for the execution thread of a synchronous function.
+            </summary>
+            <param name="func">The cancelable synchronous function to execute.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The task.</returns>
+        </member>
+        <member name="T:Gapotchenko.FX.Threading.ThreadingCapabilities">
+            <summary>
+            Provides information about multithreading capabilities.
+            </summary>
+        </member>
+        <member name="P:Gapotchenko.FX.Threading.ThreadingCapabilities.LogicalProcessorCount">
+            <summary>
+            Gets the number of logical processors available to the current process.
+            </summary>
+        </member>
+    </members>
+</doc>

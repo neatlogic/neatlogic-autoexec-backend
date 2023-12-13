@@ -1,0 +1,54 @@
+{
+    "label": "未知设备",
+    "collection": "COLLECT_UNKNOWN",
+    "docroot": null,
+    "collection_label": "UnknowDevice",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "设备类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "型号",
+            "type": "String"
+        },
+        {
+            "name": "STATUS",
+            "desc": "配置状态",
+            "type": "String"
+        },
+        {
+            "name": "SYS_DESCR",
+            "desc": "对象描述",
+            "type": "String"
+        },
+        {
+            "name": "SYS_NAME",
+            "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "SYS_OBJECT_ID",
+            "desc": "对象OID",
+            "type": "String"
+        }
+    ]
+}

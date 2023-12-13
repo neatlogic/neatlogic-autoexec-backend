@@ -1,0 +1,309 @@
+{
+    "label": "Host",
+    "collection": "COLLECT_HOST",
+    "docroot": null,
+    "collection_label": "Host",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "PRODUCT_NAME",
+            "desc": "Product Name",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_PORT",
+            "desc": "Management Port",
+            "type": "Int"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "IS_VIRTUAL",
+            "desc": "Is Virtual",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "OS_ID",
+            "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "MACHINE_ID",
+            "desc": "Machine ID",
+            "type": "String"
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "CPU Count",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU Cores",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU Frequency",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU Model Name",
+            "type": "String"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU Architecture",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU Microcode",
+            "type": "String"
+        },
+        {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS Version",
+            "type": "String"
+        },
+        {
+            "name": "DISKS",
+            "desc": "Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "IS_VRITUAL",
+                    "desc": "Is Virtual",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
+            "name": "ESXI_IP",
+            "desc": "Esxi IP",
+            "type": "String"
+        },
+        {
+            "name": "HBA_INTERFACES",
+            "desc": "HBA Interfaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
+                    "desc": "Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "WWPN",
+                    "desc": "Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "IS_VIRTUAL",
+                    "desc": "是否虚拟",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Float"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Connted FC Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Cat",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Managent IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MANUFACTURER",
+            "desc": "Manufacturer",
+            "type": "String"
+        },
+        {
+            "name": "MEM_MAXIMUM_CAPACITY",
+            "desc": "Memory Maximum Capacity",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SLOTS",
+            "desc": "Memory Slots",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_SPEED",
+            "desc": "Memory Speed",
+            "type": "String"
+        },
+        {
+            "name": "POWER CORDS_COUNT",
+            "desc": "Power Cords Count",
+            "type": "String"
+        },
+        {
+            "name": "UUID",
+            "desc": "Vcenter UUID",
+            "type": "String"
+        }
+    ]
+}

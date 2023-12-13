@@ -1,0 +1,684 @@
+#!/usr/bin/python3
+import json
+import os
+import argparse
+import sys
+import datetime
+import hashlib
+import urllib.request
+import urllib.parse
+from urllib.error import URLError
+from urllib.error import HTTPError
+
+import AutoExecUtils
+
+class FusionComputer:
+
+    def __init__(self, ip, port ,username, password, isVerbose):
+        self.ip = ip
+        self.port = port
+        self.username = username
+        self.password = password
+        self.isVerbose = isVerbose
+        self.baseurl = "https://{}:{}/service/".format(ip , port)
+        
+        self.apiMap = {
+            'version' : 'versions',
+            'auth': 'session',
+            'sites':'sites',
+            'clusters': '{sites}/clusters',
+            'hosts': '{sites}/hosts',
+            'vms':'{sites}/vms',
+            'datastores':'{sites}/datastores',
+            'alarms':'{sites}/alarms/activeAlarms'
+        }
+
+    def addHeaders(self, request, headers):
+        for k, v in headers.items():
+            request.add_header(k, v)
+
+    def httpPOST(self, apiUri, authToken, params=None):
+        url = self.serverBaseUrl + apiUri
+        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'User-Agent': userAgent,'X-Auth-Token': authToken}
+        if params != None :
+            data = urllib.parse.urlencode(params)
+            req = urllib.request.Request(url, bytes(data, 'utf-8'))
+        else :
+            req = urllib.request.Request(url)
+        self.addHeaders(req, headers)
+        response = None 
+        try:
+            response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
+        except URLError as ex:
+            print("ERROR: :Request url:{} failed, {}\n".format(url, ex.reason))
+        return response
+
+    def httpGET(self, apiUri, authToken, params=None):
+        url = self.serverBaseUrl + apiUri
+        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        headers = {'User-Agent': userAgent,'X-Auth-Token': authToken}
+        if params != None :
+            data = urllib.parse.urlencode(params)
+            url = url + '?' + data
+        req = urllib.request.Request(url)
+        self.addHeaders(req, headers)
+        response = None 
+        try:
+            response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+                print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
+        except URLError as ex:
+            print("ERROR: :Request url:{} failed, {}".format(url, ex.reason))
+
+        return response
+
+    def httpJSON(self, apiUri, authToken, params=None):
+        url = self.serverBaseUrl + apiUri
+        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        headers = {'Content-Type': 'application/json; charset=utf-8','User-Agent': userAgent,'X-Auth-Token': authToken, }
+
+        req = urllib.request.Request(url, bytes(json.dumps(params), 'utf-8'))
+        self.addHeaders(req, headers)
+        response = None 
+        try:
+            response = urllib.request.urlopen(req)
+        except HTTPError as ex:
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+                errObj = json.loads(content)
+                errMsg = errObj['Message']
+            print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
+        except URLError as ex:
+            print("ERROR: :Request url:{} failed, {}".format(url, ex.reason))
+        return response
+    
+    def sha256hex(self , password):
+        sha256 = hashlib.sha256()
+        sha256.update(password.encode())
+        res = sha256.hexdigest()
+        print("sha256加密结果:", res)
+        return res
+    
+    def auth(self):
+        auth_key = self.sha256hex(self.password)
+        url = self.baseurl + self.apiMap['auth']
+        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 
+            'User-Agent': userAgent,
+            'X-Auth-User': self.username,
+            'X-Auth-Key': auth_key,
+            'X-Auth-UserType': 0
+            }
+        req = urllib.request.Request(url)
+        self.addHeaders(req, headers)
+        token = None 
+        try:
+            response = urllib.request.urlopen(req)
+            token = response.headers.get("X-Auth-Token")
+        except HTTPError as ex:
+            errMsg = ex.code
+            if ex.code > 500:
+                content = ex.read()
+            print("ERROR:: Login authentication {} failed, {}".format(url, content))
+        except URLError as ex:
+            print("ERROR:: Login authentication {} failed, {}\n".format(url, ex.reason))
+        self.authToken = token
+        return token
+    
+    def getVersion(self):
+        obj = {}
+        obj['VENDOR'] = 'Huawei'
+        response = self.httpGET(self.apiMap['version'], self.authToken)
+        if response is None : 
+            return obj
+        
+        """
+        {
+            "versions": [
+                {
+                    "loginUri": "/service/session",
+                    "version": "v6.3"
+                },
+                {
+                    "loginUri": "/service/session",
+                    "version": "v6.5"
+                }
+            ]
+        }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['versions']
+            for ver in items :
+                obj['VERSION'] = ver['version']
+        else:
+            print("ERROR:: Request FusionComputer get version failed .\n")
+        return obj
+
+
+    def getSites(self):
+        sites = []
+        response = self.httpGET(self.apiMap['sites'], self.authToken)
+        if response is None : 
+            return sites
+        
+        """
+        {
+            "sites": [
+                {
+                    "ip": "10.10.101.227",
+                    "isDC": false,
+                    "isSelf": true,
+                    "mgntNetworkType": "ipv4",
+                    "name": "site123",
+                    "status": "normal",
+                    "uri": "/service/sites/389F07DF",
+                    "urn": "urn:sites:389F07DF"
+                }
+            ]
+        }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['sites']
+            for site in items :
+                dc = {} 
+                dc['_OBJ_CATEGORY'] = "VIRTUALIZED"
+                dc['_OBJ_TYPE'] = "VMWARE-DATACENTER"
+                moid = site['urn'].split(':')[2]
+                dc['MOID'] = moid
+                dc['NAME'] = site['name']
+                dc['URI'] = site['uri']
+                dc['URN'] = site['urn']
+                sites.append(dc)
+        else:
+            print("ERROR:: Request FusionComputer get sites failed .\n")
+        return sites
+
+
+    def getClusters(self , uri):
+        clusters = []
+        url = self.apiMap['clusters']
+        url = url.replace('{sites}' , uri)
+        response = self.httpGET( url , self.authToken)
+        if response is None : 
+            return clusters
+        """
+        {
+            "clusters": [
+                {
+                    "cpuResource": {
+                        "allocatedSizeMHz": 13600,
+                        "totalSizeMHz": 71400
+                    },
+                    "description": "额外付出",
+                    "isAutoAdjustNuma": false,
+                    "memResource": {
+                        "allocatedSizeMB": 136932,
+                        "realtimeUsedSizeMB": 136932,
+                        "totalSizeMB": 166614
+                    },
+                    "name": "ManagementCluster",
+                    "tag": "domain/default",
+                    "uri": "/service/sites/389F07DF/clusters/117",
+                    "urn": "urn:sites:389F07DF:clusters:117"
+                }
+            ]
+        }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['clusters']
+            for cluster in items :
+                clu = {} 
+                clu['_OBJ_CATEGORY'] = "VIRTUALIZED"
+                clu['_OBJ_TYPE'] = "VMWARE-CLUSTER"
+                moid = cluster['urn'].split(':')[4]
+                clu['MOID'] = moid
+                clu['NAME'] = cluster['name']
+                clu['TAG'] = cluster['tag']
+                clu['DESCRIPTION'] = cluster['description']
+                clu['URI'] = cluster['uri']
+                clu['URN'] = cluster['urn']
+                clusters.append(clu)
+        else:
+            print("ERROR:: Request FusionComputer get clusters failed .\n")
+        return clusters
+
+    def getHosts(self , uri):
+        hosts = []
+        url = self.apiMap['hosts']
+        url = url.replace('{sites}' , uri)
+        response = self.httpGET( url , self.authToken)
+        if response is None : 
+            return hosts
+        """
+        {
+            "total": 3,
+            "hosts": [
+                {
+                    "attachedISOVMs": [],
+                    "clusterEnableIOTailor": false,
+                    "clusterName": "ManagementCluster",
+                    "clusterUrn": "urn:sites:389F07DF:clusters:117",
+                    "computeResourceStatics": "/service/sites/389F07DF/hosts/177/computeResourceStatics",
+                    "cpuMHz": 1700,
+                    "cpuMuxRatio": "121.43",
+                    "cpuQuantity": 14,
+                    "cpuResource": {
+                        "allocatedSizeMHz": 6800,
+                        "manageCPUs": "0,1",
+                        "totalSizeMHz": 23800
+                    },
+                    "gdvmMemoryReboot": 128,
+                    "gpuCapacity": -1,
+                    "gpuCapacityReboot": -1,
+                    "gsvmMemoryReboot": 128,
+                    "hostMultiPathMode": "CURRENCY",
+                    "hostRealName": "CNA001",
+                    "ip": "10.10.101.224",
+                    "isFailOverHost": false,
+                    "isMaintaining": false,
+                    "maxImcSetting": "Skylake-Server",
+                    "memMuxRatio": "68.09",
+                    "memQuantityMB": 55538,
+                    "memResource": {
+                        "allocatedSizeMB": 37817,
+                        "realtimeUsedSizeMB": 37817,
+                        "totalSizeMB": 55538
+                    },
+                    "multiPathMode": "CURRENCY",
+                    "name": "CNA001",
+                    "nicQuantity": 6,
+                    "physicalCpuQuantity": 2,
+                    "status": "normal",
+                    "uri": "/service/sites/389F07DF/hosts/177",
+                    "urn": "urn:sites:389F07DF:hosts:177",
+                    "uuid": "767f6399-0725-41f4-a658-ea8073eda332"
+                },
+                ...
+            ]
+        }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['clusters']
+            for host in items :
+                ins = {} 
+                ins['_OBJ_CATEGORY'] = "HOST"
+                ins['_OBJ_TYPE'] = "HOST"
+                moid = host['urn'].split(':')[4]
+                ins['MOID'] = moid
+                cpunum = int(host['physicalCpuQuantity'])
+                cpuQuantity = int(host['cpuQuantity'])
+                ins['CPU_CORES'] = cpuQuantity/cpunum
+                ins['CPU_THREADS'] = cpuQuantity
+                ins['CPU_NUM'] = cpunum
+                ins['NAME'] = host['name']
+                ins['URI'] = host['uri']
+                ins['URN'] = host['urn']
+                memQuantityMB = host['memQuantityMB']
+                ins['MEM_MAXIMUM_CAPACITY'] = int(memQuantityMB/1024)
+                ins['IP'] = host['ip']
+                ins['UUID'] = host['uuid']
+                ins['CLUSTERURN'] = host['clusterUrn']
+                ins['CLUSTERNAME'] = host['clusterName']
+                ins['ISMAINTAINING'] = host['isMaintaining']
+                ins['ISFAILOVERHOST'] = host['isFailOverHost']
+                ins['STATUS'] = host['status']
+                ins['NICQUANTITY'] = host['nicQuantity']
+                hosts.append(ins)
+        else:
+            print("ERROR:: Request FusionComputer get hosts failed .\n")
+        return hosts
+
+    def  getVms(self , uri , hosts):
+        vms = []
+        url = self.apiMap['vms']
+        url = url.replace('{sites}' , uri)
+        #默认限制每页查询100
+        url = url + '?limit=500000'
+        response = self.httpGET( url , self.authToken)
+        if response is None : 
+            return vms
+        """
+        {
+            "total": 14,
+            "vms": [
+                {
+                    "cdRomStatus": "empty",
+                    "clusterName": "ManagementCluster",
+                    "clusterUrn": "urn:sites:389F07DF:clusters:117",
+                    "createTime": "2020-04-27 06:55:37",
+                    "description": "",
+                    "drStatus": 9,
+                    "group": "",
+                    "hostName": "CNA003",
+                    "hostUrn": "urn:sites:389F07DF:hosts:304",
+                    "hugePage": "4K",
+                    "idle": -1,
+                    "initSyncStatus": 0,
+                    "isBindingHost": false,
+                    "isLinkClone": false,
+                    "isTemplate": false,
+                    "location": "urn:sites:389F07DF:clusters:117",
+                    "locationName": "ManagementCluster",
+                    "minCompatibleimcSetting": "Skylake-Server",
+                    "name": "Tenant02",
+                    "objectPrivs": [],
+                    "params": {
+                        "snapshotNum": "0"
+                    },
+                    "pvDriverStatus": "running",
+                    "rpoStatus": 0,
+                    "status": "running",
+                    "toolInstallStatus": "empty",
+                    "toolsVersion": "2.5.0.156",
+                    "uri": "/service/sites/389F07DF/vms/i-0000000F",
+                    "urn": "urn:sites:389F07DF:vms:i-0000000F",
+                    "uuid": "f8f7acd4-6696-465d-ad56-e4eb9119df07",
+                    "vmConfig": {
+                        "nics": [
+                            {
+                                "ip": "10.10.101.243",
+                                "ipList": "10.10.101.243",
+                                "ips6": [],
+                                "mac": "28:6e:d4:89:54:da",
+                                "sequenceNum": 0
+                            }
+                        ],
+                        "numaNodes": 0,
+                        "properties": {
+                            "dpiVmType": "",
+                            "secureVmType": ""
+                        }
+                    },
+                    "vmType": 0
+                }
+            ]
+        }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['vms']
+            for vm in items :
+                ins = {} 
+                ins['_OBJ_CATEGORY'] = "OS"
+                osType = 'Linux'
+                if vm['vmType'] != 0 :
+                    osType = 'Windows'
+                ins['_OBJ_CATEGORY'] = osType
+                moid = vm['urn'].split(':')[4]
+                ins['VM_ID'] = moid
+                ins['NAME'] = vm['name']
+                ins['URI'] = vm['uri']
+                ins['URN'] = vm['urn']
+                ins['OS_TYPE'] = osType
+                ins['UUID'] = vm['uuid']
+                ins['DESCRIPTION'] = vm['description']
+                ins['STATUS'] = vm['status']
+                ins['CREATETIME'] = vm['createTime']
+                nics = vm['vmConfig']['nics']
+                for nic in nics :
+                    ip = nic['ip']
+                    ins['IP'] = ip 
+                    break
+
+                #与物理机的关系
+                for host in hosts :
+                    if host['URN'] == vm['hostUrn']:
+                        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','IP':host['IP'],'UUID':host['UUID']}]
+                
+                vms.append(ins)
+        else:
+            print("ERROR:: Request FusionComputer get vms failed .\n")
+        return vms
+
+    def getDatastores(self , uri):
+        datastores = []
+        url = self.apiMap['datastores']
+        url = url.replace('{sites}' , uri)
+        response = self.httpGET( url , self.authToken)
+        if response is None : 
+            return datastores
+        """
+        {
+            "datastores": [
+                {
+                    "actualCapacityGB": 482,
+                    "actualFreeSizeGB": 263,
+                    "capacityGB": 482,
+                    "clusterSize": 1024,
+                    "dsLockType": 0,
+                    "freeSizeGB": 263,
+                    "hosts": [
+                        "urn:sites:389F07DF:hosts:177"
+                    ],
+                    "isThin": true,
+                    "name": "autoDS_CNA001",
+                    "refreshTime": "2020-05-09 01:28:43",
+                    "status": "NORMAL",
+                    "storageType": "LOCALPOME",
+                    "storageUnits": [
+                        {
+                            "sdName": "LOCAL",
+                            "suName": "36c0111875d52a925255f83c609f0d08e",
+                            "urn": "2F9C10B39BB545A39549DF00129AEBC7"
+                        }
+                    ],
+                    "suIdList": [],
+                    "suName": "36c0111875d52a925255f83c609f0d08e",
+                    "suUrn": "urn:sites:389F07DF:storageunits:2F9C10B39BB545A39549DF00129AEBC7",
+                    "thinRate": 100,
+                    "uri": "/service/sites/389F07DF/datastores/1",
+                    "urn": "urn:sites:389F07DF:datastores:1",
+                    "usedSizeGB": 364
+                }
+            ]
+        ]
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['datastores']
+            for obj in items :
+                ins = {} 
+                urns = obj['urn'].split(':')
+                ins['MOID'] = urns[3] + '-' + urns[4]
+                ins['NAME'] = obj['name']
+                ins['STATUS'] = obj['status']
+                ins['TYPE'] = obj['storageType']
+                capacity = int(obj['capacityGB'])
+                available = int(obj['freeSizeGB'])
+                used = capacity - available
+                used_pct = round((used/capacity)*100)
+                ins['CAPACITY'] = capacity
+                ins['AVAILABLE'] = available
+                ins['USED'] = used
+                ins['USED'] = used_pct
+                ins['UNIT'] ='GB'
+                ins['PATH'] = obj['urn']
+                datastores.append(ins)
+        else:
+            print("ERROR:: Request FusionComputer get datastores failed .\n")
+        return datastores
+
+    def getAlarms(self , uri , alarms):
+        url = self.apiMap['alarms']
+        url = url.replace('{sites}' , uri)
+        response = self.httpGET( url , self.authToken)
+        if response is None : 
+            return alarms
+        """
+            {
+                "total": 24,
+                "updateFlag": 1,
+                "viewId": 0,
+                "pageno": 0,
+                "itemSize": 24,
+                "items": [
+                    {
+                        "iDisplay": "未屏蔽",
+                        "dtArrivedTime": "1587961783079",
+                        "dtOccurTime": "1587961802085",
+                        "dtClearTime": "-",
+                        "objectUrn": "urn:sites:389F07DF:vrms:2",
+                        "svAdditionalInfo": "-",
+                        "svAlarmName": "VRM未配置NTP时钟源",
+                        "iSyncNo": 4,
+                        "iParse": 0,
+                        "svAlarmCause": "-",
+                        "iAlarmCategory": "原始告警",
+                        "svClearAlarmUserName": "-",
+                        "objectType": "否",
+                        "iClearType": "-",
+                        "svMoc": "vrms",
+                        "dtUpdateTime": "-",
+                        "svLocationInfo": "-",
+                        "iAlarmLevel": "重要",
+                        "iAffectOpFlag": "不影响",
+                        "iSerialNo": 3,
+                        "svEventType": "业务质量事件",
+                        "urnByName": "VRM02",
+                        "svAlarmID": "15.1007019",
+                        "iAutoClear": "是"
+                    }
+                ]
+            }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['items']
+            for obj in items :
+                alarm = {} 
+                alarm['KEY'] = obj['objectUrn']
+                alarm['NAME'] = obj['urnByName']
+                alarm['ENTITY'] = obj['svEventType']
+                alarm['STATUS'] = obj['iAlarmLevel']
+                alarm['TIME'] = datetime.strftime(datetime.fromtimestamp(obj['dtOccurTime']), '%Y-%m-%d %H:%M:%S')
+                alarm['MESSAGE'] = obj['svAlarmName'] + ':' + obj['svAdditionalInfo']
+                alarms.append(alarm)
+        else:
+            print("ERROR:: Request FusionComputer get alarms failed .\n")
+        return alarms
+
+    def collect(self):
+        authToken = self.auth()
+        data = {}  
+        if authToken is None :
+            return data 
+        
+        data = self.getVersion()
+        data['MGMT_IP'] = self.ip
+        data['MGMT_PORT'] = self.port
+        data['_OBJ_CATEGORY'] = 'VIRTUALIZED'
+        data['_OBJ_TYPE'] = 'FUSIONCOMPUTER'
+        data['PK'] = ["MGMT_IP"]
+
+        #数据中心(资源池)
+        sites = self.getSites()
+        newsites = []
+        alarms = []
+        for site in sites :
+            uri = site['URI']
+            #urn = site['URN']
+
+            #集群
+            clusters = self.getClusters(uri)
+            site['CLUSTERS'] = clusters
+
+            #物理机
+            hosts = self.getHosts(uri)
+            site['HOSTS'] = hosts
+
+            #虚拟机
+            vms = self.getVms(uri , hosts)
+            site['VMS'] = vms
+
+            for cluster in clusters :
+                rel_host = []
+                for host in hosts :
+                    if host['CLUSTERNAME'] == cluster['CLUSTERNAME'] :
+                        rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'IP':host['IP']})
+                cluster['CONTAIN_HOST'] = rel_host
+
+                rel_vms = []
+                for vm in vms :
+                    if host['CLUSTERNAME'] == cluster['CLUSTERNAME'] :
+                        vm['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED','_OBJ_CATEGORY': 'VMWARE-CLUSTER','MOID': cluster['MOID'],'NAME':cluster['NAME'],'URN':cluster['URN']}]
+                        rel_vms.append({'_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': vm['OS_TYPE'], 'MGMT_IP': vm['IP'], 'VM_ID': vm['VM_ID']})
+                cluster['CONTAIN_VMS'] = rel_vms
+            newsites.append(site)
+
+            #告警
+            self.getAlarms(uri , alarms)
+
+        data['DATACENTER'] = newsites
+        data['ALARMS'] = alarms
+        return data 
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <manage ip> --user <user> --password <password> ")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='管理IP')
+    parser.add_argument('--port', default='7443', help='管理端口')
+    parser.add_argument('--user', default='', help='vcenter console login user')
+    parser.add_argument('--password', default='', help='vcenter console login user password')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+    args = parser.parse_args()
+
+    ip = args.ip
+    user = args.user
+    password = args.password
+    port = args.port
+    isVerbose = int(args.verbose)
+    node = os.getenv('AUTOEXEC_NODE')
+    if node != None and node != '':
+        node = json.loads(node)
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == None or password == '') and (node == None or node == '')):
+        usage()
+
+    if ((ip == None or ip == '' or user == None or user == '' or password == '' or password == None) and node != None):
+        ip = node['host']
+        port = node['port']
+        if port is None or port == '' : 
+            port = node['protocolPort']
+        user = node['username']
+        password = node['password']
+    
+    if port is None :
+        port = 7443
+
+    data = []
+    fus = FusionComputer(ip, port , user, password, isVerbose)
+    result = fus.collect()
+    data.append(result)
+
+    out = {}
+    out['DATA'] = data
+    AutoExecUtils.saveOutput(out)
+
+    if isVerbose == 1:
+        print("==================\n")
+        print(json.dumps(data))
+        print("==================\n")

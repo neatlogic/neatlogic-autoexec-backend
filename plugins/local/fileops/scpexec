@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use Cwd;
+
+use SCPExec;
+use DeployUtils;
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--node NodeJson] [--direction push|pull]\n");
+    print("              [--np NoPermission] [--src SourceDirectory] [--dest DestinationDirectory] \n");
+    print("\n");
+    print("       --node:      Host node json\n");
+    print("       --direction: push from local site to remote site or pull from remote site to local site .\n");
+    print("       --np:        not preserve the mode of file\n");
+    print("       --src:       copy source path ,many src path , separated .\n");
+    print("       --dest:      remote target path .\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose );
+    my ( $node, $direction, $src, $dest, $np );
+    AutoExecUtils::setEnv();
+
+    my $pname = $FindBin::Script;
+    $isVerbose = 0;
+    $np        = 0;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'node=s'      => \$node,
+        'np=i'        => \$np,
+        'direction:s' => \$direction,
+        'src:s'       => \$src,
+        'dest:s'      => \$dest
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( not defined($direction) or $direction eq '' ) {
+        print("ERROR: Must define direction value pull or push .\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($src) or $src eq '' ) {
+        print("ERROR: Must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $src =~ /\/\.\.\// or $src =~ /^\.\.\// or $src =~ /\/\.\.$/ ) {
+        print("ERROR: Src path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( not defined($dest) or $dest eq '' ) {
+        print("ERROR: Must define src path.\n");
+        $optionError = 1;
+    }
+    if ( $dest =~ /\/\.\.\// or $dest =~ /^\.\.\// or $dest =~ /\/\.\.$/ ) {
+        print("ERROR: Dest path can not has parent dir opertor:\"..\".\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $host  = $nodeInfo->{host};
+    my $port  = $nodeInfo->{protocolPort};
+    my $user  = $nodeInfo->{username};
+    my $pass  = $nodeInfo->{password};
+    my $insId = $nodeInfo->{resourceId};
+
+    #my $insName = $nodeInfo->{nodeName};
+    my $insUniqName = $nodeInfo->{nodeUniqName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    if ( not defined($port) ) {
+        $port = 22;
+    }
+
+    my $ret      = 0;
+    my @src_dirs = split( /,/, $src );
+    my $src_path = '';
+    if ( $direction eq 'push' ) {
+        foreach my $dir (@src_dirs) {
+            $src_path = "$src_path $dir";
+        }
+        $dest = "$user\@$host:$dest";
+        $ret  = myExec(
+            host        => $host,
+            port        => $port,
+            username    => $user,
+            password    => $pass,
+            source      => $src_path,
+            destination => $dest,
+            verbose     => $isVerbose,
+            notpreserve => $np
+        );
+    }
+    elsif ( $direction eq 'pull' ) {
+        foreach my $dir (@src_dirs) {
+            $src_path = "$user\@$host:$dir";
+            $ret      = myExec(
+                host        => $host,
+                port        => $port,
+                username    => $user,
+                password    => $pass,
+                source      => $src_path,
+                destination => $dest,
+                verbose     => $isVerbose,
+                notpreserve => $np
+            );
+            if ( $ret ne 0 ) {
+                last;
+            }
+        }
+    }
+
+    if ( $ret ne 0 ) {
+        print("ERROR: $pname --$direction $src $dest failed.\n");
+    }
+    else {
+        print("INFO: $pname --$direction $src $dest success.\n");
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+sub myExec {
+    my (%args)    = @_;
+    my $host      = $args{host};
+    my $port      = $args{port};
+    my $user      = $args{username};
+    my $pass      = $args{password};
+    my $src       = $args{source};
+    my $dest      = $args{destination};
+    my $isVerbose = $args{verbose};
+    my $np        = $args{notpreserve};
+
+    my $scpExec = new SCPExec(
+        host        => $host,
+        port        => $port,
+        username    => $user,
+        password    => $pass,
+        source      => $src,
+        destination => $dest,
+        verbose     => $isVerbose,
+        notpreserve => $np
+    );
+
+    my $rc = $scpExec->exec();
+    return $rc;
+}
+
+exit( main() );

@@ -1,0 +1,44 @@
+{
+    "opDesc": "生成顺序主机名",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "根据参数输入的多个节点的Json, 按照IP排序生成带序号的主机名",
+    "option": [
+        {
+            "opt": "nodes",
+            "name": "节点列表",
+            "help": "需要生成带序号主机名的节点列表",
+            "type": "node",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "nameprefix",
+            "name": "主机名(不带序号）",
+            "help": "主机名前缀(不带序号部分)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "nodeIp2Hostname",
+            "name": "IP主机名映射",
+            "help": "把IP转换为主机名的Map",
+            "type": "json"
+        },
+        {
+            "opt": "hostsConfTxt",
+            "name": "hosts配置内容",
+            "help": "/etc/hosts配置内容",
+            "type": "textarea",
+            "defaultValue": ""
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+{
+    "opDesc": "擦除磁盘头信息",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "擦除磁盘头信息",
+    "option": [],
+    "output": [],
+    "argument": {
+        "name": "磁盘路径",
+        "help": "磁盘路径文本内容",
+        "type": "textarea",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}

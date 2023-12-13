@@ -1,0 +1,188 @@
+{
+    "label": "Vmware-DataCenter",
+    "collection": "COLLECT_VIRTUALIZED",
+    "docroot": "DATACENTER",
+    "collection_label": "Virtualized",
+    "filter": {
+        "_OBJ_TYPE": "VMWARE-DATACENTER"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER",
+            "desc": "Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MOID",
+                    "desc": "MOID",
+                    "type": "String"
+                },
+                {
+                    "name": "DATASTORE",
+                    "desc": "DataStore",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MOID",
+                            "desc": "MOID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CAPACITY",
+                            "desc": "Capacity(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "AVAILABLE",
+                            "desc": "Available(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "Used(GB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "Used pct%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "Status",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PATH",
+                            "desc": "URL",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UNIT",
+                            "desc": "Unit",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "NETWORK",
+                    "desc": "Network",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MOID",
+                            "desc": "MOID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "STATUS",
+                            "desc": "Status",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAIN_HOST",
+                    "desc": "Contain Host",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "UUID",
+                            "desc": "uuid",
+                            "type": "String"
+                        },
+                        {
+                            "name": "BOARD_SERIAL",
+                            "desc": "Board Serial",
+                            "type": "String"
+                        },
+                        {
+                            "name": "ESXI_IP",
+                            "desc": "ESXI IP",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONTAIN_VMS",
+                    "desc": "Contain Virtual System",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Vm IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VM_ID",
+                            "desc": "Virtual System ID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "HOST_ON",
+                            "desc": "Run Host",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "UUID",
+                                    "desc": "uuid",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "BOARD_SERIAL",
+                                    "desc": "Board Serial",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "ESXI_IP",
+                                    "desc": "ESXI IP",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MOID",
+            "desc": "id",
+            "type": "String"
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "opDesc": "保存文本文件到仓库",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "保存文本文件到仓库",
+    "enabled": 1,
+    "option": [{
+            "opt": "fileslist",
+            "name": "文件信息列表",
+            "help": "文件信息列表，[{'fileName':'xxx', 'fullPath':'yyyy', 'serverPath':'zzz', 'modifyTime':1661323868}]",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "[]"
+        },
+        {
+            "opt": "reservevercount",
+            "name": "保留版本数",
+            "help": "保留版本数，超过的版本将会被删除",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "inspectlogttl",
+            "name": "巡检记录保留时间",
+            "help": "巡检记录保留时间，单位(天)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,58 @@
+{
+    "opName": "Ping等待",
+    "opType": "runner",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "bash",
+    "defaultProfile": null,
+    "description": "检测并等待IP可以Ping通",
+    "option": [{
+            "opt": "targetstatus",
+            "name": "目标状态",
+            "help": "等待的目标状态",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "Up",
+                        "value": "up"
+                    },
+                    {
+                        "text": "Down",
+                        "value": "down"
+                    }
+                ]
+            },
+            "defaultValue": "up"
+        },
+        {
+            "opt": "host",
+            "name": "IP地址",
+            "help": "Ping的目标地址",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "127.0.0.1"
+        },
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "查询超时时间，单位秒",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "retrycount",
+            "name": "重试次数",
+            "help": "失败重试次数",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "30"
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,134 @@
+{
+    "label": "K8S_INGRESS",
+    "collection": "COLLECT_K8S",
+    "docroot": "NAMESPACES.INGRESS",
+    "collection_label": "Kubernetes",
+    "filter": {
+        "_OBJ_TYPE": "K8S_INGRESS"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Application Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "名称",
+            "type": "String"
+        },
+        {
+            "name": "ANNOTATIONS",
+            "desc": "注释",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONTAIN_SERVICES",
+            "desc": "包含服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UID",
+                    "desc": "Uid",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CREATEDATE",
+            "desc": "创建时间",
+            "type": "String"
+        },
+        {
+            "name": "KIND",
+            "desc": "类型",
+            "type": "String"
+        },
+        {
+            "name": "NAMESPACE",
+            "desc": "命名空间",
+            "type": "String"
+        },
+        {
+            "name": "RULES",
+            "desc": "规则",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "HOST",
+                    "desc": "节点",
+                    "type": "String"
+                },
+                {
+                    "name": "METHOD",
+                    "desc": "方式",
+                    "type": "String"
+                },
+                {
+                    "name": "PATH",
+                    "desc": "路径",
+                    "type": "String"
+                },
+                {
+                    "name": "PATHTYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SELECTOR",
+            "desc": "已选择标签",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "KEY",
+                    "desc": "标签键",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "标签值",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "UID",
+            "desc": "uid",
+            "type": "String"
+        }
+    ]
+}

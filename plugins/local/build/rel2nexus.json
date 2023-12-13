@@ -1,0 +1,84 @@
+{
+    "opDesc": "上传包到Nexus",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "nexus-args",
+    "description": "工程编译打包后，上传包到Nexus",
+    "enabled": 1,
+    "option": [{
+            "opt": "baseurl",
+            "name": "Nexus地址",
+            "help": "Nexus地址，例如：https://192.168.0.8:8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.baseurl}"
+        },
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "Nexus登录用户名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.user}"
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "Nexus登录用户密码",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.password}"
+        },
+        {
+            "opt": "repo",
+            "name": "Nexus库",
+            "help": "Nexus中的包含此Artifact的库名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "group",
+            "name": "组名",
+            "help": "Artifact的组名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "artifact",
+            "name": "包名",
+            "help": "Artifact的包名(不含版本号)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ver",
+            "name": "版本号",
+            "help": "包的版本号",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}${VERSION}"
+        },
+        {
+            "opt": "pkgfile",
+            "name": "包文件",
+            "help": "相对于工程目录的包的子目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

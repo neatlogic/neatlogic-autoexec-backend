@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+use FindBin;
+
+use strict;
+use Getopt::Long;
+use File::Glob qw(bsd_glob);
+use File::Basename;
+use File::Temp;
+use File::Spec;
+use Cwd;
+use POSIX;
+
+use AutoExecUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    exit(1);
+}
+
+sub main {
+    my $passFlagFile = $ENV{ASK_PASS_FLAG_FILE};
+    my $srcPass      = $ENV{SSH_SRC_PASSWORD};
+    my $destPass     = $ENV{SSH_DEST_PASSWORD};
+    if ( -e $passFlagFile and defined($srcPass) and $srcPass ne '' ) {
+        unlink($passFlagFile);
+        print($srcPass);
+        exit(0);
+    }
+    elsif ( defined($srcPass) and $srcPass ne '' ) {
+        print($destPass);
+        exit(0);
+    }
+
+    AutoExecUtils::setEnv();
+
+    my $pname     = $FindBin::Script;
+    my $isVerbose = 0;
+    my ( $srcHost,  $srcPort,  $srcUser,  $srcPass,  $srcDir );
+    my ( $destHost, $destPort, $destUser, $destPass, $destDir );
+    GetOptions(
+        'v|verbose=i'    => \$isVerbose,
+        'srchost=s'      => \$srcHost,
+        'srcport=s'      => \$srcPort,
+        'srcuser=s'      => \$srcUser,
+        'srcpassword=s'  => \$srcPass,
+        'srcdir=s'       => \$srcDir,
+        'desthost=s'     => \$destHost,
+        'destport=s'     => \$destPort,
+        'destuser=s'     => \$destUser,
+        'destpassword=s' => \$destPass,
+        'destdir=s'      => \$destDir,
+    );
+
+    if ( not defined($srcPort) ) {
+        $srcPort = 22;
+    }
+    if ( not defined($destPort) ) {
+        $destPort = 22;
+    }
+
+    $srcDir =~ s/[\/\\]+$//;
+    my $srcName = basename($srcDir);
+    my $srcDir  = dirname($srcDir);
+
+    my $destName = basename($destDir);
+    if ( $destDir !~ /\/$/ and $destDir !~ /\\$/ ) {
+        if ( $destName ne $srcName ) {
+            print("ERROR: Destination file name:$destName is not same with source file name:$srcName, ssh transfer only support same names.\n");
+            exit(-1);
+        }
+        $destDir = dirname($destDir);
+    }
+    else {
+        $destDir =~ s/[\/\\]+$//;
+    }
+
+    my $verboseOpt = '';
+    if ( $isVerbose eq '1' ) {
+        $verboseOpt = 'v';
+    }
+    my $cmd =
+qq{ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$srcPort ${srcUser}\@${srcHost} 'cd "$srcDir" && tar -cf - "$srcName"' | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$destPort ${destUser}\@${destHost} 'cd "$destDir" && tar -x${verboseOpt}f -' || exit \$?};
+
+    my $pid = fork();
+    if ( not defined($pid) ) {
+        die("ERROR: Fork failed:$!\n");
+    }
+    elsif ( $pid == 0 ) {
+        setsid();
+        my $tmp             = File::Temp->new( TEMPLATE => 'NXXXXXXX', DIR => '.', UNLINK => 1, SUFFIX => '.sshaskpass' );
+        my $askPassFlagFile = $tmp->filename;
+        $ENV{ASK_PASS_FLAG_FILE} = $askPassFlagFile;
+        $ENV{SSH_SRC_PASSWORD}   = $srcPass;
+        $ENV{SSH_DEST_PASSWORD}  = $srcPass;
+
+        $ENV{SSH_ASKPASS} = "$FindBin::Bin/$pname";
+        $ENV{DISPLAY}     = ':0';
+
+        open( STDIN, '<', '/dev/null' );
+        exec($cmd);
+        die "Can't exec $pname: $!\n";
+    }
+
+    $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+        kill( 'TERM', $pid );
+
+        my $maxWait = 5;
+        my $loop    = 0;
+        while ( $loop < $maxWait and kill( 0, $pid ) ) {
+            $loop = $loop + 1;
+            sleep(1);
+        }
+
+        if ( $loop >= $maxWait ) {
+            kill( 'KILL', $pid );
+        }
+    };
+
+    waitpid( $pid, 0 );
+
+    my $errorCode = $?;
+
+    return $errorCode;
+}
+
+exit( main() );

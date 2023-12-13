@@ -1,0 +1,36 @@
+{
+    "opDesc": "执行交换机命令",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "本地连远程执行命令，用于执行网络设备命令",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "连接超时时间",
+            "type": "text",
+            "required": "false",
+            "validate": [
+                "number"
+            ],
+            "defaultValue": "15"
+        },
+        {
+            "opt": "command",
+            "name": "远程命令",
+            "help": "自定义脚本",
+            "type": "textarea",
+            "required": "true",
+            "validate": [
+                "highriskcode"
+            ],
+            "defaultValue": ""
+        }
+    ],
+    "argument": {},
+    "output": []
+}

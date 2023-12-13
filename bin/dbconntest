@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd 'abs_path';
+
+my $autoexecHome = abs_path("$FindBin::Bin/..");
+$ENV{AUTOEXEC_HOME} = $autoexecHome;
+my @CMD = ($^X);
+push( @CMD, "$autoexecHome/plugins/local/deploy/dbconntest" );
+push( @CMD, @ARGV );
+$ENV{PERL5LIB} = "$autoexecHome/plugins/local/deploy/lib:$autoexecHome/plugins/local/lib:$autoexecHome/plugins/local/pllib/lib/perl5";
+exec(@CMD);

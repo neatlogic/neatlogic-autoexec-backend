@@ -1,0 +1,116 @@
+#!/usr/bin/perl
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+
+use strict;
+use FindBin;
+use Cwd qw(abs_path);
+use Getopt::Long;
+use AutoExecUtils;
+use IO::Socket::INET;
+use JSON;
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("$pname --node <node> --timeout <timeout seconds> .\n");
+    exit(-1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+    AutoExecUtils::setEnv();
+
+    my ($node);
+
+    my $timeout = 10;
+
+    GetOptions(
+        'node=s'    => \$node,
+        'timeout=i' => \$timeout
+    );
+
+    my $nodeInfo  = {};
+    my $hasOptErr = 0;
+    if ( not defined($node) ) {
+        $node = $ENV{AUTOEXEC_NODE};
+    }
+
+    if ( not defined($node) or $node eq '' ) {
+        $hasOptErr = 1;
+    }
+    else {
+        $nodeInfo = from_json($node);
+    }
+
+    if ( $hasOptErr == 1 ) {
+        usage();
+    }
+
+    my $resourceId = $nodeInfo->{resourceId};
+    my $host       = $nodeInfo->{host};
+    my $port       = int( $nodeInfo->{port} );
+    if ( $port == 0 or $port == 65535 ) {
+        $port = int( $nodeInfo->{protocolPort} );
+    }
+
+    my $data = {
+        MGMT_IP      => $host,
+        PORT         => $port,
+        RESOURCE_ID  => $resourceId,
+        AVAILABILITY => 0
+    };
+
+    print("INFO: Try to connect to $host:$port.\n");
+    my $startTime = time();
+    eval {
+        my $socket = IO::Socket::INET->new(
+            PeerHost => $host,
+            PeerPort => $port,
+            Timeout  => $timeout
+        );
+
+        if ( not defined($socket) ) {
+            print("INFO: Try to connect to 127.0.0.1:$port.\n");
+            $socket = IO::Socket::INET->new(
+                PeerHost => '127.0.0.1',
+                PeerPort => $port,
+                Timeout  => $timeout
+            );
+        }
+
+        my $responseTime = time() - $startTime;
+        $data->{RESPONSE_TIME} = $responseTime;
+
+        if ( defined($socket) ) {
+            $data->{AVAILABILITY}  = 1;
+            $data->{ERROR_MESSAGE} = '';
+            $socket->close();
+            print("FINE: TCP handshake succeed.\n");
+        }
+        else {
+            my $errMsg = "Connect to $host:$port failed, $!\n";
+            $data->{'ERROR_MESSAGE'} = $errMsg;
+            $data->{AVAILABILITY}    = 0;
+            print("ERROR: $errMsg");
+        }
+    };
+    if ($@) {
+        my $responseTime = time() - $startTime;
+        $data->{RESPONSE_TIME} = $responseTime;
+
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        $data->{'ERROR_MESSAGE'} = $errMsg;
+        $data->{AVAILABILITY}    = 0;
+        print("ERROR: $errMsg");
+    }
+
+    my $out = {};
+    $out->{DATA} = $data;
+    AutoExecUtils::saveOutput($out);
+
+    return 0;
+}
+
+exit main();

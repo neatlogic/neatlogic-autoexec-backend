@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use POSIX qw(strftime);
+use IO::File;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("$pname --modifyifexist 0|1 --content <user config content>\n");
+    exit(1);
+}
+
+sub main {
+    $| = 1;    #不对输出进行buffer，便于实时看到输出日志
+
+    my $modifyIfExist = 0;
+    my $content;
+
+    GetOptions(
+        'content=s'       => \$content,
+        'modifyifexist=i' => \$modifyIfExist
+    );
+
+    if ( not defined($content) or $content eq '' ) {
+        print("ERROR: Must defined modify content by option --content\n");
+        usage();
+    }
+
+    my $hasError = 0;
+
+    $content =~ s/\\n/\n/sg;
+    foreach my $line ( split( /\n/, $content ) ) {
+        my $exitCode = 0;
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line eq '' or $line =~ /^#/ ) {
+            next;
+        }
+
+        if ( $line =~ /^(\w+)\s+(\d+)$/ ) {
+            my $name     = $1;
+            my $gid      = $2;
+            my $existGid = getgrnam($name);
+            if ( not defined($existGid) ) {
+                my $cmd = "groupadd -g $gid '$name'";
+                print( $cmd, "\n" );
+                $exitCode = system($cmd);
+                if ( $exitCode != 0 ) {
+                    my $conflictGroup = getgrgid($gid);
+                    print("ERROR: Other group $conflictGroup has the same gid:$gid.\n");
+                }
+            }
+            else {
+                if ( $gid ne $existGid ) {
+                    if ( $modifyIfExist == 1 ) {
+                        print("WARN: Group $name exists with distinguish gid:$existGid, Try to delete it.\n");
+                        my $cmd = "groupdel '$name'";
+                        print( $cmd, "\n" );
+                        $exitCode = system($cmd);
+
+                        if ( $exitCode == 0 ) {
+                            $cmd = "groupadd -g $gid '$name'";
+                            print( $cmd, "\n" );
+                            $exitCode = system($cmd);
+                        }
+                        else {
+                            print("ERROR: Delete group $name failed.\n");
+                        }
+                    }
+                    else {
+                        print("ERROR: Group $name exists with distinguish gid:$existGid.\n");
+                    }
+                }
+                else {
+                    print("WARN: Group $name with gid:$gid already exists.\n");
+                }
+            }
+        }
+        elsif ( $line =~ /^(\w+)$/ ) {
+            my $name     = $1;
+            my $existGid = getgrnam($name);
+            if ( not defined($existGid) ) {
+                my $cmd = "groupadd '$name'";
+                print( $cmd, "\n" );
+                $exitCode = system($cmd);
+            }
+            else {
+                print("WARN: Group $name already exists.\n");
+            }
+        }
+        else {
+            print("ERROR: Malform input line: $line\n");
+            $hasError = 1;
+        }
+
+        if ( $exitCode != 0 ) {
+            $hasError = 1;
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

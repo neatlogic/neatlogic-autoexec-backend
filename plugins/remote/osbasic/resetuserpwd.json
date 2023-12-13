@@ -1,0 +1,26 @@
+{
+    "opDesc": "修改Unix用户密码",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改Unix/Linux操作系统用户密码",
+    "option": [
+        {
+            "opt": "user",
+            "name": "用户名",
+            "help": "操作系统用户名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [{
+        "opt": "password",
+        "name": "重置后密码",
+        "help": "重置后的用户密码",
+        "type": "text"
+    }]
+}

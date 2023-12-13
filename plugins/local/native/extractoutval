@@ -1,0 +1,187 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import json
+import argparse
+import re
+
+import AutoExecUtils
+
+
+def extractByRegexp(txtData, regexpTxt):
+    if not isinstance(txtData, str):
+        txtData = str(txtData)
+
+    extractVal = None
+    regexp = re.compile(regexpTxt, re.IGNORECASE | re.MULTILINE)
+    matchObj = re.search(regexp, txtData)
+    if matchObj:
+        extractVal = matchObj.group(0)
+    else:
+        print('ERROR: Data:{} not match regular expression:{}\n'.foramt(txtData, regexpTxt))
+
+    return extractVal
+
+
+def extractByJsonSelector(txtData, selectorTxt):
+    extractVal = None
+    jsonObj = None
+    if isinstance(txtData, str):
+        try:
+            jsonObj = json.loads(txtData)
+        except:
+            print("ERROR: Data:%s is not in json format." % (txtData))
+            return None
+    else:
+        jsonObj = txtData
+
+    curObj = jsonObj
+    selectorTxt = selectorTxt.strip()
+    if selectorTxt.startswith('data['):
+        selectorTxt = selectorTxt[5:-1]
+        selectorTxt = selectorTxt.replace(r'\]\s+\[', '][')
+        print('Extract', end='')
+        for fieldIdx in re.split(r'[\[\]]+', selectorTxt):
+            if curObj is not None:
+                print('->%s' % fieldIdx, end='')
+                identity = fieldIdx
+                if fieldIdx.startswith('"') or fieldIdx.startswith("'"):
+                    identity = fieldIdx[1:-1]
+                    nextObj = curObj.get(identity)
+                elif re.match('\d+', fieldIdx):
+                    identity = int(fieldIdx)
+                    if identity < len(curObj):
+                        nextObj = curObj[identity]
+                else:
+                    nextObj = curObj.get(identity)
+
+                if nextObj is None:
+                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end='')
+                curObj = nextObj
+        extractVal = curObj
+
+        if extractVal is not None:
+            if isinstance(extractVal, list):
+                extractVal = ','.join(extractVal)
+            elif not isinstance(extractVal, str):
+                extractVal = json.dumps(extractVal)
+            print(' = %s\n' % (extractVal), end='')
+    else:
+        print('ERROR: Json object selector syntax error: must start with key word data.')
+
+    return extractVal
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument('--outputkey', default='', help='Output key')
+    parser.add_argument('--selectortype', default='JsonObject', help='Field selector type: RegExp|JsonObject')
+    parser.add_argument('--selector', default='', help='Field selector')
+
+    exitCode = 0
+
+    dbclient = None
+    outCollection = None
+    try:
+        (dbclient, db) = AutoExecUtils.getDB()
+        outCollection = db['_node_output']
+    except Exception as err:
+        exitCode = 2
+        print("ERROR: Can not connect to database, {}".format(err))
+        sys.exit(exitCode)
+
+    hasOptError = False
+
+    args = parser.parse_args()
+    node = args.node
+    outputKey = args.outputkey
+    selectorType = args.selectortype
+    fieldSelector = args.selector
+
+    resourceId = 0
+    nodeInfo = {}
+    hasOptError = False
+    if node is None or node == '':
+        node = os.getenv('AUTOEXEC_NODE')
+    if node is not None and node != '':
+        nodeInfo = json.loads(node)
+        resourceId = int(nodeInfo.get('resourceId'))
+
+    if outputKey == '':
+        hasOptError = True
+        print("ERROR: Must define output key name by option --outputkey")
+    if fieldSelector == '':
+        hasOptError = True
+        print("ERROR: Muslt defined field selector by option --selector")
+    if hasOptError:
+        sys.exit(2)
+
+    if outputKey.startswith('#{'):
+        outputKey = re.sub(r'^#\{', '', outputKey)
+        outputKey = re.sub(r'\}$', '', outputKey)
+        outputKeyInfo = outputKey.split('.')
+
+        if len(outputKeyInfo) != 3:
+            print("ERROR: Malform output key %s." % (outputKey))
+            sys.exit(3)
+
+        opId = outputKeyInfo[1]
+        varKey = outputKeyInfo[2]
+
+        jobId = os.getenv('AUTOEXEC_JOBID')
+
+        extractVal = None
+
+        try:
+            queryCond = {
+                'jobId': jobId,
+                'resourceId': resourceId,
+                'data.%s' % opId: {'$ne': None}
+            }
+
+            print("INFO: Try to query node output for operation id:%s output:%s." % (opId, varKey))
+            nodeOut = outCollection.find_one(queryCond, {'data.%s' % opId: 1})
+
+            if nodeOut is None:
+                exitCode = 4
+                print("ERROR: Can not find node output for operation id:%s output:%s." % (opId, varKey))
+            else:
+                val = nodeOut['data'].get(opId).get(varKey)
+        except Exception as err:
+            exitCode = 1
+            print("ERROR: Query node output for operation id:%s output:%s, %s." % (opId, varKey, err))
+        finally:
+            if dbclient is not None:
+                dbclient.close()
+    else:
+        if selectorType == 'JsonObject':
+            try:
+                val = json.loads(outputKey)
+            except Exception as err:
+                exitCode = 1
+                print("ERROR: Value:%s to be extract is not in json format." % (outputKey))
+        else:
+            val = outputKey
+
+    if exitCode == 0 and val is not None:
+        try:
+            if selectorType == 'RegExp':
+                extractVal = extractByRegexp(val, fieldSelector)
+            else:
+                extractVal = extractByJsonSelector(val, fieldSelector)
+
+            if extractVal is None:
+                exitCode = 2
+            else:
+                print('Extrace value:{}'.format(extractVal))
+        except Exception as err:
+            exitCode = 3
+            print('ERROR: Extract output value for {} failed, {}'.format(outputKey, err))
+
+    out = {'extractTxtVal': extractVal}
+    AutoExecUtils.saveOutput(out)
+
+    sys.exit(exitCode)

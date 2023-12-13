@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Cwd;
+use Getopt::Long;
+
+use DeployUtils;
+
+Getopt::Long::Configure("pass_through");
+
+sub usage {
+    my $pname = $FindBin::Script;
+    print("Usage: $pname [-v|--verbose 0|1] [--envpath EnvPath] [--version VERSION] [--lang LANG]\n");
+    print("       [--basedir SubDirectoryInSysDataPath] --cmd Command\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:10/10/10\n");
+    print("       --version: version number of sub system\n");
+    print("       --buildno: Build number\n");
+    print("       --basedir: Base directory for execution\n");
+    print("       --cmd:     command text\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo );
+    my ( $baseDir, $cmd );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'lang=s'      => \$lang,
+        'v|verbose=i' => \$isVerbose,
+        'basedir=s'   => \$baseDir,
+        'cmd=s'       => \$cmd
+    );
+    usage() if ( defined($isHelp) );
+    usage() if ( not defined($cmd) or $cmd eq '' );
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $dataPath  = $buildEnv->{DATA_PATH};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+
+    if ( not defined($baseDir) ) {
+        $baseDir = Cwd::realpath($dataPath);
+    }
+    else {
+        $baseDir = Cwd::realpath("$dataPath/$baseDir");
+    }
+
+    my $isFail = 0;
+    if ( system("$toolsPath/hook-fmod/ezdplyfssb -b '$baseDir' -- '$cmd'") != 0 ) {
+        print("ERROR: Exec $cmd has error.\n");
+        $isFail = 1;
+    }
+    else {
+        print("INFO: Exec $cmd has successed.\n");
+    }
+
+    return $isFail;
+}
+
+exit main();
+

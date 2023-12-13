@@ -1,0 +1,559 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use IO::File;
+use File::Path;
+use File::Find;
+use File::Copy;
+use File::Basename;
+use Cwd;
+use Getopt::Long;
+Getopt::Long::Configure("pass_through");
+
+use DeployUtils;
+use BuildUtils;
+use DeployLock;
+use ServerAdapter;
+use VerGet;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--type ant|maven|gradle|npm] [--forcecompile 0|1] \n");
+    print("              [--diffdirname DiffSaveDir] [--tag4cmpto CompareTag] [--startrev Revision] [--endrev Revision]\n");
+    print("              [--srcpaths SourcePathsInProject] [--cmpoutpath CompileOutPathsInProject] [--websrcpath WebSourcePathInProject]\n");
+    print("              [--webdistpath WebPackagePathsInProject] \n");
+    print("              [--jdk JDK_VERSION] [--startpath CompileBaseDir] [--islib 0|1] [--lang LANG] [--args EXT_OPTIONS] [--version VERSION]\n");
+    print("\n");
+    print("       --envpath:      env path, example:SYS-X/MODULE-X/SIT\n");
+    print("       --version:      Version number of module version\n");
+    print("       --buildno:      Build number\n");
+    print("       --jdk:          jdk version ,support [1.6|1.7(default)|1.8]\n");
+    print("       --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    print("       --islib:        If this project is a sub module for the main project.\n");
+    print("       --lang:         LANGUAGE, default: en_US.UTF8\n");
+    print("       --type:         build type: mvn|ant|gradle, default is auto detect.\n");
+    print("       --diffdirname:  diff build save directory, default:build.diff.\n");
+    print("       --tag4cmpto:    source code compare to, if not defined, use master or trunk config in repo config.\n");
+    print("       --startrev:     start revision.\n");
+    print("       --endrev:       end revision.\n");
+    print("       --srcpaths:     source code paths: example: 'src,*/src'\n");
+    print("       --testsrcpaths: test source code paths: example: 'src/test'\n");
+    print("       --websrcpath:   web content source path, default:src/main/webapp\n");
+    print("       --webdistpath:  web distribute path, default:WebContent\n");
+    print("       --cmpoutpath:   compile output path: example: 'target/webapp/WEB-INF/classes'\n");
+    print("       --args:         arguments for ant|mvn|gradle, default is blank.\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $startPath, $lang, $jdk, $nodejs, $buildType, $args, $isVerbose, $isUpdate );
+    my $pname = $FindBin::Script;
+
+    my $forceCompile;
+    my $makeToolVer = '';
+    my $diffDirName = 'build.diff';
+    my $tag4CmpTo   = '';
+    my $startRev;
+    my $endRev;
+    my $srcPaths     = '';
+    my $testSrcPaths = 'src/test';
+    my $webSrcPath   = 'src/main/webapp';
+    my $webDistPath  = 'WebContent';
+    my $cmpOutPath   = '';
+    my $isLib        = 0;
+
+    GetOptions(
+        'h|help'         => \$isHelp,
+        'verbose=i'      => \$isVerbose,
+        'envpath=s'      => \$envPath,
+        'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
+        'startpath=s'    => \$startPath,
+        'islib=i'        => \$isLib,
+        'lang=s'         => \$lang,
+        'jdk=s'          => \$jdk,
+        'type=s'         => \$buildType,
+        'args=s'         => \$args,
+        'tag4cmpto=s'    => \$tag4CmpTo,
+        'startrev=s'     => \$startRev,
+        'endrev=s'       => \$endRev,
+        'diffdirname=s'  => \$diffDirName,
+        'srcpaths=s'     => \$srcPaths,
+        'testsrcpaths=s' => \$testSrcPaths,
+        'websrcpath=s'   => \$webSrcPath,
+        'webdistpath=s'  => \$webDistPath,
+        'cmpoutpath=s'   => \$cmpOutPath,
+        'forcecompile=i' => \$forceCompile
+    );
+
+    usage() if ( defined($isHelp) );
+
+    print("INFO: Begin to compile project and get the patch...\n");
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    my $prjPath   = $buildEnv->{PRJ_PATH};
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $cwd = getcwd();
+    chdir($prjPath);
+
+    my $optError = 0;
+
+    #去掉webSrcPath后面的斜杠，如果有的话
+    $webSrcPath =~ s/\/+$//;
+
+    #支持通配符对所有的目录定义进行展开
+    my @allSrcPaths = ();
+    foreach my $aPath ( split( /\s*,\s*/, $srcPaths ) ) {
+        foreach my $bPath ( glob($aPath) ) {
+            $bPath =~ s/\/$//;
+            if ( -d $bPath ) {
+                push( @allSrcPaths, $bPath );
+            }
+            else {
+                $optError = 1;
+                print("ERROR: $aPath($bPath) is not a directory.\n");
+            }
+        }
+    }
+
+    my @excludeDirs = ();
+    foreach my $aPath ( split( /\s*,\s*/, $testSrcPaths ) ) {
+        foreach my $bPath ( glob($aPath) ) {
+            $bPath =~ s/\/$//;
+            if ( -d $bPath ) {
+                push( @excludeDirs, $bPath );
+            }
+            else {
+                $optError = 1;
+                print("ERROR: $aPath($bPath) is not a directory.\n");
+            }
+        }
+    }
+
+    chdir($cwd);
+    if ( $optError == 1 ) {
+        exit(-1);
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{status} eq 'released' ) {
+        print("WARN: $namePath version:$version build $buildNo is released, compile again.\n");
+    }
+
+    my $versionInfo = {
+        version => $version,
+        buildNo => $buildEnv->{BUILD_NO},
+        status  => 'compiling'
+    };
+    $serverAdapter->updateVer( $buildEnv, $versionInfo );
+
+    my $buildUtils = BuildUtils->new();
+    my $isFail     = 0;
+    if ( $isFail eq 0 ) {
+        my $opts = {
+            buildEnv    => $buildEnv,
+            version     => $version,
+            prjPath     => $prjPath,
+            buildType   => $buildType,
+            lang        => $lang,
+            startPath   => $startPath,
+            toolsPath   => $toolsPath,
+            jdk         => $jdk,
+            args        => $args,
+            isVerbose   => $isVerbose,
+            makeToolVer => $makeToolVer
+        };
+
+        #全量编译, 目的是为了生成增量编译可能需要的class，不管成功失败，如果增量编译缺少了依赖的class，自然会失败
+        #$isFail = $buildUtils->compile($opts);
+
+        #if ( $isFail == 0 ) {
+        my $diffDir = "$prjPath/$diffDirName";
+        rmtree($diffDir);
+        my $patchDir = "$diffDir/patch";
+        if ( not -e $patchDir ) {
+            mkpath("$patchDir");
+        }
+
+        my $serverAdapter = ServerAdapter->new();
+
+        #my $versionInfo   = $serverAdapter->getVer($buildEnv);
+        my $verGet = VerGet->new( $buildEnv, $versionInfo, $isVerbose );
+
+        #如果没有定义$tag4CmpTo和$startRev则获取getver记录的revision的start和end
+        # if ( $tag4CmpTo eq '' and $startRev eq '' ) {
+        #     $startRev = $verInfo->{startRev};
+        #     $endRev   = $verInfo->{endRev};
+        # }
+
+        eval {
+            #通过代码仓库比较获取差异文件存放到目录$diffDir
+            my $getDiffStatus = $verGet->getBuildDiff( $tag4CmpTo, $startRev, $endRev, $prjPath, "$diffDir/tmp", \@excludeDirs, $isVerbose );
+            if ( $getDiffStatus ne 0 ) {
+                die("ERROR: $pname $envPath $version get diff failed.\n");
+            }
+
+            #全量编译, 目的是为了生成增量编译可能需要的class，不管成功失败，如果增量编译缺少了依赖的class，自然会失败
+            if ( defined($forceCompile) ) {
+                print("INFO: Force to compile, begin to compile...\n");
+                $isFail = $buildUtils->compile($opts);
+                if ( $isFail != 0 ) {
+                    return $isFail;
+                }
+            }
+            elsif ( ifDiffHasJava("$diffDir/tmp/diff-list.txt") ) {
+                print("INFO: Java files modified, begin to compile...\n");
+                $isFail = $buildUtils->compile($opts);
+                if ( $isFail != 0 ) {
+                    return $isFail;
+                }
+            }
+
+            print("INFO: Begin to make patch in $diffDir for this build.\n");
+            makePatch( $prjPath, $diffDir, \@allSrcPaths, $webSrcPath, $webDistPath, $cmpOutPath );
+            print("INFO: Make patche complete.\n");
+
+            #生成del文件的shell, 用于发布时可以使用
+            my $fd = IO::File->new("<$diffDir/tmp/diff-del-list.txt");
+            if ( defined($fd) ) {
+                my $delShellFd = IO::File->new(">$diffDir/diff-del-list.sh");
+                if ( defined($delShellFd) ) {
+                    my $line;
+                    while ( $line = $fd->getline() ) {
+                        chomp($line);
+
+                        my $destRelPath;
+                        if ( $destRelPath = isSrc( \@allSrcPaths, $line ) ) {
+                            $line = "$cmpOutPath/$destRelPath";
+                        }
+                        if ( $destRelPath = isWebSrc( $webSrcPath, $line ) ) {
+                            if ( $destRelPath =~ /\.java/ ) {
+                                $destRelPath =~ s/\.java//;
+                                if ( not print $delShellFd ("if [ -f '$destRelPath.class' ]; then rm -f '$destRelPath.class'; rm -f '$destRelPath\$*.class' 2>/dev/null; fi\n") ) {
+                                    die("ERROR: Write to file $diffDir/diff-del-list.sh failed:$!\n");
+                                }
+                            }
+                            else {
+                                if ( not print $delShellFd ("if [ -f '$destRelPath' ]; then rm -f $destRelPath; fi\n") ) {
+                                    die("ERROR: Write to file $diffDir/diff-del-list.sh failed:$!\n");
+                                }
+                            }
+                        }
+                    }
+                    print $delShellFd ("\n");
+                    $delShellFd->close();
+                }
+                else {
+                    die("ERROR: Open file $diffDir/diff-del-list.sh failed:$!\n");
+                }
+
+                $fd->seek( 0, 0 );
+                my $delCmdFd = IO::File->new(">$diffDir/diff-del-list.cmd");
+                if ( defined($delCmdFd) ) {
+                    my $line;
+                    while ( $line = $fd->getline() ) {
+                        chomp($line);
+
+                        my $destRelPath;
+                        if ( $destRelPath = isSrc( \@allSrcPaths, $line ) ) {
+                            $line = "$cmpOutPath/$destRelPath";
+                        }
+                        if ( $destRelPath = isWebSrc( $webSrcPath, $line ) ) {
+                            if ( $destRelPath =~ /\.java/ ) {
+                                $destRelPath =~ s/\.java//;
+                                if ( not print $delCmdFd (qq{if exist "$destRelPath.class" (del /F "$destRelPath.class" && del /F "$destRelPath\$*" 2>nul )\n}) ) {
+                                    die("ERROR: Write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                                }
+                            }
+                            else {
+                                if ( not print $delCmdFd (qq{if exist "$destRelPath" (del /F "$destRelPath")\n}) ) {
+                                    die("ERROR: Write to file $diffDir/diff-del-list.cmd failed:$!\n");
+                                }
+                            }
+                        }
+                    }
+                    print $delCmdFd ("\n");
+                    $delCmdFd->close();
+                }
+                else {
+                    die("ERROR: Open file $diffDir/diff-del-list.cmd failed:$!\n");
+                }
+
+                $fd->close();
+            }
+        };
+
+        if ($@) {
+            $isFail = 1;
+            my $msg = $@;
+            $msg =~ s/ at .*?$//;
+            print($msg);
+        }
+    }
+
+    if ( $isFail eq 0 ) {
+        $versionInfo->{status} = 'compiled';
+        print("FINE: Build $envPath $version success.\n");
+        if ( $isLib == 0 ) {
+            $serverAdapter->updateVer( $buildEnv, $versionInfo );
+        }
+    }
+    else {
+        $versionInfo->{status} = 'compile-failed';
+        print("ERROR: Build $envPath $version failed.\n");
+        $serverAdapter->updateVer( $buildEnv, $versionInfo );
+    }
+
+    return $isFail;
+}
+
+sub isSrc {
+    my ( $allSrcPaths, $path ) = @_;
+
+    foreach my $aSrcPath (@$allSrcPaths) {
+        if ( $path =~ s/^$aSrcPath// ) {
+            $path =~ s/\/$//;
+            $path =~ s/^\///;
+            return $path;
+        }
+    }
+
+    return undef;
+}
+
+sub isWebSrc {
+    my ( $webSrcPath, $path ) = @_;
+
+    if ( $path =~ s/^$webSrcPath\/// ) {
+        $path =~ s/\/+$//;
+        return $path;
+    }
+
+    return undef;
+}
+
+sub isCmpOut {
+    my ( $cmpOutPath, $path ) = @_;
+
+    if ( $path =~ /^$cmpOutPath/ ) {
+        return 1;
+    }
+
+    return 0;
+}
+
+sub makePatch {
+    my ( $prjPath, $diffDir, $allSrcPaths, $webSrcPath, $webDistPath, $cmpOutPath ) = @_;
+
+    my $patchDir       = "$diffDir/patch";
+    my $rootPath       = "$diffDir/tmp";
+    my $updateListFile = "$diffDir/patch-files-list.txt";
+
+    chdir($rootPath);
+
+    my $updateListFH = IO::File->new(">$updateListFile");
+
+    if ( not defined($updateListFH) ) {
+        die("ERROR: Create $updateListFile failed.\n");
+    }
+
+    my $patchFileCount = 0;
+
+    my $ignoreFileNames = { '.svn', '.git', '.svnignore', '.gitignore', '.classpath', '.project', '.DS_Store' };
+
+    find(
+        {
+            wanted => sub {
+                my $filePath = substr( $File::Find::name, 2 );
+                my $fileDir  = substr( $File::Find::dir,  2 );
+
+                my $file = $_;
+                if ( defined( $ignoreFileNames->{$file} ) or $filePath =~ /^\./ ) {
+                    $File::Find::prune = 1;
+                    return;
+                }
+
+                if ( -f $file ) {
+                    my $srcFile;
+                    my $destFile;
+                    my $destRelPath;    #相对于代码路径的字路径
+                    if ( $destRelPath = isSrc( $allSrcPaths, $filePath ) ) {
+
+                        #如果是代码文件，则抽取对应的class文件
+                        if ( $destRelPath =~ s/\.java$// ) {
+                            my $srcPathPrefix = "$prjPath/$cmpOutPath/$destRelPath";
+
+                            if ( not -f "$srcPathPrefix.class" ) {
+
+                                #如果文件不在编译输出目录中，则检查跟java同级目录是否存在此文件
+                                my $classPath = $filePath;
+                                $classPath =~ s/\.java$//;
+                                $srcPathPrefix = "$prjPath/$classPath";
+                                if ( not -f "$srcPathPrefix.class" ) {
+
+                                    #如果跟java同级目录也不存在class则报错
+                                    die("ERROR: Can not find class file for java file:$filePath\n");
+                                }
+                            }
+
+                            #拷贝主class文件
+                            $srcFile  = "$srcPathPrefix.class";
+                            $destFile = "$patchDir/$cmpOutPath/$destRelPath.class";
+                            my $destDir = dirname($destFile);
+
+                            if ( not -d $destDir ) {
+                                mkpath($destDir);
+                            }
+
+                            File::Copy::cp( $srcFile, $destFile )                    || die("ERROR: Copy class $srcFile to $destFile failed, $!");
+                            print $updateListFH ("$cmpOutPath/$destRelPath.class\n") || die("ERROR: Write $cmpOutPath/$destRelPath.class to file:$updateListFile failed, $!");
+
+                            #拷贝同一个主类下的内嵌类
+                            foreach my $aClassPath ( glob("$srcPathPrefix\$*.class") ) {
+                                $srcFile  = $aClassPath;
+                                $destFile = "$destDir/";
+                                File::Copy::cp( $srcFile, $destFile ) || die("ERROR: Copy class $srcFile to $destFile failed:$!");
+                                my $innerClass = dirname($destRelPath) + '/' + basename($aClassPath);
+                                print $updateListFH ("$cmpOutPath/$innerClass\n") || die("ERROR: Write $cmpOutPath/$innerClass.class to file:$updateListFile failed, $!");
+                            }
+                        }
+                        elsif ( $destRelPath !~ /\.class$/ ) {
+
+                            #如果源代码目录中文件不是java以及class文件则拷贝到补丁目录的编译输出目录中
+                            $destFile = "$patchDir/$cmpOutPath/$destRelPath";
+                            my $destDir = dirname($destFile);
+                            if ( not -d $destDir ) {
+                                mkpath($destDir);
+                            }
+
+                            File::Copy::cp( $file, $destFile )                 || die("ERROR: Copy file $file to $destFile failed:$!");
+                            print $updateListFH ("$cmpOutPath/$destRelPath\n") || die("ERROR: Write $cmpOutPath/$destRelPath to file:$updateListFile failed, $!");
+                        }
+                    }
+                    elsif ( $destRelPath = isWebSrc( $webSrcPath, $filePath ) ) {
+                        $destFile = "$patchDir/$webDistPath/$destRelPath";
+                        my $destDir = dirname($destFile);
+                        if ( not -d $destDir ) {
+                            mkpath($destDir);
+                        }
+                        if ( not -f $destFile ) {
+                            print $updateListFH ("$webDistPath/$destRelPath\n") || die("ERROR: Write $webDistPath/$destRelPath to file:$updateListFile failed, $!");
+                        }
+                        File::Copy::cp( $file, $destFile ) || die("ERROR: Copy web $file to $destFile failed:$!");
+                    }
+                    else {
+                        #如果不是编译输出目录则直接拷贝
+                        if ( $filePath eq 'diff-del-list.txt' or $filePath eq 'diff-list.txt' ) {
+                            return;
+                        }
+
+                        #如果是工程根目录下的文件直接略过
+                        if ( $file eq $filePath and -f $file ) {
+                            return;
+                        }
+
+                        $destFile = "$patchDir/$filePath";
+                        my $destDir = dirname($destFile);
+                        if ( not -d $destDir ) {
+                            mkpath($destDir);
+                        }
+                        if ( not -f $destFile ) {    #这个判断，防止通过java文件拷贝到目标的class被checkin到仓库的编译输出目录的class覆盖
+                            File::Copy::cp( $file, $destFile )  || die("ERROR: Copy $srcFile to $destFile failed:$!");
+                            print $updateListFH ("$filePath\n") || die("ERROR: Write $filePath to file:$updateListFile failed, $!");
+                        }
+                    }
+                }
+                elsif ( -d $file ) {
+                    my $destPath = '';
+                    my $destRelPath;
+                    if ( defined( $destRelPath = isSrc( $allSrcPaths, $filePath ) ) ) {
+
+                        #如果是源代码下的字目录，则在目标编译输出目录下创建该目录
+                        $destPath = "$patchDir/$cmpOutPath/$destRelPath";
+                    }
+                    elsif ( defined( $destRelPath = isWebSrc( $webSrcPath, $filePath ) ) ) {
+                        $destPath = "$patchDir/$webDistPath/$destRelPath";
+                    }
+
+                    if ( $destPath ne '' and not -e $destPath ) {
+                        mkpath($destPath) || die("ERROR: Create path $destPath failed:$!\n");
+                    }
+                }
+            },
+            follow => 0
+        },
+        '.'
+    );
+
+    if ( defined($updateListFH) ) {
+        $updateListFH->close();
+    }
+
+    if ( not -e "$patchDir/$webDistPath" ) {
+        mkdir("$patchDir/$webDistPath");
+    }
+}
+
+sub ifDiffHasJava {
+    my ($diffFileList) = @_;
+
+    my $hasJava = 0;
+    my $fh      = IO::File->new( $diffFileList, 'r' );
+    if ( defined($fh) ) {
+        my $line;
+        while ( $line = $fh->getline() ) {
+            if ( $line =~ /\.java$/ ) {
+                $hasJava = 1;
+                last;
+            }
+        }
+        $fh->close();
+    }
+    else {
+        die("ERROR: Open file $diffFileList failed, $!\n");
+    }
+
+    return $hasJava;
+}
+
+exit main();
+

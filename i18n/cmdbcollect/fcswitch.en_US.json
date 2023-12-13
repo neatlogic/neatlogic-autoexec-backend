@@ -1,0 +1,254 @@
+{
+    "label": "FCSwitch",
+    "collection": "COLLECT_FCDEV",
+    "docroot": null,
+    "collection_label": "Storage Net Device",
+    "filter": {
+        "_OBJ_TYPE": "FCSwitch"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Type",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "Managment IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "IP_ADDRS",
+            "desc": "IP Addresses",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "Net Mask",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "VENDOR",
+            "desc": "Vendor",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Device Model",
+            "type": "String"
+        },
+        {
+            "name": "BOOT_DATE",
+            "desc": "Last Boot Date",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "Device Name",
+            "type": "String"
+        },
+        {
+            "name": "FIRMWARE_VERSION",
+            "desc": "Firmware version",
+            "type": "String"
+        },
+        {
+            "name": "LINK_TABLE",
+            "desc": "Link Table",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "PORT_NAME",
+                    "desc": "Local Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWNN",
+                    "desc": "Local Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "Local Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "PEER_WWNN",
+                    "desc": "Peer Node WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_WWPN",
+                    "desc": "Peer Port WWN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PORTS",
+            "desc": "SWitch Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Interface Name",
+                    "type": "String"
+                },
+                {
+                    "name": "OPER_STATUS",
+                    "desc": "Operate Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed",
+                    "type": "Int"
+                },
+                {
+                    "name": "ADMIN_STATUS",
+                    "desc": "Admin Status",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Interface Type",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "MTU",
+                    "desc": "MTU",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_QLEN",
+                    "desc": "Send Queue Length",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_OCTETS",
+                    "desc": "InOctets(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UCAST_PKTS",
+                    "desc": "InUcastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_NUCAST_PKTS",
+                    "desc": "InNucastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_DISCARDS",
+                    "desc": "InDiscards(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_ERRORS",
+                    "desc": "InErrors(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "IN_UNKNOWN_PROTOS",
+                    "desc": "InUnknownProtos(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_OCTETS",
+                    "desc": "OutOctets(bps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_UCAST_PKTS",
+                    "desc": "OutUcastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_NUCAST_PKTS",
+                    "desc": "OutNucastPkts(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_DISCARDS",
+                    "desc": "OutDiscards(pps)",
+                    "type": "Int"
+                },
+                {
+                    "name": "OUT_ERRORS",
+                    "desc": "OutErrors(pps)",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "PORTS_COUNT",
+            "desc": "Ports Count",
+            "type": "Int"
+        },
+        {
+            "name": "WWNN",
+            "desc": "Node WWN",
+            "type": "String"
+        },
+        {
+            "name": "ZONES",
+            "desc": "Zone List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Zone Name",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "Index",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

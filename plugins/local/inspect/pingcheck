@@ -1,0 +1,8 @@
+#!/bin/bash
+BIN_DIR=$(dirname $0)
+BIN_DIR=$(cd "$BIN_DIR" && pwd)
+
+OUTPUT_DIR=$(dirname "$OUTPUT_PATH")
+mkdir -p "$OUTPUT_DIR"
+
+sudo -E -u root AUTOEXEC_JOBID=$AUTOEXEC_JOBID OUTPUT_PATH="$OUTPUT_PATH" PYTHONPATH="$PYTHONPATH" AUTOEXEC_NODE="$AUTOEXEC_NODE" python3 "$BIN_DIR/pingcheck.py" $*

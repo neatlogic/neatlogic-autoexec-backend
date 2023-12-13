@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use JSON;
+use Getopt::Long;
+use File::Temp;
+use File::Copy;
+use MIME::Base64;
+
+use DeployUtils;
+use WinCmd;
+
+#binmode( STDIN,  ':encoding(utf8)' );
+#binmode( STDOUT, ':encoding(utf8)' );
+#binmode( STDERR, ':encoding(utf8)' );
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--protocol http|https] [--node NodeJson]\n");
+    print("\n");
+    print("       --node:     node json.\n");
+    print("       --protocol: WinRM protocol, http|https.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp,   $isVerbose );
+    my ( $protocol, $node );
+
+    my $pname = $FindBin::Script;
+
+    $isVerbose = 0;
+    $protocol  = 'https';
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'protocol:s'  => \$protocol,
+        'node=s'      => \$node,
+        '<>'          => \&pushItems
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $cmd;
+
+    sub pushItems {
+        my ($item) = @_;
+        $cmd = "$cmd $item";
+    }
+
+    my $optionError = 0;
+
+    my $deployUtils = DeployUtils->new();
+
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+
+    my $host    = $nodeInfo->{host};
+    my $port    = $nodeInfo->{protocolPort};
+    my $user    = $nodeInfo->{username};
+    my $pass    = $nodeInfo->{password};
+    my $insId   = $nodeInfo->{resourceId};
+    my $insName = $nodeInfo->{nodeName};
+
+    if ( defined($pass) and $pass ne '' ) {
+        $pass = $deployUtils->decryptPwd($pass);
+    }
+
+    $cmd =~ s/\"/\\\"/g;
+    my $winCmd = WinCmd->new( 'http', $host, $port, $user, $pass, "$cmd", $isVerbose );
+    my $result = $winCmd->exec();
+
+    if ( $result eq 0 ) {
+        print("FINE: Execute command: $cmd success.\n");
+    }
+    else {
+        $hasError = 1;
+        print("ERROR: Execute command: $cmd failed.\n");
+    }
+
+    return $hasError;
+}
+
+exit main();
+

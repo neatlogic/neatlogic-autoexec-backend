@@ -1,0 +1,81 @@
+{
+    "label": "Zookeeper Cluster",
+    "collection": "COLLECT_CLUSTER",
+    "docroot": null,
+    "collection_label": "Cluster",
+    "filter": {
+        "_OBJ_TYPE": "ZookeeperCluster"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Cluster Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "Access Endpoint",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "MEMBER_PEER",
+            "desc": "Members Addrs",
+            "type": "array"
+        }
+    ]
+}
