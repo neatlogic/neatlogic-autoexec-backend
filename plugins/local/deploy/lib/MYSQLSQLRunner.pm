@@ -76,8 +76,17 @@ sub new {
     }
 
     my $mysqlHome = "$toolsDir/mysql-client";
-    if ( defined($dbVersion) and -e "$mysqlHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $mysqlHome = "$mysqlHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $mysqlHome ) {
+            $mysqlHome =~ s/\.\d+$//;
+        }
+        $mysqlHome =~ s/-$//;
+        if ( $mysqlHome eq "$toolsDir/mysql-client" ) {
+            print("WARN: Can not find db client with version:mysql-client-$dbVersion, fall back to default db client mysql-client.\n");
+        }
     }
 
     $ENV{PATH}            = "$mysqlHome/bin:" . $ENV{PATH};

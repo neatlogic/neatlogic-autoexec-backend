@@ -77,9 +77,19 @@ sub new {
 
     #需安装hadoop & hive,设置HADOOP_HOME环境变量
     my $hiveHome = "$toolsDir/hive-client";
-    if ( defined($dbVersion) and -e "$hiveHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $hiveHome = "$hiveHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $hiveHome ) {
+            $hiveHome =~ s/\.\d+$//;
+        }
+        $hiveHome =~ s/-$//;
+        if ( $hiveHome eq "$toolsDir/hive-client" ) {
+            print("WARN: Can not find db client with version:hive-client-$dbVersion, fall back to default db client hive-client.\n");
+        }
     }
+
     my $hadoopHome = "$toolsDir/hadoop-client";
 
     #$ENV{LC_MESSAGES}        = 'en_US.UTF-8';

@@ -76,9 +76,18 @@ sub new {
         chdir($sqlDir);
     }
 
-    my $mongoHome = "$toolsDir/mongodb-shell";
-    if ( defined($dbVersion) and -e "$mongoHome-$dbVersion" ) {
-        $mongoHome = "$mongoHome-$dbVersion";
+    my $mongodbHome = "$toolsDir/mongodb-client";
+    if ( defined($dbVersion) ) {
+        $mongodbHome = "$mongodbHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $mongodbHome ) {
+            $mongodbHome =~ s/\.\d+$//;
+        }
+        $mongodbHome =~ s/-$//;
+        if ( $mongodbHome eq "$toolsDir/mongodb-client" ) {
+            print("WARN: Can not find db client with version:mongodb-client-$dbVersion, fall back to default db client mongodb-client.\n");
+        }
     }
 
     $ENV{PATH} = "$mongoHome/bin:" . $ENV{PATH};

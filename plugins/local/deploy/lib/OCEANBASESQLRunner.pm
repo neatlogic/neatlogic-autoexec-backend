@@ -78,8 +78,17 @@ sub new {
     }
 
     my $obHome = "$toolsDir/ob-client";
-    if ( defined($dbVersion) and -e "$obHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $obHome = "$obHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $obHome ) {
+            $obHome =~ s/\.\d+$//;
+        }
+        $obHome =~ s/-$//;
+        if ( $obHome eq "$toolsDir/ob-client" ) {
+            print("WARN: Can not find db client with version:ob-client-$dbVersion, fall back to default db client ob-client.\n");
+        }
     }
 
     $ENV{PATH} = "$obHome/bin:" . $ENV{PATH};

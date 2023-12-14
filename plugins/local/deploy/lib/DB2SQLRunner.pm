@@ -190,11 +190,26 @@ sub new {
     my $runUser = $pwdInfo[0];
     my $homeDir = $pwdInfo[7];
 
+    my $db2Home = "$toolsDir/db2-client";
+    if ( defined($dbVersion) ) {
+        $db2Home = "$db2Home-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $db2Home ) {
+            $db2Home =~ s/\.\d+$//;
+        }
+        $db2Home =~ s/-$//;
+        if ( $db2Home eq "$toolsDir/db2-client" ) {
+            print("WARN: Can not find db client with version:db2-client-$dbVersion, fall back to default db client db2-client.\n");
+        }
+    }
+
+    #TODO：DB2需要在执行用户的HOME目录下存在sqllib指向DB2的client，无法区分版本
     if ( not -e "$homeDir/sqllib" ) {
         symlink( "$toolsDir/db2-client", "$homeDir/sqllib" );
     }
 
-    $ENV{DB2_HOME}        = "$toolsDir/db2-client";
+    $ENV{DB2_HOME}        = $db2Home;
     $ENV{DB2LIB}          = $ENV{DB2_HOME} . '/lib';
     $ENV{IBM_DB_LIB}      = $ENV{DB2LIB};
     $ENV{LD_LIBRARY_PATH} = $ENV{DB2_HOME} . '/lib64:' . $ENV{DB2_HOME} . '/bin:' . $ENV{LD_LIBRARY_PATH};
