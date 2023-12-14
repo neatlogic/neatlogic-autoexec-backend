@@ -57,8 +57,8 @@ sub new {
     }
 
     $ENV{HANA_HOME}       = "$toolsDir/$hanaHome";
-    $ENV{LD_LIBRARY_PATH} = $ENV{HANA_HOME} . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$hanaHome" . ':' . $ENV{PATH};
+    $ENV{LD_LIBRARY_PATH} = "$toolsDir/$hanaHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{PATH}            = "$toolsDir/$hanaHome/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
@@ -123,7 +123,7 @@ sub new {
         $self->{fileType} = 'SQL';
 
         print("INFO: Filetype:sql\n");
-        print(qq{INFO: Hdbsql -u "$user" -p "******" -n $host:$port -d "$dbName" $dbArgs\n});
+        print(qq{INFO: hdbsql -u "$user" -p "******" -n $host:$port -d "$dbName" $dbArgs\n});
         $spawn = Expect->spawn(qq{hdbsql -u "$user" -p "$pass" -n $host:$port -d "$dbName" $dbArgs});
         if ( not defined($spawn) ) {
             die("launch hana client failed, check if it exists and it's permission.\n");
