@@ -38,14 +38,23 @@ sub new {
     my $self = {};
     bless( $self, $pkg );
 
-    my $oraClientDir = 'oracle-client';
-    if ( defined($dbVersion) and -e "$toolsDir/oracle-client-$dbVersion" ) {
-        $oraClientDir = "oracle-client-$dbVersion";
+    my $oracleHome = "$toolsDir/oracle-client";
+    if ( defined($dbVersion) ) {
+        $oracleHome = "$oracleHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $oracleHome ) {
+            $oracleHome =~ s/\.\d+$//;
+        }
+        $oracleHome =~ s/-$//;
+        if ( $oracleHome eq "$toolsDir/oracle-client" ) {
+            print("WARN: Can not find db client with version:oracle-client-$dbVersion, fall back to default db client oracle-client.\n");
+        }
     }
 
-    $ENV{ORACLE_HOME}     = "$toolsDir/$oraClientDir";
+    $ENV{ORACLE_HOME}     = "$toolsDir/$oracleHome";
     $ENV{LD_LIBRARY_PATH} = $ENV{ORACLE_HOME} . '/lib:' . $ENV{ORACLE_HOME} . '/bin' . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$oraClientDir/bin:" . $ENV{PATH};
+    $ENV{PATH}            = "$toolsDir/$oracleHome/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';

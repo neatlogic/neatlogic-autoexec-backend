@@ -79,8 +79,17 @@ sub new {
     }
 
     my $sybaseHome = "$toolsDir/sybase-client";
-    if ( defined($dbVersion) and -e "$sybaseHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $sybaseHome = "$sybaseHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $sybaseHome ) {
+            $sybaseHome =~ s/\.\d+$//;
+        }
+        $sybaseHome =~ s/-$//;
+        if ( $sybaseHome eq "$toolsDir/sybase-client" ) {
+            print("WARN: Can not find db client with version:sybase-client-$dbVersion, fall back to default db client sybase-client.\n");
+        }
     }
 
     $ENV{SYBASE_HOME} = $sybaseHome;

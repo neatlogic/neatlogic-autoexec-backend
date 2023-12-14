@@ -75,8 +75,17 @@ sub new {
     }
 
     my $dmdbHome = "$toolsDir/dmdb-client";
-    if ( defined($dbVersion) and -e "$dmdbHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $dmdbHome = "$dmdbHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $dmdbHome ) {
+            $dmdbHome =~ s/\.\d+$//;
+        }
+        $dmdbHome =~ s/-$//;
+        if ( $dmdbHome eq "$toolsDir/dmdb-client" ) {
+            print("WARN: Can not find db client with version:dmdb-client-$dbVersion, fall back to default db client dmdb-client.\n");
+        }
     }
 
     $ENV{PATH}            = "$dmdbHome/bin:" . $ENV{PATH};

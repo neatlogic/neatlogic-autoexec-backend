@@ -17,19 +17,14 @@ use SQLFileRunner;
 sub usage {
     my $pname = $FindBin::Script;
 
-    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1] [--autocommit 0|1]\n");
+    print("Usage: $pname [--verbose 0|1] [--dryrun 0|1]\n");
     print("              [--maxparallel MaxParallelCount] [--extnames SqlExtNames]\n");
-    print("              [--dbversion DBVersion] [--dbargs DBArguments]\n");
-    print("              [--encoding SqlFileEncoding] [--filter SqlFileNamePattern]\n");
-    print("              [--index SqlIndexFiles] [--rollback 0|1]\n");
+    print("              [--filter SqlFileNamePattern] [--index SqlIndexFiles] \n");
+    print("              [--rollback 0|1]\n");
     print("\n");
     print("       --maxparallel: max parallel running sql files\n");
     print("       --extnames:    sql file extend names, default:sql,prc,pck,pkg,pkgh,pkgb\n");
     print("       --dryrun:      only test, not realy execute the sql script\n");
-    print("       --autocommit:  permit autocommit on mysql, postgresql\n");
-    print("       --dbVersion:   db major version number, example:orale 11g, --dbversion 11\n");
-    print("       --dbArgs:      db client tool extend arguments, example:oracle, --dbargs 'fully=y'\n");
-    print("       --encoding:    encoding for sql file\n");
     print("       --filter:      sql file name pattern, just execute matched sql file\n");
     print("       --index:       index file names\n");
     print("       --rollback:    execute sql files in sub directory:rollback\n");
