@@ -75,8 +75,17 @@ sub new {
     }
 
     my $gbaseHome = "$toolsDir/gbase-client";
-    if ( defined($dbVersion) and -e "$gbaseHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $gbaseHome = "$gbaseHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $gbaseHome ) {
+            $gbaseHome =~ s/\.\d+$//;
+        }
+        $gbaseHome =~ s/-$//;
+        if ( $gbaseHome eq "$toolsDir/gbase-client" ) {
+            print("WARN: Can not find db client with version:gbase-client-$dbVersion, fall back to default db client gbase-client.\n");
+        }
     }
 
     #确保路径要对

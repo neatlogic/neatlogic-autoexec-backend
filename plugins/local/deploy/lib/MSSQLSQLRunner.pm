@@ -69,8 +69,17 @@ sub new {
     $ENV{LC_ALL} = 'en_US.UTF-8';
 
     my $mssqlHome = "$toolsDir/mssql-client";
-    if ( defined($dbVersion) and -e "$mssqlHome-$dbVersion" ) {
+    if ( defined($dbVersion) ) {
         $mssqlHome = "$mssqlHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $mssqlHome ) {
+            $mssqlHome =~ s/\.\d+$//;
+        }
+        $mssqlHome =~ s/-$//;
+        if ( $mssqlHome eq "$toolsDir/mssql-client" ) {
+            print("WARN: Can not find db client with version:mssql-client-$dbVersion, fall back to default db client mssql-client.\n");
+        }
     }
 
     $ENV{PATH}            = "$mssqlHome/bin:" . $ENV{PATH};

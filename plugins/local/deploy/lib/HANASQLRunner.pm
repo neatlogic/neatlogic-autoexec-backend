@@ -42,14 +42,23 @@ sub new {
     my $self = {};
     bless( $self, $pkg );
 
-    my $hanaClientDir = 'hana-client';
-    if ( defined($dbVersion) and -e "$toolsDir/hana-client-$dbVersion" ) {
-        $hanaClientDir = "hana-client-$dbVersion";
+    my $hanaHome = "$toolsDir/hana-client";
+    if ( defined($dbVersion) ) {
+        $hanaHome = "$hanaHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $hanaHome ) {
+            $hanaHome =~ s/\.\d+$//;
+        }
+        $hanaHome =~ s/-$//;
+        if ( $hanaHome eq "$toolsDir/hana-client" ) {
+            print("WARN: Can not find db client with version:hana-client-$dbVersion, fall back to default db client hana-client.\n");
+        }
     }
 
-    $ENV{HANA_HOME}       = "$toolsDir/$hanaClientDir";
+    $ENV{HANA_HOME}       = "$toolsDir/$hanaHome";
     $ENV{LD_LIBRARY_PATH} = $ENV{HANA_HOME} . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$hanaClientDir" . ':' . $ENV{PATH};
+    $ENV{PATH}            = "$toolsDir/$hanaHome" . ':' . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';

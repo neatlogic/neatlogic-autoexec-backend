@@ -67,9 +67,18 @@ sub new {
     my $sqlFileName = basename($sqlFile);
     $self->{sqlFileName} = $sqlFileName;
 
-    my $pgHome = "$toolsDir/postgresql-client";
-    if ( defined($dbVersion) and -e "$pgHome-$dbVersion" ) {
+    my $pgHome = "$toolsDir/pg-client";
+    if ( defined($dbVersion) ) {
         $pgHome = "$pgHome-$dbVersion";
+
+        #如果全版本号client不存在，则逐步缩短版本号寻找可用的db client目录
+        while ( not -e $pgHome ) {
+            $pgHome =~ s/\.\d+$//;
+        }
+        $pgHome =~ s/-$//;
+        if ( $pgHome eq "$toolsDir/pg-client" ) {
+            print("WARN: Can not find db client with version:pg-client-$dbVersion, fall back to default db client pg-client.\n");
+        }
     }
 
     #$ENV{LC_MESSAGES}     = 'en_US.UTF-8';
@@ -119,7 +128,7 @@ sub test {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/Password for user $user: $/ => sub {
+            qr/Password: $|Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
             }
@@ -277,7 +286,7 @@ sub run {
     $spawn->expect(
         $logonTimeout,
         [
-            qr/Password for user $user: $/ => sub {
+            qr/Password: $|Password for user $user: $/ => sub {
                 $spawn->send("$pass\n");
                 $spawn->exp_continue;
             }
