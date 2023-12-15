@@ -49,7 +49,7 @@
         {
             "opt": "eofstr",
             "name": "启动成功字串",
-            "help": "如果日志编码不是UTF-8, 则配置:{GBK}启动完成; 尽量留空少用, 少用服务地址检测替代",
+            "help": "如果日志编码不是UTF-8, 则配置:{GBK}启动完成; 尽量留空少用, 用服务地址检测替代",
             "type": "text",
             "required": "false",
             "validate": "",
