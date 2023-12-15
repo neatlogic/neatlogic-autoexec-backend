@@ -90,7 +90,8 @@ sub new {
         }
     }
 
-    $ENV{PATH} = "$mongoHome/bin:" . $ENV{PATH};
+    $ENV{PATH}            = "$mongodbHome/bin:" . $ENV{PATH};
+    $ENV{LD_LIBRARY_PATH} = "$mongodbHome/lib:$mongodbHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     $dbStr =~ s/mongodb\///;
     print("INFO: Mongondb://$dbStr\n");

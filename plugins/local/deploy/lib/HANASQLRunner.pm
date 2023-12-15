@@ -56,9 +56,9 @@ sub new {
         }
     }
 
-    $ENV{HANA_HOME}       = "$toolsDir/$hanaHome";
-    $ENV{LD_LIBRARY_PATH} = "$toolsDir/$hanaHome/lib:" . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$hanaHome/bin:" . $ENV{PATH};
+    $ENV{HANA_HOME}       = $hanaHome;
+    $ENV{LD_LIBRARY_PATH} = "$hanaHome/lib:$hanaHome/bin:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{PATH}            = "$hanaHome/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';

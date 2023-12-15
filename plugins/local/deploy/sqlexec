@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use strict;
+
+use POSIX;
 use FindBin;
 use Cwd;
 use Digest::MD5;
@@ -168,14 +170,19 @@ sub main {
         $jobId = 0;
     }
 
-    my $toolsDir;
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
+
+    my $toolsDir = "$autoexecHome/tools";
+    my $cpuArch  = ( uname() )[4];
+    if ( -d ( $toolsDir / $cpuArch ) ) {
+        $toolsDir = "$toolsDir/$cpuArch";
+    }
+
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
         $autoexecHome       = Cwd::realpath("$FindBin::Bin/../../..");
         $ENV{AUTOEXEC_HOME} = $autoexecHome;
         $ENV{TOOLS_PATH}    = $toolsDir;
     }
-    $toolsDir = "$autoexecHome/tools";
 
     my $dbExtArgs = {
         fileCharset => $charSet,

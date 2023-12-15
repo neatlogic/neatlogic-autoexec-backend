@@ -83,7 +83,7 @@ sub new {
     }
 
     $ENV{PATH}            = "$mssqlHome/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$mssqlHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$mssqlHome/lib:$mssqlHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     my $sqlDir      = dirname($sqlFile);
     my $sqlFileName = basename($sqlFile);

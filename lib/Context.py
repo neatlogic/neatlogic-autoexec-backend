@@ -4,6 +4,7 @@
  Copyright © 2017 NeatLogic
 """
 
+import platform
 import os
 import re
 from filelock import FileLock
@@ -159,7 +160,12 @@ class Context(VContext.VContext):
             os.environ['DIST_ROOT'] = '%s/artifact/%s/env' % (dataPath, version)
             os.environ['APP_DIST'] = '%s/artifact/%s/env/%s/app' % (dataPath, version, envId)
             os.environ['DB_SCRIPT'] = '%s/artifact/%s/env/%s/db' % (dataPath, version, envId)
-            os.environ['TOOLS_PATH'] = '%s/tools' % (os.getenv('AUTOEXEC_HOME'))
+
+            toolsDir = '%s/tools' % (os.getenv('AUTOEXEC_HOME'))
+            cpuArch = platform.machine()
+            if ( os.path.isdir('%s/%s' % (toolsDir, cpuArch))):
+                toolsDir = '%s/%s' % (toolsDir, cpuArch)
+            os.environ['TOOLS_PATH'] = toolsDir
 
         passThroughInParams = params.get('passThroughEnv', None)
         if passThroughInParams is not None:

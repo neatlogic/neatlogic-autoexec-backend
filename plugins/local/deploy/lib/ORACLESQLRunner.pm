@@ -58,9 +58,9 @@ sub new {
         }
     }
 
-    $ENV{ORACLE_HOME}     = "$toolsDir/$oracleHome";
-    $ENV{LD_LIBRARY_PATH} = $ENV{ORACLE_HOME} . '/lib:' . $ENV{ORACLE_HOME} . '/bin' . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$oracleHome/bin:$toolsDir/oracle-sqlcl/bin:" . $ENV{PATH};
+    $ENV{ORACLE_HOME}     = $oracleHome;
+    $ENV{LD_LIBRARY_PATH} = "$oracleHome/lib:$oracleHome/bin:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{PATH}            = "$oracleHome/bin:$toolsDir/oracle-sqlcl/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';

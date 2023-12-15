@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package HGDBSQLRunner;
+package GAUSSDBSQLRunner;
 
 use base qw(POSTGRESQLSQLRunner);
 

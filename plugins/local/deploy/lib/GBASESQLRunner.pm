@@ -89,15 +89,18 @@ sub new {
     }
 
     #确保路径要对
+    $ENV{GCLUSTER_BASE}   = "$gbaseHome/gcluster";
+    $ENV{GCLUSTER_HOME}   = "$gbaseHome/gcluster/server";
+    $ENV{GCLUSTER_SID}    = 'gcluster';
     $ENV{PATH}            = "$gbaseHome/gcluster/server/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$gbaseHome/gcluster/server/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$gbaseHome/gcluster/server/lib/gbase:$gbaseHome/gcluster/server/bin:" . $ENV{LD_LIBRARY_PATH};
 
-    print(qq{INFO: Gccli -u"$user" -p"******" -D"$dbName" -h$host -P$port\n});
+    print(qq{INFO: gbase -u"$user" -p"******" -D"$dbName" -h$host -P$port\n});
 
-    my $spawn = Expect->spawn(qq{gccli -u"$user" -p"$pass" -D"$dbName" -h$host -P$port});
+    my $spawn = Expect->spawn(qq{gbase -u"$user" -p"$pass" -D"$dbName" -h$host -P$port});
 
     if ( not defined($spawn) ) {
-        die("launch gccli client failed, check if it exists and it's permission.\n");
+        die("launch gbase client failed, check if it exists and it's permission.\n");
     }
 
     $spawn->max_accum(2048);
