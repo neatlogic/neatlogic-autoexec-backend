@@ -89,8 +89,8 @@
     "output": [
         {
             "opt": "DATA",
-            "name": "JSON数据",
-            "help": "采集到的数据",
+            "name": "未识别数据",
+            "help": "采集到的未能识别目标类别的数据",
             "type": "json"
         }
     ]
