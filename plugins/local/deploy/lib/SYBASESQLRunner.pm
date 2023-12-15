@@ -92,9 +92,10 @@ sub new {
         }
     }
 
-    $ENV{SYBASE_HOME} = $sybaseHome;
-    $ENV{SYBASE}      = $sybaseHome;
-    $ENV{PATH}        = "$sybaseHome/bin:" . $ENV{PATH};
+    $ENV{SYBASE_HOME}     = $sybaseHome;
+    $ENV{SYBASE}          = $sybaseHome;
+    $ENV{LD_LIBRARY_PATH} = "$sybaseHome/lib:$sybaseHome/bin:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{PATH}            = "$sybaseHome/bin:" . $ENV{PATH};
 
     my $sqlDir      = dirname($sqlFile);
     my $sqlFileName = basename($sqlFile);

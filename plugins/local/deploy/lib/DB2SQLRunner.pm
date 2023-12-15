@@ -203,20 +203,27 @@ sub new {
             print("WARN: Can not find db client with version:db2-client-$dbVersion, fall back to default db client db2-client.\n");
         }
     }
+    $db2Home = "$db2Home/sqllib";
 
     #TODO：DB2需要在执行用户的HOME目录下存在sqllib指向DB2的client，无法区分版本
-    if ( not -e "$homeDir/sqllib" ) {
-        symlink( "$toolsDir/db2-client", "$homeDir/sqllib" );
+    my $sqllibLnk = "$homeDir/sqllib";
+    if ( not symlink( $db2Home, $sqllibLnk ) ) {
+        my $lnkTarget = readlink($sqllibLnk);
+        if ( $lnkTarget ne $db2Home ) {
+            print("WARN: DB2 $sqllibLnk link target $lnkTarget not equal $db2Home, recreate...\n");
+            unlink($sqllibLnk);
+            symlink( $db2Home, $sqllibLnk );
+        }
     }
 
     $ENV{DB2_HOME}        = $db2Home;
-    $ENV{DB2LIB}          = $ENV{DB2_HOME} . '/lib';
+    $ENV{DB2LIB}          = $db2Home . '/lib';
     $ENV{IBM_DB_LIB}      = $ENV{DB2LIB};
-    $ENV{LD_LIBRARY_PATH} = $ENV{DB2_HOME} . '/lib64:' . $ENV{DB2_HOME} . '/bin:' . $ENV{LD_LIBRARY_PATH};
-    $ENV{IBM_DB_HOME}     = $ENV{DB2_HOME};
-    $ENV{IBM_DB_DIR}      = $ENV{DB2_HOME};
-    $ENV{IBM_DB_INCLUDE}  = $ENV{DB2_HOME} . '/include';
-    $ENV{PATH}            = $ENV{DB2_HOME} . '/bin:' . $ENV{DB2_HOME} . '/adm:' . $ENV{PATH};
+    $ENV{LD_LIBRARY_PATH} = $db2Home . '/lib64:' . $db2Home . '/bin:' . $ENV{LD_LIBRARY_PATH};
+    $ENV{IBM_DB_HOME}     = $db2Home;
+    $ENV{IBM_DB_DIR}      = $db2Home;
+    $ENV{IBM_DB_INCLUDE}  = $db2Home . '/include';
+    $ENV{PATH}            = $db2Home . '/bin:' . $db2Home . '/adm:' . $ENV{PATH};
     $ENV{DB2INSTANCE}     = $runUser;
 
     #通过环境变量DB2CODEPAGE设置client的charset，1208是UTF-8

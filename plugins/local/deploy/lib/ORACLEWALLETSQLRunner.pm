@@ -3,7 +3,7 @@ use strict;
 
 package ORACLEWALLETSQLRunner;
 
-use base 'ORACLESQLRunner';
+use base qw(ORACLESQLRunner);
 use FindBin;
 use Expect;
 use Encode;
@@ -52,9 +52,9 @@ sub new {
         }
     }
 
-    $ENV{ORACLE_HOME}     = "$toolsDir/$oracleHome";
-    $ENV{LD_LIBRARY_PATH} = $ENV{ORACLE_HOME} . '/lib:' . $ENV{ORACLE_HOME} . '/bin' . $ENV{LD_LIBRARY_PATH};
-    $ENV{PATH}            = "$toolsDir/$oracleHome/bin:" . $ENV{PATH};
+    $ENV{ORACLE_HOME}     = $oracleHome;
+    $ENV{LD_LIBRARY_PATH} = "$oracleHome/lib:$oracleHome/bin:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{PATH}            = "$oracleHome/bin:" . $ENV{PATH};
 
     if ( defined($dbServerLocale) and ( $dbServerLocale eq 'ISO-8859-1' or $dbServerLocale =~ /\.WE8ISO8859P1/ ) ) {
         $ENV{NLS_LANG} = 'AMERICAN_AMERICA.WE8ISO8859P1';
@@ -70,6 +70,7 @@ sub new {
 
     $sqlFile =~ s/^\s*'|'\s*$//g;
 
+    $self->{cpuArch}       = $cpuArch;
     $self->{sqlFileStatus} = $sqlFileStatus;
     $self->{toolsDir}      = $toolsDir;
     $self->{tmpDir}        = $tmpDir;

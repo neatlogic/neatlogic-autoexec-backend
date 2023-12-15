@@ -106,15 +106,15 @@ sub new {
     $ENV{GIT_PWD}     = $gitPass;
     $ENV{GIT_ASKPASS} = 'git-askpass';
 
-    $self->setGitEnv();
+    $self->setGitEnv($buildEnv);
 
     return $self;
 }
 
 sub setGitEnv {
-    my ($self) = @_;
+    my ( $self, $buildEnv ) = @_;
 
-    my $toolsPath = $ENV{TOOLS_PATH};
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
     my $gitHome   = "$toolsPath/git";
     $ENV{LD_LIBRARY_PATH}   = "$gitHome/lib64:" . $ENV{LD_LIBRARY_PATH};
     $ENV{PATH}              = "$gitHome/bin:" . "$gitHome/libexec/git-core:" . $ENV{PATH};

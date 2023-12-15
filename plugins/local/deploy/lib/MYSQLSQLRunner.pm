@@ -90,7 +90,7 @@ sub new {
     }
 
     $ENV{PATH}            = "$mysqlHome/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$mysqlHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$mysqlHome/lib:$mysqlHome/bin:" . $ENV{LD_LIBRARY_PATH};
     $ENV{MYSQL_HISTFILE}  = '/dev/null';
 
     print(qq{INFO: Mysql -v -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});

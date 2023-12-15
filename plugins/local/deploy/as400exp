@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use strict;
+
+use POSIX;
 use FindBin;
 use Expect;
 $Expect::Multiline_Matching = 1;
@@ -85,6 +87,11 @@ sub main {
     $desc = $user . "\@" . $host . "/" . $insName;
 
     my $toolsDir = Cwd::abs_path("$FindBin::Bin/../../../tools");
+    my $cpuArch  = ( uname() )[4];
+    if ( -d ( $toolsDir / $cpuArch ) ) {
+        $toolsDir = "$toolsDir/$cpuArch";
+    }
+
     my $x3270Exec;
     eval { $x3270Exec = X3270Runner->new( toolsDir => $toolsDir, host => $host, port => $port, user => $user, pass => $pass, ccsid => $ccsid, connectTimeout => $timeout ); };
 

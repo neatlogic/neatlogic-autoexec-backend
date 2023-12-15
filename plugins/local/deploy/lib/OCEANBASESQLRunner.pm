@@ -91,7 +91,8 @@ sub new {
         }
     }
 
-    $ENV{PATH} = "$obHome/bin:" . $ENV{PATH};
+    $ENV{PATH}            = "$obHome/bin:" . $ENV{PATH};
+    $ENV{LD_LIBRARY_PATH} = "$obHome/lib:$obHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     $ENV{MYSQL_HISTFILE} = '/dev/null';
 

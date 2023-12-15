@@ -83,7 +83,7 @@ sub new {
 
     #$ENV{LC_MESSAGES}     = 'en_US.UTF-8';
     $ENV{PATH}            = "$pgHome/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$pgHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$pgHome/lib:$pgHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     chdir($sqlDir);
 
