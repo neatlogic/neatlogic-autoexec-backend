@@ -75,7 +75,7 @@ sub main() {
 
     my $toolsDir = "$autoexecHome/tools";
     my $cpuArch  = ( uname() )[4];
-    if ( -d ( $toolsDir / $cpuArch ) ) {
+    if ( -d "$toolsDir/$cpuArch" ) {
         $toolsDir = "$toolsDir/$cpuArch";
     }
 
