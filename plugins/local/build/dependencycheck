@@ -35,6 +35,9 @@ if __name__ == "__main__":
         print('ERROR: project path not found')
         exit(1)
 
+    tools_path = os.environ.get('TOOLS_PATH')
+    os.environ['JAVA_HOME'] = '%s/jdk' % (tools_path)
+    
     startdir = str(Path(project_path) / args.startdir)
     if not project_path or not Path(project_path).exists():
         print('ERROR: startdir path not found')
