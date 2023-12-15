@@ -123,13 +123,8 @@ sub main {
         return 2;
     }
 
-    my $javaPath = 'java';
-    if ( defined( $ENV{JAVA_HOME} ) and $ENV{JAVA_HOME} ne '' ) {
-        $javaPath = $ENV{JAVA_HOME} . '/bin/java';
-        if ( not -x $javaPath ) {
-            $javaPath = 'java';
-        }
-    }
+    my $toolsPath = $buildEnv->{TOOLS_PATH};
+    my $javaPath  = "$toolsPath/jdk/bin/java";
 
     my $libPath = $FindBin::Bin . '/lib/neatlogic-diff-1.0-jar-with-dependencies.jar';
     if ( not -f $libPath ) {
