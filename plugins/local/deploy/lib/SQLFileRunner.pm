@@ -5,7 +5,7 @@ package SQLFileRunner;
 
 use FindBin;
 use Encode;
-use POSIX qw(strftime);
+use POSIX qw(strftime uname);
 use IO::File;
 use Cwd;
 use Digest::MD5;
@@ -39,6 +39,7 @@ sub new {
         sqlStatusDir => $args{sqlStatusDir},
         logFileDir   => $args{logFileDir},
         fileCharset  => $args{fileCharset},
+        cpuArch      => ( uname() )[4],
 
         sqlFiles   => $args{sqlFiles},
         isForce    => $args{isForce},
@@ -380,6 +381,7 @@ sub execOneSqlFile {
                     tmpDir        => $self->{tmpDir},
                     dbInfo        => $dbInfo,
                     charSet       => $fileCharset,
+                    cpuArch       => $self->{cpuArch},
                     logFilePath   => $logFilePath,
                     isInteract    => $self->{isInteract}
                 );
@@ -900,7 +902,8 @@ sub checkDBSchemas {
                 toolsDir => $self->{toolsDir},
                 tmpDir   => $self->{tmpDir},
                 dbInfo   => $dbInfo,
-                charSet  => 'UTF-8'
+                charSet  => 'UTF-8',
+                cpuArch  => $self->{cpuArch}
             );
             my $hasLogon = $handler->test();
             if ( $hasLogon != 1 ) {
@@ -952,7 +955,8 @@ sub testByIpPort {
             toolsDir => $self->{toolsDir},
             tmpDir   => $self->{tmpDir},
             dbInfo   => $dbInfo,
-            charSet  => 'UTF-8'
+            charSet  => 'UTF-8',
+            cpuArch  => $self->{cpuArch}
         );
         $hasLogon = $handler->test();
     };

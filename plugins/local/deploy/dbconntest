@@ -1,11 +1,12 @@
 #!/usr/bin/perl
-
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../pllib/lib/perl5";
 
 use strict;
+
+use POSIX;
 use JSON;
 use Getopt::Long;
 
@@ -72,8 +73,14 @@ sub main() {
 
     my $hasError = 0;
 
+    my $toolsDir = "$autoexecHome/tools";
+    my $cpuArch  = ( uname() )[4];
+    if ( -d "$toolsDir/$cpuArch" ) {
+        $toolsDir = "$toolsDir/$cpuArch";
+    }
+
     my $sqlFileRunner = SQLFileRunner->new(
-        toolsDir => $autoexecHome . '/tools',
+        toolsDir => $toolsDir,
         tmpDir   => $autoexecHome . '/tmp'
     );
 

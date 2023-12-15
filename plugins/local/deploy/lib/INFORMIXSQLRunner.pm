@@ -124,8 +124,9 @@ sub new {
         }
     }
 
-    $ENV{INFORMIXDIR} = $informixHome;
-    $ENV{PATH}        = "$informixHome/bin:" . $ENV{PATH};
+    $ENV{INFORMIXDIR}     = $informixHome;
+    $ENV{PATH}            = "$informixHome/bin:" . $ENV{PATH};
+    $ENV{LD_LIBRARY_PATH} = "$informixHome/lib:$informixHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     my $sqlDir      = dirname($sqlFile);
     my $sqlFileName = basename($sqlFile);

@@ -99,7 +99,7 @@ sub new {
     $ENV{HADOOP_MAPRED_HOME} = $hadoopHome;
 
     $ENV{PATH}            = "$hadoopHome/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$hadoopHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$hadoopHome/lib:$hadoopHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     my $cmd    = qq{beeline -u "jdbc:hive2://$host:$port/$dbName" -n "$user" -p "$pass"};
     my $extOpt = "--autoCommit=false";

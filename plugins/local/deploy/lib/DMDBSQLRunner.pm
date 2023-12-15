@@ -89,7 +89,7 @@ sub new {
     }
 
     $ENV{PATH}            = "$dmdbHome/bin:" . $ENV{PATH};
-    $ENV{LD_LIBRARY_PATH} = "$dmdbHome/bin:$dmdbHome/lib:" . $ENV{LD_LIBRARY_PATH};
+    $ENV{LD_LIBRARY_PATH} = "$dmdbHome/lib:$dmdbHome/bin:" . $ENV{LD_LIBRARY_PATH};
 
     print(qq{INFO: Disql -L "$user"/"******"\@$host:$port\n});
 

@@ -2,6 +2,8 @@
 use strict;
 
 package DeployUtils;
+
+use POSIX;
 use IPC::Open2;
 use feature 'state';
 use Cwd;
@@ -123,8 +125,14 @@ sub deployInit {
         my $mirrorRoot  = "$dataPath/mirror";
         my $buildRoot   = "$dataPath/artifact/$version/build";
 
+        my $toolsDir = "$autoexecHome/tools";
+        my $cpuArch  = ( uname() )[4];
+        if ( -d "$toolsDir/$cpuArch" ) {
+            $toolsDir = "$toolsDir/$cpuArch";
+        }
+
         $deployEnv->{VERDATA_ROOT} = $verDataRoot;
-        $deployEnv->{TOOLS_PATH}   = "$autoexecHome/tools";
+        $deployEnv->{TOOLS_PATH}   = $toolsDir;
         $deployEnv->{DATA_PATH}    = $dataPath;
         $deployEnv->{VER_ROOT}     = $verRoot;
         $deployEnv->{PRJ_ROOT}     = $prjRoot;
@@ -145,7 +153,12 @@ sub deployInit {
         }
     }
     else {
-        $deployEnv->{TOOLS_PATH} = $ENV{TOOLS_PATH};
+        my $toolsDir = "$autoexecHome/tools";
+        my $cpuArch  = ( uname() )[4];
+        if ( -d "$toolsDir/$cpuArch" ) {
+            $toolsDir = "$toolsDir/$cpuArch";
+        }
+        $deployEnv->{TOOLS_PATH} = $toolsDir;
 
         $deployEnv->{SYS_NAME}    = $ENV{SYS_NAME};
         $deployEnv->{MODULE_NAME} = $ENV{MODULE_NAME};

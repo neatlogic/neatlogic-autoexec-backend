@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
+use POSIX;
 use FindBin;
 use Cwd;
 $Expect::Multiline_Matching = 1;
@@ -107,6 +108,10 @@ sub main {
     $desc = $user . "\@" . $host . "/" . $insName;
 
     my $toolsDir = Cwd::abs_path("$FindBin::Bin/../../../tools");
+    my $cpuArch  = ( uname() )[4];
+    if ( -d "$toolsDir/$cpuArch" ) {
+        $toolsDir = "$toolsDir/$cpuArch";
+    }
 
     my $workPath = $ENV{AUTOEXEC_WORK_PATH};
     my $jarsPath = "$toolsDir/as400";
