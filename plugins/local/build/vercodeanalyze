@@ -125,7 +125,7 @@ sub main {
 
     my $toolsPath = $buildEnv->{TOOLS_PATH};
     $ENV{JAVA_HOME} = "$toolsPath/jdk";
-    $ENV{PATH}      = "$toolsPath/bin:" . $ENV{PATH};
+    $ENV{PATH}      = "$toolsPath/jdk/bin:" . $ENV{PATH};
 
     my $libPath = $FindBin::Bin . '/lib/neatlogic-diff-1.0-jar-with-dependencies.jar';
     if ( not -f $libPath ) {
