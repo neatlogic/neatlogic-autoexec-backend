@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+import getpass
 import argparse
 import threading
 import queue
@@ -304,6 +305,9 @@ class NmapScan:
                     elif name == 'Status':
                         hostInfo['Status'] = val.strip()
                     else:
+                        if hostInfo is None:
+                            user = getpass.getuser()
+                            print("WARN: Execute nmap failed, check the sudoers setting for user %s to execute command nmap." % (user))
                         hostInfo[name] = val
 
         return result
