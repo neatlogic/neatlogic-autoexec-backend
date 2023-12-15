@@ -124,7 +124,8 @@ sub main {
     }
 
     my $toolsPath = $buildEnv->{TOOLS_PATH};
-    my $javaPath  = "$toolsPath/jdk/bin/java";
+    $ENV{JAVA_HOME} = "$toolsPath/jdk";
+    $ENV{PATH}      = "$toolsPath/bin:" . $ENV{PATH};
 
     my $libPath = $FindBin::Bin . '/lib/neatlogic-diff-1.0-jar-with-dependencies.jar';
     if ( not -f $libPath ) {
@@ -134,7 +135,7 @@ sub main {
 
 #result = subprocess.run([java_path, '-jar', libPath, '--type', args.repotype, '--path', project_path, '--url', args.repo, '--username',args.user, '--password', args.password, '--sourceBranch', args.branch, '--targetBranch', args.trunk, '--output', output_path, '--verbose', args.verbose], stderr=subprocess.STDOUT)
 
-    my @cmds = ( $javaPath, '-jar', $libPath, '--type', $verInfo->{repoType}, '--path', $prjPath, '--url', $verInfo->{repo}, '--username', $userName, '--password', $password, '--sourceBranch', $sourceBranch, '--targetBranch', $verInfo->{trunk}, '--output', $outputPath, '--verbose', $isVerbose );
+    my @cmds = ( 'java', '-jar', $libPath, '--type', $verInfo->{repoType}, '--path', $prjPath, '--url', $verInfo->{repo}, '--username', $userName, '--password', $password, '--sourceBranch', $sourceBranch, '--targetBranch', $verInfo->{trunk}, '--output', $outputPath, '--verbose', $isVerbose );
     my $cmd  = '';
     foreach my $cmdOpt (@cmds) {
         $cmd = $cmd . "'$cmdOpt' ";
