@@ -127,7 +127,7 @@ sub deployInit {
 
         my $toolsDir = "$autoexecHome/tools";
         my $cpuArch  = ( uname() )[4];
-        if ( -d ( $toolsDir / $cpuArch ) ) {
+        if ( -d "$toolsDir/$cpuArch" ) {
             $toolsDir = "$toolsDir/$cpuArch";
         }
 
@@ -155,7 +155,7 @@ sub deployInit {
     else {
         my $toolsDir = "$autoexecHome/tools";
         my $cpuArch  = ( uname() )[4];
-        if ( -d ( $toolsDir / $cpuArch ) ) {
+        if ( -d "$toolsDir/$cpuArch" ) {
             $toolsDir = "$toolsDir/$cpuArch";
         }
         $deployEnv->{TOOLS_PATH} = $toolsDir;
