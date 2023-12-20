@@ -165,7 +165,8 @@ sub collect {
     my $poolLineCount    = scalar(@$appPoolInfoLines);
     foreach ( my $i = 3 ; $i < $poolLineCount ; $i++ ) {
         my $line = $$appPoolInfoLines[$i];
-        print("DEBUG: line:$line\n");
+
+        #print("DEBUG: line:$line\n");
 
         if ( $line =~ /^\s*(.*?)\s+(Started|Stopped)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/ ) {
             my $poolInfo = {};
