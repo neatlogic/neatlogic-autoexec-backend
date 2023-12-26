@@ -31,16 +31,16 @@ sub main {
     my ( $image,    $tagname, $registry, $project, $storeType );
 
     GetOptions(
-        'h|help'     => \$isHelp,
-        'envpath=s'  => \$envPath,
-        'version=s'  => \$version,
-        'buildno=s'  => \$buildNo,
-        'registry=s' => \$registry,
-        'project=s'  => \$project,
-        'image=s'    => \$image,
-        'tagname=s'  => \$tagname,
-        'user=s'     => \$username,
-        'password=s' => \$password,
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'registry=s'  => \$registry,
+        'project=s'   => \$project,
+        'image=s'     => \$image,
+        'tagname=s'   => \$tagname,
+        'user=s'      => \$username,
+        'password=s'  => \$password,
         'storeType=s' => \$storeType
     );
 
@@ -85,13 +85,19 @@ sub main {
         $storeType = 'dockerHub';
     }
 
+    # my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
+    # $ENV{PATH}     = "$autoexecHome/bin:" . $ENV{PATH};
+    # $ENV{Username} = $username;
+    # $ENV{Secret}   = $password;
+
     $project = lc($project);
     $image   = lc($image);
     $tagname = lc($tagname);
 
     my $hasError = 0;
 
-    if ($storeType eq 'harbor'){
+    if ( $storeType eq 'harbor' ) {
+
         # check if project exists on remote repository
         print("INFO: Checking if project exists...\n");
         my $projectCheckCmd     = "curl -s -u '$username:$password' -X GET --header  'Accept: application/json' 'http://$registry/api/projects?name=$project'";
@@ -119,9 +125,10 @@ sub main {
     }
 
     # login first
-    my $loginCmd      = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
-    my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
-    print("INFO: Execute->$loginCmdPrint\n");
+    my $loginCmd = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin >/dev/null 2>&1";
+
+    #my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
+    print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
     my $loginRet = $deployUtils->execmd($loginCmd);
     if ( $loginRet eq 0 ) {
         print("INFO: Docker login success!\n");
@@ -139,7 +146,7 @@ sub main {
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
     my $image_name = "$registry/$project/$image:$tagname";
-    my $cmd = "sudo docker push $image_name";
+    my $cmd        = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
