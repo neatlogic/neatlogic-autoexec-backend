@@ -43,12 +43,14 @@ sub main {
     $tagname = lc($tagname);
 
     my $hasError = 0;
+
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
-    
+
     # login first
-    my $loginCmd      = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
-    my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
-    print("INFO: Execute->$loginCmdPrint\n");
+    my $loginCmd = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin >/dev/null 2>&1";
+
+    #my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
+    print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
     my $loginRet = system($loginCmd);
     if ( $loginRet eq 0 ) {
         print("INFO: Docker login success!\n");
@@ -60,7 +62,7 @@ sub main {
     }
 
     my $image_name = "$registry/$project/$image:$tagname";
-    my $cmd = "docker rmi $image_name $image:$tagname";
+    my $cmd        = "docker rmi $image_name $image:$tagname";
     print("INFO: Execute->$cmd\n");
 
     my $ret = system($cmd );
