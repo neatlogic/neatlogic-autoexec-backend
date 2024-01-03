@@ -44,6 +44,8 @@ our %release_files = (
     'pardus-release'        => 'pardus',
     'system-release'        => 'amazon',
     'CloudLinux-release'    => 'CloudLinux',
+    'openEuler-release'     => 'openEuler',
+    'kylin-release'         => 'Kylin',
 );
 
 our %version_match = (
@@ -56,11 +58,14 @@ our %version_match = (
     'oracle enterprise linux' => 'Enterprise Linux Server release (.+) \(',
     'slackware'               => '^Slackware (.+)$',
     'pardus'                  => '^Pardus (.+)$',
+
     #'centos'                  => 'Red Hat(?: Enterprise)? Linux(?: Server)?(?: AS)? release (.*) \(',
-    'centos'                  => '^CentOS(?: Linux)? release (.+) \(',
-    'scientific'              => '^Scientific Linux release (.+) \(',
-    'amazon'                  => 'Amazon Linux AMI release (.+)$',
-    'CloudLinux'              => 'CloudLinux Server release (\S+)'
+    'centos'     => '^CentOS(?: Linux)? release (.+) \(',
+    'scientific' => '^Scientific Linux release (.+) \(',
+    'amazon'     => 'Amazon Linux AMI release (.+)$',
+    'CloudLinux' => 'CloudLinux Server release (\S+)',
+    'openEuler'  => 'openEuler release (.+)$',
+    'Kylin'      => 'Kylin Linux Advanced server release (\S+)',
 );
 
 if ( $^O ne 'linux' ) {
@@ -162,7 +167,7 @@ sub _get_file_info {
     while (<$fh>) {
         chomp $_;
         ($info) = $_ =~ m/$self->{'pattern'}/;
-        if ( not defined($info) and $self->{'DISTRIB_ID'} eq 'centos' ){
+        if ( not defined($info) and $self->{'DISTRIB_ID'} eq 'centos' ) {
             ($info) = $_ =~ m/$version_match{'redhat'}/;
         }
         return "\L$info" if $info;
