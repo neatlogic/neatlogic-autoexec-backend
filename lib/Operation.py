@@ -692,9 +692,9 @@ class Operation:
                         cmd = 'cd {} && {} {}'.format(remotePath, self.interpreter, self.scriptFileName)
             else:
                 if fullPath:
-                    cmd = self.pluginPath
+                    cmd = '{} {}'.format(self.interpreter, self.pluginPath)
                 else:
-                    cmd = self.opName
+                    cmd = '{} {}'.format(self.interpreter, self.opName)
         else:
             # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
             if self.opType == 'remote':
