@@ -235,6 +235,10 @@ sub collect {
     if ( not defined( $verInfo->{VERSION} ) and -e "$binPath/apachectl" ) {
         $verInfo = $self->getVerInfo(qq{sh "$binPath/apachectl" -XV});
     }
+    if ( not defined( $verInfo->{VERSION} ) ) {
+        $verInfo = $self->getVerInfo(qq{"$binPath/httpd" -v});
+    }
+
     while ( my ( $k, $v ) = each(%$verInfo) ) {
         $appInfo->{$k} = $v;
     }
