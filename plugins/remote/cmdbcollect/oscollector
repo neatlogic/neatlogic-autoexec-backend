@@ -317,8 +317,19 @@ sub mergeMultiProcs {
             @bindAddrs = keys(%$bindAddrsMap);
             $connInfo->{BIND} = \@bindAddrs;
 
-            my @remoteAddrs = keys( %{ $connInfo->{PEER} } );
-            $connInfo->{PEER} = \@remoteAddrs;
+            #把connInfo中的PEER信息，区分开local ip和远端IP，分开存放
+            my @localPeerAddrs  = ();
+            my @remotePeerAddrs = ();
+            foreach my $rAddr ( keys( %{ $connInfo->{PEER} } ) ) {
+                if ( $rAddr =~ /^127\./ or $rAddr =~ /^::1:/ ) {
+                    push( @localPeerAddrs, $rAddr );
+                }
+                else {
+                    push( @remotePeerAddrs, $rAddr );
+                }
+            }
+            $connInfo->{PEER}       = \@remotePeerAddrs;
+            $connInfo->{LOCAL_PEER} = \@localPeerAddrs;
             delete( $procInfo->{CONN_INFO} );
 
             #TCP连接统计信息中的比率指标统计
@@ -436,7 +447,7 @@ sub doDetailCollect {
     if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
 
         #Windows System进程没有lisnten信息
-        $connInfo = { PEER => {}, LISTEN => {} };
+        $connInfo = { PEER => {}, LOCAL_PEER => {}, LISTEN => {} };
     }
     else {
         $connInfo = $connGather->getListenInfo( $pid, $isContainer );

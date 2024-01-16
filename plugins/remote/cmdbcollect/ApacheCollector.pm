@@ -217,11 +217,12 @@ sub collect {
         $instPath = '/etc/httpd';
     }
     else {
-        if ( $procInfo->{COMMAND} =~ /^(.*?)\/httpd\s/ ) {
+        if ( $procInfo->{COMMAND} =~ /^(.*?)[\/\\]httpd\s/ ) {
             $binPath = $1;
-            if ( $binPath eq './' or $binPath eq '' ) {
+            if ( $binPath eq './' or $binPath eq '.\\' or $binPath eq '' ) {
                 $binPath = $procInfo->{ENVIRONMENT}->{PWD};
             }
+            $binPath  = File::Spec->canonpath($binPath);
             $instPath = dirname($binPath);
             $confPath = "$instPath/conf";
         }
@@ -231,19 +232,23 @@ sub collect {
     $appInfo->{BIN_PATH}     = $binPath;
     $appInfo->{CONFIG_PATH}  = $confPath;
 
-    my $verInfo = $self->getVerInfo(qq{"$binPath/httpd" -XV});
-    if ( not defined( $verInfo->{VERSION} ) and -e "$binPath/apachectl" ) {
-        $verInfo = $self->getVerInfo(qq{sh "$binPath/apachectl" -XV});
+    my $httpdPath = File::Spec->catdir( $binPath, 'httpd' );
+    my $verInfo   = $self->getVerInfo(qq{"$httpdPath" -XV});
+
+    my $apachectlPath = File::Spec->catdir( $binPath, 'apachectl' );
+    if ( not defined( $verInfo->{VERSION} ) and -e "$apachectlPath" ) {
+        $verInfo = $self->getVerInfo(qq{sh "$apachectlPath" -XV});
     }
+
     if ( not defined( $verInfo->{VERSION} ) ) {
-        $verInfo = $self->getVerInfo(qq{"$binPath/httpd" -v});
+        $verInfo = $self->getVerInfo(qq{"$httpdPath" -v});
     }
 
     while ( my ( $k, $v ) = each(%$verInfo) ) {
         $appInfo->{$k} = $v;
     }
 
-    my $confFile = "$confPath/httpd.conf";
+    my $confFile = File::Spec->catdir( $confPath, 'httpd.conf' );
     my $confInfo = $self->getConfInfo($confFile);
     while ( my ( $k, $v ) = each(%$confInfo) ) {
         $appInfo->{$k} = $v;
