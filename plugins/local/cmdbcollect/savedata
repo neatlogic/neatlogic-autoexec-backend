@@ -102,9 +102,11 @@ def saveAppConnData(db, existsCollections, data):
             connData = data['CONN_INFO']
             connInfo['BIND'] = connData['BIND']
             connInfo['PEER'] = connData['PEER']
+            connInfo['LOCAL_PEER'] = connData['LOCAL_PEER']
         else:
             connInfo['BIND'] = []
             connInfo['PEER'] = []
+            connInfo['LOCAL_PEER'] = []
 
         primaryKey = {'MGMT_IP': connInfo['MGMT_IP'], 'PORT': connInfo['PORT']}
         collection = db['RELATION_INS_NETCONN']
