@@ -923,9 +923,9 @@ sub getCPUInfo {
 sub isIgnoreNetIf {
     my ( $self, $ifName ) = @_;
     my $ignore = 0;
-    if ( -e "/sys/class/net/$ifName/bridge" ) {
+    if ( -e "/sys/class/net/$ifName/bridge" or -e "/sys/class/net/$ifName/brport/bridge" ) {
 
-        #bridge
+        #bridge or bridge port
         $ignore = 1;
     }
     elsif ( -e "/sys/class/net/$ifName/tun_flags" ) {
