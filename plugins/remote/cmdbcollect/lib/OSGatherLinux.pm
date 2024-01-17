@@ -920,6 +920,29 @@ sub getCPUInfo {
     $hostInfo->{CPU_ARCH} = $cpuArch;
 }
 
+sub isIgnoreNetIf {
+    my ( $self, $ifName ) = @_;
+    my $ignore = 0;
+    if ( -e "/sys/class/net/$ifName/bridge" ) {
+
+        #bridge
+        $ignore = 1;
+    }
+    elsif ( -e "/sys/class/net/$ifName/tun_flags" ) {
+
+        #tun tap
+        $ignore = 1;
+    }
+    elsif ( -f "/sys/class/net/$ifName/address" ) {
+        my $macAddr = $self->getFileContent("/sys/class/net/$ifName/address");
+        if ( $macAddr eq '00:00:00:00:00:00' ) {
+            $ignore = 1;
+        }
+    }
+
+    return $ignore;
+}
+
 sub getNicInfo {
     my ( $self, $hostInfo ) = @_;
 
@@ -937,7 +960,7 @@ sub getNicInfo {
             if ( $ethName =~ /@/ ) {
                 $ethName = substr( $ethName, 0, index( $ethName, '@' ) );
             }
-            if ( -e "/sys/class/net/$ethName" and not -e "/sys/class/net/$ethName/device" ) {
+            if ( $self->isIgnoreNetIf($ethName) ) {
 
                 #不是物理网卡
                 $nicInfo->{IS_VIRTUAL} = 1;
