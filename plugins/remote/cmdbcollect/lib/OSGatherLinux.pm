@@ -922,22 +922,40 @@ sub getCPUInfo {
 
 sub isIgnoreNetIf {
     my ( $self, $ifName ) = @_;
+
     my $ignore = 0;
-    if ( -e "/sys/class/net/$ifName/bridge" or -e "/sys/class/net/$ifName/brport/bridge" ) {
 
-        #bridge or bridge port
-        $ignore = 1;
-    }
-    elsif ( -e "/sys/class/net/$ifName/tun_flags" ) {
+    my $ifTypeNum = int( $self->getFileContent("/sys/class/net/$ifName/type") );
+    if ( $ifTypeNum == 1 ) {
+        if ( -e "/sys/class/net/$ifName/bridge" or -e "/sys/class/net/$ifName/brport/bridge" ) {
 
-        #tun tap
-        $ignore = 1;
-    }
-    elsif ( -f "/sys/class/net/$ifName/address" ) {
-        my $macAddr = $self->getFileContent("/sys/class/net/$ifName/address");
-        if ( $macAddr eq '00:00:00:00:00:00' ) {
+            #bridge or bridge port
             $ignore = 1;
         }
+        elsif ( -e "/sys/class/net/$ifName/tun_flags" ) {
+
+            #tun tap
+            $ignore = 1;
+        }
+        elsif ( -e "/proc/net/vlan/$ifName" ) {
+
+            #vlan
+            $ignore = 1;
+        }
+        elsif ( $ifName =~ /^dummy/ and -e "/sys/devices/virtual/net/$ifName" ) {
+
+            #dummy
+            $ignore = 1;
+        }
+        elsif ( -f "/sys/class/net/$ifName/address" ) {
+            my $macAddr = $self->getFileContent("/sys/class/net/$ifName/address");
+            if ( $macAddr eq '00:00:00:00:00:00' ) {
+                $ignore = 1;
+            }
+        }
+    }
+    else {
+        $ignore = 1;
     }
 
     return $ignore;
