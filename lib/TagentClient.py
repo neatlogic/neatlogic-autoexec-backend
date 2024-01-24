@@ -22,8 +22,8 @@ except ImportError:
     import urllib.request as urllib2
 import struct
 
-PROTOCOL_VER = 'Tagent1.1'
-SECURE_PROTOCOL_VER = 'Tagent1.1s'
+PROTOCOL_VER = "Tagent1.1"
+SECURE_PROTOCOL_VER = "Tagent1.1s"
 PYTHON_VER = sys.version_info.major
 
 
@@ -71,7 +71,6 @@ def _rc4_decrypt_hex(key: str, data: str):
 
 
 class AuthError(RuntimeError):
-
     def __init__(self, value):
         self.value = value
 
@@ -80,7 +79,6 @@ class AuthError(RuntimeError):
 
 
 class ExecError(RuntimeError):
-
     def __init__(self, value):
         self.value = value
 
@@ -89,7 +87,6 @@ class ExecError(RuntimeError):
 
 
 class AgentError(RuntimeError):
-
     def __init__(self, value):
         self.value = value
 
@@ -98,11 +95,20 @@ class AgentError(RuntimeError):
 
 
 class TagentClient:
-
-    def __init__(self, host='', port='', password='', connectTimeout=300, readTimeout=3600, writeTimeout=300, execTimeout=86400, agentCharset=None):
-        if host == '':
-            host = '127.0.0.1'
-        if port == '':
+    def __init__(
+        self,
+        host="",
+        port="",
+        password="",
+        connectTimeout=300,
+        readTimeout=3600,
+        writeTimeout=300,
+        execTimeout=86400,
+        agentCharset=None,
+    ):
+        if host == "":
+            host = "127.0.0.1"
+        if port == "":
             port = 3939
         self.protocolVer = PROTOCOL_VER
         self.host = host
@@ -119,7 +125,7 @@ class TagentClient:
         ostype = platform.system().lower()
 
         # 获取os类型名称，只区分windows和unix
-        self.ostype = 'windows' if ostype == 'windows' else 'unix'
+        self.ostype = "windows" if ostype == "windows" else "unix"
         charset = locale.getdefaultlocale()[1]
         self.charset = charset
 
@@ -146,16 +152,15 @@ class TagentClient:
         chunkHead = sock.recv(2)
 
         while chunkHead and len(chunkHead) < 2:
-            h = sock.recv(2-len(chunkHead))
+            h = sock.recv(2 - len(chunkHead))
             chunkHead = chunkHead + h
 
         if chunkHead:
-            chunkLen = struct.unpack('>H', chunkHead)
+            chunkLen = struct.unpack(">H", chunkHead)
             if chunkLen:
                 chunkLen = chunkLen[0]
             else:
-                raise ExecError(
-                    "Connection({}:{}) reset!".format(self.host, self.port))
+                raise ExecError("Connection({}:{}) reset!".format(self.host, self.port))
 
             if chunkLen > 0:
                 while readLen < chunkLen:
@@ -165,7 +170,10 @@ class TagentClient:
                         readLen = readLen + len(buf)
                     else:
                         raise ExecError(
-                            "Connection({}:{}) reset or closed!".format(self.host, self.port))
+                            "Connection({}:{}) reset or closed!".format(
+                                self.host, self.port
+                            )
+                        )
             else:
                 while True:
                     buf = sock.recv(4096)
@@ -176,10 +184,11 @@ class TagentClient:
                         if encrypt:
                             chunk = _rc4(self.password, chunk)
                         raise ExecError(
-                            'Agent operation failed, because of server failed:' + chunk.decode(self.agentCharset, 'ignore'))
+                            "Agent operation failed, because of server failed:"
+                            + chunk.decode(self.agentCharset, "ignore")
+                        )
         else:
-            raise ExecError(
-                "Connection({}:{}) reset!".format(self.host, self.port))
+            raise ExecError("Connection({}:{}) reset!".format(self.host, self.port))
 
         if encrypt and chunk:
             chunk = _rc4(self.password, chunk)
@@ -204,14 +213,15 @@ class TagentClient:
             raise ExecError("Chunk is too long, max is 65535 bytes!")
         try:
             sock.settimeout(self.writeTimeout)
-            sock.sendall(struct.pack('>H', chunkLen))
+            sock.sendall(struct.pack(">H", chunkLen))
             if chunk:
                 sock.sendall(chunk)
             if chunkLen == 0:
                 sock.shutdown(1)
         except socket.error as msg:
-            raise ExecError("Connection({}:{}) closed:{}".format(
-                self.host, self.port, str(msg)))
+            raise ExecError(
+                "Connection({}:{}) closed:{}".format(self.host, self.port, str(msg))
+            )
         finally:
             sock.settimeout(self.readTimeout)
 
@@ -227,17 +237,19 @@ class TagentClient:
         isAuth = 0
         sock = None
         try:
-            sock = socket.socket(
-                socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 定义socket类型，TCP
 
             plat = platform.system()
             interval_sec = 290
-            if plat == 'Darwin':
+            if plat == "Darwin":
                 TCP_KEEPALIVE = 0x10
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
                 sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPALIVE, interval_sec)
-            if plat == 'Windows':
-                sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, interval_sec * 1000, interval_sec * 1000))
+            if plat == "Windows":
+                sock.ioctl(
+                    socket.SIO_KEEPALIVE_VALS,
+                    (1, interval_sec * 1000, interval_sec * 1000),
+                )
             else:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, interval_sec)
@@ -249,7 +261,8 @@ class TagentClient:
             sock.settimeout(self.readTimeout)
         except Exception as err:
             raise AgentError(
-                "ERROR: Connect to {}:{} failed, {}.".format(host, port, err))
+                "ERROR: Connect to {}:{} failed, {}.".format(host, port, err)
+            )
 
         try:
             isAuth = self.auth(sock, password, isVerbose)
@@ -257,7 +270,10 @@ class TagentClient:
                 sock.shutdown(2)
                 sock = None
                 raise AuthError(
-                    "ERROR: Authenticate failed while connect to {0}:{1}, check the credential.".format(host, port))
+                    "ERROR: Authenticate failed while connect to {0}:{1}, check the credential.".format(
+                        host, port
+                    )
+                )
             else:
                 self.sock = sock
         except BaseException as ex:
@@ -274,46 +290,49 @@ class TagentClient:
 
         # 读取agent服务端发来的"ostype|charset|challenge",
         # agent os类型|agent 字符集|加密的验证挑战token, '|'相隔
-        challenge = self.__readChunk(sock, False).decode(errors='ignore')
-        agentOsType, agentCharset, challenge, protocolVer = challenge.split(
-            '|')
+        challenge = self.__readChunk(sock, False).decode(errors="ignore")
+        agentOsType, agentCharset, challenge, protocolVer = challenge.split("|")
         if protocolVer == SECURE_PROTOCOL_VER:
             self.encrypt = True
         elif protocolVer != self.protocolVer:
             sock.shutdown(2)
-            raise AuthError("ERROR: Server({}:{}) protocol version is {}, not match client protocol version {}.".format(
-                host, port, protocolVer, self.protocolVer))
+            raise AuthError(
+                "ERROR: Server({}:{}) protocol version is {}, not match client protocol version {}.".format(
+                    host, port, protocolVer, self.protocolVer
+                )
+            )
 
         self.agentOsType = agentOsType
         if self.agentCharset is None:
             if agentCharset:
                 self.agentCharset = agentCharset
             else:
-                self.agentCharset = 'UTF-8'
+                self.agentCharset = "UTF-8"
 
         # 挑战解密后，是逗号相隔的两个整数，把乘积加密发回Agent服务端
-        plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode('latin-1')
-        if ',' not in plainChlg:
+        plainChlg = _rc4_decrypt_hex(str(authKey), challenge).decode("latin-1")
+        if "," not in plainChlg:
             sock.shutdown(2)
             raise AuthError("ERROR: Auth failed: invalid credential.")
-        chlgArray = plainChlg.split(',')
+        chlgArray = plainChlg.split(",")
         factor1 = chlgArray[0]
         factor2 = chlgArray[1]
         serverTime = None
         if len(chlgArray) > 2:
             serverTime = chlgArray[2]
-        if serverTime is None or serverTime == '0':
+        if serverTime is None or serverTime == "0":
             serverTime = str(time.time())
 
         if str(factor1).isdigit() == False or str(factor2).isdigit() == False:
             sock.shutdown(2)
             raise AuthError("ERROR: Auth failed: invalid credential.")
 
-        reverseChlg = str(int(factor1) * int(factor2)) + ',' + serverTime
+        reverseChlg = str(int(factor1) * int(factor2)) + "," + serverTime
         encryptChlg = _rc4_encrypt_hex(
-            authKey, reverseChlg.encode('latin-1', 'replace'))
-        self.__writeChunk(sock, encryptChlg.encode(encoding='utf-8'))
-        authResult = self.__readChunk(sock).decode(errors='ignore')
+            authKey, reverseChlg.encode("latin-1", "replace")
+        )
+        self.__writeChunk(sock, encryptChlg.encode(encoding="utf-8"))
+        authResult = self.__readChunk(sock).decode(errors="ignore")
         # 如果返回内容中不出现auth succeed，则验证失败
         if authResult != "auth succeed":
             sock.shutdown(2)
@@ -328,17 +347,21 @@ class TagentClient:
             agentCharset = self.agentCharset
 
             try:
-                self.__writeChunk(sock, "none|updatecred|{}|{}".format(
-                    agentCharset, bytesEncodeToHex(cred.encode())))
+                self.__writeChunk(
+                    sock,
+                    "none|updatecred|{}|{}".format(
+                        agentCharset, bytesEncodeToHex(cred.encode())
+                    ),
+                )
                 status = 0
-                statusLine = self.__readChunk(sock).decode(errors='ignore')
+                statusLine = self.__readChunk(sock).decode(errors="ignore")
                 if statusLine:
                     status = -1
                     if isVerbose == 1:
-                        print(
-                            "ERROR: Change credential failed:{}.".format(statusLine))
+                        print("ERROR: Change credential failed:{}.".format(statusLine))
                     raise AgentError(
-                        "ERROR: Change credential failed:{}.".format(statusLine))
+                        "ERROR: Change credential failed:{}.".format(statusLine)
+                    )
                 else:
                     status = 0
                     if isVerbose == 1:
@@ -361,10 +384,11 @@ class TagentClient:
     def reload(self, isVerbose=0):
         sock = self.getConnection()
         agentCharset = self.agentCharset
-        self.__writeChunk(sock, "none|reload|{}".format(
-            agentCharset).encode(agentCharset, 'replace'))
+        self.__writeChunk(
+            sock, "none|reload|{}".format(agentCharset).encode(agentCharset, "replace")
+        )
         try:
-            buf = self.__readChunk(sock).decode(errors='ignore')
+            buf = self.__readChunk(sock).decode(errors="ignore")
             if buf.startswith("Status:200"):
                 status = 0
                 if isVerbose == 1:
@@ -387,10 +411,14 @@ class TagentClient:
     def echo(self, user, data, isVerbose=0):
         sock = self.getConnection()
         agentCharset = self.agentCharset
-        self.__writeChunk(sock, "none|echo|{}|{}".format(
-            agentCharset, bytesEncodeToHex(data.encode())).encode(agentCharset, 'replace'))
+        self.__writeChunk(
+            sock,
+            "none|echo|{}|{}".format(
+                agentCharset, bytesEncodeToHex(data.encode())
+            ).encode(agentCharset, "replace"),
+        )
         try:
-            buf = self.__readChunk(sock).decode(errors='ignore')
+            buf = self.__readChunk(sock).decode(errors="ignore")
             print(buf)
         except ExecError as msg:
             if isVerbose == 1:
@@ -405,12 +433,22 @@ class TagentClient:
 
     # 执行远程命令
 
-    def execCmd(self, user, cmd, isVerbose=0, env=None, eofStr='', callback=None, cbparams=(), execTimeout=None):
+    def execCmd(
+        self,
+        user,
+        cmd,
+        isVerbose=0,
+        env=None,
+        eofStr="",
+        callback=None,
+        cbparams=(),
+        execTimeout=None,
+    ):
         cmd = cmd.strip()
         sock = self.getConnection(isVerbose)
         agentCharset = self.agentCharset
 
-        envJson = ''
+        envJson = ""
         if env is not None:
             envJson = json.dumps(env, ensure_ascii=False)
 
@@ -421,8 +459,17 @@ class TagentClient:
             rexecTimeout = self.execTimeout
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
-        self.__writeChunk(sock, "{}|execmd|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), bytesEncodeToHex(
-            eofStr.encode(agentCharset, 'replace')), bytesEncodeToHex(envJson.encode(agentCharset, 'replace')), bytesEncodeToHex(str(rexecTimeout).encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
+        self.__writeChunk(
+            sock,
+            "{}|execmd|{}|{}|{}|{}|{}".format(
+                user,
+                agentCharset,
+                bytesEncodeToHex(cmd.encode(agentCharset, "replace")),
+                bytesEncodeToHex(eofStr.encode(agentCharset, "replace")),
+                bytesEncodeToHex(envJson.encode(agentCharset, "replace")),
+                bytesEncodeToHex(str(rexecTimeout).encode(agentCharset, "replace")),
+            ).encode(agentCharset, "replace"),
+        )
         status = 0
         try:
             while True:
@@ -432,23 +479,23 @@ class TagentClient:
 
                 if isVerbose == 1:
                     detectInfo = chardet.detect(line)
-                    detectEnc = detectInfo['encoding']
+                    detectEnc = detectInfo["encoding"]
                     if detectEnc is not None:
-                        line = line.decode(detectEnc, 'ignore')
+                        line = line.decode(detectEnc, "ignore")
                     else:
-                        line = line.decode(errors='ignore')
+                        line = line.decode(errors="ignore")
                     print(line.strip())
                 if callback:
                     callback(line, *cbparams)
         except ExecError as errMsg:
             status = -1
-            errContent = errMsg.value.split('\n')
+            errContent = errMsg.value.split("\n")
             for line in errContent:
                 if str(line).isdigit():
                     status = int(line)
                 else:
                     if isVerbose == 1:
-                        print("ERROR: %s\n" % (line.strip()), end='')
+                        print("ERROR: %s\n" % (line.strip()), end="")
                     if callback:
                         callback("ERROR: %s\n" % (line.strip()), *cbparams)
         finally:
@@ -480,7 +527,7 @@ class TagentClient:
         sock = self.getConnection()
         agentCharset = self.agentCharset
 
-        envJson = ''
+        envJson = ""
         if env is not None:
             envJson = json.dumps(env, ensure_ascii=False)
 
@@ -492,10 +539,19 @@ class TagentClient:
 
         # 相比老版本，因为用了chunk协议，所以请求里的dataLen就不需要了
         # sock.sendall("{}|execmdasync|{}|{}\r\n".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace'))))
-        self.__writeChunk(sock, "{}|execmdasync|{}|{}|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(cmd.encode(agentCharset, 'replace')), '', bytesEncodeToHex(
-            envJson.encode(agentCharset, 'replace')), bytesEncodeToHex(str(rexecTimeout).encode(agentCharset, 'replace'))).encode(agentCharset, 'replace'))
+        self.__writeChunk(
+            sock,
+            "{}|execmdasync|{}|{}|{}|{}|{}".format(
+                user,
+                agentCharset,
+                bytesEncodeToHex(cmd.encode(agentCharset, "replace")),
+                "",
+                bytesEncodeToHex(envJson.encode(agentCharset, "replace")),
+                bytesEncodeToHex(str(rexecTimeout).encode(agentCharset, "replace")),
+            ).encode(agentCharset, "replace"),
+        )
         try:
-            statusLine = self.__readChunk(sock).decode(errors='ignore')
+            statusLine = self.__readChunk(sock).decode(errors="ignore")
             if statusLine:
                 status = -1
                 if isVerbose == 1:
@@ -522,7 +578,7 @@ class TagentClient:
 
         status = 0
         try:
-            with open(destFile, 'wb') as f:
+            with open(destFile, "wb") as f:
                 if convertCharset == 0:
                     while True:
                         chunk = self.__readChunk(sock)
@@ -533,49 +589,59 @@ class TagentClient:
                 else:
                     # TODO：因为服务端是按照字节传送数据的，所以需要客户端进行转码，
                     # 后续要寻求更高效的转码方式取代按行转码
-                    lineLeft = b''
+                    lineLeft = b""
                     while True:
                         chunk = self.__readChunk(sock)
                         if chunk:
                             chunk = lineLeft + chunk
                             try:
-                                lineEnd = chunk.rindex(b'\n') + 1
+                                lineEnd = chunk.rindex(b"\n") + 1
                                 lineLeft = chunk[lineEnd:]
                                 chunk = chunk[0:lineEnd]
                             except:
                                 lineLeft = chunk
-                                chunk = ''
+                                chunk = ""
 
-                            if chunk != '':
-                                chunk = chunk.decode(agentCharset, 'ignore').encode(
-                                    charset, 'replace')
+                            if chunk != "":
+                                chunk = chunk.decode(agentCharset, "ignore").encode(
+                                    charset, "replace"
+                                )
                                 f.write(chunk)
                         else:
-                            if lineLeft != '':
+                            if lineLeft != "":
                                 lineLeft = lineLeft.decode(
-                                    agentCharset, 'ignore').encode(charset, 'replace')
+                                    agentCharset, "ignore"
+                                ).encode(charset, "replace")
                                 f.write(lineLeft)
                             break
 
         except BaseException as errMsg:
             raise AgentError(
-                "ERROR: Write to file {} failed, {}.".format(destFile, errMsg))
+                "ERROR: Write to file {} failed, {}.".format(destFile, errMsg)
+            )
         return status
 
     # 下载文件或者目录
     def download(self, user, src, dest, isVerbose=0, followLinks=0, convertCharset=0):
-        src = src.replace('\\', '/')
-        dest = dest.replace('\\', '/')
+        src = src.replace("\\", "/")
+        dest = dest.replace("\\", "/")
         sock = self.getConnection()
         param = src
         agentCharset = self.agentCharset
 
         try:
-            self.__writeChunk(sock, "{}|download|{}|{}|{}".format(user, agentCharset, bytesEncodeToHex(
-                param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))
-            statusLine = self.__readChunk(sock).decode(errors='ignore')
+            self.__writeChunk(
+                sock,
+                "{}|download|{}|{}|{}".format(
+                    user,
+                    agentCharset,
+                    bytesEncodeToHex(param.encode(agentCharset, "replace")),
+                    followLinks,
+                ).encode(agentCharset, "replace"),
+            )
+            statusLine = self.__readChunk(sock).decode(errors="ignore")
             status = 0
-            fileType = 'file'
+            fileType = "file"
 
             tmp = re.findall(r"^Status:200,FileType:(\w+)", statusLine)
             if tmp and tmp[0]:
@@ -583,13 +649,19 @@ class TagentClient:
                 status = 0
                 fileType = tmp[0]
                 if isVerbose == 1:
-                    print("INFO: Download {0} {1} to {2} begin...".format(
-                        fileType, src, dest))
+                    print(
+                        "INFO: Download {0} {1} to {2} begin...".format(
+                            fileType, src, dest
+                        )
+                    )
             else:
-                raise AgentError("ERROR: Download {} {} to {} failed, {}".format(
-                    fileType, src, dest, statusLine))
+                raise AgentError(
+                    "ERROR: Download {} {} to {} failed, {}".format(
+                        fileType, src, dest, statusLine
+                    )
+                )
 
-            if fileType == 'file':
+            if fileType == "file":
                 if os.path.isdir(dest):
                     destFile = os.path.basename(src)
                     dest = dest + "/" + destFile
@@ -597,38 +669,48 @@ class TagentClient:
                 # if first_part_res:
                 #     first_part = first_part_res.group(2)
                 status = self.__writeSockToFile(
-                    sock, dest, isVerbose=isVerbose, convertCharset=convertCharset)
+                    sock, dest, isVerbose=isVerbose, convertCharset=convertCharset
+                )
 
             else:
-                if fileType == 'dir' or fileType == 'windir':
+                if fileType == "dir" or fileType == "windir":
                     if not os.path.exists(dest):
                         raise AgentError(
-                            "ERROR: Download failed, directory {} not exist.".format(dest))
+                            "ERROR: Download failed, directory {} not exist.".format(
+                                dest
+                            )
+                        )
 
-                    if dest.endswith('/') or dest.endswith('\\'):
+                    if dest.endswith("/") or dest.endswith("\\"):
                         dest = dest + os.path.basename(src)
-                        if (not os.path.exists(dest)):
+                        if not os.path.exists(dest):
                             os.mkdir(dest)
 
                     # os.chdir(destDir) #多线程环境不可以这样用
                     try:
-                        if self.ostype == 'windows':
+                        if self.ostype == "windows":
                             p = subprocess.Popen(
                                 ["7z.exe", "x", "-aoa", "-y", "-si", "-ttar"],
                                 cwd=dest,
                                 stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE,
+                            )
                         else:
                             tarOpt = "-xiBf"
                             if isVerbose == 1:
                                 tarOpt = "-xiBvf"
                             p = subprocess.Popen(
-                                ["tar", tarOpt, "-"], cwd=dest, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                                ["tar", tarOpt, "-"],
+                                cwd=dest,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                            )
                     except Exception as ex:
                         raise AgentError(
-                            "ERROR: Launch tar command failed, {}.".format(ex))
+                            "ERROR: Launch tar command failed, {}.".format(ex)
+                        )
 
-                    errOut = ''
+                    errOut = ""
                     while True:
                         chunk = self.__readChunk(sock)
                         if not chunk:
@@ -646,10 +728,16 @@ class TagentClient:
                     status = p.returncode
                     if status != 0:
                         raise AgentError(
-                            "ERROR: Download {} to {} failed, {}".format(src, dest, errOut))
+                            "ERROR: Download {} to {} failed, {}".format(
+                                src, dest, errOut
+                            )
+                        )
                 else:
                     raise AgentError(
-                        "ERROR: Download failed, file type {0} not supported.".format(fileType))
+                        "ERROR: Download failed, file type {0} not supported.".format(
+                            fileType
+                        )
+                    )
             if isVerbose == 1:
                 if status == 0:
                     print("INFO: Download succeed.")
@@ -670,14 +758,15 @@ class TagentClient:
         buf_size = 4096 * 8
         try:
             if cwd is None:
-                p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             else:
                 p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd)
+                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, cwd=cwd
+                )
         except BaseException as errMsg:
             raise AgentError(
-                "ERROR: Can not launch command {}, {}.".format(cmd, errMsg))
+                "ERROR: Can not launch command {}, {}.".format(cmd, errMsg)
+            )
 
         while True:
             buf = p.stdout.read(buf_size)
@@ -685,11 +774,17 @@ class TagentClient:
                 break
             self.__writeChunk(sock, buf)
 
-        p.communicate()
+        errOut = ""
+        cmd_out, cmd_err = p.communicate()
+        if cmd_err:
+            errOut = errOut + "\n" + cmd_err
         exitStatus = p.returncode
         if exitStatus:
             raise AgentError(
-                "ERROR: Command:{} ended with status:{}.".format(cmd, exitStatus))
+                "ERROR: Command:{} ended with status:{}, error:{}.".format(
+                    cmd, exitStatus, errOut
+                )
+            )
         else:
             self.__writeChunk(sock)
         self.__readChunk(sock)
@@ -704,26 +799,27 @@ class TagentClient:
         status = 0
         try:
             if convertCharset == 0:
-                with open(filePath, 'rb') as f:
+                with open(filePath, "rb") as f:
                     while True:
                         buf = f.read(buf_size)
                         if not buf:
                             break
                         self.__writeChunk(sock, buf)
             else:
-                with open(filePath, 'rt', encoding=charset) as f:
+                with open(filePath, "rt", encoding=charset) as f:
                     while True:
                         buf = f.read(buf_size)
                         if not buf:
                             break
-                        buf = buf.encode(agentCharset, 'replace')
+                        buf = buf.encode(agentCharset, "replace")
                         self.__writeChunk(sock, buf)
             if status == 0:
                 self.__writeChunk(sock)
             self.__readChunk(sock)
         except BaseException as errMsg:
             raise AgentError(
-                "ERROR: Download file {} failed, {}.".format(filePath, errMsg))
+                "ERROR: Download file {} failed, {}.".format(filePath, errMsg)
+            )
         return status
 
     # 下载URL中的文件内容，写入网络连接中
@@ -737,7 +833,7 @@ class TagentClient:
 
         if file.getcode() == 200:
             charset = None
-            contentType = file.headers.get('content-type')
+            contentType = file.headers.get("content-type")
             if contentType:
                 tmp = re.findall(r"charset==(.*?)$", contentType)
                 if tmp and tmp[0]:
@@ -752,26 +848,28 @@ class TagentClient:
             else:
                 # TODO：因为服务端是按照字节传送数据的，所以需要客户端进行转码，
                 # 后续要寻求更高效的转码方式取代按行转码
-                lineLeft = b''
+                lineLeft = b""
                 while True:
                     buf = file.read(buf_size)
                     if buf:
                         buf = lineLeft + buf
                         try:
-                            lineEnd = buf.rindex(b'\n') + 1
+                            lineEnd = buf.rindex(b"\n") + 1
                             lineLeft = buf[lineEnd:]
                             buf = buf[0:lineEnd]
                         except:
                             lineLeft = buf
-                            buf = ''
-                        if buf != '':
-                            buf = buf.decode(charset, 'ignore').encode(
-                                agentCharset, 'replace')
+                            buf = ""
+                        if buf != "":
+                            buf = buf.decode(charset, "ignore").encode(
+                                agentCharset, "replace"
+                            )
                             self.__writeChunk(sock, buf)
                     else:
-                        if lineLeft != '':
-                            lineLeft = lineLeft.decode(charset, 'ignore').encode(
-                                agentCharset, 'replace')
+                        if lineLeft != "":
+                            lineLeft = lineLeft.decode(charset, "ignore").encode(
+                                agentCharset, "replace"
+                            )
                             self.__writeChunk(sock, lineLeft)
                         break
         else:
@@ -785,67 +883,82 @@ class TagentClient:
 
         return status
 
-    def upload(self, user, src, dest, isVerbose=0, convertCharset=0, followLinks=1, dirCreate=False):
-        src = src.replace('\\', '/')
-        dest = dest.replace('\\', '/')
+    def upload(
+        self,
+        user,
+        src,
+        dest,
+        isVerbose=0,
+        convertCharset=0,
+        followLinks=1,
+        dirCreate=False,
+    ):
+        src = src.replace("\\", "/")
+        dest = dest.replace("\\", "/")
         ostype = self.ostype
 
-        fileType = 'file'
+        fileType = "file"
         if os.path.isdir(src):
-            fileType = 'windir' if ostype == 'windows' else 'dir'
+            fileType = "windir" if ostype == "windows" else "dir"
         elif src.startswith("http://") or src.startswith("https://"):
-            fileType = 'url'
+            fileType = "url"
 
-        if fileType != 'url' and not os.path.exists(src):
+        if fileType != "url" and not os.path.exists(src):
             raise AgentError("ERROR: {0} not exists.".format(src))
 
         sock = self.getConnection()
 
         try:
             agentCharset = self.agentCharset
-            param = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset, 'replace')), bytesEncodeToHex(
-                src.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), followLinks)
+            param = "{}|{}|{}|{}".format(
+                bytesEncodeToHex(fileType.encode(agentCharset, "replace")),
+                bytesEncodeToHex(src.encode(agentCharset, "replace")),
+                bytesEncodeToHex(dest.encode(agentCharset, "replace")),
+                followLinks,
+            )
 
-            self.__writeChunk(sock, "{}|upload|{}|{}".format(
-                user, agentCharset, param).encode(agentCharset, 'replace'))
+            self.__writeChunk(
+                sock,
+                "{}|upload|{}|{}".format(user, agentCharset, param).encode(
+                    agentCharset, "replace"
+                ),
+            )
 
-            preStatus = self.__readChunk(sock).decode(agentCharset, 'ignore')
-            if not preStatus.lstrip().startswith('Status:200'):
+            preStatus = self.__readChunk(sock).decode(agentCharset, "ignore")
+            if not preStatus.lstrip().startswith("Status:200"):
                 raise AgentError("ERROR: Upload failed:{}.".format(preStatus))
 
             if isVerbose == 1:
-                print("INFO: Upload {} {} to {} begin...".format(
-                    fileType, src, dest))
+                print("INFO: Upload {} {} to {} begin...".format(fileType, src, dest))
 
             status = 0
-            if fileType == 'file':
-                status = self.__readFileToSock(
-                    sock, src, isVerbose, convertCharset)
-            elif fileType == 'dir' or fileType == 'windir':
+            if fileType == "file":
+                status = self.__readFileToSock(sock, src, isVerbose, convertCharset)
+            elif fileType == "dir" or fileType == "windir":
                 srcDir = None
                 if dirCreate:
                     srcDir = os.path.dirname(src)
                     src = os.path.basename(src)
                 else:
                     srcDir = src
-                    src = '.'
+                    src = "."
 
-                if ostype == 'windows':
-                    cmd = ['7z.exe', 'a', 'dummy', '-ttar', '-y', '-so', src]
+                if ostype == "windows":
+                    cmd = ["7z.exe", "a", "dummy", "-ttar", "-y", "-so", src]
                 else:
-                    tarOpt = ''
+                    tarOpt = ""
                     if isVerbose == 1:
                         tarOpt = "v"
                     if followLinks == 1:
-                        tarOpt = tarOpt + 'h'
-                    tarOpt = 'c' + tarOpt + 'f'
+                        tarOpt = tarOpt + "h"
+                    tarOpt = "c" + tarOpt + "f"
 
-                    cmd = ['tar', '-{}'.format(tarOpt), '-', src]
+                    cmd = ["tar", "-{}".format(tarOpt), "-", src]
                 status = self.__readCmdOutToSock(
-                    sock, cmd, isVerbose=isVerbose, cwd=srcDir)
-            elif fileType == 'url':
-                status = self.__readUrlToSock(
-                    sock, src, isVerbose, convertCharset)
+                    sock, cmd, isVerbose=isVerbose, cwd=srcDir
+                )
+            elif fileType == "url":
+                status = self.__readUrlToSock(sock, src, isVerbose, convertCharset)
 
             if isVerbose == 1:
                 if status == 0:
@@ -862,7 +975,7 @@ class TagentClient:
         return status
 
     def writeFile(self, user, content: bytes, dest, isVerbose=0, convertCharset=0):
-        dest = dest.replace('\\', '/')
+        dest = dest.replace("\\", "/")
         destName = os.path.basename(dest)
 
         sock = self.getConnection(isVerbose)
@@ -873,21 +986,30 @@ class TagentClient:
             charset = self.charset
             if agentCharset != charset:
                 if convertCharset == 1:
-                    content = content.decode(charset, 'ignore').encode(
-                        agentCharset, 'replace')
+                    content = content.decode(charset, "ignore").encode(
+                        agentCharset, "replace"
+                    )
 
-            param = "{}|{}|{}|{}".format(bytesEncodeToHex(b'file'), bytesEncodeToHex(destName.encode(
-                agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), '00')
-            self.__writeChunk(sock, "{}|upload|{}|{}".format(
-                user, agentCharset, param).encode(agentCharset, 'replace'))
+            param = "{}|{}|{}|{}".format(
+                bytesEncodeToHex(b"file"),
+                bytesEncodeToHex(destName.encode(agentCharset, "replace")),
+                bytesEncodeToHex(dest.encode(agentCharset, "replace")),
+                "00",
+            )
+            self.__writeChunk(
+                sock,
+                "{}|upload|{}|{}".format(user, agentCharset, param).encode(
+                    agentCharset, "replace"
+                ),
+            )
 
-            preStatus = self.__readChunk(sock).decode(errors='ignore')
+            preStatus = self.__readChunk(sock).decode(errors="ignore")
             if not preStatus.lstrip().startswith("Status:200"):
                 raise AgentError("ERROR: Upload failed:{}.".format(preStatus))
             if isVerbose == 1:
                 print("INFO: Write file {} begin...".format(dest))
 
-            if (len(content) > 0):
+            if len(content) > 0:
                 self.__writeChunk(sock, content)
 
             self.__writeChunk(sock)
@@ -905,21 +1027,47 @@ class TagentClient:
         return status
 
     # 把某个机器的文件或目录传送到另外机器或目录
-    def transFile(self, srcHost, srcPort, srcUser, srcPassword, src, destUser, dest, isVerbose=0, followLinks=0):
-        src = src.replace('\\', '/')
-        dest = dest.replace('\\', '/')
-        srcTagent = TagentClient(srcHost, srcPort, srcPassword, self.connectTimeout,
-                                 self.readTimeout, self.writeTimeout, self.execTimeout, self.agentCharset)
+    def transFile(
+        self,
+        srcHost,
+        srcPort,
+        srcUser,
+        srcPassword,
+        src,
+        destUser,
+        dest,
+        isVerbose=0,
+        followLinks=0,
+    ):
+        src = src.replace("\\", "/")
+        dest = dest.replace("\\", "/")
+        srcTagent = TagentClient(
+            srcHost,
+            srcPort,
+            srcPassword,
+            self.connectTimeout,
+            self.readTimeout,
+            self.writeTimeout,
+            self.execTimeout,
+            self.agentCharset,
+        )
         srcSock = srcTagent.getConnection(isVerbose)
         param = src
         agentCharset = srcTagent.agentCharset
 
         try:
-            self.__writeChunk(srcSock, "{}|download|{}|{}|{}".format(srcUser, agentCharset, bytesEncodeToHex(
-                param.encode(agentCharset, 'replace')), followLinks).encode(agentCharset, 'replace'))
-            statusLine = self.__readChunk(srcSock).decode(errors='ignore')
+            self.__writeChunk(
+                srcSock,
+                "{}|download|{}|{}|{}".format(
+                    srcUser,
+                    agentCharset,
+                    bytesEncodeToHex(param.encode(agentCharset, "replace")),
+                    followLinks,
+                ).encode(agentCharset, "replace"),
+            )
+            statusLine = self.__readChunk(srcSock).decode(errors="ignore")
             status = 0
-            fileType = 'file'
+            fileType = "file"
 
             tmp = re.findall(r"^Status:200,FileType:(\w+)", statusLine)
             if tmp and tmp[0]:
@@ -927,28 +1075,47 @@ class TagentClient:
                 fileType = tmp[0]
                 if isVerbose == 1:
                     print(
-                        "INFO: Download {} {}@{}:{} begin...".format(fileType, srcUser, srcHost, src))
+                        "INFO: Download {} {}@{}:{} begin...".format(
+                            fileType, srcUser, srcHost, src
+                        )
+                    )
             else:
                 raise AgentError(
-                    "ERROR: Download {} {}@{}:{} failed, {}".format(fileType, srcUser, srcHost, src, statusLine))
+                    "ERROR: Download {} {}@{}:{} failed, {}".format(
+                        fileType, srcUser, srcHost, src, statusLine
+                    )
+                )
 
             destSock = self.getConnection(isVerbose)
             agentCharset = self.agentCharset
 
-            uploadParam = "{}|{}|{}|{}".format(bytesEncodeToHex(fileType.encode(agentCharset, 'replace')), bytesEncodeToHex(
-                src.encode(agentCharset, 'replace')), bytesEncodeToHex(dest.encode(agentCharset, 'replace')), followLinks)
-            self.__writeChunk(destSock, "{}|upload|{}|{}".format(
-                destUser, agentCharset, uploadParam).encode(agentCharset, 'replace'))
+            uploadParam = "{}|{}|{}|{}".format(
+                bytesEncodeToHex(fileType.encode(agentCharset, "replace")),
+                bytesEncodeToHex(src.encode(agentCharset, "replace")),
+                bytesEncodeToHex(dest.encode(agentCharset, "replace")),
+                followLinks,
+            )
+            self.__writeChunk(
+                destSock,
+                "{}|upload|{}|{}".format(destUser, agentCharset, uploadParam).encode(
+                    agentCharset, "replace"
+                ),
+            )
 
-            preStatus = self.__readChunk(
-                destSock).decode(agentCharset, 'ignore')
-            if not preStatus.lstrip().startswith('Status:200'):
+            preStatus = self.__readChunk(destSock).decode(agentCharset, "ignore")
+            if not preStatus.lstrip().startswith("Status:200"):
                 raise AgentError(
-                    "INFO: Upload to {}@{}:{} failed, {}".format(destUser, self.host, dest, preStatus))
+                    "INFO: Upload to {}@{}:{} failed, {}".format(
+                        destUser, self.host, dest, preStatus
+                    )
+                )
 
             if isVerbose == 1:
-                print("INFO: Transfer {} {}@{}:{} to {}@{}:{} begin...".format(fileType,
-                      srcUser, srcHost, src, destUser, self.host, dest))
+                print(
+                    "INFO: Transfer {} {}@{}:{} to {}@{}:{} begin...".format(
+                        fileType, srcUser, srcHost, src, destUser, self.host, dest
+                    )
+                )
             while True:
                 chunk = self.__readChunk(srcSock)
                 if chunk:
@@ -970,7 +1137,7 @@ class TagentClient:
                 if srcSock:
                     srcSock.shutdown(2)
                 if destSock:
-                    self.__writeChunk(destSock, 'upload failed', 0)
+                    self.__writeChunk(destSock, "upload failed", 0)
                     destSock.shutdown(2)
             except:
                 pass
