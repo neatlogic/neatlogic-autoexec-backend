@@ -23,17 +23,15 @@ use AutoExecUtils;
 Getopt::Long::Configure qw(gnu_getopt);
 Getopt::Long::Configure("pass_through");
 
-my $SINGLE_TIMEOUT = 600;
+my $COLLECT_TIMEOUT = 300;
 my $START_TIME     = time();
 $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 
 sub collectTimeout {
-    alarm(0);
-
     my $osType = ( uname() )[0];
     $osType =~ s/\s.*$//;
 
-    print("ERROR: Collect timeout, exceed $SINGLE_TIMEOUT seconds.\n");
+    print("ERROR: Collect information for current process timeout, exceed $COLLECT_TIMEOUT seconds.\n");
 
     if ( $osType ne 'Windows' ) {
         my @pids = `ps eww|grep TS_CMDB_AUTOCOLLECT=$START_TIME|grep -v grep|awk '{print \$1}'`;
@@ -435,6 +433,7 @@ sub doDetailCollect {
     my $connGather       = $pFinder->{connGather};
 
     print("INFO: Os type:$osType\n");
+    alarm($COLLECT_TIMEOUT);
 
     my $isMatched = 0;
     my $objCat;
@@ -462,7 +461,6 @@ sub doDetailCollect {
     my $collector;
     my @appInfos = ();
 
-    alarm($SINGLE_TIMEOUT);
     eval {
         $collector = $collectorClass->new( $passArgs, $pFinder, $procInfo, $matchedProcsInfo );
         my @appInfosTmp = $collector->collect($procInfo);
@@ -492,7 +490,6 @@ sub doDetailCollect {
             map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
         }
     };
-    alarm(0);
 
     if ($@) {
         print("ERROR: $collectorClass return failed, $@\n");
@@ -681,7 +678,9 @@ sub main {
     if($timeout == 0){
         $timeout = 300;
     }
-    
+    $COLLECT_TIMEOUT = $timeout;
+    alarm($timeout);
+
     my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {
