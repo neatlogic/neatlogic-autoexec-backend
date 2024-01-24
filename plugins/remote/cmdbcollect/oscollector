@@ -28,6 +28,8 @@ my $START_TIME     = time();
 $ENV{TS_CMDB_AUTOCOLLECT} = $START_TIME;
 
 sub collectTimeout {
+    alarm(0);
+
     my $osType = ( uname() )[0];
     $osType =~ s/\s.*$//;
 
@@ -655,6 +657,7 @@ sub main {
     my $isDebug    = 0;
     my $inspect    = 0;
     my $containner = 0;
+    my $timeout = 300;
     my $procEnvName;
     my $classDef;
     my $defaultPassConf;
@@ -662,6 +665,7 @@ sub main {
     GetOptions(
         'verbose=i'         => \$isVerbose,
         'debug=i'           => \$isDebug,
+        'timeout=i'         => \$timeout,
         'class=s'           => \$classDef,
         'inspect=i'         => \$inspect,
         'containner=i'      => \$containner,
@@ -674,6 +678,10 @@ sub main {
         $ENV{OSCOLLECT_DEBUG} = 1;
     }
 
+    if($timeout == 0){
+        $timeout = 300;
+    }
+    
     my $ignoreOsInfo = 0;
     my $collectClassMap;
     if ( defined($classDef) and $classDef ne '' ) {

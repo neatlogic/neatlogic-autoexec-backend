@@ -257,6 +257,15 @@
             "defaultValue": ""
         },
         {
+            "opt": "timeout",
+            "name": "超时时间",
+            "help": "最长执行时间，单位(秒)",
+            "type": "text",
+            "required": "false",
+            "validate": "number",
+            "defaultValue": "300"
+        },
+        {
             "opt": "verbose",
             "name": "回显结果数据",
             "help": "回显采集到的数据",
