@@ -416,13 +416,8 @@
             "type": "String"
         },
         {
-            "name": "ID_CODE",
-            "desc": "idcode",
-            "type": "String"
-        },
-        {
-            "name": "CTL_PATH",
-            "desc": "ctl file path",
+            "name": "CTL_BAK_NUM",
+            "desc": "backup number of dm.ctl",
             "type": "String"
         },
         {
@@ -431,13 +426,18 @@
             "type": "String"
         },
         {
-            "name": "CTL_BAK_NUM",
-            "desc": "backup number of dm.ctl",
+            "name": "CTL_PATH",
+            "desc": "ctl file path",
             "type": "String"
         },
         {
             "name": "EXPIRED_DATE",
             "desc": "expired date",
+            "type": "String"
+        },
+        {
+            "name": "ID_CODE",
+            "desc": "idcode",
             "type": "String"
         },
         {
@@ -451,14 +451,31 @@
             "type": "Int"
         },
         {
-            "name": "WORKER_THREADS",
-            "desc": "number of worker threads",
-            "type": "Int"
-        },
-        {
-            "name": "TASK_THREADS",
-            "desc": "number of task threads",
-            "type": "Int"
+            "name": "RUN_ON",
+            "desc": "Run On Os",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -520,31 +537,19 @@
             ]
         },
         {
-            "name": "RUN_ON",
-            "desc": "Run On Os",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
-                    "type": "String"
-                }
-            ]
+            "name": "TASK_THREADS",
+            "desc": "number of task threads",
+            "type": "Int"
+        },
+        {
+            "name": "WORKER_THREADS",
+            "desc": "number of worker threads",
+            "type": "Int"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

@@ -790,6 +790,11 @@
             "name": "UID",
             "desc": "uid",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

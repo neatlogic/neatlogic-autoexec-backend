@@ -577,6 +577,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
         }
     ]
 }

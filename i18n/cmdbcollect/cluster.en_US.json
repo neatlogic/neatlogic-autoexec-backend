@@ -84,6 +84,11 @@
             "name": "PRIMARY_IP",
             "desc": "Primary IP(Not LB)",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

@@ -473,6 +473,11 @@
             "name": "SYSTEM_CHARSET",
             "desc": "System Charset",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }
