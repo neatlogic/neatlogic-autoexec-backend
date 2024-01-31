@@ -17,6 +17,7 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--starttime", default="", help="Data minimum renew time")
     parser.add_argument(
         "--batchtag", default="", help="Json document tag for this batch"
     )
@@ -25,6 +26,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    startTime = args.starttime
     batchTag = args.batchtag
     collectionsMap = json.loads(args.collections)
     collections = collectionsMap.keys()
@@ -32,7 +34,11 @@ if __name__ == "__main__":
     try:
         AutoExecUtils.callNativeApi(
             "/neatlogic/api/rest/cmdb/sync/cicollection/launch",
-            {"batchTag": batchTag, "collectionList": collections},
+            {
+                "startTime": int(1000 * startTime),
+                "batchTag": batchTag,
+                "collectionList": collections,
+            },
         )
     except:
         print("ERROR: Trigger cmdb import failed, {}".format(traceback.format_exc()))
