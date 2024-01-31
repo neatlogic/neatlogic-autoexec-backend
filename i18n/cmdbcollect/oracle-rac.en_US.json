@@ -462,6 +462,11 @@
             "name": "SLAVE_IPS",
             "desc": "Slave IP Addrs",
             "type": "array"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

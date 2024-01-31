@@ -25,6 +25,15 @@ def usage():
     print(
         'dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION'
     )
+    print(
+        'dicttool --lang en_US --action append --filter \'{"collection": "COLLECT_INS"}\' --content \'{"name":"STATE", "desc":"Use State", "type":"String"}\''
+    )
+    print("dicttool --lang en_US --action beautify")
+    print("dicttool --lang zh_CN --action beautify")
+    print("dicttool --lang en_US --action savetodb")
+    print("dicttool --lang zh_CN --action savetodb")
+    print("dicttool--action dropcollection")
+    print("dicttool--action cleancollection")
     exit(1)
 
 

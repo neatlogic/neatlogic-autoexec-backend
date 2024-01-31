@@ -242,6 +242,11 @@
             "name": "PORTS_COUNT",
             "desc": "端口数量",
             "type": "Int"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
         }
     ]
 }

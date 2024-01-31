@@ -421,6 +421,28 @@
             ]
         },
         {
+            "name": "APPLICATIONS",
+            "desc": "Application List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Application Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIRTUAL_HOST_NAME",
+                    "desc": "Which Virtual Host Deployed",
+                    "type": "String"
+                },
+                {
+                    "name": "ORIGIN_LOCATION",
+                    "desc": "Deploy Path",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -468,41 +490,6 @@
             ]
         },
         {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "ORDER_NUMBER",
-            "desc": "Order No",
-            "type": "String"
-        },
-        {
-            "name": "LICENSE_TYPE",
-            "desc": "Lic Type",
-            "type": "String"
-        },
-        {
-            "name": "CREATE_DATE",
-            "desc": "Lic Create Date",
-            "type": "String"
-        },
-        {
-            "name": "LICENSE_END_DATE",
-            "desc": "Lic End Date",
-            "type": "String"
-        },
-        {
-            "name": "TW_CPU_COUNT",
-            "desc": "Lic Cpu Count",
-            "type": "String"
-        },
-        {
-            "name": "TW_EDITION",
-            "desc": "Lic Edition",
-            "type": "String"
-        },
-        {
             "name": "BINDIP",
             "desc": "Lic BindIp",
             "type": "String"
@@ -513,87 +500,14 @@
             "type": "String"
         },
         {
-            "name": "TONGWEB_BASE",
-            "desc": "TongWeb Base",
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "CREATE_DATE",
+            "desc": "Lic Create Date",
             "type": "String"
-        },
-        {
-            "name": "TONGWEB_HOME",
-            "desc": "TongWeb Home",
-            "type": "String"
-        },
-        {
-            "name": "APPLICATIONS",
-            "desc": "Application List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Application Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VIRTUAL_HOST_NAME",
-                    "desc": "Which Virtual Host Deployed",
-                    "type": "String"
-                },
-                {
-                    "name": "ORIGIN_LOCATION",
-                    "desc": "Deploy Path",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "VIRTUAL_HOSTS",
-            "desc": "Servers",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name Of The Virtual Host",
-                    "type": "String"
-                },
-                {
-                    "name": "LISTENERS",
-                    "desc": "Listeners Which Belong To The Virtual Host",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "LISTENERS",
-            "desc": "Listeners",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name Of The Listener",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Listening Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status Of The Listener",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "PATCHES",
-            "desc": "Patch List",
-            "type": "String",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "Patch Name",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "DATASOURCE",
@@ -646,6 +560,38 @@
                     "name": "COLLECTIONCOUNT",
                     "desc": "Collectioncount",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "LICENSE_END_DATE",
+            "desc": "Lic End Date",
+            "type": "String"
+        },
+        {
+            "name": "LICENSE_TYPE",
+            "desc": "Lic Type",
+            "type": "String"
+        },
+        {
+            "name": "LISTENERS",
+            "desc": "Listeners",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name Of The Listener",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Listening Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status Of The Listener",
+                    "type": "String"
                 }
             ]
         },
@@ -720,6 +666,23 @@
                     "name": "USAGE",
                     "desc": "Usage(%)",
                     "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "ORDER_NUMBER",
+            "desc": "Order No",
+            "type": "String"
+        },
+        {
+            "name": "PATCHES",
+            "desc": "Patch List",
+            "type": "String",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "Patch Name",
+                    "type": "String"
                 }
             ]
         },
@@ -951,6 +914,48 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "TONGWEB_BASE",
+            "desc": "TongWeb Base",
+            "type": "String"
+        },
+        {
+            "name": "TONGWEB_HOME",
+            "desc": "TongWeb Home",
+            "type": "String"
+        },
+        {
+            "name": "TW_CPU_COUNT",
+            "desc": "Lic Cpu Count",
+            "type": "String"
+        },
+        {
+            "name": "TW_EDITION",
+            "desc": "Lic Edition",
+            "type": "String"
+        },
+        {
+            "name": "VIRTUAL_HOSTS",
+            "desc": "Servers",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name Of The Virtual Host",
+                    "type": "String"
+                },
+                {
+                    "name": "LISTENERS",
+                    "desc": "Listeners Which Belong To The Virtual Host",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }
