@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import argparse
+import json
+from bson.json_util import loads
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --outputfile <path> ")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apiuri", default="", help="Native uri")
+    parser.add_argument(
+        "--params", default="{}", help="Json data to send to native api"
+    )
+
+    args = parser.parse_args()
+    apiUri = args.apiuri
+    params = json.loads(args.params)
+
+    returnData = AutoExecUtils.callNativeApi(
+        "/neatlogic/api/rest/cmdb/import",
+        params,
+    )
+
+    AutoExecUtils.saveOutput({"returnData": returnData})

@@ -1397,4 +1397,16 @@ sub getBuild {
     return ( $isMirror, $buildNo );
 }
 
+sub callNativeApi {
+    my ( $self, $apiUri, $params ) = @_;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('refireJob');
+    my $url = $self->{serverConf}->{baseurl} . $apiUri;
+    my $content = $webCtl->postJson( $url, $params, undef);
+    my $rcObj   = $self->_getReturn($content);
+
+    return $rcObj;
+}
+
 1;

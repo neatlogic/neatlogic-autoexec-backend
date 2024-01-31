@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import AutoExecUtils
+import os
+import traceback
+import argparse
+import json
+from bson.json_util import dumps, loads
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --outputfile <path> ")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--batchtag", default="", help="Json document tag for this batch"
+    )
+    parser.add_argument(
+        "--collections", default="{}", help="Collections map to trigger cmdb import"
+    )
+
+    args = parser.parse_args()
+    batchTag = args.batchtag
+    collectionsMap = json.loads(args.collections)
+    collections = collectionsMap.keys()
+
+    try:
+        AutoExecUtils.callNativeApi(
+            "/neatlogic/api/rest/cmdb/sync/cicollection/launch",
+            {"batchTag": batchTag, "collectionList": collections},
+        )
+    except:
+        print("ERROR: Trigger cmdb import failed, {}".format(traceback.format_exc()))
+        exit(-1)
