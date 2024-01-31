@@ -18,6 +18,7 @@ use File::Basename;
 use Cwd;
 use File::Glob qw(bsd_glob);
 use JSON qw(from_json to_json);
+use ServerAdapter;
 
 my $READ_TMOUT = 86400;
 
@@ -648,6 +649,12 @@ sub hashToTable {
     }
 
     return $myRows;
+}
+
+sub callNativeApi{
+    my($apiUri, $params) = @_;
+    my $serverAdapter = ServerAdapter->new();
+    $serverAdapter->callNativeApi($apiUri, $params);
 }
 
 1;
