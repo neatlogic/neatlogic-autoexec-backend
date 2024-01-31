@@ -1,0 +1,26 @@
+{
+    "opDesc": "抽取上游输出数据的部分数据",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "抽取上游输出数据中的部分数据, 提供给外部流程工具引用",
+    "enabled": 1,
+    "option": [{
+            "opt": "timeformat",
+            "name": "时间格式",
+            "help": "输出的时间格式，留空，代表是epoch time，例如：%Y-%m-%d %H:%M:%S",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [{
+        "opt": "timeStr",
+        "name": "时间",
+        "help": "获得得时间字符串",
+        "type": "text"
+    }]
+}

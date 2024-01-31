@@ -29,7 +29,7 @@
         {
             "opt": "collections",
             "name": "数据集合",
-            "help": "涉及数据保存的数据集合",
+            "help": "涉及数据保存的数据集合的Map",
             "type": "json"
         }
     ]

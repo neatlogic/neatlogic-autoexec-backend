@@ -7,6 +7,15 @@
     "defaultProfile": null,
     "description": "触发CMDB的数据抽取",
     "option": [{
+        "opt": "starttime",
+        "name": "数据更新时间",
+        "help": "数据在这个时间后更新，格式是epoch time（秒），精确到小数点后3位",
+        "type": "text",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    },
+    {
         "opt": "batchtag",
         "name": "批次号",
         "help": "保存到采集数据中的批次号，提供给CMDB抽取接口作为数据过滤条件",
