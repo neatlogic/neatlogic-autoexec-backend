@@ -256,12 +256,12 @@
                             "type": "String"
                         },
                         {
-                            "name": "NODE_WWN",
+                            "name": "WWNN",
                             "desc": "Node WWN",
                             "type": "String"
                         },
                         {
-                            "name": "PORT_WWN",
+                            "name": "WWPN",
                             "desc": "Port WWN",
                             "type": "String"
                         },
