@@ -590,7 +590,8 @@ sub getDBConf {
     #         node => {
     #             resourceId     => 9823748347,
     #             nodeName       => 'bsm',
-    #             serviceAddr => '192.168.0.26:3306',
+    #             name           => 'bsm',
+    #             serviceAddr    => '192.168.0.26:3306',
     #             nodeType       => 'Mysql',
     #             host           => '192.168.0.26',
     #             port           => 3306,
@@ -626,6 +627,12 @@ sub getDBConf {
         my $password = $nodeInfo->{password};
         if ( defined($password) ) {
             $nodeInfo->{password} = $serverConf->decryptPwd($password);
+        }
+        
+        if ( defined($nodeInfo->{name}) ){
+            #在CMDB中nodeName对应的是显示名，getDBConf给过来的信息包含了nodeName和name
+            #如果存在name，那么就以name作为DB的库名称，把nodeName更换为name
+            $nodeInfo->{nodeName} = $nodeInfo->{name};
         }
     }
     return $dbConf;
