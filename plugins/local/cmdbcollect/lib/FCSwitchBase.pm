@@ -23,7 +23,7 @@ sub new {
     my $scalarOidDef = {
         DEV_NAME         => '1.3.6.1.2.1.1.5.0',                                                                                   #sysName
         SN               => [ '1.3.6.1.2.1.47.1.1.1.1.11.1', '1.3.6.1.2.1.47.1.1.1.1.11.149', '1.3.6.1.4.1.1588.2.1.1.1.1.10' ],
-        WWN              => '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.6',
+        WWNN             => '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.6',
         MODEL            => [ '1.3.6.1.2.1.47.1.1.1.1.2.1',     '1.3.6.1.2.1.47.1.1.1.1.13.149', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.7.3', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.1', '1.3.6.1.4.1.1588.2.1.1.1.7.2.1.5.2' ],
         FIRMWARE_VERSION => [ '1.3.6.1.4.1.1588.2.1.1.1.1.6.0', '1.3.6.1.2.1.47.1.1.1.1.8.22' ],                                   #sysProductVersion
         BOOT_DATE        => '1.3.6.1.4.1.1588.2.1.1.1.1.2.0',
@@ -40,7 +40,7 @@ sub new {
     my $portCounterDef = {
         PORTS_COUNTER => {
             INDEX             => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
-            WWN               => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
+            WWPN              => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
             IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
             IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
             IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
@@ -62,7 +62,7 @@ sub new {
             INDEX        => '1.3.6.1.2.1.2.2.1.1',          #ifIndex
             NAME         => '1.3.6.1.2.1.2.2.1.2',          #ifDescr
             TYPE         => '1.3.6.1.2.1.2.2.1.3',          #ifType
-            WWN          => '1.3.6.1.2.1.2.2.1.6',          #ifPhysAddress
+            WWPN         => '1.3.6.1.2.1.2.2.1.6',          #ifPhysAddress
             ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',          #ifAdminStatus
             OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',          #ifOperStatus
             SPEED        => '1.3.6.1.2.1.2.2.1.5',          #ifSpeed
@@ -81,10 +81,10 @@ sub new {
 
         #TODO: 需要测试关系WWN的采集，验证LINK TABLE的形式，跟交换机的MAC TABLE是有区别的
         LINK_TABLE => {
-            LOCAL_NODE_WWN => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
-            LOCAL_PORT_WWN => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortNumberX
-            PEER_NODE_WWN  => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
-            PEER_PORT_WWN  => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
+            LOCAL_WWNN => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
+            LOCAL_WWPN => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortNumberX
+            PEER_WWNN  => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
+            PEER_WWPN  => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
         }
     };
 
@@ -236,59 +236,79 @@ sub _getTable {
     my $portsMap  = {};
     my $portsData = $tableData->{PORTS};
     foreach my $portInfo (@$portsData) {
-        $portInfo->{WWN}                = $snmpHelper->hex2mac( $portInfo->{WWN} );
-        $portInfo->{ADMIN_STATUS}       = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{TYPE}               = $snmpHelper->getPortType( $portInfo->{TYPE} );
-        $portInfo->{SPEED}              = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
-        $portsMap->{ $portInfo->{WWN} } = $portInfo;
+        $portInfo->{WWPN}                = $snmpHelper->hex2mac( $portInfo->{WWPN} );
+        $portInfo->{ADMIN_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
+        $portInfo->{OPER_STATUS}         = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
+        $portInfo->{TYPE}                = $snmpHelper->getPortType( $portInfo->{TYPE} );
+        $portInfo->{SPEED}               = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
+        $portsMap->{ $portInfo->{WWPN} } = $portInfo;
     }
 
-    my $linkTable = $tableData->{LINK_TABLE};
+    #计算本地端口往外连接的连接数量，冗余回填本地端口名
+    my $linkCountMap = {};
+    my $linkTable    = $tableData->{LINK_TABLE};
     foreach my $linkInfo (@$linkTable) {
-        $linkInfo->{LOCAL_NODE_WWN} = $snmpHelper->hex2mac( $linkInfo->{LOCAL_NODE_WWN} );
-        $linkInfo->{LOCAL_PORT_WWN} = $snmpHelper->hex2mac( $linkInfo->{LOCAL_PORT_WWN} );
-        $linkInfo->{PEER_NODE_WWN}  = $snmpHelper->hex2mac( $linkInfo->{PEER_NODE_WWN} );
-        $linkInfo->{PEER_PORT_WWN}  = $snmpHelper->hex2mac( $linkInfo->{PEER_PORT_WWN} );
-        my $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_PORT_WWN} };
+        my $localWwnn = $snmpHelper->hex2mac( $linkInfo->{LOCAL_WWNN} );
+        my $localWwpn = $snmpHelper->hex2mac( $linkInfo->{LOCAL_WWPN} );
+        my $peerWwnn  = $snmpHelper->hex2mac( $linkInfo->{PEER_WWNN} );
+        my $peerWwpn  = $snmpHelper->hex2mac( $linkInfo->{PEER_WWPN} );
+
+        $linkInfo->{LOCAL_WWNN} = $localWwnn;
+        $linkInfo->{LOCAL_WWPN} = $localWwpn;
+        $linkInfo->{PEER_WWNN} = $peerWwnn;
+        $linkInfo->{PEER_WWPN} = $peerWwpn;
+
+        my $keyStr      = "$localWwnn-$localWwpn";
+        my $linkCount = $linkCountMap->{$keyStr};
+        if ( not defined($linkCount) ) {
+            $linkCount = 0;
+        }
+        $linkCountMap->{$keyStr} = $linkCount + 1;
+
+        my $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_WWPN} };
+        if ( not defined($localPortInfo) ) {
+            $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_WWNN} };
+        }
         if ( defined($localPortInfo) ) {
             $linkInfo->{PORT_NAME} = $localPortInfo->{NAME};
-
-            # my $portLinkTable = $localPortInfo->{LINK_TABLE};
-            # if ( not defined($portLinkTable) ) {
-            #     $portLinkTable = [];
-            #     $localPortInfo->{LINK_TABLE} = $portLinkTable;
-            # }
-            # push( @$portLinkTable, $linkInfo );
         }
         else {
             $linkInfo->{PORT_NAME} = undef;
         }
     }
+    foreach my $linkInfo (@$linkTable) {
+        my $localWwnn = $linkInfo->{LOCAL_WWNN} ;
+        my $localWwpn = $linkInfo->{LOCAL_WWPN} ;
+        $linkInfo->{LINK_COUNT} = $linkCountMap->{"$localWwnn-$localWwpn"};
+    }
+    #端口连接数量统计完成
+
+    my $data = $self->{DATA};
 
     if ( $self->{inspect} == 1 ) {
+        #巡检需要统计各个端口每秒的包流量
         my $preCounterMap    = {};
         my $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         my $portsCounterData = $counterTblData->{PORTS_COUNTER};
-        foreach my $portInfo (@$portsCounterData) {
-            $preCounterMap->{ $portInfo->{WWN} } = $portInfo;
+        foreach my $portCounterInfo (@$portsCounterData) {
+            $preCounterMap->{ $portCounterInfo->{WWPN} } = $portCounterInfo;
         }
 
         sleep(1);
         $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         $portsCounterData = $counterTblData->{PORTS_COUNTER};
-        foreach my $portInfo (@$portsCounterData) {
-            my $collectedPortInfo = $portsMap->{ $portInfo->{WWN} };
-            my $preCounterInfo    = $preCounterMap->{ $portInfo->{WWN} };
-            while ( my ( $key, $val ) = each(%$portInfo) ) {
-                if ( $key ne 'WWN' and $key ne 'INDEX' ) {
-                    $collectedPortInfo->{$key} = int( $portInfo->{$key} ) - int( $preCounterInfo->{$key} );
+        foreach my $portCounterInfo (@$portsCounterData) {
+            my $collectedPortInfo = $portsMap->{ $portCounterInfo->{WWPN} };
+            my $preCounterInfo    = $preCounterMap->{ $portCounterInfo->{WWPN} };
+            while ( my ( $key, $val ) = each(%$portCounterInfo) ) {
+                if ( $key ne 'WWPN' and $key ne 'INDEX' ) {
+                    $portCounterInfo->{$key} = int( $portCounterInfo->{$key} ) - int( $preCounterInfo->{$key} );
                 }
             }
         }
+        $data->{PORTS_COUNTER} = $portsCounterData;
     }
 
-    my $data = $self->{DATA};
     while ( my ( $key, $val ) = each(%$tableData) ) {
         $data->{$key} = $val;
     }

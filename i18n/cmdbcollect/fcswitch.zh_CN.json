@@ -2,7 +2,7 @@
     "label": "光纤交换机",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
-    "collection_label": "存储网络设备",
+    "collection_label": "存储交换机",
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
@@ -120,7 +120,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWPN",
+                    "name": "PEER_WWPN",
                     "desc": "对端端口WWN",
                     "type": "String"
                 }
@@ -157,8 +157,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWN",
+                    "name": "WWPN",
+                    "desc": "端口WWN",
                     "type": "String"
                 },
                 {

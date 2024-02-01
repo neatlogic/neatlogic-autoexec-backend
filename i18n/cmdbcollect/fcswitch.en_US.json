@@ -2,7 +2,7 @@
     "label": "FCSwitch",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
-    "collection_label": "Storage Net Device",
+    "collection_label": "Storage switch",
     "filter": {
         "_OBJ_TYPE": "FCSwitch"
     },
@@ -115,7 +115,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWPN",
+                    "name": "PEER_WWPN",
                     "desc": "Peer Port WWN",
                     "type": "String"
                 }
@@ -152,8 +152,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "WWN",
-                    "desc": "WWN",
+                    "name": "WWPN",
+                    "desc": "Port WWN",
                     "type": "String"
                 },
                 {
