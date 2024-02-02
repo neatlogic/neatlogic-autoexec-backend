@@ -251,12 +251,12 @@
                             "type": "String"
                         },
                         {
-                            "name": "NODE_WWN",
+                            "name": "WWNN",
                             "desc": "Node WWN",
                             "type": "String"
                         },
                         {
-                            "name": "PORT_WWN",
+                            "name": "WWPN",
                             "desc": "Port WWN",
                             "type": "String"
                         },
@@ -354,6 +354,11 @@
                     "type": "Int"
                 }
             ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
         }
     ]
 }

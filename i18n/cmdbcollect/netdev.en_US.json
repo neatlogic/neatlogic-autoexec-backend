@@ -79,6 +79,11 @@
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

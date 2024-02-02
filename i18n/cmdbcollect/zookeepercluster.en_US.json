@@ -76,6 +76,11 @@
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
             "type": "array"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

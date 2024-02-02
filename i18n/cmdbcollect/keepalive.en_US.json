@@ -589,6 +589,11 @@
             "name": "VRRP_SCRIPT",
             "desc": "VRRP Script",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

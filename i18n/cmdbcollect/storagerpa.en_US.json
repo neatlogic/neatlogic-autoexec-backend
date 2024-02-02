@@ -418,6 +418,11 @@
             "name": "STATUS",
             "desc": "Health Status",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

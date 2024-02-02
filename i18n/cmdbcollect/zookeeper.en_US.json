@@ -636,6 +636,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

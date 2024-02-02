@@ -416,13 +416,8 @@
             "type": "String"
         },
         {
-            "name": "ID_CODE",
-            "desc": "id",
-            "type": "String"
-        },
-        {
-            "name": "CTL_PATH",
-            "desc": "控制文件路径",
+            "name": "CTL_BAK_NUM",
+            "desc": "控制文件备份数量",
             "type": "String"
         },
         {
@@ -431,13 +426,18 @@
             "type": "String"
         },
         {
-            "name": "CTL_BAK_NUM",
-            "desc": "控制文件备份数量",
+            "name": "CTL_PATH",
+            "desc": "控制文件路径",
             "type": "String"
         },
         {
             "name": "EXPIRED_DATE",
             "desc": "过期时间",
+            "type": "String"
+        },
+        {
+            "name": "ID_CODE",
+            "desc": "id",
             "type": "String"
         },
         {
@@ -451,14 +451,31 @@
             "type": "Int"
         },
         {
-            "name": "WORKER_THREADS",
-            "desc": "工作线程数量",
-            "type": "Int"
-        },
-        {
-            "name": "TASK_THREADS",
-            "desc": "工作任务数量",
-            "type": "Int"
+            "name": "RUN_ON",
+            "desc": "所在OS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS CMDB ID",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -520,31 +537,19 @@
             ]
         },
         {
-            "name": "RUN_ON",
-            "desc": "所在OS",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "OS类型",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS CMDB ID",
-                    "type": "String"
-                }
-            ]
+            "name": "TASK_THREADS",
+            "desc": "工作任务数量",
+            "type": "Int"
+        },
+        {
+            "name": "WORKER_THREADS",
+            "desc": "工作线程数量",
+            "type": "Int"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
         }
     ]
 }

@@ -49,6 +49,11 @@
             "name": "SYS_OBJECT_ID",
             "desc": "sysObjectID",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

@@ -44,6 +44,11 @@
             "name": "ACCESS_TYPE",
             "desc": "Access Type",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

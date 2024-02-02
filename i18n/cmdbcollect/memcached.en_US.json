@@ -619,6 +619,11 @@
             "name": "USE_LARGE_PAGE",
             "desc": "Use Large Page",
             "type": "Float"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

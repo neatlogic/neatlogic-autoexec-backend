@@ -6,7 +6,15 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "对采集插件生成的output数据存储到DB插件",
-    "option": [],
+    "option": [{
+        "opt": "batchtag",
+        "name": "批次号",
+        "help": "保存到采集数据中的批次号，用于标记当次采集的数据",
+        "type": "text",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    }],
     "argument": {
         "name": "自定义采集工具名",
         "help": "进行CMDB采集的自定义工具名，支持输入多个",
@@ -17,5 +25,12 @@
         "required": "false",
         "validate": ""
     },
-    "output": []
+    "output": [
+        {
+            "opt": "collections",
+            "name": "数据集合",
+            "help": "涉及数据保存的数据集合的Map",
+            "type": "json"
+        }
+    ]
 }

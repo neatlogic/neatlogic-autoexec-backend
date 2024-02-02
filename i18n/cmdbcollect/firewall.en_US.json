@@ -88,6 +88,11 @@
             "name": "IOS_INFO",
             "desc": "IOS Info",
             "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
         }
     ]
 }

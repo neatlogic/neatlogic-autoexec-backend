@@ -1,0 +1,38 @@
+{
+    "opDesc": "触发CMDB数据抽取",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "触发CMDB的数据抽取",
+    "option": [{
+        "opt": "starttime",
+        "name": "数据更新时间",
+        "help": "数据在这个时间后更新，格式是epoch time（秒），精确到小数点后3位",
+        "type": "text",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    },
+    {
+        "opt": "batchtag",
+        "name": "批次号",
+        "help": "保存到采集数据中的批次号，提供给CMDB抽取接口作为数据过滤条件",
+        "type": "text",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    },{
+        "opt": "collections",
+        "name": "涉及的数据集合",
+        "help": "需要进行抽取的数据集合，例如:{\"COLLECT_INS\":1, \"COLLECT_DBINS\":1}",
+        "type": "json",
+        "required": "false",
+        "validate": "",
+        "defaultValue": ""
+    }],
+    "argument": {
+    },
+    "output": []
+}
