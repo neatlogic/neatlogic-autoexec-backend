@@ -30,12 +30,6 @@ if __name__ == "__main__":
                 "/neatlogic/api/rest/cmdb/sync/object/save",
                 {"objCategory": objCat, "objType": objType},
             )
-        except:
+        except Exception as err:
             hasError = 1
-            print(
-                "WARN: Import obj type:{}:{} failed, {}".format(
-                    objCat, objType, traceback.format_exc()
-                )
-            )
-
-    exit(hasError)
+            print("WARN: Import obj type:{}:{} failed, {}".format(objCat, objType, err))
