@@ -445,6 +445,35 @@ sub getDiskInfo {
     my $utils = $self->{collectUtils};
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
+    #Model: AVAGO XF-SAS3508 (scsi)
+    #Disk /dev/sda: 599GB
+    #Sector size (logical/physical): 512B/512B
+    #Partition Table: gpt
+    #Disk Flags:
+    #
+    #Number  Start   End     Size    File system  Name                  Flags
+    # 1      1049kB  2149MB  2147MB  fat32        EFI System Partition  boot
+    # 2      2149MB  4296MB  2147MB  xfs
+    # 3      4296MB  468GB   464GB                                      lvm
+    #
+    #
+    #Model: up updisk (scsi)
+    #Disk /dev/sdb: 429GB
+    #Sector size (logical/physical): 512B/512B
+    #Partition Table: unknown
+    #Disk Flags:
+    #
+    #
+    #
+    #Model: Linux device-mapper (linear) (dm)
+    #Disk /dev/mapper/rootvg-oraclelv: 215GB
+    #Sector size (logical/physical): 512B/512B
+    #Partition Table: loop
+    #Disk Flags:
+    #
+    #Number  Start  End    Size   File system  Flags
+    # 1      0.00B  215GB  215GB  xfs
+    #
     my @diskInfos = ();
     my ( $diskStatus, $diskLines ) = $self->getCmdOutLines('LANG=C parted -l 2>/dev/null');
     if ( $diskStatus ne 0 ) {
@@ -456,13 +485,15 @@ sub getDiskInfo {
             my $diskInfo = {};
 
             my $name = $1;
-            $diskInfo->{NAME} = $name;
-
             my $size = $2;
             my $unit = $3;
+
+            $diskInfo->{NAME} = $name;
             ( $diskInfo->{UNIT}, $diskInfo->{CAPACITY} ) = $utils->getDiskSizeFormStr( $size . $unit );
 
             if ( $name =~ /\/dev\/sd/ or $name =~ /\/dev\/sr/ ) {
+
+                #这也可能是存储阵列的磁盘，通过后续如果发现磁盘对应了WWN，则修改为remote
                 $diskInfo->{TYPE} = 'local';
             }
             elsif ( $name =~ /\/dev\/mapper\// ) {
@@ -472,7 +503,7 @@ sub getDiskInfo {
                 $diskInfo->{TYPE} = 'remote';
             }
 
-            if ( not defined($mountedDevicesMap) ) {
+            if ( not defined( $mountedDevicesMap->{$name} ) ) {
                 $diskInfo->{NOT_MOUNTED} = 1;
             }
             else {
@@ -485,30 +516,47 @@ sub getDiskInfo {
     }
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
+    #upadmin是华为存储的多链路管理软件？
     my ( $upadminRet, $upadminPath ) = $self->getCmdOut( 'which upadmin >/dev/null 2>&1', undef, { nowarn => 1 } );
     my $lunInfosMap   = {};
     my $arrayInfosMap = {};
     if ( $upadminRet == 0 ) {
+
+        # [root ~]# upadmin show array
+        # -----------------------------------------------------------------------------
+        # Array ID    Array Name          Array SN        Vendor Name  Product Name
+        # 0      Huawei.Storage  2102353TJYFSP5100006    HUAWEI        XSG1
+        # 1      Huawei.Storage  2102353TJYFSP5100005    HUAWEI        XSG1
         my $arrayInfoLines = $self->getCmdOutLines('upadmin show array');
         if ( defined($arrayInfoLines) and scalar(@$arrayInfoLines) > 2 ) {
             foreach my $line ( splice( @$arrayInfoLines, 2, -1 ) ) {
                 my $arrayInfo = {};
-                my @infos     = split( /\s+/, $line );
-                $arrayInfo->{NAME}                     = $infos[2];
-                $arrayInfo->{SN}                       = $infos[3];
+                $line =~ s/^\s*|\s*$//g;
+                my @infos = split( /\s+/, $line );
+                $arrayInfo->{NAME}                     = $infos[1];
+                $arrayInfo->{SN}                       = $infos[2];
                 $arrayInfosMap->{ $arrayInfo->{NAME} } = $arrayInfo;
             }
         }
 
+        # [root ~]# upadmin show vlun
+        # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        # Vlun ID  Disk        Name                    Lun WWN               Status  Capacity  Ctrl(Own/Work)    Array Name    Dev Lun ID  No. of Paths(Available/Total)
+        #    0     sdb   xgm_data_0000000  65856c21008355422fa8739d000000aa  Normal  400.00GB      --/--       Huawei.Storage     170                   4/4
+        #    1     sdc   xgm_data_0000001  65856c21008355422fa8739d000000ab  Normal  400.00GB      --/--       Huawei.Storage     171                   4/4
+        #    2     sdd   xgm_data_0000002  65856c21008355422fa8739d000000ac  Normal  400.00GB      --/--       Huawei.Storage     172                   4/4
         my $hwLunInfoLines = $self->getCmdOutLines('upadmin show vlun');
         if ( defined($hwLunInfoLines) and @$hwLunInfoLines > 0 ) {
             foreach my $line ( splice( @$hwLunInfoLines, 2, -1 ) ) {
                 my $lunInfo = {};
-                my @infos   = split( /\s+/, $line );
-                $lunInfo->{NAME}  = '/dev/' . $infos[2];
-                $lunInfo->{WWN}   = $infos[4];
-                $lunInfo->{ARRAY} = $infos[8];
+                $line =~ s/^\s+|\s*$//g;
+                my @infos = split( /\s+/, $line );
+                $lunInfo->{NAME} = '/dev/' . $infos[1];
+                $lunInfo->{WWN}  = $infos[3];
+                ( $lunInfo->{UNIT}, $lunInfo->{CAPACITY} ) = $utils->getDiskSizeFormStr( $infos[5] );
+                $lunInfo->{ARRAY} = $infos[7];
                 my $arrayInfo = $arrayInfosMap->{ $lunInfo->{ARRAY} };
+
                 if ( defined($arrayInfo) ) {
                     $lunInfo->{SN} = $arrayInfo->{SN};
                 }
@@ -517,32 +565,105 @@ sub getDiskInfo {
         }
     }
 
-    my $aggrLunInfoLines;
-    if ( -e '/opt/DynamicLinkManager/bin/dlnkmgr' ) {
-        my $currentDir = getcwd();
-
-        chdir('/opt/DynamicLinkManager/bin');
-        $aggrLunInfoLines = $self->getCmdOutLines(q{./dlnkmgr view -lu|grep /dev/|awk '{print \$(NF-2)}'});
-        my $lunInfoContent = $self->getCmdOut('./dlnkmgr view -lu');
-        chdir($currentDir);
-
-        my @splits = split( /(?<=Online)\s+(?=Product)/, $lunInfoContent );
-        foreach my $split (@splits) {
-            my $sn;
-            if ( $split =~ /SerialNumber\s+:\s+(\d+)/ ) {
-                $sn = $1;
+    #日立存储多链路管理软件
+    # Product       : HUS100
+    # SerialNumber  : 92212433
+    # LUs           : 1
+    # iLU  HDevName Device   PathID Status
+    # 0011 sddlmca  /dev/sdb 000000 Online
+    #               /dev/sdq 000001 Online
+    # Product       : VSP_Gx00
+    # SerialNumber  : 412905
+    # LUs           : 7
+    # iLU    HDevName Device   PathID Status
+    # 000800 sddlmaa  /dev/sdc 000002 Online
+    #                 /dev/sdr 000003 Online
+    # 000801 sddlmab  /dev/sdd 000006 Online
+    my $origDiskMap = {};
+    my $dlnkmgrDir  = "/opt/DynamicLinkManager/bin/dlnkmgr";
+    if ( -e $dlnkmgrDir ) {
+        my $lunInfoLines = $self->getCmdOutLines(qq{$dlnkmgrDir/dlnkmgr view -lu});
+        if ( defined($lunInfoLines) ) {
+            my ( $storeageSN, $name, $iLU );
+            foreach my $line (@$lunInfoLines) {
+                $line =~ s/^\s*|\s*$//g;
+                if ( $line =~ /SerialNumber\s+:\s+(\w+)/ ) {
+                    $storeageSN = $1;
+                }
+                elsif ( $line =~ /^(\w+)\s+(sdd\w+)/ ) {
+                    $iLU  = $1;
+                    $name = $2;
+                    if ( defined($name) and defined($storeageSN) ) {
+                        $lunInfosMap->{$name} = {
+                            NAME => $name,
+                            SN   => $storeageSN,
+                            WWN  => $iLU
+                        };
+                        undef($storeageSN);
+                        undef($name);
+                        undef($iLU);
+                    }
+                }
+                elsif ( $line =~ /^(\/dev\/\w+)/ ) {
+                    $origDiskMap->{$1} = 1;
+                }
             }
-            my @lunInfoLines = $split =~ /(\w+\s+sdd\w+)/g;
-            foreach my $line (@lunInfoLines) {
-                my $lunInfo = {};
-                my ( $id, $name ) = split( /\s+/, $line );
-                substr( $id, 2, 0 ) = ':';    #在index是2的字符前插入冒号
-                substr( $id, 5, 0 ) = ':';
-                $name                              = "/dev/$name";
-                $lunInfo->{NAME}                   = $name;
-                $lunInfo->{WWN}                    = $id;
-                $lunInfo->{SN}                     = $sn;
-                $lunInfosMap->{ $lunInfo->{NAME} } = $lunInfo;
+        }
+    }
+
+    #最后读取/dev/disk/by-id，获取WWN，这是最通用的方法了
+    my $dh;
+    opendir( $dh, "/dev/disk/by-id" );
+    if ( defined($dh) ) {
+        my $currentDir = getcwd();
+        chdir("/dev/disk/by_id");
+        while ( my $linkName = readdir($dh) ) {
+            if ( $linkName =~ /^wwn-(\S+)/ ) {
+                my $wwn      = $1;
+                my $diskName = realpath( readlink($linkName) );
+                my $lunInfo  = $lunInfosMap->{$diskName};
+                if ( defined($lunInfo) ) {
+
+                    #如果多链路软件采集了相关信息，则只补充WWN
+                    $lunInfo->{WWN} = $wwn;
+                }
+                else {
+                    #如多链路软件没有采集到添加设备
+                    $lunInfosMap->{$diskName} = { NAME => $diskName, WWN => $wwn };
+                }
+            }
+        }
+        closedir($dh);
+        chdir($currentDir);
+    }
+    else {
+        print("WARN: Open directory /dev/disk/by-id failed: $!\n");
+    }
+
+    #Linux通用多链路管理软件multipath
+    # mpath0 (3600508b400105e210000900000490000) dm-0 IBM     ,2810XIV
+    # size=100G features='1 queue_if_no_path' hwhandler='0' wp=rw
+    # `-+- policy='round-robin 0' prio=1 status=active
+    # |- 7:0:0:1 sdc 8:32  active ready running
+    # `- 8:0:0:1 sdd 8:48  active ready running
+    my ( $multiPathRet, $multiPathLines ) = $self->getCmdOutLines(qq{multipath -l});
+    if ( $multiPathRet == 0 ) {
+        foreach my $line (@$multiPathLines) {
+            if ( $line =~ /^\w+/ ) {
+                my @infos    = split( /\s+/, $line );
+                my $diskName = '/dev/mapper/' . $infos[0];
+                my $wwn      = substr( $infos[1], 2, 32 );
+
+                my $lunInfo = $lunInfosMap->{$diskName};
+                if ( defined($lunInfo) and not defined($lunInfo->{WWN})) {
+
+                    #如果多链路软件采集了相关信息，则只补充WWN
+                    $lunInfo->{WWN} = $wwn;
+                }
+                else {
+                    #如多链路软件没有采集到添加设备
+                    $lunInfosMap->{$diskName} = { NAME => $diskName, WWN => $wwn };
+                }
             }
         }
     }
@@ -552,24 +673,32 @@ sub getDiskInfo {
         my $lunInfo  = $lunInfosMap->{$diskName};
         if ( defined($lunInfo) ) {
             $diskInfo->{TYPE} = 'remote';
+
+            #TODO: WWID是从老平台的采集脚本中看到的，不知懂做何用途
             $diskInfo->{WWID} = $lunInfo->{SN} . ':' . $lunInfo->{WWN};
+            $diskInfo->{SN}   = $lunInfo->{SN};
+            $diskInfo->{WWN}  = $lunInfo->{WWN};
         }
+
     }
 
-    my @singleDisks;
-    if ( defined($aggrLunInfoLines) and scalar(@$aggrLunInfoLines) > 0 ) {
-        foreach my $diskInfo (@diskInfos) {
-            my $name = $diskInfo->{NAME};
-            if ( not grep( /^\Q$name\E$/, @$aggrLunInfoLines ) ) {
-                push( @singleDisks, $diskInfo );
-            }
+    #TODO: 这是什么逻辑？没有聚合磁盘的就？？难道没有本地盘和远程盘公用的OS吗？
+    # my @singleDisks;
+    # foreach my $diskInfo (@diskInfos) {
+    #     my $name = $diskInfo->{NAME};
+    #     if ( not defined( $origDiskMap->{$name} ) ) {
+    #         push( @singleDisks, $diskInfo );
+    #     }
+    # }
 
-        }
-        $osInfo->{DISKS} = \@singleDisks;
-    }
-    else {
-        $osInfo->{DISKS} = \@diskInfos;
-    }
+    # if (@singleDisks) {
+    #     $osInfo->{DISKS} = \@singleDisks;
+    # }
+    # else {
+    #     $osInfo->{DISKS} = \@diskInfos;
+    # }
+
+    $osInfo->{DISKS} = \@diskInfos;
 }
 
 sub getMiscInfo {

@@ -132,7 +132,7 @@ sub _getHandlerName {
     my $requireName = $handlerName . '.pm';
 
     if ( not -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
-        if ( $dbType =~ s/DB$// ) {
+        if ( $dbType =~ s/[-_]*DB$// ) {
             if ( -f $self->{myDir} . "/${dbType}SQLRunner.pm" ) {
                 $dbInfo->{dbType} = $dbType;
                 $handlerName      = $dbType . 'SQLRunner';
