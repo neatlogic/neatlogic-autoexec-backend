@@ -639,7 +639,7 @@ sub getDBConf {
             #对于DB类型不区分模型的情况，如有属性db_type，直接使用
             $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
         }
-        elsif ( defined($nodeInfo->{obj_type})){
+        elsif ( defined($nodeInfo->{obj_type}) and $nodeInfo->{obj_type} ne '' ){
             #对于DB类型不区分模型的情况，而且没有db_type属性，则使用obj_type属性标记DB的类型
             $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
         }
