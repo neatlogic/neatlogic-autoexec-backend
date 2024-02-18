@@ -487,7 +487,7 @@ def getJobStatus(params):
     return serverAdapter.getJobStatus(params)
 
 
-def callNativeApi(self, apiUri, params=None):
+def callNativeApi(apiUri, params=None):
     context = getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
     return serverAdapter.callNativeApi(apiUri, params)

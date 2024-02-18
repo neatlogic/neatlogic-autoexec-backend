@@ -29,17 +29,20 @@ if __name__ == "__main__":
     startTime = args.starttime
     batchTag = args.batchtag
     collectionsMap = json.loads(args.collections)
-    collections = collectionsMap.keys()
+    collections = list(collectionsMap.keys())
+
+    if startTime is None:
+        startTime = 0
 
     try:
         AutoExecUtils.callNativeApi(
             "/neatlogic/api/rest/cmdb/sync/cicollection/launch",
             {
-                "startTime": int(1000 * startTime),
+                "startTime": int(1000 * float(startTime)),
                 "batchTag": batchTag,
                 "collectionList": collections,
             },
         )
-    except:
-        print("ERROR: Trigger cmdb import failed, {}".format(traceback.format_exc()))
+    except Exception as err:
+        print("ERROR: Trigger cmdb import failed, {}".format(err))
         exit(-1)
