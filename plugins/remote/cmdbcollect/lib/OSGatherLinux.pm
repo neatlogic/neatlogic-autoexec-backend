@@ -620,7 +620,7 @@ sub getDiskInfo {
         while ( my $linkName = readdir($dh) ) {
             if ( $linkName =~ /^wwn-(\S+)/ ) {
                 my $wwn      = $1;
-                my $diskName = realpath( readlink($linkName) );
+                my $diskName = Cwd::realpath( readlink($linkName) );
                 my $lunInfo  = $lunInfosMap->{$diskName};
                 if ( defined($lunInfo) ) {
 
