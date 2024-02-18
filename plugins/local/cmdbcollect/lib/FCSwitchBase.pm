@@ -38,36 +38,79 @@ sub new {
     };
 
     my $portCounterDef = {
+
+        # PORTS_COUNTER => {
+        #     INDEX             => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
+        #     WWPN              => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
+        #     IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
+        #     IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
+        #     IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
+        #     IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
+        #     IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
+        #     IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
+        #     OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
+        #     OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
+        #     OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
+        #     OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
+        #     OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20'     #ifOutErrors
+        # }
         PORTS_COUNTER => {
-            INDEX             => '1.3.6.1.2.1.2.2.1.1',     #ifIndex
-            WWPN              => '1.3.6.1.2.1.2.2.1.6',     #ifPhysAddress
-            IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
-            IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
-            IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
-            IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
-            IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
-            IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
-            OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
-            OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
-            OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
-            OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
-            OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20'     #ifOutErrors
+            INDEX            => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.1',     #swFCportIndex
+            WWPN             => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.34',    #swFCPortWwn
+            TX_WORDS         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.11',    #swFCPortTxWords
+            RX_WORDS         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.12',    #swFCPortRxWords
+            TX_FRAMES        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.13',    #swFCPortTxFrames
+            RX_FRAMES        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.14',    #swFCPortRxFrames
+            RX_C2FRAMES      => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.15',    #swFCPortRxC2Frames
+            RX_C3FRAMES      => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.16',    #swFCPortRxC3Frames
+            RX_LCS           => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.17',    #swFCPortRxLCs
+            RX_MCASTS        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.18',    #swFCPortRxMcasts
+            TOO_MANY_RDYS    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.19',    #swFCPortTooManyRdys
+            NO_TX_CREDITS    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.20',    #swFCPortNoTxCredits
+            RX_ENC_IN_FRS    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.21',    #swFCPortRxEncInFrs
+            RX_CRCS          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.22',    #swFCPortRxCrcs
+            RX_TRUNCS        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.23',    #swFCPortRxTruncs
+            RX_TOO_LONGS     => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.24',    #swFCPortRxTooLongs
+            RX_BAD_EOFS      => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.25',    #swFCPortRxBadEofs
+            RX_ENC_OUT_FRS   => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.26',    #swFCPortRxEncOutFrs
+            RX_BAD_OS        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.27',    #swFCPortRxBadOs
+            C3_DISCARDS      => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.28',    #swFCPortC3Discards
+            MCAST_TIMED_OUTS => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.29',    #swFCPortMcastTimedOuts
+            TX_MCASTS        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.30',    #swFCPortTxMcasts
+            LIP_INS          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.31',    #swFCPortLipIns
+            LIP_OUTS         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.32'     #swFCPortLipOuts
         }
     };
 
     my $tableOidDef = {
+
+        # PORTS => {
+
+        #     #1.3.6.1.4.1.1588.2.1.1.1.0.3 #swFCPortScn
+        #     INDEX        => '1.3.6.1.2.1.2.2.1.1',          #ifIndex
+        #     NAME         => '1.3.6.1.2.1.2.2.1.2',          #ifDescr
+        #     TYPE         => '1.3.6.1.2.1.2.2.1.3',          #ifType
+        #     WWPN         => '1.3.6.1.2.1.2.2.1.6',          #ifPhysAddress
+        #     ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',          #ifAdminStatus
+        #     OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',          #ifOperStatus
+        #     SPEED        => '1.3.6.1.2.1.2.2.1.5',          #ifSpeed
+        #     MTU          => '1.3.6.1.2.1.2.2.1.4',          #ifMTU
+        #     OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21'          #ifOutQLen
+        # },
+
         PORTS => {
 
             #1.3.6.1.4.1.1588.2.1.1.1.0.3 #swFCPortScn
-            INDEX        => '1.3.6.1.2.1.2.2.1.1',          #ifIndex
-            NAME         => '1.3.6.1.2.1.2.2.1.2',          #ifDescr
-            TYPE         => '1.3.6.1.2.1.2.2.1.3',          #ifType
-            WWPN         => '1.3.6.1.2.1.2.2.1.6',          #ifPhysAddress
-            ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',          #ifAdminStatus
-            OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',          #ifOperStatus
-            SPEED        => '1.3.6.1.2.1.2.2.1.5',          #ifSpeed
-            MTU          => '1.3.6.1.2.1.2.2.1.4',          #ifMTU
-            OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21'          #ifOutQLen
+            INDEX         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.1',     #swFCportIndex
+            NAME          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.36',    #swFCPortName
+            PortSpecifier => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.37',    #swFCPortSpecifier
+            TYPE          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.2',     #swFCPortType
+            WWPN          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.34',    #swFCPortWwn
+            ADMIN_STATUS  => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.5',     #swFCPortAdminStatus
+            OPER_STATUS   => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.4',     #swFCPortOPStatus
+            LINK_STATE    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.6',     #swFCPortLinkState
+            PHY_STATE     => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.3',     #swFCPortPhyState
+            SPEED         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.35'     #swFCPortSpeed
         },
 
         ZONES => {
@@ -81,10 +124,12 @@ sub new {
 
         #TODO: 需要测试关系WWN的采集，验证LINK TABLE的形式，跟交换机的MAC TABLE是有区别的
         LINK_TABLE => {
-            LOCAL_WWNN => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
-            LOCAL_WWPN => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortNumberX
-            PEER_WWNN  => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
-            PEER_WWPN  => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
+            LOCAL_WWNN        => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
+            LOCAL_PORT_NUMBER => '1.3.6.1.3.94.1.12.1.4',    #connUnitLinkPortNumberX
+            LOCAL_WWPN        => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortWwnX
+            PEER_WWNN         => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
+            PEER_PORT_NUMBER  => '1.3.6.1.3.94.1.12.1.7',    #connUnitLinkPortNumberY
+            PEER_WWPN         => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
         }
     };
 
@@ -210,6 +255,11 @@ sub _getScalar {
     my $snmpHelper = $self->{snmpHelper};
     my $scalarData = $snmpHelper->getScalar( $snmp, $scalarOidDef );
 
+    #"BOOT_DATE" : "Thu Mar 30 05:46:28 2023\n",
+    my $bootDate = $scalarData->{BOOT_DATE};
+    $bootDate =~ s/\n//g;
+    $scalarData->{BOOT_DATE} = $bootDate;
+
     #IP格式转换，从0x0A064156转换为可读格式
     #$scalarData->{IP} = $snmpHelper->hex2ip( $scalarData->{IP} );
     my $data = $self->{DATA};
@@ -235,12 +285,26 @@ sub _getTable {
 
     my $portsMap  = {};
     my $portsData = $tableData->{PORTS};
+    # foreach my $portInfo (@$portsData) {
+    #     $portInfo->{WWPN}                = $snmpHelper->hex2mac( $portInfo->{WWPN} );
+    #     $portInfo->{ADMIN_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
+    #     $portInfo->{OPER_STATUS}         = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
+    #     $portInfo->{TYPE}                = $snmpHelper->getPortType( $portInfo->{TYPE} );
+    #     $portInfo->{SPEED}               = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
+    #     $portsMap->{ $portInfo->{WWPN} } = $portInfo;
+    # }
+    #my $fcportsData = $tableData->{PORTS};
     foreach my $portInfo (@$portsData) {
-        $portInfo->{WWPN}                = $snmpHelper->hex2mac( $portInfo->{WWPN} );
-        $portInfo->{ADMIN_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}         = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{TYPE}                = $snmpHelper->getPortType( $portInfo->{TYPE} );
-        $portInfo->{SPEED}               = int( $portInfo->{SPEED} * 100 / 1000 / 1000 + 0.5 ) / 100;
+        $portInfo->{_OBJ_CATEGORY} = "FCDEV";
+        $portInfo->{_OBJ_TYPE}     = "FCSWITCH-PORT";
+
+        $portInfo->{WWPN}         = $snmpHelper->hex2mac( $portInfo->{WWPN} );
+        $portInfo->{ADMIN_STATUS} = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
+        $portInfo->{OPER_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
+        $portInfo->{LINK_STATE}   = $snmpHelper->getPortStatus( $portInfo->{LINK_STATE} );
+        $portInfo->{PHY_STATE}    = $snmpHelper->getPortStatus( $portInfo->{PHY_STATE} );
+        $portInfo->{TYPE}         = $snmpHelper->getPortType( $portInfo->{TYPE} );
+
         $portsMap->{ $portInfo->{WWPN} } = $portInfo;
     }
 
@@ -255,10 +319,10 @@ sub _getTable {
 
         $linkInfo->{LOCAL_WWNN} = $localWwnn;
         $linkInfo->{LOCAL_WWPN} = $localWwpn;
-        $linkInfo->{PEER_WWNN} = $peerWwnn;
-        $linkInfo->{PEER_WWPN} = $peerWwpn;
+        $linkInfo->{PEER_WWNN}  = $peerWwnn;
+        $linkInfo->{PEER_WWPN}  = $peerWwpn;
 
-        my $keyStr      = "$localWwnn-$localWwpn";
+        my $keyStr    = "$localWwnn-$localWwpn";
         my $linkCount = $linkCountMap->{$keyStr};
         if ( not defined($linkCount) ) {
             $linkCount = 0;
@@ -277,20 +341,24 @@ sub _getTable {
         }
     }
     foreach my $linkInfo (@$linkTable) {
-        my $localWwnn = $linkInfo->{LOCAL_WWNN} ;
-        my $localWwpn = $linkInfo->{LOCAL_WWPN} ;
+        my $localWwnn = $linkInfo->{LOCAL_WWNN};
+        my $localWwpn = $linkInfo->{LOCAL_WWPN};
         $linkInfo->{LINK_COUNT} = $linkCountMap->{"$localWwnn-$localWwpn"};
     }
+
     #端口连接数量统计完成
 
     my $data = $self->{DATA};
 
     if ( $self->{inspect} == 1 ) {
+
         #巡检需要统计各个端口每秒的包流量
         my $preCounterMap    = {};
         my $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         my $portsCounterData = $counterTblData->{PORTS_COUNTER};
         foreach my $portCounterInfo (@$portsCounterData) {
+            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac($portCounterInfo->{WWPN});
+
             $preCounterMap->{ $portCounterInfo->{WWPN} } = $portCounterInfo;
         }
 
@@ -298,6 +366,8 @@ sub _getTable {
         $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         $portsCounterData = $counterTblData->{PORTS_COUNTER};
         foreach my $portCounterInfo (@$portsCounterData) {
+            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac($portCounterInfo->{WWPN});
+
             my $collectedPortInfo = $portsMap->{ $portCounterInfo->{WWPN} };
             my $preCounterInfo    = $preCounterMap->{ $portCounterInfo->{WWPN} };
             while ( my ( $key, $val ) = each(%$portCounterInfo) ) {
@@ -323,13 +393,32 @@ sub getBrand {
     my ($self) = @_;
 
     my $BRANDS_MAP = {
-        'Brocade'    => 'Brocade',
-        'DS-C9'      => 'IBM',
-        'IBM'        => 'IBM',
-        'HP'         => 'HP',
-        'Huawei'     => 'Huawei',
-        'EMC'        => 'EMC',
-        'Connectrix' => 'EMC'
+        'Brocade'          => 'Brocade',
+        'G620'             => 'Brocade',
+        'SWG620'           => 'Brocade',
+        '2498-B80'         => 'Brocade',
+        'DS_6620B'         => 'Brocade',
+        'EM-6510-24-16G-R' => 'Brocade',
+        '6505'             => 'Brocade',
+        '6510'             => 'Brocade',
+        '6520'             => 'Brocade',
+        '6505'             => 'Brocade',
+        'IBM_2498_F48'     => 'Brocade',
+        'DS-C9'            => 'IBM',
+        'IBM'              => 'IBM',
+        'TYPE 2498'        => 'IBM',
+        '2005-B16'         => 'IBM',
+        '2498-B24'         => 'IBM',
+        'F96'              => 'IBM',
+        'HP'               => 'HP',
+        'Huawei'           => 'Huawei',
+        'HU'               => 'Huawei',
+        'SNS'              => 'Huawei',
+        'EMC'              => 'EMC',
+        'Connectrix'       => 'EMC',
+        'DS_6620B'         => 'DELL',
+        'DS6620B'          => 'DELL',
+        '6620B'            => 'DELL'
     };
 
     my $snmp = $self->{snmpSession};
