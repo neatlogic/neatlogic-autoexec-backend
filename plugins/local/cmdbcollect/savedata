@@ -238,7 +238,10 @@ if __name__ == "__main__":
                     ):
                         continue
 
-                    collectData = value["DATA"]
+                    if key.startswith("cmdbcollect/savedata"):
+                        continue
+
+                    collectData = value.get("DATA")
                     if collectData is None:
                         print(
                             "WARN: Plugin {} did not return collect data.".format(key)
