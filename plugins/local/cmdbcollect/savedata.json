@@ -1,11 +1,11 @@
 {
-    "opDesc": "CMDB采集存储插件",
+    "opDesc": "CMDB采集数据保存",
     "opType": "runner_target",
     "typeName": "CMDB",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对采集插件生成的output数据存储到DB插件",
+    "description": "对采集插件生成的数据存储到DB",
     "option": [{
         "opt": "batchtag",
         "name": "批次号",
@@ -28,8 +28,14 @@
     "output": [
         {
             "opt": "collections",
-            "name": "数据集合",
-            "help": "涉及数据保存的数据集合的Map",
+            "name": "数据集合名称",
+            "help": "涉及数据保存的数据集合的Map, 格式：{'COLLECT_INS':1,'COLLECT_OS':1}",
+            "type": "json"
+        },
+        {
+            "opt": "objTypesMap",
+            "name": "OBJ_TYPE名称",
+            "help": "涉及的OBJ_TYPE名称数据集合的Map, 格式:{'OS:Linux':1, 'DBINS:Mysql':1}",
             "type": "json"
         }
     ]
