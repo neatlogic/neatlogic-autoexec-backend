@@ -634,6 +634,15 @@ sub getDBConf {
             #如果存在name，那么就以name作为DB的库名称，把nodeName更换为name
             $nodeInfo->{nodeName} = $nodeInfo->{name};
         }
+
+        if ( defined($nodeInfo->{db_type})){
+            #对于DB类型不区分模型的情况，如有属性db_type，直接使用
+            $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
+        }
+        elsif ( defined($nodeInfo->{obj_type})){
+            #对于DB类型不区分模型的情况，而且没有db_type属性，则使用obj_type属性标记DB的类型
+            $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
+        }
     }
     return $dbConf;
 }
