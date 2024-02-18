@@ -29,7 +29,7 @@ if __name__ == "__main__":
     startTime = args.starttime
     batchTag = args.batchtag
     collectionsMap = json.loads(args.collections)
-    collections = collectionsMap.keys()
+    collections = list(collectionsMap.keys())
 
     if startTime is None:
         startTime = 0
