@@ -327,6 +327,7 @@ if __name__ == "__main__":
 
     dirs = os.listdir(dictPath)
 
+    objTypeList = []
     dbclient = None
     collection = None
     inspectDef = None
@@ -373,6 +374,15 @@ if __name__ == "__main__":
                 print("INFO: Import", dfile, "start...")
                 if hasError == False:
                     tableName = data["collection"]
+                    objCat = tableName[8:]
+                    colFilter = data.get("filter")
+                    objType = None
+                    if colFilter is not None:
+                        objType = colFilter.get("_OBJ_TYPE")
+                    if objType is not None:
+                        objTypeList.append(
+                            {"_OBJ_CATETORY": objCat, "_OBJ_TYPE": objType}
+                        )
                     collection.delete_one({"name": name})
 
                     data["name"] = name
@@ -605,6 +615,13 @@ if __name__ == "__main__":
                     col.delete_many({})
             else:
                 print("ERROR: Action " + action + "not supported.")
+    print("\n")
+    print("INFO: Imported object type lsit\n", end="")
+    for objTypeItem in objTypeList:
+        print(
+            objTypeItem["_OBJ_CATETORY"] + ",\t" + objTypeItem["_OBJ_TYPE"] + "\n",
+            end="",
+        )
     # 关闭连接
     if dbclient is not None:
         dbclient.close()
