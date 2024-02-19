@@ -124,8 +124,17 @@ sub main {
     }
 
     my $toolsPath = $buildEnv->{TOOLS_PATH};
-    $ENV{JAVA_HOME} = "$toolsPath/jdk";
-    $ENV{PATH}      = "$toolsPath/jdk/bin:" . $ENV{PATH};
+    my $javaHome = $ENV{JAVA_HOME};
+    if ( defined($javaHome) and $javaHome ne '' and -x "$javaHome/bin/java" ) {
+        $ENV{PATH} = "$javaHome/bin:" . $ENV{PATH};
+    }
+    elsif ( -f "$toolsPath/jdk/bin/java" ) {
+        $ENV{JAVA_HOME} = "$toolsPath/jdk";
+        $ENV{PATH}      = "$toolsPath/jdk/bin:" . $ENV{PATH};
+    }
+    else{
+        print("ERROR: JDK not found in $toolsPath/jdk.\n");
+    }
 
     my $libPath = $FindBin::Bin . '/lib/neatlogic-diff-1.0-jar-with-dependencies.jar';
     if ( not -f $libPath ) {
