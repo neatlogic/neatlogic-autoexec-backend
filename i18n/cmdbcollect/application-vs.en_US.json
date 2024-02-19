@@ -1,5 +1,5 @@
 {
-    "label": "LoadBalancer-VS",
+    "label": "Appliation-VS",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
     "collection_label": "App Cluster",
