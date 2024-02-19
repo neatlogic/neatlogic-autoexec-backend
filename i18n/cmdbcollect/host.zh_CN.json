@@ -192,7 +192,7 @@
             "type": "String"
         },
         {
-            "name": "ESXI_IP",
+            "name": "HOST_IP",
             "desc": "Esxi IP",
             "type": "String"
         },

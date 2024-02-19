@@ -15,6 +15,7 @@
             "desc": "Product Name",
             "type": "String"
         },
+
         {
             "name": "MGMT_IP",
             "desc": "Managment IP",
@@ -197,7 +198,7 @@
             "type": "String"
         },
         {
-            "name": "ESXI_IP",
+            "name": "HOST_IP",
             "desc": "Esxi IP",
             "type": "String"
         },
