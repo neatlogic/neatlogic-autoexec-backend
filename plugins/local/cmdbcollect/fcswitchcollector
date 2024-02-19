@@ -129,6 +129,8 @@ sub main {
         print( to_json( $data, { pretty => 1 } ) );
         print("==================\n");
     }
+
+    return 0;
 }
 
 exit main();
