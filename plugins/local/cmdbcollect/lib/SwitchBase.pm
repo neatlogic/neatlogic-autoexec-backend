@@ -347,7 +347,7 @@ sub _getPorts {
 
     my $portIdxToNoMap = $self->_getPortIdx();
     while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
-        my $portInfo = { INDEX => $idx, NO => $no };
+        my $portInfo = { _OBJ_CATEGORY => 'SWITCH', _OBJ_TYPE => 'SWITCH-PORT', INDEX => $idx, NO => $no };
         $portsMap->{$idx}   = $portInfo;
         $portIdxMap->{$idx} = $portInfo;
         $portNoMap->{$no}   = $portInfo;

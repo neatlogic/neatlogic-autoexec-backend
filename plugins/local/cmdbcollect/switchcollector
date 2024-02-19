@@ -62,6 +62,11 @@ sub main {
     my $hostname  = $nodeInfo->{host};
     my $protocol  = $nodeInfo->{protocol};
     my $community = $nodeInfo->{password};
+
+    if ( not defined($protocol) or $protocol eq '' ) {
+        $protocol = 'snmp';
+    }
+
     if ( not defined($community) or $community eq '' or ( $protocol ne 'snmp' and $protocol ne 'snmpv3' ) ) {
 
         #如果执行节点给出的协议不是snmp或者没有给出密码，则使用默认密码选项给出的团体字
