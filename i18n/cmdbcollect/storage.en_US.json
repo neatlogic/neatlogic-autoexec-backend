@@ -12,7 +12,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "Application Type",
+            "desc": "Object Type",
             "type": "String"
         },
         {
@@ -153,7 +153,7 @@
         },
         {
             "name": "CAPACITY",
-            "desc": "Capacity(TB)",
+            "desc": "Total Capacity(TB)",
             "type": "Float"
         },
         {
@@ -161,6 +161,11 @@
             "desc": "Controllers",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "DEVICE_ID",
+                    "desc": "Device ID",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
@@ -182,6 +187,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "LOCATION",
+                    "desc": "Location",
+                    "type": "String"
+                },
+                {
                     "name": "STATUS",
                     "desc": "Status",
                     "type": "String"
@@ -192,6 +202,38 @@
             "name": "DEV_NAME",
             "desc": "Device Name",
             "type": "String"
+        },
+        {
+            "name": "DISKS",
+            "desc": "Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used(%)",
+                    "type": "Float"
+                }
+            ]
         },
         {
             "name": "FANS",
@@ -210,7 +252,7 @@
                 },
                 {
                     "name": "SPEED",
-                    "desc": "Speed",
+                    "desc": "Speed(rpm)",
                     "type": "String"
                 },
                 {
@@ -221,6 +263,11 @@
                 {
                     "name": "POWERSUPPLY_NAME",
                     "desc": "PowerSupply",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCATION",
+                    "desc": "Location",
                     "type": "String"
                 }
             ]
@@ -252,7 +299,7 @@
                 },
                 {
                     "name": "SPEED",
-                    "desc": "Speed",
+                    "desc": "Speed(Gb/s)",
                     "type": "Float"
                 },
                 {
@@ -282,7 +329,7 @@
                         },
                         {
                             "name": "SN",
-                            "desc": "Serial",
+                            "desc": "Switch Serial",
                             "type": "String"
                         },
                         {
@@ -298,63 +345,6 @@
             "name": "HEALTH_CHECK",
             "desc": "Health Report",
             "type": "Text"
-        },
-        {
-            "name": "LUNS",
-            "desc": "Logical Disks",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ID",
-                    "desc": "ID",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "WWN",
-                    "desc": "Lun WWN",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "Capacity(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "Used(%)",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "status"
-                },
-                {
-                    "name": "POOL_NAME",
-                    "desc": "Belong Pool",
-                    "type": "String"
-                },
-                {
-                    "name": "VISABLE_GROUPS",
-                    "desc": "Visable Groups",
-                    "type": "array"
-                },
-                {
-                    "name": "VISABLE_INITIATORS",
-                    "desc": "Visable Initiators",
-                    "type": "array"
-                }
-            ]
         },
         {
             "name": "POOLS",
@@ -395,6 +385,63 @@
                     "name": "USED_PCT",
                     "desc": "Used(%)",
                     "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "LUNS",
+            "desc": "Logical Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ID",
+                    "desc": "ID",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "WWN",
+                    "desc": "Lun WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used(%)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "POOL_NAME",
+                    "desc": "Belong Pool",
+                    "type": "String"
+                },
+                {
+                    "name": "VISABLE_GROUPS",
+                    "desc": "Visable Groups",
+                    "type": "array"
+                },
+                {
+                    "name": "VISABLE_INITIATORS",
+                    "desc": "Visable Initiators",
+                    "type": "array"
                 }
             ]
         },
