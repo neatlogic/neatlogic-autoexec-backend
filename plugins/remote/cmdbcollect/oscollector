@@ -496,7 +496,7 @@ sub doDetailCollect {
             my $statInfo = {};
             my $lsnPid   = $procInfo->{LISTENER_PID};
             if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
-                my $lsnInfo = $connGather->getListenInfo( $pid, $isContainer );
+                my $lsnInfo = $connGather->getListenInfo( $lsnPid, $isContainer );
                 map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
                 my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
                 $connInfo->{PORT_BIND} = $portInfoMap;
