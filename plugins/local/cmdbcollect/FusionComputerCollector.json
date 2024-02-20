@@ -10,7 +10,7 @@
         {
             "opt": "ip",
             "name": "管理IP",
-            "help": "vsphere管理IP",
+            "help": "FusionComputer管理IP",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -18,17 +18,26 @@
         },
         {
             "opt": "port",
-            "name": "管理端口",
-            "help": "vsphere管理端口",
+            "name": "API端口",
+            "help": "FusionComputer API端口",
             "type": "text",
             "required": "false",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "7443"
+        },
+        {
+            "opt": "mgmt_port",
+            "name": "管理端口",
+            "help": "FusionComputer管理用户",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "8443"
         },
         {
             "opt": "user",
             "name": "账号",
-            "help": "vsphere管理用户",
+            "help": "FusionComputer管理用户",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -37,7 +46,7 @@
         {
             "opt": "password",
             "name": "密码",
-            "help": "vsphere管理用户密码",
+            "help": "FusionComputer管理用户密码",
             "type": "text",
             "required": "false",
             "validate": "",

@@ -4,7 +4,7 @@
     "docroot": "DATACENTER.CLUSTER",
     "collection_label": "虚拟化",
     "filter": {
-        "_OBJ_TYPE": "VMWARE-CLUSTER"
+        "_OBJ_TYPE": "VIRTUALIZED-CLUSTER"
     },
     "fields": [
         {

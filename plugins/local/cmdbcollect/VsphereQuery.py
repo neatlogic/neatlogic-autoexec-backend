@@ -254,8 +254,8 @@ class VsphereQuery:
                 "_OBJ_CATEGORY": "VIRTUALIZED",
                 "_OBJ_TYPE": "VCENTER",
                 "MOID": cluster._moId,
-                "_OBJ_CATEGORY": "VMWARE-CLUSTER",
-                "_OBJ_TYPE": "VMWARE-CLUSTER",
+                "_OBJ_CATEGORY": "VIRTUALIZED-CLUSTER",
+                "_OBJ_TYPE": "VIRTUALIZED-CLUSTER",
                 "MGMT_IP": self.ip,
             }
         ]
