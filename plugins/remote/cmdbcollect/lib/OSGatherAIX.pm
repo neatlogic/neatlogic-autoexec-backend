@@ -1033,8 +1033,6 @@ sub collectHostInfo {
         $self->getHostMiscInfo($hostInfo);
         $self->getHostMemInfo($hostInfo);
         $self->getHostHBAInfo($hostInfo);
-    }
-    else {
         $self->getHostNicInfo($hostInfo);
     }
 
