@@ -4,7 +4,7 @@
     "docroot": "DATACENTER",
     "collection_label": "虚拟化",
     "filter": {
-        "_OBJ_TYPE": "VMWARE-DATACENTER"
+        "_OBJ_TYPE": "VIRTUALIZED-DATACENTER"
     },
     "fields": [
         {
