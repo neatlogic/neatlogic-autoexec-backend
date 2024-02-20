@@ -219,8 +219,8 @@
                                     "type": "String"
                                 },
                                 {
-                                    "name": "ESXI_IP",
-                                    "desc": "ESXI IP",
+                                    "name": "HOST_IP",
+                                    "desc": "Host IP",
                                     "type": "String"
                                 }
                             ]
@@ -256,8 +256,8 @@
                                             "type": "String"
                                         },
                                         {
-                                            "name": "ESXI_IP",
-                                            "desc": "ESXI IP",
+                                            "name": "HOST_IP",
+                                            "desc": "Host IP",
                                             "type": "String"
                                         }
                                     ]

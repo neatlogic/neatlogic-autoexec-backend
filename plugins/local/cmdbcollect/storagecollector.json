@@ -63,6 +63,10 @@
                         "value": "HuaWei"
                     },
                     {
+                        "text": "Huawei_OceanStor",
+                        "value": "Huawei_OceanStor"
+                    },
+                    {
                         "text": "IBM_DS",
                         "value": "IBM_DS"
                     },
