@@ -248,12 +248,12 @@
                 }
               ]
           ],
-          'BRAND' => 'HuaWei',
+          'BRAND' => 'Huawei',
           'DEV_NAME' => 'hw-st02',
           '_OBJ_CATEGORY' => 'STORAGE',
-          '_OBJ_TYPE' => 'HuaWei',
+          '_OBJ_TYPE' => 'Huawei',
           'MODEL' => 'S2403H-EI-0020P02',
-          'VENDOR' => 'HuaWei'
+          'VENDOR' => 'Huawei'
     };
 ```
 ## 存储管理概念介绍

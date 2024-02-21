@@ -9,7 +9,7 @@
     "option": [{
         "opt": "objtypes",
         "name": "涉及的OBJ TYPE",
-        "help": "OBJ TYPE的map，例如:{\"DBINS:Oracle\":1, \"OS:Linux\":1}",
+        "help": "OBJ TYPE的map，例如:{\"DBINS/Oracle\":1, \"OS/Linux\":1}",
         "type": "json",
         "required": "false",
         "validate": "",

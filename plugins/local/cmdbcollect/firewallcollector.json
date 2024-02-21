@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集防火墙设备信息,支持HuaWei、CheckPoint、HillStone、TopSec等",
+    "description": "采集防火墙设备信息,支持Huawei、CheckPoint、HillStone、TopSec等",
     "option": [
         {
             "opt": "community",
