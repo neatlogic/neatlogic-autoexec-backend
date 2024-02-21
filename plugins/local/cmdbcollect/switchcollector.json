@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集交换机信息,支持Cisco、HuaWei、H3C等",
+    "description": "采集交换机信息,支持Cisco、Huawei、H3C等",
     "option": [{
             "opt": "community",
             "name": "默认团体字",

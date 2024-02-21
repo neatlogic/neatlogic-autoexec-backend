@@ -282,7 +282,7 @@ if __name__ == "__main__":
 
                 table = "COLLECT_" + objCat
                 collectionNames[table] = 1
-                objTypesMap["%s:%s" % (objCat, typeName)] = 1
+                objTypesMap["%s/%s" % (objCat, typeName)] = 1
 
                 pkInvalid = False
                 # 根据PK的定义生成Primary Key filter

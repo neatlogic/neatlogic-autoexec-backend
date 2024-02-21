@@ -14,7 +14,7 @@ use SwitchBase;
 
 #README
 #如果新增其他品牌交换机，OID设置有问题，可能需要修改SwitchSnmp.pm, 修改开头的$BRANDS的定义，增加品牌名。
-#参考：SwitchHuaWei.pm
+#参考：SwitchHuawei.pm
 #从SwitchBase.pm继承重载before方法调整snmp oid的设置
 #重载after方法，进行数据的调整或者通过其他途径补充数据
 #测试：switchcollector --node '{"host":"192.168.0.252","password":"public"}'

@@ -619,7 +619,7 @@ if __name__ == "__main__":
     print("INFO: Imported object type lsit\n", end="")
     for objTypeItem in objTypeList:
         print(
-            objTypeItem["_OBJ_CATETORY"] + ",\t" + objTypeItem["_OBJ_TYPE"] + "\n",
+            objTypeItem["_OBJ_CATETORY"] + "/" + objTypeItem["_OBJ_TYPE"] + "\n",
             end="",
         )
     # 关闭连接

@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集存储设备信息,支持IBM、NetApp、EMC、HuaWei等",
+    "description": "采集存储设备信息,支持IBM、NetApp、EMC、Huawei等",
     "option": [
         {
             "opt": "community",
@@ -59,7 +59,7 @@
                         "value": "HDS_VSP"
                     },
                     {
-                        "text": "HuaWei",
+                        "text": "Huawei",
                         "value": "HuaWei"
                     },
                     {
