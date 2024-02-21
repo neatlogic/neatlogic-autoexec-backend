@@ -47,7 +47,7 @@
             "opt": "password",
             "name": "密码",
             "help": "FusionComputer管理用户密码",
-            "type": "text",
+            "type": "password",
             "required": "false",
             "validate": "",
             "defaultValue": ""
