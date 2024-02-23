@@ -4,7 +4,7 @@
     "docroot": "DATACENTER",
     "collection_label": "Virtualized",
     "filter": {
-        "_OBJ_TYPE": "VMWARE-DATACENTER"
+        "_OBJ_TYPE": "VIRTUALIZED-DATACENTER"
     },
     "fields": [
         {
@@ -132,8 +132,8 @@
                             "type": "String"
                         },
                         {
-                            "name": "ESXI_IP",
-                            "desc": "ESXI IP",
+                            "name": "HOST_IP",
+                            "desc": "Host IP",
                             "type": "String"
                         }
                     ]
@@ -169,8 +169,8 @@
                                     "type": "String"
                                 },
                                 {
-                                    "name": "ESXI_IP",
-                                    "desc": "ESXI IP",
+                                    "name": "HOST_IP",
+                                    "desc": "Host IP",
                                     "type": "String"
                                 }
                             ]

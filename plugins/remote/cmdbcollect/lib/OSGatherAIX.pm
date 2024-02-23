@@ -201,6 +201,54 @@ sub getMountPointInfo {
     return $mountedDevicesMap;
 }
 
+sub getNFSInfo {
+    my ( $self, $osInfo ) = @_;
+    my $mountPoints = $osInfo->{MOUNT_POINTS};
+
+    my @nfsMounts    = ();
+    my $nfsMountCmds = '';
+    my $rcLocalLines = $self->getFileLines('/etc/inittab');
+    foreach my $line (@$rcLocalLines) {
+        if ( $line =~ /\Wmount\s+/ ) {
+            $nfsMountCmds = $nfsMountCmds . $line . "\n";
+        }
+    }
+
+    foreach my $mountInfo (@$mountPoints) {
+        if ( $mountInfo->{FS_TYPE} =~ /^nfs/ ) {
+            my $device    = $mountInfo->{DEVICE};
+            my $autoMount = 0;
+
+            #192.168.20.178:/export/share
+            my ( $remoteIp, $remotePath ) = split( $device, ':' );
+            if ( $nfsMountCmds =~ /\s$device\s/s ) {
+                $autoMount = 1;
+            }
+
+            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my $remoteIp = $remoteHost;
+            if ( $remoteIp !~ /[\d\.]+/ ) {
+                my $ipAddr = gethostbyname($remoteHost);
+                if ( defined($ipAddr) ) {
+                    $remoteIp = inet_ntoa($ipAddr);
+                }
+            }
+
+            my $nfsInfo = {
+                _OBJ_CATEGORY => 'OS',
+                _OBJ_TYPE     => 'OS-NFS',
+                NFS_IP        => $remoteIp,
+                NFS_HOST      => $remoteHost,
+                REMOTE_PATH   => $remotePath,
+                MOUNT_POINT   => $mountInfo->{NAME},
+                AUTO_MOUNT    => $autoMount
+            };
+            push( @nfsMounts, $nfsInfo );
+        }
+    }
+    $osInfo->{NFS_INFO} = \@nfsMounts;
+}
+
 sub getSSHInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -417,7 +465,11 @@ sub getDiskInfo {
 
     for ( my $i = 0 ; $i < scalar(@$diskLines) ; $i++ ) {
         my $line     = $$diskLines[$i];
-        my $diskInfo = {};
+        my $diskInfo = {
+            '_OBJ_CATEGORY' => 'COLLECT_OS',
+            '_OBJ_TYPE'     => 'OS-DISK',
+
+        };
         my @diskSegs = split( /\s+/, $line );
         my $name     = $diskSegs[0];
         $diskInfo->{NAME}     = $name;
@@ -737,6 +789,8 @@ sub collectOsInfo {
         $self->getCPUInfo($osInfo);
         my $mountedDevicesMap = $self->getMountPointInfo($osInfo);
         $self->getDiskInfo( $osInfo, $mountedDevicesMap );
+        $self->getNFSInfo($osInfo);
+
         $self->getSSHInfo($osInfo);
         $self->getMemInfo($osInfo);
         $self->getDNSInfo($osInfo);
@@ -979,8 +1033,6 @@ sub collectHostInfo {
         $self->getHostMiscInfo($hostInfo);
         $self->getHostMemInfo($hostInfo);
         $self->getHostHBAInfo($hostInfo);
-    }
-    else {
         $self->getHostNicInfo($hostInfo);
     }
 

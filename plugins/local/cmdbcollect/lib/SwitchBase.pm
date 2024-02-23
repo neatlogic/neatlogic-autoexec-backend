@@ -347,7 +347,7 @@ sub _getPorts {
 
     my $portIdxToNoMap = $self->_getPortIdx();
     while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
-        my $portInfo = { INDEX => $idx, NO => $no };
+        my $portInfo = { _OBJ_CATEGORY => 'SWITCH', _OBJ_TYPE => 'SWITCH-PORT', INDEX => $idx, NO => $no };
         $portsMap->{$idx}   = $portInfo;
         $portIdxMap->{$idx} = $portInfo;
         $portNoMap->{$no}   = $portInfo;
@@ -477,15 +477,16 @@ sub _getMacTable {
     for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
         my $macInfo = $$macTblData[$i];
 
-        my $portNo   = $macInfo->{PORT};
-        my $portInfo = $portNoMap->{$portNo};
-        my $portDesc = $portInfo->{NAME};
+        my $portNo        = $macInfo->{PORT};
+        my $portInfo      = $portNoMap->{$portNo};
+        my $portDesc      = $portInfo->{NAME};
+        my $neighborCount = $portInfo->{NEIGHBOR_COUNT};
 
         my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
         if ( $remoteMac ne '' ) {
             my $portMacInfo = $portMacsMap->{$portDesc};
             if ( not defined($portMacInfo) ) {
-                $portMacInfo = { PORT => $portDesc, MAC_COUNT => 0, MACS => [] };
+                $portMacInfo = { PORT => $portDesc, MAC_COUNT => 0, NEIGHBOR_COUNT => $neighborCount, MACS => [] };
                 $portMacsMap->{$portDesc} = $portMacInfo;
             }
             $portMacInfo->{MAC_COUNT} = 1 + $portMacInfo->{MAC_COUNT};
@@ -546,10 +547,11 @@ sub _getMacTableWithVlan {
         for ( my $i = 0 ; $i < scalar(@$macTblData) ; $i++ ) {
             my $macInfo = $$macTblData[$i];
 
-            my $portNo   = $macInfo->{PORT};
-            my $portIdx  = $portNoToIdxMap->{$portNo};
-            my $portInfo = $portIdxMap->{$portIdx};
-            my $portDesc = $portInfo->{NAME};
+            my $portNo        = $macInfo->{PORT};
+            my $portIdx       = $portNoToIdxMap->{$portNo};
+            my $portInfo      = $portIdxMap->{$portIdx};
+            my $portDesc      = $portInfo->{NAME};
+            my $neighborCount = $portInfo->{NEIGHBOR_COUNT};
 
             my $remoteMac = $snmpHelper->hex2mac( $macInfo->{MAC} );
             if ( $remoteMac ne '' ) {
@@ -558,7 +560,7 @@ sub _getMacTableWithVlan {
 
                     my $portMacInfo = $portMacsMap->{$portDesc};
                     if ( not defined($portMacInfo) ) {
-                        $portMacInfo = { PORT => $portDesc, MAC_COUNT => 0, MACS => [] };
+                        $portMacInfo = { PORT => $portDesc, MAC_COUNT => 0, NEIGHBOR_COUNT => $neighborCount, MACS => [] };
                         $portMacsMap->{$portDesc} = $portMacInfo;
                     }
                     $portMacInfo->{MAC_COUNT} = 1 + $portMacInfo->{MAC_COUNT};
@@ -644,10 +646,12 @@ sub _getLLDP {
             my $portInfo  = $portNameMap->{$portName};
             my $neighbors = $portInfo->{NEIGHBORS};
             if ( not defined($neighbors) ) {
-                $neighbors = [];
-                $portInfo->{NEIGHBORS} = $neighbors;
+                $neighbors                  = [];
+                $portInfo->{NEIGHBORS}      = $neighbors;
+                $portInfo->{NEIGHBOR_COUNT} = 0;
             }
             push( @$neighbors, $neighbor );
+            $portInfo->{NEIGHBOR_COUNT} = 1 + $portInfo->{NEIGHBOR_COUNT};
         }
     }
 }
@@ -711,10 +715,12 @@ sub _getCDP {
             my $portInfo  = $portNameMap->{$portName};
             my $neighbors = $portInfo->{NEIGHBORS};
             if ( not defined($neighbors) ) {
-                $neighbors = [];
-                $portInfo->{NEIGHBORS} = $neighbors;
+                $neighbors                  = [];
+                $portInfo->{NEIGHBORS}      = $neighbors;
+                $portInfo->{NEIGHBOR_COUNT} = 0;
             }
             push( @$neighbors, $neighbor );
+            $portInfo->{NEIGHBOR_COUNT} = 1 + $portInfo->{NEIGHBOR_COUNT};
         }
     }
 }
@@ -732,12 +738,12 @@ sub collect {
     $self->_getPorts();
 
     if ( $brand =~ /Cisco/i ) {
-        $self->_getMacTableWithVlan();
         $self->_getCDP();
+        $self->_getMacTableWithVlan();
     }
     else {
-        $self->_getMacTable();
         $self->_getLLDP();
+        $self->_getMacTable();
     }
 
     #调用对应品牌的pm进行采集后的数据处理，用户补充数据或者调整数据

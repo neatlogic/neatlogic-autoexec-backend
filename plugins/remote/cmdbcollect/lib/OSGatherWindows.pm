@@ -406,7 +406,10 @@ sub getDiskInfo {
         my $sn   = $splits[ $diskFieldIdxMap->{SerialNumber} ];
 
         if ( defined($sn) ) {
-            my $diskInfo = {};
+            my $diskInfo = {
+                '_OBJ_CATEGORY' => 'COLLECT_OS',
+                '_OBJ_TYPE'     => 'OS-DISK'
+            };
             $diskInfo->{ID}       = $splits[ $diskFieldIdxMap->{ID} ];
             $diskInfo->{NAME}     = $splits[ $diskFieldIdxMap->{DeviceId} ];
             $diskInfo->{MODEL}    = $diskSNModelMap->{$sn};

@@ -207,6 +207,52 @@ sub getMountPointInfo {
     return $mountedDevicesMap;
 }
 
+sub getNFSInfo {
+    my ( $self, $osInfo ) = @_;
+    my $mountPoints = $osInfo->{MOUNT_POINTS};
+
+    my @nfsMounts    = ();
+    my $nfsMountCmds = '';
+    my $rcLocalLines = $self->getFileLines('/etc/rc.local');
+    foreach my $line (@$rcLocalLines) {
+        if ( $line =~ /mount\s+-t\s+nfs\s+.*/ ) {
+            $nfsMountCmds = $nfsMountCmds . $line . "\n";
+        }
+    }
+
+    foreach my $mountInfo (@$mountPoints) {
+        if ( $mountInfo->{FS_TYPE} =~ /^nfs/ ) {
+            my $device    = $mountInfo->{DEVICE};
+            my $autoMount = 0;
+
+            #192.168.20.178:/export/share
+            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my $remoteIp = $remoteHost;
+            if ( $remoteIp !~ /[\d\.]+/ ) {
+                my $ipAddr = gethostbyname($remoteHost);
+                if ( defined($ipAddr) ) {
+                    $remoteIp = inet_ntoa($ipAddr);
+                }
+            }
+
+            if ( $nfsMountCmds =~ /\s$device\s/s ) {
+                $autoMount = 1;
+            }
+            my $nfsInfo = {
+                _OBJ_CATEGORY => 'OS',
+                _OBJ_TYPE     => 'OS-NFS',
+                NFS_IP        => $remoteIp,
+                NFS_HOST      => $remoteHost,
+                REMOTE_PATH   => $remotePath,
+                MOUNT_POINT   => $mountInfo->{NAME},
+                AUTO_MOUNT    => $autoMount
+            };
+            push( @nfsMounts, $nfsInfo );
+        }
+    }
+    $osInfo->{NFS_INFO} = \@nfsMounts;
+}
+
 sub getSSHInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -482,7 +528,10 @@ sub getDiskInfo {
 
     foreach my $line (@$diskLines) {
         if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\wB)/ ) {
-            my $diskInfo = {};
+            my $diskInfo = {
+                '_OBJ_CATEGORY' => 'COLLECT_OS',
+                '_OBJ_TYPE'     => 'OS-DISK'
+            };
 
             my $name = $1;
             my $size = $2;
@@ -655,7 +704,7 @@ sub getDiskInfo {
                 my $wwn      = substr( $infos[1], 2, 32 );
 
                 my $lunInfo = $lunInfosMap->{$diskName};
-                if ( defined($lunInfo) and not defined($lunInfo->{WWN})) {
+                if ( defined($lunInfo) and not defined( $lunInfo->{WWN} ) ) {
 
                     #如果多链路软件采集了相关信息，则只补充WWN
                     $lunInfo->{WWN} = $wwn;
@@ -909,11 +958,13 @@ sub collectOsInfo {
 
         my $mountedDevicesMap = $self->getMountPointInfo($osInfo);
         $self->getDiskInfo( $osInfo, $mountedDevicesMap );
+        $self->getNFSInfo($osInfo);
 
         $self->getSSHInfo($osInfo);
         $self->getBondInfo($osInfo);
         $self->getMemInfo($osInfo);
         $self->getDNSInfo($osInfo);
+
         $self->getServiceInfo($osInfo);
         $self->getIpAddrs($osInfo);
         $self->getUserInfo($osInfo);

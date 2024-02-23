@@ -9,23 +9,29 @@ import urllib.request
 import urllib.parse
 from urllib.error import URLError
 from urllib.error import HTTPError
+import ssl
+import requests
+import re
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 import AutoExecUtils
 
 class FusionComputer:
 
-    def __init__(self, ip, port ,username, password, isVerbose):
+    def __init__(self, ip, port ,mgmt_port,username, password, isVerbose):
         self.ip = ip
         self.port = port
+        self.mgmt_port = mgmt_port
         self.username = username
         self.password = password
         self.isVerbose = isVerbose
-        self.baseurl = "https://{}:{}/service/".format(ip , port)
+        self.serverBaseUrl = "https://{}:{}/".format(ip , port)
         
         self.apiMap = {
-            'version' : 'versions',
-            'auth': 'session',
-            'sites':'sites',
+            'version' : 'service/versions',
+            'auth': 'service/session',
+            'sites':'service/sites',
             'clusters': '{sites}/clusters',
             'hosts': '{sites}/hosts',
             'vms':'{sites}/vms',
@@ -56,9 +62,9 @@ class FusionComputer:
                 content = ex.read()
                 errObj = json.loads(content)
                 errMsg = errObj['Message']
-            print("ERROR: :Request url:{} failed, {}".format(url, errMsg))
+            print("ERROR::Request url:{} failed, {}".format(url, errMsg))
         except URLError as ex:
-            print("ERROR: :Request url:{} failed, {}\n".format(url, ex.reason))
+            print("ERROR::Request url:{} failed, {}\n".format(url, ex.reason))
         return response
 
     def httpGET(self, apiUri, authToken, params=None):
@@ -68,6 +74,7 @@ class FusionComputer:
         if params != None :
             data = urllib.parse.urlencode(params)
             url = url + '?' + data
+        #print("DEBUG::url is:{} and authToken is:{}\n".format(url,authToken))
         req = urllib.request.Request(url)
         self.addHeaders(req, headers)
         response = None 
@@ -110,26 +117,28 @@ class FusionComputer:
         sha256 = hashlib.sha256()
         sha256.update(password.encode())
         res = sha256.hexdigest()
-        print("sha256加密结果:", res)
+        #print("DEBUG::sha256加密结果:", res)
         return res
     
     def auth(self):
         auth_key = self.sha256hex(self.password)
-        url = self.baseurl + self.apiMap['auth']
+        url = self.serverBaseUrl + self.apiMap['auth']
         userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 
+        myheaders = {
+            'Content-Type': 'application/json; charset=utf-8', 
             'User-Agent': userAgent,
             'X-Auth-User': self.username,
             'X-Auth-Key': auth_key,
-            'X-Auth-UserType': 0
-            }
-        req = urllib.request.Request(url)
-        self.addHeaders(req, headers)
-        token = None 
+            'version': '8.0',
+            'X-Auth-UserType': '0'
+        }
+        req = requests.post(url, headers=myheaders,verify=False)
+        token = None
+        content = None 
         try:
-            response = urllib.request.urlopen(req)
-            token = response.headers.get("X-Auth-Token")
+            response = req.content
+            token = req.headers.get("X-Auth-Token")
+            #print('DEBUG:: token:'.format(token))
         except HTTPError as ex:
             errMsg = ex.code
             if ex.code > 500:
@@ -199,7 +208,7 @@ class FusionComputer:
             for site in items :
                 dc = {} 
                 dc['_OBJ_CATEGORY'] = "VIRTUALIZED"
-                dc['_OBJ_TYPE'] = "VMWARE-DATACENTER"
+                dc['_OBJ_TYPE'] = "VIRTUALIZED-DATACENTER"
                 moid = site['urn'].split(':')[2]
                 dc['MOID'] = moid
                 dc['NAME'] = site['name']
@@ -209,7 +218,6 @@ class FusionComputer:
         else:
             print("ERROR:: Request FusionComputer get sites failed .\n")
         return sites
-
 
     def getClusters(self , uri):
         clusters = []
@@ -247,7 +255,7 @@ class FusionComputer:
             for cluster in items :
                 clu = {} 
                 clu['_OBJ_CATEGORY'] = "VIRTUALIZED"
-                clu['_OBJ_TYPE'] = "VMWARE-CLUSTER"
+                clu['_OBJ_TYPE'] = "VIRTUALIZED-CLUSTER"
                 moid = cluster['urn'].split(':')[4]
                 clu['MOID'] = moid
                 clu['NAME'] = cluster['name']
@@ -260,6 +268,70 @@ class FusionComputer:
             print("ERROR:: Request FusionComputer get clusters failed .\n")
         return clusters
 
+    def addHostSerialInfo(self, hosts):
+        data = {
+            "authUser":self.username,
+            "authKey":self.password,
+            "userType": "0",
+            "authType": "0",
+            "acceptLanguage": "zh-CN"
+        }
+        json_data = json.dumps(data).encode('utf-8')
+        #api管理端口内采集不到sn信息，采用管理端口接口
+        url = "https://{}:{}/service/login/form?login=login".format(ip , self.mgmt_port)
+        headers = {'Content-Type':"application/json"}
+        req = urllib.request.Request(url,data=json_data,headers=headers)
+        response = urllib.request.urlopen(req)
+        result = response.read().decode('utf-8')
+        #print("DEBUG:: 8443 login result is {}".format(result))
+        resHeaders = response.info()
+        cookie = ''
+        token = ''
+        for header,value in resHeaders.items():
+            print(header,value)
+            if header=='Set-Cookie':
+                cookie = value
+            if header=='csrfToken':
+                token = value
+        
+        if cookie=='' or token=='':
+            return
+            
+        for host in hosts:
+            urn = host['URN']
+            metric_data = [{
+                "urn": urn,
+                "metricId": [
+                    "product_serial",
+                    "product_name",
+                    "product_mfg",
+                    "cpu_info"                   
+                ]
+            }]
+            json_metric_data = json.dumps(metric_data).encode('utf-8')
+            pattern = r"sites:(.*):hosts"
+            match = re.search(pattern,urn)
+            siteID = match.group(1)
+            metric_url = "https://{}:{}/service/sites/{}/monitors/objectmetric-realtimedata?siteID={}".format(ip , 8443,siteID,siteID)
+            metric_headers = {
+                'Content-Type':"application/json",
+                'Cookie':cookie,
+                'CSRF-HW':token
+            }
+            metric_req = urllib.request.Request(metric_url,data=json_metric_data,headers=metric_headers)
+            response = urllib.request.urlopen(metric_req)
+            rs = json.loads(response.read())
+            #print("DEBUG::8443 realtime rs is {}\n".format(rs))
+            
+            serial = rs['items'][0]['value'][0]['metricValue']
+            host['BOARD_SERIAL'] = serial
+            host['MODEL'] = rs['items'][0]['value'][1]['metricValue']
+            host['MANUFACTURER'] = rs['items'][0]['value'][2]['metricValue']
+            cpuString = rs['items'][0]['value'][3]['metricValue']
+            cpuJson = json.loads(cpuString)
+            host['CPU_MODEL'] = cpuJson[0]['version']
+            #host['PK'] = ["BOARD_SERIAL"]
+
     def getHosts(self , uri):
         hosts = []
         url = self.apiMap['hosts']
@@ -267,58 +339,11 @@ class FusionComputer:
         response = self.httpGET( url , self.authToken)
         if response is None : 
             return hosts
-        """
-        {
-            "total": 3,
-            "hosts": [
-                {
-                    "attachedISOVMs": [],
-                    "clusterEnableIOTailor": false,
-                    "clusterName": "ManagementCluster",
-                    "clusterUrn": "urn:sites:389F07DF:clusters:117",
-                    "computeResourceStatics": "/service/sites/389F07DF/hosts/177/computeResourceStatics",
-                    "cpuMHz": 1700,
-                    "cpuMuxRatio": "121.43",
-                    "cpuQuantity": 14,
-                    "cpuResource": {
-                        "allocatedSizeMHz": 6800,
-                        "manageCPUs": "0,1",
-                        "totalSizeMHz": 23800
-                    },
-                    "gdvmMemoryReboot": 128,
-                    "gpuCapacity": -1,
-                    "gpuCapacityReboot": -1,
-                    "gsvmMemoryReboot": 128,
-                    "hostMultiPathMode": "CURRENCY",
-                    "hostRealName": "CNA001",
-                    "ip": "10.10.101.224",
-                    "isFailOverHost": false,
-                    "isMaintaining": false,
-                    "maxImcSetting": "Skylake-Server",
-                    "memMuxRatio": "68.09",
-                    "memQuantityMB": 55538,
-                    "memResource": {
-                        "allocatedSizeMB": 37817,
-                        "realtimeUsedSizeMB": 37817,
-                        "totalSizeMB": 55538
-                    },
-                    "multiPathMode": "CURRENCY",
-                    "name": "CNA001",
-                    "nicQuantity": 6,
-                    "physicalCpuQuantity": 2,
-                    "status": "normal",
-                    "uri": "/service/sites/389F07DF/hosts/177",
-                    "urn": "urn:sites:389F07DF:hosts:177",
-                    "uuid": "767f6399-0725-41f4-a658-ea8073eda332"
-                },
-                ...
-            ]
-        }
-        """
         if response.status == 200:
             rs = json.loads(response.read())
-            items = rs['clusters']
+            items = rs['hosts']
             for host in items :
+                
                 ins = {} 
                 ins['_OBJ_CATEGORY'] = "HOST"
                 ins['_OBJ_TYPE'] = "HOST"
@@ -335,6 +360,8 @@ class FusionComputer:
                 memQuantityMB = host['memQuantityMB']
                 ins['MEM_MAXIMUM_CAPACITY'] = int(memQuantityMB/1024)
                 ins['IP'] = host['ip']
+                ins['HOST_IP'] = host['ip']
+                ins['MGMT_IP'] = host['ip']
                 ins['UUID'] = host['uuid']
                 ins['CLUSTERURN'] = host['clusterUrn']
                 ins['CLUSTERNAME'] = host['clusterName']
@@ -345,77 +372,30 @@ class FusionComputer:
                 hosts.append(ins)
         else:
             print("ERROR:: Request FusionComputer get hosts failed .\n")
+            
+        self.addHostSerialInfo(hosts)
         return hosts
-
+    
     def  getVms(self , uri , hosts):
         vms = []
         url = self.apiMap['vms']
         url = url.replace('{sites}' , uri)
+        url = url + '?limit=100&offset='
+        offset = 0
         #默认限制每页查询100
-        url = url + '?limit=500000'
-        response = self.httpGET( url , self.authToken)
+        
+        self.getVmsLoop(url , offset, vms, hosts)
+        return vms
+    
+    def getVmsLoop(self, url, offset, allVms, hosts):
+        response = self.httpGET( url+str(offset) , self.authToken)
         if response is None : 
-            return vms
-        """
-        {
-            "total": 14,
-            "vms": [
-                {
-                    "cdRomStatus": "empty",
-                    "clusterName": "ManagementCluster",
-                    "clusterUrn": "urn:sites:389F07DF:clusters:117",
-                    "createTime": "2020-04-27 06:55:37",
-                    "description": "",
-                    "drStatus": 9,
-                    "group": "",
-                    "hostName": "CNA003",
-                    "hostUrn": "urn:sites:389F07DF:hosts:304",
-                    "hugePage": "4K",
-                    "idle": -1,
-                    "initSyncStatus": 0,
-                    "isBindingHost": false,
-                    "isLinkClone": false,
-                    "isTemplate": false,
-                    "location": "urn:sites:389F07DF:clusters:117",
-                    "locationName": "ManagementCluster",
-                    "minCompatibleimcSetting": "Skylake-Server",
-                    "name": "Tenant02",
-                    "objectPrivs": [],
-                    "params": {
-                        "snapshotNum": "0"
-                    },
-                    "pvDriverStatus": "running",
-                    "rpoStatus": 0,
-                    "status": "running",
-                    "toolInstallStatus": "empty",
-                    "toolsVersion": "2.5.0.156",
-                    "uri": "/service/sites/389F07DF/vms/i-0000000F",
-                    "urn": "urn:sites:389F07DF:vms:i-0000000F",
-                    "uuid": "f8f7acd4-6696-465d-ad56-e4eb9119df07",
-                    "vmConfig": {
-                        "nics": [
-                            {
-                                "ip": "10.10.101.243",
-                                "ipList": "10.10.101.243",
-                                "ips6": [],
-                                "mac": "28:6e:d4:89:54:da",
-                                "sequenceNum": 0
-                            }
-                        ],
-                        "numaNodes": 0,
-                        "properties": {
-                            "dpiVmType": "",
-                            "secureVmType": ""
-                        }
-                    },
-                    "vmType": 0
-                }
-            ]
-        }
-        """
-        if response.status == 200:
+            return
+        elif response.status == 200:
             rs = json.loads(response.read())
             items = rs['vms']
+            total = rs['total']
+            print("INFO:: total find {} count vms.".format(total))
             for vm in items :
                 ins = {} 
                 ins['_OBJ_CATEGORY'] = "OS"
@@ -442,12 +422,18 @@ class FusionComputer:
                 #与物理机的关系
                 for host in hosts :
                     if host['URN'] == vm['hostUrn']:
-                        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','IP':host['IP'],'UUID':host['UUID']}]
+                        ins['HOST_ON'] = [{'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST','HOST_IP':host['IP'],'BOARD_SERIAL':host['BOARD_SERIAL'],'UUID':host['UUID']}]
                 
-                vms.append(ins)
+                allVms.append(ins)
+            
+            if(len(allVms)<total):
+                offset = offset + len(items)
+                self.getVmsLoop(url ,offset, allVms, hosts)
+            
         else:
             print("ERROR:: Request FusionComputer get vms failed .\n")
-        return vms
+        
+        return
 
     def getDatastores(self , uri):
         datastores = []
@@ -578,7 +564,9 @@ class FusionComputer:
 
     def collect(self):
         authToken = self.auth()
-        data = {}  
+        datas = []
+        data = {}
+        
         if authToken is None :
             return data 
         
@@ -599,28 +587,34 @@ class FusionComputer:
 
             #集群
             clusters = self.getClusters(uri)
-            site['CLUSTERS'] = clusters
+            site['CLUSTER'] = clusters
 
             #物理机
             hosts = self.getHosts(uri)
-            site['HOSTS'] = hosts
+            datas.extend(hosts)
 
             #虚拟机
             vms = self.getVms(uri , hosts)
-            site['VMS'] = vms
+            datas.extend(vms)
 
             for cluster in clusters :
                 rel_host = []
                 for host in hosts :
-                    if host['CLUSTERNAME'] == cluster['CLUSTERNAME'] :
-                        rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'IP':host['IP']})
+                    if host['CLUSTERNAME'] == cluster['NAME'] :
+                        rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'HOST_IP':host['IP'],'BOARD_SERIAL':host['BOARD_SERIAL']})
                 cluster['CONTAIN_HOST'] = rel_host
 
                 rel_vms = []
                 for vm in vms :
-                    if host['CLUSTERNAME'] == cluster['CLUSTERNAME'] :
-                        vm['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED','_OBJ_CATEGORY': 'VMWARE-CLUSTER','MOID': cluster['MOID'],'NAME':cluster['NAME'],'URN':cluster['URN']}]
-                        rel_vms.append({'_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': vm['OS_TYPE'], 'MGMT_IP': vm['IP'], 'VM_ID': vm['VM_ID']})
+                    if host['CLUSTERNAME'] == cluster['NAME'] :
+                        vm['CLUSTERED_ON'] = [{'_OBJ_CATEGORY': 'VIRTUALIZED','_OBJ_CATEGORY': 'VIRTUALIZED-CLUSTER','MOID': cluster['MOID'],'NAME':cluster['NAME'],'URN':cluster['URN']}]
+                        vm['_OBJ_CATEGORY'] = 'OS'
+                        vm['_OBJ_TYPE'] = vm['OS_TYPE']
+                        vm['MGMT_IP'] = vm['IP']
+                        vm['test'] = 'test'
+                        rel_vms.append(vm)
+                        #rel_vms.append({'_OBJ_CATEGORY': 'OS', '_OBJ_TYPE': vm['OS_TYPE'], 'MGMT_IP': vm['IP'], 'VM_ID': vm['VM_ID'],'NAME': vm['NAME'], 'UUID': vm['UUID'], 'STATUS': vm['STATUS'], 'HOST_ON': vm['HOST_ON']})
+                #cluster['CONTAIN_VMS'] = rel_vms
                 cluster['CONTAIN_VMS'] = rel_vms
             newsites.append(site)
 
@@ -629,7 +623,9 @@ class FusionComputer:
 
         data['DATACENTER'] = newsites
         data['ALARMS'] = alarms
-        return data 
+        
+        datas.append(data)
+        return datas
 
 def usage():
     pname = os.path.basename(__file__)
@@ -640,7 +636,8 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ip', default='', help='管理IP')
-    parser.add_argument('--port', default='7443', help='管理端口')
+    parser.add_argument('--port', default='7443', help='API端口')
+    parser.add_argument('--mgmt_port', default='8443', help='管理端口')
     parser.add_argument('--user', default='', help='vcenter console login user')
     parser.add_argument('--password', default='', help='vcenter console login user password')
     parser.add_argument('--verbose', default='0', help='verbose output')
@@ -650,6 +647,7 @@ if __name__ == "__main__":
     user = args.user
     password = args.password
     port = args.port
+    mgmt_port = args.mgmt_port
     isVerbose = int(args.verbose)
     node = os.getenv('AUTOEXEC_NODE')
     if node != None and node != '':
@@ -665,20 +663,15 @@ if __name__ == "__main__":
             port = node['protocolPort']
         user = node['username']
         password = node['password']
-    
-    if port is None :
-        port = 7443
 
-    data = []
-    fus = FusionComputer(ip, port , user, password, isVerbose)
-    result = fus.collect()
-    data.append(result)
+    fus = FusionComputer(ip, port , mgmt_port , user, password, isVerbose)
+    datas = fus.collect()
 
     out = {}
-    out['DATA'] = data
+    out['DATA'] = datas
     AutoExecUtils.saveOutput(out)
 
     if isVerbose == 1:
         print("==================\n")
-        print(json.dumps(data))
+        print(json.dumps(datas))
         print("==================\n")

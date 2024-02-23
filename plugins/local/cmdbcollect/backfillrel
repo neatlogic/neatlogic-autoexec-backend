@@ -314,17 +314,16 @@ def genDBInsRel(db):
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
 
 
-def genOSRel(db):
+def genHostRel(db):
     # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
-    osCollection = db["COLLECT_OS"]
-    macTblCollection = db["RELATION_NET_MACTABLE"]
+    hostCollection = db["COLLECT_HOST"]
     fcSwCollection = db["COLLECT_FCDEV"]
-    osUpdCollection = db["COLLECT_OS"]
-    clusterCollection = db["COLLECT_CLUSTER"]
+    hostUpdCollection = db["COLLECT_HOST"]
+    macTblCollection = db["RELATION_NET_MACTABLE"]
 
-    for os in osCollection.find(
-        {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1}
-    ).batch_size(500):
+    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1}).batch_size(
+        500
+    ):
         try:
             # 计算网卡连接的交换机端口信息
             nics = os.get("ETH_INTERFACES", [])
@@ -340,7 +339,10 @@ def genOSRel(db):
                         "MAC_TABLE": {
                             "$elemMatch": {
                                 "MACS": nic["MAC"],
-                                "MAC_COUNT": 1,
+                                # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
+                                # "MAC_COUNT": 1,
+                                # 接入层端口没有邻居信息
+                                "NEIGHBOR_COUNT": 0,
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
                         }
@@ -366,7 +368,7 @@ def genOSRel(db):
                 if remotePort is not None and "MAC_TABLE" in remotePort:
                     refSwPort = {
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
-                        "_OBJ_TYPE": remotePort["_OBJ_TYPE"],
+                        "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
                         "DEV_NAME": remotePort["DEV_NAME"],
                         "SN": remotePort["SN"],
@@ -377,10 +379,12 @@ def genOSRel(db):
                 nic["REMOTE_PORTS"] = refSwPorts
 
             # 计算HBA卡连接的光交
-            hbas = os.get("HBA_INTERFACES", [])
+            hbas = host.get("HBA_INTERFACES", [])
             if hbas is None:
                 print(
-                    "INFO: No HBA interfaces found for os:{}".format(os.get("MGMT_IP"))
+                    "INFO: No HBA interfaces found for host:{}".format(
+                        host.get("MGMT_IP")
+                    )
                 )
                 hbas = []
             for hba in hbas:
@@ -410,15 +414,170 @@ def genOSRel(db):
                 if remoteFcPort is not None and "LINK_TABLE" in remoteFcPort:
                     refFcPort = {
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
-                        "_OBJ_TYPE": remoteFcPort["_OBJ_TYPE"],
+                        "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
+                        "DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
 
                 hba["REMOTE_PORTS"] = refFcPorts
+
+            hostUpdCollection.update_one(
+                {"MGMT_IP": host["MGMT_IP"]},
+                {"$set": {"ETH_INTERFACES": nics, "HBA_INTERFACES": hbas}},
+            )
+        except Exception as ex:
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+
+def genOSRel(db):
+    # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
+    osCollection = db["COLLECT_OS"]
+    macTblCollection = db["RELATION_NET_MACTABLE"]
+    fcSwCollection = db["COLLECT_FCDEV"]
+    osUpdCollection = db["COLLECT_OS"]
+    clusterCollection = db["COLLECT_CLUSTER"]
+
+    for os in osCollection.find(
+        {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1}
+    ).batch_size(500):
+        try:
+            # 计算网卡连接的交换机端口信息
+            nics = os.get("ETH_INTERFACES", [])
+            if nics is None:
+                print(
+                    "WARN: No eth interfaces found for os:{}".format(os.get("MGMT_IP"))
+                )
+            for nic in nics:
+                # macCount = sys.maxsize
+                remotePort = macTblCollection.find_one(
+                    {
+                        "MAC_TABLE": {
+                            "$elemMatch": {
+                                "MACS": nic["MAC"],
+                                # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
+                                # "MAC_COUNT": 1,
+                                # 接入层端口没有邻居信息
+                                "NEIGHBOR_COUNT": 0,
+                                "PORT": {"$ne": None, "$regex": r"/"},
+                            }
+                        }
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "MAC_TABLE": {
+                            "$elemMatch": {
+                                "MACS": nic["MAC"],
+                                "PORT": {"$ne": None, "$regex": r"/"},
+                                "MAC_COUNT": 1,
+                            }
+                        },
+                    },
+                )
+
+                refSwPorts = []
+                refSwPort = {}
+                if remotePort is not None and "MAC_TABLE" in remotePort:
+                    refSwPort = {
+                        "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": "SWITCH-PORT",
+                        "MGMT_IP": remotePort["MGMT_IP"],
+                        "DEV_NAME": remotePort["DEV_NAME"],
+                        "SN": remotePort["SN"],
+                        "PORT": remotePort["MAC_TABLE"][0]["PORT"],
+                    }
+                    refSwPorts.append(refSwPort)
+
+                nic["REMOTE_PORTS"] = refSwPorts
+
+            # 计算HBA卡连接的光交
+            hbas = os.get("HBA_INTERFACES", [])
+            if hbas is None:
+                print(
+                    "INFO: No HBA interfaces found for os:{}".format(os.get("MGMT_IP"))
+                )
+            for hba in hbas:
+                wwpn = hba.get("WWPN")
+                if wwpn is None:
+                    continue
+
+                remoteFcPort = fcSwCollection.find_one(
+                    {
+                        "LINK_TABLE": {
+                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
+                        }
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "LINK_TABLE": {
+                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
+                        },
+                    },
+                )
+                refFcPorts = []
+                refFcPort = {}
+                if remoteFcPort is not None and "LINK_TABLE" in remoteFcPort:
+                    refFcPort = {
+                        "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": "FCSWITCH-PORT",
+                        "MGMT_IP": remoteFcPort["MGMT_IP"],
+                        "DEV_NAME": remoteFcPort["DEV_NAME"],
+                        "SN": remoteFcPort["SN"],
+                        "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
+                    }
+                    refFcPorts.append(refFcPort)
+
+                hba["REMOTE_PORTS"] = refFcPorts
+
+            # 计算NFS的引用关系
+            storageCollection = db["COLLECT_STORAGE"]
+            nfsMounts = os.get("NFS_INFO", [])
+            if nfsMounts is None:
+                print("INFO: No NFS mount found for os:{}".format(os.get("MGMT_IP")))
+            for nfsMount in nfsMounts:
+                nfsIp = nfsMount.get("NFS_IP")
+                nfsRemotePath = nfsMount.get("REMOTE_PATH")
+                if nfsIp is None:
+                    continue
+
+                remoteVolumn = storageCollection.find_one(
+                    {
+                        "MGMT_IP": nfsIp,
+                        "VOLUMES": {"$elemMatch": {"NAME": nfsRemotePath}},
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "VOLUMES": {"$elemMatch": {"NAME": nfsRemotePath}},
+                    },
+                )
+
+                if remoteVolumn is not None:
+                    nfsMount["REMOTE_VOLUMN"] = [
+                        {
+                            "_OBJ_CATEGORY": remoteVolumn["_OBJ_CATEGORY"],
+                            "_OBJ_TYPE": "STORAGE-NFS-VOLUMN",
+                            "MGMT_IP": nfsIp,
+                            "DEV_NAME": remoteVolumn["DEV_NAME"],
+                            "SN": remoteVolumn["SN"],
+                            "VOLUMN_NAME": remoteVolumn["VOLUMES"][0]["NAME"],
+                        }
+                    ]
+                else:
+                    nfsMount["REMOTE_VOLUMN"] = []
 
             # 计算操作系统属于哪个操作系统集群
             belongCls = []
@@ -453,6 +612,7 @@ def genOSRel(db):
                     "$set": {
                         "ETH_INTERFACES": nics,
                         "HBA_INTERFACES": hbas,
+                        "NFS_INFO": nfsMounts,
                         "BELONG_CLUSTER": belongCls,
                     }
                 },
@@ -471,6 +631,7 @@ def genStorageRel(db):
         try:
             # 计算HBA卡连接的光交
             hbas = storage.get("HBA_INTERFACES", [])
+            storageMgmtIp = storage.get("MGMT_IP", [])
             for hba in hbas:
                 wwpn = hba.get("WWPN")
                 if wwpn is None:
@@ -493,7 +654,7 @@ def genStorageRel(db):
                 if remoteFcPort is not None and "LINK_TABLE" in remoteFcPort:
                     refFcPort = {
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
-                        "_OBJ_TYPE": remoteFcPort["_OBJ_TYPE"],
+                        "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
@@ -503,7 +664,7 @@ def genStorageRel(db):
                 hba["REMOTE_PORTS"] = refFcPorts
 
                 storUpdCollection.update_one(
-                    {"MGMT_IP": os["MGMT_IP"]}, {"$set": {"HBA_INTERFACES": hbas}}
+                    {"MGMT_IP": storageMgmtIp}, {"$set": {"HBA_INTERFACES": hbas}}
                 )
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
@@ -540,8 +701,9 @@ def genSwitchRel(db):
                             remoteCount = remoteCount + 1
                         if remoteCount == 1:
                             needUpdate = True
+                            # 补充neighbor的信息，原来的neighbor中只有该端口连接邻居的DEV_NAME设备名、PORT名称、NEIGHBOR_COUNT
                             neighbor["_OBJ_CATEGORY"] = dev["_OBJ_CATEGORY"]
-                            neighbor["_OBJ_TYPE"] = dev["_OBJ_TYPE"]
+                            neighbor["_OBJ_TYPE"] = "SWITCH-PORT"
                             neighbor["MGMT_IP"] = dev["MGMT_IP"]
                             neighbor["SN"] = dev["SN"]
 
@@ -566,7 +728,10 @@ if __name__ == "__main__":
             genInsRel(db)
             genDBInsRel(db)
             genOSRel(db)
+            genHostRel(db)
             genSwitchRel(db)
+            genStorageRel(db)
+
         elif args.type == "NET" or args.type is None:
             genSwitchRel(db)
     except Exception as ex:

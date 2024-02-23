@@ -4,7 +4,7 @@
     "docroot": "DATACENTER.CLUSTER",
     "collection_label": "Virtualized",
     "filter": {
-        "_OBJ_TYPE": "VMWARE-CLUSTER"
+        "_OBJ_TYPE": "VIRTUALIZED-CLUSTER"
     },
     "fields": [
         {
@@ -38,8 +38,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "ESXI_IP",
-                    "desc": "ESXI IP",
+                    "name": "HOST_IP",
+                    "desc": "Host IP",
                     "type": "String"
                 }
             ]
@@ -75,8 +75,8 @@
                             "type": "String"
                         },
                         {
-                            "name": "ESXI_IP",
-                            "desc": "ESXI IP",
+                            "name": "HOST_IP",
+                            "desc": "Host IP",
                             "type": "String"
                         }
                     ]
