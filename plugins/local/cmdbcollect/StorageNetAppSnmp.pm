@@ -150,11 +150,11 @@ sub getPools {
         $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 + 0.5 ) / 100;
         $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
-
-        #过滤掉以..和.snapshot结尾的
-        if ( $dfName ne '' and $dfName =~ /\/vol\/\S+\/$/ ) {
-            push( @validDfVolumes, $dfVolInfo );
-        }
+        $dfVolInfo->{NAME} = $dfName;	
+        $dfVolInfo->{_OBJ_CATEGORY} = "STORAGE";	
+        $dfVolInfo->{_OBJ_TYPE} = "STORAGE-NFS-VOLUME";	
+	#过滤掉以..和.snapshot结尾的
+        push( @validDfVolumes, $dfVolInfo );
     }
     my $data = $self->{DATA};
 
