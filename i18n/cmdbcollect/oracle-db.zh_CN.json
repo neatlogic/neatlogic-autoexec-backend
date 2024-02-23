@@ -112,6 +112,11 @@
             "type": "String"
         },
         {
+            "name": "DBID",
+            "desc": "DBID",
+            "type": "String"
+        },
+        {
             "name": "DB_NAME",
             "desc": "库名",
             "type": "String"

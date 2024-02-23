@@ -145,11 +145,14 @@ sub getPools {
             $dfName = '/vol/' . $volIdxMap->{ $dfVolInfo->{INDEX} };
         }
 
+        #去掉最后结尾的/,为了匹配操作系统采集到的nas_info里的remotepath,
+        $dfName                = =~ s/\/$//;
         $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 + 0.5 ) / 100;
         $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
         $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
 
-        if ( $dfName ne '' and $dfName =~ /\/vol\// ) {
+        #过滤掉以..和.snapshot结尾的
+        if ( $dfName ne '' and $dfName =~ /\/vol\/\S+\/$/ ) {
             push( @validDfVolumes, $dfVolInfo );
         }
     }
@@ -161,8 +164,10 @@ sub getPools {
 
     $data->{STORAGE_AGGRS} = $aggrs;
     $data->{LUNS}          = $luns;
-    $data->{VOLUMES}       = $vols;
-    $data->{DF_VOLUMES}    = \@validDfVolumes;
+
+    #下面两个互换了
+    $data->{DF_VOLUMES} = $vols;
+    $data->{VOLUMES}    = \@validDfVolumes;
 
     return;
 }

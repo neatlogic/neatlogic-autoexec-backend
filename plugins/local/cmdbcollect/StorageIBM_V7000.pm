@@ -38,7 +38,7 @@ sub collect {
     my $data = {};
 
     $data->{VENDOR} = 'IBM';
-    $data->{BRAND}  = 'V';
+    $data->{BRAND}  = 'V7000';
 
     my $nodeInfo = $self->{node};
 
@@ -73,16 +73,19 @@ sub collect {
     my @fcInfoLines = $sshclient->capture("lsportfc -delim :");
     for ( my $i = 1 ; $i <= $#fcInfoLines ; $i++ ) {
         my $line = $fcInfoLines[$i];
-        if ( $line =~ /\d+?:\d+?:\d+?:(\S+?):(\S+?):\d+?:\S+?:(\S+?):\S+?:(\S+?):(\S+)/ ) {
+        if ( $line =~ /\d+?:\d+?:\d+?:(\S+?):(\S+?):\d+?:\S+?:(\S+?):\S+?:(\S+?):(\S+?):/ ) {
             if ( ( $1 eq 'fc' ) && ( $4 eq 'active' ) && ( $5 eq 'switch' ) ) {
                 my $fcInfo = {};
-                $fcInfo->{WWPN}  = $3;
                 $fcInfo->{SPEED} = $2;
+                my $wwpn = $3;
+                $wwpn =~ s/(..)/$1:/g;
+                chop($wwpn);
+                $fcInfo->{WWPN} = $wwpn;
                 push( @fcPorts, $fcInfo );
             }
         }
     }
-    $data->{FC_PORTS} = \@fcPorts;
+    $data->{HBA_INTERFACES} = \@fcPorts;
 
     #网络端口MAC地址信息
     my @macAddrs     = ();
@@ -171,7 +174,7 @@ sub collect {
     my $poolLuns     = {};
     my @luns         = ();
     my @lunInfoLines = $sshclient->capture("lsvdisk -delim :");
-    for ( my $i = 0 ; $i <= $#lunInfoLines ; $i++ ) {
+    for ( my $i = 1 ; $i <= $#lunInfoLines ; $i++ ) {
         my $line = $lunInfoLines[$i];
         $line =~ s/^\s+|\s+$//;
         my @tmp     = split( /:/, $line );

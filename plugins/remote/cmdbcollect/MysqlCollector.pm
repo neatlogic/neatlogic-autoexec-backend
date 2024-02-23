@@ -36,20 +36,32 @@ sub getConfig {
     };
 }
 
+sub getUserGrants {
+    my ( $self, $user, $host ) = @_;
+    my @host_detail = split( ",", $host );
+
+}
+
 sub getUser {
     my ($self) = @_;
 
     my $mysql = $self->{mysql};
     my @users;
     my $rows = $mysql->query(
-        sql     => q{select distinct user from mysql.user where user not in ('mysql.session','mysql.sys')},
+
+        #sql     => q{select distinct user from mysql.user where user not in ('mysql.session','mysql.sys')},
+        sql     => q{select user,group_concat(concat(user,'@''',host,'''')) as host from mysql.user where user not in ('mysql.session','mysql.sys') group by user},
         verbose => $self->{isVerbose}
     );
 
-    # +------+
-    # | user |
-    # +------+
-    # | root |
+    # +--------+------------------------------------------------------+
+    # | user   | host                                                 |
+    # +--------+------------------------------------------------------+
+    # | dbsnmp | dbsnmp@'%',dbsnmp@'localhost',dbsnmp@'127.0.0.1'     |
+    # | nacos  | nacos@'10.4.48.11',nacos@'%',nacos@'10.4.48.12'      |
+    # | repl   | repl@'%'                                             |
+    # | root   | root@'localhost',root@'10.4.48.11',root@'10.4.48.12' |
+    # +--------+------------------------------------------------------+
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{user} ne '' ) {
@@ -214,7 +226,7 @@ sub collect {
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{Database};
-        if ( $dbName ne 'information_schema' and $dbName ne 'mysql' and $dbName ne 'performance_schema' ) {
+        if ( $dbName ne 'information_schema' and $dbName ne 'mysql' and $dbName ne 'performance_schema' and $dbName ne 'sys' ) {
             push( @dbNames, $dbName );
         }
     }

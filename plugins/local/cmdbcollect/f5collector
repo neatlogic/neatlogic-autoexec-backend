@@ -98,11 +98,21 @@ sub main {
         $clusterInfo->{BIND}        = [$bind];
         $clusterInfo->{UNIQUE_NAME} = "F5:$bind";
 
+        $vsInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $vsInfo->{_OBJ_TYPE}     = 'LOADBALANCER-VS';
+
         my @memberPeer = ();
         my $members    = $vsInfo->{POOL}->{MEMBERS};
         foreach my $memberInfo (@$members) {
+            $memberInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
+            $memberInfo->{_OBJ_TYPE}     = 'LOADBALANCER-MEMBER';
             push( @memberPeer, $memberInfo->{IP} . ':' . $memberInfo->{PORT} );
         }
+
+        my $pool = $vsInfo->{POOL};
+        $pool->{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $pool->{_OBJ_TYPE}     = 'LOADBALANCER-POOL';
+        $vsInfo->{POOL}        = [$pool];
 
         $clusterInfo->{MEMBER_PEER} = \@memberPeer;
         push( @outData, $clusterInfo );

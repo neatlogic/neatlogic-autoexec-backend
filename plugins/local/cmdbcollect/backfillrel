@@ -326,10 +326,10 @@ def genHostRel(db):
     ):
         try:
             # 计算网卡连接的交换机端口信息
-            nics = os.get("ETH_INTERFACES", [])
+            nics = host.get("ETH_INTERFACES", [])
             if nics is None:
                 print(
-                    "WARN: No eth interfaces found for os:{}".format(os.get("MGMT_IP"))
+                    "WARN: No eth interfaces found for os:{}".format(host.get("MGMT_IP"))
                 )
                 nics = []
             for nic in nics:
@@ -416,7 +416,7 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "DEV_NAME": remoteFcPort["DEV_NAME"],
+                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }

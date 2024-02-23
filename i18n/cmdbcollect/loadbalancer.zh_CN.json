@@ -101,6 +101,35 @@
                     "type": "String"
                 },
                 {
+                    "name": "SNAT_POOL",
+                    "desc": "SNAT 地址转换池",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP_TYPE",
+                            "desc": "IP类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_LIST",
+                            "desc": "地址池",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "IP",
+                                    "desc": "IP Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     "name": "POOL",
                     "desc": "POOL",
                     "type": "JsonArray",
