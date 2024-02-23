@@ -14,6 +14,7 @@ use File::Spec;
 use File::Basename;
 use IO::File;
 use CollectObjCat;
+use Socket;
 
 #配置进程的filter，下面是配置例子
 #这里的匹配是通过命令行加上环境变量的文本进行初步筛选判断
@@ -105,7 +106,7 @@ sub collect {
                 my $dbName   = $1;
                 my @dbUsers  = ();
                 my @dbConns  = ();
-                my $userInfo = $self->getCmdOut( "echo \"select * from sysusers\"|dbaccess $dbName\@$insName", $user );
+                my $userInfo = $self->getCmdOut( qq{echo "select * from sysusers"|dbaccess $dbName\@$insName}, $user );
                 while ( $userInfo =~ /username\s+(\S+)/g ) {
                     my $user = $1;
                     push( @users, { NAME => $user } );
@@ -129,6 +130,14 @@ sub collect {
                     push( @dbConns, $dbConn );
 
                 }
+
+                #获取字符集
+                my $charset     = '';
+                my $charsetInfo = $self->getCmdOut( qq{echo "select * from systables where tabname=\\" GL_COLLATE\\""|dbaccess $dbName\@$insName}, $user );
+                if ( $charsetInfo =~ /site\s+(\S+)/g ) {
+                    $charset = $1;
+                }
+
                 push(
                     @dbNames,
                     {
@@ -142,6 +151,7 @@ sub collect {
                         SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
                         USERS         => \@dbUsers,
                         CONNECT       => \@dbConns,
+                        CHARSET       => $charset,
                         INSTANCES     => [
                             {
                                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),

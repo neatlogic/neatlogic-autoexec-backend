@@ -230,6 +230,11 @@
 			    }
 		    ]
 	},
+	{
+	    "name": "CHARSET",
+	    "desc": "字符集",
+	    "type": "String"
+	},
         {
             "name": "_APP_TYPE",
             "desc": "数据库类型",
