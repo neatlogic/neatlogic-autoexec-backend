@@ -736,11 +736,11 @@ sub main {
             if ( $optVal =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
                 $passArgs->{$optName} = {
                     protocolPort => $1,
-                    username => $2,
-                    password => $3
+                    username     => $2,
+                    password     => $3
                 };
             }
-            elsif( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+            elsif ( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
                 $passArgs->{$optName} = {
                     username => $1,
                     password => $2

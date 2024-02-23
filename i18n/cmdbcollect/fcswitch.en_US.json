@@ -22,7 +22,6 @@
             "desc": "Use State",
             "type": "String"
         },
-
         {
             "name": "UPTIME",
             "desc": "Up Time(Days)",

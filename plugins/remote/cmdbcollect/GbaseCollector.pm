@@ -268,7 +268,7 @@ sub collect {
 
     # CLUSTER STATE:         ACTIVE
     # VIRTUAL CLUSTER MODE:  NORMAL
-    # 
+    #
     # =========================================================================================================
     # |                                    GBASE DATA CLUSTER INFORMATION                                     |
     # =========================================================================================================
@@ -276,61 +276,60 @@ sub collect {
     # ---------------------------------------------------------------------------------------------------------
     # |  node1   |              192.168.0.100               |       1        | OPEN  |    OPEN    |     0     |
     # ---------------------------------------------------------------------------------------------------------
-	
-	my @clusterRoles = ();
-	if (index($nodeOutput, $bizIp) != -1) {
-		push( @clusterRoles, "dataNode");
-	}
+
+    my @clusterRoles = ();
+    if ( index( $nodeOutput, $bizIp ) != -1 ) {
+        push( @clusterRoles, "dataNode" );
+    }
     my @lines = split /\n/, $nodeOutput;
 
     #根据正则匹配每一行数据是否有ip信息，判断有多少个节点，只有一个节点就认为是单节点运行。集群模式还不知道怎么判断。
-    my @ip_lines = grep { /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/ } @lines;
+    my @ip_lines   = grep { /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/ } @lines;
     my $data_lines = @ip_lines;
-    if ($data_lines == 1) {
-    	$gbaseInfo->{'IS_CLUSTER'} = 0;
+    if ( $data_lines == 1 ) {
+        $gbaseInfo->{'IS_CLUSTER'}   = 0;
         $gbaseInfo->{'CLUSTER_MODE'} = undef;
         $gbaseInfo->{'CLUSTER_ROLE'} = undef;
     }
-	elsif ($data_lines > 1) {
-    	$gbaseInfo->{'IS_CLUSTER'} = 1;
+    elsif ( $data_lines > 1 ) {
+        $gbaseInfo->{'IS_CLUSTER'} = 1;
     }
 
-
     my $coordCmd = "gcadmin showcluster c|grep " . $bizIp;
-	
-	# CLUSTER STATE:         ACTIVE
-	# CLUSTER MODE:          NORMAL
-	# 
-	# =======================================================
-	# |        GBASE COORDINATOR CLUSTER INFORMATION        |
-	# =======================================================
-	# |   NodeName   |   IpAddress   | gcluster | DataState |
-	# -------------------------------------------------------
-	# | coordinator1 | 192.168.0.100 |   OPEN   |     0     |
-	# -------------------------------------------------------
-	
-	my $coordOutput = `$coordCmd`;
-	if ($coordOutput ne '') {
-		push( @clusterRoles, "coordinator");
-	}
 
-	my $gcwareCmd = "gcadmin showcluster g|grep " . $bizIp;
-	
-	# CLUSTER STATE:         ACTIVE
-	# VIRTUAL CLUSTER MODE:  NORMAL
-	# 
-	# =====================================
-	# | GBASE GCWARE CLUSTER INFORMATION  |
-	# =====================================
-	# | NodeName |   IpAddress   | gcware |
-	# -------------------------------------
-	# | gcware1  | 192.168.0.100 |  OPEN  |
-	# -------------------------------------
-	
-	my $gcwareOutput = `$gcwareCmd`;
-	if ($gcwareOutput ne '') {
-		push( @clusterRoles, "gcware");
-	}
+    # CLUSTER STATE:         ACTIVE
+    # CLUSTER MODE:          NORMAL
+    #
+    # =======================================================
+    # |        GBASE COORDINATOR CLUSTER INFORMATION        |
+    # =======================================================
+    # |   NodeName   |   IpAddress   | gcluster | DataState |
+    # -------------------------------------------------------
+    # | coordinator1 | 192.168.0.100 |   OPEN   |     0     |
+    # -------------------------------------------------------
+
+    my $coordOutput = `$coordCmd`;
+    if ( $coordOutput ne '' ) {
+        push( @clusterRoles, "coordinator" );
+    }
+
+    my $gcwareCmd = "gcadmin showcluster g|grep " . $bizIp;
+
+    # CLUSTER STATE:         ACTIVE
+    # VIRTUAL CLUSTER MODE:  NORMAL
+    #
+    # =====================================
+    # | GBASE GCWARE CLUSTER INFORMATION  |
+    # =====================================
+    # | NodeName |   IpAddress   | gcware |
+    # -------------------------------------
+    # | gcware1  | 192.168.0.100 |  OPEN  |
+    # -------------------------------------
+
+    my $gcwareOutput = `$gcwareCmd`;
+    if ( $gcwareOutput ne '' ) {
+        push( @clusterRoles, "gcware" );
+    }
     $gbaseInfo->{'CLUSTER_ROLE'} = \@clusterRoles;
 
     $rows = $gbase->query(

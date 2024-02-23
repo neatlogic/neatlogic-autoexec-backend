@@ -247,20 +247,19 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid , $isContainer) = @_;
+    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
 
     my $remoteAddrs  = {};
     my $connStatInfo = {};
     my $status       = 3;
-    if(not defined($isContainer)){
-        $isContainer = 0 ;
+    if ( not defined($isContainer) ) {
+        $isContainer = 0;
     }
-    
 
     if ( $status != 0 ) {
-        my $cmd            = "netstat -ntudwp|";
-        if ($isContainer == 1){
-            $cmd            = "nsenter -t $pid -n netstat -ntudwp|";
+        my $cmd = "netstat -ntudwp|";
+        if ( $isContainer == 1 ) {
+            $cmd = "nsenter -t $pid -n netstat -ntudwp|";
         }
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
@@ -277,9 +276,9 @@ sub getRemoteAddrs {
     }
 
     if ( $status != 0 ) {
-        my $cmd            = "ss -ntudwp |";
-        if ($isContainer == 1){
-            $cmd            = "nsenter -t $pid -n ss -ntudwp|";
+        my $cmd = "ss -ntudwp |";
+        if ( $isContainer == 1 ) {
+            $cmd = "nsenter -t $pid -n ss -ntudwp|";
         }
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
@@ -299,21 +298,21 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid , $isContainer) = @_;
+    my ( $self, $pid, $isContainer ) = @_;
 
     #Linux
     #ss -ntudwlp | grep pid=<pid>
     #netstat -tuwnlp |grep <pid>
     my $portsMap = {};
     my $status   = 3;
-    if (not defined($isContainer)){
+    if ( not defined($isContainer) ) {
         $isContainer = 0;
     }
 
     if ( $status != 0 ) {
-        my $cmd         = "netstat -ntudwlp |";
-        if ($isContainer == 1){
-            $cmd         = "nsenter -t  $pid -n -p netstat -ntudwlp ";
+        my $cmd = "netstat -ntudwlp |";
+        if ( $isContainer == 1 ) {
+            $cmd = "nsenter -t  $pid -n -p netstat -ntudwlp ";
         }
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
@@ -344,8 +343,8 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid , $isContainer) = @_;
-    my $lsnPortsMap = $self->getListenPorts($pid , $isContainer);
+    my ( $self, $pid, $isContainer ) = @_;
+    my $lsnPortsMap = $self->getListenPorts( $pid, $isContainer );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -354,8 +353,8 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap ,$isContainer) = @_;
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid ,$isContainer );
+    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid, $isContainer );
 
     my $connInfo = {};
     $connInfo->{PEER}  = $remoteAddrs;

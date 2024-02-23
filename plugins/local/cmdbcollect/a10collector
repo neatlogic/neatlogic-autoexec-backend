@@ -99,8 +99,8 @@ sub main {
         my @memberPeer = ();
         my $members    = $vsInfo->{POOL}->{MEMBERS};
         foreach my $memberInfo (@$members) {
-            memberInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
-            $memberInfo->{_OBJ_TYPE} = 'LOADBALANCER-MEMBER';
+            $memberInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
+            $memberInfo->{_OBJ_TYPE}     = 'LOADBALANCER-MEMBER';
             push( @memberPeer, $memberInfo->{IP} . ':' . $memberInfo->{PORT} );
         }
 

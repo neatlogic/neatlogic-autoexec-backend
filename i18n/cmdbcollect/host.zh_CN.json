@@ -192,11 +192,6 @@
             "type": "String"
         },
         {
-            "name": "HOST_IP",
-            "desc": "Esxi IP",
-            "type": "String"
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -269,6 +264,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "HOST_IP",
+            "desc": "Esxi IP",
+            "type": "String"
         },
         {
             "name": "MANUFACTURER",
