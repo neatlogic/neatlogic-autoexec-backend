@@ -27,15 +27,20 @@ sub after {
 
     my $data     = $self->{DATA};
     my $nodeInfo = $self->{node};
+    my $sshAccount = $self->{sshAccount};
 
-    if ( not defined( $data->{DEV_NAME} ) and defined( $nodeInfo->{username} ) and lc( $nodeInfo->{username} ) ne 'snmp' ) {
+    if (not $sshAccount){
+        print("WARN: SSH account not defined, can not collect detail information.\n")
+    }
+
+    if ( if $sshAccount and not defined( $data->{DEV_NAME} ) and defined( $nodeInfo->{username} ) and lc( $nodeInfo->{username} ) ne 'snmp' ) {
         print("INFO: Can not find DEV_NAME by snmp, try ssh.\n");
 
         my $ssh = Net::OpenSSH->new(
             $nodeInfo->{host},
-            port        => $nodeInfo->{protocolPort},
-            user        => $nodeInfo->{username},
-            password    => $nodeInfo->{password},
+            port        => $sshAccount->{protocolPort},
+            user        => $sshAccount->{username},
+            password    => $sshAccount->{password},
             timeout     => $self->{timeout},
             master_opts => [ -o => "StrictHostKeyChecking=no" ]
         );
