@@ -34,13 +34,13 @@ sub main {
     my $inspect   = 0;
 
     GetOptions(
-        'verbose=i'   => \$isVerbose,
-        'node=s'      => \$node,
-        'type=s'      => \$type,
-        'sshaccount=s'  => \$sshAccount,
-        'community=s' => \$defaultCommunity,
-        'inspect=i'   => \$inspect,
-        'timeout=i'   => \$timeout
+        'verbose=i'    => \$isVerbose,
+        'node=s'       => \$node,
+        'type=s'       => \$type,
+        'sshaccount=s' => \$sshAccount,
+        'community=s'  => \$defaultCommunity,
+        'inspect=i'    => \$inspect,
+        'timeout=i'    => \$timeout
     );
 
     my $nodeInfo  = {};
@@ -106,7 +106,7 @@ sub main {
         print("INFO: Has defined class $fcswitchClass, try to load it.\n");
         eval {
             require "$fcswitchClass.pm";
-            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
+            $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, sshAccount => $sshAccountInfo, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
         };
         if ($@) {
             print("WARN: Load $fcswitchClass failed, $@");

@@ -183,7 +183,7 @@ sub _getVS {
     # 遍历原始数组
     foreach my $entry (@$snatPoolData) {
         my $name    = $entry->{'NAME'};
-        my $address = { 'IP' => $snmpHelper->hex2ip( $entry->{'ADDRESS'} ) };
+        my $address = { 'IP' => $snmpHelper->hex2ip( $entry->{'ADDRESS'} ), '_OBJ_CATEGORY' => 'LOADBALANCER', '_OBJ_TYPE' => 'LOADBALANCER-SNATIP' };
         my $type    = $entry->{'TYPE'};
 
         # 如果 NAME 已经存在于映射中，则将 ADDRESS 和 TYPE 添加到数组中
@@ -226,7 +226,9 @@ sub _getVS {
     }
 
     foreach my $snatIpInfo (@$snatIpData) {
-        $snatIpInfo->{IP} = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
+        $snatIpInfo->{IP}            = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
+        $snatIpInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $snatIpInfo->{_OBJ_TYPE}     = 'LOADBALANCER-SNATIP';
     }
 
     return $vsData;

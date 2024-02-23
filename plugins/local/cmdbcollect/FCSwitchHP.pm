@@ -17,7 +17,7 @@ use Net::OpenSSH;
 
 sub before {
     my ($self) = @_;
-
+    $self->SUPER::before();
     #SN可能要调整，如果有多个可能，就在数组里添加
     #$self->addScalarOid( SN => [ '1.3.6.1.4.1.9.3.6.3.0', '1.3.6.1.4.1.9.5.1.2.19.0', '1.3.6.1.2.1.47.1.1.1.1.11.1001', '1.3.6.1.2.1.47.1.1.1.1.11.2001', '1.3.6.1.4.1.9.9.92.1.1.1.2.0' ] );
 }
@@ -25,7 +25,7 @@ sub before {
 #重载此方法，进行数据调整，或者补充其他非SNMP数据
 sub after {
     my ($self) = @_;
-
+    $self->SUPER::after();
     #my $data = $self->{DATA};
     #my $model = $data->{MODEL};
     #if ( defined($model) ){
