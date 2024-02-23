@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集光交设备信息,支持基于Brocade的类型",
+    "description": "SNMP采集光交设备信息,支持基于Brocade的类型",
     "option": [{
             "opt": "community",
             "name": "默认团体字",

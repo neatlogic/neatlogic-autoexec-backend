@@ -8,9 +8,10 @@ use SnmpHelper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{brand} = $args{brand};
-    $self->{node}  = $args{node};
-    $self->{DATA}  = { PK => ['MGMT_IP'] };
+    $self->{brand}          = $args{brand};
+    $self->{sshAccount} = $args{sshAccount};
+    $self->{node}           = $args{node};
+    $self->{DATA}           = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -154,7 +155,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' and $key ne 'sshAccount' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -285,6 +286,7 @@ sub _getTable {
 
     my $portsMap  = {};
     my $portsData = $tableData->{PORTS};
+
     # foreach my $portInfo (@$portsData) {
     #     $portInfo->{WWPN}                = $snmpHelper->hex2mac( $portInfo->{WWPN} );
     #     $portInfo->{ADMIN_STATUS}        = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
@@ -357,7 +359,7 @@ sub _getTable {
         my $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         my $portsCounterData = $counterTblData->{PORTS_COUNTER};
         foreach my $portCounterInfo (@$portsCounterData) {
-            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac($portCounterInfo->{WWPN});
+            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac( $portCounterInfo->{WWPN} );
 
             $preCounterMap->{ $portCounterInfo->{WWPN} } = $portCounterInfo;
         }
@@ -366,7 +368,7 @@ sub _getTable {
         $counterTblData   = $snmpHelper->getTable( $snmp, $self->{portCounterDef} );
         $portsCounterData = $counterTblData->{PORTS_COUNTER};
         foreach my $portCounterInfo (@$portsCounterData) {
-            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac($portCounterInfo->{WWPN});
+            $portCounterInfo->{WWPN} = $snmpHelper->hex2mac( $portCounterInfo->{WWPN} );
 
             my $collectedPortInfo = $portsMap->{ $portCounterInfo->{WWPN} };
             my $preCounterInfo    = $preCounterMap->{ $portCounterInfo->{WWPN} };

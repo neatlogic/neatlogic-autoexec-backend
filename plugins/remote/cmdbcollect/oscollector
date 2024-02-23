@@ -733,7 +733,14 @@ sub main {
             $i = $i + 1;
             $accountInfo->{$optName} = $optVal;
 
-            if ( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+            if ( $optVal =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
+                $passArgs->{$optName} = {
+                    protocolPort => $1,
+                    username => $2,
+                    password => $3
+                };
+            }
+            elsif( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
                 $passArgs->{$optName} = {
                     username => $1,
                     password => $2
