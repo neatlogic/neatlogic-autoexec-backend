@@ -226,7 +226,7 @@ sub getNFSInfo {
             my $autoMount = 0;
 
             #192.168.20.178:/export/share
-            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my ( $remoteHost, $remotePath ) = split( ':', $device );
             my $remoteIp = $remoteHost;
             if ( $remoteIp !~ /[\d\.]+/ ) {
                 my $ipAddr = gethostbyname($remoteHost);

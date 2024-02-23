@@ -465,6 +465,7 @@ sub collectCDB {
     $dbInfo->{CDB}           = undef;
     $dbInfo->{NOT_PROCESS}   = 1;
     $dbInfo->{RUN_ON}        = [];
+    $dbInfo->{DBID}          = $insInfo->{DBID};
 
     $dbInfo->{NAME} = $dbName;
 
@@ -693,13 +694,17 @@ sub getASMDiskGroup {
         foreach my $row (@$rows) {
             my $diskGroup = {};
             my $groupName = $row->{NAME};
-            $diskGroup->{NAME}     = $groupName;
-            $diskGroup->{TYPE}     = $row->{TYPE};
-            $diskGroup->{TOTAL}    = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
-            $diskGroup->{FREE}     = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
-            $diskGroup->{USED}     = $diskGroup->{TOTAL} - $diskGroup->{FREE};
-            $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-            $diskGroup->{DISKS}    = [];
+            $diskGroup->{_OBJ_CATEGORY} = 'DB';
+            $diskGroup->{_OBJ_TYPE}     = 'OracleASMGroup';
+            $diskGroup->{NAME}          = $groupName;
+            $diskGroup->{TYPE}          = $row->{TYPE};
+            $diskGroup->{TOTAL}         = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{FREE}          = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{USED}          = $diskGroup->{TOTAL} - $diskGroup->{FREE};
+            $diskGroup->{USED_PCT}      = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $diskGroup->{DISKS}         = [];
+            $diskGroup->{PATH}          = [];
+
             push( @diskGroups, $diskGroup );
             $diskGroupsMap->{$groupName} = $diskGroup;
         }
@@ -723,6 +728,23 @@ sub getASMDiskGroup {
             $disk->{DEV_PATH}     = $row->{PATH};
 
             push( @$disks, $disk );
+
+            my $path  = {};
+            my $paths = $diskGroupsMap->{$groupName}->{PATH};
+            $path->{_OBJ_CATEGORY} = 'DB';
+            $path->{_OBJ_TYPE}     = 'OracleASMPath';
+            $path->{NAME}          = $row->{NAME};
+            $path->{FAIL_GROUP}    = $row->{FGROUP};
+            $path->{MOUNT_STATUS}  = $row->{MNT_STS};
+            $path->{CAPACITY}      = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $path->{FREE}          = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $path->{USED}          = $disk->{CAPACITY} - $disk->{FREE};
+            $path->{USED_PCT}      = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $path->{PATH}          = $row->{PATH};
+            $path->{IP}            = $racInfo->{LOCAL_NODE_PUB_IP};
+
+            push( @$paths, $path );
+
         }
     }
 
@@ -933,7 +955,7 @@ sub getClusterNodes {
     my @dbNodes      = ();
     foreach my $dbNode (@$dbNodesLines) {
         $dbNode =~ s/^\s*|\s*$//g;
-        if ( $dbNode ne '' and $dbNode =~ /^\W+$/ ) {
+        if ( $dbNode ne '' and $dbNode =~ /^\w+$/ ) {
             my $ipAddr = gethostbyname($dbNode);
             if ( defined($ipAddr) ) {
                 my $nodePubIp = inet_ntoa($ipAddr);

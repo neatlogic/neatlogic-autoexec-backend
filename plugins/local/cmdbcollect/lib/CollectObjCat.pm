@@ -41,6 +41,7 @@ our $PK_CONFIG = {
     LOADBALANCER => [ 'MGMT_IP', 'SN' ],
     STORAGE      => [ 'MGMT_IP', 'SN' ],
     FCSWITCH     => [ 'MGMT_IP', 'SN' ],
+	FCDEV        => [ 'MGMT_IP', 'SN' ]
     CONTAINER    => [ 'MGMT_IP', 'CONTAINER_ID' ]
 };
 

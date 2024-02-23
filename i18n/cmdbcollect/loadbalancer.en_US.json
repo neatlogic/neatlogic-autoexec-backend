@@ -101,6 +101,35 @@
                     "type": "String"
                 },
                 {
+                    "name": "SNAT_POOL",
+                    "desc": "NAT Transafer pool",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP_TYPE",
+                            "desc": "IP Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_LIST",
+                            "desc": "IP List Pool",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "IP",
+                                    "desc": "IP Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     "name": "POOL",
                     "desc": "POOL",
                     "type": "JsonArray",

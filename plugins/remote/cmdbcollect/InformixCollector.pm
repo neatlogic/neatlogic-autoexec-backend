@@ -21,9 +21,9 @@ use CollectObjCat;
 #如果collect方法返回undef就代表不匹配
 sub getConfig {
     return {
-        regExps => ['\boninit\b'],                       #正则表达是匹配ps输出
-        psAttrs => { PPID => '1', COMM => 'oninit' },    #ps的属性的精确匹配
-        envAttrs => { INFORMIXDIR => undef }             #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
+        regExps  => ['\boninit\b'],                              #正则表达是匹配ps输出
+        psAttrs  => { PPID        => '1', COMM => 'oninit' },    #ps的属性的精确匹配
+        envAttrs => { INFORMIXDIR => undef }                     #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };
 }
 
@@ -53,7 +53,7 @@ sub collect {
     my $confPath = "$homePath/etc";
 
     my $version;
-    my $verInfo = $self->getCmdOut( 'onstat -', $user );
+    my $verInfo = $self->getCmdOut( 'onstat', $user );
     if ( $verInfo =~ /Version\s+(\S+)\s/ ) {
         $version = $1;
     }
@@ -63,7 +63,8 @@ sub collect {
     # dr_informix1210 drsoctcp sit_deploy_24 11585
     # lo_informix1210 onsoctcp 127.0.0.1 20686
     my $insInfoLines = $self->getFileContent("$homePath/etc/sqlhosts");
-    foreach my $line (@$insInfoLines) {
+    my @contents     = split( '\n', $insInfoLines );
+    foreach my $line (@contents) {
         if ( $line =~ /^\s*#/ ) {
             next;
         }
@@ -97,11 +98,37 @@ sub collect {
             $insInfo->{SERVICE_ADDR} = $insInfo->{VIP} . ':' . $port;
             $insInfo->{SSL_PORT}     = undef;
 
-            my $dbNameInfo = $self->getCmdOut( "echo 'select * from sysdatabases'|dbaccess -e sysmaster\@$insName", $user );
+            my $dbNameInfo = $self->getCmdOut( qq{echo "select * from sysdatabases"|dbaccess -e sysmaster\@$insName}, $user );
             my @dbNames    = ();
             my @users      = ();
             while ( $dbNameInfo =~ /name\s+(\S+)/sg ) {
-                my $dbName = $1;
+                my $dbName   = $1;
+                my @dbUsers  = ();
+                my @dbConns  = ();
+                my $userInfo = $self->getCmdOut( "echo \"select * from sysusers\"|dbaccess $dbName\@$insName", $user );
+                while ( $userInfo =~ /username\s+(\S+)/g ) {
+                    my $user = $1;
+                    push( @users, { NAME => $user } );
+
+                    my $dbUser = {};
+                    $dbUser->{_OBJ_CATEGORY} = "DB";
+                    $dbUser->{_OBJ_TYPE}     = "DB-USER";
+                    $dbUser->{IP}            = $insInfo->{IP};
+                    $dbUser->{USER}          = $user;
+                    $dbUser->{DBNAME}        = $dbName;
+                    $dbUser->{PORT}          = $port;
+                    push( @dbUsers, $dbUser );
+
+                    my $dbConn = {};
+                    $dbConn->{_OBJ_CATEGORY} = "DB";
+                    $dbConn->{_OBJ_TYPE}     = "DB-CONNECT";
+                    $dbConn->{VIP}           = $insInfo->{IP};
+                    $dbConn->{USERNAME}      = $user;
+                    $dbConn->{SERVICENAME}   = $dbName;
+                    $dbConn->{PORT}          = $port;
+                    push( @dbConns, $dbConn );
+
+                }
                 push(
                     @dbNames,
                     {
@@ -113,6 +140,8 @@ sub collect {
                         PORT          => $port,
                         SSL_PORT      => undef,
                         SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
+                        USERS         => \@dbUsers,
+                        CONNECT       => \@dbConns,
                         INSTANCES     => [
                             {
                                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
@@ -125,11 +154,6 @@ sub collect {
                     }
                 );
 
-                my $userInfo = $self->getCmdOut( "echo 'select * from sysusers'|dbaccess $dbName\@$insName", $user );
-                while ( $userInfo =~ /username\s+(\S+)/g ) {
-                    my $user = $1;
-                    push( @users, { NAME => $user } );
-                }
             }
             $insInfo->{DATABASES} = \@dbNames;
             $insInfo->{USERS}     = \@users;

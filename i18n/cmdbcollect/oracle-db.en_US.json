@@ -85,6 +85,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
                     "name": "USERNAME",
                     "desc": "User Name",
                     "type": "String"
@@ -109,6 +119,11 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
             "type": "String"
         },
         {
