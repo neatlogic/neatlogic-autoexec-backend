@@ -37,7 +37,7 @@ sub main {
         'verbose=i'   => \$isVerbose,
         'node=s'      => \$node,
         'type=s'      => \$type,
-        'sshaccount'  => \$sshAccount,
+        'sshaccount=s'  => \$sshAccount,
         'community=s' => \$defaultCommunity,
         'inspect=i'   => \$inspect,
         'timeout=i'   => \$timeout
