@@ -154,9 +154,10 @@ sub isMainProcess {
                 my $parentLsnInfo = $parentProcInfo->{CONN_INFO}->{LISTEN};
                 map { $parentLsnInfo->{$_} = 1 } keys( %{ $connInfo->{LISTEN} } );
                 my $parentPortBindInfo = $parentProcInfo->{CONN_INFO}->{PORT_BIND};
+
                 #map { $parentPortBindInfo->{$_} = 1 } keys( %{ $connInfo->{PORT_BIND} } );
                 my $portBindInfo = $connInfo->{PORT_BIND};
-                map { $parentPortBindInfo->{$_} = $portBindInfo->{$_} } keys( %$portBindInfo );
+                map { $parentPortBindInfo->{$_} = $portBindInfo->{$_} } keys(%$portBindInfo);
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();

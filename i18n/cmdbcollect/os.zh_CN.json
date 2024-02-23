@@ -304,48 +304,6 @@
             ]
         },
         {
-            "name": "NFS_INFO",
-            "desc": "NFS信息",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PATH",
-                    "desc": "Nas 远端路径",
-                    "type": "String"
-                },
-                {
-                    "name": "AUTO_MOUNT",
-                    "desc": "是否自动挂载",
-                    "type": "Int"
-                },
-                {
-                    "name": "NFS_HOST",
-                    "desc": "NFS服务域名",
-                    "type": "String"
-                },
-                {
-                    "name": "NFS_IP",
-                    "desc": "NFS服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "LOCAL_PATH",
-                    "desc": "本地文件系统",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "NFS_MOUNTED",
             "desc": "挂载了NFS",
             "type": "Float"
@@ -355,16 +313,16 @@
             "desc": "磁盘",
             "type": "JsonArray",
             "subset": [
-	        {
-	            "name": "_OBJ_CATEGORY",
-	            "desc": "归属类型",
-	            "type": "String"
-	        },
-	        {
-	            "name": "_OBJ_TYPE",
-	            "desc": "OS类型",
-	            "type": "String"
-	        },
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "磁盘名",
@@ -681,6 +639,48 @@
                 {
                     "name": "HOST_IP",
                     "desc": "主机ip",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_INFO",
+            "desc": "NFS信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PATH",
+                    "desc": "Nas 远端路径",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO_MOUNT",
+                    "desc": "是否自动挂载",
+                    "type": "Int"
+                },
+                {
+                    "name": "NFS_HOST",
+                    "desc": "NFS服务域名",
+                    "type": "String"
+                },
+                {
+                    "name": "NFS_IP",
+                    "desc": "NFS服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_PATH",
+                    "desc": "本地文件系统",
                     "type": "String"
                 }
             ]

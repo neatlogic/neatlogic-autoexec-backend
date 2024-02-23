@@ -8,10 +8,10 @@ use SnmpHelper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{brand}          = $args{brand};
+    $self->{brand}      = $args{brand};
     $self->{sshAccount} = $args{sshAccount};
-    $self->{node}           = $args{node};
-    $self->{DATA}           = { PK => ['MGMT_IP'] };
+    $self->{node}       = $args{node};
+    $self->{DATA}       = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();

@@ -66,6 +66,38 @@
             "type": "String"
         },
         {
+            "name": "DISKS",
+            "desc": "硬盘",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "可用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
             "name": "ETH_INTERFACES",
             "desc": "网卡",
             "type": "JsonArray",
@@ -204,38 +236,6 @@
             "type": "String"
         },
         {
-            "name": "DISKS",
-            "desc": "硬盘",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "大小(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "使用(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "FREE",
-                    "desc": "可用(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "使用(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "FANS",
             "desc": "风扇",
             "type": "JsonArray",
@@ -264,8 +264,7 @@
                     "name": "POWERSUPPLY_NAME",
                     "desc": "所属电源",
                     "type": "String"
-                }
-,
+                },
                 {
                     "name": "LOCATION",
                     "desc": "位置",
@@ -348,48 +347,6 @@
             "type": "Text"
         },
         {
-            "name": "POOLS",
-            "desc": "盘池列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "大小(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "可用(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "使用(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "已用(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "LUNS",
             "desc": "逻辑磁盘列表",
             "type": "JsonArray",
@@ -443,6 +400,48 @@
                     "name": "VISABLE_INITIATORS",
                     "desc": "可见组",
                     "type": "array"
+                }
+            ]
+        },
+        {
+            "name": "POOLS",
+            "desc": "盘池列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "已用(%)",
+                    "type": "Float"
                 }
             ]
         },

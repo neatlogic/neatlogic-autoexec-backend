@@ -47,7 +47,7 @@ sub new {
         containner  => $args{containner}
     };
 
-    if(not defined($procFilters)){
+    if ( not defined($procFilters) ) {
         $procFilters = [];
     }
     $self->{procFilters}      = $procFilters;
@@ -238,14 +238,14 @@ sub isProcInContainer {
     my ( $self, $pid ) = @_;
     my $fh = IO::File->new("</proc/$pid/cgroup");
 
-    my $isContainer = 0;
+    my $isContainer   = 0;
     my $containerType = '';
 
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
             if ( index( $line, 'docker' ) >= 0 ) {
-                $isContainer = 1;
+                $isContainer   = 1;
                 $containerType = 'Docker';
                 last;
             }
@@ -253,7 +253,7 @@ sub isProcInContainer {
         $fh->close();
     }
 
-    return ($isContainer,$containerType);
+    return ( $isContainer, $containerType );
 }
 
 sub findProcess {
@@ -320,13 +320,14 @@ sub findProcess {
 
                 #容器进程只采集容器信息
                 my ( $isContainer, $containerType ) = $self->isProcInContainer( $matchedMap->{PID} );
-                if ( $isContainer ) {
+                if ($isContainer) {
                     $matchedMap->{_CONTAINERTYPE} = $containerType;
-                    $config->{className} = "$containerType"."Collector";
-                    if ($self->{containner} == 0 ){
-                        next ;
+                    $config->{className}          = "$containerType" . "Collector";
+                    if ( $self->{containner} == 0 ) {
+                        next;
                     }
-                }else{
+                }
+                else {
 
                     if ( defined($psAttrs) ) {
                         my $psAttrVal;
@@ -478,7 +479,7 @@ sub getProcess {
 
         my $connGather = $self->{connGather};
         if ($parseListen) {
-            my $connInfo    = $connGather->getListenInfo($pid , 0);
+            my $connInfo    = $connGather->getListenInfo( $pid, 0 );
             my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
             $connInfo->{PORT_BIND} = $portInfoMap;
             $procInfo->{CONN_INFO} = $connInfo;
@@ -487,7 +488,7 @@ sub getProcess {
         if ($parseConnStat) {
             my $connInfo = $procInfo->{CONN_INFO};
             if ( defined($connInfo) ) {
-                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} , 0);
+                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, 0 );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
             }
         }

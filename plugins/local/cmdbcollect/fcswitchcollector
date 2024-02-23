@@ -71,7 +71,7 @@ sub main {
             $sshAccountInfo->{username}     = $2;
             $sshAccountInfo->{password}     = $3;
         }
-        elsif ( $optVal =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+        elsif ( $sshAccount =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
             $sshAccountInfo->{protocolPort} = 22;
             $sshAccountInfo->{username}     = $1;
             $sshAccountInfo->{password}     = $2;

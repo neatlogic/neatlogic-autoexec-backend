@@ -616,7 +616,7 @@ if __name__ == "__main__":
             else:
                 print("ERROR: Action " + action + "not supported.")
     print("\n")
-    print("INFO: Imported object type lsit\n", end="")
+    print("INFO: Object type list imported.\n", end="")
     for objTypeItem in objTypeList:
         print(
             objTypeItem["_OBJ_CATETORY"] + "/" + objTypeItem["_OBJ_TYPE"] + "\n",

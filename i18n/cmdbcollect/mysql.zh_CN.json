@@ -398,16 +398,16 @@
             "desc": "DB列表",
             "type": "JsonArray",
             "subset": [
-		{
-		    "name": "_OBJ_CATEGORY",
-		    "desc": "类别",
-		    "type": "String"
-		},
-		{
-		    "name": "_OBJ_TYPE",
-		    "desc": "类型",
-		    "type": "String"
-		},
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "DB名称",

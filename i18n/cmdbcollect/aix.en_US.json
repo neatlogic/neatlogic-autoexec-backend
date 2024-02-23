@@ -460,48 +460,6 @@
             ]
         },
         {
-            "name": "NFS_INFO",
-            "desc": "NFS Mount",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PATH",
-                    "desc": "Nas Remote Path",
-                    "type": "String"
-                },
-                {
-                    "name": "AUTO_MOUNT",
-                    "desc": "Mount With Startup",
-                    "type": "Int"
-                },
-                {
-                    "name": "NFS_HOST",
-                    "desc": "NFS_HOST",
-                    "type": "String"
-                },
-		{
-                    "name": "NFS_IP",
-                    "desc": "NFS_IP",
-                    "type": "String"
-                },
-                {
-                    "name": "LOCAL_PATH",
-                    "desc": "Local File System",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "NFS_MOUNTED",
             "desc": "NFS Mounted",
             "type": "Float"
@@ -511,16 +469,16 @@
             "desc": "Disks",
             "type": "JsonArray",
             "subset": [
-	        {
-	            "name": "_OBJ_CATEGORY",
-	            "desc": "Obj Category",
-	            "type": "String"
-	        },
-	        {
-	            "name": "_OBJ_TYPE",
-	            "desc": "Obj Type",
-	            "type": "String"
-	        },
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
@@ -832,6 +790,48 @@
                 {
                     "name": "BOARD_SERIAL",
                     "desc": "Main Board Serial",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_INFO",
+            "desc": "NFS Mount",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PATH",
+                    "desc": "Nas Remote Path",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO_MOUNT",
+                    "desc": "Mount With Startup",
+                    "type": "Int"
+                },
+                {
+                    "name": "NFS_HOST",
+                    "desc": "NFS_HOST",
+                    "type": "String"
+                },
+                {
+                    "name": "NFS_IP",
+                    "desc": "NFS_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_PATH",
+                    "desc": "Local File System",
                     "type": "String"
                 }
             ]

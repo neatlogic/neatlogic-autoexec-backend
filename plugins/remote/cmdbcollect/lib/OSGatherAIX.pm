@@ -1022,7 +1022,7 @@ sub getHostHBAInfo {
         push( @hbaInfos, $hbaInfo );
     }
 
-    my @hbaPorts    = ();
+    my @hbaPorts = ();
     foreach my $hbaInfo (@hbaInfos) {
         foreach my $portInfo ( @$hbaInfo->{PORTS} ) {
             push(

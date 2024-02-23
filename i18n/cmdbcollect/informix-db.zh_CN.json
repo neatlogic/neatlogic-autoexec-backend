@@ -80,14 +80,98 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "分类",
+                    "type": "String"
+                },
+                {
+                    "name": "USERNAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "DBNAME",
+                    "desc": "库名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "主IP浮动",
             "type": "Int"
         },
         {
+            "name": "CHARSET",
+            "desc": "字符集",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
             "type": "String"
+        },
+        {
+            "name": "CONNECTION",
+            "desc": "数据库连接",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "分类",
+                    "type": "String"
+                },
+                {
+                    "name": "USERNAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICENAME",
+                    "desc": "服务名或库名",
+                    "type": "String"
+                },
+                {
+                    "name": "CONNECTION",
+                    "desc": "连接串",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "DB_NAME",
@@ -151,90 +235,6 @@
             "desc": "服务地址",
             "type": "String"
         },
-	{
-		"name": "USERS",
-		"desc": "用户列表",
-		"type": "JsonArray",
-		"subset": [
-			{
-				"name": "_OBJ_CATEGORY",
-				"desc": "类别",
-				"type": "String"
-			},
-			{
-				"name": "_OBJ_TYPE",
-				"desc": "分类",
-				"type": "String"
-			},
-			{
-				"name": "USERNAME",
-				"desc": "用户名",
-				"type": "String"
-			},
-			{
-				"name": "IP",
-				"desc": "服务IP",
-				"type": "String"
-			},
-			{
-				"name": "DBNAME",
-				"desc": "库名",
-				"type": "String"
-			},
-			{
-				"name": "PORT",
-				"desc": "端口",
-				"type": "String"
-			}
-		]
-	},
-	{
-		 "name": "CONNECTION",
-		  "desc": "数据库连接",
-		   "type": "JsonArray",
-		    "subset": [
-			    {
-				    "name": "_OBJ_CATEGORY",
-				    "desc": "类别",
-				    "type": "String"
-			    },
-			    {
-				    "name": "_OBJ_TYPE",
-				    "desc": "分类",
-				    "type": "String"
-			    },
-			    {
-				    "name": "USERNAME",
-				    "desc": "用户名",
-				    "type": "String"
-			    },
-			    {
-				    "name": "VIP",
-				    "desc": "服务IP",
-				    "type": "String"
-			    },
-			    {
-				    "name": "PORT",
-				    "desc": "端口",
-				    "type": "String"
-			    },
-			    {
-				    "name": "SERVICENAME",
-				    "desc": "服务名或库名",
-				    "type": "String"
-			    },
-			    {
-				    "name": "CONNECTION",
-				    "desc": "连接串",
-				    "type": "String"
-			    }
-		    ]
-	},
-	{
-	    "name": "CHARSET",
-	    "desc": "字符集",
-	    "type": "String"
-	},
         {
             "name": "_APP_TYPE",
             "desc": "数据库类型",
