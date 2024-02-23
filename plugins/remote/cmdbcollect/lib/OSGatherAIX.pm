@@ -1021,7 +1021,25 @@ sub getHostHBAInfo {
 
         push( @hbaInfos, $hbaInfo );
     }
-    $hostInfo->{HBA_INTERFACES} = \@hbaInfos;
+
+    my @hbaPorts    = ();
+    foreach my $hbaInfo (@hbaInfos) {
+        foreach my $portInfo ( @$hbaInfo->{PORTS} ) {
+            push(
+                @hbaPorts,
+                {
+                    NAME            => $hbaInfo->{NAME},
+                    IS_VIRTUAL      => $hbaInfo->{IS_VIRTUAL},
+                    WWNN            => $hbaInfo->{WWNN},
+                    SUPPORTED_SPEED => $hbaInfo->{SUPPORTED_SPEED},
+                    SPEED           => $hbaInfo->{SPEED},
+                    WWPN            => $portInfo->{WWPN},
+                    STATUS          => $portInfo->{STATUS}
+                }
+            );
+        }
+    }
+    $hostInfo->{HBA_INTERFACES} = \@hbaPorts;
 
 }
 
