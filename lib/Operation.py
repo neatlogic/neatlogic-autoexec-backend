@@ -303,7 +303,7 @@ class Operation:
                                     password = plainPwd
                             except:
                                 pass
-                        optValue = protocolPort + ":" + username + "/" + password
+                        optValue = str(protocolPort) + ":" + username + "/" + password
                     except Exception as err:
                         self.writeLog("WARN: {}\n".format(str(err)))
 
