@@ -955,6 +955,7 @@ sub getHostHBAInfo {
     my @hbaInfos    = ();
     my @hbaInfosMap = {};
     my @fcNames     = ();
+    my $fcVirtualMap = {};
 
     # ent0 Available       Virtual I/O Ethernet Adapter (l-lan)
     # fcs0 Available 77-T1 Virtual Fibre Channel Client Adapter
@@ -964,15 +965,20 @@ sub getHostHBAInfo {
     foreach my $line (@$adapterInfoLines) {
         if ( $line =~ /FC Adapter/ or $line =~ /Fibre Channel/ ) {
             my @segs = split( /\s+/, $line );
-            push( @fcNames, $segs[0] );
-        }
-        if ( $line =~ /Virtual/ ) {
-            $hostInfo->{IS_VIRTUAL} = 1;
+            my $fcName = $segs[0];
+            push( @fcNames, $fcName );
+            if ( $line =~ /Virtual/ ) {
+                $hostInfo->{IS_VIRTUAL} = 1;
+                $fcVirtualMap->{$fcName} = 1;
+            }
+            else{
+                $fcVirtualMap->{$fcName} = 0;
+            }
         }
     }
 
     foreach my $fcName (@fcNames) {
-        my $hbaInfo = { NAME => $fcName, IS_VIRTUAL => $hostInfo->{IS_VIRTUAL} };
+        my $hbaInfo = { NAME => $fcName, IS_VIRTUAL => $fcVirtualMap->{IS_VIRTUAL} };
         my @ports   = ();
         my @state   = ();
 
@@ -1086,6 +1092,9 @@ sub collect {
     $hostInfo->{CPU_FIRMWARE_VERSION} = $osInfo->{CPU_FIRMWARE_VERSION};
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
+
+    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
 
     $self->collectOsPerfInfo($osInfo);
 

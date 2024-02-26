@@ -1339,6 +1339,7 @@ sub collect {
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
 
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
 
     $self->collectOsPerfInfo($osInfo);
 
