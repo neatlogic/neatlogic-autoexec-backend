@@ -67,7 +67,11 @@ sub main {
     my $sshAccountInfo = {};
     if ( defined($sshAccount) and $sshAccount ne '' ) {
         if ( $sshAccount =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
-            $sshAccountInfo->{protocolPort} = $1;
+            my $protocolPort = int($1);
+            if ( $protocolPort == 0 ) {
+                $protocolPort = 22;
+            }
+            $sshAccountInfo->{protocolPort} = $protocolPort;
             $sshAccountInfo->{username}     = $2;
             $sshAccountInfo->{password}     = $3;
         }
