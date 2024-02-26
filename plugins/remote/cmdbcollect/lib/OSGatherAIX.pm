@@ -1078,6 +1078,7 @@ sub collect {
     }
 
     $osInfo->{ETH_INTERFACES} = $nicInfos;
+    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
     $osInfo->{IS_VIRTUAL}     = $hostInfo->{IS_VIRTUAL};
 
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
@@ -1092,9 +1093,6 @@ sub collect {
     $hostInfo->{CPU_FIRMWARE_VERSION} = $osInfo->{CPU_FIRMWARE_VERSION};
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
-
-    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
-    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
 
     $self->collectOsPerfInfo($osInfo);
 
