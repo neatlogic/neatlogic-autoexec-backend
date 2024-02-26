@@ -123,12 +123,12 @@ sub getMountPointInfo {
         'nfsd'        => 1
     };
 
-    #   node       mounted        mounted over    vfs       date        options
-    # -------- ---------------  ---------------  ------ ------------ ---------------
-    #          /dev/hd4         /                jfs2   Jul 20 04:37 rw,log=/dev/hd8
-    #          /dev/hd2         /usr             jfs2   Jul 20 04:37 rw,log=/dev/hd8
-    #          /dev/hd9var      /var             jfs2   Jul 20 04:37 rw,log=/dev/hd8
-    #          /dev/hd3         /tmp             jfs2   Jul 20 04:37 rw,log=/dev/hd8
+    # mount
+    #  node       mounted        mounted over    vfs       date        options      
+    #-------- ---------------  ---------------  ------ ------------ --------------- 
+                   /dev/hd1         /home            jfs2   May 25 16:07 rw,log=/dev/hd8 
+                   /dev/hd11admin   /admin           jfs2   May 25 16:07 rw,log=/dev/hd8 
+    10.4.147.230   /vol/oradmp      /dbexport        nfs3   Sep 11 17:18 rw,noac,hard,rsize=32768,wsize=32768,vers=3
     $osInfo->{NFS_MOUNTED} = 0;
     my $mountLines = $self->getCmdOutLines('LANG=C mount');
     for ( my $i = 2 ; $i < scalar(@$mountLines) ; $i++ ) {
@@ -156,7 +156,12 @@ sub getMountPointInfo {
         }
         if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
-            $mountInfo->{DEVICE}  = $device;
+	    if ( defined $node and $node ne '' ){
+                $mountInfo->{DEVICE}  = $device;
+            }
+	    else {
+                $mountInfo->{DEVICE}  = $device;
+	    }
             $mountInfo->{NAME}    = $mountPoint;
             $mountInfo->{FS_TYPE} = $fsType;
 
@@ -220,12 +225,12 @@ sub getNFSInfo {
             my $autoMount = 0;
 
             #192.168.20.178:/export/share
-            my ( $remoteIp, $remotePath ) = split( $device, ':' );
+            my ( $remoteIp, $remotePath ) = split( ':' , $device );
             if ( $nfsMountCmds =~ /\s$device\s/s ) {
                 $autoMount = 1;
             }
 
-            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my ( $remoteHost, $remotePath ) = split( ':' , $device);
             my $remoteIp = $remoteHost;
             if ( $remoteIp !~ /[\d\.]+/ ) {
                 my $ipAddr = gethostbyname($remoteHost);
