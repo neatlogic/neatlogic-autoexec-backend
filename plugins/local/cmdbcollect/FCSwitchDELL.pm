@@ -10,7 +10,7 @@ use strict;
 
 package FCSwitchDell;
 
-use FCSwitchBase;
+use FCSwitchBrocade;
 our @ISA = qw(FCSwitchBrocade);
 
 use Net::OpenSSH;
