@@ -1087,6 +1087,9 @@ sub collect {
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
 
+    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
+
     $self->collectOsPerfInfo($osInfo);
 
     if ( $osInfo->{IS_VIRTUAL} == 0 ) {
