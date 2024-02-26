@@ -10,8 +10,8 @@ use strict;
 
 package FCSwitchIBM;
 
-use FCSwitchBase;
-our @ISA = qw(FCSwitchBase);
+use FCSwitchBrocade;
+our @ISA = qw(FCSwitchBrocade);
 
 use Net::OpenSSH;
 
