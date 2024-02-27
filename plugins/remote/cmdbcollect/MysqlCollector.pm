@@ -36,13 +36,61 @@ sub getConfig {
     };
 }
 
+sub getUserGrants {
+    my ($self,$user,$host) = @_;
+    my @hostDetail = split(",", $host);
+    my @grantDBs = ();
+    my $mysql = $self->{mysql};
+    foreach my $tmpHost (@hostDetail) {
+        my $rows = $mysql->query(
+            sql     => qq{show grants for $tmpHost},
+            verbose => $self->{isVerbose}
+        );
+        
+        #+-------------------------------------------------------------------------------------+
+        #| Grants for dbsnmp@%                                                                 |
+        #+-------------------------------------------------------------------------------------+
+        #| GRANT SELECT, PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'dbsnmp'@'%' |
+        #+-------------------------------------------------------------------------------------+
+        #mysql> show grants for nacos@'%';
+        #+-----------------------------------------------------------------------------+
+        #| Grants for nacos@%                                                          |
+        #+-----------------------------------------------------------------------------+
+        #| GRANT USAGE ON *.* TO 'nacos'@'%'                                           |
+        #| GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON `nacosdb`.* TO 'nacos'@'%' |
+        #+-----------------------------------------------------------------------------+
+
+        #my $key = 'Grants for '.$tmpHost;
+        #$key =~ s/'//g;
+        
+        foreach my $tmpGrant (@$rows){           
+            foreach my $key (keys%$tmpGrant){
+                if($tmpGrant->{$key} !~ /USAGE/){
+                    if( $tmpGrant->{$key} =~ /^GRANT\s+.+\s+ON\s+(.+)\..+\s+TO/ ) {
+                        my $grantDB = $1;
+                        $grantDB =~ s/`//g; 
+                        push @grantDBs,$grantDB;
+
+                    }
+                }
+            }
+            
+        }
+    }
+    my %db;
+    my @uniqueDBs = grep { !$db{$_}++ } @grantDBs;
+    return \@uniqueDBs;
+
+}
+
 sub getUser {
     my ($self) = @_;
 
     my $mysql = $self->{mysql};
     my @users;
     my $rows = $mysql->query(
-        sql     => q{select distinct user from mysql.user where user not in ('mysql.session','mysql.sys')},
+	#sql     => q{select distinct user from mysql.user where user not in ('mysql.session','mysql.sys')},
+        sql     => q{select user,group_concat(concat(user,'@''',host,'''')) as host from mysql.user where user not in ('mysql.session','mysql.sys') group by user},
         verbose => $self->{isVerbose}
     );
 
@@ -50,13 +98,30 @@ sub getUser {
     # | user |
     # +------+
     # | root |
+    #
+    # +--------+------------------------------------------------------+
+    # | user   | host                                                 |
+    # +--------+------------------------------------------------------+
+    # | dbsnmp | dbsnmp@'%',dbsnmp@'localhost',dbsnmp@'127.0.0.1'     |
+    # | nacos  | nacos@'10.4.48.11',nacos@'%',nacos@'10.4.48.12'      |
+    # | repl   | repl@'%'                                             |
+    # | root   | root@'localhost',root@'10.4.48.11',root@'10.4.48.12' |
+    # +--------+------------------------------------------------------+
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{user} ne '' ) {
-            push( @users, $row->{user} );
+            
+            my $user = {};
+            $user->{USER} = $row->{user};
+            my $grantDB = $self->getUserGrants($row->{user}, $row->{host});
+             $user->{GRANT_DBS} = $grantDB;
+            push( @users, $user );
+            my @dbs = @$grantDB;
+            #print "user is ".$user->{USER}." grant db is ";
+            #print @dbs,"\n";
         }
     }
-
+    
     #TODO: How to get user default table space, 老的是有有问题的，没有迁移过来
 
     return \@users;
@@ -214,13 +279,15 @@ sub collect {
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{Database};
-        if ( $dbName ne 'information_schema' and $dbName ne 'mysql' and $dbName ne 'performance_schema' ) {
+        if ( $dbName ne 'information_schema' and $dbName ne 'mysql' and $dbName ne 'performance_schema' and $dbName ne 'sys' ) {
+            
             push( @dbNames, $dbName );
         }
     }
 
     #$mysqlInfo->{DATABASES} = \@dbNames;
-
+    #获取用户及访问权限
+    my $users = $self->getUser();
     $rows = $mysql->query(
         sql     => q{select * from information_schema.schemata},
         verbose => $self->{isVerbose}
@@ -245,7 +312,7 @@ sub collect {
         $dbInfo->{PORT}                         = $port;
         $dbInfo->{SSL_PORT}                     = undef;
         $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
-        $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
+        
         $dbInfo->{INSTANCES}                    = [
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
@@ -255,6 +322,40 @@ sub collect {
                 PORT          => $port
             }
         ];
+         
+        my @dbusers = ();
+        my @dbConns = ();
+        foreach my $user (@$users) {
+            my $dbUser = {};
+            my $userName = $user->{USER};
+            my $grantDBs = $user->{GRANT_DBS};
+            foreach my $tmpDB (@$grantDBs) {
+                if( $tmpDB eq $row->{SCHEMA_NAME} or $tmpDB =~ /\*/) {
+                    my $userInfo = {};
+                    $userInfo->{_OBJ_CATEGORY}  = CollectObjCat->get('DB');
+                    $userInfo->{_OBJ_TYPE}      = 'DB-USER';
+                    $userInfo->{IP}             = $vip;
+                    $userInfo->{PORT}           = $port;
+                    $userInfo->{DBNAME}         = $row->{SCHEMA_NAME};
+                    $userInfo->{USERNAME}       = $userName;
+                    push (@dbusers, $userInfo);
+
+                    my $connInfo = {};
+                    $connInfo->{_OBJ_CATEGORY}  = CollectObjCat->get('DB');
+                    $connInfo->{_OBJ_TYPE}      = 'DB-CONNECT';
+                    $connInfo->{VIP}            = $vip;
+                    $connInfo->{PORT}           = $port;
+                    $connInfo->{USERNAME}       = $userName;
+                    $connInfo->{SERVICENAME}    = $row->{SCHEMA_NAME};
+                    push (@dbConns, $connInfo);
+                    last;
+                }
+            }
+        } 
+        $dbInfo->{USERS}      = \@dbusers;
+        $dbInfo->{CONNECTION} = \@dbConns;
+
+        $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
     }
 
     my @dbInfos = ();
