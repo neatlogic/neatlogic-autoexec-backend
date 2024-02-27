@@ -1287,7 +1287,7 @@ sub getHBAInfo {
 
     my @hbaPorts = ();
     foreach my $hbaInfo (@hbaInfos) {
-        foreach my $portInfo ( @$hbaInfo->{PORTS} ) {
+        foreach my $portInfo ( @{$hbaInfo->{PORTS}} ) {
             push(
                 @hbaPorts,
                 {

@@ -321,7 +321,7 @@ def genHostRel(db):
     hostUpdCollection = db["COLLECT_HOST"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
 
-    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1}).batch_size(
+    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}).batch_size(
         500
     ):
         try:
