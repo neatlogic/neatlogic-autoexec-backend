@@ -18,8 +18,10 @@ my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie' ];
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{brand} = $args{brand};
-    $self->{DATA}  = { PK => ['MGMT_IP'] };
+    $self->{hasError}   = 0;
+    $self->{brand}      = $args{brand};
+    $self->{sshAccount} = $args{sshAccount};
+    $self->{DATA}       = { PK => ['MGMT_IP'] };
     bless( $self, $class );
 
     my $utils = CollectUtils->new();
@@ -45,7 +47,7 @@ sub new {
 
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' ) {
+        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' and $key ne 'sshAccount' ) {
             $options->{"-$key"} = $args{$key};
         }
     }
@@ -195,14 +197,14 @@ sub setCommonOid {
 
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
-    my $hasError = 0;
+    my $resultError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
-        $hasError = 1;
+        $resultError = 1;
         my $error = $snmp->error();
         if ( $error =~ /^No response/i ) {
+            $self->{hasError} = 1;
             print("ERROR: $error, snmp failed, exit.\n");
-            exit(-1);
         }
         else {
             if ( ref($oid) eq 'ARRAY' ) {
@@ -214,7 +216,7 @@ sub _errCheck {
         }
     }
 
-    return $hasError;
+    return $resultError;
 }
 
 #根据文件顶部预定义的$BRANDS匹配sysDescr信息，得到设备的品牌
@@ -228,10 +230,7 @@ sub getBrand {
     my $sysDescr;
     my $brand;
     my $result = $snmp->get_request( -varbindlist => $sysDescrOids );
-    if ( $self->_errCheck( $result, $sysDescrOids, 'sysDescr(Brand)' ) ) {
-        die("ERROR: Snmp request failed.\n");
-    }
-    else {
+    if ( $self->_errCheck( $result, $sysDescrOids, 'sysDescr(Brand)' ) == 0 ) {
         foreach my $oid (@$sysDescrOids) {
             $sysDescr = $result->{$oid};
             foreach my $aBrand (@$BRANDS) {
@@ -733,9 +732,16 @@ sub collect {
     #调用对应品牌的pm进行采集前的oid的设置
     $self->before();
 
-    $self->_getScalar();
-    $self->_getTable();
-    $self->_getPorts();
+    eval {
+        $self->_getScalar();
+        $self->_getTable();
+        $self->_getPorts();
+    };
+    if ($@) {
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        print($errMsg );
+    }
 
     if ( $brand =~ /Cisco/i ) {
         $self->_getCDP();

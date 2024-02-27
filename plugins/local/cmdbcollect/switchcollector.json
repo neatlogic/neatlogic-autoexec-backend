@@ -16,6 +16,15 @@
             "defaultValue": "public"
         },
         {
+            "opt": "sshaccount",
+            "name": "SSH账号",
+            "help": "采用SSH协议账号补充采集",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
             "opt": "timeout",
             "name": "超时时间",
             "help": "单次SNMP查询超时时间，单位秒",

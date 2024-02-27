@@ -34,16 +34,18 @@ sub main {
 
     my ( $node, $type );
 
+    my $sshAccount;
     my $defaultCommunity;
     my $timeout   = 10;
     my $isVerbose = 0;
 
     GetOptions(
-        'verbose=i'   => \$isVerbose,
-        'node=s'      => \$node,
-        'type=s'      => \$type,
-        'community=s' => \$defaultCommunity,
-        'timeout=i'   => \$timeout
+        'verbose=i'    => \$isVerbose,
+        'node=s'       => \$node,
+        'type=s'       => \$type,
+        'sshaccount=s' => \$sshAccount,
+        'community=s'  => \$defaultCommunity,
+        'timeout=i'    => \$timeout
     );
 
     my $nodeInfo  = {};
@@ -76,10 +78,28 @@ sub main {
         $community = 'public';
     }
 
+    my $sshAccountInfo = {};
+    if ( defined($sshAccount) and $sshAccount ne '' ) {
+        if ( $sshAccount =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
+            my $protocolPort = int($1);
+            if ( $protocolPort == 0 ) {
+                $protocolPort = 22;
+            }
+            $sshAccountInfo->{protocolPort} = $protocolPort;
+            $sshAccountInfo->{username}     = $2;
+            $sshAccountInfo->{password}     = $3;
+        }
+        elsif ( $sshAccount =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+            $sshAccountInfo->{protocolPort} = 22;
+            $sshAccountInfo->{username}     = $1;
+            $sshAccountInfo->{password}     = $2;
+        }
+    }
+
     my $isFailed = 0;
 
     my $brand        = $type;
-    my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
         $brand = $firewallBase->getBrand();
     }
@@ -98,7 +118,7 @@ sub main {
         print("INFO: Has defined class $firewallClass, try to load it.\n");
         eval {
             require "$firewallClass.pm";
-            $firewallIns = $firewallClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+            $firewallIns = $firewallClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo );
         };
         if ($@) {
             $isFailed = 1;
@@ -111,7 +131,6 @@ sub main {
         }
     }
     else {
-        $isFailed = 1;
         print("INFO: $firewallClass not found.\n");
         print("INFO: Fall back to FireWallBase class.\n");
         $firewallIns = $firewallBase;
