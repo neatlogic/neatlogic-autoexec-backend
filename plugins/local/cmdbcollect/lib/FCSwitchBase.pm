@@ -8,6 +8,7 @@ use SnmpHelper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
+    $self->{hasError}   = 0;
     $self->{brand}      = $args{brand};
     $self->{sshAccount} = $args{sshAccount};
     $self->{node}       = $args{node};
@@ -225,14 +226,14 @@ sub addTableOid {
 
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
-    my $hasError = 0;
+    my $resultError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
-        $hasError = 1;
+        $resultError = 1;
         my $error = $snmp->error();
         if ( $error =~ /^No response/i ) {
+            $self->{hasError} = 1;
             print("ERROR: $error, snmp failed, exit.\n");
-            exit(-1);
         }
         else {
             if ( ref($oid) eq 'ARRAY' ) {
@@ -244,7 +245,7 @@ sub _errCheck {
         }
     }
 
-    return $hasError;
+    return $resultError;
 }
 
 #get simple oid value
@@ -430,10 +431,7 @@ sub getBrand {
     my $sysDescr;
     my $brand;
     my $result = $snmp->get_request( -varbindlist => $sysDescrOid );
-    if ( $self->_errCheck( $result, $sysDescrOid, 'sysDescr(Brand)' ) ) {
-        die("ERROR: Snmp request failed.\n");
-    }
-    else {
+    if ( $self->_errCheck( $result, $sysDescrOid, 'sysDescr(Brand)' ) == 0 ) {
         for my $oid (@$sysDescrOid) {
             $sysDescr = $result->{$oid};
             foreach my $pattern ( keys(%$BRANDS_MAP) ) {
@@ -460,8 +458,15 @@ sub collect {
     #调用对应品牌的pm进行采集前的oid的设置
     $self->before();
 
-    $self->_getScalar();
-    $self->_getTable();
+    eval {
+        $self->_getScalar();
+        $self->_getTable();
+    };
+    if ($@) {
+        my $errMsg = $@;
+        $errMsg =~ s/ at\s*.*$//;
+        print($errMsg );
+    }
 
     my $data = $self->{DATA};
     if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' ) {

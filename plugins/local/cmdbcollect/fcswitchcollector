@@ -91,6 +91,8 @@ sub main {
         $community = 'public';
     }
 
+    my $isFailed = 0;
+
     my $brand        = $type;
     my $fcswitchBase = FCSwitchBase->new( hostname => $hostname, community => $community, sshAccount => $sshAccountInfo, timeout => $timeout, node => $nodeInfo );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
@@ -98,6 +100,7 @@ sub main {
     }
 
     if ( not defined($brand) or $brand eq '' ) {
+        $isFailed = 1;
         print("ERROR: Can not discover the fcswitch device brand.\n");
     }
     else {
@@ -113,6 +116,7 @@ sub main {
             $fcswitchIns = $fcswitchClass->new( hostname => $hostname, community => $community, sshAccount => $sshAccountInfo, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
         };
         if ($@) {
+            $isFailed = 1;
             print("WARN: Load $fcswitchClass failed, $@");
             print("WARN: Fall back to FCSwitchBase class.\n");
             $fcswitchIns = $fcswitchBase;
@@ -150,7 +154,7 @@ sub main {
         print("==================\n");
     }
 
-    return 0;
+    return $isFailed;
 }
 
 exit main();

@@ -14,6 +14,7 @@ use Data::Dumper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
+    $self->{hasError} = 0;
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -111,21 +112,21 @@ sub new {
 
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
-    my $hasError = 0;
+    my $resultError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
-        $hasError = 1;
+        $resultError = 1;
         my $error = $snmp->error();
         if ( $error =~ /^No response/i ) {
+            $self->{hasError} = 1;
             print("ERROR: $error, snmp failed, exit.\n");
-            exit(-1);
         }
         else {
             print("WARN: $error, $name oid:$oid\n");
         }
     }
 
-    return $hasError;
+    return $resultError;
 }
 
 #get simple oid value
