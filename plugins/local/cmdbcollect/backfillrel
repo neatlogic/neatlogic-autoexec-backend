@@ -342,7 +342,10 @@ def genHostRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-                                "NEIGHBOR_COUNT": 0,
+                                "$or": [
+                                    {"NEIGHBOR_COUNT": None},
+                                    {"NEIGHBOR_COUNT": 0}
+                                ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
                         }
@@ -362,7 +365,7 @@ def genHostRel(db):
                         },
                     },
                 )
-
+                print(remotePort)
                 refSwPorts = []
                 refSwPort = {}
                 if remotePort is not None and "MAC_TABLE" in remotePort:
@@ -460,7 +463,10 @@ def genOSRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-                                "NEIGHBOR_COUNT": 0,
+				"$or": [
+                                    {"NEIGHBOR_COUNT": None},
+                                    {"NEIGHBOR_COUNT": 0}
+                                ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
                         }
@@ -531,7 +537,7 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "DEV_NAME": remoteFcPort["DEV_NAME"],
+                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
