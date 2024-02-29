@@ -9,7 +9,6 @@ package OSGatherLinux;
 
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
-
 use POSIX;
 use Cwd;
 use IO::File;
@@ -1152,6 +1151,8 @@ sub getNicInfo {
     for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
         my $line    = $$nicInfoLines[$i];
         my $nicInfo = {};
+        $nicInfo->{_OBJ_CATEGORY} = 'HOST';
+       	$nicInfo->{_OBJ_TYPE} = 'HOST-ETH';
         my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
         if ( $line =~ /^\d+:\s+(\S+):/ ) {
             $ethName = $1;
@@ -1208,7 +1209,6 @@ sub getNicInfo {
                     if ( $linkState eq 'yes' ) {
                         $nicInfo->{STATUS} = 'up';
                     }
-
                     push( @nicInfos, $nicInfo );
                 }
             }
@@ -1287,19 +1287,21 @@ sub getHBAInfo {
 
     my @hbaPorts = ();
     foreach my $hbaInfo (@hbaInfos) {
-        foreach my $portInfo ( @{$hbaInfo->{PORTS}} ) {
-            push(
-                @hbaPorts,
-                {
-                    NAME       => $hbaInfo->{NAME},
-                    IS_VIRTUAL => $hbaInfo->{IS_VIRTUAL},
-                    WWNN       => $hbaInfo->{WWNN},
-                    SPEED      => $hbaInfo->{SPEED},
-                    WWPN       => $portInfo->{WWPN},
-                    STATUS     => $portInfo->{STATUS}
-                }
-            );
-        }
+	    foreach my $portInfo ( @{$hbaInfo->{PORTS}} ) {
+	    push(
+	        @hbaPorts,
+	        {
+	            _OBJ_CATEGORY       => 'HOST',
+	            _OBJ_TYPE       => 'HOST-HBA',
+	            NAME       => $hbaInfo->{NAME},
+	            IS_VIRTUAL => $hbaInfo->{IS_VIRTUAL},
+	            WWNN       => $hbaInfo->{WWNN},
+	            SPEED      => $hbaInfo->{SPEED},
+	            WWPN       => $portInfo->{WWPN},
+	            STATUS     => $portInfo->{STATUS}
+	        }
+	    );
+	    }
     }
     $hostInfo->{HBA_INTERFACES} = \@hbaPorts;
 }
@@ -1325,7 +1327,6 @@ sub collect {
     my ($self)   = @_;
     my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo($osInfo);
-
     if ( not defined( $osInfo->{MACHINE_ID} ) ) {
         $osInfo->{MACHINE_ID} = $hostInfo->{BOARD_SERIAL};
     }
@@ -1338,8 +1339,25 @@ sub collect {
     $osInfo->{CPU_MODEL}       = $hostInfo->{CPU_MODEL};
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
 
-    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
-    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
+    my @os_eths;
+    foreach my $item (@{$hostInfo->{ETH_INTERFACES}}){
+	my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE} = 'OS-ETH';
+
+	push @os_eths,\%tmp;
+    }
+    $osInfo->{ETH_INTERFACES} = \@os_eths;
+    my @os_hbas;
+    foreach my $item (@{$hostInfo->{HBA_INTERFACES}}){
+	my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE} = 'OS-HBA';
+
+	push @os_hbas,\%tmp;
+    }
+    $osInfo->{HBA_INTERFACES} = \@os_hbas;
+
 
     $self->collectOsPerfInfo($osInfo);
 

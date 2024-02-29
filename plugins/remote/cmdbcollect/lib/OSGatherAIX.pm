@@ -123,12 +123,12 @@ sub getMountPointInfo {
         'nfsd'        => 1
     };
 
-    # mount
-    #  node       mounted        mounted over    vfs       date        options      
-    #-------- ---------------  ---------------  ------ ------------ --------------- 
-                   /dev/hd1         /home            jfs2   May 25 16:07 rw,log=/dev/hd8 
-                   /dev/hd11admin   /admin           jfs2   May 25 16:07 rw,log=/dev/hd8 
-    10.4.147.230   /vol/oradmp      /dbexport        nfs3   Sep 11 17:18 rw,noac,hard,rsize=32768,wsize=32768,vers=3
+    #   node       mounted        mounted over    vfs       date        options
+    # -------- ---------------  ---------------  ------ ------------ ---------------
+    #          /dev/hd4         /                jfs2   Jul 20 04:37 rw,log=/dev/hd8
+    #          /dev/hd2         /usr             jfs2   Jul 20 04:37 rw,log=/dev/hd8
+    #          /dev/hd9var      /var             jfs2   Jul 20 04:37 rw,log=/dev/hd8
+    #          /dev/hd3         /tmp             jfs2   Jul 20 04:37 rw,log=/dev/hd8
     $osInfo->{NFS_MOUNTED} = 0;
     my $mountLines = $self->getCmdOutLines('LANG=C mount');
     for ( my $i = 2 ; $i < scalar(@$mountLines) ; $i++ ) {
@@ -141,6 +141,7 @@ sub getMountPointInfo {
         # The 4th column tells you if it is mounted read-only (ro) or read-write (rw).
         # The 5th and 6th columns are dummy values designed to match the format used in /etc/mtab.
         my @mountInfos = split( /\s+/, $line );
+	
         my $node       = shift(@mountInfos);
         my $device     = shift(@mountInfos);
         my $fsType     = pop(@mountInfos);
@@ -148,7 +149,6 @@ sub getMountPointInfo {
         if ( $line =~ /^\s*\Q$node\E\s+\Q$device\E\s+(.*?)\s+\Q$fsType\E/ ) {
             $mountPoint = $1;
         }
-
         $mountedDevicesMap->{$device} = 1;
 
         if ( $fsType =~ /^nfs/i ) {
@@ -156,12 +156,12 @@ sub getMountPointInfo {
         }
         if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
-	    if ( defined $node and $node ne '' ){
-                $mountInfo->{DEVICE}  = $device;
-            }
+	    if (defined $node and $node ne ''){
+                $mountInfo->{DEVICE}  = $node.':'.$device;
+	    }
 	    else {
                 $mountInfo->{DEVICE}  = $device;
-	    }
+            }
             $mountInfo->{NAME}    = $mountPoint;
             $mountInfo->{FS_TYPE} = $fsType;
 
@@ -225,12 +225,12 @@ sub getNFSInfo {
             my $autoMount = 0;
 
             #192.168.20.178:/export/share
-            my ( $remoteIp, $remotePath ) = split( ':' , $device );
+            my ( $remoteIp, $remotePath ) = split( ':',$device );
             if ( $nfsMountCmds =~ /\s$device\s/s ) {
                 $autoMount = 1;
             }
 
-            my ( $remoteHost, $remotePath ) = split( ':' , $device);
+            my ( $remoteHost, $remotePath ) = split(':',$device );
             my $remoteIp = $remoteHost;
             if ( $remoteIp !~ /[\d\.]+/ ) {
                 my $ipAddr = gethostbyname($remoteHost);
@@ -1035,10 +1035,12 @@ sub getHostHBAInfo {
 
     my @hbaPorts = ();
     foreach my $hbaInfo (@hbaInfos) {
-        foreach my $portInfo ( @$hbaInfo->{PORTS} ) {
+        foreach my $portInfo ( @{$hbaInfo->{PORTS}} ) {
             push(
                 @hbaPorts,
                 {
+                    _OBJ_CATEGORY   => 'HOST',
+                    _OBJ_TYPE       => 'HOST-HBA',
                     NAME            => $hbaInfo->{NAME},
                     IS_VIRTUAL      => $hbaInfo->{IS_VIRTUAL},
                     WWNN            => $hbaInfo->{WWNN},
@@ -1082,8 +1084,25 @@ sub collect {
         $osInfo->{BOARD_SERIAL}   = $firstMac;
     }
 
-    $osInfo->{ETH_INTERFACES} = $nicInfos;
-    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
+    my @os_eths;
+    foreach my $item (@{$hostInfo->{ETH_INTERFACES}}){
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE} = 'OS-ETH';
+
+        push @os_eths,\%tmp;
+    }
+    $osInfo->{ETH_INTERFACES} = \@os_eths;
+    my @os_hbas;
+    foreach my $item (@{$hostInfo->{HBA_INTERFACES}}){
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE} = 'OS-HBA';
+
+        push @os_hbas,\%tmp;
+    }
+    $osInfo->{HBA_INTERFACES} = \@os_hbas;
+
     $osInfo->{IS_VIRTUAL}     = $hostInfo->{IS_VIRTUAL};
 
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
@@ -1110,3 +1129,4 @@ sub collect {
 }
 
 1;
+
