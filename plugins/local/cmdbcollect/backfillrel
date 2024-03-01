@@ -365,7 +365,6 @@ def genHostRel(db):
                         },
                     },
                 )
-                print(remotePort)
                 refSwPorts = []
                 refSwPort = {}
                 if remotePort is not None and "MAC_TABLE" in remotePort:
@@ -444,7 +443,7 @@ def genOSRel(db):
     clusterCollection = db["COLLECT_CLUSTER"]
 
     for os in osCollection.find(
-        {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1, 'HBA_INTERFACES': 1, 'NFS_INFO': 1}
+            {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1, 'HBA_INTERFACES': 1, 'NFS_INFO': 1,"DISKS": 1}
     ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
@@ -463,7 +462,7 @@ def genOSRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-				"$or": [
+        "$or": [
                                     {"NEIGHBOR_COUNT": None},
                                     {"NEIGHBOR_COUNT": 0}
                                 ],
@@ -585,6 +584,43 @@ def genOSRel(db):
                 else:
                     nfsMount["REMOTE_VOLUME"] = []
 
+            # 计算LUN的引用关系
+            storageCollection = db["COLLECT_STORAGE"]
+            disks = os.get("DISKS", [])
+            if disks is None:
+                print("INFO: No disks mount found for os:{}".format(os.get("MGMT_IP")))
+            for disk in disks:
+                wwn = disk.get("WWN")
+                if wwn is None:
+                    continue
+                remoteLun = storageCollection.find_one(
+                    {                       
+                        "LUNS": {"$elemMatch": {"WWN": wwn}},
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "LUNS": {"$elemMatch": {"WWN": wwn}},
+                    },
+                )
+
+                if remoteLun is not None:
+                    disk["REMOTE_LUN"] = [
+                        {
+                            "_OBJ_CATEGORY": remoteLun["_OBJ_CATEGORY"],
+                            "_OBJ_TYPE": remoteLun["_OBJ_TYPE"],
+                            "MGMT_IP": remoteLun["MGMT_IP"],
+                            #"DEV_NAME": remoteLun["DEV_NAME"],
+                            "SN": remoteLun["SN"],
+                            "WWN": remoteLun["LUNS"][0]["WWN"],
+                        }
+                    ]
+                else:
+                    disk["REMOTE_LUN"] = []
+
             # 计算操作系统属于哪个操作系统集群
             belongCls = []
             for cluster in clusterCollection.find(
@@ -619,6 +655,7 @@ def genOSRel(db):
                         "ETH_INTERFACES": nics,
                         "HBA_INTERFACES": hbas,
                         "NFS_INFO": nfsMounts,
+                        "DISKS": disks,
                         "BELONG_CLUSTER": belongCls,
                     }
                 },
@@ -746,3 +783,4 @@ if __name__ == "__main__":
     finally:
         if dbclient is not None:
             dbclient.close()
+
