@@ -610,8 +610,8 @@ def genOSRel(db):
                 if remoteLun is not None:
                     disk["REMOTE_LUN"] = [
                         {
-                            "_OBJ_CATEGORY": remoteLun["_OBJ_CATEGORY"],
-                            "_OBJ_TYPE": remoteLun["_OBJ_TYPE"],
+                            "_OBJ_CATEGORY": remoteLun["LUNS"][0]["_OBJ_CATEGORY"],
+                            "_OBJ_TYPE": remoteLun["LUNS"][0]["_OBJ_TYPE"],
                             "MGMT_IP": remoteLun["MGMT_IP"],
                             #"DEV_NAME": remoteLun["DEV_NAME"],
                             "SN": remoteLun["SN"],
