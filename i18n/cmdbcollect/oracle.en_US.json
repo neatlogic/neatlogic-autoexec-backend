@@ -320,7 +320,17 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "USERNAME",
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
                     "desc": "User Name",
                     "type": "String"
                 },

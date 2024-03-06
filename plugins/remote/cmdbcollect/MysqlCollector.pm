@@ -36,14 +36,78 @@ sub getConfig {
     };
 }
 
-sub getUserGrants {
-    my ( $self, $user, $host ) = @_;
-    my @host_detail = split( ",", $host );
-
+sub init {
+    my ($self) = @_;
+    $self->{userGrantedDBMap} = {};
+    $self->{dbGrantedUserMap} = {};
 }
 
-sub getUser {
-    my ($self) = @_;
+sub getUserGrants {
+    my ( $self, $dbNames, $userName, $userAndhost ) = @_;
+
+    my $userGrantedDBMap = $self->{userGrantedDBMap};
+    my $user2DBsMap      = $userGrantedDBMap->{$userName};
+
+    my $dbGrantedUserMap = $self->{dbGrantedUserMap};
+
+    my @hostDetail    = split( ",", $userAndhost );
+    my $grantedDBsMap = {};
+
+    my $mysql = $self->{mysql};
+    foreach my $grantedHost (@hostDetail) {
+        my $rows = $mysql->query(
+            sql     => qq{show grants for $grantedHost},
+            verbose => $self->{isVerbose}
+        );
+
+        #+-------------------------------------------------------------------------------------+
+        #| Grants for dbsnmp@%                                                                 |
+        #+-------------------------------------------------------------------------------------+
+        #| GRANT SELECT, PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'dbsnmp'@'%' |
+        #+-------------------------------------------------------------------------------------+
+        #mysql> show grants for nacos@'%';
+        #+-----------------------------------------------------------------------------+
+        #| Grants for nacos@%                                                          |
+        #+-----------------------------------------------------------------------------+
+        #| GRANT USAGE ON *.* TO 'nacos'@'%'                                           |
+        #| GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON `nacosdb`.* TO 'nacos'@'%' |
+        #+-----------------------------------------------------------------------------+
+        foreach my $row (@$rows) {
+            foreach my $key ( keys(%$row) ) {
+                if ( $row->{$key} !~ /USAGE/ ) {
+                    if ( $row->{$key} =~ /^GRANT\s+.+?\s+ON\s+(.+?)\..+\s+TO/ ) {
+                        my $grantedDB = $1;
+                        $grantedDB =~ s/^`|`$//g;
+                        $grantedDBsMap->{$grantedDB} = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    my $dbName2UsersMap = {};
+    foreach my $grantedObj ( keys(%$grantedDBsMap) ) {
+        my $grantedDBs = [];
+        if ( $grantedObj eq '*' ) {
+            $grantedDBs = $dbNames;
+        }
+        else {
+            $grantedDBs = [$grantedObj];
+        }
+
+        foreach my $dbName (@$grantedDBs) {
+            $user2DBsMap->{$dbName} = 1;
+            my $db2UsersMap = $dbGrantedUserMap->{$dbName};
+            $db2UsersMap->{$userName} = 1;
+        }
+    }
+
+    my @userGrantedDBs = keys(%$user2DBsMap);
+    return \@userGrantedDBs;
+}
+
+sub getUsers {
+    my ( $self, $mysqlInfo, $dbNames ) = @_;
 
     my $mysql = $self->{mysql};
     my @users;
@@ -65,7 +129,17 @@ sub getUser {
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{user} ne '' ) {
-            push( @users, $row->{user} );
+            my $hostsDef   = $row->{host};
+            my @grantHosts = split( ',', $hostsDef );
+
+            my $user = {
+                _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                _OBJ_TYPE     => 'DB-USER',
+                NAME          => $row->{user},
+                HOSTS         => \@grantHosts,
+                GRANTED_DBS   => $self->getUserGrants( $dbNames, $row->{user}, $hostsDef )
+            };
+            push( @users, $user );
         }
     }
 
@@ -231,7 +305,8 @@ sub collect {
         }
     }
 
-    #$mysqlInfo->{DATABASES} = \@dbNames;
+    #获取实例用户及访问权限
+    $mysqlInfo->{USERS} = $self->getUsers( $mysqlInfo, \@dbNames );
 
     $rows = $mysql->query(
         sql     => q{select * from information_schema.schemata},
@@ -244,21 +319,23 @@ sub collect {
     # | def          | ApolloConfigDB          | utf8                       | utf8_bin               | NULL     |
     # | def          | ApolloPortalDB          | utf8                       | utf8_bin               | NULL     |
 
-    my $dbCharsetInfo = {};
+    my $db2UsersMap = $self->{dbGrantedUserMap};
+    my $dbInfosMap  = {};
     foreach my $row (@$rows) {
         my $dbInfo = {};
-        $dbInfo->{_OBJ_CATEGORY}                = CollectObjCat->get('DB');
-        $dbInfo->{_OBJ_TYPE}                    = 'Mysql-DB';
-        $dbInfo->{NAME}                         = $row->{SCHEMA_NAME};
-        $dbInfo->{DEFAULT_CHARACTER_SET}        = $row->{DEFAULT_CHARACTER_SET_NAME};
-        $dbInfo->{DEFAULT_COLLATION}            = $row->{DEFAULT_COLLATION_NAME};
-        $dbInfo->{PRIMARY_IP}                   = $bizIp;
-        $dbInfo->{VIP}                          = $vip;
-        $dbInfo->{PORT}                         = $port;
-        $dbInfo->{SSL_PORT}                     = undef;
-        $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
-        $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
-        $dbInfo->{INSTANCES}                    = [
+        my $dbName = $row->{SCHEMA_NAME};
+        $dbInfo->{_OBJ_CATEGORY}         = CollectObjCat->get('DB');
+        $dbInfo->{_OBJ_TYPE}             = 'Mysql-DB';
+        $dbInfo->{NAME}                  = $dbName;
+        $dbInfo->{SERVICE_NAME}          = $dbName;
+        $dbInfo->{DEFAULT_CHARACTER_SET} = $row->{DEFAULT_CHARACTER_SET_NAME};
+        $dbInfo->{DEFAULT_COLLATION}     = $row->{DEFAULT_COLLATION_NAME};
+        $dbInfo->{PRIMARY_IP}            = $bizIp;
+        $dbInfo->{VIP}                   = $vip;
+        $dbInfo->{PORT}                  = $port;
+        $dbInfo->{SSL_PORT}              = undef;
+        $dbInfo->{SERVICE_ADDR}          = "$vip:$port";
+        $dbInfo->{INSTANCES}             = [
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                 _OBJ_TYPE     => 'Mysql',
@@ -267,12 +344,27 @@ sub collect {
                 PORT          => $port
             }
         ];
+
+        my @dbUserInfos = ();
+        my $dbUsers     = $db2UsersMap->{$dbName};
+        if ( defined($dbUsers) ) {
+            foreach my $dbUser (@$dbUsers) {
+                push(
+                    @dbUserInfos,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-USER',
+                        NAME          => $dbUser
+                    }
+                );
+            }
+        }
+        $dbInfo->{USERS} = \@dbUserInfos;
+
+        $dbInfosMap->{$dbName} = $dbInfo;
     }
 
-    my @dbInfos = ();
-    foreach my $dbName (@dbNames) {
-        push( @dbInfos, $dbCharsetInfo->{$dbName} );
-    }
+    my @dbInfos = values(%$dbInfosMap);
     $mysqlInfo->{DATABASES} = \@dbInfos;
 
     #收集集群相关的信息

@@ -100,35 +100,32 @@ sub collect {
             $insInfo->{SSL_PORT}     = undef;
 
             my $dbNameInfo = $self->getCmdOut( qq{echo "select * from sysdatabases"|dbaccess -e sysmaster\@$insName}, $user );
-            my @dbNames    = ();
-            my @users      = ();
+            my @dbs        = ();
+            my @insUsers   = ();
             while ( $dbNameInfo =~ /name\s+(\S+)/sg ) {
-                my $dbName   = $1;
-                my @dbUsers  = ();
-                my @dbConns  = ();
+                my $dbName  = $1;
+                my @dbUsers = ();
+
                 my $userInfo = $self->getCmdOut( qq{echo "select * from sysusers"|dbaccess $dbName\@$insName}, $user );
                 while ( $userInfo =~ /username\s+(\S+)/g ) {
                     my $user = $1;
-                    push( @users, { NAME => $user } );
+                    push(
+                        @insUsers,
+                        {
+                            _OBJ_CATEGORY => 'DBINS',
+                            _OBJ_TYPE     => 'DB-USER',
+                            NAME          => $user,
+                        }
+                    );
 
-                    my $dbUser = {};
-                    $dbUser->{_OBJ_CATEGORY} = "DB";
-                    $dbUser->{_OBJ_TYPE}     = "DB-USER";
-                    $dbUser->{IP}            = $insInfo->{IP};
-                    $dbUser->{USER}          = $user;
-                    $dbUser->{DBNAME}        = $dbName;
-                    $dbUser->{PORT}          = $port;
-                    push( @dbUsers, $dbUser );
-
-                    my $dbConn = {};
-                    $dbConn->{_OBJ_CATEGORY} = "DB";
-                    $dbConn->{_OBJ_TYPE}     = "DB-CONNECT";
-                    $dbConn->{VIP}           = $insInfo->{IP};
-                    $dbConn->{USERNAME}      = $user;
-                    $dbConn->{SERVICENAME}   = $dbName;
-                    $dbConn->{PORT}          = $port;
-                    push( @dbConns, $dbConn );
-
+                    push(
+                        @dbUsers,
+                        {
+                            _OBJ_CATEGORY => 'DB',
+                            _OBJ_TYPE     => 'DB-USER',
+                            NAME          => $user,
+                        }
+                    );
                 }
 
                 #获取字符集
@@ -139,18 +136,18 @@ sub collect {
                 }
 
                 push(
-                    @dbNames,
+                    @dbs,
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DB'),
                         _OBJ_TYPE     => 'Informix-DB',
                         NAME          => $dbName,
+                        SERVICE_NAME  => $dbName,
                         PRIMARY_IP    => $insInfo->{IP},
                         VIP           => $insInfo->{VIP},
                         PORT          => $port,
                         SSL_PORT      => undef,
                         SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
                         USERS         => \@dbUsers,
-                        CONNECT       => \@dbConns,
                         CHARSET       => $charset,
                         INSTANCES     => [
                             {
@@ -165,8 +162,9 @@ sub collect {
                 );
 
             }
-            $insInfo->{DATABASES} = \@dbNames;
-            $insInfo->{USERS}     = \@users;
+            $insInfo->{DATABASES} = \@dbs;
+            $insInfo->{USERS}     = \@insUsers;
+
             push( @collectSet, $insInfo );
             push( @collectSet, @{ $insInfo->{DATABASES} } );
         }

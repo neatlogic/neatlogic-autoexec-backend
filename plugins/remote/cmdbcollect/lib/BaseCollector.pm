@@ -42,7 +42,13 @@ sub new {
     }
 
     bless( $self, $type );
+    $self->init();
+
     return $self;
+}
+
+sub init {
+    my ($self) = @_;
 }
 
 #配置进程的filter，下面是配置例子
