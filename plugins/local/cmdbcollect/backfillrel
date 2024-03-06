@@ -566,18 +566,18 @@ def genOSRel(db):
                 )
 
                 if remoteVolumn is not None:
-                    nfsMount["REMOTE_VOLUMN"] = [
+                    nfsMount["REMOTE_VOLUME"] = [
                         {
                             "_OBJ_CATEGORY": remoteVolumn["_OBJ_CATEGORY"],
-                            "_OBJ_TYPE": "STORAGE-NFS-VOLUMN",
+                            "_OBJ_TYPE": "STORAGE-NFS-VOLUME",
                             "MGMT_IP": nfsIp,
                             "DEV_NAME": remoteVolumn["DEV_NAME"],
                             "SN": remoteVolumn["SN"],
-                            "VOLUMN_NAME": remoteVolumn["VOLUMES"][0]["NAME"],
+                            "VOLUME_NAME": remoteVolumn["VOLUMES"][0]["NAME"],
                         }
                     ]
                 else:
-                    nfsMount["REMOTE_VOLUMN"] = []
+                    nfsMount["REMOTE_VOLUME"] = []
 
             # 计算操作系统属于哪个操作系统集群
             belongCls = []
