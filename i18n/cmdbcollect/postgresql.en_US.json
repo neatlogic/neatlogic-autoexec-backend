@@ -102,28 +102,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "User Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -318,6 +296,28 @@
                     "name": "SEND_QUEUED_RATE",
                     "desc": "Send Queued Rate",
                     "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
                 }
             ]
         },

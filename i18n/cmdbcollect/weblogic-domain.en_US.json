@@ -753,6 +753,38 @@
             ]
         },
         {
+            "name": "REF_WLS_SERVERS",
+            "desc": "Servers in domain",
+            "type": "String",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVER_NAME",
+                    "desc": "Server Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Listen Port",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "RUN_ON",
             "desc": "Run On Os",
             "type": "JsonArray",
@@ -802,38 +834,6 @@
                 {
                     "name": "VALUE",
                     "desc": "Patch Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_WLS_SERVERS",
-            "desc": "Servers in domain",
-            "type": "String",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVER_NAME",
-                    "desc": "Server Name",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                },                
-                {
-                    "name": "PORT",
-                    "desc": "Listen Port",
                     "type": "String"
                 }
             ]

@@ -332,12 +332,12 @@
                 {
                     "name": "GRANTED_DBS",
                     "desc": "DB Granted",
-                    "type": "Array"
+                    "type": "array"
                 },
                 {
                     "name": "HOSTS",
                     "desc": "Host Granted",
-                    "type": "Array"
+                    "type": "array"
                 }
             ]
         },
