@@ -320,6 +320,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "分类",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "用户名",
                     "type": "String"

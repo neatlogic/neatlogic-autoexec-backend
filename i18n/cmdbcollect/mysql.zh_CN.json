@@ -310,6 +310,38 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "HOSTS",
+                    "desc": "授权主机",
+                    "type": "array"
+                },
+                {
+                    "name": "GRANTED_DBS",
+                    "desc": "授权DB",
+                    "type": "array"
+                }
+            ]
+        },
+        {
             "name": "MAIN_ENV",
             "desc": "主进程环境变量",
             "type": "JsonArray",

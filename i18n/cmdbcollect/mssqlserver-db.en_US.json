@@ -142,6 +142,28 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "PRIMARY_IP",
             "desc": "Primary IP",
             "type": "String"

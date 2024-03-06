@@ -180,6 +180,28 @@
                 }
             ]
         },
+	{
+		"name": "PORTS",
+		"desc": "ports",
+		"type": "JsonArray",
+		"subset": [
+			{
+                            "name": "INDEX",
+                            "desc": "index",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Port Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MAC",
+                            "desc": "mac address",
+                            "type": "String"
+                        }
+		]
+	},
         {
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",

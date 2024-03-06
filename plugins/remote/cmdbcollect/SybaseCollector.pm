@@ -159,10 +159,39 @@ sub collect {
         my $dbNameInfo = isqlRun($dbQuery);
         my @dbNames    = $dbNameInfo =~ /\s(\S+)\s+\d+\.\d\sMB/sg;
 
-        my @dbNameArray = ();
+        #get all users
+        my $userQuery = q {
+                sp_helpuser
+                go
+            };
+        my $userInfo = isqlRun($userQuery);
+        my @users    = $userInfo =~ /\s(\w+)\s+\d+/sg;
+        my @insUsers = ();
+        my @dbUsers  = ();
+        foreach my $user (@users) {
+            push(
+                @insUsers,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $user
+                }
+            );
+            push(
+                @dbUsers,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $user
+                }
+            );
+        }
+        $insInfo->{USERS} = \@insUsers;
+
+        my @dbs = ();
         foreach my $dbName (@dbNames) {
             push(
-                @dbNameArray,
+                @dbs,
                 {
                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE     => 'Sybase-DB',
@@ -172,6 +201,7 @@ sub collect {
                     PORT          => $port,
                     SSL_PORT      => undef,
                     SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
+                    USERS         => \@dbUsers,
                     INSTANCES     => [
                         {
                             _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
@@ -185,20 +215,7 @@ sub collect {
             );
         }
 
-        $insInfo->{DATABASES} = \@dbNameArray;
-
-        #get all users
-        my $userQuery = q {
-                sp_helpuser
-                go
-            };
-        my $userInfo  = isqlRun($userQuery);
-        my @users     = $userInfo =~ /\s(\w+)\s+\d+/sg;
-        my @userArray = ();
-        foreach my $user (@users) {
-            push( @userArray, { NAME => $user } );
-        }
-        $insInfo->{USERS} = \@userArray;
+        $insInfo->{DATABASES} = \@dbs;
 
         push( @collectSet, $insInfo );
         push( @collectSet, @{ $insInfo->{DATABASES} } );

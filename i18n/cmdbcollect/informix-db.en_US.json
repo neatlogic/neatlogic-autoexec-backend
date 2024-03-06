@@ -80,43 +80,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "user list",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "type",
-                    "type": "String"
-                },
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "ip",
-                    "type": "String"
-                },
-                {
-                    "name": "DBNAME",
-                    "desc": "dbname",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "port",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -130,48 +93,6 @@
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
             "type": "String"
-        },
-        {
-            "name": "CONNECTION",
-            "desc": "connection list",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "type",
-                    "type": "String"
-                },
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "vip",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "port",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICENAME",
-                    "desc": "service name",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECTION",
-                    "desc": "connection",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "DB_NAME",
@@ -221,6 +142,28 @@
                 {
                     "name": "SERVICE_ADDR",
                     "desc": "Service Addr",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "USERS",
+            "desc": "user list",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
                     "type": "String"
                 }
             ]

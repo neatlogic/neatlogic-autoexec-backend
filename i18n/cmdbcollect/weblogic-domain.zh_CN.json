@@ -753,6 +753,38 @@
             ]
         },
         {
+            "name": "REF_WLS_SERVERS",
+            "desc": "Domain中的Server",
+            "type": "String",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVER_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
@@ -802,38 +834,6 @@
                 {
                     "name": "VALUE",
                     "desc": "补丁名",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_WLS_SERVERS",
-            "desc": "Domain中的Server",
-            "type": "String",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "OS类型",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVER_NAME",
-                    "desc": "服务名",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "OS IP",
-                    "type": "String"
-                },                
-                {
-                    "name": "PORT",
-                    "desc": "端口",
                     "type": "String"
                 }
             ]

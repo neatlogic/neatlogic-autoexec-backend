@@ -33,6 +33,12 @@ sub getConfig {
     };
 }
 
+sub init {
+    my ($self) = @_;
+    $self->{dbName2DBIDMap} = {};
+    return;
+}
+
 sub isCDB {
     my ($self) = @_;
 
@@ -84,10 +90,12 @@ sub getInsVersion {
 sub getUserInfo {
     my ( $self, $pdbName ) = @_;
 
+    my $objCat  = 'DBINS';
     my $sqlplus = $self->{sqlplus};
     my $sql     = q{select du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')};
     if ( defined($pdbName) and $pdbName ne '' ) {
-        $sql = "alter session set container=$pdbName;\n$sql";
+        $objCat = 'DB';
+        $sql    = "alter session set container=$pdbName;\n$sql";
     }
 
     my @userInfos = ();
@@ -99,7 +107,9 @@ sub getUserInfo {
     if ( defined($rows) ) {
         foreach my $row (@$rows) {
             my $userInfo = {};
-            $userInfo->{USERNAME}           = $row->{USERNAME};
+            $userInfo->{_OBJ_CATEGORY}      = CollectObjCat->get($objCat);
+            $userInfo->{_OBJ_TYPE}          = "DB-USER";
+            $userInfo->{NAME}               = $row->{USERNAME};
             $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
             push( @userInfos, $userInfo );
         }
@@ -205,7 +215,7 @@ sub getParams {
     my $databaseRole;
     my $logMode;
     my $rows = $sqlplus->query(
-        sql     => 'select dbid,database_role,log_mode from v$database',
+        sql     => 'select name,dbid,database_role,log_mode from v$database',
         verbose => $isVerbose
     );
     if ( defined($rows) ) {
@@ -213,6 +223,12 @@ sub getParams {
         $logMode      = $$rows[0]->{LOG_MODE};
         $databaseRole = $$rows[0]->{DATABASE_ROLE};
     }
+
+    my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+    foreach my $row (@$rows) {
+        $dbName2DBIDMap->{ $row->{NAME} } = $row->{DBID};
+    }
+
     $insInfo->{DBID}          = $dbId;
     $insInfo->{LOG_MODE}      = $logMode;
     $insInfo->{DATABASE_ROLE} = $databaseRole;
@@ -518,6 +534,7 @@ sub collectCDB {
             }
         ];
     }
+    $dbInfo->{DISK_GROUPS} = $racInfo->{DISK_GROUPS};
 
     return [$dbInfo];
 }
@@ -581,6 +598,9 @@ sub collectPDB {
 
             $pdb->{NOT_PROCESS} = 1;
             $pdb->{RUN_ON}      = [];
+
+            my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+            $dbName2DBIDMap->{ $pdb->{NAME} } = $pdb->{DBID};
 
             push( @pdbs, $pdb );
         }
@@ -906,7 +926,8 @@ sub getClusterDB {
             my $primaryIp = $dbInfo->{PRIMARY_IP};
             delete( $allIpMap->{$primaryIp} );
             my @slaveIps = sort( keys(%$allIpMap) );
-            $dbInfo->{SLAVE_IPS} = \@slaveIps;
+            $dbInfo->{SLAVE_IPS}   = \@slaveIps;
+            $dbInfo->{DISK_GROUPS} = $racInfo->{DISK_GROUPS};
 
             push( @dbInfos, $dbInfo );
         }
@@ -1616,6 +1637,18 @@ sub collect {
             if ( defined($PDBS) ) {
                 foreach my $PDB (@$PDBS) {
                     push( @collectSet, $PDB );
+                }
+            }
+        }
+
+        if ( defined($racInfo) ) {
+            my $clusterDBs = $racInfo->{DATABASES};
+            if ( defined($clusterDBs) ) {
+
+                #如果存在RAC，则把从实例中采集到的补充cluster db的DBID
+                my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+                foreach my $clusterDB (@$clusterDBs) {
+                    $clusterDB->{DBID} = $dbName2DBIDMap->{ $clusterDB->{NAME} };
                 }
             }
         }

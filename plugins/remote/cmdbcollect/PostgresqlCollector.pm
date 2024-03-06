@@ -33,8 +33,19 @@ sub getConfig {
     };
 }
 
-sub getUser {
+sub init {
     my ($self) = @_;
+    $self->{dbUsers} = {};
+    return;
+}
+
+sub getUser {
+    my ( $self, $dbName ) = @_;
+
+    my $objCat = 'DBINS';
+    if ( defined($dbName) and $dbName ne '' ) {
+        $objCat = 'DB';
+    }
 
     my $postgresql = $self->{postgresql};
     my @users;
@@ -50,7 +61,14 @@ sub getUser {
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{rolname} ne '' ) {
-            push( @users, $row->{rolname} );
+            push(
+                @users,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get($objCat),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $row->{rolname}
+                }
+            );
         }
     }
 
@@ -153,17 +171,20 @@ sub collect {
     );
     $self->{$postgresql} = $postgresql;
 
+    $postgresqlInfo->{USERS} = $self->getUsers();
+
     my $rows;
     $rows = $postgresql->query(
         sql     => 'select datname from pg_database;',
         verbose => $self->{isVerbose}
     );
 
-    my @dbNames = ();
+    my $dbUsers = $self->getUsers('dummy');
+    my @dbs     = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{datname};
         push(
-            @dbNames,
+            @dbs,
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'Postgresql-DB',
@@ -181,11 +202,12 @@ sub collect {
                         MGMT_IP       => $postgresqlInfo->{MGMT_IP},
                         PORT          => $postgresqlInfo->{PORT}
                     }
-                ]
+                ],
+                USERS => $dbUsers
             }
         );
     }
-    $postgresqlInfo->{DATABASES} = \@dbNames;
+    $postgresqlInfo->{DATABASES} = \@dbs;
 
     $rows = $postgresql->query(
         sql     => q{show all},
