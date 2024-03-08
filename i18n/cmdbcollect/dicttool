@@ -159,7 +159,7 @@ def getDefaultFieldKeys():
     return defaultKeys
 
 
-def correctTypeDef(fieldDef):
+def correctTypeDef(fieldDef, tuneArrayConf=0):
     if "subset" in fieldDef:
         for subFieldDef in fieldDef["subset"]:
             correctTypeDef(subFieldDef)
@@ -175,6 +175,8 @@ def correctTypeDef(fieldDef):
             fieldType = "Float"
         elif fieldType == "jsonarray":
             fieldType = "JsonArray"
+        elif fieldType == "array":
+            fieldType = "Array"
         elif fieldType == "jsonobject":
             fieldType = "JsonObject"
         fieldDef["type"] = fieldType
@@ -192,6 +194,15 @@ def correctTypeDef(fieldDef):
         else:
             if fieldType == "Float":
                 fieldDef["type"] = "Int"
+
+        if tuneArrayConf == 1 and fieldType == "Array":
+            subsetDef = fieldDef.get("subset", [])
+            if len(subsetDef) == 0:
+                subsetDef = [{"name": "_value", "desc": "Value", "type": "String"}]
+            elif len(subsetDef) > 1:
+                fieldDef["type"] = "JsonArray"
+            elif subsetDef[0].get("name") != "_value":
+                subsetDef["name"] = "_value"
 
 
 def getIcon(name):
@@ -373,6 +384,9 @@ if __name__ == "__main__":
             if action == "savetodb":
                 print("INFO: Import", dfile, "start...")
                 if hasError == False:
+                    for field in data.get("fields", []):
+                        correctTypeDef(field, 1)
+
                     tableName = data["collection"]
                     objCat = tableName[8:]
                     colFilter = data.get("filter")

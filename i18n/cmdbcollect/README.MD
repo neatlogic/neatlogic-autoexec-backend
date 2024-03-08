@@ -43,16 +43,17 @@ optional arguments:
 {
     "name": "属性名称",
     "desc": "属性描述",
-    "type": "数值类型：Int|Float|String|Text｜Array|JsonArray|JsonObject"
+    "type": "数值类型：Int|Float|String|Text|JsonArray｜Array|JsonObject"
 }
 数值类型包括：
 Int： 整数
 Float：浮点数
 String：子串
 Text：长文本，例如进程命令行
-Array：单值数组，例如：["MY","YOU"]
 JsonArray：Json对象数组
-JsonObject：Json对象
+
+Array：单值数组，例如：["MY","YOU"]
+JsonObject：Json对象, Json对象不支持CMDB数据抽取，仅用于计算
 
 如果是JsonArray或者JsonObject，需要通过属性"subset"描述下游属性（可以多层嵌套）：
 例如：
