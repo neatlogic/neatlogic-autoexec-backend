@@ -159,50 +159,52 @@ def getDefaultFieldKeys():
     return defaultKeys
 
 
-def correctTypeDef(fieldDef, tuneArrayConf=0):
-    if "subset" in fieldDef:
+def correctTypeDef(fieldDef):
+    subsetDef = fieldDef.get("subset", [])
+
+    fieldType = fieldDef["type"].lower()
+    if fieldType == "string":
+        fieldType = "String"
+    if fieldType == "text":
+        fieldType = "Text"
+    elif fieldType == "int":
+        fieldType = "Int"
+    elif fieldType == "float":
+        fieldType = "Float"
+    elif fieldType == "jsonarray":
+        fieldType = "JsonArray"
+    elif fieldType == "array":
+        fieldType = "Array"
+    elif fieldType == "jsonobject":
+        fieldType = "JsonObject"
+    fieldDef["type"] = fieldType
+
+    if "name" in fieldDef:
+        fieldName = fieldDef["name"]
+        if fieldName == "AVAILABILITY":
+            fieldDef["type"] = "Int"
+        elif fieldName in ("COMMAND", "HEALTH_CHECK"):
+            fieldDef["type"] = "Text"
+        elif fieldType == "Float" and ("PID" in fieldName or "PORT" in fieldName):
+            fieldDef["type"] = "Int"
+        elif "IS_" in fieldName:
+            fieldDef["type"] = "Int"
+    else:
+        if fieldType == "Float":
+            fieldDef["type"] = "Int"
+
+    if fieldType == "Array":
+        if len(subsetDef) == 0:
+            subsetDef = [{"name": "_value", "desc": "Value", "type": "String"}]
+            fieldDef["subset"] = subsetDef
+        elif len(subsetDef) > 1:
+            fieldDef["type"] = "JsonArray"
+        elif subsetDef[0].get("name") != "_value":
+            subsetDef[0]["name"] = "_value"
+
+    if len(subsetDef) > 0:
         for subFieldDef in fieldDef["subset"]:
             correctTypeDef(subFieldDef)
-    else:
-        fieldType = fieldDef["type"].lower()
-        if fieldType == "string":
-            fieldType = "String"
-        if fieldType == "text":
-            fieldType = "Text"
-        elif fieldType == "int":
-            fieldType = "Int"
-        elif fieldType == "float":
-            fieldType = "Float"
-        elif fieldType == "jsonarray":
-            fieldType = "JsonArray"
-        elif fieldType == "array":
-            fieldType = "Array"
-        elif fieldType == "jsonobject":
-            fieldType = "JsonObject"
-        fieldDef["type"] = fieldType
-
-        if "name" in fieldDef:
-            fieldName = fieldDef["name"]
-            if fieldName == "AVAILABILITY":
-                fieldDef["type"] = "Int"
-            elif fieldName in ("COMMAND", "HEALTH_CHECK"):
-                fieldDef["type"] = "Text"
-            elif fieldType == "Float" and ("PID" in fieldName or "PORT" in fieldName):
-                fieldDef["type"] = "Int"
-            elif "IS_" in fieldName:
-                fieldDef["type"] = "Int"
-        else:
-            if fieldType == "Float":
-                fieldDef["type"] = "Int"
-
-        if tuneArrayConf == 1 and fieldType == "Array":
-            subsetDef = fieldDef.get("subset", [])
-            if len(subsetDef) == 0:
-                subsetDef = [{"name": "_value", "desc": "Value", "type": "String"}]
-            elif len(subsetDef) > 1:
-                fieldDef["type"] = "JsonArray"
-            elif subsetDef[0].get("name") != "_value":
-                subsetDef["name"] = "_value"
 
 
 def getIcon(name):
@@ -385,7 +387,7 @@ if __name__ == "__main__":
                 print("INFO: Import", dfile, "start...")
                 if hasError == False:
                     for field in data.get("fields", []):
-                        correctTypeDef(field, 1)
+                        correctTypeDef(field)
 
                     tableName = data["collection"]
                     objCat = tableName[8:]

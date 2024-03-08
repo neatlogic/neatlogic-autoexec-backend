@@ -419,17 +419,26 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "Service Names",
-                    "type": "array"
-                },
-                {
-                    "name": "LISTEN_PORTS",
-                    "desc": "Listen Ports",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "Listen Addrs",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -451,7 +460,14 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SGA_MAX_SIZE",

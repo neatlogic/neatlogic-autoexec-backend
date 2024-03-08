@@ -419,12 +419,26 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "服务名列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "监听地址列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -446,7 +460,14 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SGA_MAX_SIZE",
