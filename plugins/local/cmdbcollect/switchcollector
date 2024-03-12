@@ -24,16 +24,18 @@ sub main {
 
     my ( $node, $objType, $defaultCommunity, $timeout );
 
+    my $sshAccount;
     my $isVerbose = 0;
     my $inspect   = 0;
 
     GetOptions(
-        'verbose=i'   => \$isVerbose,
-        'node=s'      => \$node,
-        'community=s' => \$defaultCommunity,
-        'objtype=s'   => \$objType,
-        'inspect=i'   => \$inspect,
-        'timeout=i'   => \$timeout
+        'verbose=i'    => \$isVerbose,
+        'node=s'       => \$node,
+        'community=s'  => \$defaultCommunity,
+        'objtype=s'    => \$objType,
+        'sshaccount=s' => \$sshAccount,
+        'inspect=i'    => \$inspect,
+        'timeout=i'    => \$timeout
     );
 
     if ( not defined($objType) or $objType eq '' ) {
@@ -59,6 +61,24 @@ sub main {
         $timeout = 10;
     }
 
+    my $sshAccountInfo = {};
+    if ( defined($sshAccount) and $sshAccount ne '' ) {
+        if ( $sshAccount =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
+            my $protocolPort = int($1);
+            if ( $protocolPort == 0 ) {
+                $protocolPort = 22;
+            }
+            $sshAccountInfo->{protocolPort} = $protocolPort;
+            $sshAccountInfo->{username}     = $2;
+            $sshAccountInfo->{password}     = $3;
+        }
+        elsif ( $sshAccount =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+            $sshAccountInfo->{protocolPort} = 22;
+            $sshAccountInfo->{username}     = $1;
+            $sshAccountInfo->{password}     = $2;
+        }
+    }
+
     my $hostname  = $nodeInfo->{host};
     my $protocol  = $nodeInfo->{protocol};
     my $community = $nodeInfo->{password};
@@ -77,11 +97,12 @@ sub main {
     }
 
     my $brand;
-    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo );
     $brand = $switchBase->getBrand();
 
     if ( not defined($brand) or $brand eq '' ) {
         print("ERROR: Can not discover the firewall device brand.\n");
+        exit(-1);
     }
     else {
         print("INFO: Switch brand: $brand.\n");
@@ -93,7 +114,7 @@ sub main {
         print("INFO: Has defined class $switchClass, try to load it.\n");
         eval {
             require "$switchClass.pm";
-            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
+            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo );
         };
         if ($@) {
             print("WARN: Load $switchClass failed, $@");

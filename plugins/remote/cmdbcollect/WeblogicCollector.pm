@@ -31,8 +31,11 @@ sub getConfig {
 sub getConfigInfo {
     my ( $self, $appInfo, $domainHome, $serverName, $confFile ) = @_;
 
+    my $procInfo      = $self->{procInfo};
     my $confObj       = xml_to_object( $confFile, { file => 1 } );
     my $domainVersion = $confObj->path('domain-version')->value();
+    my $domainName    = $confObj->path('name')->value();
+
     $appInfo->{VERSION} = $domainVersion;
     if ( $domainVersion =~ /(\d+)/ ) {
         $appInfo->{MAJOR_VERSION} = "Weblogic$1";
@@ -57,19 +60,45 @@ sub getConfigInfo {
     my $port    = '7001';
     my $cluster = '';
     my @servers = $confObj->path('server');
-    foreach my $srv (@servers) {
-        my $name = $srv->path('name')->value();
-        if ( $name eq $serverName ) {
-            my $item = $srv->path('listen-port');
-            if ( defined($item) ) {
-                $port = $item->value();
+
+    if ( $serverName eq 'AdminServer' ) {
+        $appInfo->{_OBJ_TYPE} = 'Weblogic-Domain';
+        my @serversInDomain = ();
+        foreach my $srv (@servers) {
+            my $name = $srv->path('name')->value();
+            if ( $name ne 'AdminServer' ) {
+                my $item = $srv->path('listen-port');
+                if ( defined($item) ) {
+                    $port = $item->value();
+                }
+                push(@serversInDomain, {
+                    _OBJ_CATEGORY => 'INS',
+                    _OBJ_TYPE => 'Weblogic',
+                    MGMT_IP => $procInfo->{MGMT_IP},
+                    PORT => $port,
+                    SERVER_NAME => $name
+                });
             }
-            $item = $srv->path('cluster');
-            if ( defined($item) ) {
-                $cluster = $item->value();
+        }
+        $appInfo->{REF_WLS_SERVER} = \@serversInDomain;
+    }
+    else {
+        foreach my $srv (@servers) {
+            my $name = $srv->path('name')->value();
+            if ( $name eq $serverName ) {
+                $appInfo->{_OBJ_TYPE} = $procInfo->{_OBJ_TYPE};
+                my $item = $srv->path('listen-port');
+                if ( defined($item) ) {
+                    $port = $item->value();
+                }
+                $item = $srv->path('cluster');
+                if ( defined($item) ) {
+                    $cluster = $item->value();
+                }
             }
         }
     }
+
     $appInfo->{PORT}           = $port;
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;
@@ -198,7 +227,7 @@ sub collect {
     $self->getPatchInfo( $appInfo, $installPath, $wlHome );
 
     #！！！下面的是标准属性，必须采集并转换提供出来
-    $appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
+    #$appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
     $appInfo->{CONFIG_PATH} = $domainHome;
 
     return $appInfo;

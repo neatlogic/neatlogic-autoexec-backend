@@ -29,11 +29,11 @@ sub after {
     my $nodeInfo   = $self->{node};
     my $sshAccount = $self->{sshAccount};
 
-    if ( not $sshAccount ) {
+    if ( not %$sshAccount ) {
         print("WARN: SSH account not defined, can not collect detail information.\n");
     }
 
-    if ($sshAccount) {
+    if (%$sshAccount) {
         print("INFO: Try collect more information by ssh.\n");
 
         my $ssh = Net::OpenSSH->new(

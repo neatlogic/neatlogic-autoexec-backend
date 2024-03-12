@@ -95,23 +95,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "USERNAME",
+                    "name": "NAME",
                     "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "DBNAME",
-                    "desc": "库名",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
                     "type": "String"
                 }
             ]
@@ -130,48 +115,6 @@
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
             "type": "String"
-        },
-        {
-            "name": "CONNECTION",
-            "desc": "数据库连接",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "分类",
-                    "type": "String"
-                },
-                {
-                    "name": "USERNAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICENAME",
-                    "desc": "服务名或库名",
-                    "type": "String"
-                },
-                {
-                    "name": "CONNECTION",
-                    "desc": "连接串",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "DB_NAME",

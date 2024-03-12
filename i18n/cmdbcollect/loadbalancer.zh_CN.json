@@ -76,6 +76,28 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "INDEX",
+                    "desc": "索引",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "mac地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "VIRTUAL_SERVERS",
             "desc": "VS服务",
             "type": "JsonArray",

@@ -48,16 +48,6 @@ sub new {
     my $gitUser = $verInfo->{username};
     my $gitPass = $verInfo->{password};
 
-    if ( defined($gitUser) ) {
-        $gitUser = quotemeta($gitUser);
-    }
-    if ( defined($gitPass) ) {
-        $gitPass = quotemeta($gitPass);
-    }
-
-    #$repo =~ s/^https:\/\//https:\/\/$gitUser:$gitPass\@/;
-    #$repo =~ s/^http:\/\//http:\/\/$gitUser:$gitPass\@/;
-
     my $confGitBranch = $verInfo->{branch};
     my $gitBranch     = $confGitBranch;
     if ( defined($gitBranch) and $gitBranch ne '' ) {

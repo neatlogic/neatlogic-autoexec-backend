@@ -55,26 +55,27 @@ my $PORT_TYPES_MAP = {
 sub new {
     my ($class) = @_;
     my $self = {};
+    $self->{hasError} = 0;
     bless( $self, $class );
     return $self;
 }
 
 sub _errCheck {
     my ( $self, $snmp, $queryResult, $oid, $name ) = @_;
-    my $hasError = 0;
+    my $resultError = 0;
     if ( not defined($queryResult) ) {
-        $hasError = 1;
+        $self->{hasError} = 1;
+        $resultError = 1;
         my $error = $snmp->error();
         if ( $error =~ /^No response/i ) {
             print("ERROR: $error, snmp failed, exit.\n");
-            exit(-1);
         }
         else {
             print("WARN: $error, $name oid:$oid\n");
         }
     }
 
-    return $hasError;
+    return $resultError;
 }
 
 sub hex2mac {
@@ -229,22 +230,23 @@ sub getTable {
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
             my $table = $snmp->get_table( -baseoid => $oid );
-            $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" );
+            if ( $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" ) == 0 ) {
 
-            while ( my ( $realOid, $val ) = each(%$table) ) {
-                $realOid =~ /^\.?\Q$oid\E\.(.*)$/;
-                my $idx       = $1;
-                my $entryInfo = $idx2AttrMap->{$idx};
-                my $oidInfo   = $idx2OIDMap->{$idx};
-                if ( not defined($entryInfo) ) {
-                    $entryInfo = { INDEX => $idx };
-                    $idx2AttrMap->{$idx} = $entryInfo;
+                while ( my ( $realOid, $val ) = each(%$table) ) {
+                    $realOid =~ /^\.?\Q$oid\E\.(.*)$/;
+                    my $idx       = $1;
+                    my $entryInfo = $idx2AttrMap->{$idx};
+                    my $oidInfo   = $idx2OIDMap->{$idx};
+                    if ( not defined($entryInfo) ) {
+                        $entryInfo = { INDEX => $idx };
+                        $idx2AttrMap->{$idx} = $entryInfo;
 
-                    $oidInfo = {};
-                    $idx2OIDMap->{$idx} = $oidInfo;
+                        $oidInfo = {};
+                        $idx2OIDMap->{$idx} = $oidInfo;
+                    }
+                    $entryInfo->{$name} = $val;
+                    $oidInfo->{$name}   = $realOid;
                 }
-                $entryInfo->{$name} = $val;
-                $oidInfo->{$name}   = $realOid;
             }
         }
 
@@ -271,25 +273,26 @@ sub getTableByOrder {
         my $oidEntrys = $oidDefMap->{$attrName};
         while ( my ( $name, $oid ) = each(%$oidEntrys) ) {
             my $table = $snmp->get_table( -baseoid => $oid );
-            $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" );
+            if ( $self->_errCheck( $snmp, $table, $oid, "$attrName.$name" ) == 0 ) {
 
-            my @sortedOids = oid_lex_sort( keys(%$table) );
-            for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
-                my $sortedOid = $sortedOids[$i];
+                my @sortedOids = oid_lex_sort( keys(%$table) );
+                for ( my $i = 0 ; $i < scalar(@sortedOids) ; $i++ ) {
+                    my $sortedOid = $sortedOids[$i];
 
-                my $oidInfo = $oidTable[$i];
-                if ( not defined($oidInfo) ) {
-                    $oidInfo = {};
-                    $oidTable[$i] = $oidInfo;
+                    my $oidInfo = $oidTable[$i];
+                    if ( not defined($oidInfo) ) {
+                        $oidInfo = {};
+                        $oidTable[$i] = $oidInfo;
+                    }
+                    $oidInfo->{$name} = $sortedOid;
+
+                    my $entryInfo = $attrTable[$i];
+                    if ( not defined($entryInfo) ) {
+                        $entryInfo = {};
+                        $attrTable[$i] = $entryInfo;
+                    }
+                    $entryInfo->{$name} = $table->{$sortedOid};
                 }
-                $oidInfo->{$name} = $sortedOid;
-
-                my $entryInfo = $attrTable[$i];
-                if ( not defined($entryInfo) ) {
-                    $entryInfo = {};
-                    $attrTable[$i] = $entryInfo;
-                }
-                $entryInfo->{$name} = $table->{$sortedOid};
             }
         }
 

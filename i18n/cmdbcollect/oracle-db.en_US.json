@@ -95,7 +95,7 @@
                     "type": "String"
                 },
                 {
-                    "name": "USERNAME",
+                    "name": "NAME",
                     "desc": "User Name",
                     "type": "String"
                 },

@@ -117,7 +117,14 @@
         {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PRIMARY_IP",
