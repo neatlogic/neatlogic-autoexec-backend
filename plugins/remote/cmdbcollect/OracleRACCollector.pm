@@ -130,7 +130,7 @@ sub getClusterDB {
     my $scanPort  = $racInfo->{SCAN_PORT};
     my @scanAddrs = ();
     foreach my $scanIp (@$scanIps) {
-        $allIpMap->{$scanIp} = 1;
+        $allIpMap->{ $scanIp->{IP} } = 1;
         push( @scanAddrs, "$scanIp:$scanPort" );
     }
 
@@ -269,7 +269,10 @@ sub getClusterDB {
             }
 
             delete( $allIpMap->{ $dbInfo->{PRIMARY_IP} } );
-            my @slaveIps = sort( keys(%$allIpMap) );
+            my @slaveIps = ();
+            foreach my $slaveIp ( sort( keys(%$allIpMap) ) ) {
+                push( @slaveIps, { IP => $slaveIp } );
+            }
             $dbInfo->{SLAVE_IPS} = \@slaveIps;
 
             push( @dbInfos, $dbInfo );
@@ -339,7 +342,12 @@ sub getClusterNodes {
     $racInfo->{PRIMARY_IP}  = $primaryIp;
     $racInfo->{PORT}        = undef;
     $racInfo->{UNIQUE_NAME} = 'RAC:' . $racInfo->{CLUSTER_NAME} . ':' . $primaryIp;
-    $racInfo->{SLAVE_IPS}   = \@nodePubIps;
+
+    my @slaveIps = ();
+    foreach my $slaveIp (@nodePubIps) {
+        push( @slaveIps, { IP => $slaveIp } );
+    }
+    $racInfo->{SLAVE_IPS} = \@slaveIps;
 
     return $dbNodesMap;
 }
@@ -452,7 +460,7 @@ sub getScanInfo {
             $scanName = $1;
         }
         elsif ( $line =~ /VIP.*?([\.\d:a-f]{4,})/i ) {
-            push( @scanIps, $1 );
+            push( @scanIps, { IP => $1 } );
         }
     }
     @scanIps              = sort(@scanIps);

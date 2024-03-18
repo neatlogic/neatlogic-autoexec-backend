@@ -724,7 +724,7 @@ sub main {
     #拼装账户参数
     my $passArgs    = {};
     my $accountInfo = {};
-    for ( my $i = 0 ; $i < $#myOpts ; $i++ ) {
+    for ( my $i = 0 ; $i <= $#myOpts ; $i++ ) {
         my $item = $myOpts[$i];
         if ( substr( $item, 0, 1 ) eq '-' ) {
             $item =~ s/^--?//;

@@ -332,12 +332,26 @@
                 {
                     "name": "HOSTS",
                     "desc": "授权主机",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "GRANTED_DBS",
                     "desc": "授权DB",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

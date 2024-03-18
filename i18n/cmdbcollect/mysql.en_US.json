@@ -332,12 +332,26 @@
                 {
                     "name": "GRANTED_DBS",
                     "desc": "DB Granted",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "HOSTS",
                     "desc": "Host Granted",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
