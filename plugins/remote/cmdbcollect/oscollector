@@ -172,7 +172,7 @@ sub collectHostOSInfo {
 sub mergeMultiProcs {
     my ( $pFinder, $osInfo, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs, $inspect ) = @_;
 
-    my $pidToDel = ();
+    my $pidToDel = {};
     my @apps     = ();
     print("INFO: Begin to merge connection information with parent processes...\n");
     foreach my $pid ( keys(%$appsMap) ) {
