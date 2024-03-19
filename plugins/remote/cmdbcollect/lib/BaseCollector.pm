@@ -26,6 +26,7 @@ sub new {
     my $objType = substr( $type, 0, -9 );
     $self->{pFinder}          = $pFinder;
     $self->{inspect}          = $pFinder->{inspect};
+    $self->{connGather}       = $pFinder->{connGather};
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultObjType}   = $objType;

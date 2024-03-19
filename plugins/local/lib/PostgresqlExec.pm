@@ -80,7 +80,7 @@ sub new {
         if ( defined( $args{password} ) and $args{password} ne '' ) {
             $psqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 PGPASSWORD='$args{password}' $psqlCmd"};
         }
-        else{
+        else {
             $psqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 $psqlCmd"};
         }
     }
