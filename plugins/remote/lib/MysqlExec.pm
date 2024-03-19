@@ -97,7 +97,7 @@ sub new {
     }
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $mysqlCmd = qq{su - $osUser -c "$mysqlCmd"};
+        $mysqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 $mysqlCmd"};
     }
     $self->{mysqlCmd} = $mysqlCmd;
 

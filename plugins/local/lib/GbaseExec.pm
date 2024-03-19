@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-package MysqlExec;
+package GbaseExec;
 
 use POSIX qw(uname);
 use Carp;
@@ -18,7 +18,7 @@ sub new {
         password   => $args{password},
         dbname     => $args{dbname},
         osUser     => $args{osUser},
-        mysqlHome  => $args{mysqlHome}
+        gbaseHome  => $args{gbaseHome}
     };
 
     my @uname  = uname();
@@ -35,71 +35,71 @@ sub new {
         $isRoot = 1;
     }
 
-    my $mysqlCmd;
-    if ( defined( $args{mysqlHome} ) and -d $args{mysqlHome} ) {
-        $mysqlCmd = "'$args{mysqlHome}/bin/mysql' -t";
+    my $gbaseCmd;
+    if ( defined( $args{gbaseHome} ) and -d $args{gbaseHome} ) {
+        $gbaseCmd = "'$args{gbaseHome}/bin/gbase' -t";
     }
     else {
-        $mysqlCmd = 'mysql -t';
+        $gbaseCmd = 'gbase -t';
     }
 
     my $helpTxt = '';
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $helpTxt = `su - $osUser -c "$mysqlCmd --help"`;
+        $helpTxt = `su - $osUser -c "$gbaseCmd --help"`;
     }
     else {
-        $helpTxt = `$mysqlCmd --help`;
+        $helpTxt = `$gbaseCmd --help`;
     }
 
     if ( $helpTxt =~ /get-server-public-key/ ) {
-        $mysqlCmd = "$mysqlCmd --get-server-public-key";
+        $gbaseCmd = "$gbaseCmd --get-server-public-key";
     }
     if ( $helpTxt =~ /connect-expired-password/ ) {
-        $mysqlCmd = "$mysqlCmd --connect-expired-password";
+        $gbaseCmd = "$gbaseCmd --connect-expired-password";
     }
 
     if ( defined( $args{socketPath} ) and -e $args{socketPath} ) {
-        $mysqlCmd = "$mysqlCmd --socket '$args{socketPath}'";
+        $gbaseCmd = "$gbaseCmd --socket '$args{socketPath}'";
     }
     elsif ( defined( $args{host} ) or defined( $args{port} ) ) {
         if ( defined( $args{host} ) ) {
-            $mysqlCmd = "$mysqlCmd  -h'$args{host}'";
+            $gbaseCmd = "$gbaseCmd  -h'$args{host}'";
         }
         else {
-            $mysqlCmd = "$mysqlCmd -h127.0.0.1";
+            $gbaseCmd = "$gbaseCmd -h127.0.0.1";
         }
         if ( defined( $args{port} ) ) {
-            $mysqlCmd = "$mysqlCmd -P$args{port}";
+            $gbaseCmd = "$gbaseCmd -P$args{port}";
         }
         else {
-            $mysqlCmd = "$mysqlCmd -P3306";
+            $gbaseCmd = "$gbaseCmd -P5050";
         }
     }
 
     if ( defined( $args{username} ) and $args{username} ne '' ) {
-        $mysqlCmd = "$mysqlCmd -u'$args{username}'";
+        $gbaseCmd = "$gbaseCmd -u'$args{username}'";
     }
     else {
-        $mysqlCmd = "$mysqlCmd -uroot";
+        $gbaseCmd = "$gbaseCmd -uroot";
     }
 
     if ( defined( $args{password} ) and $args{password} ne '' ) {
-        my $out = `$mysqlCmd -e 'set names utf8;' 2>&1`;
+        my $out = `$gbaseCmd -e 'set names utf8;' 2>&1`;
 
         #探测到需要用密码才设置密码
         if ( $? != 0 ) {
-            $mysqlCmd = "$mysqlCmd -p'$args{password}'";
+            $gbaseCmd = "$gbaseCmd -p'$args{password}'";
         }
     }
 
     if ( defined( $args{dbname} ) and $args{dbname} ne '' ) {
-        $mysqlCmd = "$mysqlCmd -D'$args{dbname}'";
+        $gbaseCmd = "$gbaseCmd -D'$args{dbname}'";
     }
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $mysqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 $mysqlCmd"};
+        $gbaseCmd = qq{su - $osUser -c "$gbaseCmd"};
     }
-    $self->{mysqlCmd} = $mysqlCmd;
+    $self->{gbaseCmd} = $gbaseCmd;
 
     bless( $self, $type );
     return $self;
@@ -259,7 +259,7 @@ sub _execSql {
     my $sqlFH;
     my $cmd;
     if ( $self->{osType} ne 'Windows' ) {
-        $cmd = qq{$self->{mysqlCmd} << "EOF"
+        $cmd = qq{$self->{gbaseCmd} << "EOF"
                $sql
                EOF
               };
@@ -273,9 +273,9 @@ sub _execSql {
         print $sqlFH ($sql);
         $sqlFH->close();
 
-        my $mysqlCmd = $self->{mysqlCmd};
-        $mysqlCmd =~ s/'/"/g;
-        $cmd = qq{$mysqlCmd < "$fname"};
+        my $gbaseCmd = $self->{gbaseCmd};
+        $gbaseCmd =~ s/'/"/g;
+        $cmd = qq{$gbaseCmd < "$fname"};
     }
 
     if ($isVerbose) {
