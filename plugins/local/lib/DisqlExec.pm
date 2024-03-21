@@ -69,7 +69,7 @@ sub new {
     my $disqlCmd = 'disql -S -L / as sysdba';
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $disqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 $disqlCmd"};
+        $disqlCmd = qq{su -m $osUser -c "$disqlCmd"};
     }
 
     if (    defined( $args{username} )
@@ -93,18 +93,7 @@ sub new {
             else {
                 $disqlCmd = qq(disql -S -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $disqlCmd = qq(su - $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
-                }
-            }
-        }
-        else {
-            if ( $osType eq 'Windows' ) {
-                $disqlCmd = qq(disql -S -L "$args{username}/\\"$args{password}\\""@//$args{host}:$args{port});
-            }
-            else {
-                $disqlCmd = qq(disql -S -L '$args{username}/"$args{password}"'@//$args{host}:$args{port});
-                if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $disqlCmd = qq(su - $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}");
+                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
                 }
             }
         }
