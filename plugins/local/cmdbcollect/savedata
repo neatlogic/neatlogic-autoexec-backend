@@ -6,7 +6,7 @@ import os
 import traceback
 import datetime
 import argparse
-import sys
+import re
 import json
 from bson.json_util import dumps, loads
 
@@ -208,7 +208,16 @@ if __name__ == "__main__":
     objTypesMap = {}
     toolNamesMap = {}
     for toolName in args.toolnames:
-        toolNamesMap[toolName] = 1
+        matchObj = re.match(r"^(.*_\d+)", toolName)
+        if matchObj:
+            toolName = matchObj.group(1)
+            toolNamesMap[toolName] = 1
+        preLen = len(toolName)
+
+        newToolName = ""
+        while newToolName != toolName:
+            newToolName = re.sub(r"^.*?\.", "", toolName)
+            toolNamesMap[newToolName] = 1
 
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
