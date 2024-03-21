@@ -626,4 +626,30 @@ sub predictBizIp {
     return ( $bizIp, $vip );
 }
 
+sub getPortListenIps {
+    my ( $self, $connInfo, $port ) = @_;
+
+    my $vip;
+    my $bizIp;
+
+    my $portInfoMap = $connInfo->{PORT_BIND};
+
+    if ( not defined($portInfoMap) ) {
+        return [];
+    }
+
+    my $portInfo = $portInfoMap->{"$port"};
+    if ( not defined($portInfo) ) {
+        return [];
+    }
+
+    my $ipAddrsMap = {};
+    map {$ipAddrsMap->{$_} = $port} (keys( %{ $portInfo->{EXPLICIT_IP} } ));
+    map {$ipAddrsMap->{$_} = $port} (keys( %{ $portInfo->{EXPLICIT_IPV6} } ));
+    map {$ipAddrsMap->{$_} = $port} (keys( %{ $portInfo->{IMPLICIT_IP} } ));
+    map {$ipAddrsMap->{$_} = $port} (keys( %{ $portInfo->{IMPLICIT_IPV6} } ));
+
+    return wantarray ? keys(%$ipAddrsMap) : $ipAddrsMap;
+}
+
 1;
