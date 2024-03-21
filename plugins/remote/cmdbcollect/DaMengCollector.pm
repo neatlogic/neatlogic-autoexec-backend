@@ -403,8 +403,6 @@ sub collect {
     my $disql = DisqlExec->new(
         dbHome   => $dmHome,
         osUser   => $osUser,
-        username => $self->{defaultUsername},
-        password => $self->{defaultPassword},
         host     => $host,
         port     => $port
     );
