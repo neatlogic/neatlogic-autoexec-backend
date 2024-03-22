@@ -321,15 +321,17 @@ def genHostRel(db):
     hostUpdCollection = db["COLLECT_HOST"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
 
-    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}).batch_size(
-        500
-    ):
+    for host in hostCollection.find(
+        {}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}
+    ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
             nics = host.get("ETH_INTERFACES", [])
             if nics is None:
                 print(
-                    "WARN: No eth interfaces found for os:{}".format(host.get("MGMT_IP"))
+                    "WARN: No eth interfaces found for os:{}".format(
+                        host.get("MGMT_IP")
+                    )
                 )
                 nics = []
             for nic in nics:
@@ -344,7 +346,7 @@ def genHostRel(db):
                                 # 接入层端口没有邻居信息
                                 "$or": [
                                     {"NEIGHBOR_COUNT": None},
-                                    {"NEIGHBOR_COUNT": 0}
+                                    {"NEIGHBOR_COUNT": 0},
                                 ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
@@ -418,7 +420,7 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
+                        # "DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
@@ -443,7 +445,15 @@ def genOSRel(db):
     clusterCollection = db["COLLECT_CLUSTER"]
 
     for os in osCollection.find(
-            {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1, 'HBA_INTERFACES': 1, 'NFS_INFO': 1,"DISKS": 1}
+        {},
+        {
+            "OS_ID": 1,
+            "MGMT_IP": 1,
+            "ETH_INTERFACES": 1,
+            "HBA_INTERFACES": 1,
+            "NFS_INFO": 1,
+            "DISKS": 1,
+        },
     ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
@@ -462,9 +472,9 @@ def genOSRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-        "$or": [
+                                "$or": [
                                     {"NEIGHBOR_COUNT": None},
-                                    {"NEIGHBOR_COUNT": 0}
+                                    {"NEIGHBOR_COUNT": 0},
                                 ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
@@ -536,7 +546,7 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
+                        # "DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
@@ -594,7 +604,7 @@ def genOSRel(db):
                 if wwn is None:
                     continue
                 remoteLun = storageCollection.find_one(
-                    {                       
+                    {
                         "LUNS": {"$elemMatch": {"WWN": wwn}},
                     },
                     {
@@ -613,7 +623,7 @@ def genOSRel(db):
                             "_OBJ_CATEGORY": remoteLun["LUNS"][0]["_OBJ_CATEGORY"],
                             "_OBJ_TYPE": remoteLun["LUNS"][0]["_OBJ_TYPE"],
                             "MGMT_IP": remoteLun["MGMT_IP"],
-                            #"DEV_NAME": remoteLun["DEV_NAME"],
+                            # "DEV_NAME": remoteLun["DEV_NAME"],
                             "SN": remoteLun["SN"],
                             "WWN": remoteLun["LUNS"][0]["WWN"],
                         }
@@ -783,4 +793,3 @@ if __name__ == "__main__":
     finally:
         if dbclient is not None:
             dbclient.close()
-
