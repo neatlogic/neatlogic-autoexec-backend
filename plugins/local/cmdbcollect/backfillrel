@@ -329,7 +329,9 @@ def genHostRel(db):
             nics = host.get("ETH_INTERFACES", [])
             if nics is None:
                 print(
-                    "WARN: No eth interfaces found for os:{}".format(host.get("MGMT_IP"))
+                    "WARN: No eth interfaces found for os:{}".format(
+                        host.get("MGMT_IP")
+                    )
                 )
                 nics = []
             for nic in nics:
@@ -416,7 +418,7 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
+                        # "DEV_NAME": remoteFcPort["DEV_NAME"],
                         "SN": remoteFcPort["SN"],
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
@@ -441,7 +443,14 @@ def genOSRel(db):
     clusterCollection = db["COLLECT_CLUSTER"]
 
     for os in osCollection.find(
-        {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1, 'HBA_INTERFACES': 1, 'NFS_INFO': 1}
+        {},
+        {
+            "OS_ID": 1,
+            "MGMT_IP": 1,
+            "ETH_INTERFACES": 1,
+            "HBA_INTERFACES": 1,
+            "NFS_INFO": 1,
+        },
     ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
