@@ -77,7 +77,12 @@ sub new {
     }
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $psqlCmd = qq{su - $osUser -c "$psqlCmd"};
+        if ( defined( $args{password} ) and $args{password} ne '' ) {
+            $psqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 PGPASSWORD='$args{password}' $psqlCmd"};
+        }
+        else {
+            $psqlCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 $psqlCmd"};
+        }
     }
     $self->{psqlCmd} = $psqlCmd;
 

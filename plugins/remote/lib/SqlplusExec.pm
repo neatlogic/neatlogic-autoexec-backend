@@ -49,6 +49,9 @@ sub new {
         }
     }
 
+    $ENV{LANG}     = 'en_US.UTF-8';
+    $ENV{NLS_LANG} = 'AMERICAN_AMERICA.AL32UTF8';
+
     #$self->evalProfile();
     if ( defined( $self->{sid} ) and $self->{sid} ne '' ) {
         $ENV{ORACLE_SID} = $self->{sid};
@@ -87,7 +90,7 @@ sub new {
     }
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $sqlplusCmd = qq{su - $osUser -c "LANG=en_US.UTF-8 NLS_LANG=AMERICAN_AMERICA.AL32UTF8 ORACLE_SID=$oraSid $sqlplusCmd"};
+        $sqlplusCmd = qq{su -m $osUser -c "$sqlplusCmd"};
     }
 
     if (    defined( $args{username} )
@@ -115,7 +118,7 @@ sub new {
             else {
                 $sqlplusCmd = qq(sqlplus -s -R 1 -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $sqlplusCmd = qq(su - $osUser -c "ORACLE_SID=$oraSid sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                    $sqlplusCmd = qq(su -m $osUser -c "sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
                 }
             }
         }

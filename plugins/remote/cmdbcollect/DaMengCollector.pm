@@ -401,12 +401,10 @@ sub collect {
 
     my $host  = '127.0.0.1';
     my $disql = DisqlExec->new(
-        disqlHome => $dmHome,
-        osUser    => $osUser,
-        username  => $self->{defaultUsername},
-        password  => $self->{defaultPassword},
-        host      => $host,
-        port      => $port
+        dbHome   => $dmHome,
+        osUser   => $osUser,
+        host     => $host,
+        port     => $port
     );
     $self->{disql} = $disql;
 

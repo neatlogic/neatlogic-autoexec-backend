@@ -241,4 +241,35 @@ sub getStatInfo {
     return $connInfo;
 }
 
+#获取连入某进程监听IP端口的远端的IP地址列表
+sub getInboundIps {
+    my ( $self, $bindAddr, $pid ) = @_;
+
+    my @ips = ();
+
+    my $cmd            = "netstat -ano";
+    my $localFieldIdx  = 2;
+    my $remoteFieldIdx = 3;
+
+    my $pipe;
+    my $pipePid = open( $pipe, $cmd );
+    if ( defined($pipe) ) {
+        my $line;
+        while ( $line = <$pipe> ) {
+            my @fields     = split( /\s+/, $line );
+            my $localAddr  = $fields[$localFieldIdx];
+            my $remoteAddr = $fields[$remoteFieldIdx];
+            if ( $#fields < $remoteFieldIdx ) {
+                next;
+            }
+            if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                push( @ips, $1 );
+            }
+        }
+        close($pipe);
+    }
+
+    return \@ips;
+}
+
 1;
