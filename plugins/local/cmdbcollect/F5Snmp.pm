@@ -14,7 +14,6 @@ use Data::Dumper;
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{hasError} = 0;
     bless( $self, $class );
 
     $self->{snmpHelper} = SnmpHelper->new();
@@ -62,6 +61,13 @@ sub new {
             POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'            #ltmPoolMemberPoolName
         }
     };
+	
+	my $portOidDef = {
+        PORT => {
+            NAME           => '1.3.6.1.2.1.2.2.1.2',     
+            MAC             => '1.3.6.1.2.1.2.2.1.6'      
+        }
+    };
 
     my $snatOidDef = {
         SNAT_IP => {
@@ -74,6 +80,7 @@ sub new {
 
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{vsOidDef}     = $vsOidDef;
+	$self->{portOidDef}     = $portOidDef;
     $self->{snatOidDef}   = $snatOidDef;
 
     my $version = $args{version};
@@ -112,21 +119,21 @@ sub new {
 
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
-    my $resultError = 0;
+    my $hasError = 0;
     my $snmp     = $self->{snmpSession};
     if ( not defined($queryResult) ) {
-        $resultError = 1;
+        $hasError = 1;
         my $error = $snmp->error();
         if ( $error =~ /^No response/i ) {
-            $self->{hasError} = 1;
             print("ERROR: $error, snmp failed, exit.\n");
+            exit(-1);
         }
         else {
             print("WARN: $error, $name oid:$oid\n");
         }
     }
 
-    return $resultError;
+    return $hasError;
 }
 
 #get simple oid value
@@ -204,7 +211,7 @@ sub _getVS {
     foreach my $name ( keys %name_to_data ) {
         my $data = $name_to_data{$name};
         push @snatPools, {
-            '_OBJ_CATEGORY' => 'COLLECTION_LOADBALANCER',
+            '_OBJ_CATEGORY' => 'LOADBALANCER',
             '_OBJ_TYPE'     => 'LOADBALANCER-SNATPOOL',
             'NAME'          => $name,
             'MEMBER_LIST'   => $data->{'ADDRESSES'},
@@ -233,6 +240,28 @@ sub _getVS {
     }
 
     return $vsData;
+}
+
+#get simple oid value
+sub _getPorts {
+	#print "---------------this is in _getPorts\n";
+    my ($self)       = @_;
+    my $snmp         = $self->{snmpSession};
+    my $portOidDef = $self->{portOidDef};
+
+    my $snmpHelper = $self->{snmpHelper};
+	my $tableData  = $snmpHelper->getTable( $snmp, $portOidDef );
+	#print "tableData is :\n";
+	#print Dumper($tableData);
+    my $portData = $tableData->{PORT};
+    #print "portData is :\n";
+	#print Dumper($portData);
+	foreach my $port (@$portData) {
+		$port->{MAC} = $snmpHelper->hex2mac($port->{MAC});
+		$port->{_OBJ_CATEGORY} = 'LOADBALANCER';
+		$port->{_OBJ_TYPE} = 'PORT';
+    }
+    return $portData;
 }
 
 sub _getSnatIp {
@@ -264,6 +293,9 @@ sub collect {
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
+	
+	my $portArray = $self->_getPorts();
+    $devInfo->{PORTS} = $portArray;
 
     my $snatArray = $self->_getSnatIp();
     $devInfo->{SNAT_IPS} = $snatArray;

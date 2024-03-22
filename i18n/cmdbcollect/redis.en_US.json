@@ -374,6 +374,16 @@
             ]
         },
         {
+            "name": "REDIS_MODE",
+            "desc": "Redis Mode",
+            "type": "String"
+        },
+        {
+            "name": "REDIS_ROLE",
+            "desc": "Redis Role",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
             "type": "String"
@@ -384,14 +394,49 @@
             "type": "String"
         },
         {
+            "name": "SENTINELS",
+            "desc": "SentinelS",
+            "type": "Text"
+        },
+        {
+            "name": "SENTINEL_MONITOR",
+            "desc": "哨兵监控",
+            "type": "Text"
+        },
+        {
+            "name": "MAX_CONNECTION",
+            "desc": "Max Connection",
+            "type": "Text"
+        },
+        {
+            "name": "CONFIG_MEMORY_SIZE",
+            "desc": "Config Memory Size",
+            "type": "Text"
+        },
+        {
+            "name": "AOF_ENABLED",
+            "desc": "AOF Enabled",
+            "type": "Text"
+        },
+        {
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
         },
         {
-            "name": "CONF_FILE",
-            "desc": "Conf File",
+            "name": "CONFIG_FILE",
+            "desc": "Config File",
             "type": "String"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "Text"
+        },
+        {
+            "name": "LOGFILE",
+            "desc": "Log Path",
+            "type": "Text"
         },
         {
             "name": "EXECUTABLE",

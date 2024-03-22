@@ -1,0 +1,119 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+import json
+import os
+import argparse
+import sys
+import AutoExecUtils
+import HorizonAdapter
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(pname + " --ip <horizon ip> --port <horizon port> --username <username> --password <password> --version <api version> --verbose")
+    exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ip', default='', help='horizon management ip')
+    parser.add_argument('--port', default='443', help='horizon management http port')
+    parser.add_argument('--username', default='', help='horizon login user')
+    parser.add_argument('--password', default='', help='horizon login user password')
+    parser.add_argument('--version', default='', help='horizon api version,example:v2.0')
+    parser.add_argument('--verbose', default='0', help='verbose output')
+    args = parser.parse_args()
+
+    ip = args.ip
+    port = args.port
+    username = args.username
+    password = args.password
+    version = args.version
+    isVerbose = int(args.verbose)
+    node = os.getenv('AUTOEXEC_NODE')
+
+    if node != None and node != '':
+        node = json.loads(node)
+    
+    #ip = node['host']
+    #port = node['protocolPort']
+    #username = node['username']
+    #password = node['password']
+
+    if ((ip == None or ip == '' or  username == None or username == '' or  password == None or password == '') and (node == None or node == '')):
+        usage()
+
+    if ((ip == None or ip == '' or  username == None or username == '' or  password == None or password == '') and (node != None)):
+        ip = node['host']
+        if 'port' in node:
+            port = node['port']
+        else: 
+            port = node['protocolPort']
+        username = node['username']
+        password = node['password']
+
+    data = []
+    horizon = HorizonAdapter.HorizonAdapter(ip, port, version, username, password)
+    result = horizon.collect()
+    result['_OBJ_CATEGORY'] = 'LOADBALANCER'
+    result['_OBJ_TYPE'] = 'HORIZON'
+    #result['RESOURCE_ID'] = 
+    result['MGMT_IP'] = ip
+
+    for vs in result['VIRTUAL_SERVERS']:
+        cluster = {}
+        #vs['PK'] = 'CLUSTER'
+        cluster['_OBJ_CATEGORY'] = 'CLUSTER'
+        cluster['_OBJ_TYPE'] = 'LoadBalancer-VS'
+        cluster['CLUSTER_MODE'] = 'LoadBalance'
+        cluster['CLUSTER_SOFTWARE'] = 'HORIZON'
+        cluster['CLUSTER_VERSION'] = result['VERSION']
+
+        bind = vs['IP'] + ":" + str(vs['PORT'])
+        cluster['NAME'] = vs['NAME']
+        cluster['VIP'] = vs['IP']
+        cluster['PRIMARY_IP'] = vs['IP']
+        cluster['PORT'] = vs['PORT']
+        cluster['BIND'] = bind
+        cluster['UNIQUE_NAME'] = "HORIZON:"+ ":" + bind
+
+
+        host = {}
+        host['_OBJ_CATEGORY'] = 'LOADBALANCER'
+        host['_OBJ_TYPE'] = 'HORIZON'
+        host['DEV_NAME'] = result['DEV_NAME']
+        host['MGMT_IP'] = ip
+        host['SN'] = result['SN']
+        #host['RESOURCE_ID'] =  
+        cluster['HOST_ON'] = host
+
+        vs['_OBJ_CATEGORY'] = 'LOADBALANCER'
+        vs['_OBJ_TYPE'] = 'LOADBALANCER-VS'
+
+        memberPeer = []
+        if 'POOL' in vs and vs['POOL'] and 'MEMBERS' in vs['POOL'][0]:
+    
+            for pool in vs['POOL']:
+                pool['_OBJ_CATEGORY'] = 'LOADBALANCER'
+                pool['_OBJ_TYPE'] = 'LOADBALANCER-POOL'
+
+            members = vs['POOL'][0]['MEMBERS']
+            for member in members:
+                member['_OBJ_CATEGORY'] = 'LOADBALANCER'
+                member['_OBJ_TYPE'] = 'LOADBALANCER-MEMBER'
+                m = member['IP'] + ":" + str(member['PORT'])
+                memberPeer.append(m)
+        cluster['MEMBER_PEEER'] = memberPeer
+
+        data.append(cluster)
+
+    data.append(result)
+    # 定义插件的输出变量output
+    out = {}
+    out['DATA'] = data
+    AutoExecUtils.saveOutput(out)
+
+    if isVerbose == 1:
+        print("==================\n")
+        print(json.dumps(data,ensure_ascii=False))
+        print("==================\n")

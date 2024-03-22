@@ -84,7 +84,14 @@ sub new {
         }
     }
 
+    $self->init();
     return $self;
+}
+
+#下游类通过重载这个方法进行类的初始化
+sub init {
+    my ($self) = @_;
+    return;
 }
 
 #重载此方法，调整snmp oid的设置

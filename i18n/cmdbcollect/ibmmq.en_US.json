@@ -1,10 +1,10 @@
 {
-    "label": "RabbitMQ",
+    "label": "IBMMQ",
     "collection": "COLLECT_INS",
     "docroot": null,
     "collection_label": "App Instance",
     "filter": {
-        "_OBJ_TYPE": "RabbitMQ"
+        "_OBJ_TYPE": "IBMMQ"
     },
     "fields": [
         {
@@ -20,6 +20,11 @@
         {
             "name": "SERVER_NAME",
             "desc": "Server Name",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
             "type": "String"
         },
         {
@@ -40,11 +45,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang Version",
             "type": "String"
         },
         {
@@ -203,23 +203,6 @@
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "用户角色列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "ROLE",
-                    "desc": "角色",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "INSTALL_PATH",
             "desc": "Install Path",
             "type": "String"
@@ -230,19 +213,58 @@
             "type": "String"
         },
         {
-            "name": "DATA_PATH",
-            "desc": "Data Path",
-            "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
-            "type": "String"
-        },
-        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "CCSID",
+            "desc": "CCSID",
+            "type": "String"
+        },
+        {
+            "name": "QUEUES",
+            "desc": "MQ Queues",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Queue Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Queue Type",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CHANNELS",
+            "desc": "MQ Channels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Channel Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Channel Type",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -463,36 +485,6 @@
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
-        },
-        {
-            "name": "GUEST_ENABLE",
-            "desc": "User guest Exist(1:exist)",
-            "type": "Text"
-        },
-        {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "Memory Water Mark",
-            "type": "Text"
-        },
-        {
-            "name": "DISK_FREE",
-            "desc": "Availble Disk(G)",
-            "type": "Int"
-        },
-        {
-            "name": "FD_LIMIT",
-            "desc": "Max Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "FD_USED",
-            "desc": "Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "ALARMS",
-            "desc": "Alarm messages",
-            "type": "Array"
         },
         {
             "name": "REF_CLUSTER",

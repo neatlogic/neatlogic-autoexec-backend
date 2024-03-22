@@ -1,10 +1,10 @@
 {
-    "label": "RabbitMQ",
-    "collection": "COLLECT_INS",
+    "label": "TiDB Instance",
+    "collection": "COLLECT_DBINS",
     "docroot": null,
-    "collection_label": "App Instance",
+    "collection_label": "Database Instance",
     "filter": {
-        "_OBJ_TYPE": "RabbitMQ"
+        "_OBJ_TYPE": "TiDB"
     },
     "fields": [
         {
@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -33,18 +38,8 @@
             "type": "Int"
         },
         {
-            "name": "MAJOR_VERSION",
-            "desc": "Major Version",
-            "type": "String"
-        },
-        {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang Version",
             "type": "String"
         },
         {
@@ -95,6 +90,11 @@
             "type": "String"
         },
         {
+            "name": "SOCKET_PATH",
+            "desc": "Socket Path",
+            "type": "String"
+        },
+        {
             "name": "LISTEN",
             "desc": "Listen Addr",
             "type": "JsonArray",
@@ -102,50 +102,6 @@
                 {
                     "name": "ADDR",
                     "desc": "Addr",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION",
-            "desc": "Applicaton",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "APP_NAME",
-                    "desc": "Application Name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BELONG_APPLICATION_MODULE",
-            "desc": "Applicaton Module",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "APPMODULE_NAME",
-                    "desc": "Application Module Name",
                     "type": "String"
                 }
             ]
@@ -203,45 +159,8 @@
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "用户角色列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "ROLE",
-                    "desc": "角色",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "INSTALL_PATH",
             "desc": "Install Path",
-            "type": "String"
-        },
-        {
-            "name": "CONFIG_PATH",
-            "desc": "Conf Path",
-            "type": "String"
-        },
-        {
-            "name": "DATA_PATH",
-            "desc": "Data Path",
-            "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
-            "type": "String"
-        },
-        {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
             "type": "String"
         },
         {
@@ -257,11 +176,6 @@
         {
             "name": "MEM_USAGE",
             "desc": "Memory%",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USED",
-            "desc": "Memroy used(M)",
             "type": "Float"
         },
         {
@@ -396,6 +310,52 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "GRANTED_DBS",
+                    "desc": "DB Granted",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "HOSTS",
+                    "desc": "Host Granted",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "MAIN_ENV",
             "desc": "Main Process Environment",
             "type": "JsonArray",
@@ -460,150 +420,56 @@
             ]
         },
         {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
         },
         {
-            "name": "GUEST_ENABLE",
-            "desc": "User guest Exist(1:exist)",
-            "type": "Text"
+            "name": "CLUSTER_ROLE",
+            "desc": "Cluster Role",
+            "type": "String"
         },
         {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "Memory Water Mark",
-            "type": "Text"
+            "name": "CONFIG_FILE",
+            "desc": "Config File",
+            "type": "String"
         },
         {
-            "name": "DISK_FREE",
-            "desc": "Availble Disk(G)",
-            "type": "Int"
-        },
-        {
-            "name": "FD_LIMIT",
-            "desc": "Max Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "FD_USED",
-            "desc": "Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "ALARMS",
-            "desc": "Alarm messages",
-            "type": "Array"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
+            "name": "DATABASES",
+            "desc": "Databases List",
             "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
+                    "desc": "CATEGORY",
                     "type": "String"
                 },
                 {
                     "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
+                    "desc": "TYPE",
                     "type": "String"
                 },
                 {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
+                    "name": "NAME",
+                    "desc": "DB Name",
                     "type": "String"
                 },
                 {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
+                    "name": "DEFAULT_CHARACTER_SET",
+                    "desc": "Default Charset",
                     "type": "String"
                 },
                 {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
+                    "name": "DEFAULT_COLLATION",
+                    "desc": "Default Collation",
                     "type": "String"
                 }
             ]
         },
         {
-            "name": "REF_DB",
-            "desc": "Reference Databases",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "Management IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "Instance Name",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_INS",
-            "desc": "Reference Instances",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "Management IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
+            "name": "DATA_DIR",
+            "desc": "Mysql Data directory",
+            "type": "String"
         },
         {
             "name": "RUN_ON",

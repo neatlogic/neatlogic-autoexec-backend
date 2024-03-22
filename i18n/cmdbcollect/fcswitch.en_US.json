@@ -18,11 +18,6 @@
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "Use State",
-            "type": "String"
-        },
-        {
             "name": "UPTIME",
             "desc": "Up Time(Days)",
             "type": "String"
@@ -60,6 +55,11 @@
             ]
         },
         {
+            "name": "BRAND",
+            "desc": "Brand",
+            "type": "String"
+        },
+        {
             "name": "VENDOR",
             "desc": "Vendor",
             "type": "String"
@@ -76,8 +76,111 @@
         },
         {
             "name": "BOOT_DATE",
-            "desc": "Last Boot Date",
+            "desc": "Boot Date",
             "type": "String"
+        },
+        {
+            "name": "CONFIGS",
+            "desc": "Config List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Cfg Name",
+                    "type": "String"
+                },
+                {
+                    "name": "ZONES",
+                    "desc": "ZONES",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Zone Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CFG_NAME",
+                            "desc": "Cfg Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBERS",
+                            "desc": "Members",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "Member name",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "WWPN_MEMBERS",
+                            "desc": "WWPN Member",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SN",
+                                    "desc": "SN",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "DOMAIN_IDX",
+                                    "desc": "DomainId,Index",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PORT",
+                                    "desc": "Port",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "WWPN",
+                                    "desc": "WWPN",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PEER_WWPN",
+                                    "desc": "PEER WWPN",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "DEV_NAME",
@@ -85,8 +188,13 @@
             "type": "String"
         },
         {
+            "name": "DOMAIN_ID",
+            "desc": "Domain Id",
+            "type": "String"
+        },
+        {
             "name": "FIRMWARE_VERSION",
-            "desc": "Firmware version",
+            "desc": "Firmware Version",
             "type": "String"
         },
         {
@@ -96,22 +204,22 @@
             "subset": [
                 {
                     "name": "PORT_NAME",
-                    "desc": "Local Port Name",
+                    "desc": "Port Name",
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWNN",
-                    "desc": "Local Node WWN",
+                    "name": "DOMAIN_IDX",
+                    "desc": "DomainId,Index",
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWPN",
-                    "desc": "Local Port WWN",
+                    "name": "WWNN",
+                    "desc": "Dev WWN",
                     "type": "String"
                 },
                 {
-                    "name": "PEER_WWNN",
-                    "desc": "Peer Node WWN",
+                    "name": "WWPN",
+                    "desc": "Port WWN",
                     "type": "String"
                 },
                 {
@@ -127,8 +235,28 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Interface Name",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port Specifier",
+                    "type": "String"
+                },
+                {
+                    "name": "DOMAIN_IDX",
+                    "desc": "Port Number",
                     "type": "String"
                 },
                 {
@@ -153,7 +281,17 @@
                 },
                 {
                     "name": "WWPN",
-                    "desc": "Port WWN",
+                    "desc": "Local Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "PEER_WWPN",
+                    "desc": "Peer Port WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "ALIAS",
+                    "desc": "Alias",
                     "type": "String"
                 },
                 {
@@ -225,28 +363,102 @@
         },
         {
             "name": "PORTS_COUNT",
-            "desc": "Ports Count",
+            "desc": "Ports count",
             "type": "Int"
         },
         {
+            "name": "SWITCH_STATE",
+            "desc": "Switch state",
+            "type": "String"
+        },
+        {
             "name": "WWNN",
-            "desc": "Node WWN",
+            "desc": "WWNN",
+            "type": "String"
+        },
+        {
+            "name": "CASCADE_SWITCHWWNN",
+            "desc": "Cascade Switch Wwnn",
             "type": "String"
         },
         {
             "name": "ZONES",
-            "desc": "Zone List",
+            "desc": "ZONES",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Zone Name",
                     "type": "String"
                 },
                 {
-                    "name": "INDEX",
-                    "desc": "Index",
+                    "name": "CFG_NAME",
+                    "desc": "Cfg Name",
                     "type": "String"
+                },
+                {
+                    "name": "MEMBERS",
+                    "desc": "Members",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "Member name",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "WWPN_MEMBERS",
+                    "desc": "WWPN Member",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DOMAIN_IDX",
+                            "desc": "DomainId,Index",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "WWPN",
+                            "desc": "WWPN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PEER_WWPN",
+                            "desc": "PEER WWPN",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

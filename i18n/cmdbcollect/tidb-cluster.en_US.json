@@ -1,0 +1,205 @@
+{
+    "label": "TiDB Cluster",
+    "collection": "COLLECT_CLUSTER",
+    "docroot": null,
+    "collection_label": "TiDB Cluster",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Cluster Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "集群名",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "Access Endpoint",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "MEMBER_PEER",
+            "desc": "Members Addrs",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "COMPONENTS",
+            "desc": "COMPONENTS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "ID",
+                    "desc": "Id",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managent IP",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Service IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "Port",
+                    "type": "String"
+                },
+                {
+                    "name": "ROLE",
+                    "desc": "Role",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "Cpu Arch",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "DEPLOY_DIR",
+                    "desc": "Deploy Dir",
+                    "type": "String"
+                },
+                {
+                    "name": "DATA_DIR",
+                    "desc": "Data Dir",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "String"
+                },
+                {
+                    "name": "RUN_ON",
+                    "desc": "Run On Os",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "OS IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "OS_ID",
+                            "desc": "OS CMDB ID",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
+        }
+    ]
+}

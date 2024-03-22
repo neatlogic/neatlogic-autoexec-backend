@@ -103,6 +103,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -127,6 +137,16 @@
                     "desc": "SNAT 地址转换池",
                     "type": "JsonArray",
                     "subset": [
+			{
+			    "name": "_OBJ_CATEGORY",
+			    "desc": "归属集合",
+			    "type": "String"
+			},
+			{
+			    "name": "_OBJ_TYPE",
+			    "desc": "归属类型",
+			    "type": "String"
+			},
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -156,6 +176,16 @@
                     "desc": "POOL",
                     "type": "JsonArray",
                     "subset": [
+			{
+			    "name": "_OBJ_CATEGORY",
+			    "desc": "归属集合",
+			    "type": "String"
+			},
+			{
+			    "name": "_OBJ_TYPE",
+			    "desc": "归属类型",
+			    "type": "String"
+			},
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -178,6 +208,16 @@
                     "desc": "成员列表",
                     "type": "JsonArray",
                     "subset": [
+			{
+			    "name": "_OBJ_CATEGORY",
+			    "desc": "归属集合",
+			    "type": "String"
+			},
+			{
+			    "name": "_OBJ_TYPE",
+			    "desc": "归属类型",
+			    "type": "String"
+			},
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -201,6 +241,75 @@
                     ]
                 }
             ]
+        },
+	{
+                "name": "PORTS",
+                "desc": "ports",
+                "type": "JsonArray",
+                "subset": [
+			{
+			    "name": "_OBJ_CATEGORY",
+			    "desc": "归属集合",
+			    "type": "String"
+			},
+			{
+			    "name": "_OBJ_TYPE",
+			    "desc": "归属类型",
+			    "type": "String"
+			},
+                        {
+                            "name": "INDEX",
+                            "desc": "索引",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "端口名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MAC",
+                            "desc": "mac地址",
+                            "type": "String"
+                        },
+                        {
+			    "name": "REMOTE_PORTS",
+			    "desc": "连接交换机端口",
+			    "type": "JsonArray",
+			    "subset": [
+				{
+				    "name": "_OBJ_CATEGORY",
+				    "desc": "归属类别",
+				    "type": "String"
+				},
+				{
+				    "name": "_OBJ_TYPE",
+				    "desc": "交换机类型",
+				    "type": "String"
+				},
+				{
+				    "name": "DEV_NAME",
+				    "desc": "交换机名",
+				    "type": "String"
+				},
+				{
+				    "name": "MGMT_IP",
+				    "desc": "交换机管理Ip",
+				    "type": "String"
+				},
+				{
+				    "name": "SN",
+				    "desc": "交换机序列号",
+				    "type": "String"
+				},
+				{
+				    "name": "PORT",
+				    "desc": "端口名",
+				    "type": "String"
+				}
+			    ]
+			}
+                ]
         },
         {
             "name": "_batch_tag",

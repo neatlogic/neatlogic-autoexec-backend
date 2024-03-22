@@ -103,6 +103,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"

@@ -256,6 +256,11 @@
                                     "type": "String"
                                 },
                                 {
+                                    "name": "UUID",
+                                    "desc": "Virtual UUID",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "HOST_ON",
                                     "desc": "Run Host",
                                     "type": "JsonArray",

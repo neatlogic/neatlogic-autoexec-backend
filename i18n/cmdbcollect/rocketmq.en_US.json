@@ -1,10 +1,10 @@
 {
-    "label": "RabbitMQ",
+    "label": "RocketMQ",
     "collection": "COLLECT_INS",
     "docroot": null,
     "collection_label": "App Instance",
     "filter": {
-        "_OBJ_TYPE": "RabbitMQ"
+        "_OBJ_TYPE": "RocketMQ"
     },
     "fields": [
         {
@@ -40,11 +40,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang Version",
             "type": "String"
         },
         {
@@ -171,6 +166,16 @@
             "type": "String"
         },
         {
+            "name": "APP_IP",
+            "desc": "App IP",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_PORT",
+            "desc": "LISTEN PORT",
+            "type": "String"
+        },
+        {
             "name": "OPEN_FILES_INFO",
             "desc": "Open Files",
             "type": "JsonArray",
@@ -203,23 +208,6 @@
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "用户角色列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "ROLE",
-                    "desc": "角色",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
             "name": "INSTALL_PATH",
             "desc": "Install Path",
             "type": "String"
@@ -230,18 +218,148 @@
             "type": "String"
         },
         {
-            "name": "DATA_PATH",
-            "desc": "Data Path",
-            "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Conf File Path",
             "type": "String"
         },
         {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "SERVICE_NAME",
+            "type": "String"
+        },
+        {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
+            "name": "JVM_TYPE",
+            "desc": "JVM Type",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM Version",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA Version",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX Port",
+            "type": "Int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX SSL Enabled",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_CLUSTER_NAME",
+            "desc": "Broker Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_NAME",
+            "desc": "Broker Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ID",
+            "desc": "Broker Id",
+            "type": "String"
+        },
+        {
+            "name": "NAMESRV_ADDR",
+            "desc": "Namesrv Addr",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
+            "desc": "Default Topic Queue Nums",
+            "type": "String"
+        },
+        {
+            "name": "AUTO_CREATE_TOPIC_ENABLE",
+            "desc": "Auto Create Topic Enable",
+            "type": "String"
+        },
+        {
+            "name": "DELETE_WHEN",
+            "desc": "Delete When",
+            "type": "String"
+        },
+        {
+            "name": "FILE_RESERVED_TIME",
+            "desc": "File Reserved Time",
+            "type": "String"
+        },
+        {
+            "name": "MAPED_FILESIZE_COMMITLOG",
+            "desc": "Maped File Size Commit Log",
+            "type": "String"
+        },
+        {
+            "name": "DISK_MAXUSED_SPACE_RATIO",
+            "desc": "Disk Max Used Space Ratio",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_ROOT_DIR",
+            "desc": "Store Path Root Dir",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_COMMITLOG",
+            "desc": "Store Path CommitLog",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_CONSUME_QUEUE",
+            "desc": "Store Path Consume Queue",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_INDEX",
+            "desc": "Store Path Index",
+            "type": "String"
+        },
+        {
+            "name": "STORE_CHECKPOINT",
+            "desc": "Store Checkpoint",
+            "type": "String"
+        },
+        {
+            "name": "ABORT_FILE",
+            "desc": "Abort File",
+            "type": "String"
+        },
+        {
+            "name": "MAX_MESSAGE_SIZE",
+            "desc": "Max Message Size",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ROLE",
+            "desc": "Broker Role",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "unique Name",
             "type": "String"
         },
         {
@@ -463,36 +581,6 @@
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
-        },
-        {
-            "name": "GUEST_ENABLE",
-            "desc": "User guest Exist(1:exist)",
-            "type": "Text"
-        },
-        {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "Memory Water Mark",
-            "type": "Text"
-        },
-        {
-            "name": "DISK_FREE",
-            "desc": "Availble Disk(G)",
-            "type": "Int"
-        },
-        {
-            "name": "FD_LIMIT",
-            "desc": "Max Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "FD_USED",
-            "desc": "Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "ALARMS",
-            "desc": "Alarm messages",
-            "type": "Array"
         },
         {
             "name": "REF_CLUSTER",

@@ -96,7 +96,7 @@ sub collect {
         $appInfo->{SERVICE_PORTS} = $servicePorts;
     }
 
-    my $yaml = YAML::Tiny->read('elasticsearch.yml');
+    my $yaml = YAML::Tiny->read("$confPath/elasticsearch.yml");
 
     my $clusterName = $yaml->[0]->{'cluster.name'};
     my $nodeName    = $yaml->[0]->{'node.name'};

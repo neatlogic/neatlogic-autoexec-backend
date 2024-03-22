@@ -7,7 +7,7 @@ use lib "$FindBin::Bin/../plib/lib/perl5";
 
 use strict;
 
-package StorageIBM_V7000;
+package StorageIBM_FS9200;
 
 use Net::OpenSSH;
 use JSON;
@@ -58,9 +58,6 @@ sub collect {
     ######################################################
     my @storageInfoLines = $sshclient->capture("lssystem -delim :");
     foreach my $line (@storageInfoLines) {
-        if ( $line =~ /^id:(.*?)\s*$/ ) {
-            $data->{SN} = $1;
-        }
         if ( $line =~ /^name:(.*?)\s*$/ ) {
             $data->{DEV_NAME} = $1;
         }
@@ -71,6 +68,9 @@ sub collect {
 	    $data->{MODEL} = $1;
 	}
     }
+    my $snInfo = $sshclient->capture('lsenclosure -delim : -nohdr');
+    my $sn     = ( split( /:/, $snInfo ) )[7];
+    $data->{SN} = $sn;
 
     #id:fc_io_port_id:port_id:type:port_speed:node_id:node_name:WWPN:nportid:status:attachment:cluster_use:adapter_location:adapter_port_id
     #0:1:1:fc:16Gb:1:node1:500507680B218FF6:010C00:active:switch:local_partner:2:1
@@ -199,7 +199,7 @@ sub collect {
         my $lunInfo = {};
         $lunInfo->{_OBJ_CATEGORY}  = 'STORAGE';
         $lunInfo->{_OBJ_TYPE}     = 'STORAGE_LUN';
-        $lunInfo->{WWN}      = $tmp[-13];
+        $lunInfo->{WWN}      = $tmp[13];
         $lunInfo->{NAME}     = $tmp[1];
         $lunInfo->{CAPACITY} = $self->getDiskSizeFormStr($tmp[7]);
 

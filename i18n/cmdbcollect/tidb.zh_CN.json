@@ -1,10 +1,10 @@
 {
-    "label": "Redis实例",
+    "label": "TiDB实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
     "collection_label": "DB实例",
     "filter": {
-        "_OBJ_TYPE": "Redis"
+        "_OBJ_TYPE": "TiDB"
     },
     "fields": [
         {
@@ -90,6 +90,11 @@
             "type": "String"
         },
         {
+            "name": "SOCKET_PATH",
+            "desc": "Socket文件路径",
+            "type": "String"
+        },
+        {
             "name": "LISTEN",
             "desc": "端口列表",
             "type": "JsonArray",
@@ -156,11 +161,6 @@
         {
             "name": "INSTALL_PATH",
             "desc": "安装目录",
-            "type": "String"
-        },
-        {
-            "name": "EXE_PATH",
-            "desc": "执行文件路径",
             "type": "String"
         },
         {
@@ -310,6 +310,52 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "HOSTS",
+                    "desc": "授权主机",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "GRANTED_DBS",
+                    "desc": "授权DB",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "MAIN_ENV",
             "desc": "主进程环境变量",
             "type": "JsonArray",
@@ -374,54 +420,9 @@
             ]
         },
         {
-            "name": "REDIS_MODE",
-            "desc": "REDIS部署模式",
+            "name": "BIN_PATH",
+            "desc": "BIN文件路径",
             "type": "String"
-        },
-        {
-            "name": "REDIS_ROLE",
-            "desc": "REDIS部署角色",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_MODE",
-            "desc": "集群部署模式",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_ROLE",
-            "desc": "集群部署角色",
-            "type": "String"
-        },
-        {
-            "name": "SENTINELS",
-            "desc": "哨兵",
-            "type": "Text"
-        },
-        {
-            "name": "SENTINEL_MONITOR",
-            "desc": "哨兵监控",
-            "type": "Text"
-        },
-        {
-            "name": "MAX_CONNECTION",
-            "desc": "连接数大小配置",
-            "type": "Text"
-        },
-        {
-            "name": "CONFIG_MEMORY_SIZE",
-            "desc": "配置内存大小",
-            "type": "Text"
-        },
-        {
-            "name": "AOF_ENABLED",
-            "desc": "AOF启用",
-            "type": "Text"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
         },
         {
             "name": "CONFIG_FILE",
@@ -429,33 +430,40 @@
             "type": "String"
         },
         {
-            "name": "DATA_PATH",
+            "name": "DATABASES",
+            "desc": "DB列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "DB名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_CHARACTER_SET",
+                    "desc": "默认字符集",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_COLLATION",
+                    "desc": "排序方法",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DATA_DIR",
             "desc": "数据目录",
-            "type": "Text"
-        },
-        {
-            "name": "LOGFILE",
-            "desc": "日志目录",
-            "type": "Text"
-        },
-        {
-            "name": "EXECUTABLE",
-            "desc": "安装目录",
-            "type": "String"
-        },
-        {
-            "name": "IS_CLUSTER",
-            "desc": "是否是集群",
-            "type": "Int"
-        },
-        {
-            "name": "MULTIPLEXING_API",
-            "desc": "多路复用",
-            "type": "String"
-        },
-        {
-            "name": "RUN_ID",
-            "desc": "run id",
             "type": "String"
         },
         {
@@ -481,18 +489,6 @@
                 {
                     "name": "OS_ID",
                     "desc": "OS CMDB ID",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "SLAVE_NODES",
-            "desc": "备集群节点",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP端口",
                     "type": "String"
                 }
             ]
