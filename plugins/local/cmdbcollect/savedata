@@ -208,16 +208,18 @@ if __name__ == "__main__":
     objTypesMap = {}
     toolNamesMap = {}
     for toolName in args.toolnames:
-        matchObj = re.match(r"^(.*_\d+)", toolName)
+        matchObj = re.match(r"^#\{.*?\.(.*_\d+)\.", toolName)
         if matchObj:
             toolName = matchObj.group(1)
             toolNamesMap[toolName] = 1
-        preLen = len(toolName)
-
-        newToolName = ""
-        while newToolName != toolName:
-            newToolName = re.sub(r"^.*?\.", "", toolName)
-            toolNamesMap[newToolName] = 1
+        else:
+            toolName = re.sub(r"^#\{.*?\.", "", toolName)
+            toolName = re.sub(r"\..*?$", "", toolName)
+            toolNamesMap[toolName] = 1
+        possibleToolName = ""
+        while possibleToolName != toolName:
+            possibleToolName = re.sub(r"^.*?\.", "", toolName)
+            toolNamesMap[possibleToolName] = 1
 
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
