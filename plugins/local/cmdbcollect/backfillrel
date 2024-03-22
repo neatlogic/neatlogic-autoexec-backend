@@ -450,6 +450,7 @@ def genOSRel(db):
             "ETH_INTERFACES": 1,
             "HBA_INTERFACES": 1,
             "NFS_INFO": 1,
+            "DISKS": 1,
         },
     ).batch_size(500):
         try:
