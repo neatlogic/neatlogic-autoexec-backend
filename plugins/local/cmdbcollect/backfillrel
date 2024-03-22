@@ -608,11 +608,11 @@ def genOSRel(db):
                     "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                     "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                     "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                    # 'PRIMARY_IP': cluster['PRIMARY_IP'],
+                    # 'PRIMARY_IP': cluster.get('PRIMARY_IP'),
                     # 'VIP': cluster.get('VIP'),
                     # 'PORT': cluster.get('PORT'),
-                    "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                    "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                    "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                    "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                 }
                 belongCls.append(belongCl)
 
