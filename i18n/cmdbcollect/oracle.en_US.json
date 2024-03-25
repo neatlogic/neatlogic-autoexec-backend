@@ -315,6 +315,43 @@
             ]
         },
         {
+            "name": "DATABASES",
+            "desc": "Databases List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
+                    "desc": "DB Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",

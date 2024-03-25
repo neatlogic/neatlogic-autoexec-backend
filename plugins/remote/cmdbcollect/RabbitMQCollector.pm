@@ -303,7 +303,7 @@ sub collect {
             }
         }
     }
-    $appInfo->{INSTANCE_NAME} = $myNodeName;
+    $appInfo->{SERVER_NAME} = $myNodeName;
 
     my $clusterInfo = {};
     $clusterInfo = from_json( $self->getCmdOut( qq{"$rbctlPath" cluster_status --formatter json}, $osUser ) );

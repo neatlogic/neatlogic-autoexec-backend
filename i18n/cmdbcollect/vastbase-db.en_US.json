@@ -23,11 +23,6 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "DB Name",
-            "type": "String"
-        },
-        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -144,13 +139,28 @@
             "type": "String"
         },
         {
+            "name": "DB_NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
             "name": "DEFAULT_CHARACTER_SET",
             "desc": "Default Charset",
             "type": "String"
         },
         {
-            "name": "DEFAULT_COLLATION",
-            "desc": "Default Collation",
+            "name": "COMPATIBILITY",
+            "desc": "dat compatibility",
+            "type": "String"
+        },
+        {
+            "name": "SCHEMA",
+            "desc": "schema",
+            "type": "String"
+        },
+        {
+            "name": "SEARCH_PATH",
+            "desc": "search path",
             "type": "String"
         },
         {

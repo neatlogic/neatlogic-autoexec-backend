@@ -53,9 +53,14 @@ sub collect {
     if ( not $self->isMainProcess() ) {
         return undef;
     }
+
     my $procInfo = $self->{procInfo};
-    my $command  = $procInfo->{COMMAND};
-    my $exePath  = $procInfo->{EXECUTABLE_FILE};
+    if ( $procInfo->{PPID} != 1 ) {
+        return undef;
+    }
+
+    my $command = $procInfo->{COMMAND};
+    my $exePath = $procInfo->{EXECUTABLE_FILE};
 
     #子进程取父进程的cmd
     my $masterProcInfo = $self->getMasterProc();
@@ -140,15 +145,18 @@ sub collect {
     my $cfg  = Config::Neat->new();
     my $data = $cfg->parse_file($configFile);
 
-    my $worker_connections   = getStringValue( $self, $data->{'events'}, 'worker_connections', '1024' );
-    my $worker_processes     = getStringValue( $self, $data,             'worker_processes',   '1' );
+    my $worker_connections   = $self->getStringValue( $data->{'events'}, 'worker_connections', '1024' );
+    my $worker_processes     = $self->getStringValue( $data,             'worker_processes',   '1' );
     my $http                 = $data->{'http'};
-    my $default_type         = getStringValue( $self, $http, 'default_type' );
-    my $client_max_body_size = getStringValue( $self, $http, 'client_max_body_size', '1m' );
-    my $sendfile             = getStringValue( $self, $http, 'sendfile',             'on' );
-    my $tcp_nopush           = getStringValue( $self, $http, 'tcp_nopush',           'off' );
-    my $gzip                 = getStringValue( $self, $http, 'gzip',                 'off' );
-    my @upstream             = getUpstream( $self, $http, 'upstream' );
+    my $default_type         = $self->getStringValue( $http, 'default_type' );
+    my $client_max_body_size = $self->getStringValue( $http, 'client_max_body_size', '1m' );
+    my $sendfile             = $self->getStringValue( $http, 'sendfile',             'on' );
+    my $tcp_nopush           = $self->getStringValue( $http, 'tcp_nopush',           'off' );
+    my $gzip                 = $self->getStringValue( $http, 'gzip',                 'off' );
+    my $upstream             = $self->getUpstream( $http, 'upstream' );
+
+    my $stream          = $data->{'stream'};
+    my $stream_upstream = $self->getUpstream( $stream, 'upstream' );
 
 =pod
     my $nginxInfo = {};
@@ -167,23 +175,30 @@ sub collect {
     $nginxInfo->{SENDFILE}  = $sendfile ;
     $nginxInfo->{TCP_NOPUSH}  = $tcp_nopush ;
     $nginxInfo->{GZIP}  = $gzip ;
-    $nginxInfo->{UPSTREAM}  = \@upstream ;
+    $nginxInfo->{UPSTREAM}  = $upstream ;
 =cut
 
-    my $variable = getSetVariable( $self, $http, 'set' );
+    my $variable = $self->getSetVariable( $http, 'set' );
 
     my @clusterCollect = ();
     my $clusterMember  = {};
-    my $incldes        = getIncludeContents( $self, $http, 'server' );
-    my $serverRs       = transObjRef( $self, $http->{'server'}, $incldes );
+    my $includes       = $self->getIncludeContents( $http, 'server' );
+    my $serverRs       = $self->transObjRef( $http->{'server'}, $includes );
+
+    my $stream_includes = $self->getIncludeContents( $stream, 'server' );
+    my $stream_serverRs = $self->transObjRef( $stream->{'server'}, $stream_includes );
 
     #整体配置文件未定义server，全部都是include的情况
     if ( scalar(@$serverRs) == 0 ) {
-        $serverRs = transObjRef( $self, $http, $incldes );
+        $serverRs = $self->transObjRef( $http, $includes );
+    }
+
+    if ( scalar(@$stream_serverRs) == 0 ) {
+        $stream_serverRs = $self->transObjRef( $stream, $includes );
     }
 
     #如果主配置和include配置都未定义server，直接退出
-    if ( scalar(@$serverRs) == 0 ) {
+    if ( scalar(@$serverRs) == 0 and scalar(@$stream_serverRs) == 0 ) {
         return undef;
     }
 
@@ -213,10 +228,10 @@ sub collect {
         $ins->{SENDFILE}             = $sendfile;
         $ins->{TCP_NOPUSH}           = $tcp_nopush;
         $ins->{GZIP}                 = $gzip;
-        $ins->{UPSTREAM}             = \@upstream;
+        $ins->{UPSTREAM}             = $upstream;
 
-        $ins->{'SERVICE_NAME'} = getStringValue( $self, $server, 'server_name' );
-        my $listen = getStringValue( $self, $server, 'listen' );
+        $ins->{'SERVICE_NAME'} = $self->getStringValue( $server, 'server_name' );
+        my $listen = $self->getStringValue( $server, 'listen' );
         my $port;
         if ( $listen =~ /(\d+)/ ) {
             $port = $1;
@@ -233,15 +248,60 @@ sub collect {
             $type = 'https';
         }
         $ins->{'SERVICE_TYPE'}      = $type;
-        $ins->{'CHARSET'}           = getStringValue( $self, $server, 'charset' );
-        $ins->{'KEEPALIVE_TIMEOUT'} = getStringValue( $self, $server, 'keepalive_timeout', '75' );
-        my $serverVariable = getSetVariable( $self, $server, 'set', $variable );
-        $ins->{'LOCATION'} = getLocation( $self, $server, 'location', $ins, $serverVariable );
+        $ins->{'CHARSET'}           = $self->getStringValue( $server, 'charset' );
+        $ins->{'KEEPALIVE_TIMEOUT'} = $self->getStringValue( $server, 'keepalive_timeout', '75' );
+        my $serverVariable = $self->getSetVariable( $server, 'set', $variable );
+        $ins->{'LOCATION'} = $self->getLocation( $server, 'location', $ins, $serverVariable );
 
-        $ins->{'MEMBER_PEER'} = getMemberPeer( $self, $ins, @upstream, $serverVariable );
+        $ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, $upstream, $serverVariable );
         push( @serverCollect, $ins );
 
         $clusterMember->{"$MGMT_IP:$port"} = $ins->{'MEMBER_PEER'};
+    }
+
+    for my $server (@$stream_serverRs) {
+
+        #扁平化处理
+        my $ins = {};
+        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+        $ins->{_OBJ_TYPE}     = 'NginxServer';
+        $ins->{'SERVER_NAME'} = $self->getStringValue( $server, 'server_name' );
+        my $listen = $self->getStringValue( $server, 'listen' );
+        my $port;
+        if ( $listen =~ /(\d+)/ ) {
+            $port = $1;
+        }
+        if ( $listen eq '' or $port eq '' ) {
+            next;
+        }
+        $ins->{'SERVER_PORT'} = $port;
+
+        #$ins->{PORT}           = $port;
+        #$ins->{ADMIN_PORT}     = $port;
+
+        my $type = 'stream';
+        $ins->{'SERVER_TYPE'}       = $type;
+        $ins->{'CHARSET'}           = $self->getStringValue( $server, 'charset' );
+        $ins->{'ACCESS_LOG'}        = $self->getStringValue( $server, 'access_log' );
+        $ins->{'ERROR_LOG'}         = $self->getStringValue( $server, 'error_log' );
+        $ins->{'KEEPALIVE_TIMEOUT'} = $self->getStringValue( $server, 'keepalive_timeout', '75' );
+        my $serverVariable = $self->getSetVariable( $server, 'set', $variable );
+
+        #$ins->{'LOCATION'} = $self->getLocation( $server, 'location', $ins, $serverVariable );
+        my $proxy_pass = $self->getStringValue( $server, 'proxy_pass' );
+        $ins->{'PROXY_PASS'} = $proxy_pass;
+
+        for my $ups (@$stream_upstream) {
+            my $name = $ups->{'NAME'};
+            if ( $proxy_pass =~ $name ) {
+                $ins->{'BACKEND'} = $ups;
+                last;
+            }
+        }
+
+        #$ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, @upstream, $serverVariable );
+        #$ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, $upstream, $serverVariable );
+        push( @serverCollect, $ins );
     }
 
     #$nginxInfo->{SERVERS} = \@serverCollect;
@@ -336,7 +396,7 @@ sub getIncludeFiles {
 
 sub getIncludeContents {
     my ( $self, $data, $key ) = @_;
-    my $files = getIncludeFiles( $self, $data, 'include' );
+    my $files = $self->getIncludeFiles( $data, 'include' );
     if ( scalar(@$files) > 0 ) {
         my @insCollections = ();
         for my $file (@$files) {
@@ -467,10 +527,12 @@ sub getUpstream {
     my ( $self, $data, $key ) = @_;
     my @upstreamList = ();
     if ( exists( $data->{$key} ) ) {
-        my $upsRs = transObjRef( $self, $data->{$key} );
+        my $upsRs = $self->transObjRef( $data->{$key} );
         for my $ups (@$upsRs) {
             my $upstream = {};
-            $upstream->{'NAME'} = getStringValue( $self, $ups, '' );
+            $upstream->{'_OBJ_CATEGORY'} = "INS";
+            $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
+            $upstream->{'NAME'}          = $self->getStringValue( $ups, '' );
             my @upsList = ();
             my $srRs    = $ups->{'server'};
             if ( not defined($srRs) ) {    #只定义upstream未定义server
@@ -478,26 +540,48 @@ sub getUpstream {
             }
             elsif ( scalar(@$srRs) > 1 ) {    #正常定义
                 for my $sr (@$srRs) {
-                    if ( scalar(@$sr) > 0 ) {
-                        my $target = @$sr[0];
-                        if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
-                            $target = $1;
-                        }
-                        push( @upsList, $target );
+                    my $target = undef;
+                    if ( ref($sr) eq "ARRAY" and scalar(@$sr) > 0 ) {
+                        $target = @$sr[0];
                     }
+                    else {
+                        $target = $sr;
+                    }
+                    if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
+                        $target = $1;
+                        my ( $t_ip, $t_port ) = split /[:]/, $target;
+                        $upstream->{'BACKEND_IP'}   = $t_ip;
+                        $upstream->{'BACKEND_PORT'} = $t_port;
+
+                        #push( @upsList, $t_ip);
+                        #push( @upsList, $t_port);
+                        push( @upstreamList, $upstream );
+                    }
+                    push( @upsList, $target );
+
+                    #}
                 }
             }
-            else {                            #upstream 只定义一个server
+            else {    #upstream 只定义一个server
                 if ( scalar(@$srRs) > 0 ) {
                     my $target = @$srRs[0];
                     if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
                         $target = $1;
+                        my ( $t_ip, $t_port ) = split /[:]/, $target;
+                        $upstream->{'BACKEND_IP'}   = $t_ip;
+                        $upstream->{'BACKEND_PORT'} = $t_port;
+
+                        #push( @upsList, $t_ip);
+                        #push( @upsList, $t_port);
                     }
                     push( @upsList, $target );
+                    $upstream->{'TARGET'} = \@upsList;
+                    push( @upstreamList, $upstream );
                 }
             }
-            $upstream->{'TARGET'} = \@upsList;
-            push( @upstreamList, $upstream );
+
+            #$upstream->{'TARGET'} = \@upsList;
+            #push( @upstreamList, $upstream );
         }
     }
     return \@upstreamList;
@@ -507,33 +591,34 @@ sub getLocation {
     my ( $self, $data, $key, $serverIns, $frontVariable ) = @_;
     my @lcList = ();
     if ( exists( $data->{$key} ) ) {
-        my $incldes  = getIncludeContents( $self, $data, 'location' );
-        my $location = transObjRef( $self, $data->{$key}, $incldes );
+        my $includes = $self->getIncludeContents( $data, 'location' );
+        my $location = $self->transObjRef( $data->{$key}, $includes );
         for my $lc (@$location) {
-            my $name = getStringValue( $self, $lc, '' );
+            my $name = $self->getStringValue( $lc, '' );
             if ( $name =~ '50x' or $name =~ /status/ ) {
                 next;
             }
             my $ins = {};
             $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
             $ins->{_OBJ_TYPE}     = 'NginxLocation';
-            $ins->{'NAME'}        = getStringValue( $self, $lc, '' );
+            $ins->{'NAME'}        = $self->getStringValue( $lc, '' );
             my $status = 'off';
             if ( $ins =~ /status/ ) {
                 $status = 'on';
             }
-            $serverIns->{'SERVICE_STATUS'} = $status;
+
+            #$serverIns->{'SERVER_STATUS'} = $status;
 
             #location自定义变量
-            my $variables  = getSetVariable( $self, $lc, 'set', $frontVariable );
-            my $proxy_pass = getStringValue( $self, $lc, 'proxy_pass' );
+            my $variables  = $self->getSetVariable( $lc, 'set', $frontVariable );
+            my $proxy_pass = $self->getStringValue( $lc, 'proxy_pass' );
             if ( defined($proxy_pass) and $proxy_pass ne '' ) {
-                $proxy_pass = getProxyPass( $self, $proxy_pass, $variables );
+                $proxy_pass = $self->getProxyPass( $proxy_pass, $variables );
             }
 
             $ins->{'PROXY_PASS'} = $proxy_pass;
-            $ins->{'ALIAS'}      = getStringValue( $self, $lc, 'alias' );
-            $ins->{'ROOT'}       = getStringValue( $self, $lc, 'root' );
+            $ins->{'ALIAS'}      = $self->getStringValue( $lc, 'alias' );
+            $ins->{'ROOT'}       = $self->getStringValue( $lc, 'root' );
             push( @lcList, $ins );
         }
     }
@@ -556,22 +641,24 @@ sub getMemberPeer {
             my $name = $ups->{'NAME'};
             if ( $proxy_pass =~ $name ) {
                 $isUps = 1;
+                $lc->{BACKEND} = $ups;
                 my $target = $ups->{'TARGET'};
                 for my $t (@$target) {
                     push( @memberpeer, $t );
                 }
-                last;
+
+                #last;
             }
         }
 
         #自定义变量处理
         if ( $isUps == 0 ) {
-            $proxy_pass = getProxyPass( $self, $proxy_pass, $variables );
+            $proxy_pass = $self->getProxyPass( $proxy_pass, $variables );
         }
 
         #静态文本
         if ( $isUps == 0 ) {
-            $proxy_pass = getProxyPass( $self, $proxy_pass );
+            $proxy_pass = $self->getProxyPass($proxy_pass);
         }
         if ( defined($proxy_pass) ) {
             if ( $proxy_pass =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {

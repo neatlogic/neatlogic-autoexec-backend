@@ -1,10 +1,10 @@
 {
-    "label": "Mysql Instance",
+    "label": "VastBase Instance",
     "collection": "COLLECT_DBINS",
     "docroot": null,
     "collection_label": "Database Instance",
     "filter": {
-        "_OBJ_TYPE": "Mysql"
+        "_OBJ_TYPE": "Vastbase"
     },
     "fields": [
         {
@@ -48,6 +48,11 @@
             "type": "String"
         },
         {
+            "name": "VIP",
+            "desc": "vip",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "Port",
             "type": "String"
@@ -87,11 +92,6 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
-            "type": "String"
-        },
-        {
-            "name": "SOCKET_PATH",
-            "desc": "Socket Path",
             "type": "String"
         },
         {
@@ -310,52 +310,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Cat",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "GRANTED_DBS",
-                    "desc": "DB Granted",
-                    "type": "Array",
-                    "subset": [
-                        {
-                            "name": "_value",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "HOSTS",
-                    "desc": "Host Granted",
-                    "type": "Array",
-                    "subset": [
-                        {
-                            "name": "_value",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "MAIN_ENV",
             "desc": "Main Process Environment",
             "type": "JsonArray",
@@ -480,16 +434,6 @@
             "name": "IS_CLUSTER",
             "desc": "Is Cluster",
             "type": "Int"
-        },
-        {
-            "name": "MYSQL_BASE",
-            "desc": "Mysql Base",
-            "type": "String"
-        },
-        {
-            "name": "MYSQL_DATADIR",
-            "desc": "Mysql Data directory",
-            "type": "String"
         },
         {
             "name": "RUN_ON",
