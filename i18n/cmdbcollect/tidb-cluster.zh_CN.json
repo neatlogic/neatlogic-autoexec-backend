@@ -3,7 +3,9 @@
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
     "collection_label": "TiDB集群",
-    "filter": {},
+    "filter": {
+        "_OBJ_TYPE": "TiDBCluster"
+    },
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
@@ -21,8 +23,18 @@
             "type": "String"
         },
         {
+            "name": "TIUP_IP",
+            "desc": "Tiup Ip",
+            "type": "String"
+        },
+        {
             "name": "UNIQUE_NAME",
             "desc": "唯一名",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本号",
             "type": "String"
         },
         {
@@ -185,6 +197,112 @@
                         {
                             "name": "OS_ID",
                             "desc": "OS CMDB ID",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DATABASES",
+            "desc": "数据库列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "数据库名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "CHARSET",
+                    "desc": "字符集",
+                    "type": "String"
+                },
+                {
+                    "name": "COLLATION",
+                    "desc": "排序",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "USERS",
+                    "desc": "用户列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONNECTION",
+                    "desc": "数据库连接",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SERVICENAME",
+                            "desc": "服务名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "USERNAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CONNECTION",
+                            "desc": "连接串",
                             "type": "String"
                         }
                     ]

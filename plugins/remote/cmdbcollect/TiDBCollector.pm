@@ -43,6 +43,7 @@ sub init {
     my $procInfo = $self->{procInfo};
     $self->{mgmtIp}           = $procInfo->{MGMT_IP};
     $self->{dbGrantedUserMap} = {};
+    $self->{userGrantedDBMap} = {};
 }
 
 sub getVersion {
@@ -366,16 +367,17 @@ sub getUsers {
     # +--------+------------------------------------------------------+
     my @users;
     foreach my $row (@$rows) {
-        if ( $row->{user} ne '' ) {
+        my $userName   = $row->{user};
+        if ( $userName ne '' ) {
             my $hostsDef   = $row->{host};
             my @grantHosts = split( ',', $hostsDef );
 
             my $user = {
                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                 _OBJ_TYPE     => 'DB-USER',
-                NAME          => $row->{user},
+                NAME          => $userName,
                 HOSTS         => \@grantHosts,
-                GRANTED_DBS   => $self->getUserGrants( $mysql, $dbNames, $row->{user}, $hostsDef )
+                GRANTED_DBS   => $self->getUserGrants( $mysql, $dbNames, $userName, $hostsDef )
             };
             push( @users, $user );
         }
@@ -553,7 +555,7 @@ sub collect {
                 @tiDBComponents,
                 {
                     _OBJ_CATEGORY => $dbInsObjCat,
-                    _OBJ_TYPE     => 'TiDB-' . $role,
+                    _OBJ_TYPE     => 'TiDBComponent',
                     _APP_TYPE     => 'TiDB-' . $role,
                     NAME          => "$id/$role",
                     ID            => $id,
@@ -595,23 +597,31 @@ sub collect {
     foreach my $db (@$databases) {
         my $dbname  = $db->{'NAME'};
         my $dbUsers = $dbUsersMap->{$dbname};
-        $db->{USERS}     = \@$dbUsers;
+        my @dbUserNames = keys(%$dbUsersMap);
+        my @dbUserList = ();
+        foreach my $dbUserName ( @dbUserNames ) {
+                my $user = {};
+                $user->{_OBJ_CATEGORY}  = CollectObjCat->get('DB');
+                $user->{_OBJ_TYPE}      = 'DB-USER';
+                $user->{NAME}           = $dbUserName;
+
+                push( @dbUserList,$user );
+        }
+
+        $db->{USERS}     = \@dbUserList;
         $db->{INSTANCES} = \@dbInses;
 
-        # my @dbConns = ();
-        # foreach my $dbUser (@$dbUsers) {
-        #     my $dbConnect = {};
-        #     $dbConnect->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
-        #     $dbConnect->{_OBJ_TYPE}     = 'DB-CONNECT';
-        #     $dbConnect->{VIP}           = $mgmtIp;
-        #     $dbConnect->{PORT}          = '3306';
-        #     $dbConnect->{SERVICENAME}   = $dbname;
-        #     $dbConnect->{USERNAME}      = $dbUser->{NAME};
-        #     $dbConnect->{CONNECTION}    = '';
-
-        #     push( @dbConns, $dbConnect );
-        # }
-        # $db->{'CONNECTION'} = \@dbConns;
+        #数据库连接
+        my @dbConns = ();
+        foreach my $dbUser (@dbUserList) {
+             my $dbConnect = {};
+             $dbConnect->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+             $dbConnect->{_OBJ_TYPE}     = 'DB-CONNECT';
+             $dbConnect->{SERVICE_NAME}   = $dbname;
+             $dbConnect->{USER_NAME}      = $dbUser->{NAME};
+             push( @dbConns, $dbConnect );
+        }
+        $db->{'CONNECTIONS'} = \@dbConns;
     }
 
     push( @collectSet, $tidbInfo );
@@ -623,11 +633,13 @@ sub collect {
             UNIQUE_NAME   => "TiDB:$primaryComponentIp:$primaryComponentPort",
             NAME          => $clusterName,
             VERSION       => $version,
+            TIUP_IP       => $mgmtIp,
             PRIMARY_IP    => $primaryComponentIp,
             PORT          => $primaryComponentPort,
             CLUSTER_MODE  => 'distribute',
             MEMBER_PEER   => \@sortedDBInsAddrs,
-            COMPONENTS    => \@tiDBComponents
+            COMPONENTS    => \@tiDBComponents,
+            DATABASES     => \@$databases
         };
         push( @collectSet, $tidbClusterInfo );
     }
