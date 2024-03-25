@@ -47,10 +47,10 @@ our $PK_CONFIG = {
 };
 
 our $INDEX_FIELDS = {
-    CLUSTER => ['VIP', 'PRIMARY_IP', 'MEMBER_PEER'],
-    FCSWITCH => ['WWNN', 'LINK_TABLE.PEER_WWPN'],
-    SWITCH => ['DEV_NAME'],
-    STORAGE => ['VOLUMES.NAME', 'LUNS.WWN'],
+    CLUSTER  => [ 'VIP',  'PRIMARY_IP', 'MEMBER_PEER' ],
+    FCSWITCH => [ 'WWNN', 'LINK_TABLE.PEER_WWPN' ],
+    SWITCH   => ['DEV_NAME'],
+    STORAGE  => [ 'VOLUMES.NAME', 'LUNS.WWN' ],
 };
 
 sub get {
