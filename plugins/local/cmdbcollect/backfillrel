@@ -121,11 +121,11 @@ def genInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        # "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        # "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     refCls.append(refInfo)
             else:
@@ -159,11 +159,11 @@ def genInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     belongCls.append(belongCl)
             else:
@@ -252,11 +252,11 @@ def genDBInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     refCls.append(refInfo)
             else:
@@ -289,11 +289,11 @@ def genDBInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     belongCls.append(belongCl)
             else:
@@ -374,8 +374,8 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
-                        "SN": remotePort["SN"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
                         "PORT": remotePort["MAC_TABLE"][0]["PORT"],
                     }
                     refSwPorts.append(refSwPort)
@@ -420,8 +420,8 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        # "DEV_NAME": remoteFcPort["DEV_NAME"],
-                        "SN": remoteFcPort["SN"],
+                        # "DEV_NAME": remoteFcPort.get("DEV_NAME"),
+                        "SN": remoteFcPort.get("SN"),
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
@@ -492,8 +492,8 @@ def genLBRel(db):
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
-                        "SN": remotePort["SN"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
                         "PORT": remotePort["MAC_TABLE"][0]["PORT"],
                     }
                     refSwPorts.append(refSwPort)
@@ -574,8 +574,8 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
-                        "SN": remotePort["SN"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
                         "PORT": remotePort["MAC_TABLE"][0]["PORT"],
                     }
                     refSwPorts.append(refSwPort)
@@ -617,8 +617,8 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        # "DEV_NAME": remoteFcPort["DEV_NAME"],
-                        "SN": remoteFcPort["SN"],
+                        # "DEV_NAME": remoteFcPort.get("DEV_NAME"),
+                        "SN": remoteFcPort.get("SN"),
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
@@ -660,8 +660,8 @@ def genOSRel(db):
                             "_OBJ_TYPE": "STORAGE-NFS-VOLUME",
                             # "MGMT_IP": nfsIp,
                             "MGMT_IP": remoteVolumn["MGMT_IP"],
-                            "DEV_NAME": remoteVolumn["DEV_NAME"],
-                            "SN": remoteVolumn["SN"],
+                            # "DEV_NAME": remoteVolumn.get("DEV_NAME"),
+                            "SN": remoteVolumn.get("SN"),
                             "VOLUME_NAME": remoteVolumn["VOLUMES"][0]["NAME"],
                         }
                     ]
@@ -697,8 +697,8 @@ def genOSRel(db):
                             "_OBJ_CATEGORY": remoteLun["LUNS"][0]["_OBJ_CATEGORY"],
                             "_OBJ_TYPE": remoteLun["LUNS"][0]["_OBJ_TYPE"],
                             "MGMT_IP": remoteLun["MGMT_IP"],
-                            # "DEV_NAME": remoteLun["DEV_NAME"],
-                            "SN": remoteLun["SN"],
+                            # "DEV_NAME": remoteLun.get("DEV_NAME"),
+                            "SN": remoteLun.get("SN"),
                             "WWN": remoteLun["LUNS"][0]["WWN"],
                         }
                     ]
@@ -783,7 +783,7 @@ def genStorageRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "SN": remoteFcPort["SN"],
+                        "SN": remoteFcPort.get("SN"),
                         "PORT": remoteFcPort["LINK_TABLE"][0]["DOMAIN_IDX"],
                     }
                     refFcPorts.append(refFcPort)
@@ -832,11 +832,11 @@ def genSwitchRel(db):
                             neighbor["_OBJ_CATEGORY"] = dev["_OBJ_CATEGORY"]
                             neighbor["_OBJ_TYPE"] = "SWITCH-PORT"
                             neighbor["MGMT_IP"] = dev["MGMT_IP"]
-                            neighbor["SN"] = dev["SN"]
+                            neighbor["SN"] = dev.get("SN")
 
             if needUpdate:
                 cdpDestCollection.update_one(
-                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo["SN"]},
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
                     {"$set": {"PORTS": ports}},
                 )
         except Exception as ex:
@@ -912,7 +912,7 @@ def handleFCSwitchCacadePort(db):
 
             if zoneNeedUpdate:
                 fcSwCollection.update_one(
-                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo["SN"]},
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
                     {"$set": {"ZONES": zones}},
                 )
         except Exception as ex:
@@ -978,7 +978,7 @@ def handleFCSwitchCacadePort(db):
                     zone["WWPN_MEMBERS"] = new_wwpn_members
             if configNeedUpdate:
                 fcSwCollection.update_one(
-                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo["SN"]},
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
                     {"$set": {"CONFIGS": configs}},
                 )
         except Exception as ex:
@@ -990,6 +990,7 @@ def getCascadeSwitchAttr(fcSwCollection, switchwwnn):
     fcSw = fcSwCollection.find_one(
         {"WWNN": {"$eq": switchwwnn}}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1}
     )
+
     sn = ""
     doaminIdx2wwpnMap = {}
     doaminIdx2peerwwpnMap = {}
@@ -997,7 +998,7 @@ def getCascadeSwitchAttr(fcSwCollection, switchwwnn):
     peerwwpn2domainIdxMap = {}
     peerwwpn2portMap = {}
     if fcSw is not None:
-        sn = fcSw["SN"]
+        sn = fcSw.get("SN")
         for port in fcSw.get("PORTS"):
             doaminIdx2wwpnMap[port["DOMAIN_IDX"]] = port["WWPN"]
             peerWwpn = port["PEER_WWPN"]
