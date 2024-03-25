@@ -374,14 +374,49 @@
             ]
         },
         {
+            "name": "REDIS_MODE",
+            "desc": "REDIS部署模式",
+            "type": "String"
+        },
+        {
+            "name": "REDIS_ROLE",
+            "desc": "REDIS部署角色",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_MODE",
-            "desc": "集群模式",
+            "desc": "集群部署模式",
             "type": "String"
         },
         {
             "name": "CLUSTER_ROLE",
-            "desc": "集群角色",
+            "desc": "集群部署角色",
             "type": "String"
+        },
+        {
+            "name": "SENTINELS",
+            "desc": "哨兵",
+            "type": "Text"
+        },
+        {
+            "name": "SENTINEL_MONITOR",
+            "desc": "哨兵监控",
+            "type": "Text"
+        },
+        {
+            "name": "MAX_CONNECTION",
+            "desc": "连接数大小配置",
+            "type": "Text"
+        },
+        {
+            "name": "CONFIG_MEMORY_SIZE",
+            "desc": "配置内存大小",
+            "type": "Text"
+        },
+        {
+            "name": "AOF_ENABLED",
+            "desc": "AOF启用",
+            "type": "Text"
         },
         {
             "name": "COMMAND",
@@ -392,6 +427,16 @@
             "name": "CONFIG_FILE",
             "desc": "配置文件",
             "type": "String"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "数据目录",
+            "type": "Text"
+        },
+        {
+            "name": "LOGFILE",
+            "desc": "日志目录",
+            "type": "Text"
         },
         {
             "name": "EXECUTABLE",
@@ -442,7 +487,7 @@
         },
         {
             "name": "SLAVE_NODES",
-            "desc": "集群节点",
+            "desc": "备集群节点",
             "type": "JsonArray",
             "subset": [
                 {

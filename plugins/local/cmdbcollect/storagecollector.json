@@ -83,6 +83,10 @@
                         "text": "IBM_F900",
                         "value": "IBM_F900"
                     },
+		    {
+                        "text": "IBM_FS9200",
+                        "value": "IBM_FS9200"
+                    },
                     {
                         "text": "IBM_Flash",
                         "value": "IBM_Flash"

@@ -36,6 +36,7 @@ sub collect {
     my $procInfo         = $self->{procInfo};
     my $envMap           = $procInfo->{ENVIRONMENT};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
+    my $exeFile          = $procInfo->{EXECUTABLE_FILE};
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
@@ -66,7 +67,7 @@ sub collect {
 
         $homePath = $zooLibPath;
         foreach my $lib ( glob("$zooLibPath/zookeeper-*.jar") ) {
-            if ( $lib =~ /zookeeper-([\d\.]+)\.jar/ ) {
+            if ( $lib =~ /zookeeper-([\d\.\-]+)\.jar/ ) {
                 $version = $1;
                 $appInfo->{MAIN_LIB} = $lib;
             }
@@ -77,7 +78,8 @@ sub collect {
         print("WARN: Can not get home path from command:$cmdLine, failed.\n");
         return;
     }
-
+    $appInfo->{BIN_PATH}     = dirname($exeFile);
+    $appInfo->{EXE_PATH}     = $exeFile;
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{VERSION}      = $version;
 
@@ -85,9 +87,8 @@ sub collect {
         $appInfo->{MAJOR_VERSION} = "Zookeeper$1";
     }
 
-    my $pos      = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
-    my $confPath = substr( $cmdLine, $pos );
-
+    my $pos          = rindex( $cmdLine, 'QuorumPeerMain' ) + 15;
+    my $confPath     = substr( $cmdLine, $pos );
     my $realConfPath = $confPath;
     if ( $confPath =~ /^\.{1,2}[\/\\]/ ) {
         if ( -e "/proc/$pid/cwd" ) {
@@ -105,54 +106,68 @@ sub collect {
         $realConfPath = Cwd::abs_path($confPath);
     }
     if ( defined($realConfPath) ) {
-        $confPath = $realConfPath;
-        $appInfo->{CONFIG_PATH} = dirname($realConfPath);
+        $confPath                    = $realConfPath;
+        $appInfo->{CONFIG_PATH}      = dirname($realConfPath);
+        $appInfo->{CONFIG_FILE_PATH} = $realConfPath;
     }
-
     $self->getJavaAttrs($appInfo);
-
+    my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
     my $clusterMembers = [];
-    my @members;
-    my $confMap   = {};
+    my $confMap        = {};
+    my $primaryMember;
+    my $primaryMemberNo =~ 0 + 1;
     my $confLines = $self->getFileLines($confPath);
+
     foreach my $line (@$confLines) {
         $line =~ s/^\s*|\s*$//g;
         if ( $line !~ /^#/ ) {
             my ( $key, $val ) = split( /\s*=\s*/, $line );
             $confMap->{$key} = $val;
 
+            #tickTime==>2000
+            #initLimit==>10
+            #syncLimit==>5
+            #dataDir==>/app/app/zookeeper_home/data
+            #dataLogDir==>/app/app/zookeeper_home/log
+            #clientPort==>2181
+
             # server.1=192.168.1.122:2182:2183
             # server.2=192.168.1.123:2182:2183
             # server.3=192.168.1.124:2182:2183
-            if ( $key =~ /server\.\d+/ ) {
-                push( @members, { NAME => $key, VALUE => $val } );
+            if ( $key =~ /server\.(\d+)/ ) {
                 my @ipInfos = split( ':', $val );
                 push( @$clusterMembers, "$ipInfos[0]:$ipInfos[1]" );
                 push( @$clusterMembers, "$ipInfos[0]:$ipInfos[2]" );
+                my $memberNo = int($1);
+                if ( $memberNo < $primaryMemberNo ) {
+                    $primaryMember = $ipInfos[0];
+                }
             }
         }
     }
+
     my @sortedMembers = sort (@$clusterMembers);
-    @members                   = sort(@members);
-    $appInfo->{DATA_DIR}       = $confMap->{dataDir};
+    $appInfo->{DATA_PATH}      = $confMap->{dataDir};
+    $appInfo->{LOG_PATH}       = $confMap->{dataLogDir};
     $appInfo->{PORT}           = $confMap->{clientPort};
+    $appInfo->{TICK_TIME}      = $confMap->{tickTime};
+    $appInfo->{INIT_LIMIT}     = $confMap->{initLimit};
+    $appInfo->{SYNC_LIMIT}     = $confMap->{syncLimit};
     $appInfo->{ADMIN_PORT}     = $confMap->{'admin.serverPort'};
     $appInfo->{ADMIN_ENABLE}   = $confMap->{'admin.enableServer'};
-    $appInfo->{MEMBERS}        = \@members;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
 
-    $appInfo->{NAME} = $procInfo->{HOST_NAME};
+    $appInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
+    $appInfo->{INSTANCE_NAME} = $procInfo->{HOST_NAME};
 
     my $clusterInfo = undef;
     if ( scalar(@$clusterMembers) > 1 ) {
-        my $objCat      = CollectObjCat->get('CLUSTER');
         my $clusterInfo = {
-            _OBJ_CATEGORY => $objCat,
-            _OBJ_TYPE     => 'ZookeeperCluster',
-            MEMBERS       => []
+            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+            _OBJ_TYPE     => 'ZookeeperCluster'
         };
-        my $uniqName = 'Zookeeper:' . $members[0];
+        my $uniqName = 'Zookeeper:' . $primaryMember;
         $clusterInfo->{UNIQUE_NAME}      = $uniqName;
         $clusterInfo->{NAME}             = $uniqName;
         $clusterInfo->{CLUSTER_MODE}     = 'Cluster';

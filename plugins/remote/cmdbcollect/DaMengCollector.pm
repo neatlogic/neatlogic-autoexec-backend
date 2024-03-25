@@ -11,7 +11,6 @@ package DaMengCollector;
 #use parent 'BaseCollector';    #继承BaseCollector
 use BaseCollector;
 our @ISA = qw(BaseCollector);
-use Data::Dumper;
 use Socket;
 use File::Spec;
 use File::Basename;

@@ -102,7 +102,6 @@ sub main {
 
     if ( not defined($brand) or $brand eq '' ) {
         print("ERROR: Can not discover the firewall device brand.\n");
-        exit(-1);
     }
     else {
         print("INFO: Switch brand: $brand.\n");

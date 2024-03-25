@@ -208,6 +208,11 @@
             "type": "String"
         },
         {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "配置文件路径",
+            "type": "String"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "执行文件路径",
             "type": "String"

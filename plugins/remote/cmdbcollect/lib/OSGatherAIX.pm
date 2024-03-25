@@ -308,7 +308,7 @@ sub getMemInfo {
 sub getDNSInfo {
     my ( $self, $osInfo ) = @_;
 
-    my @dnsServers;
+    my @dnsServers = ();
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(\S+)\s*$/i ) {

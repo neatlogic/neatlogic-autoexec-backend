@@ -75,6 +75,7 @@ sub getMemInfo {
         $line =~ s/^\s*|\s*$//g;
         my @idvMemInfos = split( /\s+/, $line );
         my $info        = {
+            NAME     => $idvMemInfos[0],
             DB_NAME  => $idvMemInfos[0],
             MEM_USED => int( $idvMemInfos[1] * 100 / 1024 / 1024 + 0.5 ) / 100,
             HWM_USED => int( $idvMemInfos[2] * 100 / 1024 / 1024 + 0.5 ) / 100,
