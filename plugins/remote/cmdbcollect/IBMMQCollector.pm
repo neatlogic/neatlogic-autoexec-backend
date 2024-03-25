@@ -315,7 +315,7 @@ sub collect {
     #一个QManager作为一个实例，这个带端口，这个肯定是最好的
     $appInfo->{_OBJ_TYPE}     = 'IBMMQ';
     $appInfo->{_APP_TYPE}     = 'QManager';
-    $appInfo->{INSTANCE_NAME} = $qmgrName;
+    $appInfo->{SERVER_NAME} = $qmgrName;
     $appInfo->{PORT}          = $qmgrPort;
     $appInfo->{CCSID}         = $self->getQmgrCCSID($qmgrName);
     $appInfo->{QUEUES}        = $self->getQueuesInQmgr($qmgrName, $qmgrPort);

@@ -119,10 +119,10 @@ sub collect {
     $appInfo->{CONFIG_FILE_PATH} = $confFile;
 
     if ( $cmdLine =~ /\borg.apache.rocketmq.namesrv.NamesrvStartup\b/ ) {
-        $appInfo->{_APP_TYPE}     = 'rocketmq-namesrv';
-        $appInfo->{UNIQUE_NAME}   = "rocketmq-namesrv-$mgmtIp-$port";
-        $appInfo->{INSTANCE_NAME} = "rocketmq-namesrv-$mgmtIp-$port";
-        $appInfo->{SERVICE_NAME}  = "rocketmq-namesrv";
+        $appInfo->{_APP_TYPE}    = 'rocketmq-namesrv';
+        $appInfo->{UNIQUE_NAME}  = "rocketmq-namesrv-$mgmtIp-$port";
+        $appInfo->{SERVER_NAME}  = "rocketmq-namesrv-$mgmtIp-$port";
+        $appInfo->{SERVICE_NAME} = "rocketmq-namesrv";
     }
     elsif ( $cmdLine =~ /\borg.apache.rocketmq.broker.BrokerStartup\b/ ) {
         $appInfo->{_APP_TYPE} = 'rocketmq-broker';
@@ -134,7 +134,7 @@ sub collect {
         $appInfo->{PORT}                     = $listenPort;
         $appInfo->{SERVICE_NAME}             = "rocketmq-broker";
         $appInfo->{UNIQUE_NAME}              = "rocketmq-broker-$mgmtIp-$listenPort";
-        $appInfo->{INSTANCE_NAME}            = "rocketmq-broker-$mgmtIp-$listenPort";
+        $appInfo->{SERVER_NAME}              = "rocketmq-broker-$mgmtIp-$listenPort";
         $appInfo->{BROKER_CLUSTER_NAME}      = $brokerConf->{'brokerClusterName'};         #集群名称
         $appInfo->{BROKER_NAME}              = $brokerConf->{'brokerName'};                #broker名称
         $appInfo->{BROKER_ID}                = $brokerConf->{'brokerId'};

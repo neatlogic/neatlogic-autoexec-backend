@@ -80,6 +80,38 @@
             ]
         },
         {
+            "name": "SERVICE_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "服务名列表",
+            "type": "Array"
+        },
+        {
+            "name": "SERVICES",
+            "desc": "服务名对象列表",
+            "type": "JSONArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                }
+            ]
+        },       
+        {
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
@@ -102,6 +134,33 @@
                 {
                     "name": "DEFAULT_TABLESPACE",
                     "desc": "默认表空间",
+                    "type": "String"
+                }
+            ]
+        },        
+        {
+            "name": "CONNECTIONS",
+            "desc": "访问入口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "用户名",
                     "type": "String"
                 }
             ]

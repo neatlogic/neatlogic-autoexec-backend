@@ -451,17 +451,22 @@
                 },
                 {
                     "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
                     "desc": "DB Name",
                     "type": "String"
                 },
                 {
-                    "name": "DEFAULT_CHARACTER_SET",
-                    "desc": "Default Charset",
+                    "name": "VIP",
+                    "desc": "VIP",
                     "type": "String"
                 },
                 {
-                    "name": "DEFAULT_COLLATION",
-                    "desc": "Default Collation",
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
                     "type": "String"
                 }
             ]

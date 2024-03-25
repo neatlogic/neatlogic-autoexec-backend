@@ -94,7 +94,7 @@ sub getUserInfo {
     my $sqlplus = $self->{sqlplus};
     my $sql     = q{select du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')};
     if ( defined($pdbName) and $pdbName ne '' ) {
-        $objCat = 'DB';
+        $objCat = CollectObjCat->get('DB');
         $sql    = "alter session set container=$pdbName;\n$sql";
     }
 
@@ -290,12 +290,21 @@ sub getTcpInfo {
     my $svcNameToLsnrMap = $self->{svcNameToLsnrMap};
 
     my @listeners = ();
+    my @services  = ();
     foreach my $svcName (@$serviceNames) {
         my $lsnrs = $svcNameToLsnrMap->{$svcName};
         if ( defined($lsnrs) ) {
             push( @listeners, @$lsnrs );
         }
+
+        push( @services, {
+            _OBJ_CATEGORY => CollectObjCat->get('DB'),
+            _OBJ_TYPE => 'ORACLE-SERVICE',
+            SERVICE_NAME => $svcName,
+            VIP => undef
+        } );
     }
+    $insInfo->{SERVICES} = \@services;
 
     if ( defined($oraSid) ) {
         my $lsnrs = $insNameToLsnrMap->{$oraSid};
@@ -474,9 +483,9 @@ sub collectCDB {
     }
     map { $dbInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
 
-    $dbInfo->{_OBJ_CATEGORY} = 'DB';
+    $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
     $dbInfo->{_OBJ_TYPE}     = 'Oracle-DB';
-    $dbInfo->{_APP_TYPE}     = 'DB';
+    $dbInfo->{_APP_TYPE}     = 'Oracle-CDB';
     $dbInfo->{IS_RAC}        = $insInfo->{IS_RAC};
     $dbInfo->{CDB}           = undef;
     $dbInfo->{NOT_PROCESS}   = 1;
@@ -536,6 +545,26 @@ sub collectCDB {
     }
     $dbInfo->{DISK_GROUPS} = $racInfo->{DISK_GROUPS};
 
+    my @services    = ();
+    my $insServices = $insInfo->{SERVICES};
+    my @dbConns     = ();
+    my $insUsers    = $insInfo->{USERS};
+    foreach my $serviceInfo (@$insServices) {
+        $serviceInfo->{VIP} = $dbInfo->{VIP};
+        foreach my $userInfo (@$insUsers) {
+            my $connInfo = {
+                _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                _OBJ_TYPE     => 'DB_CONNECT',
+                SERVICE_NAME  => $serviceInfo->{SERVICE_NAME},
+                USER_NAME     => $userInfo->{USER_NAME}
+            };
+            push( @dbConns, $connInfo );
+        }
+    }
+
+    $dbInfo->{SERVICES}    = $insServices;
+    $dbInfo->{CONNECTIONS} = \@dbConns;
+
     return [$dbInfo];
 }
 
@@ -590,9 +619,9 @@ sub collectPDB {
             $pdb->{DBID}   = $row->{DBID};
             $pdb->{CON_ID} = $row->{CON_ID};
 
-            $pdb->{_OBJ_CATEGORY} = 'DB';
+            $pdb->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
-            $pdb->{_APP_TYPE}     = 'PDB';
+            $pdb->{_APP_TYPE}     = 'Oracle-PDB';
             $pdb->{IS_CDB}        = 0;
             $pdb->{CDB}           = $dbName;
 
@@ -614,12 +643,40 @@ sub collectPDB {
             sql     => $sql,
             verbose => $self->{isVerbose}
         );
+
+        my $pdbUsers = $self->getUserInfo($pdbName);
+        $pdb->{USERS} = $pdbUsers;
+
         my @serviceNames = ();
+        my @dbServices   = ();
+        my @pdbConns     = ();
         if ( defined($rows) ) {
             foreach my $row (@$rows) {
                 push( @serviceNames, $row->{NAME} );
+                push(
+                    @dbServices,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'ORACLE-SERVICE',
+                        SERVICE_NAME  => $row->{NAME}
+                    }
+                );
+                foreach my $user (@$pdbUsers) {
+                    push(
+                        @pdbConns,
+                        {
+                            _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                            _OBJ_TYPE     => 'DB-CONNECT',
+                            SERVICE_NAME  => $row->{NAME},
+                            USER_NAME     => $pdb->{ $user->{USER_NAME} }
+                        }
+                    );
+                }
             }
         }
+        $pdb->{CONNECTIONS} = \@pdbConns;
+        $pdb->{SERVICES}    = \@dbServices;
+
         $pdb->{SERVICE_NAMES} = \@serviceNames;
         $pdb->{SERVICE_NAME}  = $serviceNames[0];
 
@@ -654,7 +711,6 @@ sub collectPDB {
             }
         }
 
-        $pdb->{USERS}          = $self->getUserInfo($pdbName);
         $pdb->{TABLE_SPACESES} = $self->getTableSpaceInfo($pdbName);
     }
 
@@ -714,7 +770,7 @@ sub getASMDiskGroup {
         foreach my $row (@$rows) {
             my $diskGroup = {};
             my $groupName = $row->{NAME};
-            $diskGroup->{_OBJ_CATEGORY} = 'DB';
+            $diskGroup->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $diskGroup->{_OBJ_TYPE}     = 'OracleASMGroup';
             $diskGroup->{NAME}          = $groupName;
             $diskGroup->{TYPE}          = $row->{TYPE};
@@ -751,7 +807,7 @@ sub getASMDiskGroup {
 
             my $path  = {};
             my $paths = $diskGroupsMap->{$groupName}->{PATH};
-            $path->{_OBJ_CATEGORY} = 'DB';
+            $path->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $path->{_OBJ_TYPE}     = 'OracleASMPath';
             $path->{NAME}          = $row->{NAME};
             $path->{FAIL_GROUP}    = $row->{FGROUP};
@@ -806,7 +862,7 @@ sub getClusterDB {
     my @dbInfos   = ();
     foreach my $dbName (@dbNames) {
         my $dbInfo = {
-            _OBJ_CATEGORY => 'DB',
+            _OBJ_CATEGORY => CollectObjCat->get('DB'),
             _OBJ_TYPE     => 'Oracle-DB',
             NAME          => $dbName
         };
@@ -1622,9 +1678,12 @@ sub collect {
         #ORACLE实例信息采集完成
         push( @collectSet, $insInfo );
 
-        #my @databases = ();
+        my @databases = ();
+        $insInfo->{DATABASES} = \@databases;
+        
         my $CDBS = $self->collectCDB($insInfo);
         if ( defined($CDBS) and scalar(@$CDBS) > 0 ) {
+            push(@databases, @$CDBS);
             foreach my $CDB (@$CDBS) {
                 push( @collectSet, $CDB );
             }
@@ -1635,6 +1694,7 @@ sub collect {
             my $PDBS = $self->collectPDB($insInfo);
 
             if ( defined($PDBS) ) {
+                push(@databases, @$PDBS);
                 foreach my $PDB (@$PDBS) {
                     push( @collectSet, $PDB );
                 }
