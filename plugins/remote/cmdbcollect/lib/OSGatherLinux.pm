@@ -465,6 +465,8 @@ sub getUserInfo {
             my $usersMap = {};
             my @userInfo = split( /:/, $line );
 
+            $usersMap->{_OBJ_CATEGORY} = 'OS';
+            $usersMap->{_OBJ_TYPE} = 'OS-USER';
             $usersMap->{NAME} = $userInfo[0];
             $usersMap->{UID}  = $userInfo[2];
 
