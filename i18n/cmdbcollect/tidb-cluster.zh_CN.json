@@ -220,7 +220,7 @@
                 },
                 {
                     "name": "NAME",
-                    "desc": "数据库名称",
+                    "desc": "服务名",
                     "type": "String"
                 },
                 {
@@ -276,8 +276,8 @@
                     ]
                 },
                 {
-                    "name": "CONNECTION",
-                    "desc": "数据库连接",
+                    "name": "CONNECTIONS",
+                    "desc": "访问入口列表",
                     "type": "JsonArray",
                     "subset": [
                         {
@@ -291,18 +291,13 @@
                             "type": "String"
                         },
                         {
-                            "name": "SERVICENAME",
+                            "name": "SERVICE_NAME",
                             "desc": "服务名",
                             "type": "String"
                         },
                         {
-                            "name": "USERNAME",
+                            "name": "USER_NAME",
                             "desc": "用户名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "CONNECTION",
-                            "desc": "连接串",
                             "type": "String"
                         }
                     ]

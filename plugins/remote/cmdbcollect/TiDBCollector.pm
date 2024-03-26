@@ -325,7 +325,6 @@ sub getUserGrants {
         }
     }
 
-    my $dbName2UsersMap = {};
     foreach my $grantedObj ( keys(%$grantedDBsMap) ) {
         my $grantedDBs = [];
         if ( $grantedObj eq '*' ) {
@@ -339,6 +338,7 @@ sub getUserGrants {
             $user2DBsMap->{$dbName} = 1;
             my $db2UsersMap = $dbGrantedUserMap->{$dbName};
             $db2UsersMap->{$userName} = 1;
+            $dbGrantedUserMap->{$dbName} = $db2UsersMap;
         }
     }
 
@@ -597,7 +597,7 @@ sub collect {
     foreach my $db (@$databases) {
         my $dbname  = $db->{'NAME'};
         my $dbUsers = $dbUsersMap->{$dbname};
-        my @dbUserNames = keys(%$dbUsersMap);
+        my @dbUserNames = keys(%$dbUsers);
         my @dbUserList = ();
         foreach my $dbUserName ( @dbUserNames ) {
                 my $user = {};

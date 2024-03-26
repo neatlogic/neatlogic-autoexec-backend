@@ -428,6 +428,7 @@ sub collect {
 
     #服务名, 要根据实际来设置
     $redisInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
+    $redisInfo->{INSTANCE_NAME} = $procInfo->{HOST_NAME};
 
     my @data = ($redisInfo);
 

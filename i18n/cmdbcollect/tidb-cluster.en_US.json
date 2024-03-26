@@ -19,7 +19,7 @@
         },
         {
             "name": "NAME",
-            "desc": "集群名",
+            "desc": "Cluster Name",
             "type": "String"
         },
         {
@@ -225,7 +225,7 @@
                 },
                 {
                     "name": "NAME",
-                    "desc": "Db Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
@@ -276,8 +276,8 @@
                     ]
                 },
                 {
-                    "name": "CONNECTION",
-                    "desc": "CONNECTION",
+                    "name": "CONNECTIONS",
+                    "desc": "Entrance List",
                     "type": "JsonArray",
                     "subset": [
                         {
@@ -291,18 +291,13 @@
                             "type": "String"
                         },
                         {
-                            "name": "SERVICENAME",
+                            "name": "SERVICE_NAME",
                             "desc": "Service Name",
                             "type": "String"
                         },
                         {
-                            "name": "USERNAME",
+                            "name": "USER_NAME",
                             "desc": "User Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "CONNECTION",
-                            "desc": "Connection",
                             "type": "String"
                         }
                     ]
