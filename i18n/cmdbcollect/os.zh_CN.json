@@ -711,11 +711,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "REMOTE_FULLPATH",
-                    "desc": "Nas 远端全路径",
-                    "type": "String"
-                },
-                {
                     "name": "AUTO_MOUNT",
                     "desc": "是否自动挂载",
                     "type": "Int"
