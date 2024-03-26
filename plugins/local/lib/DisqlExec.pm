@@ -75,9 +75,13 @@ sub new {
     if (    defined( $args{username} )
         and defined( $args{password} ) )
     {
-        if ( not defined( $args{dbname} ) and not defined( $args{sid} ) ) {
-            croak("ERROR: Must define attribute dbname or sid.\n");
-        }
+        my $password = quotemeta($args{password});
+        $password =~ s/\\\@/\@/g;
+        $args{password} = $password;
+        
+        #if ( not defined( $args{dbname} ) and not defined( $args{sid} ) ) {
+        #    croak("ERROR: Must define attribute dbname or sid.\n");
+        #}
 
         if ( not defined( $args{host} ) ) {
             $args{host} = '127.0.0.1';
@@ -88,12 +92,24 @@ sub new {
 
         if ( defined( $args{dbname} ) ) {
             if ( $osType eq 'Windows' ) {
-                $disqlCmd = qq(disql -S -L "$args{username}/\\"$args{password}\\""@//$args{host}:$args{port}/$args{dbname});
+                $disqlCmd = qq(disql -S -L "$args{username}/\\"$args{password}\\""\@$args{host}:$args{port}/$args{dbname});
             }
             else {
-                $disqlCmd = qq(disql -S -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
+                $disqlCmd = qq(disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}/$args{dbname});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@/$args{host}:$args{port}/$args{dbname}");
+                }
+            }
+        }
+        else {
+            if ( $osType eq 'Windows' ) {
+                $disqlCmd = qq(disql -S -L "$args{username}/\\"$args{password}\\""\@$args{host}:$args{port});
+            }
+            else {
+                $disqlCmd = qq(disql -S -L '$args{username}/"$args{password}"'@//$args{host}:$args{port});
+                if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
+                    #$disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}");
+                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}");
                 }
             }
         }
