@@ -401,88 +401,44 @@
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "DB_NAME",
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
                     "desc": "DB Name",
                     "type": "Float"
                 },
                 {
-                    "name": "DB_DIRECTORY",
-                    "desc": "DB Directory",
-                    "type": "Float"
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
                 },
                 {
-                    "name": "MEM_USED",
-                    "desc": "Memory Used(MB)",
-                    "type": "Float"
+                    "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
                 },
                 {
-                    "name": "HWM_USED",
-                    "desc": "HWM Used(MB)",
-                    "type": "Float"
+                    "name": "DB_NAME",
+                    "desc": "DB Name",
+                    "type": "String"
                 },
                 {
-                    "name": "CACHED",
-                    "desc": "Cahced(MB)",
-                    "type": "Float"
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
                 },
                 {
-                    "name": "TABLESPACES",
-                    "desc": "Table Spaces",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "NAME",
-                            "desc": "Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TOTAL",
-                            "desc": "Size(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "AUTO_EXTEND",
-                            "desc": "Auto Extend",
-                            "type": "String"
-                        },
-                        {
-                            "name": "USED",
-                            "desc": "Used(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "FREE",
-                            "desc": "Free(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "FREE_PCT",
-                            "desc": "Free%",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "USED_PCT",
-                            "desc": "Used%",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "DATA_FILES",
-                            "desc": "Data File List",
-                            "type": "JsonArray",
-                            "subset": [
-                                {
-                                    "name": "DATA_FILE_PATH",
-                                    "desc": "Path",
-                                    "type": "String"
-                                },
-                                {
-                                    "name": "DATA_FILE_SIZE",
-                                    "desc": "Size(GB)",
-                                    "type": "Float"
-                                }
-                            ]
-                        }
-                    ]
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
+                    "type": "String"
                 }
             ]
         },

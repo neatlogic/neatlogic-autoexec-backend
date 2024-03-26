@@ -43,6 +43,11 @@
             "type": "String"
         },
         {
+            "name": "ERLANG_VERSION",
+            "desc": "ErLang Version",
+            "type": "String"
+        },
+        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -198,6 +203,23 @@
             "type": "String"
         },
         {
+            "name": "USERS",
+            "desc": "用户角色列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "ROLE",
+                    "desc": "角色",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "INSTALL_PATH",
             "desc": "Install Path",
             "type": "String"
@@ -205,6 +227,16 @@
         {
             "name": "CONFIG_PATH",
             "desc": "Conf Path",
+            "type": "String"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "String"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "Log Path",
             "type": "String"
         },
         {
@@ -431,6 +463,36 @@
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
+        },
+        {
+            "name": "GUEST_ENABLE",
+            "desc": "User guest Exist(1:exist)",
+            "type": "Text"
+        },
+        {
+            "name": "MEMORY_WATER_MARK",
+            "desc": "Memory Water Mark",
+            "type": "Text"
+        },
+        {
+            "name": "DISK_FREE",
+            "desc": "Availble Disk(G)",
+            "type": "Int"
+        },
+        {
+            "name": "FD_LIMIT",
+            "desc": "Max Open Files",
+            "type": "Int"
+        },
+        {
+            "name": "FD_USED",
+            "desc": "Open Files",
+            "type": "Int"
+        },
+        {
+            "name": "ALARMS",
+            "desc": "Alarm messages",
+            "type": "Array"
         },
         {
             "name": "REF_CLUSTER",

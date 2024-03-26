@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "DB_NAME",
+            "desc": "库名",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -90,9 +95,83 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "库名",
-            "type": "String"
+            "name": "DB_DIRECTORY",
+            "desc": "库目录",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "HWM_USED",
+            "desc": "使用物理内存(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "CACHED",
+            "desc": "缓存(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "TABLESPACES",
+            "desc": "表空间",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AUTO_EXTEND",
+                    "desc": "自动扩展",
+                    "type": "String"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE_PCT",
+                    "desc": "空闲%",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "数据文件列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "DATA_FILE_PATH",
+                            "desc": "路径",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DATA_FILE_SIZE",
+                            "desc": "大小(GB)",
+                            "type": "Float"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "INSTANCES",

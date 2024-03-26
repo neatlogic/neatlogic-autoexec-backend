@@ -20,49 +20,58 @@ sub new {
     $self->{snmpHelper} = SnmpHelper->new();
 
     my $scalarOidDef = {
-        DEV_NAME => [ '1.3.6.1.2.1.1.5', '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.1' ],    #sysName
+        DEV_NAME => [ '1.3.6.1.2.1.1.5.0', '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.1.0' ],    #sysName
         UPTIME   => '1.3.6.1.2.1.1.3.0',
-        SN       => '1.3.6.1.4.1.22610.2.4.1.6.2',                                 #axSysSerialNumber
-        IP       => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',                           #axServerAddress
-        MODEL    => '1.3.6.1.2.1.1.1',                                             #sysDescr
-        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1.0',                                  #sysProductName
-        VERSION  => '1.3.6.1.4.1.22610.2.4.1.1.1'                                  #axSysPrimaryVersionOnDisk
+        SN       => '1.3.6.1.4.1.22610.2.4.1.6.2.0',                                   #axSysSerialNumber
+        IP       => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',                               #axServerAddress
+        MODEL    => '1.3.6.1.2.1.1.1.0',                                               #sysDescr
+        VENDOR   => '1.3.6.1.4.1.3375.2.1.4.1',                                        #sysProductName
+        VERSION  => '1.3.6.1.4.1.22610.2.4.1.1.1.0'                                    #axSysPrimaryVersionOnDisk
     };
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.1',    #axVirtualServerName
-            IP        => '1.3.6.1.4.1.22610.2.4.3.4.1.2.1.2',    #ltmVirtualServAddr
-            POOL_NAME => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.6'     #axVirtualServerPortServiceGroup
+            NAME      => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.1',    #axVirtualServerPortName
+            PORT      => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.3',    #axVirtualServerPortNum
+            IP        => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.4',    #axVirtualServerPortAddress
+            POOL_NAME => '1.3.6.1.4.1.22610.2.4.3.4.3.1.1.6',    #axVirtualServerPortServiceGroup
         },
 
         POOL => {
-            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.1',    #axServiceGroupName
-            MONITOR_RULE => undef,
-            LB_MODE      => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.3'     #axServiceGroupLbAlgorithm
+            NAME    => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.1',      #axServiceGroupName
+            LB_MODE => '1.3.6.1.4.1.22610.2.4.3.3.1.2.1.3'       #axServiceGroupLbAlgorithm
+        },
+        POOL_MEMBER => {
+            POOLNAME   => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.1',    # axServiceGroupNameInMember
+            MEMBERNAME => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.3',    # axServerNameInServiceGroupMember
+            MEMBERPORT => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.4'     # axServerPortNumInServiceGroupMember
         },
 
         MEMBER => {
-            NAME         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.3',    #axServerNameInServiceGroupMember
-            POOL_NAME    => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.1',    #axServiceGroupNameInMember
-            IP           => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.2',    #axServerAddress
-            PORT         => '1.3.6.1.4.1.22610.2.4.3.3.3.1.1.4',    #axServerPortNumInServiceGroupMember
-            MONITOR_RULE => '1.3.6.1.4.1.22610.2.4.3.2.1.2.1.4'     #axServerHealthMonitor
+            NAME         => '1.3.6.1.4.1.22610.2.4.3.2.3.1.1.1',    # axServerNameInPort
+            IP           => '1.3.6.1.4.1.22610.2.4.3.2.3.1.1.4',    # axServerAddressInPort
+            PORT         => '1.3.6.1.4.1.22610.2.4.3.2.3.1.1.3',    # axServerPortNum
+            MONITOR_RULE => '1.3.6.1.4.1.22610.2.4.3.2.3.1.1.6'     # axServerPortHealthMonitor
         }
     };
 
-    my $snatOidDef = {
-        SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                  #ltmTransAddrAddr
-            }
-
-            #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName
-            #1.3.6.1.4.1.3375.2.2.9.1.2.1.5  ltmSnatTransAddr
+    #my $snatOidDef = {
+    #    SNAT_IP => {
+    #        IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                  #ltmTransAddrAddr
+    #        }
+    #};
+    my $portsOidDef = {
+        PORTS => {
+            NAME => '1.3.6.1.4.1.22610.2.4.1.7.1.1.2.1.2',    #axInterfaceName
+            MAC  => '1.3.6.1.4.1.22610.2.4.1.7.1.1.2.1.7',    #axInterfaceMacAddr
+        }
     };
 
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{vsOidDef}     = $vsOidDef;
-    $self->{snatOidDef}   = $snatOidDef;
+
+    #$self->{snatOidDef}   = $snatOidDef;
+    $self->{portsOidDef} = $portsOidDef;
 
     my $version = $args{version};
     if ( not defined($version) or $version eq '' ) {
@@ -101,7 +110,7 @@ sub new {
 sub _errCheck {
     my ( $self, $queryResult, $oid ) = @_;
     my $resultError = 0;
-    my $snmp     = $self->{snmpSession};
+    my $snmp        = $self->{snmpSession};
     if ( not defined($queryResult) ) {
         $resultError = 1;
         my $error = $snmp->error();
@@ -129,6 +138,29 @@ sub _getScalar {
     return $scalarData;
 }
 
+sub _getPorts {
+    my ($self)      = @_;
+    my $snmp        = $self->{snmpSession};
+    my $portsOidDef = $self->{portsOidDef};
+
+    my $snmpHelper = $self->{snmpHelper};
+
+    my ( $oidData, $tableData ) = $snmpHelper->getTable( $snmp, $portsOidDef, 1 );
+    my $portsData = $tableData->{PORTS};
+
+    foreach my $portInfo (@$portsData) {
+        my $mac = $$portInfo{MAC};
+        $mac =~ s/^0x//;
+        $mac =~ s/(..)/$1:/g;
+        chop($mac);
+        $$portInfo{MAC}           = $mac;
+        $$portInfo{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $$portInfo{_OBJ_TYPE}     = 'PORT';
+
+    }
+    return $portsData;
+}
+
 sub _getVS {
     my ($self)   = @_;
     my $snmp     = $self->{snmpSession};
@@ -138,11 +170,28 @@ sub _getVS {
 
     #my ( $oidData, $tableData ) = $snmpHelper->getTableOidAndVal( $snmp, $vsOidDef );
     my ( $oidData, $tableData ) = $snmpHelper->getTable( $snmp, $vsOidDef, 1 );
+    my $vsData         = $tableData->{VS};
+    my $poolData       = $tableData->{POOL};
+    my $memberData     = $tableData->{MEMBER};
+    my $poolMemberData = $tableData->{POOL_MEMBER};
 
-    my $poolMap  = {};
-    my $poolData = $tableData->{POOL};
+    my $memberMap = {};
+    foreach my $memberInfo (@$memberData) {
+
+        #用member的name和port做为KEY
+        $memberMap->{ $memberInfo->{NAME} . ':' . $memberInfo->{PORT} } = $memberInfo;
+    }
+    my $poolMap = {};
     foreach my $poolInfo (@$poolData) {
-        $poolMap->{ $poolInfo->{NAME} } = $poolInfo;
+        my @members;
+        my $name = $poolInfo->{NAME};
+        foreach my $poolMemberInfo (@$poolMemberData) {
+            if ( $name eq $poolMemberInfo->{POOLNAME} ) {
+                push( @members, $memberMap->{ $poolMemberInfo->{MEMBERNAME} . ':' . $poolMemberInfo->{MEMBERPORT} } );
+            }
+        }
+        $poolInfo->{MEMBERS} = \@members;
+
         my $lbMode = $poolInfo->{LB_MODE};
         if ( $lbMode eq 0 ) {
             $poolInfo->{LB_MODE} = 'roundRobin';
@@ -153,67 +202,15 @@ sub _getVS {
         elsif ( $lbMode eq 2 ) {
             $poolInfo->{LB_MODE} = 'leastConnection';
         }
+        $poolMap->{ $poolInfo->{NAME} } = $poolInfo;
     }
+    foreach my $vsInfo (@$vsData) {
+        my $poolName = $vsInfo->{POOL_NAME};
+        my $vsName   = $vsInfo->{NAME};
 
-    #这里有一个IP的对应处理逻辑，可能也是不一定需要的，要根据实际情况来调整
-    my $memberIdxMap  = {};
-    my $memberData    = $tableData->{MEMBER};
-    my $memberOidData = $tableData->{MEMBER};
-    for ( my $i = 0 ; $i < scalar(@$memberData) ; $i++ ) {
-        my $memberInfo    = $$memberData[$i];
-        my $memberOidInfo = $$memberOidData[$i];
+        $vsInfo->{POOL} = $poolMap->{$poolName};
 
-        my $memberName = $memberInfo->{NAME};
-        my $memberOid  = $memberOidInfo->{NAME};
-        $memberOid =~ /(\d+)\.(\d+)$/;
-        my $memberNameIdx = $1;
-        my $memberPort    = $2;
-        $memberIdxMap->{$memberNameIdx} = $memberInfo;
     }
-    ###############################################
-
-    for ( my $i = 0 ; $i < scalar(@$memberData) ; $i++ ) {
-        my $memberInfo    = $$memberData[$i];
-        my $memberOidInfo = $$memberOidData[$i];
-
-        #根据memberIdx获取IP，这个涉及IP和member的对应关系的问题，这里的逻辑可能是不需要的。
-        my $ipOid = $memberOidInfo->{IP};
-        $ipOid =~ /(\d+)$/;
-        my $memberidx = $1;
-        $memberInfo->{IP} = $memberIdxMap->{$memberidx}->{IP};
-        ##############################
-
-        #根据POOL_NAME嵌入POOL对象
-        my $poolInfo = $poolMap->{ $memberInfo->{POOL_NAME} };
-        $poolInfo->{MEMBER} = $memberInfo;
-    }
-
-    my $vsData    = $tableData->{VS};
-    my $vsOidData = $oidData->{VS};
-
-    #感觉这一段是不需要的，因为根据VS来检索，use pool和vs排序后其实是一一对应的，不需要通过oid的index来mappingVS和pool
-    my $vsIdx2PoolMap = {};
-    for ( my $i = 0 ; $i < scalar(@$vsData) ; $i++ ) {
-        my $vsInfo    = $$vsData[$i];
-        my $vsOidInfo = $vsOidData->{ $vsInfo->{INDEX} };
-
-        my $usePoolOid = $vsOidInfo->{POOL_NAME};
-
-        #POOL_NAME属性的OID的倒数第三段数字是VS的index号
-        $usePoolOid =~ /(\d+)\.\d+\.\d+$/;
-        my $vsIdx = $1;
-        $vsIdx2PoolMap->{$vsIdx} = $vsInfo->{POOL_NAME};
-    }
-    ##################################
-
-    for ( my $i = 0 ; $i < scalar(@$vsData) ; $i++ ) {
-        my $vsInfo = $$vsData[$i];
-        my $vsIdx  = $vsInfo->{INDEX};
-        $vsInfo->{POOL_NAME} = $vsIdx2PoolMap->{$vsIdx};
-        $vsInfo->{POOL}      = $poolMap->{ $vsInfo->{POOL_NAME} };
-    }
-
-    #通过OID的关联计算VS引用的POOL NAME结束，这一段可能不是一定需要的
 
     return $vsData;
 }
@@ -229,6 +226,8 @@ sub collect {
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
+
+    $devInfo->{PORTS} = $self->_getPorts();
 
     return $devInfo;
 }

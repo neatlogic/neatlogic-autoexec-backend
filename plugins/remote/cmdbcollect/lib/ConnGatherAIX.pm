@@ -383,4 +383,38 @@ sub getStatInfo {
     return $connInfo;
 }
 
+#获取连入某进程监听IP端口的远端的IP地址列表
+sub getInboundIps {
+    my ( $self, $bindAddr, $pid ) = @_;
+
+    my @ips = ();
+
+    my $cmd = "netstat -Aan | grep -v LISTEN | grep $bindAddr";
+    if ( defined($pid) and $pid ne '' ) {
+        $cmd = "netstat -Aan | grep -v LISTEN | grep $pid | grep $bindAddr";
+    }
+    my $localFieldIdx  = 4;
+    my $remoteFieldIdx = 5;
+
+    my $pipe;
+    my $pipePid = open( $pipe, $cmd );
+    if ( defined($pipe) ) {
+        my $line;
+        while ( $line = <$pipe> ) {
+            my @fields = split( /\s+/, $line );
+            if ( $#fields < $remoteFieldIdx ) {
+                next;
+            }
+            my $localAddr  = $fields[$localFieldIdx];
+            my $remoteAddr = $fields[$remoteFieldIdx];
+            if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                push( @ips, $1 );
+            }
+        }
+        close($pipe);
+    }
+
+    return \@ips;
+}
+
 1;

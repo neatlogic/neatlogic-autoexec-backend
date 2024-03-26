@@ -121,11 +121,11 @@ def genInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        # "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        # "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     refCls.append(refInfo)
             else:
@@ -159,11 +159,11 @@ def genInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     belongCls.append(belongCl)
             else:
@@ -252,11 +252,11 @@ def genDBInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     refCls.append(refInfo)
             else:
@@ -289,11 +289,11 @@ def genDBInsRel(db):
                         "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                         "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                        "PRIMARY_IP": cluster["PRIMARY_IP"],
+                        "PRIMARY_IP": cluster.get("PRIMARY_IP"),
                         "VIP": cluster.get("VIP"),
                         "PORT": cluster.get("PORT"),
-                        "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                        "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                        "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                        "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                     }
                     belongCls.append(belongCl)
             else:
@@ -321,15 +321,17 @@ def genHostRel(db):
     hostUpdCollection = db["COLLECT_HOST"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
 
-    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1}).batch_size(
-        500
-    ):
+    for host in hostCollection.find(
+        {}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}
+    ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
             nics = host.get("ETH_INTERFACES", [])
             if nics is None:
                 print(
-                    "WARN: No eth interfaces found for os:{}".format(host.get("MGMT_IP"))
+                    "WARN: No eth interfaces found for os:{}".format(
+                        host.get("MGMT_IP")
+                    )
                 )
                 nics = []
             for nic in nics:
@@ -342,7 +344,10 @@ def genHostRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-                                "NEIGHBOR_COUNT": 0,
+                                "$or": [
+                                    {"NEIGHBOR_COUNT": None},
+                                    {"NEIGHBOR_COUNT": 0},
+                                ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
                         }
@@ -362,7 +367,6 @@ def genHostRel(db):
                         },
                     },
                 )
-
                 refSwPorts = []
                 refSwPort = {}
                 if remotePort is not None and "MAC_TABLE" in remotePort:
@@ -370,8 +374,8 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
-                        "SN": remotePort["SN"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
                         "PORT": remotePort["MAC_TABLE"][0]["PORT"],
                     }
                     refSwPorts.append(refSwPort)
@@ -416,8 +420,7 @@ def genHostRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        #"DEV_NAME": remoteFcPort["DEV_NAME"],
-                        "SN": remoteFcPort["SN"],
+                        "SN": remoteFcPort.get("SN"),
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
@@ -432,6 +435,77 @@ def genHostRel(db):
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
 
 
+def genLBRel(db):
+    # 生成LB和交换机的关系，存放于LB的属性PORTS.REMOTE_PORTS下
+    lbCollection = db["COLLECT_LOADBALANCER"]
+    lbUpdCollection = db["COLLECT_LOADBALANCER"]
+    macTblCollection = db["RELATION_NET_MACTABLE"]
+
+    for lb in lbCollection.find({}, {"MGMT_IP": 1, "PORTS": 1}).batch_size(500):
+        try:
+            # 计算网卡连接的交换机端口信息
+            ports = lb.get("PORTS", [])
+            if ports is None:
+                print(
+                    "WARN: No eth interfaces found for os:{}".format(lb.get("MGMT_IP"))
+                )
+                ports = []
+            for port in ports:
+                # macCount = sys.maxsize
+                remotePort = macTblCollection.find_one(
+                    {
+                        "MAC_TABLE": {
+                            "$elemMatch": {
+                                "MACS": port["MAC"],
+                                # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
+                                # "MAC_COUNT": 1,
+                                # 接入层端口没有邻居信息
+                                "$or": [
+                                    {"NEIGHBOR_COUNT": None},
+                                    {"NEIGHBOR_COUNT": 0},
+                                ],
+                                "PORT": {"$ne": None, "$regex": "Aggregation"},
+                            }
+                        }
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "MAC_TABLE": {
+                            "$elemMatch": {
+                                "MACS": port["MAC"],
+                                # 不知道这逻辑对不对，但现在可以看到结果
+                                "PORT": {"$ne": None, "$regex": "Aggregation"},
+                                "MAC_COUNT": {"$gt": 1},
+                            }
+                        },
+                    },
+                )
+                refSwPorts = []
+                refSwPort = {}
+                if remotePort is not None and "MAC_TABLE" in remotePort:
+                    refSwPort = {
+                        "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": "SWITCH-PORT",
+                        "MGMT_IP": remotePort["MGMT_IP"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
+                        "PORT": remotePort["MAC_TABLE"][0]["PORT"],
+                    }
+                    refSwPorts.append(refSwPort)
+
+                port["REMOTE_PORTS"] = refSwPorts
+
+            lbUpdCollection.update_one(
+                {"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"PORTS": ports}}
+            )
+        except Exception as ex:
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+
 def genOSRel(db):
     # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
     osCollection = db["COLLECT_OS"]
@@ -441,7 +515,15 @@ def genOSRel(db):
     clusterCollection = db["COLLECT_CLUSTER"]
 
     for os in osCollection.find(
-        {}, {"OS_ID": 1, "MGMT_IP": 1, "ETH_INTERFACES": 1, 'HBA_INTERFACES': 1, 'NFS_INFO': 1}
+        {},
+        {
+            "OS_ID": 1,
+            "MGMT_IP": 1,
+            "ETH_INTERFACES": 1,
+            "HBA_INTERFACES": 1,
+            "NFS_INFO": 1,
+            "DISKS": 1,
+        },
     ).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
@@ -460,7 +542,10 @@ def genOSRel(db):
                                 # 对于虚拟化的物理机接入的交换机端口会看到所有虚拟机的MAC，数量不为一
                                 # "MAC_COUNT": 1,
                                 # 接入层端口没有邻居信息
-                                "NEIGHBOR_COUNT": 0,
+                                "$or": [
+                                    {"NEIGHBOR_COUNT": None},
+                                    {"NEIGHBOR_COUNT": 0},
+                                ],
                                 "PORT": {"$ne": None, "$regex": r"/"},
                             }
                         }
@@ -488,8 +573,8 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "SWITCH-PORT",
                         "MGMT_IP": remotePort["MGMT_IP"],
-                        "DEV_NAME": remotePort["DEV_NAME"],
-                        "SN": remotePort["SN"],
+                        # "DEV_NAME": remotePort.get("DEV_NAME"),
+                        "SN": remotePort.get("SN"),
                         "PORT": remotePort["MAC_TABLE"][0]["PORT"],
                     }
                     refSwPorts.append(refSwPort)
@@ -531,15 +616,14 @@ def genOSRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "DEV_NAME": remoteFcPort["DEV_NAME"],
-                        "SN": remoteFcPort["SN"],
+                        "SN": remoteFcPort.get("SN"),
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
 
                 hba["REMOTE_PORTS"] = refFcPorts
 
-            # 计算NFS的引用关系
+            # 计算NFS的引用关系(生产上存在存储nas采集用的是管理管理，但os上采到的服务ip)
             storageCollection = db["COLLECT_STORAGE"]
             nfsMounts = os.get("NFS_INFO", [])
             if nfsMounts is None:
@@ -552,7 +636,9 @@ def genOSRel(db):
 
                 remoteVolumn = storageCollection.find_one(
                     {
-                        "MGMT_IP": nfsIp,
+                        # "MGMT_IP": nfsIp,
+                        "IPLIST": nfsIp,
+                        # 可能有点问题，华为nas接口查回来的数据只有最外层的目录，可能要写正则
                         "VOLUMES": {"$elemMatch": {"NAME": nfsRemotePath}},
                     },
                     {
@@ -570,14 +656,50 @@ def genOSRel(db):
                         {
                             "_OBJ_CATEGORY": remoteVolumn["_OBJ_CATEGORY"],
                             "_OBJ_TYPE": "STORAGE-NFS-VOLUME",
-                            "MGMT_IP": nfsIp,
-                            "DEV_NAME": remoteVolumn["DEV_NAME"],
-                            "SN": remoteVolumn["SN"],
+                            # "MGMT_IP": nfsIp,
+                            "MGMT_IP": remoteVolumn["MGMT_IP"],
+                            "SN": remoteVolumn.get("SN"),
                             "VOLUME_NAME": remoteVolumn["VOLUMES"][0]["NAME"],
                         }
                     ]
                 else:
                     nfsMount["REMOTE_VOLUME"] = []
+
+            # 计算LUN的引用关系
+            storageCollection = db["COLLECT_STORAGE"]
+            disks = os.get("DISKS", [])
+            if disks is None:
+                print("INFO: No disks mount found for os:{}".format(os.get("MGMT_IP")))
+            for disk in disks:
+                wwn = disk.get("WWN")
+                if wwn is None:
+                    continue
+                remoteLun = storageCollection.find_one(
+                    {
+                        "LUNS": {"$elemMatch": {"WWN": wwn}},
+                    },
+                    {
+                        "_OBJ_CATEGORY": 1,
+                        "_OBJ_TYPE": 1,
+                        "MGMT_IP": 1,
+                        "DEV_NAME": 1,
+                        "SN": 1,
+                        "LUNS": {"$elemMatch": {"WWN": wwn}},
+                    },
+                )
+
+                if remoteLun is not None:
+                    disk["REMOTE_LUN"] = [
+                        {
+                            "_OBJ_CATEGORY": remoteLun["LUNS"][0]["_OBJ_CATEGORY"],
+                            "_OBJ_TYPE": remoteLun["LUNS"][0]["_OBJ_TYPE"],
+                            "MGMT_IP": remoteLun["MGMT_IP"],
+                            "SN": remoteLun.get("SN"),
+                            "WWN": remoteLun["LUNS"][0]["WWN"],
+                        }
+                    ]
+                else:
+                    disk["REMOTE_LUN"] = []
 
             # 计算操作系统属于哪个操作系统集群
             belongCls = []
@@ -598,11 +720,11 @@ def genOSRel(db):
                     "_OBJ_CATEGORY": cluster["_OBJ_CATEGORY"],
                     "_OBJ_TYPE": cluster["_OBJ_TYPE"],
                     "UNIQUE_NAME": cluster["UNIQUE_NAME"],
-                    # 'PRIMARY_IP': cluster['PRIMARY_IP'],
+                    # 'PRIMARY_IP': cluster.get('PRIMARY_IP'),
                     # 'VIP': cluster.get('VIP'),
                     # 'PORT': cluster.get('PORT'),
-                    "CLUSTER_MODE": cluster["CLUSTER_MODE"],
-                    "CLUSTER_SOFTWARE": cluster["CLUSTER_SOFTWARE"],
+                    "CLUSTER_MODE": cluster.get("CLUSTER_MODE"),
+                    "CLUSTER_SOFTWARE": cluster.get("CLUSTER_SOFTWARE"),
                 }
                 belongCls.append(belongCl)
 
@@ -613,6 +735,7 @@ def genOSRel(db):
                         "ETH_INTERFACES": nics,
                         "HBA_INTERFACES": hbas,
                         "NFS_INFO": nfsMounts,
+                        "DISKS": disks,
                         "BELONG_CLUSTER": belongCls,
                     }
                 },
@@ -656,8 +779,8 @@ def genStorageRel(db):
                         "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
                         "_OBJ_TYPE": "FCSWITCH-PORT",
                         "MGMT_IP": remoteFcPort["MGMT_IP"],
-                        "SN": remoteFcPort["SN"],
-                        "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
+                        "SN": remoteFcPort.get("SN"),
+                        "PORT": remoteFcPort["LINK_TABLE"][0]["DOMAIN_IDX"],
                     }
                     refFcPorts.append(refFcPort)
 
@@ -705,15 +828,189 @@ def genSwitchRel(db):
                             neighbor["_OBJ_CATEGORY"] = dev["_OBJ_CATEGORY"]
                             neighbor["_OBJ_TYPE"] = "SWITCH-PORT"
                             neighbor["MGMT_IP"] = dev["MGMT_IP"]
-                            neighbor["SN"] = dev["SN"]
+                            neighbor["SN"] = dev.get("SN")
 
             if needUpdate:
                 cdpDestCollection.update_one(
-                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo["SN"]},
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
                     {"$set": {"PORTS": ports}},
                 )
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+
+# 处理光交中的级联端口(ZONE的WWPN_MEMBERS)
+def handleFCSwitchCacadePort(db):
+    fcSwCollection = db["COLLECT_FCDEV"]
+
+    for swInfo in fcSwCollection.find(
+        {
+            "$and": [
+                {"CASCADE_SWITCHWWNN": {"$exists": "true"}},
+                {"CASCADE_SWITCHWWNN": {"$ne": ""}},
+            ]
+        },
+        {"MGMT_IP": 1, "SN": 1, "CASCADE_SWITCHWWNN": 1, "CONFIGS": 1, "ZONES": 1},
+    ).batch_size(500):
+        try:
+            cascade_switchwwnn = swInfo.get("CASCADE_SWITCHWWNN")
+            if cascade_switchwwnn is None:
+                continue
+
+            (
+                cascade_switchSn,
+                doaminIdx2wwpnMap,
+                doaminIdx2peerwwpnMap,
+                peerwwpn2wwpnMap,
+                peerwwpn2domainIdxMap,
+                peerwwpn2portMap,
+            ) = getCascadeSwitchAttr(fcSwCollection, cascade_switchwwnn)
+            zones = swInfo.get("ZONES", [])
+            zoneNeedUpdate = False
+            for zone in zones:
+                wwpn_members = zone.get("WWPN_MEMBERS", [])
+                new_wwpn_members = []
+                for member in wwpn_members:
+                    # 存在本地WWPN
+                    if "WWPN" in member and member["WWPN"] is not None:
+                        new_wwpn_members.append(member)
+                        continue
+
+                    # 不存在WWPN,存在DOMAIN_IDX级联端口
+                    if "DOMAIN_IDX" in member and member.get("DOMAIN_IDX") is not None:
+                        domain_idx = member.get("DOMAIN_IDX")
+                        member["SN"] = cascade_switchSn
+                        member["WWPN"] = doaminIdx2wwpnMap[domain_idx]
+                        member["PEER_WWPN"] = doaminIdx2peerwwpnMap[domain_idx]
+                        new_wwpn_members.append(member)
+                        zoneNeedUpdate = True
+                    else:
+                        # 不存在WWPN,不存在DOMAIN_IDX,存在PEER_WWPN 级联端口
+                        if (
+                            "PEER_WWPN" in member
+                            and member.get("PEER_WWPN") is not None
+                        ):
+                            peerwwpn = member.get("PEER_WWPN")
+                            member["SN"] = cascade_switchSn
+                            if peerwwpn in peerwwpn2wwpnMap:
+                                wwpn = peerwwpn2wwpnMap[peerwwpn]
+
+                                if wwpn is None:
+                                    continue
+                                # 找到了PEER_WWPN对应的WWPN
+                                member["WWPN"] = peerwwpn2wwpnMap[peerwwpn]
+                                member["DOMAIN_IDX"] = peerwwpn2domainIdxMap[peerwwpn]
+                                member["PORT"] = peerwwpn2portMap[peerwwpn]
+                                zoneNeedUpdate = True
+                                new_wwpn_members.append(member)
+
+                zone["WWPN_MEMBERS"] = new_wwpn_members
+
+            if zoneNeedUpdate:
+                fcSwCollection.update_one(
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
+                    {"$set": {"ZONES": zones}},
+                )
+        except Exception as ex:
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+        try:
+            cascade_switchwwnn = swInfo.get("CASCADE_SWITCHWWNN")
+            if cascade_switchwwnn is None:
+                continue
+
+            (
+                cascade_switchSn,
+                doaminIdx2wwpnMap,
+                doaminIdx2peerwwpnMap,
+                peerwwpn2wwpnMap,
+                peerwwpn2domainIdxMap,
+                peerwwpn2portMap,
+            ) = getCascadeSwitchAttr(fcSwCollection, cascade_switchwwnn)
+            configs = swInfo.get("CONFIGS", [])
+            configNeedUpdate = False
+            for config in configs:
+                zones = config.get("ZONES")
+                for zone in zones:
+                    wwpn_members = zone.get("WWPN_MEMBERS", [])
+                    new_wwpn_members = []
+                    for member in wwpn_members:
+                        # 存在本地WWPN
+                        if "WWPN" in member and member["WWPN"] is not None:
+                            new_wwpn_members.append(member)
+                            continue
+                        # 不存在WWPN,存在DOMAIN_IDX级联端口
+                        if (
+                            "DOMAIN_IDX" in member
+                            and member.get("DOMAIN_IDX") is not None
+                        ):
+                            domain_idx = member.get("DOMAIN_IDX")
+                            member["SN"] = cascade_switchSn
+                            member["WWPN"] = doaminIdx2wwpnMap[domain_idx]
+                            member["PEER_WWPN"] = doaminIdx2peerwwpnMap[domain_idx]
+                            configNeedUpdate = True
+                            new_wwpn_members.append(member)
+                        else:
+                            # 不存在WWPN,不存在DOMAIN_IDX,存在PEER_WWPN 级联端口
+                            if (
+                                "PEER_WWPN" in member
+                                and member.get("PEER_WWPN") is not None
+                            ):
+                                peerwwpn = member.get("PEER_WWPN")
+                                member["SN"] = cascade_switchSn
+                                if peerwwpn in peerwwpn2wwpnMap:
+                                    wwpn = peerwwpn2wwpnMap[peerwwpn]
+                                    if wwpn is None:
+                                        continue
+                                    # 找到了PEER_WWPN对应的WWPN
+                                    member["WWPN"] = peerwwpn2wwpnMap[peerwwpn]
+                                    member["DOMAIN_IDX"] = peerwwpn2domainIdxMap[
+                                        peerwwpn
+                                    ]
+                                    member["PORT"] = peerwwpn2portMap[peerwwpn]
+                                    configNeedUpdate = True
+                                    new_wwpn_members.append(member)
+
+                    zone["WWPN_MEMBERS"] = new_wwpn_members
+            if configNeedUpdate:
+                fcSwCollection.update_one(
+                    {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
+                    {"$set": {"CONFIGS": configs}},
+                )
+        except Exception as ex:
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+
+# 根据光交wwnn查询对应的光交属性
+def getCascadeSwitchAttr(fcSwCollection, switchwwnn):
+    fcSw = fcSwCollection.find_one(
+        {"WWNN": {"$eq": switchwwnn}}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1}
+    )
+    sn = ""
+    doaminIdx2wwpnMap = {}
+    doaminIdx2peerwwpnMap = {}
+    peerwwpn2wwpnMap = {}
+    peerwwpn2domainIdxMap = {}
+    peerwwpn2portMap = {}
+    if fcSw is not None:
+        sn = fcSw.get("SN")
+        for port in fcSw.get("PORTS"):
+            doaminIdx2wwpnMap[port["DOMAIN_IDX"]] = port["WWPN"]
+            peerWwpn = port["PEER_WWPN"]
+            if peerWwpn is not None:
+                doaminIdx2peerwwpnMap[port["DOMAIN_IDX"]] = peerWwpn
+                peerwwpn2wwpnMap[peerWwpn] = port["WWPN"]
+                peerwwpn2domainIdxMap[peerWwpn] = port["DOMAIN_IDX"]
+                peerwwpn2portMap[peerWwpn] = port["PORT"]
+
+    return (
+        sn,
+        doaminIdx2wwpnMap,
+        doaminIdx2peerwwpnMap,
+        peerwwpn2wwpnMap,
+        peerwwpn2domainIdxMap,
+        peerwwpn2portMap,
+    )
 
 
 if __name__ == "__main__":
@@ -731,9 +1028,10 @@ if __name__ == "__main__":
             genHostRel(db)
             genSwitchRel(db)
             genStorageRel(db)
-
+            genLBRel(db)
         elif args.type == "NET" or args.type is None:
             genSwitchRel(db)
+            handleFCSwitchCacadePort(db)
     except Exception as ex:
         print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
         exit(-1)

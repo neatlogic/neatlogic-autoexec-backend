@@ -87,6 +87,7 @@ sub getCPUInfo {
     $osInfo->{CPU_FIRMWARE_VERSION} = $prtConfInfo->{'Firmware Version'};
     $osInfo->{CPU_MICROCODE}        = $prtConfInfo->{'Platform Firmware level'};
     $osInfo->{AUTO_RESTART}         = $prtConfInfo->{'Auto Restart'};
+    $osInfo->{MODEL}                = $prtConfInfo->{'System Model'};
 
     $osInfo->{MEM_TOTAL} = $utils->getMemSizeFromStr( $prtConfInfo->{'Memory Size'} );
 
@@ -141,14 +142,14 @@ sub getMountPointInfo {
         # The 4th column tells you if it is mounted read-only (ro) or read-write (rw).
         # The 5th and 6th columns are dummy values designed to match the format used in /etc/mtab.
         my @mountInfos = split( /\s+/, $line );
-        my $node       = shift(@mountInfos);
-        my $device     = shift(@mountInfos);
-        my $fsType     = pop(@mountInfos);
+
+        my $node   = shift(@mountInfos);
+        my $device = shift(@mountInfos);
+        my $fsType = pop(@mountInfos);
         my $mountPoint;
         if ( $line =~ /^\s*\Q$node\E\s+\Q$device\E\s+(.*?)\s+\Q$fsType\E/ ) {
             $mountPoint = $1;
         }
-
         $mountedDevicesMap->{$device} = 1;
 
         if ( $fsType =~ /^nfs/i ) {
@@ -156,7 +157,12 @@ sub getMountPointInfo {
         }
         if ( not defined( $mountFilter->{$fsType} ) ) {
             my $mountInfo = {};
-            $mountInfo->{DEVICE}  = $device;
+            if ( defined $node and $node ne '' ) {
+                $mountInfo->{DEVICE} = $node . ':' . $device;
+            }
+            else {
+                $mountInfo->{DEVICE} = $device;
+            }
             $mountInfo->{NAME}    = $mountPoint;
             $mountInfo->{FS_TYPE} = $fsType;
 
@@ -220,12 +226,12 @@ sub getNFSInfo {
             my $autoMount = 0;
 
             #192.168.20.178:/export/share
-            my ( $remoteIp, $remotePath ) = split( $device, ':' );
+            my ( $remoteIp, $remotePath ) = split( ':', $device );
             if ( $nfsMountCmds =~ /\s$device\s/s ) {
                 $autoMount = 1;
             }
 
-            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my ( $remoteHost, $remotePath ) = split( ':', $device );
             my $remoteIp = $remoteHost;
             if ( $remoteIp !~ /[\d\.]+/ ) {
                 my $ipAddr = gethostbyname($remoteHost);
@@ -303,7 +309,7 @@ sub getMemInfo {
 sub getDNSInfo {
     my ( $self, $osInfo ) = @_;
 
-    my @dnsServers;
+    my @dnsServers   = ();
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(\S+)\s*$/i ) {
@@ -417,8 +423,10 @@ sub getUserInfo {
             my $usersMap = {};
             my @userInfo = split( /:/, $line );
 
-            $usersMap->{NAME} = $userInfo[0];
-            $usersMap->{UID}  = $userInfo[2];
+            $usersMap->{_OBJ_CATEGORY} = 'OS';
+            $usersMap->{_OBJ_TYPE}     = 'OS-USER';
+            $usersMap->{NAME}          = $userInfo[0];
+            $usersMap->{UID}           = $userInfo[2];
 
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
@@ -952,9 +960,9 @@ sub getHostHBAInfo {
     # Attention Type: Link Up
     # 。。。。。
 
-    my @hbaInfos    = ();
-    my @hbaInfosMap = {};
-    my @fcNames     = ();
+    my @hbaInfos     = ();
+    my @hbaInfosMap  = {};
+    my @fcNames      = ();
     my $fcVirtualMap = {};
 
     # ent0 Available       Virtual I/O Ethernet Adapter (l-lan)
@@ -964,14 +972,14 @@ sub getHostHBAInfo {
     my $adapterInfoLines = $self->getCmdOutLines(q{lsdev -Cc adapter});
     foreach my $line (@$adapterInfoLines) {
         if ( $line =~ /FC Adapter/ or $line =~ /Fibre Channel/ ) {
-            my @segs = split( /\s+/, $line );
+            my @segs   = split( /\s+/, $line );
             my $fcName = $segs[0];
             push( @fcNames, $fcName );
             if ( $line =~ /Virtual/ ) {
                 $hostInfo->{IS_VIRTUAL} = 1;
                 $fcVirtualMap->{$fcName} = 1;
             }
-            else{
+            else {
                 $fcVirtualMap->{$fcName} = 0;
             }
         }
@@ -1030,10 +1038,12 @@ sub getHostHBAInfo {
 
     my @hbaPorts = ();
     foreach my $hbaInfo (@hbaInfos) {
-        foreach my $portInfo ( @$hbaInfo->{PORTS} ) {
+        foreach my $portInfo ( @{ $hbaInfo->{PORTS} } ) {
             push(
                 @hbaPorts,
                 {
+                    _OBJ_CATEGORY   => 'HOST',
+                    _OBJ_TYPE       => 'HOST-HBA',
                     NAME            => $hbaInfo->{NAME},
                     IS_VIRTUAL      => $hbaInfo->{IS_VIRTUAL},
                     WWNN            => $hbaInfo->{WWNN},
@@ -1077,9 +1087,26 @@ sub collect {
         $osInfo->{BOARD_SERIAL}   = $firstMac;
     }
 
-    $osInfo->{ETH_INTERFACES} = $nicInfos;
-    $osInfo->{HBA_INTERFACES} = $hostInfo->{HBA_INTERFACES};
-    $osInfo->{IS_VIRTUAL}     = $hostInfo->{IS_VIRTUAL};
+    my @os_eths;
+    foreach my $item ( @{ $hostInfo->{ETH_INTERFACES} } ) {
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE}     = 'OS-ETH';
+
+        push @os_eths, \%tmp;
+    }
+    $osInfo->{ETH_INTERFACES} = \@os_eths;
+    my @os_hbas;
+    foreach my $item ( @{ $hostInfo->{HBA_INTERFACES} } ) {
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE}     = 'OS-HBA';
+
+        push @os_hbas, \%tmp;
+    }
+    $osInfo->{HBA_INTERFACES} = \@os_hbas;
+
+    $osInfo->{IS_VIRTUAL} = $hostInfo->{IS_VIRTUAL};
 
     $hostInfo->{DISKS}                = $osInfo->{DISKS};
     $hostInfo->{CPU_MODEL}            = $osInfo->{CPU_MODEL};
@@ -1105,3 +1132,4 @@ sub collect {
 }
 
 1;
+

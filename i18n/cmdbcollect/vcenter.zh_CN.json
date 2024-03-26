@@ -256,6 +256,11 @@
                                     "type": "String"
                                 },
                                 {
+                                    "name": "UUID",
+                                    "desc": "虚拟机UUID",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "HOST_ON",
                                     "desc": "所在物理机",
                                     "type": "JsonArray",

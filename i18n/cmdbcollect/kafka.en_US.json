@@ -208,6 +208,11 @@
             "type": "String"
         },
         {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Config File Path",
+            "type": "String"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"

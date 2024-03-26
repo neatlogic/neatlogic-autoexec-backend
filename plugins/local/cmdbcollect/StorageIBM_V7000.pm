@@ -38,7 +38,7 @@ sub collect {
     my $data = {};
 
     $data->{VENDOR} = 'IBM';
-    $data->{BRAND}  = 'V7000';
+    $data->{BRAND}  = 'IBM';
 
     my $nodeInfo = $self->{node};
 
@@ -67,22 +67,40 @@ sub collect {
         if ( $line =~ /^total_drive_raw_capacity:(.*?)\s*$/ ) {
             $data->{CAPACITY} = $1 + 0.0;    #Unit TB
         }
+	if ( $line =~ /^product_name:(.*?)\s*$/ ){
+	    $data->{MODEL} = $1;
+	}
     }
 
+    #id:fc_io_port_id:port_id:type:port_speed:node_id:node_name:WWPN:nportid:status:attachment:cluster_use:adapter_location:adapter_port_id
+    #0:1:1:fc:16Gb:1:node1:500507680B218FF6:010C00:active:switch:local_partner:2:1
+    #1:2:2:fc:16Gb:1:node1:500507680B228FF6:010C00:active:switch:local_partner:2:2
+    #2:3:3:fc:16Gb:1:node1:500507680B238FF6:012500:active:switch:local_partner:2:3
+    #3:4:4:fc:16Gb:1:node1:500507680B248FF6:012500:active:switch:local_partner:2:4
+    #16:1:1:fc:16Gb:2:node2:500507680B218FF7:010D00:active:switch:local_partner:2:1
+    #17:2:2:fc:16Gb:2:node2:500507680B228FF7:010D00:active:switch:local_partner:2:2
+    #18:3:3:fc:16Gb:2:node2:500507680B238FF7:012700:active:switch:local_partner:2:3
+    #19:4:4:fc:16Gb:2:node2:500507680B248FF7:012700:active:switch:local_partner:2:4
     my @fcPorts     = ();
     my @fcInfoLines = $sshclient->capture("lsportfc -delim :");
     for ( my $i = 1 ; $i <= $#fcInfoLines ; $i++ ) {
         my $line = $fcInfoLines[$i];
-        if ( $line =~ /\d+?:\d+?:\d+?:(\S+?):(\S+?):\d+?:\S+?:(\S+?):\S+?:(\S+?):(\S+?):/ ) {
-            if ( ( $1 eq 'fc' ) && ( $4 eq 'active' ) && ( $5 eq 'switch' ) ) {
-                my $fcInfo = {};
-                $fcInfo->{SPEED} = $2;
-                my $wwpn = $3;
-                $wwpn =~ s/(..)/$1:/g;
-                chop($wwpn);
-                $fcInfo->{WWPN} = $wwpn;
-                push( @fcPorts, $fcInfo );
-            }
+        my @splits = split( ":", $line );
+        if ( ( $splits[3] eq 'fc' ) && ( $splits[9] eq 'active' ) && ( $splits[10] eq 'switch' ) ) {
+            my $fcInfo = {};
+            $fcInfo->{_OBJ_CATEGORY} = 'STORAGE';
+            $fcInfo->{_OBJ_TYPE} = 'STORAGE_HBA';
+	    
+            my $speed = $splits[4];
+            $speed =~ s/GB//gi;
+            $fcInfo->{SPEED} = $speed;
+            $fcInfo->{ID} = $splits[0];
+            $fcInfo->{NAME} = $splits[0];
+            my $wwpn = $splits[7];
+            $wwpn =~ s/(..)/$1:/g;
+            chop($wwpn);
+            $fcInfo->{WWPN} = $wwpn;
+            push( @fcPorts, $fcInfo );
         }
     }
     $data->{HBA_INTERFACES} = \@fcPorts;
@@ -179,9 +197,11 @@ sub collect {
         $line =~ s/^\s+|\s+$//;
         my @tmp     = split( /:/, $line );
         my $lunInfo = {};
+        $lunInfo->{_OBJ_CATEGORY}  = 'STORAGE';
+        $lunInfo->{_OBJ_TYPE}     = 'STORAGE_LUN';
         $lunInfo->{WWN}      = $tmp[-13];
         $lunInfo->{NAME}     = $tmp[1];
-        $lunInfo->{CAPACITY} = $tmp[7];
+        $lunInfo->{CAPACITY} = $self->getDiskSizeFormStr($tmp[7]);
 
         my $poolName = $tmp[6];
         $lunInfo->{POOL_NAME} = $poolName;
@@ -230,6 +250,13 @@ sub collect {
 
     return $data;
 }
+sub getDiskSizeFormStr {
+    my ( $self, $sizeStr ) = @_;
+    my $utils = $self->{collectUtils};
 
+    my $size = $utils->getDiskSizeFormStr($sizeStr);
+
+    return $size;
+}
 1;
 

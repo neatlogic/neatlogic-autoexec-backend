@@ -18,10 +18,16 @@ my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie' ];
 sub new {
     my ( $class, %args ) = @_;
     my $self = {};
-    $self->{hasError}   = 0;
-    $self->{brand}      = $args{brand};
+    $self->{hasError} = 0;
+
+    $self->{node}       = $args{node};
     $self->{sshAccount} = $args{sshAccount};
+    $self->{brand}      = $args{brand};
     $self->{DATA}       = { PK => ['MGMT_IP'] };
+
+    my $objType = $args{objType};
+    $self->{objType} = $objType;
+
     bless( $self, $class );
 
     my $utils = CollectUtils->new();
@@ -45,12 +51,20 @@ sub new {
 
     $self->{inspect} = $inspect;
 
+    my $noneSnmpOpt = {
+        node       => 1,
+        brand      => 1,
+        inspect    => 1,
+        sshAccount => 1,
+        objType    => 1
+    };
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' and $key ne 'sshAccount' ) {
+        if ( not defined( $noneSnmpOpt->{$key} ) ) {
             $options->{"-$key"} = $args{$key};
         }
     }
+
     $options->{'-maxmsgsize'} = 65535;
     $self->{snmpOptions}      = $options;
 
@@ -82,51 +96,97 @@ sub new {
     };
 
     #通用列表值定义, 这部分不提供给外部修改
-    my $commOidDef = {
+    my $commOidDef;
+    if ( $objType =~ /switch/i ) {
+        $commOidDef = {
 
-        #端口信息
-        #PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',      #ifIndex
-        #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',      #ifDescr
-        PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
-        PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifName
-        PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
-        PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
-        PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
-        PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',       #ifOperStatus
-        PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',       #ifSpeed
-        PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
-        PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',      #ifOutQLen
+            #端口信息
+            #PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',      #ifIndex
+            #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',      #ifDescr
+            PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
+            PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifName
+            PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
+            PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
+            PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',       #ifAdminStatus
+            PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',       #ifOperStatus
+            PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',       #ifSpeed
+            PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',       #ifMTU
+            PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',      #ifOutQLen
 
-        #Counter inspect
-        PORT_IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
-        PORT_IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
-        PORT_IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
-        PORT_IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
-        PORT_IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
-        PORT_IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
-        PORT_OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
-        PORT_OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
-        PORT_OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
-        PORT_OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
-        PORT_OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20',    #ifOutErrors
+            #Counter inspect
+            PORT_IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',    #ifInOctets
+            PORT_IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',    #ifInUcastPkts
+            PORT_IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',    #ifInNUcastPkts
+            PORT_IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',    #ifInDiscards
+            PORT_IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',    #ifInErrors
+            PORT_IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',    #ifInUnknownProtos
+            PORT_OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',    #ifOutOctets
+            PORT_OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',    #ifOutUcastPkts
+            PORT_OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',    #ifOutNUcastPkts
+            PORT_OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
+            PORT_OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20',    #ifOutErrors
 
-        #MAC地址和端口对照表
-        CISCO_VLAN_STATE => '1.3.6.1.4.1.9.9.46.1.3.1.1.2',    #vtpVlanState
-        MAC_TABLE_PORT   => '1.3.6.1.2.1.17.4.3.1.2',          #dot1qTpFdbPort
-        MAC_TABLE_MAC    => '1.3.6.1.2.1.17.4.3.1.1',          #dot1qTpFdbMac
+            #MAC地址和端口对照表
+            CISCO_VLAN_STATE => '1.3.6.1.4.1.9.9.46.1.3.1.1.2',    #vtpVlanState
+            MAC_TABLE_PORT   => '1.3.6.1.2.1.17.4.3.1.2',          #dot1qTpFdbPort
+            MAC_TABLE_MAC    => '1.3.6.1.2.1.17.4.3.1.1',          #dot1qTpFdbMac
 
-        #交换机邻居表
-        LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',     #lldpLocPortId
-        LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',     #lldpRemPortId
-        LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',     #lldpRemSysName
+            #交换机邻居表
+            LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',     #lldpLocPortId
+            LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',     #lldpRemPortId
+            LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',     #lldpRemSysName
 
-        #Cisco CDP 邻居表
-        CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
-        CDP_REMOTE_PORT    => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',    #cdpCacheDevicePort
-        CDP_TYPE           => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',    #cdpCacheAddressType
-        CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'     #cdpCacheAddress
-    };
+            #Cisco CDP 邻居表
+            CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
+            CDP_REMOTE_PORT    => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',    #cdpCacheDevicePort
+            CDP_TYPE           => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',    #cdpCacheAddressType
+            CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'     #cdpCacheAddress
+        };
+    }
+    elsif ( $objType =~ /route/i ) {
+        $commOidDef = {
 
+            #端口信息
+            PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',              #ifIndex
+            PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',              #ifDescr
+                                                                     #PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
+                                                                     #PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifName
+            PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',              #ifType
+            PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',              #ifPhysAddress
+            PORT_ADMIN_STATUS => '1.3.6.1.2.1.2.2.1.7',              #ifAdminStatus
+            PORT_OPER_STATUS  => '1.3.6.1.2.1.2.2.1.8',              #ifOperStatus
+            PORT_SPEED        => '1.3.6.1.2.1.2.2.1.5',              #ifSpeed
+            PORT_MTU          => '1.3.6.1.2.1.2.2.1.4',              #ifMTU
+            PORT_OUT_QLEN     => '1.3.6.1.2.1.2.2.1.21',             #ifOutQLen
+
+            #Counter inspect
+            PORT_IN_OCTETS         => '1.3.6.1.2.1.2.2.1.10',        #ifInOctets
+            PORT_IN_UCAST_PKTS     => '1.3.6.1.2.1.2.2.1.11',        #ifInUcastPkts
+            PORT_IN_NUCAST_PKTS    => '1.3.6.1.2.1.2.2.1.12',        #ifInNUcastPkts
+            PORT_IN_DISCARDS       => '1.3.6.1.2.1.2.2.1.13',        #ifInDiscards
+            PORT_IN_ERRORS         => '1.3.6.1.2.1.2.2.1.14',        #ifInErrors
+            PORT_IN_UNKNOWN_PROTOS => '1.3.6.1.2.1.2.2.1.15',        #ifInUnknownProtos
+            PORT_OUT_OCTETS        => '1.3.6.1.2.1.2.2.1.16',        #ifOutOctets
+            PORT_OUT_UCAST_PKTS    => '1.3.6.1.2.1.2.2.1.17',        #ifOutUcastPkts
+            PORT_OUT_NUCAST_PKTS   => '1.3.6.1.2.1.2.2.1.18',        #ifOutNUcastPkts
+            PORT_OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',        #ifOutDiscards
+            PORT_OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20',        #ifOutErrors
+
+            #MAC地址和端口对照表
+
+            #交换机邻居表
+            LLDP_LOCAL_PORT     => '1.0.8802.1.1.2.1.3.7.1.3',    #lldpLocPortId
+            LLDP_REMOTE_PORT    => '1.0.8802.1.1.2.1.4.1.1.7',    #lldpRemPortId
+            LLDP_REMOTE_SYSNAME => '1.0.8802.1.1.2.1.4.1.1.9',    #lldpRemSysName
+
+            #Cisco CDP 邻居表
+            CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
+            CDP_REMOTE_PORT    => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',    #cdpCacheDevicePort
+            CDP_TYPE           => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',    #cdpCacheAddressType
+            CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'     #cdpCacheAddress
+        };
+
+    }
     $self->{commonOidDef} = $commOidDef;
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{tableOidDef}  = $tableOidDef;
@@ -140,7 +200,14 @@ sub new {
         }
     }
 
+    $self->init();
     return $self;
+}
+
+#下游类通过重载这个方法进行类的初始化
+sub init {
+    my ($self) = @_;
+    return;
 }
 
 #重载此方法，调整snmp oid的设置
@@ -198,7 +265,7 @@ sub setCommonOid {
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
     my $resultError = 0;
-    my $snmp     = $self->{snmpSession};
+    my $snmp        = $self->{snmpSession};
     if ( not defined($queryResult) ) {
         $resultError = 1;
         my $error = $snmp->error();
@@ -334,6 +401,7 @@ sub _getPortIdx {
 
 sub _getPorts {
     my ($self)     = @_;
+    my $objType    = $self->{objType};
     my $snmp       = $self->{snmpSession};
     my $commOidDef = $self->{commonOidDef};
     my $snmpHelper = $self->{snmpHelper};
@@ -346,7 +414,13 @@ sub _getPorts {
 
     my $portIdxToNoMap = $self->_getPortIdx();
     while ( my ( $idx, $no ) = each(%$portIdxToNoMap) ) {
-        my $portInfo = { _OBJ_CATEGORY => 'SWITCH', _OBJ_TYPE => 'SWITCH-PORT', INDEX => $idx, NO => $no };
+        my $portInfo;
+        if ( $objType =~ /switch/i ) {
+            $portInfo = { _OBJ_CATEGORY => 'SWITCH', _OBJ_TYPE => 'SWITCH-PORT', INDEX => $idx, NO => $no };
+        }
+        elsif ( $objType =~ /route/i ) {
+            $portInfo = { _OBJ_CATEGORY => 'SWITCH', _OBJ_TYPE => 'ROUTE-PORT', INDEX => $idx, NO => $no };
+        }
         $portsMap->{$idx}   = $portInfo;
         $portIdxMap->{$idx} = $portInfo;
         $portNoMap->{$no}   = $portInfo;
@@ -727,21 +801,15 @@ sub _getCDP {
 sub collect {
     my ($self) = @_;
 
-    my $brand = $self->{brand};
+    my $brand   = $self->{brand};
+    my $objType = $self->{objType};
 
     #调用对应品牌的pm进行采集前的oid的设置
     $self->before();
 
-    eval {
-        $self->_getScalar();
-        $self->_getTable();
-        $self->_getPorts();
-    };
-    if ($@) {
-        my $errMsg = $@;
-        $errMsg =~ s/ at\s*.*$//;
-        print($errMsg );
-    }
+    $self->_getScalar();
+    $self->_getTable();
+    $self->_getPorts($objType);
 
     if ( $brand =~ /Cisco/i ) {
         $self->_getCDP();

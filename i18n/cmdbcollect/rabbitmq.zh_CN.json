@@ -41,6 +41,11 @@
             "name": "VERSION",
             "desc": "版本",
             "type": "String"
+        },        
+        {
+            "name": "ERLANG_VERSION",
+            "desc": "ErLang版本",
+            "type": "String"
         },
         {
             "name": "STATE",
@@ -198,6 +203,23 @@
             "type": "String"
         },
         {
+            "name": "USERS",
+            "desc": "用户角色列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "ROLE",
+                    "desc": "角色",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "INSTALL_PATH",
             "desc": "安装目录",
             "type": "String"
@@ -205,6 +227,16 @@
         {
             "name": "CONFIG_PATH",
             "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "数据存放目录",
+            "type": "String"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "日志目录",
             "type": "String"
         },
         {
@@ -436,6 +468,36 @@
             "name": "COMMAND",
             "desc": "命令行",
             "type": "Text"
+        },
+        {
+            "name": "GUEST_ENABLE",
+            "desc": "Guest用户是否存在(1:存在)",
+            "type": "Text"
+        },
+        {
+            "name": "MEMORY_WATER_MARK",
+            "desc": "内存水位线配置",
+            "type": "Text"
+        },
+        {
+            "name": "DISK_FREE",
+            "desc": "可用磁盘(G)",
+            "type": "Int"
+        },
+        {
+            "name": "FD_LIMIT",
+            "desc": "最大打开文件数量",
+            "type": "Int"
+        },
+        {
+            "name": "FD_USED",
+            "desc": "已打开文件数量",
+            "type": "Int"
+        },
+        {
+            "name": "ALARMS",
+            "desc": "告警信息",
+            "type": "Array"
         },
         {
             "name": "REF_CLUSTER",

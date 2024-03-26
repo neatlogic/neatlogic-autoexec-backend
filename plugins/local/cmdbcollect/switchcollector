@@ -97,12 +97,11 @@ sub main {
     }
 
     my $brand;
-    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo );
+    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo, objType => $objType );
     $brand = $switchBase->getBrand();
 
     if ( not defined($brand) or $brand eq '' ) {
         print("ERROR: Can not discover the firewall device brand.\n");
-        exit(-1);
     }
     else {
         print("INFO: Switch brand: $brand.\n");
@@ -114,7 +113,7 @@ sub main {
         print("INFO: Has defined class $switchClass, try to load it.\n");
         eval {
             require "$switchClass.pm";
-            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo );
+            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo, objType => $objType );
         };
         if ($@) {
             print("WARN: Load $switchClass failed, $@");

@@ -259,8 +259,8 @@ sub isProcInContainer {
 sub findProcess {
     my ($self) = @_;
     print("INFO: Begin to find and match processes.\n");
-    my $callback    = $self->{callback};
-    my $matchedProc = {};
+    my $callback     = $self->{callback};
+    my @matchedProcs = ();
     my $chldOut;
     open( $chldOut, $self->{listProcCmd} . '|' );
     if ( defined($chldOut) ) {
@@ -389,16 +389,21 @@ sub findProcess {
                     $envMap = $self->getProcEnv($myPid);
                 }
                 $matchedMap->{ENVIRONMENT} = $envMap;
-                my $matched = &$callback( $config->{className}, $matchedMap, $self );
-                if ( $matched == 1 ) {
-                    $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
-                    $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
-                    if ( defined( $matchedMap->{ELAPSED} ) ) {
-                        $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
-                    }
-                    $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
-                    last;
-                }
+
+                $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                push( @matchedProcs, { className => $config->{className}, procMap => $matchedMap } );
+                last;
+
+                # my $matched = &$callback( $config->{className}, $matchedMap, $self );
+                # if ( $matched == 1 ) {
+                #     $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
+                #     $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
+                #     if ( defined( $matchedMap->{ELAPSED} ) ) {
+                #         $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                #     }
+                #     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                #     last;
+                # }
             }
         }
 
@@ -409,6 +414,20 @@ sub findProcess {
             print("ERROR: Get Process list failed.\n");
             exit(1);
         }
+
+        foreach my $matchedProc (@matchedProcs) {
+            my $matchedMap = $matchedProc->{procMap};
+            my $className  = $matchedProc->{className};
+            my $matched    = &$callback( $className, $matchedMap, $self );
+            if ( $matched == 1 ) {
+                $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
+                $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
+                if ( defined( $matchedMap->{ELAPSED} ) ) {
+                    $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                }
+            }
+        }
+
         print("INFO: List all processes and find matched processes complete.\n");
     }
     else {
@@ -624,6 +643,32 @@ sub predictBizIp {
     }
 
     return ( $bizIp, $vip );
+}
+
+sub getPortListenIps {
+    my ( $self, $connInfo, $port ) = @_;
+
+    my $vip;
+    my $bizIp;
+
+    my $portInfoMap = $connInfo->{PORT_BIND};
+
+    if ( not defined($portInfoMap) ) {
+        return [];
+    }
+
+    my $portInfo = $portInfoMap->{"$port"};
+    if ( not defined($portInfo) ) {
+        return [];
+    }
+
+    my $ipAddrsMap = {};
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{EXPLICIT_IP} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{EXPLICIT_IPV6} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{IMPLICIT_IP} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{IMPLICIT_IPV6} } ) );
+
+    return wantarray ? keys(%$ipAddrsMap) : $ipAddrsMap;
 }
 
 1;

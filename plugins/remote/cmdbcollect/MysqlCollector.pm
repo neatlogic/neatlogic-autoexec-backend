@@ -346,6 +346,7 @@ sub collect {
         ];
 
         my @dbUserInfos = ();
+        my @dbConns     = ();
         my $dbUsers     = $db2UsersMap->{$dbName};
         if ( defined($dbUsers) ) {
             foreach my $dbUser (@$dbUsers) {
@@ -357,9 +358,21 @@ sub collect {
                         NAME          => $dbUser
                     }
                 );
+
+                push(
+                    @dbConns,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-CONNECTION',
+                        SERVICE_NAME  => $dbName,
+                        USER_NAME     => $dbUser
+                    }
+                );
             }
         }
-        $dbInfo->{USERS} = \@dbUserInfos;
+
+        $dbInfo->{USERS}       = \@dbUserInfos;
+        $dbInfo->{CONNECTIONS} = \@dbConns;
 
         $dbInfosMap->{$dbName} = $dbInfo;
     }

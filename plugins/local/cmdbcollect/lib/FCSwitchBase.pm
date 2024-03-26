@@ -21,6 +21,7 @@ sub new {
     if ( not defined($inspect) ) {
         $inspect = 0;
     }
+    $self->{inspect} = $inspect;
 
     my $scalarOidDef = {
         DEV_NAME         => '1.3.6.1.2.1.1.5.0',                                                                                   #sysName
@@ -103,16 +104,16 @@ sub new {
         PORTS => {
 
             #1.3.6.1.4.1.1588.2.1.1.1.0.3 #swFCPortScn
-            INDEX         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.1',     #swFCportIndex
-            NAME          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.36',    #swFCPortName
-            PortSpecifier => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.37',    #swFCPortSpecifier
-            TYPE          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.2',     #swFCPortType
-            WWPN          => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.34',    #swFCPortWwn
-            ADMIN_STATUS  => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.5',     #swFCPortAdminStatus
-            OPER_STATUS   => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.4',     #swFCPortOPStatus
-            LINK_STATE    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.6',     #swFCPortLinkState
-            PHY_STATE     => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.3',     #swFCPortPhyState
-            SPEED         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.35'     #swFCPortSpeed
+            INDEX        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.1',     #swFCportIndex
+            NAME         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.36',    #swFCPortName
+            PORT         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.37',    #swFCPortSpecifier
+            TYPE         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.2',     #swFCPortType
+            WWPN         => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.34',    #swFCPortWwn
+            ADMIN_STATUS => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.5',     #swFCPortAdminStatus
+            OPER_STATUS  => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.4',     #swFCPortOPStatus
+            LINK_STATE   => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.6',     #swFCPortLinkState
+            PHY_STATE    => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.3',     #swFCPortPhyState
+            SPEED        => '1.3.6.1.4.1.1588.2.1.1.1.6.2.1.35'     #swFCPortSpeed
         },
 
         ZONES => {
@@ -126,12 +127,12 @@ sub new {
 
         #TODO: 需要测试关系WWN的采集，验证LINK TABLE的形式，跟交换机的MAC TABLE是有区别的
         LINK_TABLE => {
-            LOCAL_WWNN        => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
-            LOCAL_PORT_NUMBER => '1.3.6.1.3.94.1.12.1.4',    #connUnitLinkPortNumberX
-            LOCAL_WWPN        => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortWwnX
-            PEER_WWNN         => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
-            PEER_PORT_NUMBER  => '1.3.6.1.3.94.1.12.1.7',    #connUnitLinkPortNumberY
-            PEER_WWPN         => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
+            WWNN             => '1.3.6.1.3.94.1.12.1.3',    #connUnitLinkNodeIdX
+            PORT_NUMBER      => '1.3.6.1.3.94.1.12.1.4',    #connUnitLinkPortNumberX
+            WWPN             => '1.3.6.1.3.94.1.12.1.5',    #connUnitLinkPortWwnX
+            PEER_WWNN        => '1.3.6.1.3.94.1.12.1.6',    #connUnitLinkNodeIdY
+            PEER_PORT_NUMBER => '1.3.6.1.3.94.1.12.1.7',    #connUnitLinkPortNumberY
+            PEER_WWPN        => '1.3.6.1.3.94.1.12.1.8',    #connUnitLinkPortWwnY
         }
     };
 
@@ -178,7 +179,15 @@ sub new {
         }
     }
 
+    $self->init();
+
     return $self;
+}
+
+#下游类通过重载这个方法进行类的初始化
+sub init {
+    my ($self) = @_;
+    return;
 }
 
 #重载此方法，调整snmp oid的设置
@@ -227,7 +236,7 @@ sub addTableOid {
 sub _errCheck {
     my ( $self, $queryResult, $oid, $name ) = @_;
     my $resultError = 0;
-    my $snmp     = $self->{snmpSession};
+    my $snmp        = $self->{snmpSession};
     if ( not defined($queryResult) ) {
         $resultError = 1;
         my $error = $snmp->error();
@@ -300,31 +309,32 @@ sub _getTable {
     foreach my $portInfo (@$portsData) {
         $portInfo->{_OBJ_CATEGORY} = "FCDEV";
         $portInfo->{_OBJ_TYPE}     = "FCSWITCH-PORT";
-
-        $portInfo->{WWPN}         = $snmpHelper->hex2mac( $portInfo->{WWPN} );
-        $portInfo->{ADMIN_STATUS} = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
-        $portInfo->{OPER_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
-        $portInfo->{LINK_STATE}   = $snmpHelper->getPortStatus( $portInfo->{LINK_STATE} );
-        $portInfo->{PHY_STATE}    = $snmpHelper->getPortStatus( $portInfo->{PHY_STATE} );
-        $portInfo->{TYPE}         = $snmpHelper->getPortType( $portInfo->{TYPE} );
+        $portInfo->{DOMAIN_IDX}    = $self->{DATA}->{DOMAIN_ID} . "," . $portInfo->{PORT};
+        $portInfo->{WWPN}          = $snmpHelper->hex2mac( $portInfo->{WWPN} );
+        $portInfo->{ADMIN_STATUS}  = $snmpHelper->getPortStatus( $portInfo->{ADMIN_STATUS} );
+        $portInfo->{OPER_STATUS}   = $snmpHelper->getPortStatus( $portInfo->{OPER_STATUS} );
+        $portInfo->{LINK_STATE}    = $snmpHelper->getPortStatus( $portInfo->{LINK_STATE} );
+        $portInfo->{PHY_STATE}     = $snmpHelper->getPortStatus( $portInfo->{PHY_STATE} );
+        $portInfo->{TYPE}          = $snmpHelper->getPortType( $portInfo->{TYPE} );
 
         $portsMap->{ $portInfo->{WWPN} } = $portInfo;
     }
 
     #计算本地端口往外连接的连接数量，冗余回填本地端口名
-    my $linkCountMap = {};
-    my $linkTable    = $tableData->{LINK_TABLE};
+    my $linkCountMap         = {};
+    my $linkTable            = $tableData->{LINK_TABLE};
+    my $localWwpnPeerWwpnMap = {};
     foreach my $linkInfo (@$linkTable) {
-        my $localWwnn = $snmpHelper->hex2mac( $linkInfo->{LOCAL_WWNN} );
-        my $localWwpn = $snmpHelper->hex2mac( $linkInfo->{LOCAL_WWPN} );
+        my $localWwnn = $snmpHelper->hex2mac( $linkInfo->{WWNN} );
+        my $localWwpn = $snmpHelper->hex2mac( $linkInfo->{WWPN} );
         my $peerWwnn  = $snmpHelper->hex2mac( $linkInfo->{PEER_WWNN} );
         my $peerWwpn  = $snmpHelper->hex2mac( $linkInfo->{PEER_WWPN} );
 
-        $linkInfo->{LOCAL_WWNN} = $localWwnn;
-        $linkInfo->{LOCAL_WWPN} = $localWwpn;
-        $linkInfo->{PEER_WWNN}  = $peerWwnn;
-        $linkInfo->{PEER_WWPN}  = $peerWwpn;
-
+        $linkInfo->{WWNN}                   = $localWwnn;
+        $linkInfo->{WWPN}                   = $localWwpn;
+        $linkInfo->{PEER_WWNN}              = $peerWwnn;
+        $linkInfo->{PEER_WWPN}              = $peerWwpn;
+        $localWwpnPeerWwpnMap->{$localWwpn} = $peerWwpn;
         my $keyStr    = "$localWwnn-$localWwpn";
         my $linkCount = $linkCountMap->{$keyStr};
         if ( not defined($linkCount) ) {
@@ -332,20 +342,28 @@ sub _getTable {
         }
         $linkCountMap->{$keyStr} = $linkCount + 1;
 
-        my $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_WWPN} };
+        my $localPortInfo = $portsMap->{ $linkInfo->{WWPN} };
         if ( not defined($localPortInfo) ) {
-            $localPortInfo = $portsMap->{ $linkInfo->{LOCAL_WWNN} };
+            $localPortInfo = $portsMap->{ $linkInfo->{WWNN} };
         }
         if ( defined($localPortInfo) ) {
-            $linkInfo->{PORT_NAME} = $localPortInfo->{NAME};
+            $linkInfo->{PORT_NAME}  = $localPortInfo->{NAME};
+            $linkInfo->{DOMAIN_IDX} = $localPortInfo->{DOMAIN_IDX};
         }
         else {
-            $linkInfo->{PORT_NAME} = undef;
+            $linkInfo->{PORT_NAME}  = undef;
+            $linkInfo->{DOMAIN_IDX} = undef;
         }
     }
+
+    foreach my $portInfo (@$portsData) {
+
+        #设置端口的对端WWPN
+        $portInfo->{PEER_WWPN} = $localWwpnPeerWwpnMap->{ $portInfo->{WWPN} };
+    }
     foreach my $linkInfo (@$linkTable) {
-        my $localWwnn = $linkInfo->{LOCAL_WWNN};
-        my $localWwpn = $linkInfo->{LOCAL_WWPN};
+        my $localWwnn = $linkInfo->{WWNN};
+        my $localWwpn = $linkInfo->{WWPN};
         $linkInfo->{LINK_COUNT} = $linkCountMap->{"$localWwnn-$localWwpn"};
     }
 

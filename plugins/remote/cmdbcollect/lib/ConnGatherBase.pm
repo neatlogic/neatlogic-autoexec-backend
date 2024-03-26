@@ -362,4 +362,81 @@ sub getStatInfo {
 
     return $connInfo;
 }
+
+#获取连入某进程监听IP端口的远端的IP地址列表
+sub getInboundIps {
+    my ( $self, $bindAddr, $pid, $isContainer ) = @_;
+
+    my @ips    = ();
+    my $status = 3;
+    if ( not defined($isContainer) ) {
+        $isContainer = 0;
+    }
+
+    if ( $status != 0 ) {
+        my $cmd = "netstat -ntudwp| grep $bindAddr";
+        if ( $isContainer == 1 ) {
+            $cmd = "nsenter -t $pid -n netstat -ntudwp| grep $bindAddr";
+        }
+        elsif ( defined($pid) and $pid ne '' ) {
+            $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";
+        }
+
+        my $localFieldIdx  = 3;
+        my $remoteFieldIdx = 4;
+
+        my $pipe;
+        my $pipePid = open( $pipe, $cmd );
+        if ( defined($pipe) ) {
+            my $line;
+            while ( $line = <$pipe> ) {
+                my @fields = split( /\s+/, $line );
+                if ( $#fields < $remoteFieldIdx ) {
+                    next;
+                }
+                my $localAddr  = $fields[$localFieldIdx];
+                my $remoteAddr = $fields[$remoteFieldIdx];
+                if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                    push( @ips, $1 );
+                }
+            }
+            close($pipe);
+            $status = $?;
+        }
+    }
+
+    if ( $status != 0 ) {
+        my $cmd = "ss -ntudwp |";
+        if ( $isContainer == 1 ) {
+            $cmd = "nsenter -t $pid -n ss -ntudwp|grep $bindAddr";
+        }
+        elsif ( defined($pid) and $pid ne '' ) {
+            $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";
+        }
+
+        my $localFieldIdx  = 4;
+        my $remoteFieldIdx = 5;
+
+        my $pipe;
+        my $pipePid = open( $pipe, $cmd );
+        if ( defined($pipe) ) {
+            my $line;
+            while ( $line = <$pipe> ) {
+                my @fields = split( /\s+/, $line );
+                if ( $#fields < $remoteFieldIdx ) {
+                    next;
+                }
+                my $localAddr  = $fields[$localFieldIdx];
+                my $remoteAddr = $fields[$remoteFieldIdx];
+                if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                    push( @ips, $1 );
+                }
+            }
+            close($pipe);
+            $status = $?;
+        }
+    }
+
+    return \@ips;
+}
 1;
