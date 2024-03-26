@@ -152,6 +152,11 @@ sub main {
     $data->{PK}          = CollectObjCat->getPK($objCat);
     $data->{RESOURCE_ID} = $nodeInfo->{resourceId};
 
+    #如果没有IPLIST,就把MGMT_IP放进去,用于计算NAS关系
+    if ( not defined( $data->{IPLIST} ) ) {
+        $data->{IPLIST} = [ $data->{MGMT_IP} ];
+    }
+
     my $out = {};
     $out->{DATA} = [$data];
     AutoExecUtils::saveOutput($out);
