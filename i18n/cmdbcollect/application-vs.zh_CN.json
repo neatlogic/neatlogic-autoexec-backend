@@ -4,7 +4,7 @@
     "docroot": null,
     "collection_label": "应用集群",
     "filter": {
-        "_OBJ_TYPE": "LoadBalancer-VS"
+        "_OBJ_TYPE": "LOADBALANCER-VS"
     },
     "fields": [
         {
@@ -117,7 +117,14 @@
         {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "PRIMARY_IP",

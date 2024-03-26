@@ -106,7 +106,7 @@ sub getPools {
                 last;
             }
 
-            #下面的判断HBA属于哪个机头的判断主要用户HuaWei18500
+            #下面的判断HBA属于哪个机头的判断主要用户Huawei18500
             #TODO：需要验证全面性
             elsif ( $hbaName =~ /R0\.IOM0/ and $ctrlName =~ /\.A$/ ) {
                 $hbaInfo->{CTROLLER_NAME} = $ctrlName;
@@ -138,7 +138,7 @@ sub getPools {
                 last;
             }
 
-            #下面的判断HBA属于哪个机头的判断主要用户HuaWei18500
+            #下面的判断HBA属于哪个机头的判断主要用户Huawei18500
             #TODO：需要验证全面性
             elsif ( $nicName =~ /SMM0/ and $ctrlName =~ /\.A$/ ) {
                 $nicInfo->{CTROLLER_NAME} = $ctrlName;

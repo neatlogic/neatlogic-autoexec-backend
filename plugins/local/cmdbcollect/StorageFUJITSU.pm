@@ -80,7 +80,7 @@ sub collect {
     my $lunIdsMap   = {};
     my @luns;
     my @lunInfoLines = $ssh->capture('show volumes -csv');
-    for ( my $i = 1 ; $i < $#lunInfoLines ; $i++ ) {
+    for ( my $i = 1 ; $i <= $#lunInfoLines ; $i++ ) {
         my $line = $lunInfoLines[$i];
 
         $line =~ s/^\s+|\s+$//g;
@@ -124,7 +124,7 @@ sub collect {
     # 0 - - CM#1 CA#0 Port#0
     # 0 - - CM#1 CA#0 Port#1
     my @lunIdInfoLines = $ssh->capture('show volume-mapping');
-    for ( my $i = 3 ; $i < $#lunIdInfoLines ; $i++ ) {
+    for ( my $i = 3 ; $i <= $#lunIdInfoLines ; $i++ ) {
         my $line = $lunIdInfoLines[$i];
         if ( $line =~ /^<Mapping>\s*$/ ) {
             last;
@@ -147,7 +147,7 @@ sub collect {
     # 3,RAIDGROUP003,RAID5,CM#1,SED Locked,134656,132532
     my @raidGroups         = ();
     my @raidGroupInfoLines = $ssh->capture('show raid-groups -csv');
-    for ( my $i = 1 ; $i < $#raidGroupInfoLines ; $i++ ) {
+    for ( my $i = 1 ; $i <= $#raidGroupInfoLines ; $i++ ) {
         my $line = $raidGroupInfoLines[$i];
         $line =~ s/^\s*|\s*$//g;
         my @splits = split( /,/, $line );
@@ -184,7 +184,7 @@ sub collect {
     # 2,TPP02,Available,Normal,279029,102400,37,139000,49,90,75,Disable,-,-,-,-,8,Disable,21,Online,RAID1,Disable,-
     my @pools         = ();
     my @poolInfoLines = $ssh->capture('show thin-pro-pools -csv');
-    for ( my $i = 1 ; $i < $#poolInfoLines ; $i++ ) {
+    for ( my $i = 1 ; $i <= $#poolInfoLines ; $i++ ) {
         my $line = $poolInfoLines[$i];
         $line =~ s/^\s*|\s*$//g;
         my @splits = split( /,/, $line );
@@ -212,7 +212,7 @@ sub collect {
     # --- ---------------- ------------- --------- ---------- ---------- ------- ----------- -------
     # 0 FTRP_NAME#0 Available Normal 20.02 GB 1.03 GB 20 4.02 GB 20
     my @poolInfoLines = $ssh->capture('show flexible-tier-pools -csv');
-    for ( my $i = 1 ; $i < $#poolInfoLines ; $i++ ) {
+    for ( my $i = 1 ; $i <= $#poolInfoLines ; $i++ ) {
         my $line = $poolInfoLines[$i];
         $line =~ s/^\s*|\s*$//g;
         my @splits = split( /,/, $line );

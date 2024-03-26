@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集交换机信息,支持Cisco、HuaWei、H3C等",
+    "description": "采集交换机信息,支持Cisco、Huawei、H3C等",
     "option": [{
             "opt": "community",
             "name": "默认团体字",
@@ -14,6 +14,15 @@
             "required": "false",
             "validate": "",
             "defaultValue": "public"
+        },
+        {
+            "opt": "sshaccount",
+            "name": "SSH账号",
+            "help": "采用SSH协议账号补充采集",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",

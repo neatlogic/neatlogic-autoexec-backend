@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集光交设备信息,支持基于Brocade的类型",
+    "description": "SNMP采集光交设备信息,支持基于Brocade的类型",
     "option": [{
             "opt": "community",
             "name": "默认团体字",
@@ -14,6 +14,15 @@
             "required": "false",
             "validate": "",
             "defaultValue": "public"
+        },
+        {
+            "opt": "sshaccount",
+            "name": "SSH账号",
+            "help": "采用SSH协议账号补充采集",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",
@@ -42,19 +51,19 @@
                     },
                     {
                         "text": "IBM",
-                        "value": "Brocade"
+                        "value": "IBM"
                     },
                     {
                         "text": "EMC",
-                        "value": "Brocade"
+                        "value": "EMC"
                     },
                     {
                         "text": "HP",
-                        "value": "Brocade"
+                        "value": "HP"
                     },
                     {
                         "text": "Huawei",
-                        "value": "Brocade"
+                        "value": "Huawei"
                     }
                 ]
             },

@@ -43,6 +43,33 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "端口",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "MAC地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "IP_ADDRS",
             "desc": "IP地址列表",
             "type": "JsonArray",
@@ -58,7 +85,7 @@
                     "type": "String"
                 }
             ]
-        },
+	},
         {
             "name": "BRAND",
             "desc": "品牌",

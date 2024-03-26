@@ -9,7 +9,6 @@ package OSGatherLinux;
 
 use OSGatherBase;
 our @ISA = qw(OSGatherBase);
-
 use POSIX;
 use Cwd;
 use IO::File;
@@ -96,7 +95,15 @@ sub getVendorInfo {
     $productName =~ s/^\*|\s$//g;
     $osInfo->{IS_VIRTUAL} = 0;
 
-    if ( $productName eq 'KVM' or $productName eq 'VirtualBox' or $productName eq 'VMware Virtual Platform' ) {
+    my $virtualPrdMap = {
+        'KVM'                     => 1,
+        'VirtualBox'              => 1,
+        'VMware Virtual Platform' => 1,
+        'KVM Virtual Machine'     => 1,
+        'Alibaba Cloud ECS'       => 1
+    };
+
+    if ( defined( $virtualPrdMap->{$productName} ) ) {
         $osInfo->{IS_VIRTUAL} = 1;
     }
     $osInfo->{SYS_VENDOR}   = $sysVendor;
@@ -226,7 +233,7 @@ sub getNFSInfo {
             my $autoMount = 0;
 
             #192.168.20.178:/export/share
-            my ( $remoteHost, $remotePath ) = split( $device, ':' );
+            my ( $remoteHost, $remotePath ) = split( ':', $device );
             my $remoteIp = $remoteHost;
             if ( $remoteIp !~ /[\d\.]+/ ) {
                 my $ipAddr = gethostbyname($remoteHost);
@@ -308,7 +315,7 @@ sub getMemInfo {
 sub getDNSInfo {
     my ( $self, $osInfo ) = @_;
 
-    my @dnsServers;
+    my @dnsServers   = ();
     my $dnsInfoLines = $self->getFileLines('/etc/resolv.conf');
     foreach my $line (@$dnsInfoLines) {
         if ( $line =~ /\s*nameserver\s+(\S+)\s*$/i ) {
@@ -466,8 +473,10 @@ sub getUserInfo {
             my $usersMap = {};
             my @userInfo = split( /:/, $line );
 
-            $usersMap->{NAME} = $userInfo[0];
-            $usersMap->{UID}  = $userInfo[2];
+            $usersMap->{_OBJ_CATEGORY} = 'OS';
+            $usersMap->{_OBJ_TYPE}     = 'OS-USER';
+            $usersMap->{NAME}          = $userInfo[0];
+            $usersMap->{UID}           = $userInfo[2];
 
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
@@ -521,9 +530,9 @@ sub getDiskInfo {
     # 1      0.00B  215GB  215GB  xfs
     #
     my @diskInfos = ();
-    my ( $diskStatus, $diskLines ) = $self->getCmdOutLines('LANG=C parted -l 2>/dev/null');
+    my ( $diskStatus, $diskLines ) = $self->getCmdOutLines('LANG=C fdisk -l ');
     if ( $diskStatus ne 0 ) {
-        $diskLines = $self->getCmdOutLines('LANG=C fdisk -l');
+        $diskLines = $self->getCmdOutLines('LANG=C parted -l');
     }
 
     foreach my $line (@$diskLines) {
@@ -628,33 +637,36 @@ sub getDiskInfo {
     # 000800 sddlmaa  /dev/sdc 000002 Online
     #                 /dev/sdr 000003 Online
     # 000801 sddlmab  /dev/sdd 000006 Online
-    my $origDiskMap = {};
-    my $dlnkmgrDir  = "/opt/DynamicLinkManager/bin/dlnkmgr";
+    my $dlnkmgrDir = "/opt/DynamicLinkManager/bin";
     if ( -e $dlnkmgrDir ) {
-        my $lunInfoLines = $self->getCmdOutLines(qq{$dlnkmgrDir/dlnkmgr view -lu});
+        my $lunInfoLines = $self->getCmdOutLines(qq{ $dlnkmgrDir/dlnkmgr view -lu});
         if ( defined($lunInfoLines) ) {
-            my ( $storeageSN, $name, $iLU );
+            my ( $storageSN, $name, $iLU );
             foreach my $line (@$lunInfoLines) {
                 $line =~ s/^\s*|\s*$//g;
                 if ( $line =~ /SerialNumber\s+:\s+(\w+)/ ) {
-                    $storeageSN = $1;
+                    $storageSN = $1;
                 }
                 elsif ( $line =~ /^(\w+)\s+(sdd\w+)/ ) {
                     $iLU  = $1;
                     $name = $2;
-                    if ( defined($name) and defined($storeageSN) ) {
+
+                    #$iLU =~ s/(\w{2})(\w{2})(\w{2})/$1:$2:$3/;
+                    $iLU  = ~s/..(?=.)/$&:/g;
+                    $name = '/dev/' . $name;
+                    if ( defined($name) and defined($storageSN) ) {
                         $lunInfosMap->{$name} = {
                             NAME => $name,
-                            SN   => $storeageSN,
-                            WWN  => $iLU
+                            SN   => $storageSN,
+
+                            #wwn用sn+uuid
+                            WWN => $storageSN . ":" . $iLU
                         };
-                        undef($storeageSN);
+
+                        #undef($storageSN);
                         undef($name);
                         undef($iLU);
                     }
-                }
-                elsif ( $line =~ /^(\/dev\/\w+)/ ) {
-                    $origDiskMap->{$1} = 1;
                 }
             }
         }
@@ -665,13 +677,13 @@ sub getDiskInfo {
     opendir( $dh, "/dev/disk/by-id" );
     if ( defined($dh) ) {
         my $currentDir = getcwd();
-        chdir("/dev/disk/by_id");
+        chdir("/dev/disk/by-id");
         while ( my $linkName = readdir($dh) ) {
-            if ( $linkName =~ /^wwn-(\S+)/ ) {
+            if ( $linkName =~ /^wwn-0x(\S+)/ ) {
                 my $wwn      = $1;
                 my $diskName = Cwd::realpath( readlink($linkName) );
                 my $lunInfo  = $lunInfosMap->{$diskName};
-                if ( defined($lunInfo) ) {
+                if ( defined($lunInfo) and not defined( $lunInfo->{WWN} ) ) {
 
                     #如果多链路软件采集了相关信息，则只补充WWN
                     $lunInfo->{WWN} = $wwn;
@@ -730,22 +742,6 @@ sub getDiskInfo {
         }
 
     }
-
-    #TODO: 这是什么逻辑？没有聚合磁盘的就？？难道没有本地盘和远程盘公用的OS吗？
-    # my @singleDisks;
-    # foreach my $diskInfo (@diskInfos) {
-    #     my $name = $diskInfo->{NAME};
-    #     if ( not defined( $origDiskMap->{$name} ) ) {
-    #         push( @singleDisks, $diskInfo );
-    #     }
-    # }
-
-    # if (@singleDisks) {
-    #     $osInfo->{DISKS} = \@singleDisks;
-    # }
-    # else {
-    #     $osInfo->{DISKS} = \@diskInfos;
-    # }
 
     $osInfo->{DISKS} = \@diskInfos;
 }
@@ -1068,6 +1064,13 @@ sub getMainBoardInfo {
             }
         }
         $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
+        my $modelLines = $self->getCmdOutLines('dmidecode |grep Product');
+        foreach my $line (@$modelLines) {
+            if ( $line =~ /Product.*?:\s*(.*?)$/ ) {
+                $hostInfo->{MODEL} = $1;
+                last;
+            }
+        }
     }
 }
 
@@ -1152,6 +1155,8 @@ sub getNicInfo {
     for ( my $i = 0 ; $i < $nicInfoLineCount ; $i++ ) {
         my $line    = $$nicInfoLines[$i];
         my $nicInfo = {};
+        $nicInfo->{_OBJ_CATEGORY} = 'HOST';
+        $nicInfo->{_OBJ_TYPE}     = 'HOST-ETH';
         my ( $ethName, $macAddr, $ipAddr, $speed, $linkState );
         if ( $line =~ /^\d+:\s+(\S+):/ ) {
             $ethName = $1;
@@ -1208,7 +1213,6 @@ sub getNicInfo {
                     if ( $linkState eq 'yes' ) {
                         $nicInfo->{STATUS} = 'up';
                     }
-
                     push( @nicInfos, $nicInfo );
                 }
             }
@@ -1285,7 +1289,25 @@ sub getHBAInfo {
         push( @hbaInfos, $hbaInfo );
     }
 
-    $hostInfo->{HBA_INTERFACES} = \@hbaInfos;
+    my @hbaPorts = ();
+    foreach my $hbaInfo (@hbaInfos) {
+        foreach my $portInfo ( @{ $hbaInfo->{PORTS} } ) {
+            push(
+                @hbaPorts,
+                {
+                    _OBJ_CATEGORY => 'HOST',
+                    _OBJ_TYPE     => 'HOST-HBA',
+                    NAME          => $hbaInfo->{NAME},
+                    IS_VIRTUAL    => $hbaInfo->{IS_VIRTUAL},
+                    WWNN          => $hbaInfo->{WWNN},
+                    SPEED         => $hbaInfo->{SPEED},
+                    WWPN          => $portInfo->{WWPN},
+                    STATUS        => $portInfo->{STATUS}
+                }
+            );
+        }
+    }
+    $hostInfo->{HBA_INTERFACES} = \@hbaPorts;
 }
 
 sub collectHostInfo {
@@ -1309,7 +1331,6 @@ sub collect {
     my ($self)   = @_;
     my $osInfo   = $self->collectOsInfo();
     my $hostInfo = $self->collectHostInfo($osInfo);
-
     if ( not defined( $osInfo->{MACHINE_ID} ) ) {
         $osInfo->{MACHINE_ID} = $hostInfo->{BOARD_SERIAL};
     }
@@ -1322,7 +1343,24 @@ sub collect {
     $osInfo->{CPU_MODEL}       = $hostInfo->{CPU_MODEL};
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
 
-    $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
+    my @os_eths;
+    foreach my $item ( @{ $hostInfo->{ETH_INTERFACES} } ) {
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE}     = 'OS-ETH';
+
+        push @os_eths, \%tmp;
+    }
+    $osInfo->{ETH_INTERFACES} = \@os_eths;
+    my @os_hbas;
+    foreach my $item ( @{ $hostInfo->{HBA_INTERFACES} } ) {
+        my %tmp = %$item;
+        $tmp{_OBJ_CATEGORY} = 'OS';
+        $tmp{_OBJ_TYPE}     = 'OS-HBA';
+
+        push @os_hbas, \%tmp;
+    }
+    $osInfo->{HBA_INTERFACES} = \@os_hbas;
 
     $self->collectOsPerfInfo($osInfo);
 

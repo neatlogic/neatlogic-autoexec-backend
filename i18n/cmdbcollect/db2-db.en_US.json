@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "DB_NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -90,9 +95,83 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "DB Name",
-            "type": "String"
+            "name": "DB_DIRECTORY",
+            "desc": "DB Directory",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memory Used(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "HWM_USED",
+            "desc": "HWM Used(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "CACHED",
+            "desc": "Cahced(MB)",
+            "type": "Float"
+        },
+        {
+            "name": "TABLESPACES",
+            "desc": "Table Spaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "Size(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AUTO_EXTEND",
+                    "desc": "Auto Extend",
+                    "type": "String"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE_PCT",
+                    "desc": "Free%",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "Data File List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "DATA_FILE_PATH",
+                            "desc": "Path",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DATA_FILE_SIZE",
+                            "desc": "Size(GB)",
+                            "type": "Float"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "INSTANCES",

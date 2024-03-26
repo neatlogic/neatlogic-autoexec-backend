@@ -80,18 +80,87 @@
             ]
         },
         {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name Array",
+            "type": "Array"
+        },
+        {
+            "name": "SERVICES",
+            "desc": "Service Name Object Array",
+            "type": "JSONArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Catetgory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                }
+            ]
+        },  
+        {
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "USERNAME",
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
                     "desc": "User Name",
                     "type": "String"
                 },
                 {
                     "name": "DEFAULT_TABLESPACE",
                     "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTIONS",
+            "desc": "Entrance List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "User Name",
                     "type": "String"
                 }
             ]
@@ -109,6 +178,11 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
             "type": "String"
         },
         {

@@ -310,6 +310,52 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "HOSTS",
+                    "desc": "授权主机",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "GRANTED_DBS",
+                    "desc": "授权DB",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "MAIN_ENV",
             "desc": "主进程环境变量",
             "type": "JsonArray",
@@ -399,18 +445,33 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
+                    "desc": "DB服务名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
                     "desc": "DB名称",
                     "type": "String"
                 },
                 {
-                    "name": "DEFAULT_CHARACTER_SET",
-                    "desc": "默认字符集",
+                    "name": "VIP",
+                    "desc": "服务IP",
                     "type": "String"
                 },
                 {
-                    "name": "DEFAULT_COLLATION",
-                    "desc": "排序方法",
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
                     "type": "String"
                 }
             ]

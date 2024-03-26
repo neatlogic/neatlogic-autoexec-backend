@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "DB_NAME",
+            "desc": "DB Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -80,6 +85,55 @@
             ]
         },
         {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CONNECTIONS",
+            "desc": "Entrance List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -87,11 +141,6 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "DB Name",
             "type": "String"
         },
         {

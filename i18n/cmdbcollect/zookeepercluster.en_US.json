@@ -75,7 +75,14 @@
         {
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "_batch_tag",

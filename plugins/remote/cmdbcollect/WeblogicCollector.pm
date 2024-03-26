@@ -31,8 +31,11 @@ sub getConfig {
 sub getConfigInfo {
     my ( $self, $appInfo, $domainHome, $serverName, $confFile ) = @_;
 
+    my $procInfo      = $self->{procInfo};
     my $confObj       = xml_to_object( $confFile, { file => 1 } );
     my $domainVersion = $confObj->path('domain-version')->value();
+    my $domainName    = $confObj->path('name')->value();
+
     $appInfo->{VERSION} = $domainVersion;
     if ( $domainVersion =~ /(\d+)/ ) {
         $appInfo->{MAJOR_VERSION} = "Weblogic$1";
@@ -57,19 +60,77 @@ sub getConfigInfo {
     my $port    = '7001';
     my $cluster = '';
     my @servers = $confObj->path('server');
-    foreach my $srv (@servers) {
-        my $name = $srv->path('name')->value();
-        if ( $name eq $serverName ) {
-            my $item = $srv->path('listen-port');
-            if ( defined($item) ) {
-                $port = $item->value();
+
+    my $wlsDomainInfo = undef;
+    if ( $serverName eq 'AdminServer' ) {
+        my $domainUniqueName;
+        my @serversInDomain = ();
+
+        $wlsDomainInfo = {
+            _OBJ_CATEGORY => CollectObjCat->get('ADMINSET'),
+            _OBJ_TYPE     => 'Weblogic-Domain'
+        };
+
+        foreach my $srv (@servers) {
+            my $name        = $srv->path('name')->value();
+            my $lsnIpItem   = $srv->path('listen-address');
+            my $portItem    = $srv->path('listen-port');
+            my $clusterItem = $srv->path('cluster');
+
+            if ( not defined($lsnIpItem) or not defined($portItem) ) {
+                next;
             }
-            $item = $srv->path('cluster');
-            if ( defined($item) ) {
-                $cluster = $item->value();
+            my $lsnIp = $lsnIpItem->value();
+            my $port  = $portItem->value();
+            my $srvCluster;
+            if ( defined($srvCluster) ) {
+                $srvCluster = $clusterItem->value();
+            }
+
+            my $objType = $procInfo->{_OBJ_TYPE};
+
+            my $appType = 'Weblogic-Server';
+            if ( $name ne 'AdminServer' ) {
+                $appType                      = 'Weblogic-Admin';
+                $domainUniqueName             = "$lsnIp:$port";
+                $wlsDomainInfo->{UNIQUE_NAME} = $domainUniqueName;
+                $wlsDomainInfo->{NAME}        = $appInfo->{DOMAIN_NAME};
+                $wlsDomainInfo->{DOMAIN_NAME} = $appInfo->{DOMAIN_NAME};
+                $wlsDomainInfo->{DOMAIN_HOME} = $appInfo->{DOMAIN_HOME};
+            }
+            
+            push(
+                @serversInDomain,
+                {
+                    _OBJ_CATEGORY  => 'INS',
+                    _OBJ_TYPE      => $objType,
+                    _APP_TYPE      => $appType,
+                    MGMT_IP        => $lsnIp,
+                    PORT           => $port,
+                    SERVER_NAME    => $appInfo->{DOMAIN_NAME},
+                    SERVER_CLUSTER => $srvCluster
+                }
+            );
+        }
+        $wlsDomainInfo->{MEMBERS} = \@serversInDomain;
+    }
+    else {
+        foreach my $srv (@servers) {
+            my $name = $srv->path('name')->value();
+            if ( $name eq $serverName ) {
+                $appInfo->{_OBJ_TYPE} = $procInfo->{_OBJ_TYPE};
+                my $item = $srv->path('listen-port');
+                if ( defined($item) ) {
+                    $port = $item->value();
+                }
+                $item = $srv->path('cluster');
+                if ( defined($item) ) {
+                    $cluster = $item->value();
+                }
             }
         }
     }
+
     $appInfo->{PORT}           = $port;
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;
@@ -121,6 +182,11 @@ sub getConfigInfo {
         }
     }
     $appInfo->{APPLICATIONS} = \@applications;
+    if ( defined($wlsDomainInfo) ) {
+        $wlsDomainInfo->{APPLICATIONS} = \@applications;
+    }
+
+    return $wlsDomainInfo;
 }
 
 sub getPatchInfo {
@@ -168,7 +234,9 @@ sub collect {
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
-    my $appInfo = {};
+    my $appInfo    = {};
+    my @collectSet = ($appInfo);
+
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
 
     my $envMap     = $procInfo->{ENVIRONMENT};
@@ -194,14 +262,18 @@ sub collect {
 
     $self->getJavaAttrs($appInfo);
 
-    $self->getConfigInfo( $appInfo, $domainHome, $serverName, $confFile );
+    my $domainInfo = $self->getConfigInfo( $appInfo, $domainHome, $serverName, $confFile );
+    if ( defined($domainInfo) ) {
+        push( @collectSet, $domainInfo );
+    }
+
     $self->getPatchInfo( $appInfo, $installPath, $wlHome );
 
     #！！！下面的是标准属性，必须采集并转换提供出来
-    $appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
+    #$appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
     $appInfo->{CONFIG_PATH} = $domainHome;
 
-    return $appInfo;
+    return \@collectSet;
 }
 
 1;

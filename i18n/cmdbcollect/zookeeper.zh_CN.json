@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "实例名称",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -205,6 +210,11 @@
         {
             "name": "CONFIG_PATH",
             "desc": "配置目录",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "配置文件路径",
             "type": "String"
         },
         {
@@ -483,26 +493,34 @@
             "type": "Text"
         },
         {
-            "name": "DATA_DIR",
+            "name": "DATA_PATH",
             "desc": "数据存放目录",
             "type": "String"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "日志目录",
+            "type": "String"
+        },
+        {
+            "name": "TICK_TIME",
+            "desc": "心跳时间",
+            "type": "Int"
+        },
+        {
+            "name": "INIT_LIMIT",
+            "desc": "初始化连接超时",
+            "type": "Int"
+        },
+        {
+            "name": "SYNC_LIMIT",
+            "desc": "同步超时",
+            "type": "Int"
         },
         {
             "name": "MAIN_LIB",
             "desc": "Main Lib",
             "type": "String"
-        },
-        {
-            "name": "MEMBERS",
-            "desc": "集群成员",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "REF_CLUSTER",

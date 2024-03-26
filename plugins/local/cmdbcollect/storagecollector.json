@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "采集存储设备信息,支持IBM、NetApp、EMC、HuaWei等",
+    "description": "采集存储设备信息,支持IBM、NetApp、EMC、Huawei等",
     "option": [
         {
             "opt": "community",
@@ -15,6 +15,15 @@
             "required": "false",
             "validate": "",
             "defaultValue": "public"
+        },
+        {
+            "opt": "sshaccount",
+            "name": "SSH账号",
+            "help": "采用SSH协议账号补充采集",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
         },
         {
             "opt": "timeout",
@@ -59,7 +68,7 @@
                         "value": "HDS_VSP"
                     },
                     {
-                        "text": "HuaWei",
+                        "text": "Huawei",
                         "value": "HuaWei"
                     },
                     {
@@ -73,6 +82,10 @@
                     {
                         "text": "IBM_F900",
                         "value": "IBM_F900"
+                    },
+		    {
+                        "text": "IBM_FS9200",
+                        "value": "IBM_FS9200"
                     },
                     {
                         "text": "IBM_Flash",

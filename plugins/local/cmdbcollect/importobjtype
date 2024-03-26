@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     hasError = 0
     for objTypeItem in objTypeMap.keys():
-        (objCat, objType) = objTypeItem.split(":")
+        (objCat, objType) = objTypeItem.split("/")
         try:
             AutoExecUtils.callNativeApi(
                 "/neatlogic/api/rest/cmdb/sync/object/save",

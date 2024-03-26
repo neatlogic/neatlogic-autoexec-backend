@@ -14,7 +14,7 @@ use SwitchBase;
 
 #README
 #如果新增其他品牌交换机，OID设置有问题，可能需要修改SwitchSnmp.pm, 修改开头的$BRANDS的定义，增加品牌名。
-#参考：SwitchHuaWei.pm
+#参考：SwitchHuawei.pm
 #从SwitchBase.pm继承重载before方法调整snmp oid的设置
 #重载after方法，进行数据的调整或者通过其他途径补充数据
 #测试：switchcollector --node '{"host":"192.168.0.252","password":"public"}'
@@ -24,16 +24,18 @@ sub main {
 
     my ( $node, $objType, $defaultCommunity, $timeout );
 
+    my $sshAccount;
     my $isVerbose = 0;
     my $inspect   = 0;
 
     GetOptions(
-        'verbose=i'   => \$isVerbose,
-        'node=s'      => \$node,
-        'community=s' => \$defaultCommunity,
-        'objtype=s'   => \$objType,
-        'inspect=i'   => \$inspect,
-        'timeout=i'   => \$timeout
+        'verbose=i'    => \$isVerbose,
+        'node=s'       => \$node,
+        'community=s'  => \$defaultCommunity,
+        'objtype=s'    => \$objType,
+        'sshaccount=s' => \$sshAccount,
+        'inspect=i'    => \$inspect,
+        'timeout=i'    => \$timeout
     );
 
     if ( not defined($objType) or $objType eq '' ) {
@@ -59,6 +61,24 @@ sub main {
         $timeout = 10;
     }
 
+    my $sshAccountInfo = {};
+    if ( defined($sshAccount) and $sshAccount ne '' ) {
+        if ( $sshAccount =~ /^\s*(\d+)\s*:\s*(\w+)\/(.*?)\s*$/ ) {
+            my $protocolPort = int($1);
+            if ( $protocolPort == 0 ) {
+                $protocolPort = 22;
+            }
+            $sshAccountInfo->{protocolPort} = $protocolPort;
+            $sshAccountInfo->{username}     = $2;
+            $sshAccountInfo->{password}     = $3;
+        }
+        elsif ( $sshAccount =~ /^\s*(\w+)\/(.*?)\s*$/ ) {
+            $sshAccountInfo->{protocolPort} = 22;
+            $sshAccountInfo->{username}     = $1;
+            $sshAccountInfo->{password}     = $2;
+        }
+    }
+
     my $hostname  = $nodeInfo->{host};
     my $protocol  = $nodeInfo->{protocol};
     my $community = $nodeInfo->{password};
@@ -77,7 +97,7 @@ sub main {
     }
 
     my $brand;
-    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo );
+    my $switchBase = SwitchBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo, objType => $objType );
     $brand = $switchBase->getBrand();
 
     if ( not defined($brand) or $brand eq '' ) {
@@ -93,7 +113,7 @@ sub main {
         print("INFO: Has defined class $switchClass, try to load it.\n");
         eval {
             require "$switchClass.pm";
-            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect );
+            $switchIns = $switchClass->new( brand => $brand, hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo, objType => $objType );
         };
         if ($@) {
             print("WARN: Load $switchClass failed, $@");

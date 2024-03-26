@@ -47,7 +47,7 @@ sub new {
         containner  => $args{containner}
     };
 
-    if(not defined($procFilters)){
+    if ( not defined($procFilters) ) {
         $procFilters = [];
     }
     $self->{procFilters}      = $procFilters;
@@ -238,14 +238,14 @@ sub isProcInContainer {
     my ( $self, $pid ) = @_;
     my $fh = IO::File->new("</proc/$pid/cgroup");
 
-    my $isContainer = 0;
+    my $isContainer   = 0;
     my $containerType = '';
 
     if ( defined($fh) ) {
         my $line;
         while ( $line = $fh->getline() ) {
             if ( index( $line, 'docker' ) >= 0 ) {
-                $isContainer = 1;
+                $isContainer   = 1;
                 $containerType = 'Docker';
                 last;
             }
@@ -253,14 +253,14 @@ sub isProcInContainer {
         $fh->close();
     }
 
-    return ($isContainer,$containerType);
+    return ( $isContainer, $containerType );
 }
 
 sub findProcess {
     my ($self) = @_;
     print("INFO: Begin to find and match processes.\n");
-    my $callback    = $self->{callback};
-    my $matchedProc = {};
+    my $callback     = $self->{callback};
+    my @matchedProcs = ();
     my $chldOut;
     open( $chldOut, $self->{listProcCmd} . '|' );
     if ( defined($chldOut) ) {
@@ -320,13 +320,14 @@ sub findProcess {
 
                 #容器进程只采集容器信息
                 my ( $isContainer, $containerType ) = $self->isProcInContainer( $matchedMap->{PID} );
-                if ( $isContainer ) {
+                if ($isContainer) {
                     $matchedMap->{_CONTAINERTYPE} = $containerType;
-                    $config->{className} = "$containerType"."Collector";
-                    if ($self->{containner} == 0 ){
-                        next ;
+                    $config->{className}          = "$containerType" . "Collector";
+                    if ( $self->{containner} == 0 ) {
+                        next;
                     }
-                }else{
+                }
+                else {
 
                     if ( defined($psAttrs) ) {
                         my $psAttrVal;
@@ -388,16 +389,21 @@ sub findProcess {
                     $envMap = $self->getProcEnv($myPid);
                 }
                 $matchedMap->{ENVIRONMENT} = $envMap;
-                my $matched = &$callback( $config->{className}, $matchedMap, $self );
-                if ( $matched == 1 ) {
-                    $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
-                    $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
-                    if ( defined( $matchedMap->{ELAPSED} ) ) {
-                        $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
-                    }
-                    $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
-                    last;
-                }
+
+                $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                push( @matchedProcs, { className => $config->{className}, procMap => $matchedMap } );
+                last;
+
+                # my $matched = &$callback( $config->{className}, $matchedMap, $self );
+                # if ( $matched == 1 ) {
+                #     $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
+                #     $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
+                #     if ( defined( $matchedMap->{ELAPSED} ) ) {
+                #         $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                #     }
+                #     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
+                #     last;
+                # }
             }
         }
 
@@ -408,6 +414,20 @@ sub findProcess {
             print("ERROR: Get Process list failed.\n");
             exit(1);
         }
+
+        foreach my $matchedProc (@matchedProcs) {
+            my $matchedMap = $matchedProc->{procMap};
+            my $className  = $matchedProc->{className};
+            my $matched    = &$callback( $className, $matchedMap, $self );
+            if ( $matched == 1 ) {
+                $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
+                $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
+                if ( defined( $matchedMap->{ELAPSED} ) ) {
+                    $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                }
+            }
+        }
+
         print("INFO: List all processes and find matched processes complete.\n");
     }
     else {
@@ -478,7 +498,7 @@ sub getProcess {
 
         my $connGather = $self->{connGather};
         if ($parseListen) {
-            my $connInfo    = $connGather->getListenInfo($pid , 0);
+            my $connInfo    = $connGather->getListenInfo( $pid, 0 );
             my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
             $connInfo->{PORT_BIND} = $portInfoMap;
             $procInfo->{CONN_INFO} = $connInfo;
@@ -487,7 +507,7 @@ sub getProcess {
         if ($parseConnStat) {
             my $connInfo = $procInfo->{CONN_INFO};
             if ( defined($connInfo) ) {
-                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} , 0);
+                my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, 0 );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
             }
         }
@@ -623,6 +643,32 @@ sub predictBizIp {
     }
 
     return ( $bizIp, $vip );
+}
+
+sub getPortListenIps {
+    my ( $self, $connInfo, $port ) = @_;
+
+    my $vip;
+    my $bizIp;
+
+    my $portInfoMap = $connInfo->{PORT_BIND};
+
+    if ( not defined($portInfoMap) ) {
+        return [];
+    }
+
+    my $portInfo = $portInfoMap->{"$port"};
+    if ( not defined($portInfo) ) {
+        return [];
+    }
+
+    my $ipAddrsMap = {};
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{EXPLICIT_IP} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{EXPLICIT_IPV6} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{IMPLICIT_IP} } ) );
+    map { $ipAddrsMap->{$_} = $port } ( keys( %{ $portInfo->{IMPLICIT_IPV6} } ) );
+
+    return wantarray ? keys(%$ipAddrsMap) : $ipAddrsMap;
 }
 
 1;

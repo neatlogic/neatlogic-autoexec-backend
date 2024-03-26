@@ -722,6 +722,11 @@
             ]
         },
         {
+            "name": "WORKER_PROCESSES",
+            "desc": "worker processes",
+            "type": "String"
+        },
+        {
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
             "type": "String"

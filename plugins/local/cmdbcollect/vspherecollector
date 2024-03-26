@@ -121,6 +121,7 @@ if __name__ == "__main__":
                                 "MGMT_IP": vm["IP"],
                                 "VM_ID": vm["VM_ID"],
                                 "HOST_ON": vm["HOST_ON"],
+                                "UUID": vm["UUID"]
                             }
                         )
 

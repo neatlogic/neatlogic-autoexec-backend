@@ -263,7 +263,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid , $isContainer  ) = @_;
+    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
 
     if ( not defined($pid) ) {
         my $remoteAddrs    = {};
@@ -300,7 +300,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid , $isContainer ) = @_;
+    my ( $self, $pid, $isContainer ) = @_;
 
     if ( not defined($pid) ) {
 
@@ -346,7 +346,7 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid ,$isContainer) = @_;
+    my ( $self, $pid, $isContainer ) = @_;
     my $lsnPortsMap   = $self->{lsnPortsMap};
     my $lsnBackLogMap = $self->{lsnBackLogMap};
 
@@ -364,7 +364,7 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap ,$isContainer) = @_;
+    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
     my $remoteAddrs   = $self->{remoteAddrs};
     my $procConnStats = $self->{procConnStats};
 
@@ -381,6 +381,40 @@ sub getStatInfo {
     $connInfo->{STATS} = $procConnStats->{$pid};
 
     return $connInfo;
+}
+
+#获取连入某进程监听IP端口的远端的IP地址列表
+sub getInboundIps {
+    my ( $self, $bindAddr, $pid ) = @_;
+
+    my @ips = ();
+
+    my $cmd = "netstat -Aan | grep -v LISTEN | grep $bindAddr";
+    if ( defined($pid) and $pid ne '' ) {
+        $cmd = "netstat -Aan | grep -v LISTEN | grep $pid | grep $bindAddr";
+    }
+    my $localFieldIdx  = 4;
+    my $remoteFieldIdx = 5;
+
+    my $pipe;
+    my $pipePid = open( $pipe, $cmd );
+    if ( defined($pipe) ) {
+        my $line;
+        while ( $line = <$pipe> ) {
+            my @fields = split( /\s+/, $line );
+            if ( $#fields < $remoteFieldIdx ) {
+                next;
+            }
+            my $localAddr  = $fields[$localFieldIdx];
+            my $remoteAddr = $fields[$remoteFieldIdx];
+            if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                push( @ips, $1 );
+            }
+        }
+        close($pipe);
+    }
+
+    return \@ips;
 }
 
 1;

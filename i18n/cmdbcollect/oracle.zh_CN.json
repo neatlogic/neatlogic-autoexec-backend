@@ -315,12 +315,59 @@
             ]
         },
         {
+            "name": "DATABASES",
+            "desc": "DB列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "DB服务名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
+                    "desc": "DB名称",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "USERNAME",
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
                     "desc": "用户名",
                     "type": "String"
                 },
@@ -416,17 +463,38 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "服务名列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "监听地址列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_PORTS",
                     "desc": "监听端口列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "Int"
+                        }
+                    ]
                 }
             ]
         },

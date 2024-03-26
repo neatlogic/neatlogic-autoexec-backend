@@ -66,10 +66,52 @@
             "type": "String"
         },
         {
+            "name": "DISKS",
+            "desc": "Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used(%)",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
             "name": "ETH_INTERFACES",
             "desc": "NIC",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
@@ -204,38 +246,6 @@
             "type": "String"
         },
         {
-            "name": "DISKS",
-            "desc": "Disks",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "Capacity(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "FREE",
-                    "desc": "Free(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "Used(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "FANS",
             "desc": "Fans",
             "type": "JsonArray",
@@ -347,48 +357,6 @@
             "type": "Text"
         },
         {
-            "name": "POOLS",
-            "desc": "Storage Pools",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "Capacity(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "Available(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used(GB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Status",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "Used(%)",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
             "name": "LUNS",
             "desc": "Logical Disks",
             "type": "JsonArray",
@@ -436,12 +404,68 @@
                 {
                     "name": "VISABLE_GROUPS",
                     "desc": "Visable Groups",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "VISABLE_INITIATORS",
                     "desc": "Visable Initiators",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "POOLS",
+            "desc": "Storage Pools",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "Available(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Status",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used(%)",
+                    "type": "Float"
                 }
             ]
         },
