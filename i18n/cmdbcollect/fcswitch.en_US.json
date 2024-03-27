@@ -18,11 +18,6 @@
             "type": "String"
         },
         {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -35,6 +30,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -77,6 +77,11 @@
         {
             "name": "BOOT_DATE",
             "desc": "Boot Date",
+            "type": "String"
+        },
+        {
+            "name": "CASCADE_SWITCHWWNN",
+            "desc": "Cascade Switch Wwnn",
             "type": "String"
         },
         {
@@ -374,11 +379,6 @@
         {
             "name": "WWNN",
             "desc": "WWNN",
-            "type": "String"
-        },
-        {
-            "name": "CASCADE_SWITCHWWNN",
-            "desc": "Cascade Switch Wwnn",
             "type": "String"
         },
         {

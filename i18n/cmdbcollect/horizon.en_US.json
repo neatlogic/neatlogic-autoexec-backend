@@ -23,18 +23,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -50,6 +40,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {

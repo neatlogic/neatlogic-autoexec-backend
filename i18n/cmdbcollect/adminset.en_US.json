@@ -28,7 +28,7 @@
         {
             "name": "MEMBERS",
             "desc": "Members Objects",
-            "type": "JSONArray",
+            "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",

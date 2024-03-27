@@ -28,11 +28,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "State",
             "type": "String"
@@ -53,6 +48,11 @@
             "type": "String"
         },
         {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
+        },
+        {
             "name": "BRAND",
             "desc": "Brand",
             "type": "String"
@@ -66,11 +66,6 @@
             "name": "SN",
             "desc": "Dev Serial",
             "type": "String"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU Cores",
-            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -135,6 +130,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU Cores",
+            "type": "Int"
         },
         {
             "name": "CLUSTERS",

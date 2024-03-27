@@ -16,8 +16,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
             "type": "String"
         },
         {
@@ -36,16 +46,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -59,6 +59,21 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
         },
         {
             "name": "LISTEN_STATS",
@@ -85,11 +100,6 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "库名",
             "type": "String"
         },
         {
@@ -140,18 +150,8 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "服务地址",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
             "type": "String"
         },
         {

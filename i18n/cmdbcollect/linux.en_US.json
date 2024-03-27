@@ -33,6 +33,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "OS Major Version",
             "type": "String"
@@ -45,11 +65,6 @@
         {
             "name": "KERNEL_VERSION",
             "desc": "Kernel Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -78,21 +93,6 @@
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "RESOURCE_ID",
@@ -157,6 +157,255 @@
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "Max User Processes Count",
             "type": "Float"
+        },
+        {
+            "name": "USERS",
+            "desc": "users",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "Home Directory",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "Shell",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MOUNT_POINTS",
+            "desc": "Mount Points",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Mount Point",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "Device",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "FS Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "Available",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "INODE_USED_PCT",
+                    "desc": "Inode Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_MOUNTED",
+            "desc": "NFS Mounted",
+            "type": "Float"
+        },
+        {
+            "name": "DISKS",
+            "desc": "Disks",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Type",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "Capacity",
+                    "type": "Float"
+                },
+                {
+                    "name": "NOT_MOUNTED",
+                    "desc": "Not Mounted",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "Unit",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DNS_SERVERS",
+            "desc": "DNS Servers",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NTP_ENABLE",
+            "desc": "NTP Enabled",
+            "type": "Int"
+        },
+        {
+            "name": "NTP_SERVERS",
+            "desc": "NTP Servers",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NTP_OFFSET_SECS",
+            "desc": "Ntp Offset Seconds",
+            "type": "Float"
+        },
+        {
+            "name": "SSH_VERSION",
+            "desc": "SSH Version",
+            "type": "String"
+        },
+        {
+            "name": "OPENSSL_VERSION",
+            "desc": "Openssl Version",
+            "type": "String"
+        },
+        {
+            "name": "NIC_BOND",
+            "desc": "NIC Bond",
+            "type": "Float"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "NIC",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                },
+                {
+                    "name": "IS_VRITUAL",
+                    "desc": "Is Virtual",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "Link Status",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "Speed(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Port",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Switch Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Switch SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -419,255 +668,6 @@
                     "name": "COMMAND",
                     "desc": "Command",
                     "type": "Text"
-                }
-            ]
-        },
-        {
-            "name": "MOUNT_POINTS",
-            "desc": "Mount Points",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Mount Point",
-                    "type": "String"
-                },
-                {
-                    "name": "DEVICE",
-                    "desc": "Device",
-                    "type": "String"
-                },
-                {
-                    "name": "FS_TYPE",
-                    "desc": "FS Type",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "Capacity",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "Used",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "Available",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "Used%",
-                    "type": "Float"
-                },
-                {
-                    "name": "INODE_USED_PCT",
-                    "desc": "Inode Used%",
-                    "type": "Float"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "Unit",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NFS_MOUNTED",
-            "desc": "NFS Mounted",
-            "type": "Float"
-        },
-        {
-            "name": "DISKS",
-            "desc": "Disks",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Obj Category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Obj Type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Type",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "Capacity",
-                    "type": "Float"
-                },
-                {
-                    "name": "NOT_MOUNTED",
-                    "desc": "Not Mounted",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "Unit",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "DNS_SERVERS",
-            "desc": "DNS Servers",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "name",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NTP_ENABLE",
-            "desc": "NTP Enabled",
-            "type": "Int"
-        },
-        {
-            "name": "NTP_SERVERS",
-            "desc": "NTP Servers",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NTP_OFFSET_SECS",
-            "desc": "Ntp Offset Seconds",
-            "type": "Float"
-        },
-        {
-            "name": "SSH_VERSION",
-            "desc": "SSH Version",
-            "type": "String"
-        },
-        {
-            "name": "OPENSSL_VERSION",
-            "desc": "Openssl Version",
-            "type": "String"
-        },
-        {
-            "name": "NIC_BOND",
-            "desc": "NIC Bond",
-            "type": "Float"
-        },
-        {
-            "name": "ETH_INTERFACES",
-            "desc": "NIC",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "Mac Address",
-                    "type": "String"
-                },
-                {
-                    "name": "IS_VRITUAL",
-                    "desc": "Is Virtual",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "Link Status",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "Speed(Mbps)",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PORTS",
-                    "desc": "Remote Port",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "Object Category",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "Object Type",
-                            "type": "String"
-                        },
-                        {
-                            "name": "DEV_NAME",
-                            "desc": "Switch Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "Switch Ip",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SN",
-                            "desc": "Switch SN",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "Port Name",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "USERS",
-            "desc": "users",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "Home Directory",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "Shell",
-                    "type": "String"
                 }
             ]
         },

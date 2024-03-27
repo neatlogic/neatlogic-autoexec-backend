@@ -21,18 +21,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -48,6 +38,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -81,6 +81,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
                     "name": "INDEX",
                     "desc": "index",
                     "type": "Int"
@@ -94,6 +104,43 @@
                     "name": "MAC",
                     "desc": "mac address",
                     "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Switch Port",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Switch Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -137,16 +184,16 @@
                     "desc": "NAT Transafer pool",
                     "type": "JsonArray",
                     "subset": [
-			{
-			    "name": "_OBJ_CATEGORY",
-			    "desc": "Obj Category",
-			    "type": "String"
-			},
-			{
-			    "name": "_OBJ_TYPE",
-			    "desc": "Obj Type",
-			    "type": "String"
-			},
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "name",
@@ -176,16 +223,16 @@
                     "desc": "POOL",
                     "type": "JsonArray",
                     "subset": [
-			{
-			    "name": "_OBJ_CATEGORY",
-			    "desc": "Obj Category",
-			    "type": "String"
-			},
-			{
-			    "name": "_OBJ_TYPE",
-			    "desc": "Obj Type",
-			    "type": "String"
-			},
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "Name",
@@ -208,16 +255,16 @@
                     "desc": "Member List",
                     "type": "JsonArray",
                     "subset": [
-			{
-			    "name": "_OBJ_CATEGORY",
-			    "desc": "Obj Category",
-			    "type": "String"
-			},
-			{
-			    "name": "_OBJ_TYPE",
-			    "desc": "Obj Type",
-			    "type": "String"
-			},
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "Name",
@@ -241,75 +288,6 @@
                     ]
                 }
             ]
-        },
-	{
-		"name": "PORTS",
-		"desc": "ports",
-		"type": "JsonArray",
-		"subset": [
-			{
-			    "name": "_OBJ_CATEGORY",
-			    "desc": "Obj Category",
-			    "type": "String"
-			},
-			{
-			    "name": "_OBJ_TYPE",
-			    "desc": "Obj Type",
-			    "type": "String"
-			},
-                        {
-                            "name": "INDEX",
-                            "desc": "index",
-                            "type": "Int"
-                        },
-                        {
-                            "name": "NAME",
-                            "desc": "Port Name",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MAC",
-                            "desc": "mac address",
-                            "type": "String"
-                        },
-                        {
-			    "name": "REMOTE_PORTS",
-			    "desc": "Remote Switch Port",
-			    "type": "JsonArray",
-			    "subset": [
-				{
-				    "name": "_OBJ_CATEGORY",
-				    "desc": "Obj Catetory",
-				    "type": "String"
-				},
-				{
-				    "name": "_OBJ_TYPE",
-				    "desc": "Switch Type",
-				    "type": "String"
-				},
-				{
-				    "name": "DEV_NAME",
-				    "desc": "Device Name",
-				    "type": "String"
-				},
-				{
-				    "name": "MGMT_IP",
-				    "desc": "Switch Ip",
-				    "type": "String"
-				},
-				{
-				    "name": "SN",
-				    "desc": "SN",
-				    "type": "String"
-				},
-				{
-				    "name": "PORT",
-				    "desc": "Port",
-				    "type": "String"
-				}
-			    ]
-			}
-                ]
         },
         {
             "name": "_batch_tag",

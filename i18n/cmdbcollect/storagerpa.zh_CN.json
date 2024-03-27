@@ -28,11 +28,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -53,6 +48,11 @@
             "type": "String"
         },
         {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
             "name": "BRAND",
             "desc": "品牌",
             "type": "String"
@@ -66,11 +66,6 @@
             "name": "SN",
             "desc": "序列号",
             "type": "String"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU数",
-            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -135,6 +130,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU数",
+            "type": "Int"
         },
         {
             "name": "CLUSTERS",

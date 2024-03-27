@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "Service IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -63,54 +63,20 @@
             "type": "String"
         },
         {
-            "name": "LISTEN_STATS",
-            "desc": "Listen Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "Listen Addr",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "Queued Count",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "SERVICE_NAME",
-            "desc": "Service Name",
+            "name": "VIP",
+            "desc": "Service IP",
             "type": "String"
         },
         {
-            "name": "SERVICE_NAMES",
-            "desc": "Service Name Array",
-            "type": "Array"
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
         },
         {
-            "name": "SERVICES",
-            "desc": "Service Name Object Array",
-            "type": "JSONArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Obj Catetgory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Obj Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "Service Name",
-                    "type": "String"
-                }
-            ]
-        },  
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
         {
             "name": "USERS",
             "desc": "User List",
@@ -137,6 +103,38 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CAN_IP_FLOAT",
+            "desc": "Primary IP FLoating",
+            "type": "Int"
+        },
+        {
+            "name": "CDB",
+            "desc": "Belong CDB",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
         },
         {
             "name": "CONNECTIONS",
@@ -166,28 +164,8 @@
             ]
         },
         {
-            "name": "CAN_IP_FLOAT",
-            "desc": "Primary IP FLoating",
-            "type": "Int"
-        },
-        {
-            "name": "CDB",
-            "desc": "Belong CDB",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_MODE",
-            "desc": "Cluster Mode",
-            "type": "String"
-        },
-        {
             "name": "DBID",
             "desc": "DBID",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -248,14 +226,48 @@
             "type": "Int"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
+            "name": "SERVICES",
+            "desc": "Service Name Object Array",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Catetgory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SERVICE_ADDR",
             "desc": "Service Address",
             "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name Array",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -310,11 +322,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
-            "type": "String"
         },
         {
             "name": "_batch_tag",
