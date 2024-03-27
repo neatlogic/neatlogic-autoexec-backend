@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -63,21 +63,19 @@
             "type": "String"
         },
         {
-            "name": "LISTEN_STATS",
-            "desc": "监听统计",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "监听地址",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "队列滞留连接",
-                    "type": "Int"
-                }
-            ]
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
         },
         {
             "name": "USERS",
@@ -102,6 +100,23 @@
             ]
         },
         {
+            "name": "LISTEN_STATS",
+            "desc": "监听统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "监听地址",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "队列滞留连接",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "主IP浮动",
             "type": "Int"
@@ -114,11 +129,6 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "库名",
             "type": "String"
         },
         {
@@ -169,18 +179,8 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "服务地址",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
             "type": "String"
         },
         {

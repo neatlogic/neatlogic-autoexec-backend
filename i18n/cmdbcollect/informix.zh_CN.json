@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "运行时间（秒）",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -167,6 +167,45 @@
             "name": "EXE_PATH",
             "desc": "执行文件路径",
             "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "分类",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -311,45 +350,6 @@
                     "name": "SEND_QUEUED_RATE",
                     "desc": "发送积压比例",
                     "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "USERS",
-            "desc": "用户列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "分类",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MAIN_ENV",
-            "desc": "主进程环境变量",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "变量名",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "值",
-                    "type": "String"
                 }
             ]
         },

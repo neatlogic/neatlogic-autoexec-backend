@@ -38,6 +38,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -45,11 +65,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -78,21 +93,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -213,11 +213,6 @@
             "type": "String"
         },
         {
-            "name": "CONFIG_FILE_PATH",
-            "desc": "Config File Path",
-            "type": "String"
-        },
-        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
@@ -236,6 +231,33 @@
             "name": "JAVA_HOME",
             "desc": "JAVA Home Dir",
             "type": "String"
+        },
+        {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "Max Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "JAVA_VERSION",
@@ -261,16 +283,6 @@
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu Logic Cores",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "Max Heap Size",
-            "type": "Float"
         },
         {
             "name": "MEM_USAGE",
@@ -414,23 +426,6 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "ADMIN_ENABLE",
             "desc": "Admin Enable",
             "type": "String"
@@ -488,19 +483,14 @@
             "type": "Text"
         },
         {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Config File Path",
+            "type": "String"
+        },
+        {
             "name": "DATA_PATH",
             "desc": "Data Path",
             "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Data Log Path",
-            "type": "String"
-        },
-        {
-            "name": "TICK_TIME",
-            "desc": "Tick Time",
-            "type": "Int"
         },
         {
             "name": "INIT_LIMIT",
@@ -508,9 +498,9 @@
             "type": "Int"
         },
         {
-            "name": "SYNC_LIMIT",
-            "desc": "Sync Limit",
-            "type": "Int"
+            "name": "LOG_PATH",
+            "desc": "Data Log Path",
+            "type": "String"
         },
         {
             "name": "MAIN_LIB",
@@ -654,6 +644,16 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "SYNC_LIMIT",
+            "desc": "Sync Limit",
+            "type": "Int"
+        },
+        {
+            "name": "TICK_TIME",
+            "desc": "Tick Time",
+            "type": "Int"
         },
         {
             "name": "_batch_tag",

@@ -23,18 +23,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "状态",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "开机时间",
             "type": "String"
         },
         {
@@ -50,6 +40,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "开机时间",
             "type": "String"
         },
         {

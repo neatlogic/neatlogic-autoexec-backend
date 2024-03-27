@@ -28,7 +28,7 @@
         {
             "name": "MEMBERS",
             "desc": "成员",
-            "type": "JSONArray",
+            "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",

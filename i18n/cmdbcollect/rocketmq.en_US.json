@@ -23,6 +23,16 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "unique Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -33,6 +43,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -40,11 +70,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -73,21 +98,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -166,16 +176,6 @@
             "type": "String"
         },
         {
-            "name": "APP_IP",
-            "desc": "App IP",
-            "type": "String"
-        },
-        {
-            "name": "LISTEN_PORT",
-            "desc": "LISTEN PORT",
-            "type": "String"
-        },
-        {
             "name": "OPEN_FILES_INFO",
             "desc": "Open Files",
             "type": "JsonArray",
@@ -218,23 +218,8 @@
             "type": "String"
         },
         {
-            "name": "CONFIG_FILE_PATH",
-            "desc": "Conf File Path",
-            "type": "String"
-        },
-        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_NAME",
-            "desc": "SERVICE_NAME",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
             "type": "String"
         },
         {
@@ -253,6 +238,23 @@
             "type": "String"
         },
         {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "JAVA_VERSION",
             "desc": "JAVA Version",
             "type": "String"
@@ -265,101 +267,6 @@
         {
             "name": "JMX_SSL",
             "desc": "JMX SSL Enabled",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_CLUSTER_NAME",
-            "desc": "Broker Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_NAME",
-            "desc": "Broker Name",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ID",
-            "desc": "Broker Id",
-            "type": "String"
-        },
-        {
-            "name": "NAMESRV_ADDR",
-            "desc": "Namesrv Addr",
-            "type": "String"
-        },
-        {
-            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
-            "desc": "Default Topic Queue Nums",
-            "type": "String"
-        },
-        {
-            "name": "AUTO_CREATE_TOPIC_ENABLE",
-            "desc": "Auto Create Topic Enable",
-            "type": "String"
-        },
-        {
-            "name": "DELETE_WHEN",
-            "desc": "Delete When",
-            "type": "String"
-        },
-        {
-            "name": "FILE_RESERVED_TIME",
-            "desc": "File Reserved Time",
-            "type": "String"
-        },
-        {
-            "name": "MAPED_FILESIZE_COMMITLOG",
-            "desc": "Maped File Size Commit Log",
-            "type": "String"
-        },
-        {
-            "name": "DISK_MAXUSED_SPACE_RATIO",
-            "desc": "Disk Max Used Space Ratio",
-            "type": "String"
-        },
-        {
-            "name": "STORE_PATH_ROOT_DIR",
-            "desc": "Store Path Root Dir",
-            "type": "String"
-        },
-        {
-            "name": "STORE_PATH_COMMITLOG",
-            "desc": "Store Path CommitLog",
-            "type": "String"
-        },
-        {
-            "name": "STORE_PATH_CONSUME_QUEUE",
-            "desc": "Store Path Consume Queue",
-            "type": "String"
-        },
-        {
-            "name": "STORE_PATH_INDEX",
-            "desc": "Store Path Index",
-            "type": "String"
-        },
-        {
-            "name": "STORE_CHECKPOINT",
-            "desc": "Store Checkpoint",
-            "type": "String"
-        },
-        {
-            "name": "ABORT_FILE",
-            "desc": "Abort File",
-            "type": "String"
-        },
-        {
-            "name": "MAX_MESSAGE_SIZE",
-            "desc": "Max Message Size",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ROLE",
-            "desc": "Broker Role",
-            "type": "String"
-        },
-        {
-            "name": "UNIQUE_NAME",
-            "desc": "unique Name",
             "type": "String"
         },
         {
@@ -514,21 +421,19 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
+            "name": "ABORT_FILE",
+            "desc": "Abort File",
+            "type": "String"
+        },
+        {
+            "name": "APP_IP",
+            "desc": "App IP",
+            "type": "String"
+        },
+        {
+            "name": "AUTO_CREATE_TOPIC_ENABLE",
+            "desc": "Auto Create Topic Enable",
+            "type": "String"
         },
         {
             "name": "BELONG_CLUSTER",
@@ -578,9 +483,74 @@
             ]
         },
         {
+            "name": "BROKER_CLUSTER_NAME",
+            "desc": "Broker Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ID",
+            "desc": "Broker Id",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_NAME",
+            "desc": "Broker Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ROLE",
+            "desc": "Broker Role",
+            "type": "String"
+        },
+        {
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
+        },
+        {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Conf File Path",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
+            "desc": "Default Topic Queue Nums",
+            "type": "String"
+        },
+        {
+            "name": "DELETE_WHEN",
+            "desc": "Delete When",
+            "type": "String"
+        },
+        {
+            "name": "DISK_MAXUSED_SPACE_RATIO",
+            "desc": "Disk Max Used Space Ratio",
+            "type": "String"
+        },
+        {
+            "name": "FILE_RESERVED_TIME",
+            "desc": "File Reserved Time",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_PORT",
+            "desc": "LISTEN PORT",
+            "type": "String"
+        },
+        {
+            "name": "MAPED_FILESIZE_COMMITLOG",
+            "desc": "Maped File Size Commit Log",
+            "type": "String"
+        },
+        {
+            "name": "MAX_MESSAGE_SIZE",
+            "desc": "Max Message Size",
+            "type": "String"
+        },
+        {
+            "name": "NAMESRV_ADDR",
+            "desc": "Namesrv Addr",
+            "type": "String"
         },
         {
             "name": "REF_CLUSTER",
@@ -719,6 +689,36 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "SERVICE_NAME",
+            "type": "String"
+        },
+        {
+            "name": "STORE_CHECKPOINT",
+            "desc": "Store Checkpoint",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_COMMITLOG",
+            "desc": "Store Path CommitLog",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_CONSUME_QUEUE",
+            "desc": "Store Path Consume Queue",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_INDEX",
+            "desc": "Store Path Index",
+            "type": "String"
+        },
+        {
+            "name": "STORE_PATH_ROOT_DIR",
+            "desc": "Store Path Root Dir",
+            "type": "String"
         },
         {
             "name": "_batch_tag",

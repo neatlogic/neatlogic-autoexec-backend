@@ -38,11 +38,6 @@
             "type": "String"
         },
         {
-            "name": "UPTIME",
-            "desc": "Uptime",
-            "type": "String"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability",
             "type": "Int"
@@ -55,6 +50,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Uptime",
             "type": "String"
         },
         {

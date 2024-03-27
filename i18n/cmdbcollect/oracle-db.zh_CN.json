@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -63,54 +63,20 @@
             "type": "String"
         },
         {
-            "name": "LISTEN_STATS",
-            "desc": "监听统计",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "监听地址",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "队列滞留连接",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "SERVICE_NAME",
-            "desc": "服务名",
+            "name": "VIP",
+            "desc": "服务IP",
             "type": "String"
         },
         {
-            "name": "SERVICE_NAMES",
-            "desc": "服务名列表",
-            "type": "Array"
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
         },
         {
-            "name": "SERVICES",
-            "desc": "服务名对象列表",
-            "type": "JSONArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "服务名",
-                    "type": "String"
-                }
-            ]
-        },       
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
         {
             "name": "USERS",
             "desc": "用户列表",
@@ -137,7 +103,39 @@
                     "type": "String"
                 }
             ]
-        },        
+        },
+        {
+            "name": "LISTEN_STATS",
+            "desc": "监听统计",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "监听地址",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "队列滞留连接",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "CAN_IP_FLOAT",
+            "desc": "主IP浮动",
+            "type": "Int"
+        },
+        {
+            "name": "CDB",
+            "desc": "所属CDB",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
+            "type": "String"
+        },
         {
             "name": "CONNECTIONS",
             "desc": "访问入口列表",
@@ -166,28 +164,8 @@
             ]
         },
         {
-            "name": "CAN_IP_FLOAT",
-            "desc": "主IP浮动",
-            "type": "Int"
-        },
-        {
-            "name": "CDB",
-            "desc": "所属CDB",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_MODE",
-            "desc": "集群模式",
-            "type": "String"
-        },
-        {
             "name": "DBID",
             "desc": "DBID",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "库名",
             "type": "String"
         },
         {
@@ -248,14 +226,48 @@
             "type": "Int"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
+            "name": "SERVICES",
+            "desc": "服务名对象列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SERVICE_ADDR",
             "desc": "服务地址",
             "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "服务名列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -315,11 +327,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
-            "type": "String"
         },
         {
             "name": "_batch_tag",

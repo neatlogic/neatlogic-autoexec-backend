@@ -33,6 +33,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -40,16 +60,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -78,21 +88,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -203,6 +198,21 @@
             "type": "String"
         },
         {
+            "name": "INSTALL_PATH",
+            "desc": "Install Path",
+            "type": "String"
+        },
+        {
+            "name": "CONFIG_PATH",
+            "desc": "Conf Path",
+            "type": "String"
+        },
+        {
+            "name": "EXE_PATH",
+            "desc": "Executable File Path",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "用户角色列表",
             "type": "JsonArray",
@@ -220,29 +230,21 @@
             ]
         },
         {
-            "name": "INSTALL_PATH",
-            "desc": "Install Path",
-            "type": "String"
-        },
-        {
-            "name": "CONFIG_PATH",
-            "desc": "Conf Path",
-            "type": "String"
-        },
-        {
-            "name": "DATA_PATH",
-            "desc": "Data Path",
-            "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
-            "type": "String"
-        },
-        {
-            "name": "EXE_PATH",
-            "desc": "Executable File Path",
-            "type": "String"
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -396,17 +398,12 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
+            "name": "ALARMS",
+            "desc": "Alarm messages",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
+                    "name": "_value",
                     "desc": "Value",
                     "type": "String"
                 }
@@ -465,19 +462,19 @@
             "type": "Text"
         },
         {
-            "name": "GUEST_ENABLE",
-            "desc": "User guest Exist(1:exist)",
-            "type": "Text"
-        },
-        {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "Memory Water Mark",
-            "type": "Text"
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "String"
         },
         {
             "name": "DISK_FREE",
             "desc": "Availble Disk(G)",
             "type": "Int"
+        },
+        {
+            "name": "ERLANG_VERSION",
+            "desc": "ErLang Version",
+            "type": "String"
         },
         {
             "name": "FD_LIMIT",
@@ -490,9 +487,19 @@
             "type": "Int"
         },
         {
-            "name": "ALARMS",
-            "desc": "Alarm messages",
-            "type": "Array"
+            "name": "GUEST_ENABLE",
+            "desc": "User guest Exist(1:exist)",
+            "type": "Text"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "Log Path",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_WATER_MARK",
+            "desc": "Memory Water Mark",
+            "type": "Text"
         },
         {
             "name": "REF_CLUSTER",
