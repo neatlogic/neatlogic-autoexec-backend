@@ -38,6 +38,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -45,11 +65,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -78,21 +93,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -218,50 +218,18 @@
             "type": "String"
         },
         {
-            "name": "CCSID",
-            "desc": "CCSID",
-            "type": "String"
-        },
-        {
-            "name": "QUEUES",
-            "desc": "MQ Queues",
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
                     "name": "NAME",
-                    "desc": "Queue Name",
+                    "desc": "Name",
                     "type": "String"
                 },
                 {
-                    "name": "TYPE",
-                    "desc": "Queue Type",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CHANNELS",
-            "desc": "MQ Channels",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Channel Name",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "Channel Type",
+                    "name": "VALUE",
+                    "desc": "Value",
                     "type": "String"
                 }
             ]
@@ -418,23 +386,6 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -482,9 +433,58 @@
             ]
         },
         {
+            "name": "CCSID",
+            "desc": "CCSID",
+            "type": "String"
+        },
+        {
+            "name": "CHANNELS",
+            "desc": "MQ Channels",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Channel Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Channel Type",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
+        },
+        {
+            "name": "QUEUES",
+            "desc": "MQ Queues",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Queue Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "Queue Type",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "REF_CLUSTER",

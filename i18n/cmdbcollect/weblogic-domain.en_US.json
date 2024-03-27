@@ -31,19 +31,19 @@
             "type": "String"
         },
         {
-            "name": "DOMAIN_NAME",
-            "desc": "Domain Name",
-            "type": "String"
-        },
-        {
             "name": "DOMAIN_HOME",
             "desc": "Domain Home",
             "type": "String"
         },
         {
+            "name": "DOMAIN_NAME",
+            "desc": "Domain Name",
+            "type": "String"
+        },
+        {
             "name": "MEMBERS",
             "desc": "Members Objects",
-            "type": "JSONArray",
+            "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",

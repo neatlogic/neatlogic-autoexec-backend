@@ -31,19 +31,19 @@
             "type": "String"
         },
         {
-            "name": "DOMAIN_NAME",
-            "desc": "Domain名",
-            "type": "String"
-        },
-        {
             "name": "DOMAIN_HOME",
             "desc": "Domain目录",
             "type": "String"
         },
         {
+            "name": "DOMAIN_NAME",
+            "desc": "Domain名",
+            "type": "String"
+        },
+        {
             "name": "MEMBERS",
             "desc": "成员",
-            "type": "JSONArray",
+            "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",

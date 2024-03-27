@@ -23,18 +23,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -50,6 +40,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS版本",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {

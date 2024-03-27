@@ -33,11 +33,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "VIP",
-            "type": "String"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -50,6 +45,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
             "type": "String"
         },
         {

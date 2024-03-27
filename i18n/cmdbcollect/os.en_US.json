@@ -31,6 +31,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "OS Major Version",
             "type": "String"
@@ -43,11 +63,6 @@
         {
             "name": "KERNEL_VERSION",
             "desc": "Kernel Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -76,21 +91,6 @@
             "name": "IS_VIRTUAL",
             "desc": "Is Virtual",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "RESOURCE_ID",
@@ -157,99 +157,36 @@
             "type": "Float"
         },
         {
-            "name": "CPU_USAGE",
-            "desc": "CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_USAGE_PERCORE",
-            "desc": "Cores AVG CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "Cpu Cores",
-            "type": "Int"
-        },
-        {
-            "name": "CPU_LOGIC_CORES",
-            "desc": "Logic CPU Cores",
-            "type": "Int"
-        },
-        {
-            "name": "IOWAIT_PCT",
-            "desc": "Iowait%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_FREQUENCY",
-            "desc": "Cpu Frequency",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODE",
-            "desc": "Cpu Mode",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "Cpu Model Name",
-            "type": "String"
-        },
-        {
-            "name": "CPU_BITS",
-            "desc": "Cpu Bits",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "Cpu Architechure",
-            "type": "String"
-        },
-        {
-            "name": "CPU_VERSION",
-            "desc": "Cpu Version",
-            "type": "String"
-        },
-        {
-            "name": "CPU_FIRMWARE_VERSION",
-            "desc": "Cpu Firmware Version",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MICROCODE",
-            "desc": "Cpu Microcode",
-            "type": "String"
-        },
-        {
-            "name": "DEFUNC_PROCESSES_COUNT",
-            "desc": "Defunc Process Count",
-            "type": "Int"
-        },
-        {
-            "name": "MEM_AVAILABLE",
-            "desc": "Memory Available(M)",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_TOTAL",
-            "desc": "Memory Total(M)",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USAGE",
-            "desc": "Memory%",
-            "type": "Float"
-        },
-        {
-            "name": "SWAP_TOTAL",
-            "desc": "Swap Total(M)",
-            "type": "Float"
-        },
-        {
-            "name": "SWAP_FREE",
-            "desc": "Swap Free(M)(M)",
-            "type": "Float"
+            "name": "USERS",
+            "desc": "users",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "Home Directory",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "Shell",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "MOUNT_POINTS",
@@ -469,36 +406,99 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "users",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "Home Directory",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "Shell",
-                    "type": "String"
-                }
-            ]
+            "name": "CPU_USAGE",
+            "desc": "CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "Cores AVG CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "Cpu Cores",
+            "type": "Int"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Logic CPU Cores",
+            "type": "Int"
+        },
+        {
+            "name": "IOWAIT_PCT",
+            "desc": "Iowait%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "Cpu Frequency",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODE",
+            "desc": "Cpu Mode",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "Cpu Model Name",
+            "type": "String"
+        },
+        {
+            "name": "CPU_BITS",
+            "desc": "Cpu Bits",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "Cpu Architechure",
+            "type": "String"
+        },
+        {
+            "name": "CPU_VERSION",
+            "desc": "Cpu Version",
+            "type": "String"
+        },
+        {
+            "name": "CPU_FIRMWARE_VERSION",
+            "desc": "Cpu Firmware Version",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "Cpu Microcode",
+            "type": "String"
+        },
+        {
+            "name": "DEFUNC_PROCESSES_COUNT",
+            "desc": "Defunc Process Count",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_AVAILABLE",
+            "desc": "Memory Available(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "Memory Total(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "Memory%",
+            "type": "Float"
+        },
+        {
+            "name": "SWAP_TOTAL",
+            "desc": "Swap Total(M)",
+            "type": "Float"
+        },
+        {
+            "name": "SWAP_FREE",
+            "desc": "Swap Free(M)(M)",
+            "type": "Float"
         },
         {
             "name": "AUTO_RESTART",

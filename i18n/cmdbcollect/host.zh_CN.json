@@ -56,41 +56,6 @@
             "type": "String"
         },
         {
-            "name": "CPU_COUNT",
-            "desc": "CPU数量",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU核数",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_FREQUENCY",
-            "desc": "CPU频率",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU架构",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MICROCODE",
-            "desc": "CPU微码",
-            "type": "String"
-        },
-        {
-            "name": "BIOS_VERSION",
-            "desc": "BIOS版本",
-            "type": "String"
-        },
-        {
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
@@ -122,16 +87,16 @@
             "desc": "网卡",
             "type": "JsonArray",
             "subset": [
-		{
-		    "name": "_OBJ_CATEGORY",
-		    "desc": "归属集合",
-		    "type": "String"
-		},
-		{
-		    "name": "_OBJ_TYPE",
-		    "desc": "归属类型",
-		    "type": "String"
-		},
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "网卡名",
@@ -195,6 +160,41 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "CPU_COUNT",
+            "desc": "CPU数量",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU核数",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU频率",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
+            "type": "String"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU架构",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU微码",
+            "type": "String"
+        },
+        {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS版本",
+            "type": "String"
         },
         {
             "name": "BOARD_SERIAL",

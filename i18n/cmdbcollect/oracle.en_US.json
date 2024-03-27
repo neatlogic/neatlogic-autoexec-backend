@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
+            "name": "STATE",
+            "desc": "Use State",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "Use State",
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -167,6 +167,50 @@
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -315,6 +359,26 @@
             ]
         },
         {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
             "name": "DATABASES",
             "desc": "Databases List",
             "type": "JsonArray",
@@ -350,70 +414,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "CATEGORY",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "Default Table Space",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CLUSTER_MODE",
-            "desc": "Cluster Mode",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_NAME",
-            "desc": "Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_VERSION",
-            "desc": "Cluster Version",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
         },
         {
             "name": "DATABASE_ROLE",
@@ -610,11 +610,11 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Name",
+                    "name": "_value",
+                    "desc": "Value",
                     "type": "String"
                 }
             ]

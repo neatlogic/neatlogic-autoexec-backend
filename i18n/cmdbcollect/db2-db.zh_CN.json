@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
             "type": "String"
@@ -43,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -66,6 +61,26 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存(MB)",
+            "type": "Float"
         },
         {
             "name": "LISTEN_STATS",
@@ -85,6 +100,11 @@
             ]
         },
         {
+            "name": "CACHED",
+            "desc": "缓存(MB)",
+            "type": "Float"
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "主IP浮动",
             "type": "Int"
@@ -100,19 +120,61 @@
             "type": "Float"
         },
         {
-            "name": "MEM_USED",
-            "desc": "使用内存(MB)",
-            "type": "Float"
-        },
-        {
             "name": "HWM_USED",
             "desc": "使用物理内存(MB)",
             "type": "Float"
         },
         {
-            "name": "CACHED",
-            "desc": "缓存(MB)",
-            "type": "Float"
+            "name": "INSTANCES",
+            "desc": "关联实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
+                    "name": "NODE_NAME",
+                    "desc": "集群节点名称",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "服务地址",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "SERVICE_ADDR",
+            "desc": "服务地址",
+            "type": "String"
         },
         {
             "name": "TABLESPACES",
@@ -172,68 +234,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "INSTANCES",
-            "desc": "关联实例",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "实例名",
-                    "type": "String"
-                },
-                {
-                    "name": "NODE_NAME",
-                    "desc": "集群节点名称",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "管理IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_ADDR",
-                    "desc": "服务地址",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
-            "name": "SERVICE_ADDR",
-            "desc": "服务地址",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
-            "type": "String"
         },
         {
             "name": "_batch_tag",

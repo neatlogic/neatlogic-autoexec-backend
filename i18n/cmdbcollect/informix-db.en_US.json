@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "Service IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -63,21 +63,19 @@
             "type": "String"
         },
         {
-            "name": "LISTEN_STATS",
-            "desc": "Listen Stats",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "ADDR",
-                    "desc": "Listen Addr",
-                    "type": "Int"
-                },
-                {
-                    "name": "QUEUED",
-                    "desc": "Queued Count",
-                    "type": "Int"
-                }
-            ]
+            "name": "VIP",
+            "desc": "Service IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
         },
         {
             "name": "USERS",
@@ -102,6 +100,23 @@
             ]
         },
         {
+            "name": "LISTEN_STATS",
+            "desc": "Listen Stats",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "ADDR",
+                    "desc": "Listen Addr",
+                    "type": "Int"
+                },
+                {
+                    "name": "QUEUED",
+                    "desc": "Queued Count",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -114,11 +129,6 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -169,18 +179,8 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "Service Address",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
             "type": "String"
         },
         {

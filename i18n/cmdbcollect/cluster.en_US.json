@@ -31,16 +31,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "VIP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -54,6 +44,21 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
         },
         {
             "name": "ACCESS_ENDPOINT",
@@ -86,11 +91,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP(Not LB)",
-            "type": "String"
         },
         {
             "name": "_batch_tag",
