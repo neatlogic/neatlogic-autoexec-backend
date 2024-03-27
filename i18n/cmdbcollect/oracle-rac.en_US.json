@@ -38,11 +38,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -60,6 +55,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
             "type": "String"
         },
         {
@@ -385,14 +390,16 @@
             "type": "String"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
             "name": "SCAN_IPS",
             "desc": "Scan Ip Addrs",
-            "type": "array"
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SCAN_LISTENERS",
@@ -412,17 +419,26 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "Service Names",
-                    "type": "array"
-                },
-                {
-                    "name": "LISTEN_PORTS",
-                    "desc": "Listen Ports",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "Listen Addrs",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -444,11 +460,11 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Name",
+                    "name": "_value",
+                    "desc": "Value",
                     "type": "String"
                 }
             ]
@@ -461,7 +477,14 @@
         {
             "name": "SLAVE_IPS",
             "desc": "Slave IP Addrs",
-            "type": "array"
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "_batch_tag",

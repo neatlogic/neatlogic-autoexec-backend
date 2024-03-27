@@ -72,10 +72,12 @@ sub collect {
         my $capacity = $splits[3];
 
         my $lunInfo = {};
-        $lunInfo->{NAME}      = $name;
-        $lunInfo->{WWN}       = $lunId;
-        $lunInfo->{POOL_NAME} = $poolName;
-        $lunInfo->{CAPACITY}  = $capacity;
+        $lunInfo->{_OBJ_CATEGORY}  = 'STORAGE';
+        $lunInfo->{_OBJ_TYPE}      = 'STORAGE_LUN';
+        $lunInfo->{NAME}           = $name;
+        $lunInfo->{WWN}            = $lunId;
+        $lunInfo->{POOL_NAME}      = $poolName;
+        $lunInfo->{CAPACITY}       = $capacity;
         push( @luns, $lunInfo );
 
         my $lunsInPool = $poolLunsMap->{$poolName};
@@ -136,6 +138,8 @@ sub collect {
         my $ctrlName = $splits[6];
 
         my $hbaInfo = {};
+	    $hbaInfo->{_OBJ_CATEGORY} = 'STORAGE';
+	    $hbaInfo->{_OBJ_TYPE} = 'STORAGE_HBA';
         $hbaInfo->{NAME}  = $name;
         $hbaInfo->{SPEED} = $speed;
         $hbaInfo->{WWPN}  = $wwpn;
@@ -162,6 +166,7 @@ sub collect {
 
         push( @ctrls, $ctrlInfo );
     }
+    $data->{HBA_INTERFACES} = \@hbas;
     $data->{CONTROLLERS} = \@ctrls;
     $data->{POOLS}       = \@pools;
     $data->{LUNS}        = \@luns;

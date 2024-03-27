@@ -41,21 +41,27 @@ def getDefaultFieldKeys():
     defaultKeys = [
         "_OBJ_CATEGORY",
         "_OBJ_TYPE",
+        "_APP_TYPE",
         "WAS_TYPE",
         "HOSTNAME",
         "NAME",
         "SERVER_NAME",
         "INSTANCE_NAME",
+        "DB_NAME",
         "UNIQUE_NAME",
         "PRODUCT_NAME",
         "MGMT_IP",
         "MGMT_PORT",
+        "STATE",
+        "AVAILABILITY",
+        "RESPONSE_TIME",
+        "ERROR_MESSAGE",
         "MAJOR_VERSION",
         "VERSION",
         "KERNEL_VERSION",
-        "STATE",
-        "VIP",
         "IP",
+        "VIP",
+        "PRIMARY_IP",
         "PORT",
         "SERVICE_PORTS",
         "UPTIME",
@@ -64,12 +70,8 @@ def getDefaultFieldKeys():
         "SYSTEM_LOCALE",
         "TIME_ZONE",
         "INPUT_LOCALE",
-        "AVAILABILITY",
-        "RESPONSE_TIME",
-        "ERROR_MESSAGE",
         "SOCKET_PATH",
         "LISTEN",
-        "AVAILABILITY",
         "RESPONSE_TIME",
         "ERROR_MESSAGE",
         "BELONG_APPLICATION",
@@ -103,7 +105,22 @@ def getDefaultFieldKeys():
         "JVM_TYPE",
         "JVM_VERSION",
         "JAVA_HOME",
+        "MIN_HEAP_SIZE",
+        "MAX_HEAP_SIZE",
+        "USERS",
+        "MAIN_ENV",
         "JAVA_VERSION",
+        "MOUNT_POINTS",
+        "NFS_MOUNTED",
+        "DISKS",
+        "DNS_SERVERS",
+        "NTP_ENABLE",
+        "NTP_SERVERS",
+        "NTP_OFFSET_SECS",
+        "SSH_VERSION",
+        "OPENSSL_VERSION",
+        "NIC_BOND",
+        "ETH_INTERFACES",
         "JMX_PORT",
         "JMX_SSL",
         "CPU_COUNT",
@@ -127,8 +144,6 @@ def getDefaultFieldKeys():
         "BIOS_VERSION",
         "TOP_CPU_RPOCESSES",
         "DEFUNC_PROCESSES_COUNT",
-        "MIN_HEAP_SIZE",
-        "MAX_HEAP_SIZE",
         "MEM_AVAILABLE",
         "MEM_TOTAL",
         "MEM_USAGE",
@@ -139,59 +154,59 @@ def getDefaultFieldKeys():
         "SWAP_TOTAL",
         "SWAP_FREE",
         "TOP_MEM_PROCESSES",
-        "MOUNT_POINTS",
-        "NFS_MOUNTED",
-        "DISKS",
         "LISTEN_STATS",
         "CONN_STATS",
         "CONN_OUTBOUND_STATS",
-        "DNS_SERVERS",
-        "NTP_ENABLE",
-        "NTP_SERVERS",
-        "NTP_OFFSET_SECS",
-        "SSH_VERSION",
-        "OPENSSL_VERSION",
-        "NIC_BOND",
-        "ETH_INTERFACES",
-        "USERS",
-        "MAIN_ENV",
     ]
     return defaultKeys
 
 
 def correctTypeDef(fieldDef):
-    if "subset" in fieldDef:
+    subsetDef = fieldDef.get("subset", [])
+
+    fieldType = fieldDef["type"].lower()
+    if fieldType == "string":
+        fieldType = "String"
+    if fieldType == "text":
+        fieldType = "Text"
+    elif fieldType == "int":
+        fieldType = "Int"
+    elif fieldType == "float":
+        fieldType = "Float"
+    elif fieldType == "jsonarray":
+        fieldType = "JsonArray"
+    elif fieldType == "array":
+        fieldType = "Array"
+    elif fieldType == "jsonobject":
+        fieldType = "JsonObject"
+    fieldDef["type"] = fieldType
+
+    if "name" in fieldDef:
+        fieldName = fieldDef["name"]
+        if fieldName == "AVAILABILITY":
+            fieldDef["type"] = "Int"
+        elif fieldName in ("COMMAND", "HEALTH_CHECK"):
+            fieldDef["type"] = "Text"
+        elif fieldType == "Float" and ("PID" in fieldName or "PORT" in fieldName):
+            fieldDef["type"] = "Int"
+        elif "IS_" in fieldName:
+            fieldDef["type"] = "Int"
+    else:
+        if fieldType == "Float":
+            fieldDef["type"] = "Int"
+
+    if fieldType == "Array":
+        if len(subsetDef) == 0:
+            subsetDef = [{"name": "_value", "desc": "Value", "type": "String"}]
+            fieldDef["subset"] = subsetDef
+        elif len(subsetDef) > 1:
+            fieldDef["type"] = "JsonArray"
+        elif subsetDef[0].get("name") != "_value":
+            subsetDef[0]["name"] = "_value"
+
+    if len(subsetDef) > 0:
         for subFieldDef in fieldDef["subset"]:
             correctTypeDef(subFieldDef)
-    else:
-        fieldType = fieldDef["type"].lower()
-        if fieldType == "string":
-            fieldType = "String"
-        if fieldType == "text":
-            fieldType = "Text"
-        elif fieldType == "int":
-            fieldType = "Int"
-        elif fieldType == "float":
-            fieldType = "Float"
-        elif fieldType == "jsonarray":
-            fieldType = "JsonArray"
-        elif fieldType == "jsonobject":
-            fieldType = "JsonObject"
-        fieldDef["type"] = fieldType
-
-        if "name" in fieldDef:
-            fieldName = fieldDef["name"]
-            if fieldName == "AVAILABILITY":
-                fieldDef["type"] = "Int"
-            elif fieldName in ("COMMAND", "HEALTH_CHECK"):
-                fieldDef["type"] = "Text"
-            elif fieldType == "Float" and ("PID" in fieldName or "PORT" in fieldName):
-                fieldDef["type"] = "Int"
-            elif "IS_" in fieldName:
-                fieldDef["type"] = "Int"
-        else:
-            if fieldType == "Float":
-                fieldDef["type"] = "Int"
 
 
 def getIcon(name):
@@ -373,6 +388,9 @@ if __name__ == "__main__":
             if action == "savetodb":
                 print("INFO: Import", dfile, "start...")
                 if hasError == False:
+                    for field in data.get("fields", []):
+                        correctTypeDef(field)
+
                     tableName = data["collection"]
                     objCat = tableName[8:]
                     colFilter = data.get("filter")
@@ -616,10 +634,10 @@ if __name__ == "__main__":
             else:
                 print("ERROR: Action " + action + "not supported.")
     print("\n")
-    print("INFO: Imported object type lsit\n", end="")
+    print("INFO: Object type list imported.\n", end="")
     for objTypeItem in objTypeList:
         print(
-            objTypeItem["_OBJ_CATETORY"] + ",\t" + objTypeItem["_OBJ_TYPE"] + "\n",
+            objTypeItem["_OBJ_CATETORY"] + "/" + objTypeItem["_OBJ_TYPE"] + "\n",
             end="",
         )
     # 关闭连接

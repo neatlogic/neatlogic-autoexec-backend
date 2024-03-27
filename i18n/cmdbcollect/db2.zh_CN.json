@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "运行时间（秒）",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -162,6 +162,35 @@
             "name": "EXE_PATH",
             "desc": "执行文件路径",
             "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "Float"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -310,35 +339,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "用户列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "MAIN_ENV",
-            "desc": "主进程环境变量",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "变量名",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "值",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -401,88 +401,34 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "分类",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "DB服务名称",
+                    "type": "String"
+                },
+                {
                     "name": "DB_NAME",
-                    "desc": "库名",
-                    "type": "Float"
+                    "desc": "DB名称",
+                    "type": "String"
                 },
                 {
-                    "name": "DB_DIRECTORY",
-                    "desc": "库目录",
-                    "type": "Float"
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
                 },
                 {
-                    "name": "MEM_USED",
-                    "desc": "使用内存(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "HWM_USED",
-                    "desc": "使用物理内存(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "CACHED",
-                    "desc": "缓存(MB)",
-                    "type": "Float"
-                },
-                {
-                    "name": "TABLESPACES",
-                    "desc": "表空间",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "NAME",
-                            "desc": "名称",
-                            "type": "String"
-                        },
-                        {
-                            "name": "TOTAL",
-                            "desc": "大小(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "AUTO_EXTEND",
-                            "desc": "自动扩展",
-                            "type": "String"
-                        },
-                        {
-                            "name": "USED",
-                            "desc": "已用(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "FREE",
-                            "desc": "空闲(GB)",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "FREE_PCT",
-                            "desc": "空闲%",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "USED_PCT",
-                            "desc": "使用%",
-                            "type": "Float"
-                        },
-                        {
-                            "name": "DATA_FILES",
-                            "desc": "数据文件列表",
-                            "type": "JsonArray",
-                            "subset": [
-                                {
-                                    "name": "DATA_FILE_PATH",
-                                    "desc": "路径",
-                                    "type": "String"
-                                },
-                                {
-                                    "name": "DATA_FILE_SIZE",
-                                    "desc": "大小(GB)",
-                                    "type": "Float"
-                                }
-                            ]
-                        }
-                    ]
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
+                    "type": "String"
                 }
             ]
         },

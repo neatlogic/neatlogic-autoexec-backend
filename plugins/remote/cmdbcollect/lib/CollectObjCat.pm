@@ -11,6 +11,7 @@ our $TYPES = {
     DBINS        => 'DBINS',           #数据库实例，，_OBJ_TYPE:Oracle、Mysql...
     OS           => 'OS',              #操作系统，_OBJ_TYPE:Linux、Windows、AIX...
     HOST         => 'HOST',            #主机（硬件），_OBJ_TYPE:各个品牌名
+    SERVERDEV    => 'SERVERDEV',       #服务器（硬件IPMI），_OBJ_TYPE:各个品牌名
     NETDEV       => 'NETDEV',          #网络设备，_OBJ_TYPE:各个品牌名
     SECDEV       => 'SECDEV',          #安全设备，_OBJ_TYPE:各个品牌名
     VIRTUALIZED  => 'VIRTUALIZED',     #虚拟化管理服务
@@ -18,8 +19,9 @@ our $TYPES = {
     FIREWALL     => 'SECDEV',          #防火墙，_OBJ_TYPE:各个品牌名
     LOADBALANCER => 'LOADBALANCER',    #负载均衡设备，_OBJ_TYPE:各个品牌名
     STORAGE      => 'STORAGE',         #存储， _OBJ_TYPE:各个品牌名
-    FCSWITCH     => 'FCSWITCH',        #SAN光交， _OBJ_TYPE:各个品牌名
+    FCSWITCH     => 'FCDEV',           #SAN光交， _OBJ_TYPE:各个品牌名
     CLUSTER      => 'CLUSTER',         #集群， _OBJ_TYPE:DBCluster|INSCluster|OSCluster
+    ADMINSET     => 'ADMINSET',        #管理集合，_OBJ_TYPE:Weblogic-Domain|Nginx-Server
     CONTAINER    => 'CONTAINER'        #容器，_OBJ_TYPE:docker
 };
 
@@ -28,9 +30,11 @@ our $PK_CONFIG = {
     INS          => [ 'MGMT_IP',     'PORT' ],
     DB           => [ 'PRIMARY_IP',  'PORT', 'NAME' ],
     CLUSTER      => [ 'UNIQUE_NAME', 'NAME' ],
+    ADMINSET     => [ 'UNIQUE_NAME', 'NAME' ],
     DBINS        => [ 'MGMT_IP',     'PORT', 'INSTANCE_NAME' ],
     OS           => ['MGMT_IP'],
     HOST         => [ 'MGMT_IP', 'BOARD_SERIAL' ],
+    SERVERDEV    => [ 'MGMT_IP', 'BOARD_SERIAL' ],
     NETDEV       => [ 'MGMT_IP', 'SN' ],
     SECDEV       => [ 'MGMT_IP', 'SN' ],
     VIRTUALIZED  => ['MGMT_IP'],
@@ -39,10 +43,15 @@ our $PK_CONFIG = {
     LOADBALANCER => [ 'MGMT_IP', 'SN' ],
     STORAGE      => [ 'MGMT_IP', 'SN' ],
     FCSWITCH     => [ 'MGMT_IP', 'SN' ],
-    CONTAINER    => ['MGMT_IP' , 'CONTAINER_ID']
+    CONTAINER    => [ 'MGMT_IP', 'CONTAINER_ID' ]
 };
 
-our $INDEX_FIELDS = {};
+our $INDEX_FIELDS = {
+    CLUSTER  => [ 'VIP',  'PRIMARY_IP', 'MEMBER_PEER' ],
+    FCSWITCH => [ 'WWNN', 'LINK_TABLE.PEER_WWPN' ],
+    SWITCH   => ['DEV_NAME'],
+    STORAGE  => [ 'VOLUMES.NAME', 'LUNS.WWN' ],
+};
 
 sub get {
     my ( $self, $objCatName ) = @_;

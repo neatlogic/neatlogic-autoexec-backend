@@ -15,7 +15,6 @@
             "desc": "Product Name",
             "type": "String"
         },
-
         {
             "name": "MGMT_IP",
             "desc": "Managment IP",
@@ -30,11 +29,6 @@
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
-        },
-        {
-            "name": "IS_VIRTUAL",
-            "desc": "Is Virtual",
-            "type": "Int"
         },
         {
             "name": "AVAILABILITY",
@@ -52,6 +46,11 @@
             "type": "String"
         },
         {
+            "name": "IS_VIRTUAL",
+            "desc": "Is Virtual",
+            "type": "Int"
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -59,41 +58,6 @@
         {
             "name": "MACHINE_ID",
             "desc": "Machine ID",
-            "type": "String"
-        },
-        {
-            "name": "CPU_COUNT",
-            "desc": "CPU Count",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU Cores",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_FREQUENCY",
-            "desc": "CPU Frequency",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU Model Name",
-            "type": "String"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU Architecture",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MICROCODE",
-            "desc": "CPU Microcode",
-            "type": "String"
-        },
-        {
-            "name": "BIOS_VERSION",
-            "desc": "BIOS Version",
             "type": "String"
         },
         {
@@ -193,13 +157,43 @@
             ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "Board Serial",
+            "name": "CPU_COUNT",
+            "desc": "CPU Count",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU Cores",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU Frequency",
             "type": "String"
         },
         {
-            "name": "HOST_IP",
-            "desc": "Esxi IP",
+            "name": "CPU_MODEL",
+            "desc": "CPU Model Name",
+            "type": "String"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU Architecture",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU Microcode",
+            "type": "String"
+        },
+        {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS Version",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
             "type": "String"
         },
         {
@@ -275,6 +269,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "HOST_IP",
+            "desc": "Esxi IP",
+            "type": "String"
         },
         {
             "name": "MANUFACTURER",

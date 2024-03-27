@@ -1,5 +1,5 @@
 {
-    "label": "光纤交换机",
+    "label": "光纤网络设备",
     "collection": "COLLECT_FCDEV",
     "docroot": null,
     "collection_label": "存储网络设备",
@@ -18,16 +18,6 @@
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -40,6 +30,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -85,8 +80,121 @@
             "type": "String"
         },
         {
+            "name": "CASCADE_SWITCHWWNN",
+            "desc": "级联光纤交换机设备WWN",
+            "type": "String"
+        },
+        {
+            "name": "CONFIGS",
+            "desc": "配置列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "ZONES",
+                    "desc": "ZONES",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "CFG_NAME",
+                            "desc": "属于配置名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBERS",
+                            "desc": "成员",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "成员名称",
+                                    "type": "String"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "WWPN_MEMBERS",
+                            "desc": "WWPN成员",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类别",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "对象类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SN",
+                                    "desc": "序列号",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "DOMAIN_IDX",
+                                    "desc": "端口Domain和Index",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PORT",
+                                    "desc": "端口",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "WWPN",
+                                    "desc": "WWPN",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PEER_WWPN",
+                                    "desc": "对端端口WWN",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "DEV_NAME",
             "desc": "设备名",
+            "type": "String"
+        },
+        {
+            "name": "DOMAIN_ID",
+            "desc": "Domain Id",
             "type": "String"
         },
         {
@@ -105,18 +213,18 @@
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWNN",
+                    "name": "DOMAIN_IDX",
+                    "desc": "端口Domain和Index",
+                    "type": "String"
+                },
+                {
+                    "name": "WWNN",
                     "desc": "本地设备WWN",
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_WWPN",
+                    "name": "WWPN",
                     "desc": "本地端口WWN",
-                    "type": "String"
-                },
-                {
-                    "name": "PEER_WWNN",
-                    "desc": "对端设备WWN",
                     "type": "String"
                 },
                 {
@@ -132,8 +240,28 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "端口名",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口号",
+                    "type": "String"
+                },
+                {
+                    "name": "DOMAIN_IDX",
+                    "desc": "端口Domain和Index",
                     "type": "String"
                 },
                 {
@@ -158,7 +286,17 @@
                 },
                 {
                     "name": "WWPN",
-                    "desc": "端口WWN",
+                    "desc": "本地端口WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "PEER_WWPN",
+                    "desc": "对端端口WWN",
+                    "type": "String"
+                },
+                {
+                    "name": "ALIAS",
+                    "desc": "别名",
                     "type": "String"
                 },
                 {
@@ -234,24 +372,93 @@
             "type": "Int"
         },
         {
+            "name": "SWITCH_STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
             "name": "WWNN",
             "desc": "设备WWN",
             "type": "String"
         },
         {
             "name": "ZONES",
-            "desc": "Zone列表",
+            "desc": "ZONES",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
                 },
                 {
-                    "name": "INDEX",
-                    "desc": "Index",
+                    "name": "CFG_NAME",
+                    "desc": "属于配置名称",
                     "type": "String"
+                },
+                {
+                    "name": "MEMBERS",
+                    "desc": "成员",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "成员名称",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "WWPN_MEMBERS",
+                    "desc": "WWPN成员",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DOMAIN_IDX",
+                            "desc": "端口Domain和Index",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口",
+                            "type": "Int"
+                        },
+                        {
+                            "name": "WWPN",
+                            "desc": "WWPN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PEER_WWPN",
+                            "desc": "对端端口WWN",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

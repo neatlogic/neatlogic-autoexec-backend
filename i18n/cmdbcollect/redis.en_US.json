@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
+            "name": "STATE",
+            "desc": "Use State",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "Use State",
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -162,6 +162,23 @@
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -310,21 +327,9 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
+            "name": "AOF_ENABLED",
+            "desc": "AOF Enabled",
+            "type": "Text"
         },
         {
             "name": "BELONG_CLUSTER",
@@ -389,9 +394,19 @@
             "type": "Text"
         },
         {
-            "name": "CONF_FILE",
-            "desc": "Conf File",
+            "name": "CONFIG_FILE",
+            "desc": "Config File",
             "type": "String"
+        },
+        {
+            "name": "CONFIG_MEMORY_SIZE",
+            "desc": "Config Memory Size",
+            "type": "Text"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "Text"
         },
         {
             "name": "EXECUTABLE",
@@ -404,9 +419,29 @@
             "type": "Int"
         },
         {
+            "name": "LOGFILE",
+            "desc": "Log Path",
+            "type": "Text"
+        },
+        {
+            "name": "MAX_CONNECTION",
+            "desc": "Max Connection",
+            "type": "Text"
+        },
+        {
             "name": "MULTIPLEXING_API",
             "desc": "Multiplexing API",
             "type": "String"
+        },
+        {
+            "name": "REDIS_MODE",
+            "desc": "Redis Mode",
+            "type": "Int"
+        },
+        {
+            "name": "REDIS_ROLE",
+            "desc": "Redis Role",
+            "type": "Int"
         },
         {
             "name": "RUN_ID",
@@ -439,6 +474,16 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "SENTINELS",
+            "desc": "SentinelS",
+            "type": "Text"
+        },
+        {
+            "name": "SENTINEL_MONITOR",
+            "desc": "哨兵监控",
+            "type": "Text"
         },
         {
             "name": "SLAVE_NODES",

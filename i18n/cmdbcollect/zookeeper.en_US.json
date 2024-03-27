@@ -23,6 +23,11 @@
             "type": "String"
         },
         {
+            "name": "INSTANCE_NAME",
+            "desc": "Instance Name",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -33,6 +38,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -40,11 +65,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -73,21 +93,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -228,6 +233,33 @@
             "type": "String"
         },
         {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "Max Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "JAVA_VERSION",
             "desc": "JAVA Version",
             "type": "String"
@@ -251,16 +283,6 @@
             "name": "CPU_LOGIC_CORES",
             "desc": "Cpu Logic Cores",
             "type": "String"
-        },
-        {
-            "name": "MIN_HEAP_SIZE",
-            "desc": "Min Heap Size",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_HEAP_SIZE",
-            "desc": "Max Heap Size",
-            "type": "Float"
         },
         {
             "name": "MEM_USAGE",
@@ -404,23 +426,6 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "ADMIN_ENABLE",
             "desc": "Admin Enable",
             "type": "String"
@@ -478,26 +483,29 @@
             "type": "Text"
         },
         {
-            "name": "DATA_DIR",
-            "desc": "Data Dir",
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Config File Path",
+            "type": "String"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "String"
+        },
+        {
+            "name": "INIT_LIMIT",
+            "desc": "Init Limit",
+            "type": "Int"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "Data Log Path",
             "type": "String"
         },
         {
             "name": "MAIN_LIB",
             "desc": "Main Lib",
             "type": "String"
-        },
-        {
-            "name": "MEMBERS",
-            "desc": "Members",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "REF_CLUSTER",
@@ -636,6 +644,16 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "SYNC_LIMIT",
+            "desc": "Sync Limit",
+            "type": "Int"
+        },
+        {
+            "name": "TICK_TIME",
+            "desc": "Tick Time",
+            "type": "Int"
         },
         {
             "name": "_batch_tag",

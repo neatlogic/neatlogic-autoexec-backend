@@ -43,6 +43,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "OS主版本",
             "type": "String"
@@ -55,11 +75,6 @@
         {
             "name": "KERNEL_VERSION",
             "desc": "内核版本",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -107,21 +122,6 @@
         {
             "name": "INPUT_LOCALE",
             "desc": "输入语言",
-            "type": "String"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
             "type": "String"
         },
         {
@@ -184,84 +184,36 @@
             "type": "String"
         },
         {
-            "name": "CPU_COUNT",
-            "desc": "CPU数量",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_USAGE",
-            "desc": "CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_USAGE_PERCORE",
-            "desc": "多核平均CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_QUEUE_LEN",
-            "desc": "CPU排队数",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU核数",
-            "type": "Int"
-        },
-        {
-            "name": "CPU_LOGIC_CORES",
-            "desc": "Cpu逻辑核数",
-            "type": "Float"
-        },
-        {
-            "name": "IOWAIT_PCT",
-            "desc": "IOWait百分比",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_FREQUENCY",
-            "desc": "CPU频率",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_BITS",
-            "desc": "CPU位数",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU架构",
-            "type": "String"
-        },
-        {
-            "name": "BIOS_VERSION",
-            "desc": "BIOS版本",
-            "type": "String"
-        },
-        {
-            "name": "DEFUNC_PROCESSES_COUNT",
-            "desc": "僵尸进程数",
-            "type": "Int"
-        },
-        {
-            "name": "MEM_AVAILABLE",
-            "desc": "可用内存(M)",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_TOTAL",
-            "desc": "内存大小",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USAGE",
-            "desc": "内存使用率%",
-            "type": "Float"
+            "name": "USERS",
+            "desc": "用户",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "MOUNT_POINTS",
@@ -446,36 +398,84 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "用户",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "家目录",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "SHELL",
-                    "type": "String"
-                }
-            ]
+            "name": "CPU_COUNT",
+            "desc": "CPU数量",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_USAGE",
+            "desc": "CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "多核平均CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_QUEUE_LEN",
+            "desc": "CPU排队数",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU核数",
+            "type": "Int"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "Cpu逻辑核数",
+            "type": "Float"
+        },
+        {
+            "name": "IOWAIT_PCT",
+            "desc": "IOWait百分比",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU频率",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
+            "type": "String"
+        },
+        {
+            "name": "CPU_BITS",
+            "desc": "CPU位数",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU架构",
+            "type": "String"
+        },
+        {
+            "name": "BIOS_VERSION",
+            "desc": "BIOS版本",
+            "type": "String"
+        },
+        {
+            "name": "DEFUNC_PROCESSES_COUNT",
+            "desc": "僵尸进程数",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_AVAILABLE",
+            "desc": "可用内存(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "内存大小",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "内存使用率%",
+            "type": "Float"
         },
         {
             "name": "BELONG_CLUSTER",

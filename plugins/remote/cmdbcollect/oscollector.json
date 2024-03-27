@@ -6,7 +6,8 @@
     "interpreter": "perl",
     "defaultProfile": null,
     "description": "采集主机硬件、OS和OS上运行应用和DB的信息",
-    "option": [{
+    "option": [
+        {
             "opt": "class",
             "name": "采集类列表",
             "help": "采集类别的名称, 空代表采集所有，逗号相隔，要与采集类名相同，譬如：OS,Tomcat,Weblogic,Oracle",
@@ -14,7 +15,8 @@
             "required": "false",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "全部",
                         "value": ""
                     },
@@ -123,6 +125,14 @@
                         "text": "ActiveMQ"
                     },
                     {
+                        "value": "RocketMQ",
+                        "text": "RocketMQ"
+                    },
+                    {
+                        "value": "IBMMQ",
+                        "text": "IBMMQ"
+                    },
+                    {
                         "value": "Apache",
                         "text": "Apache"
                     },
@@ -157,6 +167,10 @@
                     {
                         "text": "Docker",
                         "value": "Docker"
+                    },
+                    {
+                        "text": "Vastbase",
+                        "value": "Vastbase"
                     }
                 ]
             },
@@ -199,6 +213,33 @@
             "defaultValue": ""
         },
         {
+            "opt": "TiDB",
+            "name": "TiDB账户",
+            "help": "例如：采集数据需要用到的TiDB的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Vastbase",
+            "name": "Vastbase账户",
+            "help": "例如：采集数据需要用到的Vastbase的只读用户",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Redis",
+            "name": "Redis账户",
+            "help": "例如：采集数据需要用到的Redis的auth",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
             "opt": "defaultpassconf",
             "name": "默认密码设置",
             "help": "如没有选择账号，请输入，例如：Mysql:root/pass1234,Postgresql:demo/test1234",
@@ -215,7 +256,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "不采集",
                         "value": "0"
                     },
@@ -235,7 +277,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "不采集",
                         "value": "0"
                     },
@@ -262,7 +305,9 @@
             "help": "每个进程信息采集的最长执行时间，单位(秒)",
             "type": "text",
             "required": "false",
-            "validate": ["number"],
+            "validate": [
+                "number"
+            ],
             "defaultValue": "300"
         },
         {
@@ -273,7 +318,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "不回显",
                         "value": "0"
                     },
@@ -293,7 +339,8 @@
             "required": "true",
             "validate": "",
             "dataSource": {
-                "dataList": [{
+                "dataList": [
+                    {
                         "text": "否",
                         "value": "0"
                     },
@@ -306,10 +353,12 @@
             "defaultValue": "0"
         }
     ],
-    "output": [{
-        "opt": "DATA",
-        "name": "JSON数据",
-        "help": "采集到的数据",
-        "type": "json"
-    }]
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
 }

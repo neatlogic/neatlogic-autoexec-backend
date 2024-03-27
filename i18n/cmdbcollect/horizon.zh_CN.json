@@ -1,0 +1,186 @@
+{
+    "label": "HORIZON",
+    "collection": "COLLECT_LOADBALANCER",
+    "docroot": null,
+    "collection_label": "Loadbalancer",
+    "filter": {
+        "_OBJ_TYPE": "HORIZON"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属集合",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "MGMT_IP",
+            "desc": "管理IP",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "开机时间",
+            "type": "String"
+        },
+        {
+            "name": "VENDOR",
+            "desc": "厂商",
+            "type": "String"
+        },
+        {
+            "name": "SN",
+            "desc": "序列号",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "型号",
+            "type": "String"
+        },
+        {
+            "name": "DEV_NAME",
+            "desc": "设备名称",
+            "type": "String"
+        },
+        {
+            "name": "IOS_INFO",
+            "desc": "版本信息",
+            "type": "String"
+        },
+        {
+            "name": "VIRTUAL_SERVERS",
+            "desc": "虚拟服务器列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "String"
+                },
+                {
+                    "name": "POOLNAME",
+                    "desc": "Pool 名称",
+                    "type": "String"
+                },
+                {
+                    "name": "SNAT_POOL",
+                    "desc": "SNAT 地址转换池",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP_TYPE",
+                            "desc": "IP类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_LIST",
+                            "desc": "地址池",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "VALUE",
+                                    "desc": "IP Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "POOL",
+                    "desc": "POOL",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "LBMETHOD",
+                            "desc": "负载均衡方式",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PROTOCOL",
+                            "desc": "TCP OR UDP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBERS",
+                            "desc": "地址池",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "NAME",
+                                    "desc": "名称",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "STATUS",
+                                    "desc": "状态",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "IP",
+                                    "desc": "IP",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "PORT",
+                                    "desc": "端口",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

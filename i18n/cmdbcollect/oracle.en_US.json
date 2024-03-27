@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
+            "name": "STATE",
+            "desc": "Use State",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "Use State",
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -167,6 +167,50 @@
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -315,40 +359,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "Default Table Space",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
             "type": "String"
@@ -367,6 +377,43 @@
             "name": "COMMAND",
             "desc": "Command Line",
             "type": "Text"
+        },
+        {
+            "name": "DATABASES",
+            "desc": "Databases List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
+                    "desc": "DB Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "DATABASE_ROLE",
@@ -416,17 +463,38 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "Service Names",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "Listen Addrs",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_PORTS",
                     "desc": "Listen Ports",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "Int"
+                        }
+                    ]
                 }
             ]
         },
@@ -542,11 +610,11 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Name",
+                    "name": "_value",
+                    "desc": "Value",
                     "type": "String"
                 }
             ]

@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "Service IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -61,6 +61,48 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "Service IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "LISTEN_STATS",
@@ -80,23 +122,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "User Name",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "Default Table Space",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -112,8 +137,35 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "DB Name",
+            "name": "CONNECTIONS",
+            "desc": "Entrance List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
             "type": "String"
         },
         {
@@ -174,14 +226,48 @@
             "type": "Int"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
+            "name": "SERVICES",
+            "desc": "Service Name Object Array",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Catetgory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SERVICE_ADDR",
             "desc": "Service Address",
             "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "Service Name Array",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -236,11 +322,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
-            "type": "String"
         },
         {
             "name": "_batch_tag",

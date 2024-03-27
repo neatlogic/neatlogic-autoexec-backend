@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "Service IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -61,6 +61,26 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "Service IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memory Used(MB)",
+            "type": "Float"
         },
         {
             "name": "LISTEN_STATS",
@@ -80,6 +100,11 @@
             ]
         },
         {
+            "name": "CACHED",
+            "desc": "Cahced(MB)",
+            "type": "Float"
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "Primary IP FLoating",
             "type": "Int"
@@ -90,9 +115,14 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "DB Name",
-            "type": "String"
+            "name": "DB_DIRECTORY",
+            "desc": "DB Directory",
+            "type": "Float"
+        },
+        {
+            "name": "HWM_USED",
+            "desc": "HWM Used(MB)",
+            "type": "Float"
         },
         {
             "name": "INSTANCES",
@@ -142,19 +172,68 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "Service Address",
             "type": "String"
         },
         {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
-            "type": "String"
+            "name": "TABLESPACES",
+            "desc": "Table Spaces",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "Size(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AUTO_EXTEND",
+                    "desc": "Auto Extend",
+                    "type": "String"
+                },
+                {
+                    "name": "USED",
+                    "desc": "Used(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "Free(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE_PCT",
+                    "desc": "Free%",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "Used%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "Data File List",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "DATA_FILE_PATH",
+                            "desc": "Path",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DATA_FILE_SIZE",
+                            "desc": "Size(GB)",
+                            "type": "Float"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "_batch_tag",

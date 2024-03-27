@@ -33,6 +33,12 @@ sub getConfig {
     };
 }
 
+sub init {
+    my ($self) = @_;
+    $self->{dbName2DBIDMap} = {};
+    return;
+}
+
 sub isCDB {
     my ($self) = @_;
 
@@ -84,10 +90,12 @@ sub getInsVersion {
 sub getUserInfo {
     my ( $self, $pdbName ) = @_;
 
+    my $objCat  = 'DBINS';
     my $sqlplus = $self->{sqlplus};
     my $sql     = q{select du.username,du.default_tablespace from dba_users du where du.account_status='OPEN' and du.default_tablespace not in('SYSTEM','SYSAUX')};
     if ( defined($pdbName) and $pdbName ne '' ) {
-        $sql = "alter session set container=$pdbName;\n$sql";
+        $objCat = CollectObjCat->get('DB');
+        $sql    = "alter session set container=$pdbName;\n$sql";
     }
 
     my @userInfos = ();
@@ -99,7 +107,9 @@ sub getUserInfo {
     if ( defined($rows) ) {
         foreach my $row (@$rows) {
             my $userInfo = {};
-            $userInfo->{USERNAME}           = $row->{USERNAME};
+            $userInfo->{_OBJ_CATEGORY}      = CollectObjCat->get($objCat);
+            $userInfo->{_OBJ_TYPE}          = "DB-USER";
+            $userInfo->{NAME}               = $row->{USERNAME};
             $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
             push( @userInfos, $userInfo );
         }
@@ -205,7 +215,7 @@ sub getParams {
     my $databaseRole;
     my $logMode;
     my $rows = $sqlplus->query(
-        sql     => 'select dbid,database_role,log_mode from v$database',
+        sql     => 'select name,dbid,database_role,log_mode from v$database',
         verbose => $isVerbose
     );
     if ( defined($rows) ) {
@@ -213,6 +223,12 @@ sub getParams {
         $logMode      = $$rows[0]->{LOG_MODE};
         $databaseRole = $$rows[0]->{DATABASE_ROLE};
     }
+
+    my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+    foreach my $row (@$rows) {
+        $dbName2DBIDMap->{ $row->{NAME} } = $row->{DBID};
+    }
+
     $insInfo->{DBID}          = $dbId;
     $insInfo->{LOG_MODE}      = $logMode;
     $insInfo->{DATABASE_ROLE} = $databaseRole;
@@ -274,12 +290,21 @@ sub getTcpInfo {
     my $svcNameToLsnrMap = $self->{svcNameToLsnrMap};
 
     my @listeners = ();
+    my @services  = ();
     foreach my $svcName (@$serviceNames) {
         my $lsnrs = $svcNameToLsnrMap->{$svcName};
         if ( defined($lsnrs) ) {
             push( @listeners, @$lsnrs );
         }
+
+        push( @services, {
+            _OBJ_CATEGORY => CollectObjCat->get('DB'),
+            _OBJ_TYPE => 'ORACLE-SERVICE',
+            SERVICE_NAME => $svcName,
+            VIP => undef
+        } );
     }
+    $insInfo->{SERVICES} = \@services;
 
     if ( defined($oraSid) ) {
         my $lsnrs = $insNameToLsnrMap->{$oraSid};
@@ -458,13 +483,14 @@ sub collectCDB {
     }
     map { $dbInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
 
-    $dbInfo->{_OBJ_CATEGORY} = 'DB';
+    $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
     $dbInfo->{_OBJ_TYPE}     = 'Oracle-DB';
-    $dbInfo->{_APP_TYPE}     = 'DB';
+    $dbInfo->{_APP_TYPE}     = 'Oracle-CDB';
     $dbInfo->{IS_RAC}        = $insInfo->{IS_RAC};
     $dbInfo->{CDB}           = undef;
     $dbInfo->{NOT_PROCESS}   = 1;
     $dbInfo->{RUN_ON}        = [];
+    $dbInfo->{DBID}          = $insInfo->{DBID};
 
     $dbInfo->{NAME} = $dbName;
 
@@ -517,6 +543,27 @@ sub collectCDB {
             }
         ];
     }
+    $dbInfo->{DISK_GROUPS} = $racInfo->{DISK_GROUPS};
+
+    my @services    = ();
+    my $insServices = $insInfo->{SERVICES};
+    my @dbConns     = ();
+    my $insUsers    = $insInfo->{USERS};
+    foreach my $serviceInfo (@$insServices) {
+        $serviceInfo->{VIP} = $dbInfo->{VIP};
+        foreach my $userInfo (@$insUsers) {
+            my $connInfo = {
+                _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                _OBJ_TYPE     => 'DB_CONNECT',
+                SERVICE_NAME  => $serviceInfo->{SERVICE_NAME},
+                USER_NAME     => $userInfo->{USER_NAME}
+            };
+            push( @dbConns, $connInfo );
+        }
+    }
+
+    $dbInfo->{SERVICES}    = $insServices;
+    $dbInfo->{CONNECTIONS} = \@dbConns;
 
     return [$dbInfo];
 }
@@ -572,14 +619,17 @@ sub collectPDB {
             $pdb->{DBID}   = $row->{DBID};
             $pdb->{CON_ID} = $row->{CON_ID};
 
-            $pdb->{_OBJ_CATEGORY} = 'DB';
+            $pdb->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
-            $pdb->{_APP_TYPE}     = 'PDB';
+            $pdb->{_APP_TYPE}     = 'Oracle-PDB';
             $pdb->{IS_CDB}        = 0;
             $pdb->{CDB}           = $dbName;
 
             $pdb->{NOT_PROCESS} = 1;
             $pdb->{RUN_ON}      = [];
+
+            my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+            $dbName2DBIDMap->{ $pdb->{NAME} } = $pdb->{DBID};
 
             push( @pdbs, $pdb );
         }
@@ -593,12 +643,40 @@ sub collectPDB {
             sql     => $sql,
             verbose => $self->{isVerbose}
         );
+
+        my $pdbUsers = $self->getUserInfo($pdbName);
+        $pdb->{USERS} = $pdbUsers;
+
         my @serviceNames = ();
+        my @dbServices   = ();
+        my @pdbConns     = ();
         if ( defined($rows) ) {
             foreach my $row (@$rows) {
                 push( @serviceNames, $row->{NAME} );
+                push(
+                    @dbServices,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'ORACLE-SERVICE',
+                        SERVICE_NAME  => $row->{NAME}
+                    }
+                );
+                foreach my $user (@$pdbUsers) {
+                    push(
+                        @pdbConns,
+                        {
+                            _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                            _OBJ_TYPE     => 'DB-CONNECT',
+                            SERVICE_NAME  => $row->{NAME},
+                            USER_NAME     => $pdb->{ $user->{USER_NAME} }
+                        }
+                    );
+                }
             }
         }
+        $pdb->{CONNECTIONS} = \@pdbConns;
+        $pdb->{SERVICES}    = \@dbServices;
+
         $pdb->{SERVICE_NAMES} = \@serviceNames;
         $pdb->{SERVICE_NAME}  = $serviceNames[0];
 
@@ -633,7 +711,6 @@ sub collectPDB {
             }
         }
 
-        $pdb->{USERS}          = $self->getUserInfo($pdbName);
         $pdb->{TABLE_SPACESES} = $self->getTableSpaceInfo($pdbName);
     }
 
@@ -693,13 +770,17 @@ sub getASMDiskGroup {
         foreach my $row (@$rows) {
             my $diskGroup = {};
             my $groupName = $row->{NAME};
-            $diskGroup->{NAME}     = $groupName;
-            $diskGroup->{TYPE}     = $row->{TYPE};
-            $diskGroup->{TOTAL}    = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
-            $diskGroup->{FREE}     = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
-            $diskGroup->{USED}     = $diskGroup->{TOTAL} - $diskGroup->{FREE};
-            $diskGroup->{USED_PCT} = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
-            $diskGroup->{DISKS}    = [];
+            $diskGroup->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+            $diskGroup->{_OBJ_TYPE}     = 'OracleASMGroup';
+            $diskGroup->{NAME}          = $groupName;
+            $diskGroup->{TYPE}          = $row->{TYPE};
+            $diskGroup->{TOTAL}         = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{FREE}          = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000;
+            $diskGroup->{USED}          = $diskGroup->{TOTAL} - $diskGroup->{FREE};
+            $diskGroup->{USED_PCT}      = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $diskGroup->{DISKS}         = [];
+            $diskGroup->{PATH}          = [];
+
             push( @diskGroups, $diskGroup );
             $diskGroupsMap->{$groupName} = $diskGroup;
         }
@@ -723,6 +804,23 @@ sub getASMDiskGroup {
             $disk->{DEV_PATH}     = $row->{PATH};
 
             push( @$disks, $disk );
+
+            my $path  = {};
+            my $paths = $diskGroupsMap->{$groupName}->{PATH};
+            $path->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+            $path->{_OBJ_TYPE}     = 'OracleASMPath';
+            $path->{NAME}          = $row->{NAME};
+            $path->{FAIL_GROUP}    = $row->{FGROUP};
+            $path->{MOUNT_STATUS}  = $row->{MNT_STS};
+            $path->{CAPACITY}      = int( $row->{TOTAL_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $path->{FREE}          = int( $row->{FREE_MB} * 1000 / 1024 + 0.5 ) / 1000 + 0.0;
+            $path->{USED}          = $disk->{CAPACITY} - $disk->{FREE};
+            $path->{USED_PCT}      = sprintf( '.2f%', ( $row->{TOTAL_MB} - $row->{FREE_MB} ) * 100 / $row->{TOTAL_MB} ) + 0.0;
+            $path->{PATH}          = $row->{PATH};
+            $path->{IP}            = $racInfo->{LOCAL_NODE_PUB_IP};
+
+            push( @$paths, $path );
+
         }
     }
 
@@ -764,7 +862,7 @@ sub getClusterDB {
     my @dbInfos   = ();
     foreach my $dbName (@dbNames) {
         my $dbInfo = {
-            _OBJ_CATEGORY => 'DB',
+            _OBJ_CATEGORY => CollectObjCat->get('DB'),
             _OBJ_TYPE     => 'Oracle-DB',
             NAME          => $dbName
         };
@@ -884,7 +982,8 @@ sub getClusterDB {
             my $primaryIp = $dbInfo->{PRIMARY_IP};
             delete( $allIpMap->{$primaryIp} );
             my @slaveIps = sort( keys(%$allIpMap) );
-            $dbInfo->{SLAVE_IPS} = \@slaveIps;
+            $dbInfo->{SLAVE_IPS}   = \@slaveIps;
+            $dbInfo->{DISK_GROUPS} = $racInfo->{DISK_GROUPS};
 
             push( @dbInfos, $dbInfo );
         }
@@ -933,7 +1032,7 @@ sub getClusterNodes {
     my @dbNodes      = ();
     foreach my $dbNode (@$dbNodesLines) {
         $dbNode =~ s/^\s*|\s*$//g;
-        if ( $dbNode ne '' and $dbNode =~ /^\W+$/ ) {
+        if ( $dbNode ne '' and $dbNode =~ /^\w+$/ ) {
             my $ipAddr = gethostbyname($dbNode);
             if ( defined($ipAddr) ) {
                 my $nodePubIp = inet_ntoa($ipAddr);
@@ -1579,9 +1678,12 @@ sub collect {
         #ORACLE实例信息采集完成
         push( @collectSet, $insInfo );
 
-        #my @databases = ();
+        my @databases = ();
+        $insInfo->{DATABASES} = \@databases;
+        
         my $CDBS = $self->collectCDB($insInfo);
         if ( defined($CDBS) and scalar(@$CDBS) > 0 ) {
+            push(@databases, @$CDBS);
             foreach my $CDB (@$CDBS) {
                 push( @collectSet, $CDB );
             }
@@ -1592,8 +1694,21 @@ sub collect {
             my $PDBS = $self->collectPDB($insInfo);
 
             if ( defined($PDBS) ) {
+                push(@databases, @$PDBS);
                 foreach my $PDB (@$PDBS) {
                     push( @collectSet, $PDB );
+                }
+            }
+        }
+
+        if ( defined($racInfo) ) {
+            my $clusterDBs = $racInfo->{DATABASES};
+            if ( defined($clusterDBs) ) {
+
+                #如果存在RAC，则把从实例中采集到的补充cluster db的DBID
+                my $dbName2DBIDMap = $self->{dbName2DBIDMap};
+                foreach my $clusterDB (@$clusterDBs) {
+                    $clusterDB->{DBID} = $dbName2DBIDMap->{ $clusterDB->{NAME} };
                 }
             }
         }

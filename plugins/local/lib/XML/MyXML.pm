@@ -104,6 +104,7 @@ sub xml_to_object {
 	if ($flags->{file}) {
 		open my $fh, '<', $xml	or croak "Error: The file '$xml' could not be opened for reading: $!";
 		$xml = join '', <$fh>;
+		$xml =~ s/^\xef\xbb\xbf//;
 		close $fh;
 	}
 

@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "Service Name",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "Service IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -61,6 +61,43 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "Service IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "USERS",
+            "desc": "User List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "LISTEN_STATS",
@@ -87,11 +124,6 @@
         {
             "name": "CLUSTER_MODE",
             "desc": "Cluster Mode",
-            "type": "String"
-        },
-        {
-            "name": "DB_NAME",
-            "desc": "DB Name",
             "type": "String"
         },
         {
@@ -142,18 +174,8 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "Service Address",
-            "type": "String"
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "Database Type",
             "type": "String"
         },
         {

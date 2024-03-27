@@ -1,0 +1,71 @@
+{
+    "label": "Admin Set",
+    "collection": "COLLECT_ADMINSET",
+    "docroot": null,
+    "collection_label": "Admin Set",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Cluster Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "AdminSet Name",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
+        },
+        {
+            "name": "MEMBERS",
+            "desc": "Members Objects",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Cluster Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managment IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_NAME",
+                    "desc": "Server Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
+        }
+    ]
+}

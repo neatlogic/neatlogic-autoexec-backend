@@ -6,7 +6,7 @@ import os
 import traceback
 import datetime
 import argparse
-import sys
+import re
 import json
 from bson.json_util import dumps, loads
 
@@ -208,7 +208,18 @@ if __name__ == "__main__":
     objTypesMap = {}
     toolNamesMap = {}
     for toolName in args.toolnames:
-        toolNamesMap[toolName] = 1
+        matchObj = re.match(r"^#\{.*?\.(.*_\d+)\.", toolName)
+        if matchObj:
+            toolName = matchObj.group(1)
+            toolNamesMap[toolName] = 1
+        else:
+            toolName = re.sub(r"^#\{.*?\.", "", toolName)
+            toolName = re.sub(r"\..*?$", "", toolName)
+            toolNamesMap[toolName] = 1
+        possibleToolName = ""
+        while possibleToolName != toolName:
+            possibleToolName = re.sub(r"^.*?\.", "", toolName)
+            toolNamesMap[possibleToolName] = 1
 
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
@@ -282,7 +293,7 @@ if __name__ == "__main__":
 
                 table = "COLLECT_" + objCat
                 collectionNames[table] = 1
-                objTypesMap["%s:%s" % (objCat, typeName)] = 1
+                objTypesMap["%s/%s" % (objCat, typeName)] = 1
 
                 pkInvalid = False
                 # 根据PK的定义生成Primary Key filter

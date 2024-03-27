@@ -207,6 +207,7 @@ class VsphereQuery:
                 return None
         powerState = vm.summary.runtime.powerState
         hardware = vm.config.hardware
+        uuid = vm.summary.config.instanceUuid
         memory = hardware.memoryMB
         numCPU = self.str_format(hardware.numCPU)
         numCoresPerSocket = self.str_format(hardware.numCoresPerSocket)
@@ -223,6 +224,7 @@ class VsphereQuery:
         ins["DISKS"] = data_list
 
         ins["NAME"] = os_name
+        ins["UUID"] = uuid
         ins["IP"] = os_ip
         ins["VM_ID"] = os_id
         ins["OS_TYPE"] = os_type

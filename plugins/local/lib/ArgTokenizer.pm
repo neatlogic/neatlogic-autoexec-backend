@@ -107,7 +107,7 @@ sub _escapeQuotesAndBackslashes {
     my ( $self, $arg ) = @_;
     my @argChars = split( //, $arg );
     my $buf      = '';
-    for ( my $i = 0 ; $i < $#argChars ; $i++ ) {
+    for ( my $i = 0 ; $i <= $#argChars ; $i++ ) {
         my $c = $argChars[$i];
 
         if ( $c eq '\\' || $c eq '"' ) {

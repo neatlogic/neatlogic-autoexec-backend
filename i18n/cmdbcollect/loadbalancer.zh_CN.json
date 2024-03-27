@@ -21,18 +21,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -48,6 +38,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS版本",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -76,10 +76,89 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "索引",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "mac地址",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "VIRTUAL_SERVERS",
             "desc": "VS服务",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "名称",
@@ -101,10 +180,59 @@
                     "type": "String"
                 },
                 {
+                    "name": "SNAT_POOL",
+                    "desc": "SNAT 地址转换池",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP_TYPE",
+                            "desc": "IP类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_LIST",
+                            "desc": "地址池",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "IP",
+                                    "desc": "IP Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     "name": "POOL",
                     "desc": "POOL",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -127,6 +255,16 @@
                     "desc": "成员列表",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "名称",

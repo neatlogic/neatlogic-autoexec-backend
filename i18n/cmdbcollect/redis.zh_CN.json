@@ -38,13 +38,28 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
+            "name": "STATE",
+            "desc": "使用状态",
             "type": "String"
         },
         {
-            "name": "STATE",
-            "desc": "使用状态",
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "运行时间（秒）",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -162,6 +162,23 @@
             "name": "EXE_PATH",
             "desc": "执行文件路径",
             "type": "String"
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "主进程环境变量",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "变量名",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "值",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -310,21 +327,9 @@
             ]
         },
         {
-            "name": "MAIN_ENV",
-            "desc": "主进程环境变量",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "变量名",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "值",
-                    "type": "String"
-                }
-            ]
+            "name": "AOF_ENABLED",
+            "desc": "AOF启用",
+            "type": "Text"
         },
         {
             "name": "BELONG_CLUSTER",
@@ -375,12 +380,12 @@
         },
         {
             "name": "CLUSTER_MODE",
-            "desc": "集群模式",
+            "desc": "集群部署模式",
             "type": "String"
         },
         {
             "name": "CLUSTER_ROLE",
-            "desc": "集群角色",
+            "desc": "集群部署角色",
             "type": "String"
         },
         {
@@ -394,6 +399,16 @@
             "type": "String"
         },
         {
+            "name": "CONFIG_MEMORY_SIZE",
+            "desc": "配置内存大小",
+            "type": "Text"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "数据目录",
+            "type": "Text"
+        },
+        {
             "name": "EXECUTABLE",
             "desc": "安装目录",
             "type": "String"
@@ -404,9 +419,29 @@
             "type": "Int"
         },
         {
+            "name": "LOGFILE",
+            "desc": "日志目录",
+            "type": "Text"
+        },
+        {
+            "name": "MAX_CONNECTION",
+            "desc": "连接数大小配置",
+            "type": "Text"
+        },
+        {
             "name": "MULTIPLEXING_API",
             "desc": "多路复用",
             "type": "String"
+        },
+        {
+            "name": "REDIS_MODE",
+            "desc": "REDIS部署模式",
+            "type": "Int"
+        },
+        {
+            "name": "REDIS_ROLE",
+            "desc": "REDIS部署角色",
+            "type": "Int"
         },
         {
             "name": "RUN_ID",
@@ -441,8 +476,18 @@
             ]
         },
         {
+            "name": "SENTINELS",
+            "desc": "哨兵",
+            "type": "Text"
+        },
+        {
+            "name": "SENTINEL_MONITOR",
+            "desc": "哨兵监控",
+            "type": "Text"
+        },
+        {
             "name": "SLAVE_NODES",
-            "desc": "集群节点",
+            "desc": "备集群节点",
             "type": "JsonArray",
             "subset": [
                 {

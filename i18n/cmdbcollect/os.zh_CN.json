@@ -31,6 +31,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "OS主版本",
             "type": "String"
@@ -43,11 +63,6 @@
         {
             "name": "KERNEL_VERSION",
             "desc": "内核版本",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -76,21 +91,6 @@
             "name": "IS_VIRTUAL",
             "desc": "是否虚拟机",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
         },
         {
             "name": "RESOURCE_ID",
@@ -157,99 +157,46 @@
             "type": "Float"
         },
         {
-            "name": "CPU_USAGE",
-            "desc": "CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_USAGE_PERCORE",
-            "desc": "多核平均CPU%",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_CORES",
-            "desc": "CPU核数",
-            "type": "Int"
-        },
-        {
-            "name": "CPU_LOGIC_CORES",
-            "desc": "CPU逻辑核数",
-            "type": "Int"
-        },
-        {
-            "name": "IOWAIT_PCT",
-            "desc": "IOWait百分比",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_FREQUENCY",
-            "desc": "CPU主频",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODE",
-            "desc": "CPU模式",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MODEL",
-            "desc": "CPU型号",
-            "type": "String"
-        },
-        {
-            "name": "CPU_BITS",
-            "desc": "CPU位数",
-            "type": "Float"
-        },
-        {
-            "name": "CPU_ARCH",
-            "desc": "CPU架构",
-            "type": "String"
-        },
-        {
-            "name": "CPU_VERSION",
-            "desc": "CPU版本",
-            "type": "String"
-        },
-        {
-            "name": "CPU_FIRMWARE_VERSION",
-            "desc": "CPU微码版本",
-            "type": "String"
-        },
-        {
-            "name": "CPU_MICROCODE",
-            "desc": "CPU微码",
-            "type": "String"
-        },
-        {
-            "name": "DEFUNC_PROCESSES_COUNT",
-            "desc": "僵尸进程数",
-            "type": "Int"
-        },
-        {
-            "name": "MEM_AVAILABLE",
-            "desc": "可用内存(M)",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_TOTAL",
-            "desc": "总内存(M)",
-            "type": "Float"
-        },
-        {
-            "name": "MEM_USAGE",
-            "desc": "内存使用率%",
-            "type": "Float"
-        },
-        {
-            "name": "SWAP_TOTAL",
-            "desc": "SWAP大小(M)",
-            "type": "Float"
-        },
-        {
-            "name": "SWAP_FREE",
-            "desc": "SWAP空闲(GB)",
-            "type": "Float"
+            "name": "USERS",
+            "desc": "用户",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "MOUNT_POINTS",
@@ -304,48 +251,6 @@
             ]
         },
         {
-            "name": "NFS_INFO",
-            "desc": "NFS信息",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PATH",
-                    "desc": "Nas 远端路径",
-                    "type": "String"
-                },
-                {
-                    "name": "AUTO_MOUNT",
-                    "desc": "是否自动挂载",
-                    "type": "Int"
-                },
-                {
-                    "name": "NFS_HOST",
-                    "desc": "NFS服务域名",
-                    "type": "String"
-                },
-                {
-                    "name": "NFS_IP",
-                    "desc": "NFS服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "LOCAL_PATH",
-                    "desc": "本地文件系统",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "NFS_MOUNTED",
             "desc": "挂载了NFS",
             "type": "Float"
@@ -355,16 +260,16 @@
             "desc": "磁盘",
             "type": "JsonArray",
             "subset": [
-	        {
-	            "name": "_OBJ_CATEGORY",
-	            "desc": "归属类型",
-	            "type": "String"
-	        },
-	        {
-	            "name": "_OBJ_TYPE",
-	            "desc": "OS类型",
-	            "type": "String"
-	        },
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "磁盘名",
@@ -389,6 +294,43 @@
                     "name": "UNIT",
                     "desc": "单位",
                     "type": "String"
+                },
+                {
+                    "name": "REMOTE_LUN",
+                    "desc": "关联存储LUN",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "存储",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "存储管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "存储序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "WWN",
+                            "desc": "LUN的WWN",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -511,36 +453,99 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "用户",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "家目录",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "SHELL",
-                    "type": "String"
-                }
-            ]
+            "name": "CPU_USAGE",
+            "desc": "CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_USAGE_PERCORE",
+            "desc": "多核平均CPU%",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_CORES",
+            "desc": "CPU核数",
+            "type": "Int"
+        },
+        {
+            "name": "CPU_LOGIC_CORES",
+            "desc": "CPU逻辑核数",
+            "type": "Int"
+        },
+        {
+            "name": "IOWAIT_PCT",
+            "desc": "IOWait百分比",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_FREQUENCY",
+            "desc": "CPU主频",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODE",
+            "desc": "CPU模式",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MODEL",
+            "desc": "CPU型号",
+            "type": "String"
+        },
+        {
+            "name": "CPU_BITS",
+            "desc": "CPU位数",
+            "type": "Float"
+        },
+        {
+            "name": "CPU_ARCH",
+            "desc": "CPU架构",
+            "type": "String"
+        },
+        {
+            "name": "CPU_VERSION",
+            "desc": "CPU版本",
+            "type": "String"
+        },
+        {
+            "name": "CPU_FIRMWARE_VERSION",
+            "desc": "CPU微码版本",
+            "type": "String"
+        },
+        {
+            "name": "CPU_MICROCODE",
+            "desc": "CPU微码",
+            "type": "String"
+        },
+        {
+            "name": "DEFUNC_PROCESSES_COUNT",
+            "desc": "僵尸进程数",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_AVAILABLE",
+            "desc": "可用内存(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "总内存(M)",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USAGE",
+            "desc": "内存使用率%",
+            "type": "Float"
+        },
+        {
+            "name": "SWAP_TOTAL",
+            "desc": "SWAP大小(M)",
+            "type": "Float"
+        },
+        {
+            "name": "SWAP_FREE",
+            "desc": "SWAP空闲(GB)",
+            "type": "Float"
         },
         {
             "name": "AUTO_RESTART",
@@ -682,6 +687,85 @@
                     "name": "HOST_IP",
                     "desc": "主机ip",
                     "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_INFO",
+            "desc": "NFS信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PATH",
+                    "desc": "Nas 远端路径",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO_MOUNT",
+                    "desc": "是否自动挂载",
+                    "type": "Int"
+                },
+                {
+                    "name": "NFS_HOST",
+                    "desc": "NFS服务域名",
+                    "type": "String"
+                },
+                {
+                    "name": "NFS_IP",
+                    "desc": "NFS服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "MOUNT_POINT",
+                    "desc": "本地文件系统",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_VOLUME",
+                    "desc": "存储NAS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "OS类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VOLUME_NAME",
+                            "desc": "VOLUME名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "管理IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "设备名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "序列号",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -61,6 +61,48 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_TABLESPACE",
+                    "desc": "默认表空间",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "LISTEN_STATS",
@@ -80,23 +122,6 @@
             ]
         },
         {
-            "name": "USERS",
-            "desc": "用户列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "USERNAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "DEFAULT_TABLESPACE",
-                    "desc": "默认表空间",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "CAN_IP_FLOAT",
             "desc": "主IP浮动",
             "type": "Int"
@@ -112,8 +137,35 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "库名",
+            "name": "CONNECTIONS",
+            "desc": "访问入口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DBID",
+            "desc": "DBID",
             "type": "String"
         },
         {
@@ -174,14 +226,48 @@
             "type": "Int"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
+            "name": "SERVICES",
+            "desc": "服务名对象列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SERVICE_ADDR",
             "desc": "服务地址",
             "type": "String"
+        },
+        {
+            "name": "SERVICE_NAME",
+            "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "SERVICE_NAMES",
+            "desc": "服务名列表",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "TABLE_SPACESES",
@@ -241,11 +327,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
-            "type": "String"
         },
         {
             "name": "_batch_tag",

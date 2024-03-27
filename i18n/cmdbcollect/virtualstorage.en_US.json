@@ -28,11 +28,6 @@
             "type": "String"
         },
         {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
-            "type": "String"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -45,6 +40,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -243,7 +243,14 @@
                 {
                     "name": "VISABLE_GROUPS",
                     "desc": "Visable Initiator Group",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "VISABLE_INITIATORS",

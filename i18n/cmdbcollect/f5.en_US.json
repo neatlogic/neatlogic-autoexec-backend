@@ -23,18 +23,8 @@
             "type": "String"
         },
         {
-            "name": "VERSION",
-            "desc": "IOS Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
-            "type": "String"
-        },
-        {
-            "name": "UPTIME",
-            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -50,6 +40,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "IOS Version",
+            "type": "String"
+        },
+        {
+            "name": "UPTIME",
+            "desc": "Up Time(Days)",
             "type": "String"
         },
         {
@@ -101,6 +101,30 @@
                     "name": "POOL_NAME",
                     "desc": "Pool Name",
                     "type": "String"
+                },
+                {
+                    "name": "SNAT_POOL",
+                    "desc": "NAT Transafer pool",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_LIST",
+                            "desc": "IP List Pool",
+                            "type": "JsonArray",
+                            "subset": [
+                                {
+                                    "name": "IP",
+                                    "desc": "IP Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
                     "name": "POOL",

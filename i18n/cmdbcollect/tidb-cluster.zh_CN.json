@@ -1,0 +1,313 @@
+{
+    "label": "TiDB Cluster",
+    "collection": "COLLECT_CLUSTER",
+    "docroot": null,
+    "collection_label": "TiDB集群",
+    "filter": {
+        "_OBJ_TYPE": "TiDBCluster"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "中间件类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "集群名",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "唯一名",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本号",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP(非LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "访问地址",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "集群模式",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "集群软件",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster版本",
+            "type": "String"
+        },
+        {
+            "name": "COMPONENTS",
+            "desc": "组件列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "ID",
+                    "desc": "Id",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "ROLE",
+                    "desc": "组件角色",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "CPU架构",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "DEPLOY_DIR",
+                    "desc": "部署目录",
+                    "type": "String"
+                },
+                {
+                    "name": "DATA_DIR",
+                    "desc": "数据目录",
+                    "type": "String"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "RUN_ON",
+                    "desc": "所在OS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "OS类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "OS IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "OS_ID",
+                            "desc": "OS CMDB ID",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DATABASES",
+            "desc": "数据库列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "CHARSET",
+                    "desc": "字符集",
+                    "type": "String"
+                },
+                {
+                    "name": "COLLATION",
+                    "desc": "排序",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "USERS",
+                    "desc": "用户列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONNECTIONS",
+                    "desc": "访问入口列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SERVICE_NAME",
+                            "desc": "服务名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "USER_NAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MEMBER_PEER",
+            "desc": "关联成员地址",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "TIUP_IP",
+            "desc": "Tiup Ip",
+            "type": "String"
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
+        }
+    ]
+}

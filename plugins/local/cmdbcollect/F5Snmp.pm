@@ -35,29 +35,43 @@ sub new {
 
     my $vsOidDef = {
         VS => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',    #ltmVirtualServName
-            IP        => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',    #ltmVirtualServAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',    #ltmVirtualServPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'    #ltmVirtualServDefaultPool
+            NAME           => '1.3.6.1.4.1.3375.2.2.10.1.2.1.1',     #ltmVirtualServName
+            IP             => '1.3.6.1.4.1.3375.2.2.10.1.2.1.3',     #ltmVirtualServAddr
+            PORT           => '1.3.6.1.4.1.3375.2.2.10.1.2.1.6',     #ltmVirtualServPort
+            SNAT_POOL_NAME => '1.3.6.1.4.1.3375.2.2.10.1.2.1.31',    #ltmVirtualSerSnatPoolName
+            SNAT_POOL_TYPE => '1.3.6.1.4.1.3375.2.2.10.1.2.1.30',    #ltmVirtualSerSnatPoolName
+            POOL_NAME      => '1.3.6.1.4.1.3375.2.2.10.1.2.1.19'     #ltmVirtualServDefaultPool
         },
 
         POOL => {
-            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',     #ltmPoolName
-            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',    #ltmPoolMonitorRule
-            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'      #ltmPoolLbMode
+            NAME         => '1.3.6.1.4.1.3375.2.2.5.1.2.1.1',        #ltmPoolName
+            MONITOR_RULE => '1.3.6.1.4.1.3375.2.2.5.1.2.1.17',       #ltmPoolMonitorRule
+            LB_MODE      => '1.3.6.1.4.1.3375.2.2.5.1.2.1.2'         #ltmPoolLbMode
+        },
+        SNAT_POOL => {
+            NAME    => '1.3.6.1.4.1.3375.2.2.9.9.2.1.1',             #ltmPoolName
+            TYPE    => '1.3.6.1.4.1.3375.2.2.9.9.2.1.2',             #ltmPoolMonitorRule
+            ADDRESS => '1.3.6.1.4.1.3375.2.2.9.9.2.1.3'              #ltmPoolLbMode
         },
 
         MEMBER => {
-            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',       #ltmPoolMemberNodeName
-            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',        #ltmPoolMemberAddr
-            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',        #ltmPoolMemberPort
-            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'         #ltmPoolMemberPoolName
+            NAME      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.19',          #ltmPoolMemberNodeName
+            IP        => '1.3.6.1.4.1.3375.2.2.5.3.2.1.3',           #ltmPoolMemberAddr
+            PORT      => '1.3.6.1.4.1.3375.2.2.5.3.2.1.4',           #ltmPoolMemberPort
+            POOL_NAME => '1.3.6.1.4.1.3375.2.2.5.3.2.1.1'            #ltmPoolMemberPoolName
+        }
+    };
+	
+	my $portOidDef = {
+        PORT => {
+            NAME           => '1.3.6.1.2.1.2.2.1.2',     
+            MAC             => '1.3.6.1.2.1.2.2.1.6'      
         }
     };
 
     my $snatOidDef = {
         SNAT_IP => {
-            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                #ltmTransAddrAddr
+            IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                   #ltmTransAddrAddr
             }
 
             #1.3.6.1.4.1.3375.2.2.9.1.2.1.6  ltmSnatSnatpoolName
@@ -66,6 +80,7 @@ sub new {
 
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{vsOidDef}     = $vsOidDef;
+	$self->{portOidDef}     = $portOidDef;
     $self->{snatOidDef}   = $snatOidDef;
 
     my $version = $args{version};
@@ -144,10 +159,11 @@ sub _getVS {
     my $snmpHelper = $self->{snmpHelper};
     my $tableData  = $snmpHelper->getTable( $snmp, $vsOidDef );
 
-    my $vsData     = $tableData->{VS};
-    my $poolData   = $tableData->{POOL};
-    my $memberData = $tableData->{MEMBER};
-    my $snatIpData = $tableData->{SNAT_IP};
+    my $vsData       = $tableData->{VS};
+    my $poolData     = $tableData->{POOL};
+    my $memberData   = $tableData->{MEMBER};
+    my $snatPoolData = $tableData->{SNAT_POOL};
+    my $snatIpData   = $tableData->{SNAT_IP};
 
     my $poolMap = {};
     foreach my $poolInfo (@$poolData) {
@@ -166,16 +182,86 @@ sub _getVS {
         push( @$members, $memberInfo );
     }
 
+    # 新的数组，用于存储合并后的结果
+    my @snatPools;
+
+    # 用于存储 NAME 到地址和类型的映射
+    my %name_to_data;
+
+    # 遍历原始数组
+    foreach my $entry (@$snatPoolData) {
+        my $name    = $entry->{'NAME'};
+        my $address = { 'IP' => $snmpHelper->hex2ip( $entry->{'ADDRESS'} ), '_OBJ_CATEGORY' => 'LOADBALANCER', '_OBJ_TYPE' => 'LOADBALANCER-SNATIP' };
+        my $type    = $entry->{'TYPE'};
+
+        # 如果 NAME 已经存在于映射中，则将 ADDRESS 和 TYPE 添加到数组中
+        if ( exists $name_to_data{$name} ) {
+            push @{ $name_to_data{$name}->{'ADDRESSES'} }, $address;
+        }
+        else {
+            # 如果 NAME 还不存在于映射中，则创建新的数组
+            $name_to_data{$name} = {
+                'ADDRESSES' => [$address],
+                'TYPE'      => $type
+            };
+        }
+    }
+
+    # 构建合并后的数组
+    foreach my $name ( keys %name_to_data ) {
+        my $data = $name_to_data{$name};
+        push @snatPools, {
+            '_OBJ_CATEGORY' => 'LOADBALANCER',
+            '_OBJ_TYPE'     => 'LOADBALANCER-SNATPOOL',
+            'NAME'          => $name,
+            'MEMBER_LIST'   => $data->{'ADDRESSES'},
+
+            #'TYPE'      => $data->{'TYPE'}
+        };
+    }
+    my $snatPoolMap = {};
+    foreach my $snatPoolInfo (@snatPools) {
+        $snatPoolMap->{ $snatPoolInfo->{NAME} } = $snatPoolInfo;
+    }
+
+    #foreach my $a (@merged_array){
+    #    print Dumper($a);
+    #}
     foreach my $vsInfo (@$vsData) {
-        $vsInfo->{IP}   = $snmpHelper->hex2ip( $vsInfo->{IP} );
-        $vsInfo->{POOL} = $poolMap->{ $vsInfo->{POOL_NAME} };
+        $vsInfo->{IP}        = $snmpHelper->hex2ip( $vsInfo->{IP} );
+        $vsInfo->{POOL}      = $poolMap->{ $vsInfo->{POOL_NAME} };
+        $vsInfo->{SNAT_POOL} = $snatPoolMap->{ $vsInfo->{SNAT_POOL_NAME} };
     }
 
     foreach my $snatIpInfo (@$snatIpData) {
-        $snatIpInfo->{IP} = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
+        $snatIpInfo->{IP}            = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
+        $snatIpInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $snatIpInfo->{_OBJ_TYPE}     = 'LOADBALANCER-SNATIP';
     }
 
     return $vsData;
+}
+
+#get simple oid value
+sub _getPorts {
+	#print "---------------this is in _getPorts\n";
+    my ($self)       = @_;
+    my $snmp         = $self->{snmpSession};
+    my $portOidDef = $self->{portOidDef};
+
+    my $snmpHelper = $self->{snmpHelper};
+	my $tableData  = $snmpHelper->getTable( $snmp, $portOidDef );
+	#print "tableData is :\n";
+	#print Dumper($tableData);
+    my $portData = $tableData->{PORT};
+    #print "portData is :\n";
+	#print Dumper($portData);
+	foreach my $port (@$portData) {
+		$port->{MAC} = $snmpHelper->hex2mac($port->{MAC});
+		$port->{_OBJ_CATEGORY} = 'LOADBALANCER';
+		$port->{_OBJ_TYPE} = 'PORT';
+    }
+    return $portData;
 }
 
 sub _getSnatIp {
@@ -207,9 +293,12 @@ sub collect {
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
+	
+	my $portArray = $self->_getPorts();
+    $devInfo->{PORTS} = $portArray;
 
-    #my $snatArray = $self->_getSnatIp();
-    #$devInfo->{SNAT_IPS} = $snatArray;
+    my $snatArray = $self->_getSnatIp();
+    $devInfo->{SNAT_IPS} = $snatArray;
 
     return $devInfo;
 }

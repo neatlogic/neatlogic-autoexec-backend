@@ -28,11 +28,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -50,6 +45,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {

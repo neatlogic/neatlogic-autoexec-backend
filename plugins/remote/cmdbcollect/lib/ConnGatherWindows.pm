@@ -188,7 +188,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid , $isContainer ) = @_;
+    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
 
     my $cmd = "netstat -ano |";
     my ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
@@ -204,7 +204,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid , $isContainer ) = @_;
+    my ( $self, $pid, $isContainer ) = @_;
 
     my $cmd = "netstat -ano| findstr LISTENING |";
     my ( $status, $portsMap ) = $self->parseListenLines(
@@ -219,8 +219,8 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid , $isContainer) = @_;
-    my $lsnPortsMap = $self->getListenPorts($pid );
+    my ( $self, $pid, $isContainer ) = @_;
+    my $lsnPortsMap = $self->getListenPorts($pid);
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -229,9 +229,9 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap , $isContainer) = @_;
-    my $lsnPortsMap = $self->getListenPorts($pid , $isContainer);
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid ,$isContainer);
+    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
+    my $lsnPortsMap = $self->getListenPorts( $pid, $isContainer );
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid, $isContainer );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -239,6 +239,37 @@ sub getStatInfo {
     $connInfo->{STATS}  = $connStatInfo;
 
     return $connInfo;
+}
+
+#获取连入某进程监听IP端口的远端的IP地址列表
+sub getInboundIps {
+    my ( $self, $bindAddr, $pid ) = @_;
+
+    my @ips = ();
+
+    my $cmd            = "netstat -ano";
+    my $localFieldIdx  = 2;
+    my $remoteFieldIdx = 3;
+
+    my $pipe;
+    my $pipePid = open( $pipe, $cmd );
+    if ( defined($pipe) ) {
+        my $line;
+        while ( $line = <$pipe> ) {
+            my @fields     = split( /\s+/, $line );
+            my $localAddr  = $fields[$localFieldIdx];
+            my $remoteAddr = $fields[$remoteFieldIdx];
+            if ( $#fields < $remoteFieldIdx ) {
+                next;
+            }
+            if ( $localAddr =~ /$bindAddr/ and $remoteAddr =~ /^(.*):(\d+)$/ ) {
+                push( @ips, $1 );
+            }
+        }
+        close($pipe);
+    }
+
+    return \@ips;
 }
 
 1;

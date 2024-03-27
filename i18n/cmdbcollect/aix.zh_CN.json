@@ -33,6 +33,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "使用状态",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "可用性",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "响应时间",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "错误信息",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "OS主版本",
             "type": "String"
@@ -45,11 +65,6 @@
         {
             "name": "KERNEL_VERSION",
             "desc": "内核版本",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "使用状态",
             "type": "String"
         },
         {
@@ -78,21 +93,6 @@
             "name": "IS_VIRTUAL",
             "desc": "是否虚拟机",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "可用性",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "响应时间",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "错误信息",
-            "type": "String"
         },
         {
             "name": "RESOURCE_ID",
@@ -157,6 +157,255 @@
             "name": "MAX_USER_PROCESS_COUNT",
             "desc": "最大用户进程数",
             "type": "Float"
+        },
+        {
+            "name": "USERS",
+            "desc": "用户",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "UID",
+                    "desc": "UID",
+                    "type": "String"
+                },
+                {
+                    "name": "GID",
+                    "desc": "GID",
+                    "type": "String"
+                },
+                {
+                    "name": "HOME",
+                    "desc": "家目录",
+                    "type": "String"
+                },
+                {
+                    "name": "SHELL",
+                    "desc": "SHELL",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MOUNT_POINTS",
+            "desc": "挂载点",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "挂载点",
+                    "type": "String"
+                },
+                {
+                    "name": "DEVICE",
+                    "desc": "设备",
+                    "type": "String"
+                },
+                {
+                    "name": "FS_TYPE",
+                    "desc": "文件系统类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量",
+                    "type": "Float"
+                },
+                {
+                    "name": "AVAILABLE",
+                    "desc": "可用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已使用",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "INODE_USED_PCT",
+                    "desc": "Inode使用率%",
+                    "type": "Float"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_MOUNTED",
+            "desc": "挂载了NFS",
+            "type": "Float"
+        },
+        {
+            "name": "DISKS",
+            "desc": "磁盘",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "磁盘名",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "CAPACITY",
+                    "desc": "容量",
+                    "type": "Float"
+                },
+                {
+                    "name": "NOT_MOUNTED",
+                    "desc": "是否没挂载",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIT",
+                    "desc": "单位",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DNS_SERVERS",
+            "desc": "DNS服务器",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NTP_ENABLE",
+            "desc": "NTP启用",
+            "type": "Float"
+        },
+        {
+            "name": "NTP_SERVERS",
+            "desc": "NTP服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "VALUE",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NTP_OFFSET_SECS",
+            "desc": "NTP偏移秒数",
+            "type": "Float"
+        },
+        {
+            "name": "SSH_VERSION",
+            "desc": "SSH版本",
+            "type": "String"
+        },
+        {
+            "name": "OPENSSL_VERSION",
+            "desc": "OPENSSL版本",
+            "type": "String"
+        },
+        {
+            "name": "NIC_BOND",
+            "desc": "双网卡绑定",
+            "type": "Float"
+        },
+        {
+            "name": "ETH_INTERFACES",
+            "desc": "网卡",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "网卡名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "网卡地址",
+                    "type": "String"
+                },
+                {
+                    "name": "IS_VRITUAL",
+                    "desc": "是否虚拟",
+                    "type": "Int"
+                },
+                {
+                    "name": "STATUS",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "SPEED",
+                    "desc": "速率(Mbps)",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -403,297 +652,6 @@
             ]
         },
         {
-            "name": "MOUNT_POINTS",
-            "desc": "挂载点",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "挂载点",
-                    "type": "String"
-                },
-                {
-                    "name": "DEVICE",
-                    "desc": "设备",
-                    "type": "String"
-                },
-                {
-                    "name": "FS_TYPE",
-                    "desc": "文件系统类型",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "容量",
-                    "type": "Float"
-                },
-                {
-                    "name": "AVAILABLE",
-                    "desc": "可用",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED",
-                    "desc": "已使用",
-                    "type": "Float"
-                },
-                {
-                    "name": "USED_PCT",
-                    "desc": "使用率%",
-                    "type": "Float"
-                },
-                {
-                    "name": "INODE_USED_PCT",
-                    "desc": "Inode使用率%",
-                    "type": "Float"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "单位",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NFS_INFO",
-            "desc": "NFS信息",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PATH",
-                    "desc": "Nas 远端路径",
-                    "type": "String"
-                },
-                {
-                    "name": "AUTO_MOUNT",
-                    "desc": "是否自动挂载",
-                    "type": "Int"
-                },
-                {
-                    "name": "NFS_HOST",
-                    "desc": "NFS服务域名",
-                    "type": "String"
-                },
-                {
-                    "name": "NFS_IP",
-                    "desc": "NFS服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "LOCAL_PATH",
-                    "desc": "本地文件系统",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NFS_MOUNTED",
-            "desc": "挂载了NFS",
-            "type": "Float"
-        },
-        {
-            "name": "DISKS",
-            "desc": "磁盘",
-            "type": "JsonArray",
-            "subset": [
-	        {
-	            "name": "_OBJ_CATEGORY",
-	            "desc": "归属类型",
-	            "type": "String"
-	        },
-	        {
-	            "name": "_OBJ_TYPE",
-	            "desc": "OS类型",
-	            "type": "String"
-	        },
-                {
-                    "name": "NAME",
-                    "desc": "磁盘名",
-                    "type": "String"
-                },
-                {
-                    "name": "TYPE",
-                    "desc": "类型",
-                    "type": "String"
-                },
-                {
-                    "name": "CAPACITY",
-                    "desc": "容量",
-                    "type": "Float"
-                },
-                {
-                    "name": "NOT_MOUNTED",
-                    "desc": "是否没挂载",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIT",
-                    "desc": "单位",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "DNS_SERVERS",
-            "desc": "DNS服务器",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NTP_ENABLE",
-            "desc": "NTP启用",
-            "type": "Float"
-        },
-        {
-            "name": "NTP_SERVERS",
-            "desc": "NTP服务",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "VALUE",
-                    "desc": "IP",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "NTP_OFFSET_SECS",
-            "desc": "NTP偏移秒数",
-            "type": "Float"
-        },
-        {
-            "name": "SSH_VERSION",
-            "desc": "SSH版本",
-            "type": "String"
-        },
-        {
-            "name": "OPENSSL_VERSION",
-            "desc": "OPENSSL版本",
-            "type": "String"
-        },
-        {
-            "name": "NIC_BOND",
-            "desc": "双网卡绑定",
-            "type": "Float"
-        },
-        {
-            "name": "ETH_INTERFACES",
-            "desc": "网卡",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "网卡名",
-                    "type": "String"
-                },
-                {
-                    "name": "MAC",
-                    "desc": "网卡地址",
-                    "type": "String"
-                },
-                {
-                    "name": "IS_VRITUAL",
-                    "desc": "是否虚拟",
-                    "type": "Int"
-                },
-                {
-                    "name": "STATUS",
-                    "desc": "状态",
-                    "type": "String"
-                },
-                {
-                    "name": "SPEED",
-                    "desc": "速率(Mbps)",
-                    "type": "String"
-                },
-                {
-                    "name": "REMOTE_PORTS",
-                    "desc": "连接交换机端口",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属类别",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "交换机类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "DEV_NAME",
-                            "desc": "交换机名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "交换机管理Ip",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SN",
-                            "desc": "交换机序列号",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "端口名",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "USERS",
-            "desc": "用户",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "用户名",
-                    "type": "String"
-                },
-                {
-                    "name": "UID",
-                    "desc": "UID",
-                    "type": "String"
-                },
-                {
-                    "name": "GID",
-                    "desc": "GID",
-                    "type": "String"
-                },
-                {
-                    "name": "HOME",
-                    "desc": "家目录",
-                    "type": "String"
-                },
-                {
-                    "name": "SHELL",
-                    "desc": "SHELL",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "AUTO_RESTART",
             "desc": "自动重启",
             "type": "String"
@@ -827,6 +785,48 @@
                 {
                     "name": "BOARD_SERIAL",
                     "desc": "主板序列号",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "NFS_INFO",
+            "desc": "NFS信息",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PATH",
+                    "desc": "Nas 远端路径",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTO_MOUNT",
+                    "desc": "是否自动挂载",
+                    "type": "Int"
+                },
+                {
+                    "name": "NFS_HOST",
+                    "desc": "NFS服务域名",
+                    "type": "String"
+                },
+                {
+                    "name": "NFS_IP",
+                    "desc": "NFS服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCAL_PATH",
+                    "desc": "本地文件系统",
                     "type": "String"
                 }
             ]

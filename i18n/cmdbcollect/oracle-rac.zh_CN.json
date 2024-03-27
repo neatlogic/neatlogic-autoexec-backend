@@ -38,11 +38,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -60,6 +55,16 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
             "type": "String"
         },
         {
@@ -385,14 +390,16 @@
             "type": "String"
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
             "name": "SCAN_IPS",
             "desc": "Scan Ip列表",
-            "type": "array"
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "SCAN_LISTENERS",
@@ -412,17 +419,26 @@
                 {
                     "name": "SERVICE_NAMES",
                     "desc": "服务名列表",
-                    "type": "array"
-                },
-                {
-                    "name": "LISTEN_PORTS",
-                    "desc": "监听端口列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 },
                 {
                     "name": "LISTEN_ADDRS",
                     "desc": "监听地址列表",
-                    "type": "array"
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -444,11 +460,11 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
-            "type": "JsonArray",
+            "type": "Array",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "Name",
+                    "name": "_value",
+                    "desc": "Value",
                     "type": "String"
                 }
             ]
@@ -461,7 +477,14 @@
         {
             "name": "SLAVE_IPS",
             "desc": "其他IP",
-            "type": "array"
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "_batch_tag",

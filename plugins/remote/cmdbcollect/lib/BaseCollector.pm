@@ -25,6 +25,8 @@ sub new {
     $self->{verbose} = 0;
     my $objType = substr( $type, 0, -9 );
     $self->{pFinder}          = $pFinder;
+    $self->{inspect}          = $pFinder->{inspect};
+    $self->{connGather}       = $pFinder->{connGather};
     $self->{procInfo}         = $procInfo;
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultObjType}   = $objType;
@@ -42,7 +44,13 @@ sub new {
     }
 
     bless( $self, $type );
+    $self->init();
+
     return $self;
+}
+
+sub init {
+    my ($self) = @_;
 }
 
 #配置进程的filter，下面是配置例子
@@ -154,9 +162,10 @@ sub isMainProcess {
                 my $parentLsnInfo = $parentProcInfo->{CONN_INFO}->{LISTEN};
                 map { $parentLsnInfo->{$_} = 1 } keys( %{ $connInfo->{LISTEN} } );
                 my $parentPortBindInfo = $parentProcInfo->{CONN_INFO}->{PORT_BIND};
+
                 #map { $parentPortBindInfo->{$_} = 1 } keys( %{ $connInfo->{PORT_BIND} } );
                 my $portBindInfo = $connInfo->{PORT_BIND};
-                map { $parentPortBindInfo->{$_} = $portBindInfo->{$_} } keys( %$portBindInfo );
+                map { $parentPortBindInfo->{$_} = $portBindInfo->{$_} } keys(%$portBindInfo);
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
                 my $connGather = ConnGather->new();
@@ -341,40 +350,7 @@ sub getJavaAttrs {
 #           'PORT' => '80',
 #           'ERRORLOG' => 'logs/error_log',
 #           'PROC_INFO' => {
-#                            '%MEM' => '0.0',
-#                            'RSS' => '5196',
-#                            'TRS' => '485',
-#                            'TTY' => '?',
-#                            'RUSER' => 'root',
-#                            'RGROUP' => 'root',
-#                            'STAT' => 'Ss',
-#                            'COMMAND' => '/usr/sbin/httpd -DFOREGROUND',
-#                            'DRS' => '225830',
-#                            'OS_TYPE' => 'Linux',
-#                            'PGID' => '17228',
-#                            'USER' => 'root',
-#                            'PID' => '17228',
-#                            'GROUP' => 'root',
-#                            'CONN_INFO' => {
-#                                             'PEER' => [],
-#                                             'LISTEN' => [
-#                                                           '80'
-#                                                         ]
-#                                           },
-#                            'TIME' => '00:00:00',
-#                            'PPID' => '1',
-#                            '%CPU' => '0.0',
-#                            'ELAPSED' => '02:12:33',
-#                            'HOST_NAME' => 'centos7base',
-#                            'MANAGE_IP' => '',
-#                            '_OBJ_TYPE' => 'Apache',
-#                            'ENVIRONMENT' => {
-#                                               'NOTIFY_SOCKET' => '/run/systemd/notify',
-#                                               'LANG' => 'C',
-#                                               'PATH' => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
-#                                             },
-#                            'COMM' => 'httpd',
-#                            'MAJFL' => '0'
+#                          ...
 #                          },
 #           'SERVER_MPM' => 'prefork',
 #           'PORTS' => [
@@ -400,7 +376,68 @@ sub collect {
 
     my $appInfo          = {};
     my $procInfo         = $self->{procInfo};
+    # procInfo的数据
+    # {
+    # "%MEM" : "18.3",
+    # "MGMT_IP" : "192.168.1.140",
+    # "RUSER" : "neat",
+    # "RGROUP" : "neat",
+    # "COMMAND" : "/usr/local/java/jdk1.8.0_152/bin/java -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager org.apache.catalina.startup.Bootstrap start",
+    # "OS_TYPE" : "Linux",
+    # "MGMT_PORT" : 3939,
+    # "PGID" : "1544",
+    # "USER" : "neat",
+    # "EXECUTABLE_FILE" : "/usr/local/java/jdk1.8.0_152/bin/java",
+    # "_OBJ_TYPE" : "Tomcat",
+    # "PID" : "1566",
+    # "GROUP" : "neat",
+    # "CONN_INFO" : {
+    #     "PORT_BIND" : {
+    #         "8040" : {
+    #             "EXPLICIT_IP" : {},
+    #             "EXPLICIT_IPV6" : {},
+    #             "IMPLICIT_IP" : {
+    #             "192.168.1.140" : 1,
+    #             "172.17.0.1" : 1
+    #             },
+    #             "IMPLICIT_IPV6" : {}
+    #         },
+    #         "8081" : {
+    #             "EXPLICIT_IP" : {},
+    #             "EXPLICIT_IPV6" : {},
+    #             "IMPLICIT_IP" : {
+    #             "192.168.1.140" : 1,
+    #             "172.17.0.1" : 1
+    #             },
+    #             "IMPLICIT_IPV6" : {}
+    #         }
+    #     },
+    #     "LISTEN" : {
+    #         "127.0.0.1:8015" : 0,
+    #         "8040" : 0,
+    #         "8081" : 0,
+    #         "8045" : 0
+    #     }
+    # },
+    # "PPID" : "1",
+    # "TIME" : "00:28:20",
+    # "ELAPSED" : "5-12:22:29",
+    # "%CPU" : "0.3",
+    # "HOST_NAME" : "dev-env-140",
+    # "ENVIRONMENT" : {
+    #     "HOME" : "/home/neat",
+    #     "JAVA_HOME" : "/usr/local/java/jdk1.8.0_152",
+    #     "LANG" : "en_US.UTF-8",
+    #     "USER" : "neat"
+    # },
+    # "COMM" : "java",
+    # "OS_ID" : 1067868140453909
+    # }
+
     my $matchedProcsInfo = $self->{matchedProcsInfo};
+    #matchedProcsInfo: 前面的处理过程中已经找到的matched的进程信息的HashMap，以进程的pid作为key
+    #                  当遇到多进程应用时需要通过其父进程或者group进程进行判断是否是主进程时需要用到
+    #                  $self->isMainProcess()就是用这个数据来计算的
 
     #TODO: 各个不同应用的信息采集逻辑
     return $appInfo;

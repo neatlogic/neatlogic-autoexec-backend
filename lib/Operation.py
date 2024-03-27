@@ -263,14 +263,22 @@ class Operation:
                         nodeEnv=nodeEnv,
                     )
                     accountDesc = optValue.split("/")
-                    retObj = {}
                     try:
                         username = accountDesc[0]
                         accountId = accountDesc[1]
                         protocol = accountDesc[2]
-                        password = self.context.serverAdapter.getAccount(
+                        accountInfo = self.context.serverAdapter.getAccount(
                             resourceId, host, port, username, protocol, accountId
                         )
+
+                        password = "unknown"
+                        protocolPort = 0
+                        if isinstance(accountInfo, str):
+                            password = accountInfo
+                        else:
+                            password = accountInfo.get("passwordCipher")
+                            protocolPort = accountInfo.get("protocolPort", 0)
+
                         if password[0:11] == "{ENCRYPTED}":
                             password = Utils._rc4_decrypt_hex(
                                 self.context.passKey, password[11:]
@@ -295,7 +303,7 @@ class Operation:
                                     password = plainPwd
                             except:
                                 pass
-                        optValue = username + "/" + password
+                        optValue = str(protocolPort) + ":" + username + "/" + password
                     except Exception as err:
                         self.writeLog("WARN: {}\n".format(str(err)))
 

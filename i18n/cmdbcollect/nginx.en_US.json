@@ -33,6 +33,26 @@
             "type": "Int"
         },
         {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
             "name": "MAJOR_VERSION",
             "desc": "Major Version",
             "type": "String"
@@ -40,11 +60,6 @@
         {
             "name": "VERSION",
             "desc": "Version",
-            "type": "String"
-        },
-        {
-            "name": "STATE",
-            "desc": "Use State",
             "type": "String"
         },
         {
@@ -73,21 +88,6 @@
             "name": "UPTIME",
             "desc": "Up Time(Seconds)",
             "type": "Int"
-        },
-        {
-            "name": "AVAILABILITY",
-            "desc": "Availability flag",
-            "type": "Int"
-        },
-        {
-            "name": "RESPONSE_TIME",
-            "desc": "Response Time",
-            "type": "Float"
-        },
-        {
-            "name": "ERROR_MESSAGE",
-            "desc": "Error Message",
-            "type": "String"
         },
         {
             "name": "LISTEN",
@@ -211,6 +211,23 @@
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
+        },
+        {
+            "name": "MAIN_ENV",
+            "desc": "Main Process Environment",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "CPU_USAGE",
@@ -360,23 +377,6 @@
                     "name": "SEND_QUEUED_RATE",
                     "desc": "Send Queued Rate",
                     "type": "Float"
-                }
-            ]
-        },
-        {
-            "name": "MAIN_ENV",
-            "desc": "Main Process Environment",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "Value",
-                    "type": "String"
                 }
             ]
         },
@@ -720,6 +720,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "WORKER_PROCESSES",
+            "desc": "worker processes",
+            "type": "String"
         },
         {
             "name": "_batch_tag",

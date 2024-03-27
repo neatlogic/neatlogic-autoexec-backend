@@ -18,8 +18,18 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "数据库类型",
+            "type": "String"
+        },
+        {
             "name": "NAME",
             "desc": "服务名",
+            "type": "String"
+        },
+        {
+            "name": "DB_NAME",
+            "desc": "库名",
             "type": "String"
         },
         {
@@ -38,16 +48,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "服务IP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -61,6 +61,26 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "服务IP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "使用内存(MB)",
+            "type": "Float"
         },
         {
             "name": "LISTEN_STATS",
@@ -80,6 +100,11 @@
             ]
         },
         {
+            "name": "CACHED",
+            "desc": "缓存(MB)",
+            "type": "Float"
+        },
+        {
             "name": "CAN_IP_FLOAT",
             "desc": "主IP浮动",
             "type": "Int"
@@ -90,9 +115,14 @@
             "type": "String"
         },
         {
-            "name": "DB_NAME",
-            "desc": "库名",
-            "type": "String"
+            "name": "DB_DIRECTORY",
+            "desc": "库目录",
+            "type": "Float"
+        },
+        {
+            "name": "HWM_USED",
+            "desc": "使用物理内存(MB)",
+            "type": "Float"
         },
         {
             "name": "INSTANCES",
@@ -142,19 +172,68 @@
             ]
         },
         {
-            "name": "PRIMARY_IP",
-            "desc": "主IP",
-            "type": "String"
-        },
-        {
             "name": "SERVICE_ADDR",
             "desc": "服务地址",
             "type": "String"
         },
         {
-            "name": "_APP_TYPE",
-            "desc": "数据库类型",
-            "type": "String"
+            "name": "TABLESPACES",
+            "desc": "表空间",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "大小(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "AUTO_EXTEND",
+                    "desc": "自动扩展",
+                    "type": "String"
+                },
+                {
+                    "name": "USED",
+                    "desc": "已用(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(GB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE_PCT",
+                    "desc": "空闲%",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DATA_FILES",
+                    "desc": "数据文件列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "DATA_FILE_PATH",
+                            "desc": "路径",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DATA_FILE_SIZE",
+                            "desc": "大小(GB)",
+                            "type": "Float"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "_batch_tag",

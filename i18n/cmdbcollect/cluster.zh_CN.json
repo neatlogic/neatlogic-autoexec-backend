@@ -31,16 +31,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "VIP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "端口",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "可用性",
             "type": "Int"
@@ -54,6 +44,21 @@
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "主IP(非LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
         },
         {
             "name": "ACCESS_ENDPOINT",
@@ -78,12 +83,14 @@
         {
             "name": "MEMBER_PEER",
             "desc": "关联成员地址",
-            "type": "array"
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "主IP(非LB)",
-            "type": "String"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "_batch_tag",

@@ -4,7 +4,7 @@
     "docroot": null,
     "collection_label": "App Cluster",
     "filter": {
-        "_OBJ_TYPE": "LoadBalancer-VS"
+        "_OBJ_TYPE": "LOADBALANCER-VS"
     },
     "fields": [
         {
@@ -28,16 +28,6 @@
             "type": "String"
         },
         {
-            "name": "VIP",
-            "desc": "VIP",
-            "type": "String"
-        },
-        {
-            "name": "PORT",
-            "desc": "Port",
-            "type": "Int"
-        },
-        {
             "name": "AVAILABILITY",
             "desc": "Availability flag",
             "type": "Int"
@@ -51,6 +41,21 @@
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
             "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
         },
         {
             "name": "ACCESS_ENDPOINT",
@@ -112,16 +117,18 @@
         {
             "name": "MEMBER_PEER",
             "desc": "Members Addrs",
-            "type": "array"
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "Name",
             "desc": "Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "PRIMARY_IP",
-            "desc": "Primary IP(Not LB)",
             "type": "String"
         },
         {

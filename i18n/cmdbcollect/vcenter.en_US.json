@@ -38,11 +38,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -60,6 +55,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
@@ -253,6 +253,11 @@
                                 {
                                     "name": "VM_ID",
                                     "desc": "Virtual System ID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UUID",
+                                    "desc": "Virtual UUID",
                                     "type": "String"
                                 },
                                 {

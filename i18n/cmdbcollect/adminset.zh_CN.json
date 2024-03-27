@@ -1,0 +1,71 @@
+{
+    "label": "管理集",
+    "collection": "COLLECT_ADMINSET",
+    "docroot": null,
+    "collection_label": "管理集",
+    "filter": {},
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "管理集名",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "唯一名",
+            "type": "String"
+        },
+        {
+            "name": "MEMBERS",
+            "desc": "成员",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "应用类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "服务端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
+        }
+    ]
+}
