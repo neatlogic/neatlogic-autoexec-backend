@@ -610,14 +610,7 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "Service Name List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                }
-            ]
+            "type": "Array"
         },
         {
             "name": "SGA_MAX_SIZE",

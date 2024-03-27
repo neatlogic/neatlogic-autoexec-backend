@@ -610,14 +610,7 @@
         {
             "name": "SERVICE_NAMES",
             "desc": "服务名列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                }
-            ]
+            "type": "Array"
         },
         {
             "name": "SGA_MAX_SIZE",
