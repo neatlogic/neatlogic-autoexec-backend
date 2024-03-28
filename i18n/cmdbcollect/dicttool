@@ -18,7 +18,7 @@ def usage():
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
     print("         --mode <mode> eg : truncate or append ,default value truncate.\n")
     print(
-        " --action [beautify|remove|append|savetodb|dropcollection｜cleancollection] \n"
+        " --action [beautify|remove|append|savetodb|dropcollection｜clearcollection] \n"
     )
     print("Examples:")
     print("Remove field:")
@@ -33,7 +33,7 @@ def usage():
     print("dicttool --lang en_US --action savetodb")
     print("dicttool --lang zh_CN --action savetodb")
     print("dicttool--action dropcollection")
-    print("dicttool--action cleancollection")
+    print("dicttool--action clearcollection")
     exit(1)
 
 
