@@ -978,7 +978,7 @@ sub collectOsInfo {
 sub collectOsPerfInfo {
     my ( $self, $osInfo ) = @_;
     if ( $self->{inspect} == 1 ) {
-        if ( not defined( $osInfo->{CPU_LOGIC_CORES} or $osInfo->{CPU_LOGIC_CORES} == 0 ) ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES}) or $osInfo->{CPU_LOGIC_CORES} == 0 ) {
             $osInfo->{CPU_LOGIC_CORES} = 1;
         }
 
