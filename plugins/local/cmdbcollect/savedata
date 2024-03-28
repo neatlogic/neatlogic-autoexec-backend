@@ -22,6 +22,7 @@ def getObjCatPkDef(objCat, customPkDef):
         "INS": ["MGMT_IP", "PORT"],
         "DB": ["PRIMARY_IP", "PORT", "NAME"],
         "CLUSTER": ["PRIMARY_IP", "PORT", "NAME"],
+        "ADMINSET": ["UNIQUE_NAME"],
         "DBINS": ["MGMT_IP", "PORT", "INSTANCE_NAME"],
         "OS": ["MGMT_IP"],
         "HOST": ["MGMT_IP", "BOARD_SERIAL"],
