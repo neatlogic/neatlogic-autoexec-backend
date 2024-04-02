@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "VIRT_PLATFORM",
+            "desc": "Virtual Platform",
+            "type": "String"
+        },
+        {
             "name": "MGMT_IP",
             "desc": "Managment IP",
             "type": "String"
@@ -26,6 +31,11 @@
             "name": "MGMT_PORT",
             "desc": "Managment Port",
             "type": "Int"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
+            "type": "String"
         },
         {
             "name": "STATE",
@@ -45,11 +55,6 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
-            "type": "String"
-        },
-        {
-            "name": "VERSION",
-            "desc": "Version",
             "type": "String"
         },
         {

@@ -180,7 +180,7 @@ sub collect {
             push(
                 @dbUsers,
                 {
-                    _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE     => 'DB-USER',
                     NAME          => $user
                 }
@@ -190,6 +190,19 @@ sub collect {
 
         my @dbs = ();
         foreach my $dbName (@dbNames) {
+            my @dbConns     = ();
+            foreach my $user (@users) {
+                push(
+                    @dbConns,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-CONNECT',
+                        SERVICE_NAME  => $dbName,
+                        USER_NAME     => $user
+                    }
+                );
+            }
+
             push(
                 @dbs,
                 {
@@ -202,6 +215,7 @@ sub collect {
                     SSL_PORT      => undef,
                     SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
                     USERS         => \@dbUsers,
+                    CONNECTIONS   => \@dbConns,
                     INSTANCES     => [
                         {
                             _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
