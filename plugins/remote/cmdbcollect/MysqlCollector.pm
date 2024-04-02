@@ -363,7 +363,7 @@ sub collect {
                     @dbConns,
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                        _OBJ_TYPE     => 'DB-CONNECTION',
+                        _OBJ_TYPE     => 'DB-CONNECT',
                         SERVICE_NAME  => $dbName,
                         USER_NAME     => $dbUser
                     }

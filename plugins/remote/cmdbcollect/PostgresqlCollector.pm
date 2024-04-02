@@ -39,7 +39,7 @@ sub init {
     return;
 }
 
-sub getUser {
+sub getUsers {
     my ( $self, $dbName ) = @_;
 
     my $objCat = 'DBINS';
@@ -183,6 +183,19 @@ sub collect {
     my @dbs     = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{datname};
+        my @dbconns     = ();
+        foreach my $user (@$dbUsers) {
+            push(
+                @dbconns,
+                {
+                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE      => 'DB-CONNECT',
+                    USER_NAME      => $user>{NAME},
+                    SERVICE_NAME   => $dbName
+                }
+            );
+        }
+
         push(
             @dbs,
             {
@@ -194,6 +207,7 @@ sub collect {
                 PORT          => $port,
                 SSL_PORT      => undef,
                 SERVICE_ADDR  => "$vip:$port",
+                CONNCTIONS    => \@dbconns,
                 INSTANCES     => [
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DBINS'),

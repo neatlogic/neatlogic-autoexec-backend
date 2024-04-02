@@ -554,7 +554,7 @@ sub collectCDB {
         foreach my $userInfo (@$insUsers) {
             my $connInfo = {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                _OBJ_TYPE     => 'DB_CONNECT',
+                _OBJ_TYPE     => 'DB-CONNECT',
                 SERVICE_NAME  => $serviceInfo->{SERVICE_NAME},
                 USER_NAME     => $userInfo->{USER_NAME}
             };

@@ -575,6 +575,7 @@ class FusionComputer:
         data['MGMT_PORT'] = self.port
         data['_OBJ_CATEGORY'] = 'VIRTUALIZED'
         data['_OBJ_TYPE'] = 'FUSIONCOMPUTER'
+        data['VIRT_PLATFORM'] = 'fusionCompute'
         data['PK'] = ["MGMT_IP"]
 
         #数据中心(资源池)

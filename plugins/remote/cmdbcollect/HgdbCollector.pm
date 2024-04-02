@@ -34,7 +34,7 @@ sub getConfig {
     };
 }
 
-sub getUser {
+sub getUsers {
     my ($self) = @_;
 
     my $postgresql = $self->{postgresql};
@@ -160,9 +160,22 @@ sub collect {
         verbose => $self->{isVerbose}
     );
 
+    my $dbUsers = $self->getUsers();
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{datname};
+        my @dbconns     = ();
+        foreach my $user (@$dbUsers) {
+            push(
+                @dbconns,
+                {
+                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE      => 'DB-CONNECT',
+                    USER_NAME      => $user>{NAME},
+                    SERVICE_NAME   => $dbName
+                }
+            );
+        }
         push(
             @dbNames,
             {
@@ -174,6 +187,7 @@ sub collect {
                 PORT          => $port,
                 SSL_PORT      => undef,
                 SERVICE_ADDR  => "$vip:$port",
+                CONNCTIONS    => \@dbconns,
                 INSTANCES     => [
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
@@ -182,7 +196,8 @@ sub collect {
                         MGMT_IP       => $postgresqlInfo->{MGMT_IP},
                         PORT          => $postgresqlInfo->{PORT}
                     }
-                ]
+                ],
+               USERS => $dbUsers
             }
         );
     }

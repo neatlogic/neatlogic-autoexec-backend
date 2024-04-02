@@ -133,6 +133,7 @@ if __name__ == "__main__":
     result["MGMT_PORT"] = port
     result["_OBJ_CATEGORY"] = "VIRTUALIZED"
     result["_OBJ_TYPE"] = "VCENTER"
+    result["VIRT_PLATFORM"] = "vmware"
     result["PK"] = ["MGMT_IP"]
     data.append(result)
 

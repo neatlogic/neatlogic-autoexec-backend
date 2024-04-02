@@ -202,6 +202,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "型号",
+            "type": "String"
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
