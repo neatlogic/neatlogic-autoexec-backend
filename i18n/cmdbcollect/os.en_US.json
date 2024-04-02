@@ -162,6 +162,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -284,6 +294,43 @@
                     "name": "UNIT",
                     "desc": "Unit",
                     "type": "String"
+                },
+                {
+                    "name": "REMOTE_LUN",
+                    "desc": "LUN in Storage",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Storage Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Storage Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Storage SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "WWN",
+                            "desc": "LUN WWN",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },
@@ -679,9 +726,46 @@
                     "type": "String"
                 },
                 {
-                    "name": "LOCAL_PATH",
-                    "desc": "Local File System",
+                    "name": "MOUNT_POINT",
+                    "desc": "Mount Point",
                     "type": "String"
+                },
+                {
+                    "name": "REMOTE_VOLUME",
+                    "desc": "NAS Volume",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "OS Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VOLUME_NAME",
+                            "desc": "Volume Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "NAS IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Nas Dev Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "Nas SN",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
         },

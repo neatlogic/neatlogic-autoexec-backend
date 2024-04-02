@@ -210,6 +210,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属集合",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "IP",
                                     "desc": "IP Value",
                                     "type": "String"
