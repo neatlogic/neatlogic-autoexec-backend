@@ -152,8 +152,12 @@ sub isMainProcess {
     my $ppid = $procInfo->{PPID};
     my $pgid = $procInfo->{PGID};
 
+    my @possibleParentProcInfos = ( $matchedProcsInfo->{$ppid} );
+    if ( $pgid ne $pid ) {
+        push( @possibleParentProcInfos, $matchedProcsInfo->{$pgid} );
+    }
     #如果父进程或者GroupId（事实上就是进程组的第一个父亲进程）也是httpd，那么当前进程就不是主进程
-    for my $parentProcInfo ( $matchedProcsInfo->{$ppid}, $matchedProcsInfo->{$pgid} ) {
+    for my $parentProcInfo (@possibleParentProcInfos) {
         if ( defined($parentProcInfo) ) {
             if ( $parentProcInfo->{COMMAND} eq $procInfo->{COMMAND} ) {
                 $isMainProcess = 0;
@@ -374,8 +378,9 @@ sub collect {
         return undef;
     }
 
-    my $appInfo          = {};
-    my $procInfo         = $self->{procInfo};
+    my $appInfo  = {};
+    my $procInfo = $self->{procInfo};
+
     # procInfo的数据
     # {
     # "%MEM" : "18.3",
@@ -435,6 +440,7 @@ sub collect {
     # }
 
     my $matchedProcsInfo = $self->{matchedProcsInfo};
+
     #matchedProcsInfo: 前面的处理过程中已经找到的matched的进程信息的HashMap，以进程的pid作为key
     #                  当遇到多进程应用时需要通过其父进程或者group进程进行判断是否是主进程时需要用到
     #                  $self->isMainProcess()就是用这个数据来计算的
