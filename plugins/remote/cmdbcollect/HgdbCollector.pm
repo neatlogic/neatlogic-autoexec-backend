@@ -171,7 +171,7 @@ sub collect {
                 {
                      _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE      => 'DB-CONNECT',
-                    USER_NAME      => $user>{NAME},
+                    USER_NAME      => $user->{NAME},
                     SERVICE_NAME   => $dbName
                 }
             );
