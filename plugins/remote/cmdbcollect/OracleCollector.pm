@@ -297,12 +297,15 @@ sub getTcpInfo {
             push( @listeners, @$lsnrs );
         }
 
-        push( @services, {
-            _OBJ_CATEGORY => CollectObjCat->get('DB'),
-            _OBJ_TYPE => 'ORACLE-SERVICE',
-            SERVICE_NAME => $svcName,
-            VIP => undef
-        } );
+        push(
+            @services,
+            {
+                _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                _OBJ_TYPE     => 'ORACLE-SERVICE',
+                SERVICE_NAME  => $svcName,
+                VIP           => undef
+            }
+        );
     }
     $insInfo->{SERVICES} = \@services;
 
@@ -482,6 +485,7 @@ sub collectCDB {
         map { $dbInfo->{$_} = $dbInRacInfo->{$_} } keys(%$dbInRacInfo);
     }
     map { $dbInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
+    delete( $dbInfo->{DATABASES} );
 
     $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
     $dbInfo->{_OBJ_TYPE}     = 'Oracle-DB';
@@ -1680,10 +1684,10 @@ sub collect {
 
         my @databases = ();
         $insInfo->{DATABASES} = \@databases;
-        
+
         my $CDBS = $self->collectCDB($insInfo);
         if ( defined($CDBS) and scalar(@$CDBS) > 0 ) {
-            push(@databases, @$CDBS);
+            push( @databases, @$CDBS );
             foreach my $CDB (@$CDBS) {
                 push( @collectSet, $CDB );
             }
@@ -1694,7 +1698,7 @@ sub collect {
             my $PDBS = $self->collectPDB($insInfo);
 
             if ( defined($PDBS) ) {
-                push(@databases, @$PDBS);
+                push( @databases, @$PDBS );
                 foreach my $PDB (@$PDBS) {
                     push( @collectSet, $PDB );
                 }
