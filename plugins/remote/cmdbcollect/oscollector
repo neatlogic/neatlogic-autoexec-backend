@@ -553,8 +553,16 @@ sub doDetailCollect {
         else {
             #如果出现多个appInfo同一个进程号的情况，则是但进程多对象的情况，需要处理PID为不一样的PID
             if ( defined( $appsMap->{ $procInfo->{PID} } ) ) {
-                $procInfo->{PID}  = $procInfo->{PID} . '-' . $idx;
-                $procInfo->{PPID} = $procInfo->{PPID} . '-' . $idx;
+                my $realPid  = $procInfo->{REAL_PID};
+                my $realPpid = $procInfo->{REAL_PPID};
+                if ( not defined($realPid) ) {
+                    $realPid               = $procInfo->{PID};
+                    $realPpid              = $procInfo->{PPID};
+                    $procInfo->{REAL_PID}  = $realPid;
+                    $procInfo->{REAL_PPID} = $realPpid;
+                }
+                $procInfo->{PID}  = $procInfo->{REAL_PID} . '-' . $idx;
+                $procInfo->{PPID} = $procInfo->{REAL_PPID} . '-' . $idx;
             }
             $appsMap->{ $procInfo->{PID} } = $appInfo;
         }
