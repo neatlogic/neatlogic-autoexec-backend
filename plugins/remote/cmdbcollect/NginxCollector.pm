@@ -10,6 +10,7 @@ package NginxCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
+use Socket;
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -23,6 +24,11 @@ sub getConfig {
         psAttrs  => { COMM => 'nginx' },
         envAttrs => {}
     };
+}
+
+sub init {
+    my ($self) = @_;
+    $self->{serverListenMap} = {};
 }
 
 sub getMasterProc {
@@ -139,567 +145,626 @@ sub collect {
     $self->{'configPath'} = $configPath;
     $self->{'configFile'} = $configFile;
 
-    my $MGMT_PORT = $procInfo->{MGMT_PORT};
-    my $MGMT_IP   = $procInfo->{MGMT_IP};
+    my $cfg       = Config::Neat->new();
+    my $data      = $cfg->parse_file_with_include( $configFile, 1 );
+    my $mainBlock = $self->getConfigMap($data);
 
-    my $cfg  = Config::Neat->new();
-    my $data = $cfg->parse_file($configFile);
-
-    my $worker_connections   = $self->getStringValue( $data->{'events'}, 'worker_connections', '1024' );
-    my $worker_processes     = $self->getStringValue( $data,             'worker_processes',   '1' );
-    my $http                 = $data->{'http'};
-    my $default_type         = $self->getStringValue( $http, 'default_type' );
-    my $client_max_body_size = $self->getStringValue( $http, 'client_max_body_size', '1m' );
-    my $sendfile             = $self->getStringValue( $http, 'sendfile',             'on' );
-    my $tcp_nopush           = $self->getStringValue( $http, 'tcp_nopush',           'off' );
-    my $gzip                 = $self->getStringValue( $http, 'gzip',                 'off' );
-    my $upstream             = $self->getUpstream( $http, 'upstream' );
-
-    my $stream          = $data->{'stream'};
-    my $stream_upstream = $self->getUpstream( $stream, 'upstream' );
-
-=pod
-    my $nginxInfo = {};
-    $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-    $nginxInfo->{SERVER_NAME}   = 'nginx';
+    my $nginxInfo = $self->getNginxInsInfo($mainBlock);
     $nginxInfo->{EXE_PATH}     = $exePath;
     $nginxInfo->{BIN_PATH}     = $binPath;
     $nginxInfo->{INSTALL_PATH} = $basePath;
     $nginxInfo->{VERSION}      = $version;
-    $nginxInfo->{PREFIX}       = $prefix;
-    $nginxInfo->{CONFIG_PATH}  = $configPath;
-    $nginxInfo->{WORKER_CONNECTIONS}  = $worker_connections ;
-    $nginxInfo->{WORKER_PROCESSES}  = $worker_processes ;
-    $nginxInfo->{DEFAULT_TYPE}  = $default_type ;
-    $nginxInfo->{CLIENT_MAX_BODY_SIZE}  = $client_max_body_size ;
-    $nginxInfo->{SENDFILE}  = $sendfile ;
-    $nginxInfo->{TCP_NOPUSH}  = $tcp_nopush ;
-    $nginxInfo->{GZIP}  = $gzip ;
-    $nginxInfo->{UPSTREAM}  = $upstream ;
-=cut
-
-    my $variable = $self->getSetVariable( $http, 'set' );
-
-    my @clusterCollect = ();
-    my $clusterMember  = {};
-    my $includes       = $self->getIncludeContents( $http, 'server' );
-    my $serverRs       = $self->transObjRef( $http->{'server'}, $includes );
-
-    my $stream_includes = $self->getIncludeContents( $stream, 'server' );
-    my $stream_serverRs = $self->transObjRef( $stream->{'server'}, $stream_includes );
-
-    #整体配置文件未定义server，全部都是include的情况
-    if ( scalar(@$serverRs) == 0 ) {
-        $serverRs = $self->transObjRef( $http, $includes );
+    if ( $version =~ /(\d+)/ ) {
+        $nginxInfo->{MAJOR_VERSION} = "Nginx$1";
     }
 
-    if ( scalar(@$stream_serverRs) == 0 ) {
-        $stream_serverRs = $self->transObjRef( $stream, $includes );
-    }
+    $nginxInfo->{PREFIX}      = $prefix;
+    $nginxInfo->{CONFIG_PATH} = $configPath;
 
-    #如果主配置和include配置都未定义server，直接退出
-    if ( scalar(@$serverRs) == 0 and scalar(@$stream_serverRs) == 0 ) {
-        return undef;
-    }
+    my @serverInfos     = ();
+    my $httpServerInfos = $self->getHttpServers($mainBlock);
+    $nginxInfo->{HTTP_SERVERS} = $httpServerInfos;
+    my $streamServerInfos = $self->getStreamServers($mainBlock);
+    $nginxInfo->{STREAM_SERVERS} = $streamServerInfos;
 
-    my @serverCollect = ();
-    for my $server (@$serverRs) {
+    push( @serverInfos, @$httpServerInfos );
+    push( @serverInfos, @$streamServerInfos );
 
-        #扁平化处理
-        my $ins = {};
-        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-        $ins->{_MULTI_PROC}   = 1;
-        $ins->{SERVER_NAME}   = 'nginx';
-        $ins->{EXE_PATH}      = $exePath;
-        $ins->{BIN_PATH}      = $binPath;
-        $ins->{INSTALL_PATH}  = $basePath;
-        $ins->{VERSION}       = $version;
-
-        if ( $version =~ /(\d+)/ ) {
-            $ins->{MAJOR_VERSION} = "Nginx$1";
-        }
-
-        $ins->{PREFIX}               = $prefix;
-        $ins->{CONFIG_PATH}          = $configPath;
-        $ins->{WORKER_CONNECTIONS}   = $worker_connections;
-        $ins->{WORKER_PROCESSES}     = $worker_processes;
-        $ins->{DEFAULT_TYPE}         = $default_type;
-        $ins->{CLIENT_MAX_BODY_SIZE} = $client_max_body_size;
-        $ins->{SENDFILE}             = $sendfile;
-        $ins->{TCP_NOPUSH}           = $tcp_nopush;
-        $ins->{GZIP}                 = $gzip;
-        $ins->{UPSTREAM}             = $upstream;
-
-        $ins->{'SERVICE_NAME'} = $self->getStringValue( $server, 'server_name' );
-        my $listen = $self->getStringValue( $server, 'listen' );
-        my $port;
-        if ( $listen =~ /(\d+)/ ) {
-            $port = $1;
-        }
-        if ( $listen eq '' or $port eq '' ) {
-            next;
-        }
-        $ins->{'SERVICE_PORT'} = $port;
-        $ins->{PORT}           = $port;
-        $ins->{ADMIN_PORT}     = $port;
-
-        my $type = 'http';
-        if ( $listen =~ /ssl/ ) {
-            $type = 'https';
-        }
-        $ins->{'SERVICE_TYPE'}      = $type;
-        $ins->{'CHARSET'}           = $self->getStringValue( $server, 'charset' );
-        $ins->{'KEEPALIVE_TIMEOUT'} = $self->getStringValue( $server, 'keepalive_timeout', '75' );
-        my $serverVariable = $self->getSetVariable( $server, 'set', $variable );
-        $ins->{'LOCATION'} = $self->getLocation( $server, 'location', $ins, $serverVariable );
-
-        $ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, $upstream, $serverVariable );
-        push( @serverCollect, $ins );
-
-        $clusterMember->{"$MGMT_IP:$port"} = $ins->{'MEMBER_PEER'};
-    }
-
-    for my $server (@$stream_serverRs) {
-
-        #扁平化处理
-        my $ins = {};
-        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-        $ins->{_OBJ_TYPE}     = 'NginxServer';
-        $ins->{'SERVER_NAME'} = $self->getStringValue( $server, 'server_name' );
-        my $listen = $self->getStringValue( $server, 'listen' );
-        my $port;
-        if ( $listen =~ /(\d+)/ ) {
-            $port = $1;
-        }
-        if ( $listen eq '' or $port eq '' ) {
-            next;
-        }
-        $ins->{'SERVER_PORT'} = $port;
-
-        #$ins->{PORT}           = $port;
-        #$ins->{ADMIN_PORT}     = $port;
-
-        my $type = 'stream';
-        $ins->{'SERVER_TYPE'}       = $type;
-        $ins->{'CHARSET'}           = $self->getStringValue( $server, 'charset' );
-        $ins->{'ACCESS_LOG'}        = $self->getStringValue( $server, 'access_log' );
-        $ins->{'ERROR_LOG'}         = $self->getStringValue( $server, 'error_log' );
-        $ins->{'KEEPALIVE_TIMEOUT'} = $self->getStringValue( $server, 'keepalive_timeout', '75' );
-        my $serverVariable = $self->getSetVariable( $server, 'set', $variable );
-
-        #$ins->{'LOCATION'} = $self->getLocation( $server, 'location', $ins, $serverVariable );
-        my $proxy_pass = $self->getStringValue( $server, 'proxy_pass' );
-        $ins->{'PROXY_PASS'} = $proxy_pass;
-
-        for my $ups (@$stream_upstream) {
-            my $name = $ups->{'NAME'};
-            if ( $proxy_pass =~ $name ) {
-                $ins->{'BACKEND'} = $ups;
-                last;
-            }
-        }
-
-        #$ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, @upstream, $serverVariable );
-        #$ins->{'MEMBER_PEER'} = $self->getMemberPeer( $ins, $upstream, $serverVariable );
-        push( @serverCollect, $ins );
-    }
-
-    #$nginxInfo->{SERVERS} = \@serverCollect;
-
-    #实例集群
-    while ( my ( $k, $v ) = each %$clusterMember ) {
-        my $target         = $k;
-        my $clusterMembers = $v;
-        my $objCat         = CollectObjCat->get('CLUSTER');
-        my $clusterInfo    = {
-            _OBJ_CATEGORY => $objCat,
-            _OBJ_TYPE     => 'NginxCluster',
-            MEMBERS       => []
-        };
-
-        $clusterInfo->{MGMT_IP}          = substr( $k, 0, index( $k, ':' ) );
-        $clusterInfo->{PORT}             = substr( $k, index( $k, ':' ) + 1, length($k) );
-        $clusterInfo->{UNIQUE_NAME}      = "Nginx:$target";
-        $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
-        $clusterInfo->{CLUSTER_SOFTWARE} = 'Nginx';
-        $clusterInfo->{CLUSTER_VERSION}  = $version;
-        $clusterInfo->{NAME}             = "$target";
-        $clusterInfo->{MEMBER_PEER}      = $clusterMembers;
-        push( @clusterCollect, $clusterInfo );
-    }
-
-    return ( @serverCollect, @clusterCollect );
+    return ( $nginxInfo, @serverInfos );
 }
 
-sub getIncludeFiles {
-    my ( $self, $data, $key ) = @_;
-    my $confPath = $self->{'configPath'};
-    my @files    = ();
-    if ( exists( $data->{$key} ) ) {
-        my $includes = $data->{$key};
-        for my $include (@$includes) {
-            my $newValue;
-            if ( ref($include) =~ /Array/ ) {
-                for my $v (@$include) {
-                    if ( $v !~ /mime.types/ and $v =~ /\.conf/ ) {
-                        my $file;
-                        if ( $v =~ /^\// and $v =~ /\*/ ) {
-                            $file = $v;
+sub resolveVariable {
+    my ( $self, $value, $variableMap ) = @_;
+    foreach my $varName ( keys(%$variableMap) ) {
+        my $varValue = $variableMap->{$varName};
+        $value =~ s/\Q$varName\E/$varValue/g;
+    }
+    return $value;
+}
+
+sub getConfigMap {
+    my ( $self, $confData, $variableMap, $upstreamMap ) = @_;
+
+    #把nginx的配置，包含include的配置内容，转换为map格式
+    #对于这几个指令进行把多个配置转换成map的处理：upstream、set、server
+    #upstream.map：配置名作为key
+    #set.map: 变量名作为key，变量名带符号'$'，例如：$my_var
+    #server.map: 每个server_name作为key
+    #set variable 的作用域处理
+    #如过存在配置值引用了variable，同时根据作用域进行resolve
+    my $myVariableMap = {};
+
+    #把上层的variable map复制下来
+    if ( defined($variableMap) ) {
+        map { $myVariableMap->{$_} = $variableMap->{$_} } ( keys(%$variableMap) );
+    }
+
+    my $myUpstreamMap = {};
+    if ( defined($variableMap) ) {
+        map { $myUpstreamMap->{$_} = $upstreamMap->{$_} } ( keys(%$upstreamMap) );
+    }
+
+    my $mainBlock = {};
+    while ( my ( $confKey, $confVal ) = each(%$confData) ) {
+        my $valType = ref($confVal);
+        if ( $valType =~ /HASH/ ) {
+            $mainBlock->{$confKey} = $self->getConfigMap( $confVal, $myVariableMap );
+            if ( $confKey eq 'server' ) {
+                my $serverMap   = {};
+                my $serverNames = $confVal->{'server_name'};
+                if ( not defined($serverNames) ) {
+                    $serverNames = [''];
+                }
+                foreach my $itemKey (@$serverNames) {
+                    if ( defined($itemKey) ) {
+                        if ( not defined( $serverMap->{$itemKey} ) ) {
+
+                            #server的配置应该先配置优先
+                            $serverMap->{$itemKey} = $self->getConfigMap( $confVal, $myVariableMap );
                         }
-                        elsif ( -f $v ) {
-                            $file = $v;
-                        }
-                        else {
-                            $file = File::Spec->catfile( $confPath, $v );
-                        }
-                        $file =~ s/;//;
-                        push( @files, $file );
                     }
                 }
+                $mainBlock->{"server.map"} = $serverMap;
             }
             else {
-                if ( $include !~ /mime.types/ and $include =~ /\.conf/ ) {
-                    my $file;
-                    if ( $include =~ /^\// and $include =~ /\*/ ) {
-                        $file = $include;
-                    }
-                    elsif ( -f $include ) {
-                        $file = $include;
-                    }
-                    else {
-                        $file = File::Spec->catfile( $confPath, $include );
-                    }
-                    $file =~ s/;//;
-                    push( @files, $file );
+                my $itemKey = $confVal->{''};
+                my $itemMap = {};
+                if ( defined($itemKey) ) {
+                    $itemKey                     = $itemKey->as_string();
+                    $itemMap->{$itemKey}         = $self->getConfigMap( $confVal, $myVariableMap );
+                    $mainBlock->{"$confKey.map"} = $itemMap;
                 }
             }
         }
-    }
-    my @confFiles = ();
-    foreach my $file (@files) {
-        if ( $file =~ /\*/ ) {
-            my @rexfiles = glob("$file");
-            foreach my $conf (@rexfiles) {
-                if ( -e $conf ) {
-                    push( @confFiles, $conf );
+        elsif ( $valType =~ /Array/ ) {
+            my $firstItemType = ref( $$confVal[0] );
+            my $itemsCount    = scalar(@$confVal);
+            my $lastVal       = $$confVal[-1];
+
+            if ( $firstItemType eq '' ) {
+
+                #值数组元素是简单字串的情况
+                my @simpleValues = ();
+                if ( $itemsCount == 0 ) {
+                    $mainBlock->{$confKey} = '';
                 }
-            }
-        }
-        else {
-            if ( -e $file ) {
-                push( @confFiles, $file );
-            }
-        }
-    }
-    return \@confFiles;
-}
+                elsif ( $itemsCount == 1 ) {
 
-sub getIncludeContents {
-    my ( $self, $data, $key ) = @_;
-    my $files = $self->getIncludeFiles( $data, 'include' );
-    if ( scalar(@$files) > 0 ) {
-        my @insCollections = ();
-        for my $file (@$files) {
-            my $cfg     = Config::Neat->new();
-            my $newdata = $cfg->parse_file($file);
+                    #如果只有一个值，则把值转为字符串
+                    my $subVal = $confVal->as_string();
+                    $mainBlock->{$confKey} = $self->resolveVariable( $subVal, $myVariableMap );
+                }
+                elsif ( $confKey eq 'set' ) {
 
-            my $datacollects;
-            if ( exists( $newdata->{'server'} ) ) {
-                $datacollects = $newdata->{'server'};
-            }
-            elsif ( exists( $newdata->{'location'} ) ) {
-                $datacollects = $newdata->{'location'};
-            }
-            if ( defined($datacollects) ) {
-                if ( ref($datacollects) eq 'HASH' ) {
-                    push( @insCollections, $newdata->{'server'} );
+                    #如果是set指令，建立一个新的块set.map, key是set的变量名，譬如：$my_var
+                    my $setMap = $mainBlock->{'set.map'};
+                    if ( not defined($setMap) ) {
+                        $setMap = {};
+                        $mainBlock->{'set.map'} = $setMap;
+                    }
+                    my $subVal = $$confVal[1];
+                    $setMap->{ $$confVal[0] }        = $subVal;
+                    $myVariableMap->{ $$confVal[0] } = $subVal;
                 }
                 else {
-                    for my $ins (@$datacollects) {
-                        push( @insCollections, $ins );
+                    #其他设置为字符串数组
+                    foreach my $subVal (@$confVal) {
+                        $subVal = $self->resolveVariable( $subVal, $myVariableMap );
+                        push( @simpleValues, $subVal );
                     }
+                    $mainBlock->{$confKey} = \@simpleValues;
                 }
             }
-        }
-        return \@insCollections;
-    }
-    else {
-        return undef;
-    }
-}
+            elsif ( $firstItemType =~ /Array/ ) {
 
-sub transObjRef {
-    my ( $self, $target, $include ) = @_;
-    my @list = ();
-    if ( not defined($target) ) {
-        return \@list;
-    }
-    if ( ref($target) eq 'HASH' ) {
-        push( @list, $target );
-    }
-    else {
-        @list = @$target;
-    }
-
-    if ( defined($include) ) {
-        if ( ref($include) eq 'HASH' ) {
-            push( @list, $include );
-        }
-        else {
-            for my $inc (@$include) {
-                push( @list, $inc );
-            }
-        }
-    }
-    return \@list;
-}
-
-sub getStringValue {
-    my ( $self, $data, $key, $defaultValue ) = @_;
-    my $newValue;
-    if ( not defined($defaultValue) ) {
-        $defaultValue = '';
-    }
-    if ( exists( $data->{$key} ) ) {
-        my $value = $data->{$key};
-        for my $v (@$value) {
-
-            #配置文件内重复定义相同的key,取最后一个
-            #listen       [::]:10034 ssl;
-            #listen       10034 ssl;
-            if ( ref($v) =~ /Array/ ) {
-                $v = @$v[ scalar(@$v) - 1 ];
-            }
-
-            if ( $v ne ';' ) {
-                $newValue = $newValue . ' ' . $v;
-            }
-        }
-        $newValue =~ s/^\s+|\s+$//g;
-        $newValue =~ s/;//;
-    }
-    else {
-        $newValue = $defaultValue;
-    }
-    return $newValue;
-}
-
-#后续添加的相同变量，以最后添加顺序为准（如http、server内定义了相同变量，以server的作用域为准）
-sub getSetVariable {
-    my ( $self, $data, $key, $frontVariable ) = @_;
-    my $variables = {};
-    if ( not defined($frontVariable) ) {
-        $variables = {};
-    }
-    else {
-        $variables = $frontVariable;
-    }
-    if ( exists( $data->{$key} ) ) {
-        my $value = $data->{$key};
-        if ( not defined($value) or scalar($value) == 0 or ref($value) =~ /HASH/ ) {
-            return $variables;
-        }
-        else {
-            my $common_array = 1;
-            for my $ins (@$value) {
-                if ( ref($ins) =~ /Array/ and scalar(@$ins) > 1 ) {
-                    $common_array = 0;
-                    my $k = @$ins[0];
-                    my $v = @$ins[1];
-                    $k =~ s/^\s+|\s+$//g;
-                    $k =~ s/;//;
-                    $v =~ s/^\s+|\s+$//g;
-                    $v =~ s/;//;
-                    $variables->{$k} = $v;
+                #值数组元素还是数组
+                my @itemValues = ();
+                foreach my $subVal (@$confVal) {
+                    $subVal = $self->resolveVariable( $subVal->as_string(), $myVariableMap );
+                    push( @itemValues, $subVal );
                 }
+                $mainBlock->{$confKey} = \@itemValues;
             }
-            if ( $common_array == 1 ) {
-                my $k = @$value[0];
-                my $v = @$value[1];
-                $variables->{$k} = $v;
-            }
-        }
-    }
-    return $variables;
-}
+            elsif ( $firstItemType =~ /HASH/ ) {
 
-sub getUpstream {
-    my ( $self, $data, $key ) = @_;
-    my @upstreamList = ();
-    if ( exists( $data->{$key} ) ) {
-        my $upsRs = $self->transObjRef( $data->{$key} );
-        for my $ups (@$upsRs) {
-            my $upstream = {};
-            $upstream->{'_OBJ_CATEGORY'} = "INS";
-            $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
-            $upstream->{'NAME'}          = $self->getStringValue( $ups, '' );
-            my @upsList = ();
-            my $srRs    = $ups->{'server'};
-            if ( not defined($srRs) ) {    #只定义upstream未定义server
-                return \@upstreamList;
-            }
-            elsif ( scalar(@$srRs) > 1 ) {    #正常定义
-                for my $sr (@$srRs) {
-                    my $target = undef;
-                    if ( ref($sr) eq "ARRAY" and scalar(@$sr) > 0 ) {
-                        $target = @$sr[0];
+                #值数组元素是配置块
+                my @embededBlockConfs = ();
+                my $embededBlockMap   = {};
+                foreach my $item (@$confVal) {
+                    my $itemKey = $item->{''};
+                    if ( $confKey eq 'server' ) {
+
+                        #server块的标记名是server_name
+                        my $serverNames = $item->{'server_name'};
+                        foreach $itemKey (@$serverNames) {
+                            if ( defined($itemKey) ) {
+                                if ( not defined( $embededBlockMap->{$itemKey} ) ) {
+
+                                    #server的配置应该先配置优先
+                                    $embededBlockMap->{$itemKey} = $self->getConfigMap( $item, $myVariableMap );
+                                }
+                            }
+                            push( @embededBlockConfs, $self->getConfigMap($item), $myVariableMap );
+                        }
                     }
                     else {
-                        $target = $sr;
+                        if ( defined($itemKey) ) {
+                            $embededBlockMap->{ $itemKey->as_string() } = $self->getConfigMap( $item, $myVariableMap );
+                        }
+                        push( @embededBlockConfs, $self->getConfigMap( $item, $myVariableMap ) );
                     }
-                    if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
-                        $target = $1;
-                        my ( $t_ip, $t_port ) = split /[:]/, $target;
-                        $upstream->{'BACKEND_IP'}   = $t_ip;
-                        $upstream->{'BACKEND_PORT'} = $t_port;
-
-                        #push( @upsList, $t_ip);
-                        #push( @upsList, $t_port);
-                        push( @upstreamList, $upstream );
-                    }
-                    push( @upsList, $target );
-
-                    #}
                 }
+                $mainBlock->{$confKey} = \@embededBlockConfs;
+                $mainBlock->{"$confKey.map"} = $embededBlockMap;
             }
-            else {    #upstream 只定义一个server
-                if ( scalar(@$srRs) > 0 ) {
-                    my $target = @$srRs[0];
-                    if ( $target =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
-                        $target = $1;
-                        my ( $t_ip, $t_port ) = split /[:]/, $target;
-                        $upstream->{'BACKEND_IP'}   = $t_ip;
-                        $upstream->{'BACKEND_PORT'} = $t_port;
-
-                        #push( @upsList, $t_ip);
-                        #push( @upsList, $t_port);
-                    }
-                    push( @upsList, $target );
-                    $upstream->{'TARGET'} = \@upsList;
-                    push( @upstreamList, $upstream );
-                }
+            else {
+                print("WARN: Unexpected data type:$$firstItemType of config item $confKey.\n");
             }
-
-            #$upstream->{'TARGET'} = \@upsList;
-            #push( @upstreamList, $upstream );
         }
     }
-    return \@upstreamList;
+    return $mainBlock;
 }
 
-sub getLocation {
-    my ( $self, $data, $key, $serverIns, $frontVariable ) = @_;
-    my @lcList = ();
-    if ( exists( $data->{$key} ) ) {
-        my $includes = $self->getIncludeContents( $data, 'location' );
-        my $location = $self->transObjRef( $data->{$key}, $includes );
-        for my $lc (@$location) {
-            my $name = $self->getStringValue( $lc, '' );
-            if ( $name =~ '50x' or $name =~ /status/ ) {
+sub getBlockSettingMap4Name {
+    my ( $self, $mainBlock, $blockConfMap, $confName ) = @_;
+
+    my $mainSettingMap = $mainBlock->{"$confName.map"};
+    if ( not defined($mainSettingMap) ) {
+        $mainSettingMap = {};
+    }
+    my $blockSettingMap = $blockConfMap->{"$confName.map"};
+    if ( not defined($blockSettingMap) ) {
+        $blockSettingMap = {};
+    }
+
+    #把主配置中的upstream合并到server层的upstream map中
+    map { $blockSettingMap->{$_} = $mainSettingMap->{$_} } ( keys(%$mainSettingMap) );
+
+    return $blockSettingMap;
+}
+
+sub getProxyPassMembers {
+    my ( $self, $proxyPassVal, $upstreamsMap, $serverListenPorts ) = @_;
+
+    #serverListenPorts: server监听的所有端口，对于upstream里的成员server没有配置端口的情况，则使用server listen的端口作为成员端口
+    #如server listen多个端口，则变为多个server成员
+    my @members = ();
+    my $matched = 0;
+    foreach my $upstreamName ( keys(%$upstreamsMap) ) {
+        if ( $proxyPassVal =~ /\b$upstreamName\b/ ) {
+
+            #如果匹配upstream的名称，则从upstream中找server member
+            $matched = 1;
+            my $upstreamServersList = $upstreamsMap->{$upstreamName}->{server};
+
+            # if(ref($upstreamServersList) ne 'ARRAY'){
+            #   #如果只有一个server，返回不是数组，转换成数组
+            #   $upstreamServersList = [$upstreamServersList];
+            # }
+
+            foreach my $serverAddr (@$upstreamServersList) {
+                $serverAddr =~ s/\s+.*$//g;
+                my ( $host, $port ) = split( ':', $serverAddr, 2 );
+                my $ipAddr = gethostbyname($host);
+                if ( defined($ipAddr) ) {
+                    $host = inet_ntoa($ipAddr);
+                    if ( $host eq '127.0.0.1' ) {
+                        $host = $self->{VIP};
+                    }
+                    if ( not defined($port) ) {
+                        foreach my $listenPort (@$serverListenPorts) {
+                            push( @members, "$host:$listenPort" );
+                        }
+                    }
+                    else {
+                        push( @members, "$host:$port" );
+                    }
+                }
+            }
+        }
+    }
+
+    if ( $matched == 0 ) {
+
+        #如果不匹配upstream的名称，则从proxy_pass本身抽取server member
+        if ( $proxyPassVal =~ /:\/\/([^\/]+)/ ) {
+
+            #对于http的情况（在http块中）
+            my $backendAddr = $1;
+            my ( $host, $port ) = split( ':', $backendAddr, 2 );
+            my $ipAddr = gethostbyname($host);
+            if ( defined($ipAddr) ) {
+                $host = inet_ntoa($ipAddr);
+                if ( $host eq '127.0.0.1' ) {
+                    $host = $self->{VIP};
+                }
+                push( @members, "$host:$port" );
+            }
+        }
+        elsif ( $proxyPassVal =~ /^[\w\-\.]+$/ ) {
+
+            #非http的情况（在stream块中）
+            my $backendAddr = $proxyPassVal;
+            my ( $host, $port ) = split( ':', $backendAddr, 2 );
+            my $ipAddr = gethostbyname($host);
+            if ( defined($ipAddr) ) {
+                $host = inet_ntoa($ipAddr);
+                if ( $host eq '127.0.0.1' ) {
+                    $host = $self->{VIP};
+                }
+                push( @members, "$host:$port" );
+            }
+        }
+        else {
+            print("WARN: Can not parse proxy_pass config:$proxyPassVal.\n");
+        }
+    }
+
+    return \@members;
+}
+
+sub hasListened {
+    my ( $self, $serverName, $listenIp, $listenPort ) = @_;
+
+    #因为nginx的server通过listen和server_name配置来实现virtual server
+    #所以可能存在重复配置的可能，如果同一个server_name，监听不同的端口则当成两个server
+    my $serverListenMap = $self->{serverListenMap};
+    my $listenedMap     = $serverListenMap->{$serverName};
+    if ( not defined($listenedMap) ) {
+        $listenedMap = {};
+        $serverListenMap->{$serverName} = $listenedMap;
+    }
+
+    my $listened = 0;
+
+    if ( defined( $listenedMap->{0} ) ) {
+        $listened = 1;
+    }
+    elsif ( defined( $listenedMap->{"*:$listenPort"} ) or defined( $listenedMap->{"0.0.0.0:$listenPort"} ) ) {
+        $listened = 1;
+    }
+    elsif ( defined( $listenedMap->{"$listenIp:0"} ) ) {
+        $listened = 1;
+    }
+    elsif ( defined( $listenedMap->{"$listenIp:$listenPort"} ) ) {
+        $listened = 1;
+    }
+
+    $listenedMap->{"$listenIp:$listenPort"} = 1;
+    return $listened;
+}
+
+sub getServerListenPorts {
+    my ( $self, $serverName, $mainBlock, $serverBlock ) = @_;
+
+    #mainBlock:主配置块
+    #serverBlock：server配置块
+    #liistenedMap：其他server已经listen的地址
+
+    my @listenPorts = ();
+    my @listenAddrs = ();
+    my $listenConfs = $serverBlock->{listen};
+    if ( not defined($listenConfs) ) {
+        $listenConfs = $mainBlock->{listen};
+    }
+
+    if ( not defined($listenConfs) ) {
+        $listenConfs = [];
+    }
+    elsif ( ref($listenConfs) ne 'ARRAY' ) {
+        $listenConfs = [$listenConfs];
+    }
+
+    my @listenConfAddrs = ();
+    foreach my $listenConf (@$listenConfs) {
+        if ( ref($listenConf) eq 'ARRAY' ) {
+            push( @listenConfAddrs, @$listenConf );
+        }
+        else {
+            push( @listenConfAddrs, $listenConf );
+        }
+    }
+
+    foreach my $listenAddr (@listenConfAddrs) {
+        if ( $listenAddr =~ /((\S*):)?(\d*)/g ) {
+            my $listenIp = $2 || '';
+            if ( $listenIp eq 'localhost' ) {
+                $listenIp = '127.0.0.1';
+            }
+            my $listenPort = int($3);
+
+            if ( $listenPort == 0 ) {
+
+                #TODO: 需要再确认一下liisten是否可以配置域名
+                if ( $listenAddr =~ /^\w+$/ ) {
+                    next;
+                }
+            }
+
+            if ( $self->hasListened( $serverName, $listenIp, $listenPort ) ) {
+
+                #如果在其他Server被监听过，则忽略
                 next;
             }
-            my $ins = {};
-            $ins->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-            $ins->{_OBJ_TYPE}     = 'NginxLocation';
-            $ins->{'NAME'}        = $self->getStringValue( $lc, '' );
-            my $status = 'off';
-            if ( $ins =~ /status/ ) {
-                $status = 'on';
+
+            push( @listenPorts, $listenPort );
+
+            if ( $listenIp ne '' ) {
+                push( @listenAddrs, "$listenIp:$listenPort" );
             }
-
-            #$serverIns->{'SERVER_STATUS'} = $status;
-
-            #location自定义变量
-            my $variables  = $self->getSetVariable( $lc, 'set', $frontVariable );
-            my $proxy_pass = $self->getStringValue( $lc, 'proxy_pass' );
-            if ( defined($proxy_pass) and $proxy_pass ne '' ) {
-                $proxy_pass = $self->getProxyPass( $proxy_pass, $variables );
+            else {
+                push( @listenAddrs, $listenPort );
             }
-
-            $ins->{'PROXY_PASS'} = $proxy_pass;
-            $ins->{'ALIAS'}      = $self->getStringValue( $lc, 'alias' );
-            $ins->{'ROOT'}       = $self->getStringValue( $lc, 'root' );
-            push( @lcList, $ins );
         }
     }
-    return \@lcList;
+
+    my @sortedListenPorts  = sort(@listenPorts);
+    my @sortedListetnAddrs = sort(@listenAddrs);
+
+    return \@sortedListenPorts;
 }
 
-sub getMemberPeer {
-    my ( $self, $httpIns, $upstream, $variables ) = @_;
-    my @memberpeer = ();
-    my $location   = $httpIns->{'LOCATION'};
-    for my $lc (@$location) {
-        my $isUps      = 0;
-        my $proxy_pass = $lc->{'PROXY_PASS'};
-        if ( not defined($proxy_pass) or $proxy_pass eq '' ) {
-            next;
-        }
+sub getPrimaryIpAndPort {
+    my ( $self, $serverName, $listenPorts ) = @_;
 
-        #upstream负载均衡变量
-        for my $ups (@$upstream) {
-            my $name = $ups->{'NAME'};
-            if ( $proxy_pass =~ $name ) {
-                $isUps = 1;
-                $lc->{BACKEND} = $ups;
-                my $target = $ups->{'TARGET'};
-                for my $t (@$target) {
-                    push( @memberpeer, $t );
+    my $serverListenMap = $self->{serverListenMap};
+    my $listenedMap     = $serverListenMap->{$serverName};
+
+    my $pFinder  = $self->{pFinder};
+    my $procInfo = $self->{procInfo};
+    my $connInfo = $procInfo->{CONN_INFO};
+
+    my $isListenAllIp    = 0;
+    my @explictListenIps = ();
+    my $port             = $$listenPorts[0];
+    foreach my $listenAddr ( keys(%$listenedMap) ) {
+        if ( $listenAddr =~ /(\S+):\d+/ ) {
+            my $explictListenIp = $1;
+            if ( $explictListenIp ne '*' and $explictListenIp ne '0.0.0.0' ) {
+                push( @explictListenIps, $1 );
+            }
+            else {
+                $isListenAllIp = 1;
+            }
+        }
+    }
+
+    my $vip;
+    if ( $isListenAllIp == 0 ) {
+        my @possibleVips = ();
+        if (@explictListenIps) {
+            @possibleVips = sort(@explictListenIps);
+            foreach my $possibleVip (@possibleVips) {
+                foreach my $listenAddr ( keys(%$listenedMap) ) {
+                    if ( $listenAddr =~ /$possibleVip:$port/ ) {
+                        $vip = $possibleVip;
+                        last;
+                    }
                 }
-
-                #last;
-            }
-        }
-
-        #自定义变量处理
-        if ( $isUps == 0 ) {
-            $proxy_pass = $self->getProxyPass( $proxy_pass, $variables );
-        }
-
-        #静态文本
-        if ( $isUps == 0 ) {
-            $proxy_pass = $self->getProxyPass($proxy_pass);
-        }
-        if ( defined($proxy_pass) ) {
-            if ( $proxy_pass =~ /((\d{1,3}.){3}\d{1,3}:\d+)/ ) {
-                push( @memberpeer, $1 );
+                if ( defined($vip) ) {
+                    last;
+                }
             }
         }
     }
 
-    my $valid      = {};
-    my @newMempeer = ();
-    for my $peer (@memberpeer) {
-        if ( not defined( $valid->{$peer} ) ) {
-            push( @newMempeer, $peer );
-            $valid->{$peer} = 1;
-        }
+    if ( not defined($vip) ) {
+        $vip = $pFinder->predictBizIp( $connInfo, $port );
     }
-    @memberpeer = undef;
-    return \@newMempeer;
+
+    return $vip;
 }
 
-sub getProxyPass {
-    my ( $self, $proxy_pass, $variables ) = @_;
+sub getValueWithInherit {
+    my $self       = shift(@_);
+    my $confName   = shift(@_);
+    my @confBlocks = (@_);
 
-    #变量替换
-    if ( defined($variables) ) {
-        while ( my ( $k, $v ) = each %$variables ) {
-            if ( $proxy_pass =~ /\Q$k\E/ ) {
-                $proxy_pass =~ s/\Q$k\E/$v/g;
-            }
+    my $confVal;
+    foreach my $confBlock (@confBlocks) {
+        my $confVal = $confBlock->{$confName};
+        if ( defined($confVal) ) {
+            last;
         }
     }
 
-    #本机ip
-    if ( $proxy_pass =~ /127.0.0.1/ or $proxy_pass =~ /localhost/ ) {
-        my $mgmt_ip = $self->{procInfo}->{MGMT_IP};
-        $proxy_pass =~ s/127.0.0.1/$mgmt_ip/g;
-        $proxy_pass =~ s/localhost/$mgmt_ip/g;
+    return $confVal;
+}
+
+sub getHttpServers {
+    my ( $self, $mainBlock ) = @_;
+    my @serverInfos = ();
+
+    my $httpBlock = $mainBlock->{http};
+    if ( not defined($httpBlock) ) {
+        return \@serverInfos;
     }
 
-    return $proxy_pass;
+    my $serversMap = $httpBlock->{'server.map'};
+    if ( not defined($serversMap) ) {
+        return \@serverInfos;
+    }
 
+    my $upstreamsMap = $self->getBlockSettingMap4Name( $mainBlock, $httpBlock, 'upstream' );
+    $httpBlock->{'upstream.map'} = $upstreamsMap;
+
+    my $serverList = $httpBlock->{server};
+    foreach my $serverBlock (@$serverList) {
+        my @serverNames = split( /\s+/, $serverBlock->{server_name} );
+        foreach my $serverName (@serverNames) {
+            my $myListenPorts = $self->getServerListenPorts( $serverName, $mainBlock, $serverBlock );
+
+            if ( not @$myListenPorts ) {
+                next;
+            }
+
+            my $upstreamsMap = $self->getBlockSettingMap4Name( $httpBlock, $serverBlock, 'upstream' );
+            my $locationsMap = $self->getBlockSettingMap4Name( $httpBlock, $serverBlock, 'location' );
+
+            my $listen     = $serverBlock->{listen} || '';
+            my $serverType = 'http';
+            if ( $listen =~ /ssl/i ) {
+                $serverType = 'https';
+            }
+
+            my ( $vip, $port ) = $self->getPrimaryIpAndPort( $serverName, $myListenPorts );
+
+            my @serverMembers = ();
+            my @locationInfos = ();
+            my $serverInfo    = {
+                _OBJ_CATEGORY     => 'CLUSTER',
+                _OBJ_TYPE         => 'Nginx-Server',
+                APP_TYPE          => 'HTTP',
+                NAME              => $serverName,
+                UNIQUE_NAME       => "$serverName-$vip;$port",
+                VIP               => $vip,
+                PRIMARY_IP        => $vip,
+                PORT              => $port,
+                SERVICE_PORTS     => $myListenPorts,
+                SERVER_TYPE       => $serverType,
+                CHARSET           => $self->getValueWithInherit( 'charset',           $serverBlock, $httpBlock, $mainBlock ),
+                KEEPALIVE_TIMEOUT => $self->getValueWithInherit( 'keepalive_timeout', $serverBlock, $httpBlock, $mainBlock ),
+                MEMBER_PEER       => \@serverMembers,
+                ACCESS_LOG        => $self->getValueWithInherit( 'access_log', $serverBlock, $httpBlock, $mainBlock ),
+                ERROR_LOG         => $self->getValueWithInherit( 'error_log',  $serverBlock, $httpBlock, $mainBlock ),
+                LOCATIONS         => \@locationInfos
+            };
+            while ( my ( $uri, $locationBlock ) = each(%$locationsMap) ) {
+                my $proxyPassVal     = $locationBlock->{proxy_pass};
+                my $proxyPassMembers = [];
+                if ( defined($proxyPassVal) ) {
+                    $proxyPassMembers = $self->getProxyPassMembers( $proxyPassVal, $upstreamsMap, $myListenPorts );
+                    push( @serverMembers, @$proxyPassMembers );
+                }
+                push(
+                    @locationInfos,
+                    {
+                        _OBJ_CATEGORY => 'INS',
+                        _OBJ_TYPE     => 'Nginx-Http-Location',
+                        NAME          => $uri,
+                        PROXY_PASS    => $proxyPassVal,
+                        MEMBER_PEER   => $proxyPassMembers
+                    }
+                );
+            }
+
+            push( @serverInfos, $serverInfo );
+        }
+    }
+
+    return \@serverInfos;
+}
+
+sub getStreamServers {
+    my ( $self, $mainBlock ) = @_;
+
+    my @serverInfos = ();
+
+    my $streamBlock = $mainBlock->{stream};
+    if ( not defined($streamBlock) ) {
+        return \@serverInfos;
+    }
+
+    my $serversMap = $streamBlock->{'server.map'};
+    if ( not defined($serversMap) ) {
+        return \@serverInfos;
+    }
+
+    my $upstreamsMap = $self->getBlockSettingMap4Name( $mainBlock, $streamBlock, 'upstream' );
+    $streamBlock->{'upstream.map'} = $upstreamsMap;
+
+    my $pFinder  = $self->{pFinder};
+    my $procInfo = $self->{procInfo};
+    my $connInfo = $procInfo->{CONN_INFO};
+
+    while ( my ( $serverName, $serverBlock ) = each(%$serversMap) ) {
+        my $myListenPorts = $self->getServerListenPorts( $serverName, $mainBlock, $serverBlock );
+        my $upstreamsMap  = $self->getBlockSettingMap4Name( $streamBlock, $serverBlock, 'upstream' );
+        my @serverMembers = ();
+
+        my ( $vip, $port ) = $self->getPrimaryIpAndPort( $serverName, $myListenPorts );
+
+        my $serverInfo = {
+            _OBJ_CATEGORY => 'CLUSTER',
+            _OBJ_TYPE     => 'Nginx-Stream',
+            APP_TYPE      => 'Stream',
+            NAME          => $serverName,
+            UNIQUE_NAME   => "$serverName-$vip;$port",
+            VIP           => $vip,
+            PRIMARY_IP    => $vip,
+            PORT          => $port,
+            SERVER_TYPE   => 'stream',
+            MEMBER_PEER   => \@serverMembers
+        };
+
+        my $proxyPassVal = $serverBlock->{proxy_pass};
+        if ( defined($proxyPassVal) ) {
+            my $proxyPassMembers = $self->getProxyPassMembers( $proxyPassVal, $upstreamsMap, $myListenPorts );
+            push( @serverMembers, @$proxyPassMembers );
+        }
+
+        push( @serverInfos, $serverInfo );
+    }
+
+    return \@serverInfos;
+}
+
+sub getNginxInsInfo {
+    my ( $self, $mainBlock ) = @_;
+
+    my $nginxInfo = {
+        DEFAULT_TYPE         => $mainBlock->{default_type},
+        CLIENT_MAX_BODY_SIZE => $mainBlock->{client_max_body_size} || '1M',
+        SENDFILE             => $mainBlock->{sendfile}             || 'on',
+        TCP_NOPUSH           => $mainBlock->{tcp_nopush}           || 'off',
+        GZIP                 => $mainBlock->{gzip}                 || 'off',
+        WORKER_PROCESSES     => int( $mainBlock->{worker_processes}     || 1 ),
+        WORKER_CONNECTIONS   => int( $mainBlock->{worker_connections}   || 1024 ),
+        CLIENT_MAX_BODY_SIZE => int( $mainBlock->{client_max_body_size} || '1M' )
+    };
+
+    return $nginxInfo;
+}
+
+sub parseNginxConf {
+    my ($self) = @_;
+
+    my $cfg       = Config::Neat->new();
+    my $data      = $cfg->parse_file_with_include( 'nginx.conf', 1 );
+    my $mainBlock = $self->getConfigMap($data);
+
+    my $nginxInfo       = $self->getNginxInsInfo($mainBlock);
+    my @serverInfos     = ();
+    my $httpServerInfos = $self->getHttpServers($mainBlock);
+    $nginxInfo->{HTTP_SERVERS} = $httpServerInfos;
+    my $streamServerInfos = $self->getStreamServers($mainBlock);
+    $nginxInfo->{STREAM_SERVERS} = $streamServerInfos;
+
+    push( @serverInfos, @$httpServerInfos );
+    push( @serverInfos, @$streamServerInfos );
+
+    print( to_json( $nginxInfo,    { pretty => 1 } ) );
+    print( to_json( \@serverInfos, { pretty => 1 } ) );
 }
 
 1;

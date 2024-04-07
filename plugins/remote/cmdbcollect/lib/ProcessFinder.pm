@@ -632,10 +632,10 @@ sub predictBizIp {
 
     if ( not defined($vip) ) {
         if ( scalar(@implicitIps) == 1 ) {
-            $vip = $implicitIps[0];
+            $vip = $implicitIps[-1];
         }
         elsif ( scalar(@implicitIpV6s) == 1 ) {
-            $vip = $implicitIpV6s[0];
+            $vip = $implicitIpV6s[-1];
         }
         else {
             $vip = $mgmtIp;
