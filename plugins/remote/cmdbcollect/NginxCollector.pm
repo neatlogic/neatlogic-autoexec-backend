@@ -746,25 +746,4 @@ sub getNginxInsInfo {
     return $nginxInfo;
 }
 
-sub parseNginxConf {
-    my ($self) = @_;
-
-    my $cfg       = Config::Neat->new();
-    my $data      = $cfg->parse_file_with_include( 'nginx.conf', 1 );
-    my $mainBlock = $self->getConfigMap($data);
-
-    my $nginxInfo       = $self->getNginxInsInfo($mainBlock);
-    my @serverInfos     = ();
-    my $httpServerInfos = $self->getHttpServers($mainBlock);
-    $nginxInfo->{HTTP_SERVERS} = $httpServerInfos;
-    my $streamServerInfos = $self->getStreamServers($mainBlock);
-    $nginxInfo->{STREAM_SERVERS} = $streamServerInfos;
-
-    push( @serverInfos, @$httpServerInfos );
-    push( @serverInfos, @$streamServerInfos );
-
-    print( to_json( $nginxInfo,    { pretty => 1 } ) );
-    print( to_json( \@serverInfos, { pretty => 1 } ) );
-}
-
 1;
