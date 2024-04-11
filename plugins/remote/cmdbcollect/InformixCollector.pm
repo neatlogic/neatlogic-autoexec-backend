@@ -140,6 +140,7 @@ sub collect {
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DB'),
                         _OBJ_TYPE     => 'Informix-DB',
+                        _APP_TYPE     => 'Informix',
                         NAME          => $dbName,
                         SERVICE_NAME  => $dbName,
                         PRIMARY_IP    => $insInfo->{IP},

@@ -135,6 +135,16 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "Virtual Platform",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "DataCenter Name",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"

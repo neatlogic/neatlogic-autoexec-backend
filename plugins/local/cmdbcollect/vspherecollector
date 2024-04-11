@@ -70,6 +70,7 @@ if __name__ == "__main__":
         for cluster in clusters:
             cluster["_OBJ_CATEGORY"] = "VIRTUALIZED"
             cluster["_OBJ_TYPE"] = "VIRTUALIZED-CLUSTER"
+            cluster["VIRT_PLATFORM"] = "vmware"
             # 物理机信息
             hosts = cluster["HOST"]
             rel_host = []

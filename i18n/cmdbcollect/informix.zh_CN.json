@@ -407,12 +407,42 @@
         },
         {
             "name": "DATABASES",
-            "desc": "库列表",
+            "desc": "DB列表",
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "库名",
+                    "desc": "DB服务名称",
+                    "type": "String"
+                },
+                {
+                    "name": "DB_NAME",
+                    "desc": "DB名称",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
                     "type": "String"
                 }
             ]

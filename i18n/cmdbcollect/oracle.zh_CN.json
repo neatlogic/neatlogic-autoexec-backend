@@ -394,6 +394,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "_APP_TYPE",
+                    "desc": "数据库类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "DB服务名称",
                     "type": "String"

@@ -68,6 +68,205 @@
             "type": "String"
         },
         {
+            "name": "STREAM_SERVERS",
+            "desc": "STREAM_SERVERS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "HTTP_SERVERS",
+            "desc": "HTTP_SERVERS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_PORTS",
+                    "desc": "SERVICE_PORTS",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "CHARSET",
+                    "desc": "CHARSET",
+                    "type": "String"
+                },
+                {
+                    "name": "KEEPALIVE_TIMEOUT",
+                    "desc": "KEEPALIVE_TIMEOUT",
+                    "type": "Int"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ACCESS_LOG",
+                    "desc": "ACCESS_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "ERROR_LOG",
+                    "desc": "ERROR_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCATIONS",
+                    "desc": "LOCATIONS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "_OBJ_CATEGORY",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "_OBJ_TYPE",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "NAME",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PROXY_PASS",
+                            "desc": "PROXY_PASS",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_PEER",
+                            "desc": "关联成员地址",
+                            "type": "Array",
+                            "subset": [
+                                {
+                                    "name": "_value",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "SERVICE_PORTS",
             "desc": "Service Ports",
             "type": "JsonArray",
@@ -448,43 +647,6 @@
             "type": "Int"
         },
         {
-            "name": "LOCATION",
-            "desc": "Location",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Application Type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "ROOT",
-                    "desc": "Root Path",
-                    "type": "String"
-                },
-                {
-                    "name": "ALIAS",
-                    "desc": "Alias Path",
-                    "type": "String"
-                },
-                {
-                    "name": "PROXY_PASS",
-                    "desc": "Proxy Pass",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "LOG_PATH",
             "desc": "Log Path",
             "type": "String"
@@ -700,30 +862,38 @@
             "type": "String"
         },
         {
-            "name": "UPSTREAM",
-            "desc": "LoadBalancer",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "TARGET",
-                    "desc": "Target Point",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "WORKER_PROCESSES",
             "desc": "worker processes",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TYPE",
+            "desc": "DEFAULT_TYPE",
+            "type": "String"
+        },
+        {
+            "name": "SENDFILE",
+            "desc": "SENDFILE",
+            "type": "String"
+        },
+        {
+            "name": "GZIP",
+            "desc": "GZIP",
+            "type": "String"
+        },
+        {
+            "name": "CLIENT_MAX_BODY_SIZE",
+            "desc": "Client Max Body Size",
+            "type": "Int"
+        },
+        {
+            "name": "WORKER_CONNECTIONS",
+            "desc": "Worker Connections",
+            "type": "Int"
+        },
+        {
+            "name": "TCP_NOPUSH",
+            "desc": "TCP_NOPUSH",
             "type": "String"
         },
         {

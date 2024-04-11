@@ -36,7 +36,7 @@ sub getConfig {
     };
 }
 
-sub getUser {
+sub getUsers {
     my ($self) = @_;
 
     my $gbase = $self->{gbase};
@@ -53,7 +53,14 @@ sub getUser {
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{user} ne '' ) {
-            push( @users, $row->{user} );
+            push(
+                @users,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get("DB"),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $row->{user}
+                }
+                );
         }
     }
 
@@ -220,7 +227,6 @@ sub collect {
     }
 
     #$gbaseInfo->{DATABASES} = \@dbNames;
-
     $rows = $gbase->query(
         sql     => q{select * from information_schema.schemata},
         verbose => $self->{isVerbose}
@@ -233,10 +239,24 @@ sub collect {
     # | def          | ApolloPortalDB          | utf8                       | utf8_bin               | NULL     |
 
     my $dbCharsetInfo = {};
+    my $dbUsers = getUsers();
     foreach my $row (@$rows) {
+        my @dbCons = ();
+        foreach my $user (@$dbUsers) {
+            push(
+                @dbCons,
+                {
+                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE      => 'DB-CONNECT',
+                    USER_NAME      => $user>{NAME},
+                    SERVICE_NAME   => $dbName
+                }
+            );
+        }
         my $dbInfo = {};
         $dbInfo->{_OBJ_CATEGORY}                = CollectObjCat->get('DB');
         $dbInfo->{_OBJ_TYPE}                    = 'Gbase-DB';
+        $dbInfo->{_APP_TYPE}                    = 'Gbase';
         $dbInfo->{NAME}                         = $row->{SCHEMA_NAME};
         $dbInfo->{DEFAULT_CHARACTER_SET}        = $row->{DEFAULT_CHARACTER_SET_NAME};
         $dbInfo->{DEFAULT_COLLATION}            = $row->{DEFAULT_COLLATION_NAME};
@@ -246,6 +266,8 @@ sub collect {
         $dbInfo->{SSL_PORT}                     = undef;
         $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
         $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
+        $dbInfo->{USERS}                        = $dbUsers;
+        $dbInfo->{CONNECTIONS}                  = \@dbCons;
         $dbInfo->{INSTANCES}                    = [
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DBINS'),

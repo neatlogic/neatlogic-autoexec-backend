@@ -208,6 +208,7 @@ sub collect {
                 {
                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE     => 'Sybase-DB',
+                    _APP_TYPE     => 'Sybase',
                     NAME          => $dbName,
                     PRIMARY_IP    => $ip,
                     VIP           => $ip,

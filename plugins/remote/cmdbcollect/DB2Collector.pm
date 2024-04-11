@@ -220,6 +220,7 @@ sub getDBInfos {
             my $dbInfo = $dbMemory->{ $dbNames[$i] };
             $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $dbInfo->{_OBJ_TYPE}     = 'DB2-DB';
+            $dbInfo->{_APP_TYPE}     = 'DB2';
             $dbInfo->{NAME}          = $dbNames[$i];
             $dbInfo->{DB_NAME}       = $dbNames[$i];
             $dbInfo->{PRIMARY_IP}    = $insInfo->{MGMT_IP};

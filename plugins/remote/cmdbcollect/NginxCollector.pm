@@ -580,10 +580,13 @@ sub getValueWithInherit {
     my $confName   = shift(@_);
     my @confBlocks = (@_);
 
-    my $confVal;
+    my $confVal = '';
     foreach my $confBlock (@confBlocks) {
         my $confVal = $confBlock->{$confName};
-        if ( defined($confVal) ) {
+        if ( defined($confVal) and $confVal ne '' ) {
+            if (ref($confVal) eq 'ARRAY') {
+                   $confVal = join(' ' , @$confVal);
+            }
             last;
         }
     }
@@ -609,6 +612,12 @@ sub getHttpServers {
     $httpBlock->{'upstream.map'} = $upstreamsMap;
 
     my $serverList = $httpBlock->{server};
+
+    if ( ref($serverList) ne 'ARRAY' ){
+       #如果只有一个server，返回不是数组，转换成数组
+       $serverList = [$serverList];
+    }
+	
     foreach my $serverBlock (@$serverList) {
         my @serverNames = split( /\s+/, $serverBlock->{server_name} );
         foreach my $serverName (@serverNames) {

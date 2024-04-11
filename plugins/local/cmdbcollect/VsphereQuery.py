@@ -317,6 +317,7 @@ class VsphereQuery:
                 cluster_ins = {}
                 cluster_name = cluster.name
                 cluster_moid = cluster._moId
+                cluster_ins["DC_NAME"] = datacenter_name
                 cluster_ins["NAME"] = cluster_name
                 cluster_ins["MOID"] = cluster_moid
                 # datastore

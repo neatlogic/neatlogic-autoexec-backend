@@ -120,6 +120,16 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "Virtual Platform",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "DataCenter Name",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "Name",
                             "type": "String"
@@ -142,6 +152,16 @@
                                 {
                                     "name": "NAME",
                                     "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_NAME",
+                                    "desc": "Storage Unit Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_URN",
+                                    "desc": "Storage Unit URN",
                                     "type": "String"
                                 },
                                 {
@@ -183,6 +203,33 @@
                                     "name": "UNIT",
                                     "desc": "Unit",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "REL_HOST",
+                                    "desc": "Rel Host",
+                                    "type": "JsonArray",
+                                    "subset": [
+                                        {
+                                            "name": "UUID",
+                                            "desc": "uuid",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "BOARD_SERIAL",
+                                            "desc": "Board Serial",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "HOST_IP",
+                                            "desc": "Host IP",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "URN",
+                                            "desc": "URN",
+                                            "type": "String"
+                                        }
+                                    ]
                                 }
                             ]
                         },

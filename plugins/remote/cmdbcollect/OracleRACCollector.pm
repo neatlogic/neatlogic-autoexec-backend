@@ -152,6 +152,7 @@ sub getClusterDB {
         my $dbInfo = {
             _OBJ_CATEGORY => 'DB',
             _OBJ_TYPE     => 'Oracle-DB',
+            _APP_TYPE     => 'Oracle',
             NAME          => $dbName
         };
 

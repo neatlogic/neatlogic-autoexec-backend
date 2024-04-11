@@ -135,6 +135,16 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "虚拟化平台",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "数据中心名称",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"

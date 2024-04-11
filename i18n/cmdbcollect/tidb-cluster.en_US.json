@@ -207,6 +207,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "_APP_TYPE",
+                    "desc": "Database Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Service Name",
                     "type": "String"

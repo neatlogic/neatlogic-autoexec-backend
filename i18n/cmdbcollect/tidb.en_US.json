@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"

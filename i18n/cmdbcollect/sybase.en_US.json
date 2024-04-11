@@ -397,12 +397,42 @@
         },
         {
             "name": "DATABASES",
-            "desc": "Database List",
+            "desc": "Databases List",
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "Database Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "DB Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
                     "type": "String"
                 }
             ]

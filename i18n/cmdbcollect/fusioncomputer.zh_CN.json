@@ -120,6 +120,16 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "虚拟化平台",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "数据中心名称",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
@@ -142,6 +152,16 @@
                                 {
                                     "name": "NAME",
                                     "desc": "名称",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_NAME",
+                                    "desc": "存储单元名称",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_URN",
+                                    "desc": "存储单元URN",
                                     "type": "String"
                                 },
                                 {
@@ -183,6 +203,33 @@
                                     "name": "UNIT",
                                     "desc": "单位",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "REL_HOST",
+                                    "desc": "关联物理机",
+                                    "type": "JsonArray",
+                                    "subset": [
+                                        {
+                                            "name": "UUID",
+                                            "desc": "uuid",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "BOARD_SERIAL",
+                                            "desc": "主板序列号",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "HOST_IP",
+                                            "desc": "Host IP",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "URN",
+                                            "desc": "URN",
+                                            "type": "String"
+                                        }
+                                    ]
                                 }
                             ]
                         },

@@ -219,7 +219,7 @@ class FusionComputer:
             print("ERROR:: Request FusionComputer get sites failed .\n")
         return sites
 
-    def getClusters(self , uri):
+    def getClusters(self , uri , dcName):
         clusters = []
         url = self.apiMap['clusters']
         url = url.replace('{sites}' , uri)
@@ -258,11 +258,14 @@ class FusionComputer:
                 clu['_OBJ_TYPE'] = "VIRTUALIZED-CLUSTER"
                 moid = cluster['urn'].split(':')[4]
                 clu['MOID'] = moid
+                clu['VIRT_PLATFORM'] = 'fusionCompute'
+                clu['DC_NAME'] = dcName
                 clu['NAME'] = cluster['name']
                 clu['TAG'] = cluster['tag']
                 clu['DESCRIPTION'] = cluster['description']
                 clu['URI'] = cluster['uri']
                 clu['URN'] = cluster['urn']
+                clu['DATASTORE'] = self.getDatastores(uri)
                 clusters.append(clu)
         else:
             print("ERROR:: Request FusionComputer get clusters failed .\n")
@@ -486,6 +489,8 @@ class FusionComputer:
                 urns = obj['urn'].split(':')
                 ins['MOID'] = urns[3] + '-' + urns[4]
                 ins['NAME'] = obj['name']
+                ins['SU_NAME'] = obj['suName']
+                ins['SU_URN'] = obj['suUrn']
                 ins['STATUS'] = obj['status']
                 ins['TYPE'] = obj['storageType']
                 capacity = int(obj['capacityGB'])
@@ -498,6 +503,7 @@ class FusionComputer:
                 ins['USED'] = used_pct
                 ins['UNIT'] ='GB'
                 ins['PATH'] = obj['urn']
+                ins['HOSTS'] = obj['hosts']
                 datastores.append(ins)
         else:
             print("ERROR:: Request FusionComputer get datastores failed .\n")
@@ -584,10 +590,10 @@ class FusionComputer:
         alarms = []
         for site in sites :
             uri = site['URI']
+            dcName = site['NAME']
             #urn = site['URN']
-
             #集群
-            clusters = self.getClusters(uri)
+            clusters = self.getClusters(uri,dcName)
             site['CLUSTER'] = clusters
 
             #物理机
@@ -602,8 +608,17 @@ class FusionComputer:
                 rel_host = []
                 for host in hosts :
                     if host['CLUSTERNAME'] == cluster['NAME'] :
-                        rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'HOST_IP':host['IP'],'BOARD_SERIAL':host['BOARD_SERIAL']})
+                        rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'HOST_IP':host['IP'],'BOARD_SERIAL':host['BOARD_SERIAL'],'URN':host['URN']})
                 cluster['CONTAIN_HOST'] = rel_host
+                datastores = cluster['DATASTORE']
+                for datastore in datastores :
+                    datastore_hosts = datastore['HOSTS']
+                    datastore_rel_host = []
+                    for datastore_host_urn in datastore_hosts :
+                        for host in hosts :
+                            if host['URN'] == datastore_host_urn :
+                                datastore_rel_host.append({'_OBJ_CATEGORY': 'HOST', '_OBJ_TYPE': 'HOST', 'UUID': host['UUID'],'HOST_IP':host['IP'],'BOARD_SERIAL':host['BOARD_SERIAL'],'URN':host['URN']})
+                    datastore['REL_HOSTS'] = datastore_rel_host
 
                 rel_vms = []
                 for vm in vms :

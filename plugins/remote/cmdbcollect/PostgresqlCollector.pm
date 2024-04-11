@@ -201,6 +201,7 @@ sub collect {
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'Postgresql-DB',
+                _APP_TYPE     => 'Postgresql',
                 NAME          => $dbName,
                 PRIMARY_IP    => $bizIp,
                 VIP           => $vip,
