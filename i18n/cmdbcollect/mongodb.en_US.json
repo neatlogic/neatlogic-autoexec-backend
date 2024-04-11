@@ -68,19 +68,39 @@
             "type": "String"
         },
         {
-            "name": "SERVICE_PORTS",
-            "desc": "Service Ports",
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
                 },
                 {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },

@@ -396,14 +396,44 @@ sub mergeMultiProcs {
                     $appInfo->{PORT} = $minPort;
                 }
 
-                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型
-                my $servicePorts = $appInfo->{SERVICE_PORTS};
+                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型(应用实例提供的服务)
+                my $insObjCat   = CollectObjCat->get('INS');
+                my $dbInsObjCat = CollectObjCat->get('DBINS');
+                my $objCat      = $appInfo->{_OBJ_CATEGORY};
+
+                my @servicePortsArray = ();
+                my $servicePorts      = $appInfo->{SERVICE_PORTS};
                 if ( defined($servicePorts) ) {
-                    my @servicePortsArray = ();
+                    #如果存在服务端口，则加入SERVICE_PORTS对象
                     while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
-                        push( @servicePortsArray, { NAME => $svcName, PORT => $svcPort } );
+                        push(
+                            @servicePortsArray,
+                            {
+                                _OBJ_CATEGORY => $objCat,
+                                _OBJ_TYPE     => 'Service-Ports',
+                                NAME          => $svcName,
+                                PORT          => $svcPort
+                            }
+                        );
                     }
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
+                }
+                if ( $objCat eq $insObjCat ) {
+                    #如果是应用实例，补充其他监听的端口（未知协议或服务名）
+                    my @servicePortsArray = ();
+                    foreach my $svcPort ( keys(%$portsMap) ) {
+                        if ( not defined( $servicePorts->{$svcPort} ) ) {
+                            push(
+                                @servicePortsArray,
+                                {
+                                    _OBJ_CATEGORY => $objCat,
+                                    _OBJ_TYPE     => 'Service-Ports',
+                                    NAME          => $svcPort,
+                                    PORT          => $svcPort
+                                }
+                            );
+                        }
+                    }
                 }
             }
 
@@ -520,9 +550,18 @@ sub doDetailCollect {
         my $appInfo = $appInfos[$idx];
         $isMatched = 1;
 
+        my $insObjCat   = CollectObjCat->get('INS');
+        my $dbInsObjCat = CollectObjCat->get('DBINS');
+
+        $objType = $appInfo->{_OBJ_TYPE};
+        if ( not defined($objType) ) {
+            $objType = $procInfo->{_OBJ_TYPE};
+            $appInfo->{_OBJ_TYPE} = $objType;
+        }
+
         $objCat = $appInfo->{_OBJ_CATEGORY};
-        if ( not defined($objCat) ) {
-            $objCat = CollectObjCat->get('INS');
+        if ( not defined($objCat) or $objCat eq '' ) {
+            $objCat = $insObjCat;
             $appInfo->{_OBJ_CATEGORY} = $objCat;
         }
         else {
@@ -530,13 +569,23 @@ sub doDetailCollect {
                 print("WARN: Invalid object category: $appInfo->{_OBJ_CATEGORY}.\n");
                 return 0;
             }
+
+            #从实例采集信息中抽取出软件资产
+            if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                my $softWare = {
+                    _OBJ_CATEGORY => $objCat,
+                    _OBJ_TYPE     => "SoftWare-Asset",
+                    NAME          => $objType,
+                    VERSION       => $appInfo->{VERSION},
+                    IP            => $appInfo->{MGMT_IP},
+                    INSTALL_PATH  => $appInfo->{INSTALL_PATH}
+                };
+                $appInfo->{SOFTWARE_ASSETS} = $softWare;
+            }
+
+            #从实例采集信息中抽取出服务，参考另外SERVICE_PORTS属性的处理
         }
 
-        $objType = $appInfo->{_OBJ_TYPE};
-        if ( not defined($objType) ) {
-            $objType = $procInfo->{_OBJ_TYPE};
-            $appInfo->{_OBJ_TYPE} = $objType;
-        }
         print("INFO: Matched Object Type:$objCat/$objType.\n");
 
         $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};

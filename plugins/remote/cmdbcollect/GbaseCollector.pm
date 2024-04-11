@@ -241,6 +241,7 @@ sub collect {
     my $dbCharsetInfo = {};
     my $dbUsers = getUsers();
     foreach my $row (@$rows) {
+        my $dbName = $row->{SCHEMA_NAME};
         my @dbCons = ();
         foreach my $user (@$dbUsers) {
             push(
@@ -248,7 +249,7 @@ sub collect {
                 {
                      _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE      => 'DB-CONNECT',
-                    USER_NAME      => $user>{NAME},
+                    USER_NAME      => $user->{NAME},
                     SERVICE_NAME   => $dbName
                 }
             );
@@ -257,7 +258,7 @@ sub collect {
         $dbInfo->{_OBJ_CATEGORY}                = CollectObjCat->get('DB');
         $dbInfo->{_OBJ_TYPE}                    = 'Gbase-DB';
         $dbInfo->{_APP_TYPE}                    = 'Gbase';
-        $dbInfo->{NAME}                         = $row->{SCHEMA_NAME};
+        $dbInfo->{NAME}                         = $dbName;
         $dbInfo->{DEFAULT_CHARACTER_SET}        = $row->{DEFAULT_CHARACTER_SET_NAME};
         $dbInfo->{DEFAULT_COLLATION}            = $row->{DEFAULT_COLLATION_NAME};
         $dbInfo->{PRIMARY_IP}                   = $bizIp;
@@ -265,7 +266,7 @@ sub collect {
         $dbInfo->{PORT}                         = $port;
         $dbInfo->{SSL_PORT}                     = undef;
         $dbInfo->{SERVICE_ADDR}                 = "$vip:$port";
-        $dbCharsetInfo->{ $row->{SCHEMA_NAME} } = $dbInfo;
+        $dbCharsetInfo->{ $dbName } = $dbInfo;
         $dbInfo->{USERS}                        = $dbUsers;
         $dbInfo->{CONNECTIONS}                  = \@dbCons;
         $dbInfo->{INSTANCES}                    = [

@@ -18,11 +18,6 @@
             "type": "String"
         },
         {
-            "name": "VIRT_PLATFORM",
-            "desc": "虚拟化平台",
-            "type": "String"
-        },
-        {
             "name": "MGMT_IP",
             "desc": "管理IP",
             "type": "String"
@@ -31,11 +26,6 @@
             "name": "MGMT_PORT",
             "desc": "管理端口",
             "type": "Int"
-        },
-        {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
         },
         {
             "name": "STATE",
@@ -55,6 +45,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
@@ -328,6 +323,11 @@
         {
             "name": "INSTANCEUUID",
             "desc": "安装实例uuid",
+            "type": "String"
+        },
+        {
+            "name": "VIRT_PLATFORM",
+            "desc": "虚拟化平台",
             "type": "String"
         },
         {

@@ -78,6 +78,28 @@
             "type": "Int"
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "LISTEN_STATS",
             "desc": "Listen Stats",
             "type": "JsonArray",
@@ -100,31 +122,36 @@
             "type": "String"
         },
         {
-            "name": "DEFAULT_COLLATION",
-            "desc": "Default Collation",
-            "type": "String"
-        },
-        {
-            "name": "USERS",
-            "desc": "用户列表",
+            "name": "CONNECTIONS",
+            "desc": "Entrance List",
             "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
+                    "desc": "Object Cat",
                     "type": "String"
                 },
                 {
                     "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
+                    "desc": "Object Type",
                     "type": "String"
                 },
                 {
-                    "name": "NAME",
-                    "desc": "用户名",
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "User Name",
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "DEFAULT_COLLATION",
+            "desc": "Default Collation",
+            "type": "String"
         },
         {
             "name": "INSTANCES",
@@ -169,33 +196,6 @@
                 {
                     "name": "SERVICE_ADDR",
                     "desc": "Service Addr",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CONNECTIONS",
-            "desc": "Entrance List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Cat",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "Service Name",
-                    "type": "String"
-                },
-                {
-                    "name": "USER_NAME",
-                    "desc": "User Name",
                     "type": "String"
                 }
             ]

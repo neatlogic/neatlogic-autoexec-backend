@@ -127,6 +127,33 @@
             "type": "String"
         },
         {
+            "name": "CONNECTIONS",
+            "desc": "Entrance List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",
@@ -169,33 +196,6 @@
                 {
                     "name": "SERVICE_ADDR",
                     "desc": "Service Addr",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CONNECTIONS",
-            "desc": "Entrance List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Cat",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "Service Name",
-                    "type": "String"
-                },
-                {
-                    "name": "USER_NAME",
-                    "desc": "User Name",
                     "type": "String"
                 }
             ]

@@ -68,209 +68,20 @@
             "type": "Int"
         },
         {
-            "name": "STREAM_SERVERS",
-            "desc": "STREAM_SERVERS",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "APP_TYPE",
-                    "desc": "APP_TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "NAME",
-                    "type": "String"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "UNIQUE_NAME",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
-                    "type": "String"
-                },
-                {
-                    "name": "PRIMARY_IP",
-                    "desc": "PRIMARY_IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "PORT",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVER_TYPE",
-                    "desc": "SERVER_TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "MEMBER_PEER",
-                    "desc": "关联成员地址",
-                    "type": "Array",
-                    "subset": [
-                        {
-                            "name": "_value",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "HTTP_SERVERS",
-            "desc": "Nginx虚拟主机",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "APP_TYPE",
-                    "desc": "APP_TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "NAME",
-                    "type": "String"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "UNIQUE_NAME",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
-                    "type": "String"
-                },
-                {
-                    "name": "PRIMARY_IP",
-                    "desc": "PRIMARY_IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "PORT",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_PORTS",
-                    "desc": "SERVICE_PORTS",
-                    "type": "Array",
-                    "subset": [
-                        {
-                            "name": "_value",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "SERVER_TYPE",
-                    "desc": "SERVER_TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "CHARSET",
-                    "desc": "CHARSET",
-                    "type": "String"
-                },
-                {
-                    "name": "KEEPALIVE_TIMEOUT",
-                    "desc": "KEEPALIVE_TIMEOUT",
-                    "type": "Int"
-                },
-                {
-                    "name": "MEMBER_PEER",
-                    "desc": "关联成员地址",
-                    "type": "Array",
-                    "subset": [
-                        {
-                            "name": "_value",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "ACCESS_LOG",
-                    "desc": "ACCESS_LOG",
-                    "type": "String"
-                },
-                {
-                    "name": "ERROR_LOG",
-                    "desc": "ERROR_LOG",
-                    "type": "String"
-                },
-                {
-                    "name": "LOCATIONS",
-                    "desc": "LOCATIONS",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "_OBJ_CATEGORY",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "_OBJ_TYPE",
-                            "type": "String"
-                        },
-                        {
-                            "name": "NAME",
-                            "desc": "NAME",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PROXY_PASS",
-                            "desc": "PROXY_PASS",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MEMBER_PEER",
-                            "desc": "关联成员地址",
-                            "type": "Array",
-                            "subset": [
-                                {
-                                    "name": "_value",
-                                    "desc": "Value",
-                                    "type": "String"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "SERVICE_PORTS",
             "desc": "服务监听端口",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "服务名",
@@ -280,6 +91,43 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "软件资产",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "软件名",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "安装主机IP",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "安装路径",
+                    "type": "String"
                 }
             ]
         },
@@ -632,9 +480,159 @@
             "type": "String"
         },
         {
+            "name": "CLIENT_MAX_BODY_SIZE",
+            "desc": "接收客户端请求的最大请求体大小",
+            "type": "Int"
+        },
+        {
             "name": "COMMAND",
             "desc": "命令行",
             "type": "Text"
+        },
+        {
+            "name": "DEFAULT_TYPE",
+            "desc": "默认MIME类型",
+            "type": "String"
+        },
+        {
+            "name": "GZIP",
+            "desc": "是否启用动态gzip压缩功能",
+            "type": "String"
+        },
+        {
+            "name": "HTTP_SERVERS",
+            "desc": "Nginx虚拟主机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_PORTS",
+                    "desc": "SERVICE_PORTS",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "CHARSET",
+                    "desc": "CHARSET",
+                    "type": "String"
+                },
+                {
+                    "name": "KEEPALIVE_TIMEOUT",
+                    "desc": "KEEPALIVE_TIMEOUT",
+                    "type": "Int"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ACCESS_LOG",
+                    "desc": "ACCESS_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "ERROR_LOG",
+                    "desc": "ERROR_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCATIONS",
+                    "desc": "LOCATIONS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "_OBJ_CATEGORY",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "_OBJ_TYPE",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "NAME",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PROXY_PASS",
+                            "desc": "PROXY_PASS",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_PEER",
+                            "desc": "关联成员地址",
+                            "type": "Array",
+                            "subset": [
+                                {
+                                    "name": "_value",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "KEEPALIVE_TIMEOUT",
@@ -827,6 +825,11 @@
             ]
         },
         {
+            "name": "SENDFILE",
+            "desc": "是否使用sendfile()传输文件",
+            "type": "String"
+        },
+        {
             "name": "SERVICE_NAME",
             "desc": "名称",
             "type": "String"
@@ -847,29 +850,73 @@
             "type": "String"
         },
         {
-            "name": "WORKER_PROCESSES",
-            "desc": "worker processes",
-            "type": "String"
+            "name": "STREAM_SERVERS",
+            "desc": "STREAM_SERVERS",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
         },
         {
-            "name": "DEFAULT_TYPE",
-            "desc": "默认MIME类型",
+            "name": "TCP_NOPUSH",
+            "desc": "控制nginx在向客户端传输数据时是否立即发送",
             "type": "String"
-        },
-        {
-            "name": "SENDFILE",
-            "desc": "是否使用sendfile()传输文件",
-            "type": "String"
-        },
-        {
-            "name": "GZIP",
-            "desc": "是否启用动态gzip压缩功能",
-            "type": "String"
-        },
-        {
-            "name": "CLIENT_MAX_BODY_SIZE",
-            "desc": "接收客户端请求的最大请求体大小",
-            "type": "Int"
         },
         {
             "name": "WORKER_CONNECTIONS",
@@ -877,8 +924,8 @@
             "type": "Int"
         },
         {
-            "name": "TCP_NOPUSH",
-            "desc": "控制nginx在向客户端传输数据时是否立即发送",
+            "name": "WORKER_PROCESSES",
+            "desc": "worker processes",
             "type": "String"
         },
         {

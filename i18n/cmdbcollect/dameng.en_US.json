@@ -68,19 +68,39 @@
             "type": "String"
         },
         {
-            "name": "SERVICE_PORTS",
-            "desc": "Service Ports",
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
                 },
                 {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "OS IP",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -431,6 +451,55 @@
             "type": "String"
         },
         {
+            "name": "DATABASES",
+            "desc": "Databases List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "SOFTWARE_TYPE",
+                    "desc": "Software Type",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "VALUE",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary IP",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "EXPIRED_DATE",
             "desc": "expired date",
             "type": "String"
@@ -545,55 +614,6 @@
             "name": "WORKER_THREADS",
             "desc": "number of worker threads",
             "type": "Int"
-        },
-        {
-            "name": "DATABASES",
-            "desc": "Databases List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "CATEGORY",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "TYPE",
-                    "type": "String"
-                },
-                {
-                    "name": "SOFTWARE_TYPE",
-                    "desc": "Software Type",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "VALUE",
-                            "desc": "Value",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "NAME",
-                    "desc": "Service Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "PRIMARY_IP",
-                    "desc": "Primary IP",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "_batch_tag",

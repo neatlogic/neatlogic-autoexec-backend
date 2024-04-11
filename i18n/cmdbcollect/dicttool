@@ -64,6 +64,7 @@ def getDefaultFieldKeys():
         "PRIMARY_IP",
         "PORT",
         "SERVICE_PORTS",
+        "SOFTWARE_ASSETS",
         "UPTIME",
         "IS_VIRTUAL",
         "DOMAIN",
