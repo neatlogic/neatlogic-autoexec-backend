@@ -574,7 +574,7 @@ sub doDetailCollect {
             if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
                 my $softWare = {
                     _OBJ_CATEGORY => $objCat,
-                    _OBJ_TYPE     => "SoftWare-Asset",
+                    _OBJ_TYPE     => "Software-Asset",
                     NAME          => $objType,
                     VERSION       => $appInfo->{VERSION},
                     IP            => $appInfo->{MGMT_IP},
