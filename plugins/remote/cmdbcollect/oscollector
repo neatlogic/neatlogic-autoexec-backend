@@ -10,6 +10,7 @@ use Getopt::Long;
 #use Getopt::Long qw(GetOptionsFromArray);
 use POSIX qw(uname);
 use File::Basename;
+use File::Spec qw(file_name_is_absolute rel2abs);
 use JSON qw(from_json to_json);
 
 #use JSON;
@@ -420,6 +421,7 @@ sub mergeMultiProcs {
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
                 }
                 if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
 
                     #如果是应用实例，补充其他监听的端口（未知协议或服务名）
                     my @servicePortsArray = ();
@@ -466,6 +468,25 @@ sub mergeMultiProcs {
     return \@apps;
 }
 
+sub resolveSymlinks {
+    my ($path) = @_;
+
+    if ( -l $path ) {
+        my $target = readlink($path);
+
+        if ( !file_name_is_absolute($target) ) {
+            $target = rel2abs( $target, dirname($path) );
+        }
+        return resolve_symlinks($target);
+    }
+    elsif ( -e $path ) {
+        return $path;
+    }
+    else {
+        return undef;
+    }
+}
+
 sub getRealInstallPath {
     my ( $appInfo, $procInfo ) = @_;
 
@@ -474,37 +495,37 @@ sub getRealInstallPath {
 
     my $binPath = $appInfo->{BIN_PATH};
     if ( defined($binPath) and $binPath ne '' ) {
-        $realBinPath = readlink($binPath);
+        $realBinPath = resolveSymlinks($binPath);
     }
     else {
         my $exePath = $appInfo->{EXE_PATH};
         if ( defined($exePath) and $exePath ne '' ) {
-            $binPath = dirname($exePath);
-            $realBinPath = readlink($binPath);
+            $binPath     = dirname($exePath);
+            $realBinPath = resolveSymlinks($binPath);
         }
         else {
             my $executableFile = $procInfo->{EXECUTABLE_FILE};
             if ( defined($executableFile) and $executableFile ne '' ) {
-                $binPath = dirname($executableFile);
-                $realBinPath = readlink($binPath);
+                $binPath     = dirname($executableFile);
+                $realBinPath = resolveSymlinks($binPath);
             }
         }
     }
 
-    if ( defined($realBinPath) and $realBinPath ne '') {
+    if ( defined($realBinPath) and $realBinPath ne '' ) {
         $realInstallPath = dirname($realBinPath);
     }
-    else{
+    else {
         my $installPath = $appInfo->{INSTALL_PATH};
         if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
-            $realBinPath = readlink("$installPath/bin");
-            if(not defined($realBinPath)){
-                $realBinPath = readlink("$installPath/sbin");
+            $realBinPath = resolveSymlinks("$installPath/bin");
+            if ( not defined($realBinPath) ) {
+                $realBinPath = resolveSymlinks("$installPath/sbin");
             }
-            if(not defined($realBinPath)){
-                $realBinPath = readlink("$installPath/lib");
+            if ( not defined($realBinPath) ) {
+                $realBinPath = resolveSymlinks("$installPath/lib");
             }
-            if(defined($realBinPath) and $realBinPath ne ''){
+            if ( defined($realBinPath) and $realBinPath ne '' ) {
                 $realInstallPath = dirname($realBinPath);
             }
         }
@@ -626,7 +647,7 @@ sub doDetailCollect {
                     _OBJ_TYPE     => "Software-Asset",
                     NAME          => $objType,
                     VERSION       => $appInfo->{VERSION},
-                    INSTALL_PATH  => getRealInstallPath($appInfo, $procInfo)
+                    INSTALL_PATH  => getRealInstallPath( $appInfo, $procInfo )
                 };
                 $appInfo->{SOFTWARE_ASSETS} = $softWare;
             }
