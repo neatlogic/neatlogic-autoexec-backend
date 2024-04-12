@@ -146,14 +146,15 @@ sub getPools {
         }
 
         #去掉最后结尾的/,为了匹配操作系统采集到的nas_info里的remotepath,
-        $dfName                = =~ s/\/$//;
-        $dfVolInfo->{CAPACITY} = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 + 0.5 ) / 100;
-        $dfVolInfo->{USED}     = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
-        $dfVolInfo->{FREE}     = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
-        $dfVolInfo->{NAME} = $dfName;	
-        $dfVolInfo->{_OBJ_CATEGORY} = "STORAGE";	
-        $dfVolInfo->{_OBJ_TYPE} = "STORAGE-NFS-VOLUME";	
-	#过滤掉以..和.snapshot结尾的
+        $dfName =~ s/\/$//;
+        $dfVolInfo->{CAPACITY}      = int( $dfVolInfo->{CAPACITY} * 100 / 1024 / 1024 + 0.5 ) / 100;
+        $dfVolInfo->{USED}          = int( $dfVolInfo->{USED} * 100 / 1024 / 1024 + 0.5 ) / 100;
+        $dfVolInfo->{FREE}          = int( $dfVolInfo->{FREE} * 100 / 1024 / 1024 + 0.5 ) / 100;
+        $dfVolInfo->{NAME}          = $dfName;
+        $dfVolInfo->{_OBJ_CATEGORY} = "STORAGE";
+        $dfVolInfo->{_OBJ_TYPE}     = "STORAGE-NFS-VOLUME";
+
+        #过滤掉以..和.snapshot结尾的
         push( @validDfVolumes, $dfVolInfo );
     }
     my $data = $self->{DATA};

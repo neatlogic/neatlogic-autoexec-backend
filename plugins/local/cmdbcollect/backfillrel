@@ -43,6 +43,7 @@ def genInsRel(db):
         try:
             # print(dumps(ins))
             refIns = []
+            refSvc = []
             refDbs = []
             refCls = []
 
@@ -62,6 +63,17 @@ def genInsRel(db):
                         "OS_ID": 1,
                         "MGMT_IP": 1,
                         "PORT": 1,
+                        "BIND": {
+                            "$filter": {
+                                "input": "$BIND",
+                                "cond": {
+                                    "$or": {
+                                        {"BIND": {"$in": peer}},
+                                        {"MGMT_IP": mgmtIp, "BIND": {"$in": localPeer}},
+                                    }
+                                },
+                            }
+                        },
                         "_OBJ_CATEGORY": 1,
                         "_OBJ_TYPE": 1,
                     },
@@ -88,6 +100,17 @@ def genInsRel(db):
                             }
                             refDbs.append(refInfo)
 
+                            for bindPeer in rel["BIND"]:
+                                (peerIp, peerPort) = bindPeer.split(":", 2)
+                                refSvcInfo = {
+                                    "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
+                                    "_OBJ_TYPE": "Service-Ports",
+                                    "OS_ID": dbIns["OS_ID"],
+                                    "MGMT_IP": dbIns["MGMT_IP"],
+                                    "PORT": peerPort,
+                                    "INSTANCE_NAME": dbIns["INSTANCE_NAME"],
+                                }
+                                refSvc.append(refSvcInfo)
                     else:
                         refInfo = {
                             "_OBJ_CATEGORY": rel["_OBJ_CATEGORY"],
@@ -97,6 +120,18 @@ def genInsRel(db):
                             "PORT": rel["PORT"],
                         }
                         refIns.append(refInfo)
+
+                        for bindPeer in rel["BIND"]:
+                            (peerIp, peerPort) = bindPeer.split(":", 2)
+                            refSvcInfo = {
+                                "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
+                                "_OBJ_TYPE": "Service-Ports",
+                                "OS_ID": dbIns["OS_ID"],
+                                "MGMT_IP": dbIns["MGMT_IP"],
+                                "PORT": peerPort,
+                                "INSTANCE_NAME": dbIns["INSTANCE_NAME"],
+                            }
+                            refSvc.append(refSvcInfo)
 
                 # 计算调用的集群
                 for cluster in clusterCollection.find(
@@ -183,6 +218,7 @@ def genInsRel(db):
                         "BELONG_CLUSTER": belongCls,
                         "REF_DB": refDbs,
                         "REF_INS": refIns,
+                        "REF_SERVICE": refSvc,
                         "REF_CLUSTER": refCls,
                     }
                 },

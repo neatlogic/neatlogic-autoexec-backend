@@ -140,6 +140,7 @@ sub getConfigInfo {
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{ADMIN_SSL_PORT} = $port;
+    $appInfo->{SERVICE_PORTS}  = {t3 => $port};
     $appInfo->{SERVER_CLUSTER} = $cluster;
 
     #获取部署应用信息

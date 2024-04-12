@@ -130,11 +130,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "IP",
-                    "desc": "安装主机IP",
-                    "type": "String"
-                },
-                {
                     "name": "INSTALL_PATH",
                     "desc": "安装路径",
                     "type": "String"
@@ -468,21 +463,6 @@
             ]
         },
         {
-            "name": "ABORT_FILE",
-            "desc": "abort文件存储路径",
-            "type": "String"
-        },
-        {
-            "name": "APP_IP",
-            "desc": "应用IP",
-            "type": "String"
-        },
-        {
-            "name": "AUTO_CREATE_TOPIC_ENABLE",
-            "desc": "自动创建主题",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -500,123 +480,6 @@
                 {
                     "name": "PRIMARY_IP",
                     "desc": "主IP(非LB)",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BIN_PATH",
-            "desc": "BIN文件路径",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_CLUSTER_NAME",
-            "desc": "broker集群名称",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ID",
-            "desc": "brokerId",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_NAME",
-            "desc": "broker名称",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ROLE",
-            "desc": "Broker角色",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
-        },
-        {
-            "name": "CONFIG_FILE_PATH",
-            "desc": "配置文件目录",
-            "type": "String"
-        },
-        {
-            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
-            "desc": "默认主题队列数",
-            "type": "String"
-        },
-        {
-            "name": "DELETE_WHEN",
-            "desc": "删除文件时间点",
-            "type": "String"
-        },
-        {
-            "name": "DISK_MAXUSED_SPACE_RATIO",
-            "desc": "检测物理文件磁盘空间",
-            "type": "String"
-        },
-        {
-            "name": "FILE_RESERVED_TIME",
-            "desc": "文件保留时间",
-            "type": "String"
-        },
-        {
-            "name": "LISTEN_PORT",
-            "desc": "监听端口",
-            "type": "String"
-        },
-        {
-            "name": "MAPED_FILESIZE_COMMITLOG",
-            "desc": "commit文件大小",
-            "type": "String"
-        },
-        {
-            "name": "MAX_MESSAGE_SIZE",
-            "desc": "限制的消息大小",
-            "type": "String"
-        },
-        {
-            "name": "NAMESRV_ADDR",
-            "desc": "nameServer地址列表",
-            "type": "String"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
                     "type": "String"
                 },
                 {
@@ -714,6 +577,165 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "调用服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ABORT_FILE",
+            "desc": "abort文件存储路径",
+            "type": "String"
+        },
+        {
+            "name": "APP_IP",
+            "desc": "应用IP",
+            "type": "String"
+        },
+        {
+            "name": "AUTO_CREATE_TOPIC_ENABLE",
+            "desc": "自动创建主题",
+            "type": "String"
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "BIN文件路径",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_CLUSTER_NAME",
+            "desc": "broker集群名称",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ID",
+            "desc": "brokerId",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_NAME",
+            "desc": "broker名称",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ROLE",
+            "desc": "Broker角色",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "Text"
+        },
+        {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "配置文件目录",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
+            "desc": "默认主题队列数",
+            "type": "String"
+        },
+        {
+            "name": "DELETE_WHEN",
+            "desc": "删除文件时间点",
+            "type": "String"
+        },
+        {
+            "name": "DISK_MAXUSED_SPACE_RATIO",
+            "desc": "检测物理文件磁盘空间",
+            "type": "String"
+        },
+        {
+            "name": "FILE_RESERVED_TIME",
+            "desc": "文件保留时间",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_PORT",
+            "desc": "监听端口",
+            "type": "String"
+        },
+        {
+            "name": "MAPED_FILESIZE_COMMITLOG",
+            "desc": "commit文件大小",
+            "type": "String"
+        },
+        {
+            "name": "MAX_MESSAGE_SIZE",
+            "desc": "限制的消息大小",
+            "type": "String"
+        },
+        {
+            "name": "NAMESRV_ADDR",
+            "desc": "nameServer地址列表",
+            "type": "String"
         },
         {
             "name": "RUN_ON",

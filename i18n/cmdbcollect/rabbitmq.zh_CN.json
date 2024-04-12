@@ -120,11 +120,6 @@
                     "type": "String"
                 },
                 {
-                    "name": "IP",
-                    "desc": "安装主机IP",
-                    "type": "String"
-                },
-                {
                     "name": "INSTALL_PATH",
                     "desc": "安装路径",
                     "type": "String"
@@ -445,18 +440,6 @@
             ]
         },
         {
-            "name": "ALARMS",
-            "desc": "告警信息",
-            "type": "Array",
-            "subset": [
-                {
-                    "name": "_value",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -474,98 +457,6 @@
                 {
                     "name": "PRIMARY_IP",
                     "desc": "主IP(非LB)",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BIN_PATH",
-            "desc": "BIN文件路径",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
-        },
-        {
-            "name": "DATA_PATH",
-            "desc": "数据存放目录",
-            "type": "String"
-        },
-        {
-            "name": "DISK_FREE",
-            "desc": "可用磁盘(G)",
-            "type": "Int"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang版本",
-            "type": "String"
-        },
-        {
-            "name": "FD_LIMIT",
-            "desc": "最大打开文件数量",
-            "type": "Int"
-        },
-        {
-            "name": "FD_USED",
-            "desc": "已打开文件数量",
-            "type": "Int"
-        },
-        {
-            "name": "GUEST_ENABLE",
-            "desc": "Guest用户是否存在(1:存在)",
-            "type": "Text"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "日志目录",
-            "type": "String"
-        },
-        {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "内存水位线配置",
-            "type": "Text"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
                     "type": "String"
                 },
                 {
@@ -663,6 +554,137 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "调用服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ALARMS",
+            "desc": "告警信息",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "BIN文件路径",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "Text"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "数据存放目录",
+            "type": "String"
+        },
+        {
+            "name": "DISK_FREE",
+            "desc": "可用磁盘(G)",
+            "type": "Int"
+        },
+        {
+            "name": "ERLANG_VERSION",
+            "desc": "ErLang版本",
+            "type": "String"
+        },
+        {
+            "name": "FD_LIMIT",
+            "desc": "最大打开文件数量",
+            "type": "Int"
+        },
+        {
+            "name": "FD_USED",
+            "desc": "已打开文件数量",
+            "type": "Int"
+        },
+        {
+            "name": "GUEST_ENABLE",
+            "desc": "Guest用户是否存在(1:存在)",
+            "type": "Text"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "日志目录",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_WATER_MARK",
+            "desc": "内存水位线配置",
+            "type": "Text"
         },
         {
             "name": "RUN_ON",

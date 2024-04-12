@@ -404,6 +404,7 @@ sub mergeMultiProcs {
                 my @servicePortsArray = ();
                 my $servicePorts      = $appInfo->{SERVICE_PORTS};
                 if ( defined($servicePorts) ) {
+
                     #如果存在服务端口，则加入SERVICE_PORTS对象
                     while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
                         push(
@@ -418,7 +419,8 @@ sub mergeMultiProcs {
                     }
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
                 }
-                if ( $objCat eq $insObjCat ) {
+                if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+
                     #如果是应用实例，补充其他监听的端口（未知协议或服务名）
                     my @servicePortsArray = ();
                     foreach my $svcPort ( keys(%$portsMap) ) {
@@ -462,6 +464,53 @@ sub mergeMultiProcs {
     }
 
     return \@apps;
+}
+
+sub getRealInstallPath {
+    my ( $appInfo, $procInfo ) = @_;
+
+    my $realInstallPath = '';
+    my $realBinPath;
+
+    my $binPath = $appInfo->{BIN_PATH};
+    if ( defined($binPath) and $binPath ne '' ) {
+        $realBinPath = readlink($binPath);
+    }
+    else {
+        my $exePath = $appInfo->{EXE_PATH};
+        if ( defined($exePath) and $exePath ne '' ) {
+            $binPath = dirname($exePath);
+            $realBinPath = readlink($binPath);
+        }
+        else {
+            my $executableFile = $procInfo->{EXECUTABLE_FILE};
+            if ( defined($executableFile) and $executableFile ne '' ) {
+                $binPath = dirname($executableFile);
+                $realBinPath = readlink($binPath);
+            }
+        }
+    }
+
+    if ( defined($realBinPath) and $realBinPath ne '') {
+        $realInstallPath = dirname($realBinPath);
+    }
+    else{
+        my $installPath = $appInfo->{INSTALL_PATH};
+        if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
+            $realBinPath = readlink("$installPath/bin");
+            if(not defined($realBinPath)){
+                $realBinPath = readlink("$installPath/sbin");
+            }
+            if(not defined($realBinPath)){
+                $realBinPath = readlink("$installPath/lib");
+            }
+            if(defined($realBinPath) and $realBinPath ne ''){
+                $realInstallPath = dirname($realBinPath);
+            }
+        }
+    }
+
+    return $realInstallPath;
 }
 
 #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
@@ -577,8 +626,7 @@ sub doDetailCollect {
                     _OBJ_TYPE     => "Software-Asset",
                     NAME          => $objType,
                     VERSION       => $appInfo->{VERSION},
-                    IP            => $appInfo->{MGMT_IP},
-                    INSTALL_PATH  => $appInfo->{INSTALL_PATH}
+                    INSTALL_PATH  => getRealInstallPath($appInfo, $procInfo)
                 };
                 $appInfo->{SOFTWARE_ASSETS} = $softWare;
             }

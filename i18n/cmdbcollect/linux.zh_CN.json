@@ -672,11 +672,6 @@
             ]
         },
         {
-            "name": "AUTO_RESTART",
-            "desc": "自动重启",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -707,6 +702,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "AUTO_RESTART",
+            "desc": "自动重启",
+            "type": "String"
         },
         {
             "name": "BOARD_SERIAL",

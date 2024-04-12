@@ -181,15 +181,15 @@ sub getUserInfo {
     if ( defined($rows) ) {
         foreach my $row (@$rows) {
             if ( defined $row->{USERNAME} and $row->{USERNAME} ne '' ) {
-                 push(
-                        @userInfos,
-                        {
-                            _OBJ_CATEGORY       => CollectObjCat->get("DB"),
-                            _OBJ_TYPE           => 'DB-USER',
-                            NAME                => $row->{USERNAME},
-                            DEFAULT_TABLESPACE  => $row->{DEFAULT_TABLESPACE}
-                        }
-                        );
+                push(
+                    @userInfos,
+                    {
+                        _OBJ_CATEGORY      => CollectObjCat->get("DB"),
+                        _OBJ_TYPE          => 'DB-USER',
+                        NAME               => $row->{USERNAME},
+                        DEFAULT_TABLESPACE => $row->{DEFAULT_TABLESPACE}
+                    }
+                );
             }
         }
     }
@@ -304,10 +304,10 @@ sub getDataBases {
                 push(
                     @dbCons,
                     {
-                         _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                        _OBJ_TYPE      => 'DB-CONNECT',
-                        USER_NAME      => $user>{NAME},
-                        SERVICE_NAME   => $dbName
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-CONNECT',
+                        USER_NAME     => $user->{NAME},
+                        SERVICE_NAME  => $dbName
                     }
                 );
             }
@@ -333,7 +333,7 @@ sub getDataBases {
                             PORT          => $dmInfo->{PORT}
                         }
                     ],
-                    USERS         => $dbUsers
+                    USERS => $dbUsers
                 }
             );
         }
@@ -421,10 +421,10 @@ sub collect {
 
     my $host  = '127.0.0.1';
     my $disql = DisqlExec->new(
-        dbHome   => $dmHome,
-        osUser   => $osUser,
-        host     => $host,
-        port     => $port
+        dbHome => $dmHome,
+        osUser => $osUser,
+        host   => $host,
+        port   => $port
     );
     $self->{disql} = $disql;
 

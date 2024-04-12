@@ -68,6 +68,33 @@
             "type": "String"
         },
         {
+            "name": "SERVICE_PORTS",
+            "desc": "服务监听端口",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "SOFTWARE_ASSETS",
             "desc": "软件资产",
             "type": "JsonArray",
@@ -90,11 +117,6 @@
                 {
                     "name": "VERSION",
                     "desc": "版本",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "安装主机IP",
                     "type": "String"
                 },
                 {
@@ -337,11 +359,6 @@
             ]
         },
         {
-            "name": "APPLICATION_NAME",
-            "desc": "应用名",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -387,6 +404,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "APPLICATION_NAME",
+            "desc": "应用名",
+            "type": "String"
         },
         {
             "name": "CHECKPOINT_COMPLETION_TARGET",

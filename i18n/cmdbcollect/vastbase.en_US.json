@@ -78,6 +78,33 @@
             "type": "String"
         },
         {
+            "name": "SERVICE_PORTS",
+            "desc": "Service Ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Service Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
             "name": "SOFTWARE_ASSETS",
             "desc": "Software Assets",
             "type": "JsonArray",
@@ -100,11 +127,6 @@
                 {
                     "name": "VERSION",
                     "desc": "Version",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "OS IP",
                     "type": "String"
                 },
                 {
@@ -352,11 +374,6 @@
             ]
         },
         {
-            "name": "APPLICATION_NAME",
-            "desc": "APPLICATION_NAME",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -402,6 +419,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "APPLICATION_NAME",
+            "desc": "APPLICATION_NAME",
+            "type": "String"
         },
         {
             "name": "CHECKPOINT_COMPLETION_TARGET",
