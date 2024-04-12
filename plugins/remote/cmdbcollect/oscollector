@@ -10,7 +10,7 @@ use Getopt::Long;
 #use Getopt::Long qw(GetOptionsFromArray);
 use POSIX qw(uname);
 use File::Basename;
-use File::Spec qw(file_name_is_absolute rel2abs);
+use File::Spec;
 use JSON qw(from_json to_json);
 
 #use JSON;
@@ -474,8 +474,8 @@ sub resolveSymlinks {
     if ( -l $path ) {
         my $target = readlink($path);
 
-        if ( !file_name_is_absolute($target) ) {
-            $target = rel2abs( $target, dirname($path) );
+        if ( !File::Spec->file_name_is_absolute($target) ) {
+            $target = File::Spec->rel2abs( $target, dirname($path) );
         }
         return resolve_symlinks($target);
     }
