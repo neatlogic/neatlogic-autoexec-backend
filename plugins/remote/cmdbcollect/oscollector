@@ -493,42 +493,42 @@ sub getRealInstallPath {
     my $realInstallPath = '';
     my $realBinPath;
 
-    my $binPath = $appInfo->{BIN_PATH};
-    if ( defined($binPath) and $binPath ne '' ) {
-        $realBinPath = resolveSymlinks($binPath);
+    my $installPath = $appInfo->{INSTALL_PATH};
+    if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
+        $realBinPath = resolveSymlinks("$installPath/bin");
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath/sbin");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath/lib");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath");
+        }
     }
     else {
-        my $exePath = $appInfo->{EXE_PATH};
-        if ( defined($exePath) and $exePath ne '' ) {
-            $binPath     = dirname($exePath);
+        my $binPath = $appInfo->{BIN_PATH};
+        if ( defined($binPath) and $binPath ne '' ) {
             $realBinPath = resolveSymlinks($binPath);
         }
         else {
-            my $executableFile = $procInfo->{EXECUTABLE_FILE};
-            if ( defined($executableFile) and $executableFile ne '' ) {
-                $binPath     = dirname($executableFile);
+            my $exePath = $appInfo->{EXE_PATH};
+            if ( defined($exePath) and $exePath ne '' ) {
+                $binPath     = dirname($exePath);
                 $realBinPath = resolveSymlinks($binPath);
+            }
+            else {
+                my $executableFile = $procInfo->{EXECUTABLE_FILE};
+                if ( defined($executableFile) and $executableFile ne '' ) {
+                    $binPath     = dirname($executableFile);
+                    $realBinPath = resolveSymlinks($binPath);
+                }
             }
         }
     }
 
     if ( defined($realBinPath) and $realBinPath ne '' ) {
         $realInstallPath = dirname($realBinPath);
-    }
-    else {
-        my $installPath = $appInfo->{INSTALL_PATH};
-        if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
-            $realBinPath = resolveSymlinks("$installPath/bin");
-            if ( not defined($realBinPath) ) {
-                $realBinPath = resolveSymlinks("$installPath/sbin");
-            }
-            if ( not defined($realBinPath) ) {
-                $realBinPath = resolveSymlinks("$installPath/lib");
-            }
-            if ( defined($realBinPath) and $realBinPath ne '' ) {
-                $realInstallPath = dirname($realBinPath);
-            }
-        }
     }
 
     return $realInstallPath;
