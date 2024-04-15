@@ -62,13 +62,13 @@ sub new {
         }
     };
 	
-	my $portOidDef = {
+    my $portOidDef = {
         PORT => {
-            NAME           => '1.3.6.1.2.1.2.2.1.2',     
-            MAC             => '1.3.6.1.2.1.2.2.1.6'      
+            NAME => '1.3.6.1.2.1.2.2.1.2',
+            MAC  => '1.3.6.1.2.1.2.2.1.6'
         }
     };
-
+	
     my $snatOidDef = {
         SNAT_IP => {
             IP => '1.3.6.1.4.1.3375.2.2.9.5.2.1.2'                   #ltmTransAddrAddr
@@ -78,9 +78,18 @@ sub new {
             #1.3.6.1.4.1.3375.2.2.9.1.2.1.5  ltmSnatTransAddr
     };
 
+    #my $snatOidDef = {
+    # 	SNAT_IP =>{
+    # 	    SNAT_POOL_NAME => '1.3.6.1.4.1.3375.2.2.9.9.2.1.1',
+    # 	    SNAT_TRANS_TYPE => '1.3.6.1.4.1.3375.2.2.9.9.2.1.2',
+    # 	    SNAT_TRANS_ADDR => '1.3.6.1.4.1.3375.2.2.9.9.2.1.3'
+    # 	}
+
+    # };
+
     $self->{scalarOidDef} = $scalarOidDef;
     $self->{vsOidDef}     = $vsOidDef;
-	$self->{portOidDef}     = $portOidDef;
+    $self->{portOidDef}   = $portOidDef;
     $self->{snatOidDef}   = $snatOidDef;
 
     my $version = $args{version};
@@ -163,7 +172,8 @@ sub _getVS {
     my $poolData     = $tableData->{POOL};
     my $memberData   = $tableData->{MEMBER};
     my $snatPoolData = $tableData->{SNAT_POOL};
-    my $snatIpData   = $tableData->{SNAT_IP};
+
+    my $snatIpData = $tableData->{SNAT_IP};
 
     my $poolMap = {};
     foreach my $poolInfo (@$poolData) {
@@ -191,7 +201,7 @@ sub _getVS {
     # 遍历原始数组
     foreach my $entry (@$snatPoolData) {
         my $name    = $entry->{'NAME'};
-        my $address = { 'IP' => $snmpHelper->hex2ip( $entry->{'ADDRESS'} ), '_OBJ_CATEGORY' => 'LOADBALANCER', '_OBJ_TYPE' => 'LOADBALANCER-SNATIP' };
+        my $address = { 'IP' => $snmpHelper->hex2ip( $entry->{'ADDRESS'} ) };
         my $type    = $entry->{'TYPE'};
 
         # 如果 NAME 已经存在于映射中，则将 ADDRESS 和 TYPE 添加到数组中
@@ -210,6 +220,10 @@ sub _getVS {
     # 构建合并后的数组
     foreach my $name ( keys %name_to_data ) {
         my $data = $name_to_data{$name};
+        foreach my $item ( @{ $data->{ADDRESSES} } ) {
+            $item->{'_OBJ_CATEGORY'} = 'LOADBALANCER';
+            $item->{'_OBJ_TYPE'}     = 'LOADBALANCER-SNATIP';
+        }
         push @snatPools, {
             '_OBJ_CATEGORY' => 'LOADBALANCER',
             '_OBJ_TYPE'     => 'LOADBALANCER-SNATPOOL',
@@ -234,9 +248,7 @@ sub _getVS {
     }
 
     foreach my $snatIpInfo (@$snatIpData) {
-        $snatIpInfo->{IP}            = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
-        $snatIpInfo->{_OBJ_CATEGORY} = 'LOADBALANCER';
-        $snatIpInfo->{_OBJ_TYPE}     = 'LOADBALANCER-SNATIP';
+        $snatIpInfo->{IP} = $snmpHelper->hex2ip( $snatIpInfo->{IP} );
     }
 
     return $vsData;
@@ -244,22 +256,25 @@ sub _getVS {
 
 #get simple oid value
 sub _getPorts {
-	#print "---------------this is in _getPorts\n";
-    my ($self)       = @_;
-    my $snmp         = $self->{snmpSession};
+
+    #print "---------------this is in _getPorts\n";
+    my ($self)     = @_;
+    my $snmp       = $self->{snmpSession};
     my $portOidDef = $self->{portOidDef};
 
     my $snmpHelper = $self->{snmpHelper};
-	my $tableData  = $snmpHelper->getTable( $snmp, $portOidDef );
-	#print "tableData is :\n";
-	#print Dumper($tableData);
+    my $tableData  = $snmpHelper->getTable( $snmp, $portOidDef );
+
+    #print "tableData is :\n";
+    #print Dumper($tableData);
     my $portData = $tableData->{PORT};
+
     #print "portData is :\n";
-	#print Dumper($portData);
-	foreach my $port (@$portData) {
-		$port->{MAC} = $snmpHelper->hex2mac($port->{MAC});
-		$port->{_OBJ_CATEGORY} = 'LOADBALANCER';
-		$port->{_OBJ_TYPE} = 'PORT';
+    #print Dumper($portData);
+    foreach my $port (@$portData) {
+        $port->{MAC}           = $snmpHelper->hex2mac( $port->{MAC} );
+        $port->{_OBJ_CATEGORY} = 'LOADBALANCER';
+        $port->{_OBJ_TYPE}     = 'PORT';
     }
     return $portData;
 }
@@ -271,7 +286,6 @@ sub _getSnatIp {
 
     my $snmpHelper = $self->{snmpHelper};
     my $tableData  = $snmpHelper->getTable( $snmp, $snatOidDef );
-
     my $snatIpData = $tableData->{SNAT_IP};
 
     foreach my $snatIpInfo (@$snatIpData) {
@@ -293,8 +307,8 @@ sub collect {
 
     my $vsArray = $self->_getVS();
     $devInfo->{VIRTUAL_SERVERS} = $vsArray;
-	
-	my $portArray = $self->_getPorts();
+
+    my $portArray = $self->_getPorts();
     $devInfo->{PORTS} = $portArray;
 
     my $snatArray = $self->_getSnatIp();

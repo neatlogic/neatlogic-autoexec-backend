@@ -73,6 +73,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "服务名",
                     "type": "String"
@@ -81,6 +91,38 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "软件资产",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "软件名",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "安装路径",
+                    "type": "String"
                 }
             ]
         },
@@ -431,31 +473,6 @@
             ]
         },
         {
-            "name": "ACTIVEMQ_BASE",
-            "desc": "ActiveMQ实例目录",
-            "type": "String"
-        },
-        {
-            "name": "ACTIVEMQ_CONF",
-            "desc": "ActiveMQ配置目录",
-            "type": "String"
-        },
-        {
-            "name": "ACTIVEMQ_DATA_PATH",
-            "desc": "ActiveMQ数据目录",
-            "type": "String"
-        },
-        {
-            "name": "ACTIVEMQ_HOME",
-            "desc": "ActiveMQ Home目录",
-            "type": "String"
-        },
-        {
-            "name": "AMQP_PORT",
-            "desc": "AMQP Port",
-            "type": "Int"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -473,63 +490,6 @@
                 {
                     "name": "PRIMARY_IP",
                     "desc": "主IP(非LB)",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BIN_PATH",
-            "desc": "BIN文件路径",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
-        },
-        {
-            "name": "MQTT",
-            "desc": "MQTT Port",
-            "type": "Float"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
                     "type": "String"
                 },
                 {
@@ -627,6 +587,115 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "调用服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ACTIVEMQ_BASE",
+            "desc": "ActiveMQ实例目录",
+            "type": "String"
+        },
+        {
+            "name": "ACTIVEMQ_CONF",
+            "desc": "ActiveMQ配置目录",
+            "type": "String"
+        },
+        {
+            "name": "ACTIVEMQ_DATA_PATH",
+            "desc": "ActiveMQ数据目录",
+            "type": "String"
+        },
+        {
+            "name": "ACTIVEMQ_HOME",
+            "desc": "ActiveMQ Home目录",
+            "type": "String"
+        },
+        {
+            "name": "AMQP_PORT",
+            "desc": "AMQP Port",
+            "type": "Int"
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "BIN文件路径",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "Text"
+        },
+        {
+            "name": "MQTT",
+            "desc": "MQTT Port",
+            "type": "Float"
         },
         {
             "name": "RUN_ON",

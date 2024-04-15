@@ -122,6 +122,10 @@ sub getRedisInfo {
     my $infoByCliByCli = {};
     my $outLines       = $self->getCmdOutLines(qq{$redisCliCmd info 2>/dev/null});
     foreach my $outLine (@$outLines) {
+        if ( $outLine =~ /NOAUTH Authentication required/) {
+            print("WARN : $outLine\n");
+            last;
+        }
         if ( $outLine =~ /^#/ ) {
             next;
         }
@@ -259,7 +263,9 @@ sub collect {
             }
         }
     }
-    $configFile = realpath($configFile);
+    if ( $configFile ne "" ) {
+        $configFile = realpath($configFile);
+    }
     my $cliFile = File::Spec->catfile( $binPath, "redis-cli" );
     $redisInfo->{CONFIG_FILE} = $configFile;
 
@@ -297,7 +303,9 @@ sub collect {
     my $infoByCli   = $self->getRedisInfo($redisCliCmd);
 
     my $configFile = $infoByCli->{config_file};
-    $configFile = realpath($configFile);
+    if ( $configFile ne "" ){
+        $configFile = realpath($configFile);
+    }
     $redisInfo->{CONFIG_FILE} = $configFile;
 
     #配置文件
