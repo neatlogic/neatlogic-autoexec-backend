@@ -305,9 +305,13 @@ sub mergeMultiProcs {
             }
 
             my $minPort      = 65535;
+            my $insPort      = $appInfo->{PORT};
             my $portsMap     = {};
             my $bindAddrsMap = {};
             my @bindAddrs    = ();
+            if ( defined($insPort) and $insPort ne '' ) {
+                $portsMap->{$insPort} = 1;
+            }
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
                     $lsnPort = int($lsnPort);
@@ -477,9 +481,12 @@ sub resolveSymlinks {
         if ( !File::Spec->file_name_is_absolute($target) ) {
             $target = File::Spec->rel2abs( $target, dirname($path) );
         }
-        return resolve_symlinks($target);
+        return resolveSymlinks($target);
     }
     elsif ( -e $path ) {
+        if ( !File::Spec->file_name_is_absolute($path) ) {
+            $path = File::Spec->rel2abs( $path, dirname($path) );
+        }
         return $path;
     }
     else {

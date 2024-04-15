@@ -1,8 +1,8 @@
 {
-    "label": "TiDB Cluster",
+    "label": "TiDB集群",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
-    "collection_label": "TiDB集群",
+    "collection_label": "集群",
     "filter": {
         "_OBJ_TYPE": "TiDBCluster"
     },

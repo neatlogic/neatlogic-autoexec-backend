@@ -36,6 +36,10 @@ class FusionComputer:
             'hosts': '{sites}/hosts',
             'vms':'{sites}/vms',
             'datastores':'{sites}/datastores',
+            'pnics':'{sites}/pnics',
+            'storageresources':'{sites}/storageresources',
+            'storageunits':'{sites}/storageunits/querybypage',
+            'volumes':'{sites}/volumes',
             'alarms':'{sites}/alarms/activeAlarms'
         }
 
@@ -210,10 +214,12 @@ class FusionComputer:
                 dc['_OBJ_CATEGORY'] = "VIRTUALIZED"
                 dc['_OBJ_TYPE'] = "VIRTUALIZED-DATACENTER"
                 moid = site['urn'].split(':')[2]
-                dc['MOID'] = moid
-                dc['NAME'] = site['name']
-                dc['URI'] = site['uri']
-                dc['URN'] = site['urn']
+                dc['MOID']   = moid
+                dc['NAME']   = site['name']
+                dc['IP']     = site['ip']
+                dc['STATUS'] = site['status']
+                dc['URI']    = site['uri']
+                dc['URN']    = site['urn']
                 sites.append(dc)
         else:
             print("ERROR:: Request FusionComputer get sites failed .\n")
@@ -262,10 +268,17 @@ class FusionComputer:
                 clu['DC_NAME'] = dcName
                 clu['NAME'] = cluster['name']
                 clu['TAG'] = cluster['tag']
+                clu['CPU_TOTALSIZE_MHZ'] = cluster['cpuResource']['totalSizeMHz']
+                clu['CPU_ALLOCATEDSIZE_MHZ'] = cluster['cpuResource']['allocatedSizeMHz']
+                clu['MEM_TOTALSIZE_MB'] = cluster['memResource']['totalSizeMB']
+                clu['MEM_ALLOCATEDSIZE_MB'] = cluster['memResource']['allocatedSizeMB']
+                clu['MEM_REALTIME_USEDSIZE_MB'] = cluster['memResource']['realtimeUsedSizeMB']
                 clu['DESCRIPTION'] = cluster['description']
                 clu['URI'] = cluster['uri']
                 clu['URN'] = cluster['urn']
                 clu['DATASTORE'] = self.getDatastores(uri)
+                #clu['STORAGE_UNITS'] = self.getStorageunits(uri)
+
                 clusters.append(clu)
         else:
             print("ERROR:: Request FusionComputer get clusters failed .\n")
@@ -342,6 +355,59 @@ class FusionComputer:
         response = self.httpGET( url , self.authToken)
         if response is None : 
             return hosts
+        """
+       {
+          "hosts":[
+            {
+              "urn":"urn:sites:414B07B7:hosts:175",
+              "uri":"/service/sites/414B07B7/hosts/175",
+              "uuid":"46e0aefc-42e5-4a4b-ac26-d12505f78706",
+              "name":"hgcna121",
+              "description":"",
+              "ip":"10.244.250.121",
+              "clusterUrn":"urn:sites:414B07B7:clusters:116",
+              "clusterName":"HG_XC_CLUSTER",
+              "status":"normal",
+              "isMaintaining":false,
+              "multiPathMode":"CURRENCY",
+              "hostMultiPathMode":"CURRENCY",
+              "memQuantityMB":1017982,
+              "cpuQuantity":86,
+              "nicQuantity":12,
+              "cpuMHz":2600,
+              "attachedISOVMs":[],
+              "computeResourceStatics":"/service/sites/414B07B7/hosts/175/computeResourceStatics",
+              "ntpIp1":"20.5.101.10",
+              "ntpIp2":"20.5.101.9",
+              "ntpIp3":"",
+              "ntpCycle":64,
+              "physicalCpuQuantity":2,
+              "gpuCapacity":-1,
+              "gpuCapacityReboot":-1,
+              "gdvmMemoryReboot":128,
+              "gsvmMemoryReboot":128,
+              "maxImcSetting":"Kunpeng-920",
+              "isFailOverHost":false,
+              "clusterEnableIOTailor":false,
+              "hostRealName":"hgcna121",
+              "cpuResource":{
+                "totalSizeMHz":223600,
+                "allocatedSizeMHz":20800,
+                "manageCPUs":"0,1,2,3,4,5,6,7,8,9",
+                "emulatorCPUs":""
+              },
+              "memResource":{
+                "totalSizeMB":1017982,
+                "allocatedSizeMB":966535,
+                "realtimeUsedSizeMB":966535
+              },
+              "memMuxRatio":"94.95",
+              "cpuMuxRatio":"493.02"
+            }
+          ],
+          "total":16
+        }
+       """
         if response.status == 200:
             rs = json.loads(response.read())
             items = rs['hosts']
@@ -372,13 +438,40 @@ class FusionComputer:
                 ins['ISFAILOVERHOST'] = host['isFailOverHost']
                 ins['STATUS'] = host['status']
                 ins['NICQUANTITY'] = host['nicQuantity']
+                data_list = []
+                net_list = self.getHostPNics(host['uri'])
+                if net_list != None:
+                    for net in net_list:
+                        data_list.append(net)
+                ins["ETH_INTERFACES"] = data_list
                 hosts.append(ins)
         else:
             print("ERROR:: Request FusionComputer get hosts failed .\n")
             
         self.addHostSerialInfo(hosts)
         return hosts
-    
+
+    def  getHostPNics(self , uri ):
+        pnics = []
+        url = self.apiMap['pnics']
+        url = url.replace('{sites}' , uri)
+        url = url + '?limit=100&offset=0'
+        response = self.httpGET( url , self.authToken)
+        if response is None :
+            return
+
+        elif response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['pnics']
+            total = rs['total']
+            print("INFO:: total find {} count pnics.".format(total))
+            for pnic in items :
+                pnics.append(pnic)
+        else:
+            print("ERROR:: Request FusionComputer get pnics failed .\n")
+
+        return pnics
+
     def  getVms(self , uri , hosts):
         vms = []
         url = self.apiMap['vms']
@@ -392,6 +485,58 @@ class FusionComputer:
     
     def getVmsLoop(self, url, offset, allVms, hosts):
         response = self.httpGET( url+str(offset) , self.authToken)
+        """
+       {
+          "urn":"urn:sites:414B07B7:vms:i-00000447",
+          "uri":"/service/sites/414B07B7/vms/i-00000447",
+          "uuid":"2c93afb7-053e-41bd-bdb7-05ddcef3dc2e",
+          "name":"10.244.37.41_app1",
+          "arch":"arm",
+          "description":"",
+          "location":"urn:sites:414B07B7:clusters:116",
+          "locationName":"HG_XC_CLUSTER",
+          "hostUrn":"urn:sites:414B07B7:hosts:26571",
+          "clusterUrn":"urn:sites:414B07B7:clusters:116",
+          "status":"running",
+          "pvDriverStatus":"running",
+          "toolInstallStatus":"empty",
+          "cdRomStatus":"empty",
+          "isTemplate":false,
+          "isLinkClone":false,
+          "createTime":"2024-04-12 08:18:55",
+          "idle":-1,
+          "toolsVersion":"3.0.602.001",
+          "isBindingHost":false,
+          "hostName":"hgcna134",
+          "clusterName":"HG_XC_CLUSTER",
+          "hugePage":"4K",
+          "params":{
+            "snapshotNum":"0"
+          },
+          "vmType":0,
+          "drStatus":9,
+          "rpoStatus":0,
+          "initSyncStatus":0,
+          "vmConfig":{
+            "nics":[
+              {
+                "mac":"28:6e:d4:89:66:72",
+                "ip":"10.244.37.41",
+                "ipList":"10.244.37.41",
+                "sequenceNum":0,
+                "ips6":[]
+              }
+            ],
+            "properties":{
+              "secureVmType":"",
+              "dpiVmType":""
+            },
+            "numaNodes":0
+          },
+          "minCompatibleimcSetting":"Kunpeng-920",
+          "objectPrivs":[]
+        }
+       """
         if response is None : 
             return
         elif response.status == 200:
@@ -401,7 +546,6 @@ class FusionComputer:
             print("INFO:: total find {} count vms.".format(total))
             for vm in items :
                 ins = {} 
-                ins['_OBJ_CATEGORY'] = "OS"
                 osType = 'Linux'
                 if vm['vmType'] != 0 :
                     osType = 'Windows'
@@ -485,11 +629,20 @@ class FusionComputer:
             rs = json.loads(response.read())
             items = rs['datastores']
             for obj in items :
-                ins = {} 
+                ins = {}
+                ins['_OBJ_CATEGORY'] = 'VIRTUALIZED'
+                ins['_OBJ_TYPE'] = 'VIRTUALIZED-DATASTORE'
                 urns = obj['urn'].split(':')
+                ins['UNIQUE_NAME'] = obj['urn']
                 ins['MOID'] = urns[3] + '-' + urns[4]
                 ins['NAME'] = obj['name']
+                suName = obj['suName']
+                if suName.find('scsi-') == 0:
+                    suName = suName[5:]
+                if suName.find('3') == 0:
+                    suName = suName[1:]
                 ins['SU_NAME'] = obj['suName']
+                ins['SU_UUID'] = suName
                 ins['SU_URN'] = obj['suUrn']
                 ins['STATUS'] = obj['status']
                 ins['TYPE'] = obj['storageType']
@@ -500,7 +653,7 @@ class FusionComputer:
                 ins['CAPACITY'] = capacity
                 ins['AVAILABLE'] = available
                 ins['USED'] = used
-                ins['USED'] = used_pct
+                ins['USED_PCT'] = used_pct
                 ins['UNIT'] ='GB'
                 ins['PATH'] = obj['urn']
                 ins['HOSTS'] = obj['hosts']
@@ -508,6 +661,135 @@ class FusionComputer:
         else:
             print("ERROR:: Request FusionComputer get datastores failed .\n")
         return datastores
+
+    def getVolumes(self , uri):
+        volumes = []
+        url = self.apiMap['volumes']
+        url = url.replace('{sites}' , uri)
+        url = url + '?limit=100&offset='
+        offset = 0
+        #默认限制每页查询100
+        self.getVolumesLoop(url , offset, volumes)
+        return volumes
+
+    def getVolumesLoop(self, url, offset, allVolumes):
+        response = self.httpGET( url+str(offset) , self.authToken)
+        if response is None :
+            return
+        elif response.status == 200:
+            rs = json.loads(response.read())
+            items = rs['volumes']
+            total = rs['total']
+            print("INFO:: total find {} count volumes.".format(total))
+            for volume in items :
+                allVolumes.append(volume)
+
+            if(len(allVolumes)<total):
+                offset = offset + len(items)
+                self.getVolumesLoop(url ,offset, allVolumes)
+
+        else:
+            print("ERROR:: Request FusionComputer get volumes failed .\n")
+
+        return
+
+    def getStorageunits(self , uri):
+        storageunits = []
+        url = self.apiMap['storageunits']
+        url = url.replace('{sites}' , uri)
+        url = url + '?limit=100&offset=0&deviceType=0'
+        response = self.httpGET( url , self.authToken)
+        if response is None :
+            return storageunits
+        """
+        {
+             "total":integer,
+             "storageUnits ":[{
+                 "urn":string,
+                 "uri":string,
+                 "sdUrn":string,
+                 "sdId":integer,
+                 "sdName":string,
+                 "name":string,
+                 "type":string,
+                 "capacityGB":integer,
+                 "status": string,
+                 "refreshTime": string, // eg: 2012-08-27 20:29:19
+                 "isThin": boolean,
+                 "supportADL":integer,
+                 "wwn":string,
+                 "hostNum":integer,
+                 "suHostID":integer,
+                 "sanSN":string,
+                 "suLunID":string,
+                 "hostList":[{
+                             "urn":string,
+                             "hosName":string,
+                             "clusterUrn":string,
+                             "cluster":string,
+                             "hostIp":string,
+                             "status":string,
+                             "refreshTime":string,
+                             "folderUrn":string,
+                             "folderName":string,
+                             "hasDsOn":boolean,
+                             "isMaintaining":boolean
+                             }]
+             }]
+            }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            print(rs);
+            items = rs['storageUnits']
+            for obj in items :
+                storageunits.append(obj)
+        else:
+            print("ERROR:: Request FusionComputer get storageunits failed .\n")
+        return storageunits
+
+    def getStorageresources(self , uri):
+        storageresources = []
+        url = self.apiMap['storageresources']
+        url = url.replace('{sites}' , uri)
+        url = url + '?limit=100&offset=0'
+        response = self.httpGET( url , self.authToken)
+        if response is None :
+            return storageresources
+        """
+        { 
+             "total":integer,
+             "storageResources":[{
+                 "urn":string, // urn:sites:1:storageresources:1
+                 "uri":string, // service/sites/1/storageresources/1
+                 "name":string, //可能为空
+                 "storageType":string, 
+                 "managementIp":string,
+                 "managementPort":integer, //可能为空
+                 "dataChannel":
+                             [{
+                             "ip":string,
+                             "port":integer
+                             }], //SAN,advancdSAN,NAS 有，FusionStorage 是空
+                 "username":string,//可能为空
+                 "vender":string,
+                 "deviceType":string,
+                 "iSCSITargetIQN":string,
+                 "accessMode":integer,
+                 "digest":integer, (KVM 未支持)
+                 "accessMode":integer
+                 }]
+            }
+        """
+        if response.status == 200:
+            rs = json.loads(response.read())
+            print(rs);
+            items = rs['storageResources']
+            for obj in items :
+                storageresources.append(obj)
+        else:
+            print("ERROR:: Request FusionComputer get storageResources failed .\n")
+        return storageresources
 
     def getAlarms(self , uri , alarms):
         url = self.apiMap['alarms']

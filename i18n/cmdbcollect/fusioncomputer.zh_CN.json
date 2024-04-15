@@ -1,5 +1,5 @@
 {
-    "label": "FusionComputer",
+    "label": "虚拟化-FusionComputer",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
     "collection_label": "虚拟化",
@@ -14,7 +14,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "中间件类型",
+            "desc": "应用类型",
             "type": "String"
         },
         {
@@ -100,6 +100,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "应用类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -114,6 +124,16 @@
                     "desc": "集群",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "应用类型",
+                            "type": "String"
+                        },
                         {
                             "name": "VIRT_PLATFORM",
                             "desc": "虚拟化平台",
@@ -136,12 +156,27 @@
                         },
                         {
                             "name": "DATASTORE",
-                            "desc": "存储",
+                            "desc": "数据存储",
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "id",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UNIQUE_NAME",
+                                    "desc": "唯一名称",
                                     "type": "String"
                                 },
                                 {
@@ -150,13 +185,18 @@
                                     "type": "String"
                                 },
                                 {
+                                    "name": "SU_UUID",
+                                    "desc": "存储设备UUID",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "SU_NAME",
-                                    "desc": "存储单元名称",
+                                    "desc": "存储设备的名称",
                                     "type": "String"
                                 },
                                 {
                                     "name": "SU_URN",
-                                    "desc": "存储单元URN",
+                                    "desc": "存储设备Urn",
                                     "type": "String"
                                 },
                                 {
@@ -201,9 +241,19 @@
                                 },
                                 {
                                     "name": "REL_HOST",
-                                    "desc": "关联物理机",
+                                    "desc": "挂接的主机列表",
                                     "type": "JsonArray",
                                     "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "归属类型",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "应用类型",
+                                            "type": "String"
+                                        },
                                         {
                                             "name": "UUID",
                                             "desc": "uuid",
@@ -234,6 +284,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "id",
                                     "type": "String"
@@ -255,6 +315,16 @@
                             "desc": "包含物理机",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "UUID",
                                     "desc": "uuid",
@@ -278,6 +348,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MGMT_IP",
                                     "desc": "VM IP",
                                     "type": "String"
@@ -292,6 +372,16 @@
                                     "desc": "所在物理机",
                                     "type": "JsonArray",
                                     "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "归属类型",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "应用类型",
+                                            "type": "String"
+                                        },
                                         {
                                             "name": "UUID",
                                             "desc": "uuid",

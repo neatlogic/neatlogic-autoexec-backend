@@ -1,5 +1,5 @@
 {
-    "label": "FusionComputer",
+    "label": "Virtualized-FusionComputer",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
     "collection_label": "Virtualized",
@@ -14,7 +14,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "OS Type",
+            "desc": "Application Type",
             "type": "String"
         },
         {
@@ -100,6 +100,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -114,6 +124,16 @@
                     "desc": "Clusters",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
                         {
                             "name": "VIRT_PLATFORM",
                             "desc": "Virtual Platform",
@@ -140,13 +160,38 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "MOID",
                                     "type": "String"
                                 },
                                 {
+                                    "name": "UNIQUE_NAME",
+                                    "desc": "Unique Name",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "NAME",
                                     "desc": "Name",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_UUID",
+                                    "desc": "Storage Unit UUID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "SU_URN",
+                                    "desc": "Storage Unit Urn",
                                     "type": "String"
                                 },
                                 {
@@ -205,6 +250,16 @@
                                     "type": "JsonArray",
                                     "subset": [
                                         {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "Object Type",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "Application Type",
+                                            "type": "String"
+                                        },
+                                        {
                                             "name": "UUID",
                                             "desc": "uuid",
                                             "type": "String"
@@ -256,6 +311,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "UUID",
                                     "desc": "uuid",
                                     "type": "String"
@@ -278,6 +343,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MGMT_IP",
                                     "desc": "Vm IP",
                                     "type": "String"
@@ -292,6 +367,16 @@
                                     "desc": "Run Host",
                                     "type": "JsonArray",
                                     "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "Object Type",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "Application Type",
+                                            "type": "String"
+                                        },
                                         {
                                             "name": "UUID",
                                             "desc": "uuid",

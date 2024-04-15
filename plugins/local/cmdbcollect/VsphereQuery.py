@@ -50,12 +50,15 @@ class VsphereQuery:
                 name = dst.name
                 moid = dst._moId
                 summary = dst.summary
+                ins['_OBJ_CATEGORY'] = "VIRTUALIZED"
+                ins['_OBJ_TYPE'] = "VIRTUALIZED-DATASTORE"
                 ins["NAME"] = name
                 ins["MOID"] = moid
                 available = round(summary.freeSpace / 1024 / 1204 / 1024, 2)
                 capacity = round(summary.capacity / 1024 / 1024 / 1024, 2)
                 used = capacity - available
                 used_pct = round((used / capacity) * 100)
+                uuid = summary.url.replace("ds:///vmfs/volumes/", "").replace("/", "").replace("-", "")
                 ins["AVAILABLE"] = available
                 ins["CAPACITY"] = capacity
                 ins["USED"] = used
@@ -64,6 +67,8 @@ class VsphereQuery:
                 ins["TYPE"] = summary.type
                 ins["UNIT"] = "GB"
                 ins["PATH"] = summary.url
+                ins["UUID"] = uuid
+                ins["UNIQUE_NAME"] = uuid
                 data_list.append(ins)
         return data_list
 
@@ -245,20 +250,16 @@ class VsphereQuery:
                 "_OBJ_CATEGORY": "HOST",
                 "_OBJ_TYPE": "HOST",
                 "BOARD_SERIAL": serialNumber,
-                "_OBJ_CATEGORY": "HOST",
-                "_OBJ_TYPE": "HOST",
                 "HOST_IP": host.name,
-                "UUID": host_uuid,
+                "UUID": host_uuid
             }
         ]
         ins["CLUSTERED_ON"] = [
             {
                 "_OBJ_CATEGORY": "VIRTUALIZED",
-                "_OBJ_TYPE": "VCENTER",
-                "MOID": cluster._moId,
-                "_OBJ_CATEGORY": "VIRTUALIZED-CLUSTER",
                 "_OBJ_TYPE": "VIRTUALIZED-CLUSTER",
-                "MGMT_IP": self.ip,
+                "MOID": cluster._moId,
+                "MGMT_IP": self.ip
             }
         ]
         return ins
