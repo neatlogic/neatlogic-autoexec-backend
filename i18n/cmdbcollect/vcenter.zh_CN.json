@@ -1,5 +1,5 @@
 {
-    "label": "VCenter",
+    "label": "虚拟化-VCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
     "collection_label": "虚拟化",
@@ -14,12 +14,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "中间件类型",
-            "type": "String"
-        },
-        {
-            "name": "VIRT_PLATFORM",
-            "desc": "虚拟化平台",
+            "desc": "应用类型",
             "type": "String"
         },
         {
@@ -43,11 +38,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "版本",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"
@@ -65,6 +55,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "错误信息",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
             "type": "String"
         },
         {
@@ -120,6 +115,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "应用类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "名称",
                     "type": "String"
@@ -134,6 +139,26 @@
                     "desc": "集群",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "应用类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "虚拟化平台",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "数据中心名称",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -150,8 +175,28 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "id",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UUID",
+                                    "desc": "UUID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UNIQUE_NAME",
+                                    "desc": "唯一名称",
                                     "type": "String"
                                 },
                                 {
@@ -207,6 +252,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "id",
                                     "type": "String"
@@ -228,6 +283,16 @@
                             "desc": "包含物理机",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "UUID",
                                     "desc": "uuid",
@@ -251,6 +316,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "应用类型",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MGMT_IP",
                                     "desc": "VM IP",
                                     "type": "String"
@@ -270,6 +345,16 @@
                                     "desc": "所在物理机",
                                     "type": "JsonArray",
                                     "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "归属类型",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "应用类型",
+                                            "type": "String"
+                                        },
                                         {
                                             "name": "UUID",
                                             "desc": "uuid",
@@ -301,6 +386,11 @@
         {
             "name": "INSTANCEUUID",
             "desc": "安装实例uuid",
+            "type": "String"
+        },
+        {
+            "name": "VIRT_PLATFORM",
+            "desc": "虚拟化平台",
             "type": "String"
         },
         {

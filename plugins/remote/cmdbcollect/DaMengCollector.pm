@@ -181,10 +181,15 @@ sub getUserInfo {
     if ( defined($rows) ) {
         foreach my $row (@$rows) {
             if ( defined $row->{USERNAME} and $row->{USERNAME} ne '' ) {
-                my $userInfo = {};
-                $userInfo->{USERNAME}           = $row->{USERNAME};
-                $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
-                push( @userInfos, $userInfo );
+                push(
+                    @userInfos,
+                    {
+                        _OBJ_CATEGORY      => CollectObjCat->get("DB"),
+                        _OBJ_TYPE          => 'DB-USER',
+                        NAME               => $row->{USERNAME},
+                        DEFAULT_TABLESPACE => $row->{DEFAULT_TABLESPACE}
+                    }
+                );
             }
         }
     }
@@ -289,21 +294,36 @@ sub getDataBases {
         verbose => $self->{isVerbose}
     );
 
+    my $dbUsers = $dmInfo->{USERS};
     my @dbNames = ();
     foreach my $row (@$rows) {
         my $dbName = $row->{NAME};
         if ( defined $dbName and $dbName ne '' ) {
+            my @dbCons = ();
+            foreach my $user (@$dbUsers) {
+                push(
+                    @dbCons,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-CONNECT',
+                        USER_NAME     => $user->{NAME},
+                        SERVICE_NAME  => $dbName
+                    }
+                );
+            }
             push(
                 @dbNames,
                 {
                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
                     _OBJ_TYPE     => 'DaMeng-DB',
+                    _APP_TYPE     => 'DaMeng',
                     NAME          => $dbName,
                     PRIMARY_IP    => $bizIp,
                     VIP           => $vip,
                     PORT          => $port,
                     SSL_PORT      => undef,
                     SERVICE_ADDR  => "$vip:$port",
+                    CONNCTIONS    => \@dbCons,
                     INSTANCES     => [
                         {
                             _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
@@ -312,7 +332,8 @@ sub getDataBases {
                             MGMT_IP       => $dmInfo->{MGMT_IP},
                             PORT          => $dmInfo->{PORT}
                         }
-                    ]
+                    ],
+                    USERS => $dbUsers
                 }
             );
         }
@@ -400,10 +421,10 @@ sub collect {
 
     my $host  = '127.0.0.1';
     my $disql = DisqlExec->new(
-        dbHome   => $dmHome,
-        osUser   => $osUser,
-        host     => $host,
-        port     => $port
+        dbHome => $dmHome,
+        osUser => $osUser,
+        host   => $host,
+        port   => $port
     );
     $self->{disql} = $disql;
 

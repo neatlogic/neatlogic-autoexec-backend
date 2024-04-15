@@ -1,5 +1,5 @@
 {
-    "label": "VCenter",
+    "label": "Virtualized-VCenter",
     "collection": "COLLECT_VIRTUALIZED",
     "docroot": null,
     "collection_label": "Virtualized",
@@ -14,12 +14,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "OS Type",
-            "type": "String"
-        },
-        {
-            "name": "VIRT_PLATFORM",
-            "desc": "Virtual Platform",
+            "desc": "Application Type",
             "type": "String"
         },
         {
@@ -43,11 +38,6 @@
             "type": "Int"
         },
         {
-            "name": "VERSION",
-            "desc": "Version",
-            "type": "String"
-        },
-        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"
@@ -65,6 +55,11 @@
         {
             "name": "ERROR_MESSAGE",
             "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "Version",
             "type": "String"
         },
         {
@@ -120,6 +115,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "Name",
                     "type": "String"
@@ -134,6 +139,26 @@
                     "desc": "Clusters",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Application Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIRT_PLATFORM",
+                            "desc": "Virtual Platform",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DC_NAME",
+                            "desc": "DataCenter Name",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "Name",
@@ -150,8 +175,28 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "MOID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UUID",
+                                    "desc": "UUID",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "UNIQUE_NAME",
+                                    "desc": "Unique Name",
                                     "type": "String"
                                 },
                                 {
@@ -207,6 +252,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MOID",
                                     "desc": "MOID",
                                     "type": "String"
@@ -228,6 +283,16 @@
                             "desc": "Contain Host",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "UUID",
                                     "desc": "uuid",
@@ -251,6 +316,16 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Object Type",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Application Type",
+                                    "type": "String"
+                                },
+                                {
                                     "name": "MGMT_IP",
                                     "desc": "Vm IP",
                                     "type": "String"
@@ -270,6 +345,16 @@
                                     "desc": "Run Host",
                                     "type": "JsonArray",
                                     "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "Object Type",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "Application Type",
+                                            "type": "String"
+                                        },
                                         {
                                             "name": "UUID",
                                             "desc": "uuid",
@@ -301,6 +386,11 @@
         {
             "name": "INSTANCEUUID",
             "desc": "Instance UUID",
+            "type": "String"
+        },
+        {
+            "name": "VIRT_PLATFORM",
+            "desc": "Virtual Platform",
             "type": "String"
         },
         {

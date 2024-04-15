@@ -9,7 +9,7 @@
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -83,14 +83,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -421,21 +463,6 @@
             ]
         },
         {
-            "name": "ABORT_FILE",
-            "desc": "Abort File",
-            "type": "String"
-        },
-        {
-            "name": "APP_IP",
-            "desc": "App IP",
-            "type": "String"
-        },
-        {
-            "name": "AUTO_CREATE_TOPIC_ENABLE",
-            "desc": "Auto Create Topic Enable",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -468,118 +495,6 @@
                 {
                     "name": "UNIQUE_NAME",
                     "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "BROKER_CLUSTER_NAME",
-            "desc": "Broker Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ID",
-            "desc": "Broker Id",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_NAME",
-            "desc": "Broker Name",
-            "type": "String"
-        },
-        {
-            "name": "BROKER_ROLE",
-            "desc": "Broker Role",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "CONFIG_FILE_PATH",
-            "desc": "Conf File Path",
-            "type": "String"
-        },
-        {
-            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
-            "desc": "Default Topic Queue Nums",
-            "type": "String"
-        },
-        {
-            "name": "DELETE_WHEN",
-            "desc": "Delete When",
-            "type": "String"
-        },
-        {
-            "name": "DISK_MAXUSED_SPACE_RATIO",
-            "desc": "Disk Max Used Space Ratio",
-            "type": "String"
-        },
-        {
-            "name": "FILE_RESERVED_TIME",
-            "desc": "File Reserved Time",
-            "type": "String"
-        },
-        {
-            "name": "LISTEN_PORT",
-            "desc": "LISTEN PORT",
-            "type": "String"
-        },
-        {
-            "name": "MAPED_FILESIZE_COMMITLOG",
-            "desc": "Maped File Size Commit Log",
-            "type": "String"
-        },
-        {
-            "name": "MAX_MESSAGE_SIZE",
-            "desc": "Max Message Size",
-            "type": "String"
-        },
-        {
-            "name": "NAMESRV_ADDR",
-            "desc": "Namesrv Addr",
-            "type": "String"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
                     "type": "String"
                 },
                 {
@@ -662,6 +577,160 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ABORT_FILE",
+            "desc": "Abort File",
+            "type": "String"
+        },
+        {
+            "name": "APP_IP",
+            "desc": "App IP",
+            "type": "String"
+        },
+        {
+            "name": "AUTO_CREATE_TOPIC_ENABLE",
+            "desc": "Auto Create Topic Enable",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_CLUSTER_NAME",
+            "desc": "Broker Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ID",
+            "desc": "Broker Id",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_NAME",
+            "desc": "Broker Name",
+            "type": "String"
+        },
+        {
+            "name": "BROKER_ROLE",
+            "desc": "Broker Role",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "CONFIG_FILE_PATH",
+            "desc": "Conf File Path",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TOPIC_QUEUE_NUMS",
+            "desc": "Default Topic Queue Nums",
+            "type": "String"
+        },
+        {
+            "name": "DELETE_WHEN",
+            "desc": "Delete When",
+            "type": "String"
+        },
+        {
+            "name": "DISK_MAXUSED_SPACE_RATIO",
+            "desc": "Disk Max Used Space Ratio",
+            "type": "String"
+        },
+        {
+            "name": "FILE_RESERVED_TIME",
+            "desc": "File Reserved Time",
+            "type": "String"
+        },
+        {
+            "name": "LISTEN_PORT",
+            "desc": "LISTEN PORT",
+            "type": "String"
+        },
+        {
+            "name": "MAPED_FILESIZE_COMMITLOG",
+            "desc": "Maped File Size Commit Log",
+            "type": "String"
+        },
+        {
+            "name": "MAX_MESSAGE_SIZE",
+            "desc": "Max Message Size",
+            "type": "String"
+        },
+        {
+            "name": "NAMESRV_ADDR",
+            "desc": "Namesrv Addr",
+            "type": "String"
         },
         {
             "name": "RUN_ON",

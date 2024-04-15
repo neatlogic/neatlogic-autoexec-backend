@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "Model",
+            "type": "String"
+        },
+        {
             "name": "DISKS",
             "desc": "Disks",
             "type": "JsonArray",
@@ -199,11 +204,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "Board Serial",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "Model",
             "type": "String"
         },
         {

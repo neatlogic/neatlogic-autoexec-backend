@@ -9,7 +9,7 @@
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -73,14 +73,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -381,38 +423,6 @@
             ]
         },
         {
-            "name": "APPPOOLS",
-            "desc": "AppPool List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "State",
-                    "type": "String"
-                },
-                {
-                    "name": "CLR_VER",
-                    "desc": "CLR Version",
-                    "type": "String"
-                },
-                {
-                    "name": "PIPELINE_MODE",
-                    "desc": "PipeLine Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "START_MODE",
-                    "desc": "Start Mode",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -445,53 +455,6 @@
                 {
                     "name": "UNIQUE_NAME",
                     "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
                     "type": "String"
                 },
                 {
@@ -574,6 +537,112 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "APPPOOLS",
+            "desc": "AppPool List",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                },
+                {
+                    "name": "CLR_VER",
+                    "desc": "CLR Version",
+                    "type": "String"
+                },
+                {
+                    "name": "PIPELINE_MODE",
+                    "desc": "PipeLine Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "START_MODE",
+                    "desc": "Start Mode",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
         },
         {
             "name": "RUN_ON",

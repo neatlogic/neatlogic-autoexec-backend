@@ -24,7 +24,7 @@ The output will be:
 
     baz
     {
-        etc    `foo bar` baz `` 1
+        etc    "foo bar" baz "" 1
     }
 
     foo         Hello, World!
@@ -123,7 +123,7 @@ The output will be:
 
     baz
     {
-        etc    `foo bar` baz `` 1
+        etc    "foo bar" baz "" 1
     }
 
 =item B<< undefined_value >>
@@ -349,7 +349,9 @@ sub render {
         # dereference scalar
         $scalar = $$scalar if ref($scalar) eq 'SCALAR';
 
-        $scalar =~ s/`/\\`/g;
+        #$scalar =~ s/`/\\`/g;
+        $scalar =~ s/"/\\"/g;
+        $scalar =~ s/'/\\'/g;
 
         if ($scalar =~ m/(\n|\s{2,})/) {
             $should_escape = 1;
@@ -360,11 +362,13 @@ sub render {
         }
 
         if ($scalar eq '') {
-            $scalar = '``';
+            #$scalar = '``';
+            $scalar = '""';
         }
 
         if ($should_escape and $scalar =~ m/\s/) {
-            $scalar = '`'.$scalar.'`';
+            #$scalar = '`'.$scalar.'`';
+            $scalar = '"'.$scalar.'"';
         }
 
         if (!$should_escape and $scalar ne '') {
@@ -389,7 +393,8 @@ sub render {
 
         # if the key name contains whitespace, wrap it in backticks
         if ($key =~ m/\s/) {
-            $key = "`$key`";
+            #$key = "`$key`";
+            $key = qq{"$key"};
         }
 
         if (is_scalar($val)) {

@@ -127,6 +127,33 @@
             "type": "String"
         },
         {
+            "name": "CONNECTIONS",
+            "desc": "访问入口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "INSTANCES",
             "desc": "关联实例",
             "type": "JsonArray",
@@ -169,33 +196,6 @@
                 {
                     "name": "SERVICE_ADDR",
                     "desc": "服务地址",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CONNECTIONS",
-            "desc": "访问入口列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "SERVICE_NAME",
-                    "desc": "服务名",
-                    "type": "String"
-                },
-                {
-                    "name": "USER_NAME",
-                    "desc": "用户名",
                     "type": "String"
                 }
             ]

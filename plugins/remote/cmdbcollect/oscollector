@@ -10,6 +10,7 @@ use Getopt::Long;
 #use Getopt::Long qw(GetOptionsFromArray);
 use POSIX qw(uname);
 use File::Basename;
+use File::Spec;
 use JSON qw(from_json to_json);
 
 #use JSON;
@@ -304,9 +305,13 @@ sub mergeMultiProcs {
             }
 
             my $minPort      = 65535;
+            my $insPort      = $appInfo->{PORT};
             my $portsMap     = {};
             my $bindAddrsMap = {};
             my @bindAddrs    = ();
+            if ( defined($insPort) and $insPort ne '' ) {
+                $portsMap->{$insPort} = 1;
+            }
             foreach my $lsnPort (@lsnPorts) {
                 if ( $lsnPort !~ /:\d+$/ ) {
                     $lsnPort = int($lsnPort);
@@ -396,14 +401,47 @@ sub mergeMultiProcs {
                     $appInfo->{PORT} = $minPort;
                 }
 
-                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型
-                my $servicePorts = $appInfo->{SERVICE_PORTS};
+                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型(应用实例提供的服务)
+                my $insObjCat   = CollectObjCat->get('INS');
+                my $dbInsObjCat = CollectObjCat->get('DBINS');
+                my $objCat      = $appInfo->{_OBJ_CATEGORY};
+
+                my @servicePortsArray = ();
+                my $servicePorts      = $appInfo->{SERVICE_PORTS};
                 if ( defined($servicePorts) ) {
-                    my @servicePortsArray = ();
+
+                    #如果存在服务端口，则加入SERVICE_PORTS对象
                     while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
-                        push( @servicePortsArray, { NAME => $svcName, PORT => $svcPort } );
+                        push(
+                            @servicePortsArray,
+                            {
+                                _OBJ_CATEGORY => $objCat,
+                                _OBJ_TYPE     => 'Service-Ports',
+                                NAME          => $svcName,
+                                PORT          => $svcPort
+                            }
+                        );
                     }
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
+                }
+                if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
+
+                    #如果是应用实例，补充其他监听的端口（未知协议或服务名）
+                    my @servicePortsArray = ();
+                    foreach my $svcPort ( keys(%$portsMap) ) {
+                        if ( not defined( $servicePorts->{$svcPort} ) ) {
+                            push(
+                                @servicePortsArray,
+                                {
+                                    _OBJ_CATEGORY => $objCat,
+                                    _OBJ_TYPE     => 'Service-Ports',
+                                    NAME          => $svcPort,
+                                    PORT          => $svcPort
+                                }
+                            );
+                        }
+                    }
                 }
             }
 
@@ -432,6 +470,75 @@ sub mergeMultiProcs {
     }
 
     return \@apps;
+}
+
+sub resolveSymlinks {
+    my ($path) = @_;
+
+    if ( -l $path ) {
+        my $target = readlink($path);
+
+        if ( !File::Spec->file_name_is_absolute($target) ) {
+            $target = File::Spec->rel2abs( $target, dirname($path) );
+        }
+        return resolveSymlinks($target);
+    }
+    elsif ( -e $path ) {
+        if ( !File::Spec->file_name_is_absolute($path) ) {
+            $path = File::Spec->rel2abs( $path, dirname($path) );
+        }
+        return $path;
+    }
+    else {
+        return undef;
+    }
+}
+
+sub getRealInstallPath {
+    my ( $appInfo, $procInfo ) = @_;
+
+    my $realInstallPath = '';
+    my $realBinPath;
+
+    my $installPath = $appInfo->{INSTALL_PATH};
+    if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
+        $realBinPath = resolveSymlinks("$installPath/bin");
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath/sbin");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath/lib");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = resolveSymlinks("$installPath");
+        }
+    }
+    else {
+        my $binPath = $appInfo->{BIN_PATH};
+        if ( defined($binPath) and $binPath ne '' ) {
+            $realBinPath = resolveSymlinks($binPath);
+        }
+        else {
+            my $exePath = $appInfo->{EXE_PATH};
+            if ( defined($exePath) and $exePath ne '' ) {
+                $binPath     = dirname($exePath);
+                $realBinPath = resolveSymlinks($binPath);
+            }
+            else {
+                my $executableFile = $procInfo->{EXECUTABLE_FILE};
+                if ( defined($executableFile) and $executableFile ne '' ) {
+                    $binPath     = dirname($executableFile);
+                    $realBinPath = resolveSymlinks($binPath);
+                }
+            }
+        }
+    }
+
+    if ( defined($realBinPath) and $realBinPath ne '' ) {
+        $realInstallPath = dirname($realBinPath);
+    }
+
+    return $realInstallPath;
 }
 
 #提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
@@ -520,9 +627,18 @@ sub doDetailCollect {
         my $appInfo = $appInfos[$idx];
         $isMatched = 1;
 
+        my $insObjCat   = CollectObjCat->get('INS');
+        my $dbInsObjCat = CollectObjCat->get('DBINS');
+
+        $objType = $appInfo->{_OBJ_TYPE};
+        if ( not defined($objType) ) {
+            $objType = $procInfo->{_OBJ_TYPE};
+            $appInfo->{_OBJ_TYPE} = $objType;
+        }
+
         $objCat = $appInfo->{_OBJ_CATEGORY};
-        if ( not defined($objCat) ) {
-            $objCat = CollectObjCat->get('INS');
+        if ( not defined($objCat) or $objCat eq '' ) {
+            $objCat = $insObjCat;
             $appInfo->{_OBJ_CATEGORY} = $objCat;
         }
         else {
@@ -530,13 +646,22 @@ sub doDetailCollect {
                 print("WARN: Invalid object category: $appInfo->{_OBJ_CATEGORY}.\n");
                 return 0;
             }
+
+            #从实例采集信息中抽取出软件资产
+            if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                my $softWare = {
+                    _OBJ_CATEGORY => $objCat,
+                    _OBJ_TYPE     => "Software-Asset",
+                    NAME          => $objType,
+                    VERSION       => $appInfo->{VERSION},
+                    INSTALL_PATH  => getRealInstallPath( $appInfo, $procInfo )
+                };
+                $appInfo->{SOFTWARE_ASSETS} = $softWare;
+            }
+
+            #从实例采集信息中抽取出服务，参考另外SERVICE_PORTS属性的处理
         }
 
-        $objType = $appInfo->{_OBJ_TYPE};
-        if ( not defined($objType) ) {
-            $objType = $procInfo->{_OBJ_TYPE};
-            $appInfo->{_OBJ_TYPE} = $objType;
-        }
         print("INFO: Matched Object Type:$objCat/$objType.\n");
 
         $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};

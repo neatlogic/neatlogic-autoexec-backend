@@ -51,7 +51,14 @@ sub getUsers {
     my @users;
     foreach my $row (@$rows) {
         if ( $row->{rolname} ne '' ) {
-            push( @users, $row->{rolname} );
+            push(
+                @users,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get("DB"),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $row->{rolname}
+                }
+                );
         }
     }
 
@@ -181,6 +188,7 @@ sub collect {
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'Hgdb-DB',
+                _APP_TYPE     => 'Hgdb',
                 NAME          => $dbName,
                 PRIMARY_IP    => $bizIp,
                 VIP           => $vip,

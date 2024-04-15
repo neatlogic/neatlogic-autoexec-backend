@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "型号",
+            "type": "String"
+        },
+        {
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",
@@ -199,11 +204,6 @@
         {
             "name": "BOARD_SERIAL",
             "desc": "主板序列号",
-            "type": "String"
-        },
-        {
-            "name": "MODEL",
-            "desc": "型号",
             "type": "String"
         },
         {

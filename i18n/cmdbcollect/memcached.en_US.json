@@ -9,7 +9,7 @@
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -73,14 +73,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -381,11 +423,6 @@
             ]
         },
         {
-            "name": "BACKLOG",
-            "desc": "Backlog",
-            "type": "Float"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -418,78 +455,6 @@
                 {
                     "name": "UNIQUE_NAME",
                     "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CHUNK_GROW_FACTOR",
-            "desc": "Chunk Grow Factor",
-            "type": "Float"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "MAX_CACHE_MEMORY",
-            "desc": "Max Cache Memory",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_CONNECTION",
-            "desc": "Max Connection",
-            "type": "Float"
-        },
-        {
-            "name": "MAX_REQ_PER_EVENT",
-            "desc": "Max Request per Event",
-            "type": "Float"
-        },
-        {
-            "name": "MIN_SPACE_PER_RECORD",
-            "desc": "Min Space per Record",
-            "type": "Float"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
                     "type": "String"
                 },
                 {
@@ -572,6 +537,110 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "BACKLOG",
+            "desc": "Backlog",
+            "type": "Float"
+        },
+        {
+            "name": "CHUNK_GROW_FACTOR",
+            "desc": "Chunk Grow Factor",
+            "type": "Float"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "MAX_CACHE_MEMORY",
+            "desc": "Max Cache Memory",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_CONNECTION",
+            "desc": "Max Connection",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_REQ_PER_EVENT",
+            "desc": "Max Request per Event",
+            "type": "Float"
+        },
+        {
+            "name": "MIN_SPACE_PER_RECORD",
+            "desc": "Min Space per Record",
+            "type": "Float"
         },
         {
             "name": "RUN_ON",

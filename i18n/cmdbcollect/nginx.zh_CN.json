@@ -73,6 +73,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "服务名",
                     "type": "String"
@@ -81,6 +91,38 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "软件资产",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "软件名",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "安装路径",
+                    "type": "String"
                 }
             ]
         },
@@ -428,147 +470,6 @@
             ]
         },
         {
-            "name": "BIN_PATH",
-            "desc": "bin文件路径",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "命令行",
-            "type": "Text"
-        },
-        {
-            "name": "KEEPALIVE_TIMEOUT",
-            "desc": "超时时间",
-            "type": "Int"
-        },
-        {
-            "name": "LOCATION",
-            "desc": "服务转发",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "ROOT",
-                    "desc": "根目录",
-                    "type": "String"
-                },
-                {
-                    "name": "ALIAS",
-                    "desc": "匹配目录",
-                    "type": "String"
-                },
-                {
-                    "name": "PROXY_PASS",
-                    "desc": "转发地址",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "MON_STATUS",
-            "desc": "服务状态",
-            "type": "JsonObject",
-            "subset": [
-                {
-                    "name": "ACTIVE_CONNECTIONS",
-                    "desc": "活动连接数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_ACCEPTS",
-                    "desc": "接收请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVER_HANDLED",
-                    "desc": "处理请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "SERVERR_EQUESTS",
-                    "desc": "请求数",
-                    "type": "Int"
-                },
-                {
-                    "name": "READING",
-                    "desc": "Reading",
-                    "type": "Int"
-                },
-                {
-                    "name": "WRITING",
-                    "desc": "Writing",
-                    "type": "Int"
-                },
-                {
-                    "name": "WAITING",
-                    "desc": "Waiting",
-                    "type": "Int"
-                }
-            ]
-        },
-        {
-            "name": "PREFIX",
-            "desc": "prefix",
-            "type": "String"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "REF_DB",
             "desc": "调用的数据库",
             "type": "JsonArray",
@@ -638,6 +539,287 @@
             ]
         },
         {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "调用服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "bin文件路径",
+            "type": "String"
+        },
+        {
+            "name": "CLIENT_MAX_BODY_SIZE",
+            "desc": "接收客户端请求的最大请求体大小",
+            "type": "Int"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "命令行",
+            "type": "Text"
+        },
+        {
+            "name": "DEFAULT_TYPE",
+            "desc": "默认MIME类型",
+            "type": "String"
+        },
+        {
+            "name": "GZIP",
+            "desc": "是否启用动态gzip压缩功能",
+            "type": "String"
+        },
+        {
+            "name": "HTTP_SERVERS",
+            "desc": "Nginx虚拟主机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_PORTS",
+                    "desc": "SERVICE_PORTS",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "CHARSET",
+                    "desc": "CHARSET",
+                    "type": "String"
+                },
+                {
+                    "name": "KEEPALIVE_TIMEOUT",
+                    "desc": "KEEPALIVE_TIMEOUT",
+                    "type": "Int"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
+                    "subset": [
+                        {
+                            "name": "_value",
+                            "desc": "Value",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "ACCESS_LOG",
+                    "desc": "ACCESS_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "ERROR_LOG",
+                    "desc": "ERROR_LOG",
+                    "type": "String"
+                },
+                {
+                    "name": "LOCATIONS",
+                    "desc": "LOCATIONS",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "_OBJ_CATEGORY",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "_OBJ_TYPE",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "NAME",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PROXY_PASS",
+                            "desc": "PROXY_PASS",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MEMBER_PEER",
+                            "desc": "关联成员地址",
+                            "type": "Array",
+                            "subset": [
+                                {
+                                    "name": "_value",
+                                    "desc": "Value",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "KEEPALIVE_TIMEOUT",
+            "desc": "超时时间",
+            "type": "Int"
+        },
+        {
+            "name": "MON_STATUS",
+            "desc": "服务状态",
+            "type": "JsonObject",
+            "subset": [
+                {
+                    "name": "ACTIVE_CONNECTIONS",
+                    "desc": "活动连接数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_ACCEPTS",
+                    "desc": "接收请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVER_HANDLED",
+                    "desc": "处理请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "SERVERR_EQUESTS",
+                    "desc": "请求数",
+                    "type": "Int"
+                },
+                {
+                    "name": "READING",
+                    "desc": "Reading",
+                    "type": "Int"
+                },
+                {
+                    "name": "WRITING",
+                    "desc": "Writing",
+                    "type": "Int"
+                },
+                {
+                    "name": "WAITING",
+                    "desc": "Waiting",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "PREFIX",
+            "desc": "prefix",
+            "type": "String"
+        },
+        {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
@@ -665,6 +847,11 @@
             ]
         },
         {
+            "name": "SENDFILE",
+            "desc": "是否使用sendfile()传输文件",
+            "type": "String"
+        },
+        {
             "name": "SERVICE_NAME",
             "desc": "名称",
             "type": "String"
@@ -685,26 +872,78 @@
             "type": "String"
         },
         {
-            "name": "UPSTREAM",
-            "desc": "负载均衡",
+            "name": "STREAM_SERVERS",
+            "desc": "STREAM_SERVERS",
             "type": "JsonArray",
             "subset": [
                 {
-                    "name": "NAME",
-                    "desc": "名称",
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
                     "type": "String"
                 },
                 {
-                    "name": "TARGET",
-                    "desc": "负载配置",
-                    "type": "JsonArray",
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_TYPE",
+                    "desc": "APP_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "UNIQUE_NAME",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "VIP",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "PRIMARY_IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "PORT",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVER_TYPE",
+                    "desc": "SERVER_TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMBER_PEER",
+                    "desc": "关联成员地址",
+                    "type": "Array",
                     "subset": [
                         {
+                            "name": "_value",
+                            "desc": "Value",
                             "type": "String"
                         }
                     ]
                 }
             ]
+        },
+        {
+            "name": "TCP_NOPUSH",
+            "desc": "控制nginx在向客户端传输数据时是否立即发送",
+            "type": "String"
+        },
+        {
+            "name": "WORKER_CONNECTIONS",
+            "desc": "worker进程能处理的最大连接数",
+            "type": "Int"
         },
         {
             "name": "WORKER_PROCESSES",
