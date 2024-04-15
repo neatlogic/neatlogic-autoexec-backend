@@ -58,6 +58,11 @@
             "type": "String"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "主版本",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "版本",
             "type": "String"
@@ -78,6 +83,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "服务名",
                     "type": "String"
@@ -86,6 +101,38 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "软件资产",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "软件名",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "安装路径",
+                    "type": "String"
                 }
             ]
         },
@@ -374,13 +421,43 @@
             ]
         },
         {
+            "name": "APPLICATION_NAME",
+            "desc": "应用名称",
+            "type": "String"
+        },
+        {
+            "name": "CHECKPOINT_COMPLETION_TARGET",
+            "desc": "CHECKPOINT_COMPLETION_TARGET",
+            "type": "String"
+        },
+        {
+            "name": "CHECKPOINT_SEGMENTS",
+            "desc": "CHECKPOINT_SEGMENTS",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
             "type": "String"
         },
         {
+            "name": "CLUSTER_NAME",
+            "desc": "CLUSTER_NAME",
+            "type": "String"
+        },
+        {
             "name": "CLUSTER_ROLE",
             "desc": "集群角色",
+            "type": "String"
+        },
+        {
+            "name": "COMMIT_DELAY",
+            "desc": "COMMIT_DELAY",
+            "type": "String"
+        },
+        {
+            "name": "COMMIT_SIBLINGS",
+            "desc": "COMMIT_SIBLINGS",
             "type": "String"
         },
         {
@@ -404,13 +481,13 @@
                     "type": "String"
                 },
                 {
-                    "name": "NAME",
-                    "desc": "DB服务名称",
+                    "name": "_APP_TYPE",
+                    "desc": "数据库类型",
                     "type": "String"
                 },
                 {
-                    "name": "DB_NAME",
-                    "desc": "DB名称",
+                    "name": "NAME",
+                    "desc": "DB库名",
                     "type": "String"
                 },
                 {
@@ -419,11 +496,110 @@
                     "type": "String"
                 },
                 {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
                     "name": "PRIMARY_IP",
                     "desc": "主IP",
                     "type": "String"
+                },
+                {
+                    "name": "SERVICE_ADDR",
+                    "desc": "服务地址",
+                    "type": "String"
+                },
+                {
+                    "name": "COMPATIBILITY",
+                    "desc": "数据库兼容模式",
+                    "type": "String"
+                },
+                {
+                    "name": "DEFAULT_CHARACTER_SET",
+                    "desc": "字符集",
+                    "type": "String"
+                },
+                {
+                    "name": "SEARCH_PATH",
+                    "desc": "查找路径",
+                    "type": "String"
+                },
+                {
+                    "name": "SCHEMA",
+                    "desc": "Schema",
+                    "type": "String"
+                },
+                {
+                    "name": "USERS",
+                    "desc": "用户列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "CONNECTIONS",
+                    "desc": "访问入口列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SERVICE_NAME",
+                            "desc": "服务名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "USER_NAME",
+                            "desc": "用户名",
+                            "type": "String"
+                        }
+                    ]
                 }
             ]
+        },
+        {
+            "name": "DATA_DIRECTORY",
+            "desc": "数据目录",
+            "type": "String"
+        },
+        {
+            "name": "DATESTYLE",
+            "desc": "DATESTYLE",
+            "type": "String"
+        },
+        {
+            "name": "DEFAULT_TEXT_SEARCH_CONFIG",
+            "desc": "DEFAULT_TEXT_SEARCH_CONFIG",
+            "type": "String"
+        },
+        {
+            "name": "EFFECTIVE_CACHE_SIZE",
+            "desc": "EFFECTIVE_CACHE_SIZE",
+            "type": "String"
         },
         {
             "name": "ERROR_LOG",
@@ -431,9 +607,64 @@
             "type": "String"
         },
         {
+            "name": "HBA_FILE",
+            "desc": "HBA文件",
+            "type": "String"
+        },
+        {
+            "name": "HOT_STANDBY",
+            "desc": "HOT_STANDBY",
+            "type": "String"
+        },
+        {
+            "name": "IDENT_FILE",
+            "desc": "IDENT文件",
+            "type": "String"
+        },
+        {
             "name": "IS_CLUSTER",
             "desc": "是否是集群",
             "type": "Int"
+        },
+        {
+            "name": "LC_TIME",
+            "desc": "LC_TIME",
+            "type": "String"
+        },
+        {
+            "name": "MAINTENANCE_WORK_MEM",
+            "desc": "MAINTENANCE_WORK_MEM",
+            "type": "String"
+        },
+        {
+            "name": "MAX_CONNECTIONS",
+            "desc": "最大连接数",
+            "type": "Int"
+        },
+        {
+            "name": "MAX_LOCKS_PER_TRANSACTION",
+            "desc": "MAX_LOCKS_PER_TRANSACTION",
+            "type": "String"
+        },
+        {
+            "name": "MAX_PREPARED_TRANSACTIONS",
+            "desc": "MAX_PREPARED_TRANSACTIONS",
+            "type": "String"
+        },
+        {
+            "name": "MAX_REPLICATION_SLOTS",
+            "desc": "MAX_REPLICATION_SLOTS",
+            "type": "String"
+        },
+        {
+            "name": "MAX_WAL_SENDERS",
+            "desc": "MAX_WAL_SENDERS",
+            "type": "String"
+        },
+        {
+            "name": "MAX_WORKER_PROCESSES",
+            "desc": "MAX_WORKER_PROCESSES",
+            "type": "String"
         },
         {
             "name": "RUN_ON",
@@ -463,6 +694,16 @@
             ]
         },
         {
+            "name": "SERVER_VERSION",
+            "desc": "服务器版本",
+            "type": "String"
+        },
+        {
+            "name": "SHARED_BUFFERS",
+            "desc": "SHARED_BUFFERS",
+            "type": "String"
+        },
+        {
             "name": "SLAVE_IPS",
             "desc": "从库IP列表",
             "type": "JsonArray",
@@ -477,6 +718,26 @@
         {
             "name": "SYSTEM_CHARSET",
             "desc": "系统字符集",
+            "type": "String"
+        },
+        {
+            "name": "TRACK_COMMIT_TIMESTAMP",
+            "desc": "TRACK_COMMIT_TIMESTAMP",
+            "type": "String"
+        },
+        {
+            "name": "WAL_BUFFERS",
+            "desc": "WAL_BUFFERS",
+            "type": "String"
+        },
+        {
+            "name": "WAL_LOG_HINTS",
+            "desc": "WAL_LOG_HINTS",
+            "type": "String"
+        },
+        {
+            "name": "WORK_MEM",
+            "desc": "WORK_MEM",
             "type": "String"
         },
         {

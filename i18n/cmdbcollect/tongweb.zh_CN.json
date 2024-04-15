@@ -73,6 +73,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
                     "desc": "服务名",
                     "type": "String"
@@ -81,6 +91,38 @@
                     "name": "PORT",
                     "desc": "端口",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "软件资产",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "软件名",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "版本",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "安装路径",
+                    "type": "String"
                 }
             ]
         },
@@ -421,28 +463,6 @@
             ]
         },
         {
-            "name": "APPLICATIONS",
-            "desc": "应用包列表",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "应用名",
-                    "type": "String"
-                },
-                {
-                    "name": "VIRTUAL_HOST_NAME",
-                    "desc": "应用运行目标",
-                    "type": "String"
-                },
-                {
-                    "name": "ORIGIN_LOCATION",
-                    "desc": "应用部署路径",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "所属集群",
             "type": "JsonArray",
@@ -485,6 +505,166 @@
                 {
                     "name": "CLUSTER_SOFTWARE",
                     "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_DB",
+            "desc": "调用的数据库",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "INSTANCE_NAME",
+                    "desc": "实例名",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_INS",
+            "desc": "调用的其他实例",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "调用的集群",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "服务IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "集群唯一标记",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "集群模式",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "集群软件",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "调用服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "管理IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "APPLICATIONS",
+            "desc": "应用包列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "应用名",
+                    "type": "String"
+                },
+                {
+                    "name": "VIRTUAL_HOST_NAME",
+                    "desc": "应用运行目标",
+                    "type": "String"
+                },
+                {
+                    "name": "ORIGIN_LOCATION",
+                    "desc": "应用部署路径",
                     "type": "String"
                 }
             ]
@@ -682,117 +862,6 @@
                 {
                     "name": "VALUE",
                     "desc": "补丁名",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "调用的集群",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "服务IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "集群唯一标记",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "集群模式",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "集群软件",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_DB",
-            "desc": "调用的数据库",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "管理IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "INSTANCE_NAME",
-                    "desc": "实例名",
-                    "type": "String"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "REF_INS",
-            "desc": "调用的其他实例",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类别",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "对象类型",
-                    "type": "String"
-                },
-                {
-                    "name": "MGMT_IP",
-                    "desc": "管理IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "端口",
-                    "type": "Int"
-                },
-                {
-                    "name": "OS_ID",
-                    "desc": "OS ID",
                     "type": "String"
                 }
             ]

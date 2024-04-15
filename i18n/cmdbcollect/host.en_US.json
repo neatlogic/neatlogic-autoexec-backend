@@ -46,11 +46,6 @@
             "type": "String"
         },
         {
-            "name": "IS_VIRTUAL",
-            "desc": "Is Virtual",
-            "type": "Int"
-        },
-        {
             "name": "OS_ID",
             "desc": "OS ID",
             "type": "String"
@@ -58,6 +53,11 @@
         {
             "name": "MACHINE_ID",
             "desc": "Machine ID",
+            "type": "String"
+        },
+        {
+            "name": "MODEL",
+            "desc": "Model",
             "type": "String"
         },
         {
@@ -92,6 +92,16 @@
             "desc": "NIC",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",

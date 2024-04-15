@@ -37,7 +37,6 @@ sub collect {
     my $cmdLine  = $procInfo->{COMMAND};
     my $appInfo  = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-    $appInfo->{_OBJ_TYPE}     = 'Vcs';
     $appInfo->{_MULTI_PROC}   = 1;
 
     my $environment = $procInfo->{ENVIRONMENT};

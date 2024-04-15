@@ -65,7 +65,6 @@ sub collect {
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-    $appInfo->{_OBJ_TYPE}     = 'RocketMQ';
 
     my $mainPid = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};

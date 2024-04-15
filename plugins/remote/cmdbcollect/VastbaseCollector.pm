@@ -71,7 +71,7 @@ sub getSchema {
         port     => $port
     );
     my $rows = $vastbaseDB->query(
-        sql     => q{select schema_name from information_schema.schemata where schema_owner='$userName'},
+        sql     => qq{select schema_name from information_schema.schemata where schema_owner='$userName'},
         verbose => $self->{isVerbose}
     );
 
@@ -169,7 +169,7 @@ sub collect {
     }
 
     if ( $port == 65535 ) {
-        print("WARN: Can not determine Postgresql listen port.\n");
+        print("WARN: Can not determine Vastbase listen port.\n");
         return undef;
     }
 
@@ -222,6 +222,7 @@ sub collect {
             {
                 _OBJ_CATEGORY         => CollectObjCat->get('DB'),
                 _OBJ_TYPE             => 'Vastbase-DB',
+                _APP_TYPE             => 'Vastbase',
                 NAME                  => $dbName,
                 PRIMARY_IP            => $bizIp,
                 VIP                   => $vip,
@@ -231,7 +232,7 @@ sub collect {
                 COMPATIBILITY         => $row->{datcompatibility},
                 DEFAULT_CHARACTER_SET => $row->{charset},
                 SCHEMA                => join( ",", @$schemas ),
-                SEARCHPATH            => $searchPath,
+                SEARCH_PATH           => $searchPath,
                 USERS                 => [
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DB'),

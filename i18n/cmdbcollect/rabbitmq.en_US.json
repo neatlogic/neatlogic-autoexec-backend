@@ -9,7 +9,7 @@
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -73,14 +73,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -398,18 +440,6 @@
             ]
         },
         {
-            "name": "ALARMS",
-            "desc": "Alarm messages",
-            "type": "Array",
-            "subset": [
-                {
-                    "name": "_value",
-                    "desc": "Value",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -442,93 +472,6 @@
                 {
                     "name": "UNIQUE_NAME",
                     "desc": "Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "DATA_PATH",
-            "desc": "Data Path",
-            "type": "String"
-        },
-        {
-            "name": "DISK_FREE",
-            "desc": "Availble Disk(G)",
-            "type": "Int"
-        },
-        {
-            "name": "ERLANG_VERSION",
-            "desc": "ErLang Version",
-            "type": "String"
-        },
-        {
-            "name": "FD_LIMIT",
-            "desc": "Max Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "FD_USED",
-            "desc": "Open Files",
-            "type": "Int"
-        },
-        {
-            "name": "GUEST_ENABLE",
-            "desc": "User guest Exist(1:exist)",
-            "type": "Text"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
-            "type": "String"
-        },
-        {
-            "name": "MEMORY_WATER_MARK",
-            "desc": "Memory Water Mark",
-            "type": "Text"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
                     "type": "String"
                 },
                 {
@@ -611,6 +554,132 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "ALARMS",
+            "desc": "Alarm messages",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "DATA_PATH",
+            "desc": "Data Path",
+            "type": "String"
+        },
+        {
+            "name": "DISK_FREE",
+            "desc": "Availble Disk(G)",
+            "type": "Int"
+        },
+        {
+            "name": "ERLANG_VERSION",
+            "desc": "ErLang Version",
+            "type": "String"
+        },
+        {
+            "name": "FD_LIMIT",
+            "desc": "Max Open Files",
+            "type": "Int"
+        },
+        {
+            "name": "FD_USED",
+            "desc": "Open Files",
+            "type": "Int"
+        },
+        {
+            "name": "GUEST_ENABLE",
+            "desc": "User guest Exist(1:exist)",
+            "type": "Text"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "Log Path",
+            "type": "String"
+        },
+        {
+            "name": "MEMORY_WATER_MARK",
+            "desc": "Memory Water Mark",
+            "type": "Text"
         },
         {
             "name": "RUN_ON",

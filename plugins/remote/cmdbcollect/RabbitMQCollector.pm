@@ -47,7 +47,6 @@ sub collect {
 
     my $appInfo = {};
     $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
-    $appInfo->{_OBJ_TYPE} = 'RabbitMQ';
 
     $appInfo->{EXE_PATH} = $procInfo->{EXECUTABLE_FILE};
     $appInfo->{BIN_PATH} = dirname( $procInfo->{EXECUTABLE_FILE} );

@@ -2,7 +2,7 @@
     "label": "TiDB Cluster",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
-    "collection_label": "TiDB Cluster",
+    "collection_label": "Cluster",
     "filter": {
         "_OBJ_TYPE": "TiDBCluster"
     },
@@ -204,6 +204,11 @@
                 {
                     "name": "_OBJ_TYPE",
                     "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "Database Type",
                     "type": "String"
                 },
                 {

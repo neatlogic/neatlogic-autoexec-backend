@@ -1,8 +1,8 @@
 {
-    "label": "TiDB Cluster",
+    "label": "TiDB集群",
     "collection": "COLLECT_CLUSTER",
     "docroot": null,
-    "collection_label": "TiDB集群",
+    "collection_label": "集群",
     "filter": {
         "_OBJ_TYPE": "TiDBCluster"
     },
@@ -199,6 +199,11 @@
                 {
                     "name": "_OBJ_TYPE",
                     "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "数据库类型",
                     "type": "String"
                 },
                 {

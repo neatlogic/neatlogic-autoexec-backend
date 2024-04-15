@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Config::Neat - Parse/render human-readable configuration files with inheritance and schema validation
@@ -76,7 +77,7 @@ our $VERSION = '1.401';
 use strict;
 
 use Config::Neat::Array;
-use Config::Neat::Util qw(is_neat_array new_ixhash get_next_auto_key read_file);
+use Config::Neat::Util qw(is_neat_array new_ixhash get_next_auto_key read_file read_file_with_include);
 use Tie::IxHash;
 
 my $LINE_START    = 0;
@@ -92,9 +93,7 @@ my $BLOCK_COMMENT = 5;
 sub new {
     my ($class) = @_;
 
-    my $self = {
-        cfg => {}
-    };
+    my $self = { cfg => {} };
 
     bless $self, $class;
     return $self;
@@ -102,74 +101,82 @@ sub new {
 
 # Given a string representation of the config, returns a parsed tree
 sub parse {
-    my ($self, $nconf) = @_;
+    my ( $self, $nconf ) = @_;
 
     my $o = {
-        context            => [new_ixhash],
-        context_data       => [{}],
-        c                  => undef,
+        context      => [new_ixhash],
+        context_data => [ {} ],
+        c            => undef,
 
-        pos                => 0,
+        pos => 0,
 
-        key                => '',
-        values             => Config::Neat::Array->new(),
-        value              => undef,
-        mode               => $LINE_START,
-        previous_mode      => $LINE_START,
-        was_backslash      => undef,
-        was_slash          => undef,
-        was_asterisk       => undef,
-        first_value_pos    => 0,
+        key             => '',
+        values          => Config::Neat::Array->new(),
+        value           => undef,
+        mode            => $LINE_START,
+        previous_mode   => $LINE_START,
+        was_backslash   => undef,
+        was_slash       => undef,
+        was_asterisk    => undef,
+        first_value_pos => 0,
     };
 
-    my $in_raw_mode     = undef;
-    my $line            = 1;
+    my $in_raw_mode   = undef;
+    my $double_quoted = undef;
+    my $single_quoted = undef;
+
+    my $line = 1;
 
     sub end_of_param {
-        my ($o, $no_default_param) = @_;
+        my ( $o, $no_default_param ) = @_;
 
-        if ($o->{key} ne '') {
-            push @{$o->{values}}, 'YES' if !$no_default_param && scalar(@{$o->{values}}) == 0;
-            my $current_ctx = $o->{context}->[$#{$o->{context}}];
-            my $data = $o->{context_data}->[$#{$o->{context_data}}];
-            if (exists $current_ctx->{$o->{key}}) {
+        if ( $o->{key} ne '' ) {
+            push @{ $o->{values} }, 'YES' if !$no_default_param && scalar( @{ $o->{values} } ) == 0;
+            my $current_ctx = $o->{context}->[ $#{ $o->{context} } ];
+            my $data        = $o->{context_data}->[ $#{ $o->{context_data} } ];
+            if ( exists $current_ctx->{ $o->{key} } ) {
                 $data->{is_array} = {} unless exists $data->{is_array};
-                if (!$data->{is_array}->{$o->{key}}) {
-                    $current_ctx->{$o->{key}} = Config::Neat::Array->new([$current_ctx->{$o->{key}}]);
-                    $data->{is_array}->{$o->{key}} = 1;
+                if ( !$data->{is_array}->{ $o->{key} } ) {
+                    $current_ctx->{ $o->{key} } = Config::Neat::Array->new( [ $current_ctx->{ $o->{key} } ] );
+                    $data->{is_array}->{ $o->{key} } = 1;
                 }
-                $current_ctx->{$o->{key}}->push($o->{values});
-            } else {
-                $current_ctx->{$o->{key}} = $o->{values};
+                $current_ctx->{ $o->{key} }->push( $o->{values} );
+            }
+            else {
+                $current_ctx->{ $o->{key} } = $o->{values};
             }
             $o->{values} = Config::Neat::Array->new();
-            $o->{key} = '';
+            $o->{key}    = '';
         }
     }
 
     sub append_text {
-        my ($o, $text) = @_;
+        my ( $o, $text ) = @_;
 
-        if ($o->{mode} == $LINE_START) {
-            if (($o->{first_value_pos} > 0) and ($o->{pos} >= $o->{first_value_pos})) {
+        if ( $o->{mode} == $LINE_START ) {
+            if ( ( $o->{first_value_pos} > 0 ) and ( $o->{pos} >= $o->{first_value_pos} ) ) {
                 $o->{mode} = $VALUE;
-            } else {
+            }
+            else {
                 end_of_param($o);
-                $o->{mode} = $KEY;
+                $o->{mode}            = $KEY;
                 $o->{first_value_pos} = 0;
             }
-        } elsif ($o->{mode} == $WHITESPACE) {
+        }
+        elsif ( $o->{mode} == $WHITESPACE ) {
             $o->{mode} = $VALUE;
-            if ($o->{first_value_pos} == 0) {
-                $o->{first_value_pos} = $o->{pos} - 1; # -1 to allow for non-hanging backtick before the first value
+            if ( $o->{first_value_pos} == 0 ) {
+                $o->{first_value_pos} = $o->{pos} - 1;    # -1 to allow for non-hanging backtick before the first value
             }
         }
 
-        if ($o->{mode} == $KEY) {
+        if ( $o->{mode} == $KEY ) {
             $o->{key} .= $text;
-        } elsif ($o->{mode} == $VALUE) {
+        }
+        elsif ( $o->{mode} == $VALUE ) {
             $o->{value} .= $text;
-        } else {
+        }
+        else {
             die "Unexpected mode $o->{mode}";
         }
     }
@@ -177,13 +184,13 @@ sub parse {
     sub process_pending_chars {
         my $o = shift;
 
-        if ($o->{was_slash}) {
-            append_text($o, '/');
+        if ( $o->{was_slash} ) {
+            append_text( $o, '/' );
             $o->{was_slash} = undef;
         }
 
-        if ($o->{was_backslash}) {
-            append_text($o, '\\');
+        if ( $o->{was_backslash} ) {
+            append_text( $o, '\\' );
             $o->{was_backslash} = undef;
         }
     }
@@ -193,7 +200,7 @@ sub parse {
 
         process_pending_chars($o);
 
-        append_text($o, $o->{c});
+        append_text( $o, $o->{c} );
         $o->{c} = undef;
     }
 
@@ -202,55 +209,59 @@ sub parse {
 
         process_pending_chars($o);
 
-        if (defined $o->{value}) {
-            push @{$o->{values}}, $o->{value};
+        if ( defined $o->{value} ) {
+            $o->{value} =~ s/\s*;\s*//;
+            push @{ $o->{values} }, $o->{value};
             $o->{value} = undef;
         }
     }
 
-    for (my $i = 0, my $l = length($nconf); $i < $l; $i++) {
-        my $c = $o->{c} = substr($nconf, $i, 1);
+    for ( my $i = 0, my $l = length($nconf) ; $i < $l ; $i++ ) {
+        my $c = $o->{c} = substr( $nconf, $i, 1 );
         $o->{pos}++;
 
-        if ($c ne '/') {
+        if ( $c ne '/' ) {
             $o->{was_asterisk} = undef;
         }
 
-        if ($c eq '{') {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+        if ( $c eq '{' ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
-            if ($in_raw_mode) {
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
                 process_char($o);
                 next;
             }
 
             end_of_value($o);
 
-            if (!$o->{key}) {
-                $o->{key} = get_next_auto_key($o->{context}->[$#{$o->{context}}]);
+            if ( !$o->{key} ) {
+                $o->{key} = get_next_auto_key( $o->{context}->[ $#{ $o->{context} } ] );
             }
 
-            my $old_values = $o->{values};
+            my $old_values  = $o->{values};
             my $new_context = $o->{values} = new_ixhash;
 
-            end_of_param($o, 1); # do not push a default parameter
+            end_of_param( $o, 1 );    # do not push a default parameter
 
-            $o->{value} = undef;
-            $o->{mode} = $LINE_START;
+            $o->{value}           = undef;
+            $o->{mode}            = $LINE_START;
             $o->{first_value_pos} = 0;
 
-            push @{$o->{context}}, $new_context;
-            push @{$o->{context_data}}, {};
+            push @{ $o->{context} }, $new_context;
+            push @{ $o->{context_data} }, {};
 
             # any values preceding the block will be added into it with an empty key value
-            if (scalar(@{$old_values}) > 0) {
+            if ( scalar( @{$old_values} ) > 0 ) {
                 $new_context->{''} = $old_values;
             }
 
-        } elsif ($c eq '}') {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+        }
+        elsif ( $c eq '}' ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
-            if ($in_raw_mode) {
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
                 process_char($o);
                 next;
             }
@@ -258,63 +269,87 @@ sub parse {
             end_of_value($o);
             end_of_param($o);
 
-            if (scalar(@{$o->{context}}) == 1) {
+            if ( scalar( @{ $o->{context} } ) == 1 ) {
                 die "Unmatched closing bracket at config line $line position $o->{pos}";
             }
-            pop @{$o->{context}};
-            pop @{$o->{context_data}};
-            $o->{mode} = $WHITESPACE;
-            $o->{key} = '';
+            pop @{ $o->{context} };
+            pop @{ $o->{context_data} };
+            $o->{mode}   = $WHITESPACE;
+            $o->{key}    = '';
             $o->{values} = Config::Neat::Array->new();
 
-        } elsif ($c eq '\\') {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+        }
+        elsif ( $c eq '\\' ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
             process_pending_chars($o);
 
-            $o->{was_backslash} = 1; # do not print current slash, but wait for the next char
+            $o->{was_backslash} = 1;    # do not print current slash, but wait for the next char
             next;
 
-        } elsif ($c eq '/') {
-            next if ($o->{mode} == $LINE_COMMENT);
-            next if (!$o->{was_asterisk} and $o->{mode} == $BLOCK_COMMENT);
+        }
+        elsif ( $c eq '/' ) {
+            next if ( $o->{mode} == $LINE_COMMENT );
+            next if ( !$o->{was_asterisk} and $o->{mode} == $BLOCK_COMMENT );
 
-            if ($in_raw_mode) {
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
                 process_char($o);
                 next;
             }
 
-            if ($o->{was_asterisk} and ($o->{mode} == $BLOCK_COMMENT)) {
+            if ( $o->{was_asterisk} and ( $o->{mode} == $BLOCK_COMMENT ) ) {
                 $o->{mode} = $o->{previous_mode};
                 next;
             }
 
             process_pending_chars($o);
 
-            $o->{was_slash} = 1; # do not print current slash, but wait for the next char
+            $o->{was_slash} = 1;    # do not print current slash, but wait for the next char
             next;
 
-#        } elsif ($c eq '*') {
-#            next if ($o->{mode} == $LINE_COMMENT);
-#            if ($o->{mode} == $BLOCK_COMMENT) {
-#                $o->{was_asterisk} = 1;
-#                next;
-#            } else {
-#                if ($o->{was_slash}) {
-#                    $o->{was_slash} = undef;
-#                    $o->{previous_mode} = $o->{mode};
-#                    $o->{mode} = $BLOCK_COMMENT;
-#                    next;
-#                }
-#
-#                process_char($o);
-#            }
+            # }
+            # elsif ( $c eq '*' ) {
+            #     next if ( $o->{mode} == $LINE_COMMENT );
+            #     if ( $o->{mode} == $BLOCK_COMMENT ) {
+            #         $o->{was_asterisk} = 1;
+            #         next;
+            #     }
+            #     else {
+            #         if ( $o->{was_slash} ) {
+            #             $o->{was_slash}     = undef;
+            #             $o->{previous_mode} = $o->{mode};
+            #             $o->{mode}          = $BLOCK_COMMENT;
+            #             next;
+            #         }
 
-        } elsif ($c eq '`') {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+            #         process_char($o);
+            #     }
 
-            if ($o->{was_backslash}) {
+            # } elsif ($c eq '`') {
+            #     next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+
+            #     if ($o->{was_backslash}) {
+            #         $o->{was_backslash} = undef;
+            #         process_char($o);
+            #         next;
+            #     }
+
+            #     $o->{c} = '';
+            #     process_char($o);
+
+            #     $in_raw_mode = !$in_raw_mode;
+        }
+        elsif ( $c eq "'" ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
+
+            if ( $o->{was_backslash} ) {
                 $o->{was_backslash} = undef;
+                process_char($o);
+                next;
+            }
+
+            if ($double_quoted) {
                 process_char($o);
                 next;
             }
@@ -322,37 +357,62 @@ sub parse {
             $o->{c} = '';
             process_char($o);
 
-            $in_raw_mode = !$in_raw_mode;
+            $single_quoted = !$single_quoted;
+        }
+        elsif ( $c eq '"' ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
-        } elsif (($c eq ' ') or ($c eq "\t")) {
-            if ($c eq "\t") {
-#                warn "Tab symbol at config line $line position $o->{pos} (replace tabs with spaces to ensure proper parsing of multiline parameters)";
-            }
-
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
-
-            if ($in_raw_mode) {
+            if ( $o->{was_backslash} ) {
+                $o->{was_backslash} = undef;
                 process_char($o);
                 next;
             }
 
-            if ($o->{mode} == $KEY) {
+            if ($single_quoted) {
+                process_char($o);
+                next;
+            }
+
+            $o->{c} = '';
+            process_char($o);
+
+            $double_quoted = !$double_quoted;
+        }
+        elsif ( ( $c eq ' ' ) or ( $c eq "\t" ) ) {
+            if ( $c eq "\t" ) {
+
+                #                warn "Tab symbol at config line $line position $o->{pos} (replace tabs with spaces to ensure proper parsing of multiline parameters)";
+            }
+
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
+
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
+                process_char($o);
+                next;
+            }
+
+            if ( $o->{mode} == $KEY ) {
                 $o->{mode} = $WHITESPACE;
-            } elsif ($o->{mode} == $VALUE) {
+            }
+            elsif ( $o->{mode} == $VALUE ) {
                 end_of_value($o);
                 $o->{mode} = $WHITESPACE;
             }
 
-        } elsif ($c eq "\r") {
+        }
+        elsif ( $c eq "\r" ) {
             next;
 
-        } elsif ($c eq "\n") {
+        }
+        elsif ( $c eq "\n" ) {
             $line++;
             $o->{pos} = 0;
 
-            next if ($o->{mode} == $BLOCK_COMMENT);
+            next if ( $o->{mode} == $BLOCK_COMMENT );
 
-            if ($in_raw_mode) {
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
                 process_char($o);
                 next;
             }
@@ -360,22 +420,26 @@ sub parse {
             end_of_value($o);
             $o->{mode} = $LINE_START;
 
-        } elsif ($c eq "#") {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+        }
+        elsif ( $c eq "#" ) {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
-            if ($in_raw_mode) {
+            #if ($in_raw_mode) {
+            if ( $single_quoted || $double_quoted ) {
                 process_char($o);
                 next;
             }
 
-            if (($o->{mode} == $LINE_START) or ($o->{mode} == $WHITESPACE)) {
+            if ( ( $o->{mode} == $LINE_START ) or ( $o->{mode} == $WHITESPACE ) ) {
                 $o->{mode} = $LINE_COMMENT;
-            } else {
+            }
+            else {
                 process_char($o);
             }
 
-        } else {
-            next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
+        }
+        else {
+            next if ( $o->{mode} == $LINE_COMMENT ) or ( $o->{mode} == $BLOCK_COMMENT );
 
             process_char($o);
         }
@@ -383,20 +447,27 @@ sub parse {
         $o->{was_asterisk} = undef;
     }
 
-    die "Unmatched backtick at config line $line position $o->{pos}" if $in_raw_mode;
+    #die "Unmatched backtick at config line $line position $o->{pos}" if $in_raw_mode;
+    die "Unmatched single quote at config line $line position $o->{pos}" if $single_quoted;
+    die "Unmatched double quote at config line $line position $o->{pos}" if $double_quoted;
 
-    die "Missing closing bracket at config line $line position $o->{pos}" if @{$o->{context}} > 1;
+    die "Missing closing bracket at config line $line position $o->{pos}" if @{ $o->{context} } > 1;
 
     end_of_value($o);
     end_of_param($o);
 
     return $self->{cfg} = $o->{context}->[0];
-} # end sub
+}    # end sub
 
 # Given file name, will read this file in the specified mode (defaults to UTF-8) and parse it
 sub parse_file {
-    my ($self, $filename, $binmode) = @_;
-    return $self->parse(read_file($filename, $binmode));
-} # end sub
+    my ( $self, $filename, $binmode ) = @_;
+    return $self->parse( read_file( $filename, $binmode ) );
+}    # end sub
 
-1; # return true
+# Given file name, will read this file in the specified mode (defaults to UTF-8) and parse it
+sub parse_file_with_include {
+    my ( $self, $filename, $binmode ) = @_;
+    return $self->parse( read_file_with_include( $filename, undef, $binmode ) );
+}    # end sub
+1;   # return true

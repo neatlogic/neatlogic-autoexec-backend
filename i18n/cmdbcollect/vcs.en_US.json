@@ -9,7 +9,7 @@
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -73,14 +73,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },
@@ -413,115 +455,6 @@
             ]
         },
         {
-            "name": "BIN_PATH",
-            "desc": "BIN Path",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_HOST",
-            "desc": "Cluster Info",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "NAME",
-                    "desc": "Name",
-                    "type": "String"
-                },
-                {
-                    "name": "GROUP",
-                    "desc": "Group",
-                    "type": "String"
-                },
-                {
-                    "name": "IP",
-                    "desc": "IP",
-                    "type": "String"
-                },
-                {
-                    "name": "STATE",
-                    "desc": "State",
-                    "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "CLUSTER_IP",
-            "desc": "Cluster IP",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_NAME",
-            "desc": "Cluster Name",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_STATE",
-            "desc": "Cluster State",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "CONF_FILE",
-            "desc": "Conf File",
-            "type": "String"
-        },
-        {
-            "name": "LOG_PATH",
-            "desc": "Log Path",
-            "type": "String"
-        },
-        {
-            "name": "PREFIX",
-            "desc": "Prefix",
-            "type": "String"
-        },
-        {
-            "name": "REF_CLUSTER",
-            "desc": "Reference Clusters",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "Object Catetory",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "Object Type",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "Virtual IP",
-                    "type": "String"
-                },
-                {
-                    "name": "PORT",
-                    "desc": "Port",
-                    "type": "Int"
-                },
-                {
-                    "name": "UNIQUE_NAME",
-                    "desc": "Cluster Unique Name",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_MODE",
-                    "desc": "Cluster Mode",
-                    "type": "String"
-                },
-                {
-                    "name": "CLUSTER_SOFTWARE",
-                    "desc": "Cluster Software",
-                    "type": "String"
-                }
-            ]
-        },
-        {
             "name": "REF_DB",
             "desc": "Reference Databases",
             "type": "JsonArray",
@@ -589,6 +522,142 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "BIN_PATH",
+            "desc": "BIN Path",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_HOST",
+            "desc": "Cluster Info",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "GROUP",
+                    "desc": "Group",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "CLUSTER_IP",
+            "desc": "Cluster IP",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_STATE",
+            "desc": "Cluster State",
+            "type": "String"
+        },
+        {
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
+        },
+        {
+            "name": "CONF_FILE",
+            "desc": "Conf File",
+            "type": "String"
+        },
+        {
+            "name": "LOG_PATH",
+            "desc": "Log Path",
+            "type": "String"
+        },
+        {
+            "name": "PREFIX",
+            "desc": "Prefix",
+            "type": "String"
         },
         {
             "name": "RUN_ON",

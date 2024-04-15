@@ -18,6 +18,11 @@
             "type": "String"
         },
         {
+            "name": "_APP_TYPE",
+            "desc": "Database Type",
+            "type": "String"
+        },
+        {
             "name": "SERVER_NAME",
             "desc": "Server Name",
             "type": "String"
@@ -73,14 +78,56 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
                     "name": "NAME",
-                    "desc": "Name",
+                    "desc": "Service Name",
                     "type": "String"
                 },
                 {
                     "name": "PORT",
                     "desc": "Port",
                     "type": "Int"
+                }
+            ]
+        },
+        {
+            "name": "SOFTWARE_ASSETS",
+            "desc": "Software Assets",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VERSION",
+                    "desc": "Version",
+                    "type": "String"
+                },
+                {
+                    "name": "INSTALL_PATH",
+                    "desc": "Install Dir",
+                    "type": "String"
                 }
             ]
         },

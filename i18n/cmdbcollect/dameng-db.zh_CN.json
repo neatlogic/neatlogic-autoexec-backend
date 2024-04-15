@@ -78,6 +78,28 @@
             "type": "Int"
         },
         {
+            "name": "USERS",
+            "desc": "用户列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "LISTEN_STATS",
             "desc": "监听统计",
             "type": "JsonArray",
@@ -98,6 +120,33 @@
             "name": "CLUSTER_MODE",
             "desc": "集群模式",
             "type": "String"
+        },
+        {
+            "name": "CONNECTIONS",
+            "desc": "访问入口列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "SERVICE_NAME",
+                    "desc": "服务名",
+                    "type": "String"
+                },
+                {
+                    "name": "USER_NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "DEFAULT_COLLATION",

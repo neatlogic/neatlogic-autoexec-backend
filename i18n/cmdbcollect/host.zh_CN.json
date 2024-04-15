@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "MODEL",
+            "desc": "型号",
+            "type": "String"
+        },
+        {
             "name": "DISKS",
             "desc": "磁盘",
             "type": "JsonArray",

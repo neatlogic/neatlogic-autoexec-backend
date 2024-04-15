@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Config::Neat::Util - Common utility functions for other Config::Neat modules
@@ -18,6 +19,8 @@ our $VERSION = '1.401';
 
 use strict;
 
+use File::Basename;
+use File::Spec;
 use Tie::IxHash;
 
 our @ISA = qw(Exporter);
@@ -46,11 +49,12 @@ our @EXPORT_OK = qw(
     reorder_ixhash
     rename_ixhash_key
     read_file
+    read_file_with_include
 );
 
 sub new_ixhash {
     my $new = {};
-    tie(%$new, 'Tie::IxHash');
+    tie( %$new, 'Tie::IxHash' );
     return $new;
 }
 
@@ -65,10 +69,8 @@ sub to_ixhash {
 sub to_ixhash_recursive {
     my ($node) = @_;
     my $result = is_hash($node) && !is_ixhash($node) ? to_ixhash($node) : $node;
-    if (is_ixhash($result)) {
-        map {
-            $result->{$_} = to_ixhash_recursive($result->{$_});
-        } keys %$result;
+    if ( is_ixhash($result) ) {
+        map { $result->{$_} = to_ixhash_recursive( $result->{$_} ); } keys %$result;
     }
     return $result;
 }
@@ -91,7 +93,7 @@ sub is_hash {
 sub is_ixhash {
     my $node = shift;
     return undef unless is_hash($node);
-    return ref(tied(%$node)) eq 'Tie::IxHash';
+    return ref( tied(%$node) ) eq 'Tie::IxHash';
 }
 
 sub is_any_hash {
@@ -116,7 +118,7 @@ sub is_any_array {
 
 sub is_scalar {
     my $node = shift;
-    return (ref(\$node) eq 'SCALAR') or (ref($node) eq 'SCALAR');
+    return ( ref( \$node ) eq 'SCALAR' ) or ( ref($node) eq 'SCALAR' );
 }
 
 sub is_simple_array {
@@ -137,16 +139,18 @@ sub is_homogenous_simple_array {
     return 1 if is_scalar($node);
     return undef unless is_array($node) || is_neat_array($node);
 
-    my $contains_hash = undef;
-    my $contains_array = undef;
+    my $contains_hash   = undef;
+    my $contains_array  = undef;
     my $contains_scalar = undef;
 
     foreach my $value (@$node) {
-        if (is_hash($value)) {
+        if ( is_hash($value) ) {
             $contains_hash |= 1;
-        } elsif (is_any_array($value)) {
+        }
+        elsif ( is_any_array($value) ) {
             $contains_array |= 1;
-        } else {
+        }
+        else {
             $contains_scalar |= is_scalar($value);
         }
         die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
@@ -156,19 +160,20 @@ sub is_homogenous_simple_array {
 
 sub hash_has_only_sequential_keys {
     my $node = shift;
-    return hash_has_sequential_keys($node, 1);
+    return hash_has_sequential_keys( $node, 1 );
 }
 
 sub hash_has_sequential_keys {
-    my ($node, $strict) = @_;
+    my ( $node, $strict ) = @_;
     die "Not a hash" unless is_hash($node);
 
     my $i = 0;
     map {
-        if (is_number($_)) {
+        if ( is_number($_) ) {
             return undef if $_ != $i;
             $i++;
-        } else {
+        }
+        else {
             return undef if $strict;
         }
     } keys %$node;
@@ -182,17 +187,15 @@ sub get_next_auto_key {
     die "Not a hash" unless is_hash($node);
 
     # get max(key)
-    my $i = -1; # so that next key will start with 0
-    map {
-        $i = $_ if is_number($_) && $_ > $i;
-    } keys %$node;
+    my $i = -1;    # so that next key will start with 0
+    map { $i = $_ if is_number($_) && $_ > $i; } keys %$node;
 
     # return max + 1
     return $i + 1;
 }
 
 sub offset_keys {
-    my ($node, $offset) = @_;
+    my ( $node, $offset ) = @_;
     die "Not a Tie::IxHash" unless is_ixhash($node);
     return $node if $offset == 0;
 
@@ -200,9 +203,10 @@ sub offset_keys {
 
     # remap keys
     map {
-        if (is_number($_)) {
-            $result->{$_ + $offset} = $node->{$_};
-        } else {
+        if ( is_number($_) ) {
+            $result->{ $_ + $offset } = $node->{$_};
+        }
+        else {
             $result->{$_} = $node->{$_};
         }
     } keys %$node;
@@ -215,9 +219,7 @@ sub get_keys_in_order {
     my $result = new_ixhash;
 
     map {
-        map {
-            $result->{$_} = 1;
-        } keys %$_;
+        map { $result->{$_} = 1; } keys %$_;
     } @_;
 
     return keys %$result;
@@ -228,13 +230,13 @@ sub reorder_ixhash_numerically {
     die "Not a Tie::IxHash" unless is_ixhash($node);
 
     # sort keys numerically
-    my @a = sort {$a <=> $b} keys %$node;
+    my @a = sort { $a <=> $b } keys %$node;
 
-    return reorder_ixhash($node, \@a);
+    return reorder_ixhash( $node, \@a );
 }
 
 sub reorder_ixhash {
-    my ($node, $keysref) = @_;
+    my ( $node, $keysref ) = @_;
     die "Not a Tie::IxHash" unless is_ixhash($node);
 
     my $result = new_ixhash;
@@ -244,7 +246,7 @@ sub reorder_ixhash {
 }
 
 sub rename_ixhash_key {
-    my ($node, $from, $to) = @_;
+    my ( $node, $from, $to ) = @_;
     die "Not a Tie::IxHash" unless is_ixhash($node);
     die "Can\'t rename key '$from' to '$to', because the target key already exists" if exists $node->{$to};
 
@@ -258,15 +260,123 @@ sub rename_ixhash_key {
 }
 
 sub read_file {
-    my ($filename, $binmode) = @_;
+    my ( $filename, $binmode ) = @_;
 
-    open(CFG, $filename) or die "Can't open [$filename]: $!";
-    binmode(CFG, $binmode || ':utf8');
-    my $text = join('', <CFG>);
-    close(CFG);
+    my $fh;
+    open( $fh, $filename ) or die "Can't open [$filename]: $!";
+    binmode( $fh, $binmode || ':utf8' );
+    my $text = join( '', <$fh> );
+    close($fh);
 
     return $text;
-} # end sub
+}    # end sub
 
+sub parse_conf_value {
+    my $str = shift;
+
+    $str =~ s/\A\s+//ms;
+    $str =~ s/\s+\z//ms;
+
+    my @argv;
+    my $buf;
+    my $escaped;
+    my $double_quoted;
+    my $single_quoted;
+
+    for my $char ( split //, $str ) {
+        if ($escaped) {
+            $buf .= $char;
+            $escaped = undef;
+            next;
+        }
+
+        if ( $char eq '\\' ) {
+            if ($single_quoted) {
+                $buf .= $char;
+            }
+            else {
+                $escaped = 1;
+            }
+            next;
+        }
+
+        if ( $char =~ /\s/ ) {
+            if ( $single_quoted || $double_quoted ) {
+                $buf .= $char;
+            }
+            else {
+                push( @argv, $buf ) if defined $buf;
+                undef $buf;
+            }
+            next;
+        }
+
+        if ( $char eq '"' ) {
+            if ($single_quoted) {
+                $buf .= $char;
+                next;
+            }
+            $double_quoted = !$double_quoted;
+            next;
+        }
+
+        if ( $char eq "'" ) {
+            if ($double_quoted) {
+                $buf .= $char;
+                next;
+            }
+            $single_quoted = !$single_quoted;
+            next;
+        }
+
+        $buf .= $char;
+    }
+    push( @argv, $buf ) if defined $buf;
+
+    if ( $escaped || $single_quoted || $double_quoted ) {
+        die 'invalid command line string';
+    }
+
+    return @argv;
+}
+
+sub read_file_with_include {
+    my ( $filename, $confDir, $binmode ) = @_;
+
+    my $fh;
+    open( $fh, $filename ) or die "Can't open [$filename]: $!";
+    binmode( $fh, $binmode || ':utf8' );
+
+    #my $text = join('', <$fh>);
+    if ( not defined($confDir) ) {
+        $confDir = dirname($filename);
+    }
+
+    my $text;
+    while ( my $line = <$fh> ) {
+        if ( $line =~ /^\s*include\s+(.*)\s*;\s*$/ ) {
+            my $includeConf = $1;
+            foreach my $confFile ( parse_conf_value($includeConf) ) {
+                if ( $confFile !~ /^\/\\/ ) {
+                    $confFile = File::Spec->catfile( $confDir, $confFile );
+                }
+                if ( index( $confFile, '*' ) >= 0 ) {
+                    foreach my $realFile ( glob($confFile) ) {
+                        $text .= read_file_with_include( $realFile, $confDir );
+                    }
+                }
+                else {
+                    $text .= read_file_with_include( $confFile, $confDir );
+                }
+            }
+        }
+        else {
+            $text .= $line;
+        }
+    }
+    close($fh);
+
+    return $text;
+}
 
 1;

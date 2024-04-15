@@ -326,6 +326,7 @@ sub collect {
         my $dbName = $row->{SCHEMA_NAME};
         $dbInfo->{_OBJ_CATEGORY}         = CollectObjCat->get('DB');
         $dbInfo->{_OBJ_TYPE}             = 'Mysql-DB';
+        $dbInfo->{_APP_TYPE}             = 'Mysql';
         $dbInfo->{NAME}                  = $dbName;
         $dbInfo->{SERVICE_NAME}          = $dbName;
         $dbInfo->{DEFAULT_CHARACTER_SET} = $row->{DEFAULT_CHARACTER_SET_NAME};
@@ -363,7 +364,7 @@ sub collect {
                     @dbConns,
                     {
                         _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                        _OBJ_TYPE     => 'DB-CONNECTION',
+                        _OBJ_TYPE     => 'DB-CONNECT',
                         SERVICE_NAME  => $dbName,
                         USER_NAME     => $dbUser
                     }

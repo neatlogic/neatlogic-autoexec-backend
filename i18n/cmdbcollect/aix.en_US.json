@@ -657,11 +657,6 @@
             ]
         },
         {
-            "name": "AUTO_RESTART",
-            "desc": "Auto Restart",
-            "type": "String"
-        },
-        {
             "name": "BELONG_CLUSTER",
             "desc": "Belong to Cluster",
             "type": "JsonArray",
@@ -692,6 +687,11 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "AUTO_RESTART",
+            "desc": "Auto Restart",
+            "type": "String"
         },
         {
             "name": "BOARD_SERIAL",

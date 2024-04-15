@@ -70,6 +70,7 @@ if __name__ == "__main__":
         for cluster in clusters:
             cluster["_OBJ_CATEGORY"] = "VIRTUALIZED"
             cluster["_OBJ_TYPE"] = "VIRTUALIZED-CLUSTER"
+            cluster["VIRT_PLATFORM"] = "vmware"
             # 物理机信息
             hosts = cluster["HOST"]
             rel_host = []
@@ -133,6 +134,7 @@ if __name__ == "__main__":
     result["MGMT_PORT"] = port
     result["_OBJ_CATEGORY"] = "VIRTUALIZED"
     result["_OBJ_TYPE"] = "VCENTER"
+    result["VIRT_PLATFORM"] = "vmware"
     result["PK"] = ["MGMT_IP"]
     data.append(result)
 

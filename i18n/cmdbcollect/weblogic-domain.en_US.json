@@ -1,9 +1,11 @@
 {
-    "label": "Weblogic Domain",
+    "label": "Weblogic Domain Admin Set",
     "collection": "COLLECT_ADMINSET",
     "docroot": null,
     "collection_label": "Admin Set",
-    "filter": {},
+    "filter": {
+        "_OBJ_TYPE": "Weblogic-Domain"
+    },
     "fields": [
         {
             "name": "_OBJ_CATEGORY",

@@ -32,6 +32,7 @@ sub getConfigInfo {
     my ( $self, $appInfo, $domainHome, $serverName, $confFile ) = @_;
 
     my $procInfo      = $self->{procInfo};
+    my $MGMT_IP       = $procInfo->{MGMT_IP};
     my $confObj       = xml_to_object( $confFile, { file => 1 } );
     my $domainVersion = $confObj->path('domain-version')->value();
     my $domainName    = $confObj->path('name')->value();
@@ -76,12 +77,16 @@ sub getConfigInfo {
             my $lsnIpItem   = $srv->path('listen-address');
             my $portItem    = $srv->path('listen-port');
             my $clusterItem = $srv->path('cluster');
-
-            if ( not defined($lsnIpItem) or not defined($portItem) ) {
-                next;
+            #if ( not defined($lsnIpItem) or not defined($portItem) ) {
+            #    next;
+            #}
+            my $lsnIp = $MGMT_IP;
+            if ( defined($lsnIpItem)  and $lsnIpItem->value() ne '' ) {
+                $lsnIp = $lsnIpItem->value();
             }
-            my $lsnIp = $lsnIpItem->value();
-            my $port  = $portItem->value();
+            if ( defined($portItem) and $portItem->value() ne '') {
+                $port = $portItem->value();
+            }
             my $srvCluster;
             if ( defined($srvCluster) ) {
                 $srvCluster = $clusterItem->value();
@@ -90,7 +95,7 @@ sub getConfigInfo {
             my $objType = $procInfo->{_OBJ_TYPE};
 
             my $appType = 'Weblogic-Server';
-            if ( $name ne 'AdminServer' ) {
+            if ( $name eq 'AdminServer' ) {
                 $appType                      = 'Weblogic-Admin';
                 $domainUniqueName             = "$lsnIp:$port";
                 $wlsDomainInfo->{UNIQUE_NAME} = $domainUniqueName;
@@ -135,6 +140,7 @@ sub getConfigInfo {
     $appInfo->{SSL_PORT}       = $port;
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{ADMIN_SSL_PORT} = $port;
+    $appInfo->{SERVICE_PORTS}  = {t3 => $port};
     $appInfo->{SERVER_CLUSTER} = $cluster;
 
     #获取部署应用信息
@@ -273,7 +279,7 @@ sub collect {
     #$appInfo->{_OBJ_TYPE}   = $procInfo->{_OBJ_TYPE};
     $appInfo->{CONFIG_PATH} = $domainHome;
 
-    return \@collectSet;
+    return @collectSet;
 }
 
 1;
