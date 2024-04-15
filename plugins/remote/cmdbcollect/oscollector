@@ -429,7 +429,6 @@ sub mergeMultiProcs {
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
 
                     #如果是应用实例，补充其他监听的端口（未知协议或服务名）
-                    my @servicePortsArray = ();
                     foreach my $svcPort ( keys(%$portsMap) ) {
                         if ( not defined( $servicePorts->{$svcPort} ) ) {
                             push(
