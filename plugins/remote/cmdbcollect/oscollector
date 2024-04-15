@@ -11,6 +11,7 @@ use Getopt::Long;
 use POSIX qw(uname);
 use File::Basename;
 use File::Spec;
+use Cwd qw(abs_path);
 use JSON qw(from_json to_json);
 
 #use JSON;
@@ -484,10 +485,7 @@ sub resolveSymlinks {
         return resolveSymlinks($target);
     }
     elsif ( -e $path ) {
-        if ( !File::Spec->file_name_is_absolute($path) ) {
-            $path = File::Spec->rel2abs( $path, dirname($path) );
-        }
-        return $path;
+        return abs_path($path);
     }
     else {
         return undef;
