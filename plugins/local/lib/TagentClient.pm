@@ -2,7 +2,7 @@
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../lib/perl-lib/lib/perl5";
+use lib "$FindBin::Bin/../pllib/lib/perl5";
 
 use strict;
 
@@ -26,7 +26,7 @@ use Crypt::RC4;
 my $PROTOCOL_VER        = 'Tagent1.1';
 my $SECURE_PROTOCOL_VER = 'Tagent1.1s';
 
-$ENV{PERL5LIB} = Cwd::abs_path("$FindBin::Bin/../lib/perl-lib/lib/perl5") . ':' . Cwd::abs_path("$FindBin::Bin/../lib");
+$ENV{PERL5LIB} = Cwd::abs_path("$FindBin::Bin/../pllib/lib/perl5") . ':' . Cwd::abs_path("$FindBin::Bin/../lib");
 
 sub _rc4_encrypt_hex ($$) {
     my ( $key, $data ) = ( $_[0], $_[1] );
