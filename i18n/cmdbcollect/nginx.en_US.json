@@ -757,6 +757,38 @@
                             "type": "String"
                         },
                         {
+                            "name":"BACKEND",
+                            "desc":"BACKEND",
+                            "type":"JsonArray",
+                            "subset":[
+                                {
+                                    "name":"_OBJ_CATEGORY",
+                                    "desc":"Object Category",
+                                    "type":"String"
+                                },
+                                {
+                                    "name":"_OBJ_TYPE",
+                                    "desc":"Object Type",
+                                    "type":"String"
+                                },
+                                {
+                                    "name":"NAME",
+                                    "desc":"NAME",
+                                    "type":"String"
+                                },
+                                {
+                                    "name":"BACKEND_IP",
+                                    "desc":"BACKEND_IP",
+                                    "type":"String"
+                                },
+                                {
+                                    "name":"BACKEND_PORT",
+                                    "desc":"BACKEND_PORT",
+                                    "type":"String"
+                                }
+                            ]
+                        },
+                        {
                             "name": "MEMBER_PEER",
                             "desc": "关联成员地址",
                             "type": "Array",
