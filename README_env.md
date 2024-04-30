@@ -110,7 +110,7 @@ export PASSTHROUGH_ENV='{"runnerId":1}'
 #设置Python的lib目录
 export AUTOEXEC_HOME=/app/autoexec
 export PYTHONPATH=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/lib:$AUTOEXEC_HOME/plib
-export PERL5LIB=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/plugins/local/lib/perl-lib/lib/perl5
+export PERL5LIB=$AUTOEXEC_HOME/plugins/local/lib:$AUTOEXEC_HOME/plugins/local/pllib/lib/perl5
 ```
 
 ```shell

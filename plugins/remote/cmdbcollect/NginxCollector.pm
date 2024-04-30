@@ -150,6 +150,9 @@ sub collect {
     my $mainBlock = $self->getConfigMap($data);
 
     my $nginxInfo = $self->getNginxInsInfo($mainBlock);
+    $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $nginxInfo->{_OBJ_TYPE}     = 'Nginx';
+    $nginxInfo->{SERVER_NAME}   = 'nginx';
     $nginxInfo->{EXE_PATH}     = $exePath;
     $nginxInfo->{BIN_PATH}     = $binPath;
     $nginxInfo->{INSTALL_PATH} = $basePath;
@@ -423,6 +426,102 @@ sub getProxyPassMembers {
     return \@members;
 }
 
+
+sub getProxyPassBackendUpstreamMembers {
+    my ( $self, $proxyPassVal, $upstreamsMap, $serverListenPorts ) = @_;
+
+    my @upstreamList = ();
+    my $matched = 0;
+    foreach my $upstreamName ( keys(%$upstreamsMap) ) {
+        if ( $proxyPassVal =~ /\b$upstreamName\b/ ) {
+            #如果匹配upstream的名称，则从upstream中找server member
+            $matched = 1;
+            my $upstreamServersList = $upstreamsMap->{$upstreamName}->{server};
+            foreach my $serverAddr (@$upstreamServersList) {
+                $serverAddr =~ s/\s+.*$//g;
+                my ( $host, $port ) = split( ':', $serverAddr, 2 );
+                my $ipAddr = gethostbyname($host);
+
+                if ( defined($ipAddr) ) {
+                    $host = inet_ntoa($ipAddr);
+                    if ( $host eq '127.0.0.1' ) {
+                        $host = $self->{VIP};
+                    }
+                    if ( not defined($port) ) {
+                        foreach my $listenPort (@$serverListenPorts) {
+                            my $upstream = {};
+                            $upstream->{'_OBJ_CATEGORY'} = "INS";
+                            $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
+                            $upstream->{'NAME'} = $upstreamName;
+                            $upstream->{'BACKEND_IP'} = $host;
+                            $upstream->{'BACKEND_PORT'} = $listenPort;
+                            push( @upstreamList, $upstream );
+                        }
+                    }
+                    else {
+                        my $upstream = {};
+                        $upstream->{'_OBJ_CATEGORY'} = "INS";
+                        $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
+                        $upstream->{'NAME'} = $upstreamName;
+                        $upstream->{'BACKEND_IP'} = $host;
+                        $upstream->{'BACKEND_PORT'} = $port;
+                        push( @upstreamList, $upstream );
+                    }
+                }
+            }
+        }
+    }
+
+    if ( $matched == 0 ) {
+        #如果不匹配upstream的名称，则从proxy_pass本身抽取backend member
+        if ( $proxyPassVal =~ /:\/\/([^\/]+)/ ) {
+
+            #对于http的情况（在http块中）
+            my $backendAddr = $1;
+            my ( $host, $port ) = split( ':', $backendAddr, 2 );
+            my $ipAddr = gethostbyname($host);
+            if ( defined($ipAddr) ) {
+                $host = inet_ntoa($ipAddr);
+                if ( $host eq '127.0.0.1' ) {
+                    $host = $self->{VIP};
+                }
+                my $upstream = {};
+                $upstream->{'_OBJ_CATEGORY'} = "INS";
+                $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
+                $upstream->{'NAME'} = $backendAddr;
+                $upstream->{'BACKEND_IP'} = $host;
+                $upstream->{'BACKEND_PORT'} = $port;
+                push( @upstreamList, $upstream );
+            }
+        }
+        elsif ( $proxyPassVal =~ /^[\w\-\.]+$/ ) {
+
+            #非http的情况（在stream块中）
+            my $backendAddr = $proxyPassVal;
+            my ( $host, $port ) = split( ':', $backendAddr, 2 );
+            my $ipAddr = gethostbyname($host);
+            if ( defined($ipAddr) ) {
+                $host = inet_ntoa($ipAddr);
+                if ( $host eq '127.0.0.1' ) {
+                    $host = $self->{VIP};
+                }
+                my $upstream = {};
+                $upstream->{'_OBJ_CATEGORY'} = "INS";
+                $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
+                $upstream->{'NAME'} = $backendAddr;
+                $upstream->{'BACKEND_IP'} = $host;
+                $upstream->{'BACKEND_PORT'} = $port;
+                push( @upstreamList, $upstream );
+            }
+        }
+        else {
+            print("WARN: Can not parse proxy_pass config:$proxyPassVal.\n");
+        }
+    }
+
+    return \@upstreamList;
+}
+
 sub hasListened {
     my ( $self, $serverName, $listenIp, $listenPort ) = @_;
 
@@ -637,7 +736,7 @@ sub getHttpServers {
             }
 
             my ( $vip, $port ) = $self->getPrimaryIpAndPort( $serverName, $myListenPorts );
-
+            $self->{VIP} = $vip;
             my @serverMembers = ();
             my @locationInfos = ();
             my $serverInfo    = {
@@ -661,9 +760,11 @@ sub getHttpServers {
             while ( my ( $uri, $locationBlock ) = each(%$locationsMap) ) {
                 my $proxyPassVal     = $locationBlock->{proxy_pass};
                 my $proxyPassMembers = [];
+                my $backendUpstreamMembers = [];
                 if ( defined($proxyPassVal) ) {
                     $proxyPassMembers = $self->getProxyPassMembers( $proxyPassVal, $upstreamsMap, $myListenPorts );
                     push( @serverMembers, @$proxyPassMembers );
+                    $backendUpstreamMembers = $self->getProxyPassBackendUpstreamMembers( $proxyPassVal, $upstreamsMap, $myListenPorts );
                 }
                 push(
                     @locationInfos,
@@ -672,7 +773,8 @@ sub getHttpServers {
                         _OBJ_TYPE     => 'Nginx-Http-Location',
                         NAME          => $uri,
                         PROXY_PASS    => $proxyPassVal,
-                        MEMBER_PEER   => $proxyPassMembers
+                        MEMBER_PEER   => $proxyPassMembers,
+                        BACKEND       => $backendUpstreamMembers
                     }
                 );
             }
