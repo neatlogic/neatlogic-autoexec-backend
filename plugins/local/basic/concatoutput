@@ -64,7 +64,7 @@ if __name__ == "__main__":
                 isStr = True
                 if aggData is None:
                     aggData = ''
-                aggData = delimiter + aggData + val
+                aggData = aggData + delimiter + val
             elif isinstance(val, list):
                 if aggData is None:
                     aggData = []

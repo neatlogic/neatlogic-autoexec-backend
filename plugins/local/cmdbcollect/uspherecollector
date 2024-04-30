@@ -1,0 +1,572 @@
+#!/usr/bin/python3
+import json
+import os
+import re
+import ipaddress
+import argparse
+import sys
+import AutoExecUtils
+import requests
+from requests.auth import HTTPDigestAuth
+
+
+def usage():
+    pname = os.path.basename(__file__)
+    print(
+        pname
+        + " --ip <usphere management ip> --port <usphere management port> --user <user> --password <password> "
+    )
+    exit(1)
+
+
+class UsphereDataCollector:
+    def __init__(self, ip, port, user, password):
+        self.ip = ip
+        self.port = port
+        self.user = user
+        self.password = password
+        self.serviceAddr = "http://" + ip + ":" + port
+        self.headers = {"Accept": "application/json"}
+        self.auth = HTTPDigestAuth(user, password)
+        self.data = []
+
+    def collect_data(self):
+        usphere = {}
+        usphere["MGMT_IP"] = self.ip
+        usphere["MGMT_PORT"] = self.port
+        usphere["_OBJ_CATEGORY"] = "VIRTUALIZED"
+        usphere["_OBJ_TYPE"] = "VCENTER"
+        usphere["VIRT_PLATFORM"] = "usphere"
+        usphere["PK"] = ["MGMT_IP"]
+
+        # 采集虚拟化版本信息
+        url = "/cas/casrs/version"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            usphere["VERSION"] = resJson["casVersion"]
+        else:
+            print("WARN: get usphere version failed", response.status_code)
+
+        # 采集hostPool(DataCenter)
+        dcs = []
+        url = "/cas/casrs/hostpool/hpList"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["hostPool"], list):
+                for hostPool in resJson["hostPool"]:
+                    dc = {}
+                    dc["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                    dc["_OBJ_TYPE"] = "VIRTUALIZED-DATACENTER"
+                    dc["NAME"] = hostPool["name"]
+                    dc["MOID"] = "datacenter-" + hostPool["id"]
+                    cluster_list = self.getCluster(hostPool["id"])
+                    cluster_list = [
+                        {"DC_NAME": hostPool["name"], **json_obj}
+                        for json_obj in cluster_list
+                    ]
+                    dc["CLUSTER"] = cluster_list
+                    dcs.append(dc)
+            elif isinstance(resJson["hostPool"], dict):
+                dc = {}
+                dc["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                dc["_OBJ_TYPE"] = "VIRTUALIZED-DATACENTER"
+                dc["NAME"] = resJson["hostPool"]["name"]
+                dc["MOID"] = "datacenter-" + resJson["hostPool"]["id"]
+                cluster_list = self.getCluster(resJson["hostPool"]["id"])
+                cluster_list = [
+                    {"DC_NAME": resJson["hostPool"]["name"], **json_obj}
+                    for json_obj in cluster_list
+                ]
+                dc["CLUSTER"] = cluster_list
+                dcs.append(dc)
+            usphere["DATACENTER"] = dcs
+        else:
+            print("WARN: get hostPool List failed", response.status_code)
+        # print (json.dumps(usphere, indent=4, ensure_ascii=False))
+        self.data.append(usphere)
+
+    def getCluster(self, dcId):
+        url = "/cas/casrs/cluster/" + dcId + "/cluster/info"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        cluster_list = []
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["cluster"], list):
+                for cluster in resJson["cluster"]:
+                    cluster_ins = {}
+                    cluster_ins["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                    cluster_ins["_OBJ_TYPE"] = "VIRTUALIZED-CLUSTER"
+                    cluster_ins["NAME"] = cluster["name"]
+                    cluster_ins["MOID"] = "domain-" + cluster["id"]
+                    cluster_ins["ID"] = cluster["id"]
+                    datastore_list = self.getDatastore(cluster["id"])
+                    network_list = self.getNetwork(cluster["id"])
+                    host_list = self.getHost(cluster["id"])
+                    vm_list = self.getVM(cluster_ins, host_list)
+                    cluster_ins["DATASTORE"] = datastore_list
+                    cluster_ins["NETWORK"] = network_list
+                    cluster_ins["CONTAIN_HOST"] = host_list
+                    cluster_ins["CONTAIN_VMS"] = vm_list
+                    cluster_list.append(cluster_ins)
+            elif isinstance(resJson["cluster"], dict):
+                cluster_ins = {}
+                cluster_ins["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                cluster_ins["_OBJ_TYPE"] = "VIRTUALIZED-CLUSTER"
+                cluster_ins["NAME"] = resJson["cluster"]["name"]
+                cluster_ins["MOID"] = "domain-" + resJson["cluster"]["id"]
+                cluster_ins["ID"] = resJson["cluster"]["id"]
+                datastore_list = self.getDatastore(resJson["cluster"]["id"])
+                network_list = self.getNetwork(resJson["cluster"]["id"])
+                host_list = self.getHost(resJson["cluster"]["id"])
+                vm_list = self.getVM(cluster_ins, host_list)
+                cluster_ins["DATASTORE"] = datastore_list
+                cluster_ins["NETWORK"] = network_list
+                cluster_ins["CONTAIN_HOST"] = host_list
+                cluster_ins["CONTAIN_VMS"] = vm_list
+                cluster_list.append(cluster_ins)
+        else:
+            print("WARN: get cluster List failed", response.status_code)
+
+        return cluster_list
+
+    def getVM(self, cluster_ins, host_list):
+        SYSTEM_TYPE_DICT = {"0": "Windows", "1": "Linux", "2": "BSD"}
+        url = "/cas/casrs/vm/cpu/info"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        vm_cpu_info_dict = {}
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            for cpu_info in resJson["domain"]:
+                cpu_dict = {}
+                cpu_dict["CPU_COUNT"] = cpu_info["cpu"]["cpuSockets"]
+                cpu_dict["CPU_CORES"] = cpu_info["cpu"]["cpuCores"]
+                vm_cpu_info_dict[cpu_info["id"]] = cpu_dict
+        else:
+            print("WARN: get vm cpu info failed", response.status_code)
+
+        url = "/cas/casrs/vm/disk/info"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        vm_disk_info_dict = {}
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            for disk_info in resJson["domain"]:
+                disk_ins = {}
+                disk_list = []
+                for storage in disk_info["storage"]:
+                    if storage["device"] == "disk":
+                        disk_ins["NAME"] = storage["path"]
+                        allocationFormat = storage["allocationFormat"]
+                        pattern = r"(\d+(?:\.\d+)?)\s*([A-Za-z]+)"
+                        match = re.match(pattern, allocationFormat)
+                        if match:
+                            disk_ins["UNIT"] = match.group(2)
+                            disk_ins["CAPACITY"] = match.group(1)
+                        disk_list.append(disk_ins)
+                vm_disk_info_dict[disk_info["id"]] = disk_list
+
+        url = "/cas/casrs/vm/vmList"
+        tmp_clt_ins = {}
+        tmp_clt_ins = {}
+        tmp_clt_ins["_OBJ_CATEGORY"] = "VIRTUALIZED-CLUSTER"
+        tmp_clt_ins["_OBJ_TYPE"] = "VIRTUALIZED-CLUSTER"
+        tmp_clt_ins["ID"] = cluster_ins["ID"]
+        tmp_clt_ins["MOID"] = cluster_ins["MOID"]
+        tmp_clt_ins["MGMT_IP"] = self.ip
+
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        vm_list = []
+        if response.status_code == 200 and response.json() is not None:
+            host_dict = {}
+            for item in host_list:
+                host_dict[item["id"]] = item
+            resJson = response.json()
+            for vm in resJson["domain"]:
+                if ("ipv4Attribute" in vm) and (
+                    str(vm["clusterId"]) == str(tmp_clt_ins["ID"])
+                ):  # 没有ipv4Attribute可能是虚拟机模板？
+                    vm_ins = {}
+                    vm_ins["_OBJ_CATEGORY"] = "OS"
+                    vm_ins["_OBJ_TYPE"] = SYSTEM_TYPE_DICT[vm["system"]]
+                    vm_ins["OS_TYPE"] = SYSTEM_TYPE_DICT[vm["system"]]
+                    vm_ins["VCENTER_IP"] = self.ip
+                    vm_ins["ID"] = vm["id"]
+                    vm_ins["NAME"] = vm["name"]
+                    vm_ins["MEM_TOTAL"] = vm["memory"]
+                    vm_ins["MEM_UNIT"] = "MB"
+                    vm_ins["STATE"] = vm["vmStatus"]
+                    vm_ins["IS_VIRTUAL"] = 1
+                    vm_ins["MACHINE_UUID"] = host_dict[vm["hostId"]]["UUID"]
+                    vm_ins["MACHINE_SN"] = host_dict[vm["hostId"]]["BOARD_SERIAL"]
+                    vm_ins["PK"] = ["MGMT_IP"]
+                    if vm["id"] in vm_cpu_info_dict:
+                        vm_ins["CPU_COUNT"] = vm_cpu_info_dict[vm["id"]]["CPU_COUNT"]
+                        vm_ins["CPU_CORES"] = vm_cpu_info_dict[vm["id"]]["CPU_CORES"]
+                    if vm["id"] in vm_disk_info_dict:
+                        vm_ins["DISKS"] = vm_disk_info_dict[vm["id"]]
+                    vm_ins["CLUSTERED_ON"] = [tmp_clt_ins]
+                    ips = []
+                    if isinstance(vm["ipv4Attribute"], list):
+                        for ipAttr in vm["ipv4Attribute"]:
+                            if isinstance(ipAttr["ipv4"], list):
+                                for ipv4 in ipAttr["ipv4"]:
+                                    ipAddr = ipv4["ipAddress"]
+                                    ips.append(ipAddr)
+                            elif isinstance(ipAttr["ipv4"], dict):
+                                ipAddr = ipAttr["ipv4"]["ipAddress"]
+                                ips.append(ipAddr)
+                    elif isinstance(vm["ipv4Attribute"], dict):
+                        if isinstance(vm["ipv4Attribute"]["ipv4"], list):
+                            for ipv4 in vm["ipv4Attribute"]["ipv4"]:
+                                ipAddr = ipv4["ipAddress"]
+                                ips.append(ipAddr)
+                        elif isinstance(vm["ipv4Attribute"]["ipv4"], dict):
+                            ipAddr = vm["ipv4Attribute"]["ipv4"]["ipAddress"]
+                            ips.append(ipAddr)
+                    class_a_ips = [
+                        i for i in ips if self.is_class_a(i)
+                    ]  # 多IP时筛选出A类IP
+                    maxIp = max(
+                        map(ipaddress.IPv4Address, class_a_ips)
+                    )  # 最大的ip作为虚机管理ip？
+                    vm_ins["MGMT_IP"] = str(maxIp)
+                    vm_ins["VM_ID"] = "vm-" + vm["id"]
+                    vm_ins["UUID"] = vm["uuid"]
+                    vm_ins["HOST_ON"] = host_dict[vm["hostId"]]
+                    self.data.append(vm_ins)
+                    vm_list.append(vm_ins)
+        else:
+            print("WARN: get vm List failed", response.status_code)
+        return vm_list
+
+    def is_class_a(self, ip_address):
+        first_octet = int(ip_address.split(".")[0])
+        return 1 <= first_octet <= 126
+
+    def getDatastoreUUID(self, datastoreId):
+        url = "/cas/casrs/storage/shareFile/" + str(datastoreId)
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            uuid = resJson["rsFsLunInfo"]["naa"]
+            return uuid
+
+    def getDatastore(self, clusterId):
+        url = "/cas/casrs/cluster/storageRes?clusterIds=" + str(clusterId)
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        datastore_list = []
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["storageRes"], list):
+                for datastore in resJson["storageRes"]:
+                    datastore_ins = {}
+                    datastore_ins["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                    datastore_ins["_OBJ_TYPE"] = "VIRTUALIZED-DATASTORE"
+                    datastore_ins["MOID"] = "datastore-" + datastore["id"]
+                    uuid = self.getDatastoreUUID(datastore["id"])
+                    datastore_ins["UUID"] = uuid
+                    datastore_ins["UNIQUE_NAME"] = uuid
+                    datastore_ins["NAME"] = datastore["name"]
+                    datastore_ins["AVAILABLE"] = datastore["storage"]
+                    datastore_ins["CAPACITY"] = datastore["maxSize"]
+                    datastore_ins["TYPE"] = datastore["type"]
+                    datastore_ins["UNIT"] = "MB"
+                    datastore_ins["PATH"] = datastore["path"]
+                    datastore_list.append(datastore_ins)
+            elif isinstance(resJson["storageRes"], dict):
+                datastore_ins = {}
+                datastore_ins["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                datastore_ins["_OBJ_TYPE"] = "VIRTUALIZED-DATASTORE"
+                datastore_ins["MOID"] = "datastore-" + resJson["storageRes"]["id"]
+                uuid = self.getDatastoreUUID(resJson["storageRes"]["id"])
+                datastore_ins["UUID"] = uuid
+                datastore_ins["UNIQUE_NAME"] = uuid
+                datastore_ins["NAME"] = resJson["storageRes"]["name"]
+                datastore_ins["AVAILABLE"] = resJson["storageRes"]["storage"]
+                datastore_ins["CAPACITY"] = resJson["storageRes"]["maxSize"]
+                datastore_ins["TYPE"] = resJson["storageRes"]["type"]
+                datastore_ins["UNIT"] = "MB"
+                datastore_ins["PATH"] = resJson["storageRes"]["path"]
+                datastore_list.append(datastore_ins)
+        else:
+            print("WARN: get datastore List failed", response.status_code)
+
+        return datastore_list
+
+    def getNetwork(self, clusterId):
+        MODE_TYPE_DICT = {"0": "veb", "1": "vepa", "2": "多通道", "3": "分布式"}
+        url = "/cas/casrs/cluster/netRes?clusterIds=" + str(clusterId)
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        network_list = []
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["netRes"], list):
+                for network in resJson["netRes"]:
+                    network_ins = {}
+                    network_ins["MOID"] = "network-" + network["id"]
+                    network_ins["NAME"] = network["name"]
+                    network_ins["MODE"] = MODE_TYPE_DICT[network["mode"]]
+                    network_list.append(network_ins)
+            elif isinstance(resJson["netRes"], dict):
+                network_ins = {}
+                network_ins["MOID"] = "network-" + resJson["netRes"]["id"]
+                network_ins["NAME"] = resJson["netRes"]["name"]
+                network_ins["MODE"] = MODE_TYPE_DICT[resJson["netRes"]["mode"]]
+                network_list.append(network_ins)
+        else:
+            print("WARN: get network List failed", response.status_code)
+
+        return network_list
+
+    def getHost(self, clusterId):
+        url = "/cas/casrs/cluster/hostNodes?cluster=" + str(clusterId)
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        host_list = []
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["host"], list):
+                for host in resJson["host"]:
+                    host_ins = {}
+                    host_ins["_OBJ_CATEGORY"] = "HOST"
+                    host_ins["_OBJ_TYPE"] = "HOST"
+                    host_ins["HOST_IP"] = host["ip"]
+                    host_ins["MGMT_IP"] = host["ip"]
+                    host_ins["PK"] = ["BOARD_SERIAL"]
+                    host_ins["id"] = host["id"]
+                    detail = self.getHostDetail(host["id"])
+                    host_ins["UUID"] = detail["uuid"]
+                    host_ins["BOARD_SERIAL"] = detail["board_serial"]
+                    host_list.append(host_ins)
+                    host_ins["MANUFACTURER"] = detail["vendor"]
+                    host_ins["MODEL"] = detail["prodName"]
+                    host_ins["MOID"] = "host-" + host["id"]
+                    host_ins["NAME"] = host["name"]
+                    host_ins["CPU_COUNT"] = detail["cpuCount"]
+                    host_ins["CPU_MODEL"] = detail["cpuModel"]
+                    host_ins["CPU_FREQUENCY"] = detail["speMax"]
+                    host_ins["BIOS_VENDOR"] = detail["vendor"]
+                    host_ins["BIOS_VERSION"] = detail["bios_version"]
+                    host_ins["MEM_MAXIMUM_CAPACITY"] = detail["memSize"]
+                    host_ins["ETH_INTERFACES"] = detail["eth"]
+                    self.data.append(host_ins)
+            elif isinstance(resJson["host"], dict):
+                host_ins = {}
+                host_ins["_OBJ_CATEGORY"] = "HOST"
+                host_ins["_OBJ_TYPE"] = "HOST"
+                host_ins["HOST_IP"] = resJson["host"]["ip"]
+                host_ins["MGMT_IP"] = host["ip"]
+                host_ins["PK"] = ["BOARD_SERIAL"]
+                host_ins["id"] = resJson["host"]["id"]
+                detail = self.getHostDetail(resJson["host"]["id"])
+                host_ins["UUID"] = detail["uuid"]
+                host_ins["BOARD_SERIAL"] = detail["board_serial"]
+                host_list.append(host_ins)
+                host_ins["MANUFACTURER"] = detail["vendor"]
+                host_ins["MODEL"] = detail["prodName"]
+                host_ins["MOID"] = "host-" + resJson["host"]["id"]
+                host_ins["NAME"] = resJson["host"]["name"]
+                host_ins["CPU_COUNT"] = detail["cpuCount"]
+                host_ins["CPU_MODEL"] = detail["cpuModel"]
+                host_ins["CPU_FREQUENCY"] = detail["speMax"]
+                host_ins["BIOS_VENDOR"] = detail["vendor"]
+                host_ins["BIOS_VERSION"] = detail["bios_version"]
+                host_ins["MEM_MAXIMUM_CAPACITY"] = detail["memSize"]
+                host_ins["ETH_INTERFACES"] = detail["eth"]
+                self.data.append(host_ins)
+        else:
+            print("WARN: get hostId failed", response.status_code)
+        return host_list
+
+    def getHostDetail(self, hostId):
+        url = (
+            "/cas/casrs/host/"
+            + str(hostId)
+            + "/hardwareInfo?isShowAll=true&type=SYSTEM"
+        )
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        detail = {}
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            detail["uuid"] = resJson["hardwareInfo"]["uuid"]
+            detail["board_serial"] = resJson["hardwareInfo"]["serNum"]
+            detail["prodName"] = resJson["hardwareInfo"]["prodName"]
+        else:
+            print("WARN: get hostSN failed", response.status_code)
+
+        url = (
+            "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=BIOS"
+        )
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            detail["vendor"] = resJson["hardwareInfo"]["vendor"]
+            detail["bios_version"] = resJson["hardwareInfo"]["version"]
+        else:
+            print("WARN: get host bios failed", response.status_code)
+
+        url = (
+            "/cas/casrs/host/"
+            + str(hostId)
+            + "/hardwareInfo?isShowAll=true&type=PROCESSOR"
+        )
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["hardwareInfo"], list):
+                detail["cpuCount"] = len(resJson["hardwareInfo"])
+                detail["cpuModel"] = resJson["hardwareInfo"][0]["version"]
+                detail["cpuCores"] = resJson["hardwareInfo"][0]["core"]
+                detail["thread"] = resJson["hardwareInfo"][0]["thread"]
+                detail["speMax"] = resJson["hardwareInfo"][0]["speMax"]
+            elif isinstance(resJson["hardwareInfo"], dict):
+                detail["cpuCount"] = 1
+                detail["cpuModel"] = resJson["hardwareInfo"]["version"]
+                detail["cpuCores"] = resJson["hardwareInfo"]["core"]
+                detail["thread"] = resJson["hardwareInfo"]["thread"]
+                detail["speMax"] = resJson["hardwareInfo"]["speMax"]
+
+        else:
+            print("WARN: get host processor failed", response.status_code)
+
+        url = (
+            "/cas/casrs/host/"
+            + str(hostId)
+            + "/hardwareInfo?isShowAll=true&type=MEMORYSUMMARY"
+        )
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["hardwareInfo"], list):
+                totalMemSize = 0
+                for memInfo in resJson["hardwareInfo"]:
+                    memSize = memInfo["size"]
+                    pattern = r"(\d+)\s+(\w+)"
+                    match = re.match(pattern, memSize)
+                    if match:
+                        number = match.group(1)
+                        unit = match.group(2)
+                        totalMemSize += int(number)
+                detail["memSize"] = totalMemSize
+            elif isinstance(resJson["hardwareInfo"], dict):
+                memSize = resJson["hardwareInfo"]["size"]
+                pattern = r"(\d+)\s+(\w+)"
+                match = re.match(pattern, memSize)
+                if match:
+                    detail["memSize"] = match.group(1)
+                    unit = match.group(2)
+        else:
+            print("WARN: get host memory failed", response.status_code)
+
+        url = "/cas/casrs/host/" + str(hostId) + "/phyNet"
+        response = requests.get(
+            self.serviceAddr + url, headers=self.headers, auth=self.auth
+        )
+        interf_list = []
+        if response.status_code == 200 and response.json() is not None:
+            resJson = response.json()
+            if isinstance(resJson["pNIC"], list):
+                for interface in resJson["pNIC"]:
+                    if interface["status"] == "1":
+                        interf_ins = {}
+                        interf_ins["NAME"] = interface["name"]
+                        interf_ins["MAC"] = interface["macAddr"]
+                        interf_list.append(interf_ins)
+                detail["eth"] = interf_list
+            elif isinstance(resJson["pNIC"], dict):
+                interf_ins = {}
+                interf_ins["NAME"] = resJson["pNIC"]["name"]
+                interf_ins["MAC"] = resJson["pNIC"]["macAddr"]
+                interf_list.append(interf_ins)
+                detail["eth"] = interf_list
+        else:
+            print("WARN: get host memory failed", response.status_code)
+
+        return detail
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="", help="usphere管理服务IP")
+    parser.add_argument("--port", default="80", help="usphere管理服务端口")
+    parser.add_argument("--user", default="", help="usphere console login user")
+    parser.add_argument(
+        "--password", default="", help="usphere console login user password"
+    )
+    parser.add_argument("--verbose", default="0", help="verbose output")
+    args = parser.parse_args()
+
+    ip = args.ip
+    user = args.user
+    password = args.password
+    port = args.port
+    isVerbose = int(args.verbose)
+    print(os.getenv)
+    node = os.getenv("AUTOEXEC_NODE")
+    if node != None and node != "":
+        node = json.loads(node)
+        print(node)
+
+    if (
+        ip == None
+        or ip == ""
+        or user == None
+        or user == ""
+        or password == None
+        or password == ""
+    ) and (node == None or node == ""):
+        usage()
+
+    if (
+        ip == None
+        or ip == ""
+        or user == None
+        or user == ""
+        or password == ""
+        or password == None
+    ) and node != None:
+        ip = node["host"]
+        # port = node["port"]
+        # if port is None or port == "":
+        #    port = node["protocolPort"]
+        user = node["username"]
+        password = node["password"]
+
+    collector = UsphereDataCollector(ip, port, user, password)
+    collector.collect_data()
+    # 定义插件的输出变量output
+    out = {"DATA": collector.data}
+    AutoExecUtils.saveOutput(out)
+
+    if isVerbose == 1:
+        print("==================\n")
+        print(json.dumps(out, indent=4, ensure_ascii=False))
+        print("==================\n")
