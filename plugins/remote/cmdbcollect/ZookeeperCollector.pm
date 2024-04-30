@@ -115,8 +115,10 @@ sub collect {
     my $clusterMembers = [];
     my $confMap        = {};
     my $primaryMember;
-    my $primaryMemberNo =~ 0 + 1;
-    my $confLines = $self->getFileLines($confPath);
+    my $primaryMemberPort;
+
+    my $primaryMemberNo = 0;
+    my $confLines       = $self->getFileLines($confPath);
 
     foreach my $line (@$confLines) {
         $line =~ s/^\s*|\s*$//g;
@@ -136,17 +138,22 @@ sub collect {
             # server.3=192.168.1.124:2182:2183
             if ( $key =~ /server\.(\d+)/ ) {
                 my @ipInfos = split( ':', $val );
+                if ( scalar(@ipInfos) < 2 ) {
+                    next;
+                }
+
                 push( @$clusterMembers, "$ipInfos[0]:$ipInfos[1]" );
                 push( @$clusterMembers, "$ipInfos[0]:$ipInfos[2]" );
                 my $memberNo = int($1);
                 if ( $memberNo < $primaryMemberNo ) {
-                    $primaryMember = $ipInfos[0];
+                    $primaryMemberNo   = $memberNo;
+                    $primaryMember     = $ipInfos[0];
+                    $primaryMemberPort = $ipInfos[1];
                 }
             }
         }
     }
 
-    my @sortedMembers = sort (@$clusterMembers);
     $appInfo->{DATA_PATH}      = $confMap->{dataDir};
     $appInfo->{LOG_PATH}       = $confMap->{dataLogDir};
     $appInfo->{PORT}           = $confMap->{clientPort};
@@ -163,13 +170,19 @@ sub collect {
 
     my $clusterInfo = undef;
     if ( scalar(@$clusterMembers) > 1 ) {
-        my $clusterInfo = {
+        $clusterInfo = {
             _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
             _OBJ_TYPE     => 'ZookeeperCluster'
         };
         my $uniqName = 'Zookeeper:' . $primaryMember;
-        $clusterInfo->{UNIQUE_NAME}      = $uniqName;
-        $clusterInfo->{NAME}             = $uniqName;
+        $clusterInfo->{UNIQUE_NAME} = $uniqName;
+        $clusterInfo->{NAME}        = $uniqName;
+        my $primaryIp = gethostbyname($primaryMember);
+        if ( defined($primaryIp) ) {
+            $clusterInfo->{PRIMARY_IP} = inet_ntoa($primaryIp);
+        }
+
+        $clusterInfo->{PORT}             = $primaryMemberPort;
         $clusterInfo->{CLUSTER_MODE}     = 'Cluster';
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
         $clusterInfo->{CLUSTER_VERSION}  = $version;

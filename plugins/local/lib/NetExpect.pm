@@ -23,9 +23,21 @@ sub new {
     $self->{timeout}  = $attr{timeout};
     $self->{verbose}  = $attr{verbose};
 
+    if(not defined($attr{verbose})){
+        $self->{verbose} = 0;
+    }
+
     bless( $self, $type );
 
     return $self;
+}
+
+sub checkIfMatched {
+    my ( $self, $spawn, $matchedIdx, $msg ) = @_;
+    if ( not defined($matchedIdx) ) {
+        $spawn->hard_close();
+        die("ERROR: $msg\n");
+    }
 }
 
 sub login {
@@ -51,6 +63,7 @@ sub login {
     $spawn->raw_pty(1);
     $spawn->restart_timeout_upon_receive(1);
     $spawn->max_accum(512);
+    $spawn->timeout($timeout);
 
     my $cmd;
     if ( $protocol eq 'ssh' ) {
@@ -62,8 +75,8 @@ sub login {
     $spawn->spawn($cmd);
     $spawn->slave->stty(qw(raw -echo));
 
-    $spawn->expect(
-        $timeout,
+    my $matchedIdx;
+    $matchedIdx = $spawn->expect(
         [
             qr/username:/i => sub {
                 $spawn->send("$username\n");
@@ -82,58 +95,54 @@ sub login {
             }
         ]
     );
+    $self->checkIfMatched($spawn, $matchedIdx, "Expect the terminal shell request username and password failed.");
 
-    $spawn->expect(
-        $timeout,
+    $matchedIdx = $spawn->expect(
         [
             qr/$prompt/ => sub {
-                print("INFO: Login $username\@$host:$port success.\n");
+                if($verbose == 1){
+                    print("INFO: Login $username\@$host:$port success.\n");
+                }
             }
         ],
         [
             qr/password:/i => sub {
-                print( $spawn->before() );
-                print("ERROR: Login $username\@$host:$port failed.\n");
+                my $msg = $spawn->before();
                 $spawn->hard_close();
-                exit(2);
+                die("ERROR: Login $username\@$host:$port failed, invalid username or password.\n");
             }
         ],
         [
             qr/(ssh: connect to host .*)$/ => sub {
-                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
+                my $msg = $spawn->match();
                 $spawn->hard_close();
-                exit(2);
+                die( "ERROR: Login failed. " . $msg . "\n" );
             }
         ],
         [
             qr/connection refused/i => sub {
-                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
+                my $msg = $spawn->match();
                 $spawn->hard_close();
-                exit(2);
+                die( "ERROR: Login failed. " . $msg . "\n" );
             }
         ],
         [
             qr/\nPermission denied, please try again\.\s*/i => sub {
-                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
+                my $msg = $spawn->match();
                 $spawn->hard_close();
-                exit(2);
+                die( "ERROR: Login failed. " . $msg . "\n" );
             }
         ],
         [
             qr/authentication failed/i => sub {
-                print( "ERROR: Login failed. " . $spawn->match() . "\n" );
+                my $msg = $spawn->match();
                 $spawn->hard_close();
-                exit(2);
-            }
-        ],
-        [
-            timeout => sub {
-                print("ERROR: Login $username\@$host:$port failed.\n");
-                $spawn->hard_close();
-                exit(3);
+                die( "ERROR: Login failed. " . $msg . "\n" );
             }
         ]
     );
+
+    $self->checkIfMatched($spawn, $matchedIdx, "Login $username\@$host:$port timeout, expect command prompt timeout.");
 
     $self->{spawn} = $spawn;
     return $spawn;
@@ -143,7 +152,6 @@ sub backup {
     my ( $self, $fullPageCmd, $configCmd, $exitCmd ) = @_;
 
     my $spawn   = $self->{spawn};
-    my $timeout = $self->{timeout};
     my $prompt  = $self->{prompt};
 
     my $cmdOut = '';
@@ -154,18 +162,22 @@ sub backup {
         }
     );
 
+    my $matched;
     $spawn->send("$fullPageCmd\n");
-    $spawn->expect( $timeout, '-re', qr/$prompt/ );
+    $matched = $spawn->expect( '-re', qr/$prompt/ );
+    $self->checkIfMatched($spawn, $matched, "Execute command:$fullPageCmd failed.");
 
     $spawn->send("$configCmd\n");
-    $spawn->expect( $timeout, '-re', qr/$prompt/ );
+    $matched = $spawn->expect( '-re', qr/$prompt/ );
+    $self->checkIfMatched($spawn, $matched, "Execute command:$configCmd failed.");
 
     $spawn->send("$exitCmd\n");
-    $spawn->expect( $timeout, '-re', eof => sub { } );
+    $matched = $spawn->expect('-re', eof => sub { } );
 
     $cmdOut = substr( $cmdOut, rindex( $cmdOut, $configCmd ) + length($configCmd) + 1 );
     $cmdOut = substr( $cmdOut, 0, rindex( $cmdOut, $exitCmd ) );
     $cmdOut = substr( $cmdOut, 0, rindex( $cmdOut, "\n" ) + 1 );
+
     return $cmdOut;
 }
 
@@ -173,12 +185,11 @@ sub runCmd {
     my ( $self, $cmd ) = @_;
 
     my $spawn   = $self->{spawn};
-    my $timeout = $self->{timeout};
     my $prompt  = $self->{prompt};
 
     $spawn->send("$cmd\n");
-    $spawn->expect( $timeout, '-re', qr/$prompt/ );
-
+    my $matched = $spawn->expect('-re', qr/$prompt/ );
+    $self->checkIfMatched($spawn, $matched, "Execute command:$cmd failed.");
 }
 
 sub close {
