@@ -13,7 +13,7 @@ use Data::Dumper;
 
 use CollectUtils;
 
-my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie' ];
+my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie', 'Maipu', 'ZTE' ];
 
 sub new {
     my ( $class, %args ) = @_;

@@ -26,7 +26,7 @@ sub new {
         $$self->{connectTimeout} = 5;
     }
 
-    my $s3270Path = "$toolsDir/x3270/s3270";
+    my $s3270Path = $self->{toolsDir} . "/x3270/s3270";
 
     #my $s3270Path = "./s3270";
     my $pipeCmd = "$s3270Path -model 3278-2 -utf8 -charset cp$self->{ccsid} -connecttimeout $self->{connectTimeout}";

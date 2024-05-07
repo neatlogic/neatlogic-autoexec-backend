@@ -67,10 +67,10 @@ def genInsRel(db):
                             "$filter": {
                                 "input": "$BIND",
                                 "cond": {
-                                    "$or": {
+                                    "$or": [
                                         {"BIND": {"$in": peer}},
                                         {"MGMT_IP": mgmtIp, "BIND": {"$in": localPeer}},
-                                    }
+                                    ]
                                 },
                             }
                         },
@@ -101,7 +101,7 @@ def genInsRel(db):
                             refDbs.append(refInfo)
 
                             for bindPeer in rel["BIND"]:
-                                (peerIp, peerPort) = bindPeer.split(":", 2)
+                                (peerIp, peerPort) = bindPeer.split(":", 1)
                                 refSvcInfo = {
                                     "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
                                     "_OBJ_TYPE": "Service-Ports",
@@ -122,14 +122,14 @@ def genInsRel(db):
                         refIns.append(refInfo)
 
                         for bindPeer in rel["BIND"]:
-                            (peerIp, peerPort) = bindPeer.split(":", 2)
+                            (peerIp, peerPort) = bindPeer.split(":", 1)
                             refSvcInfo = {
-                                "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
+                                "_OBJ_CATEGORY": rel["_OBJ_CATEGORY"],
                                 "_OBJ_TYPE": "Service-Ports",
-                                "OS_ID": dbIns["OS_ID"],
-                                "MGMT_IP": dbIns["MGMT_IP"],
+                                "OS_ID": rel["OS_ID"],
+                                "MGMT_IP": rel["MGMT_IP"],
                                 "PORT": peerPort,
-                                "INSTANCE_NAME": dbIns["INSTANCE_NAME"],
+                                # "INSTANCE_NAME": rel["INSTANCE_NAME"],
                             }
                             refSvc.append(refSvcInfo)
 
