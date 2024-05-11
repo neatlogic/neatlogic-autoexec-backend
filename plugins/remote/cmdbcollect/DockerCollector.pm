@@ -41,7 +41,7 @@ sub getContainerProcess {
     my @psList = ();
     $osPid = int($osPid);
     if ( $osPid < 1 ) {
-        return @psList;
+        return \@psList;
     }
     my $psCmd  = qq{nsenter -t $osPid -p -n -r  ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args};
     my $psInfo = $self->getCmdOutLines($psCmd);
@@ -72,36 +72,25 @@ sub getContainerProcess {
         }
     }
 
-=pod
-    if (scalar(@psList) == 0 ){
-        my $dockerTop = $self->getCmdOutLines("docker top $containerId"); 
-        foreach my $line (@$dockerPs){
-            if( $line =~ /PID/){
-                $line =~ s/^\s*|\s*$//g;
-                $line =~ s/^.*?PID/PID/g;
-                my $cmdPos      = rindex( $line, ' ' );
-                @fields      = split( /\s+/, substr( $line, 0, $cmdPos ) );
-                $fieldsCount = scalar(@fields);
-            }else{
-                my $ins ={};
-                $line =~ s/^\s*|\s*$//g;
-                my @vars = split( /\s+/, $line );
-                for ( my $i = int(0); $i < $fieldsCount ; $i++ ) {
-                    if ( $fields[$i] eq 'COMMAND' ) {
-                        $ins->{COMM} = shift(@vars);
-                    }
-                    else {
-                        $ins->{ $fields[$i] } = shift(@vars);
-                    }
-                }
-                $ins->{COMMAND} = join( ' ', @vars );
-                push(@psList , $ins );
-            }
+    return \@psList;
+}
+
+sub getContainerListenPidsMap {
+    my ( $self, $osPid ) = @_;
+    my $pidsMap = {};
+    $osPid = int($osPid);
+    if ( $osPid < 1 ) {
+        return $pidsMap;
+    }
+
+    my $netstatCmd  = qq{nsenter -t $osPid -p -n -r netstat -ntulp};
+    my $netstatLines = $self->getCmdOutLines($netstatCmd);
+    foreach my $line (@$netstatLines) {
+        if($line =~ /(\d+)\//){
+            $pidsMap->{$1} = 1;
         }
     }
-=cut
-
-    return @psList;
+    return $pidsMap;
 }
 
 sub getContainerId {
@@ -201,10 +190,11 @@ sub getContainerInfo {
     return $docker;
 }
 
-sub getContainerImages {
-    my ( $self, $imagesId ) = @_;
-    my $dockerImages = $self->getCmdOutLines("docker images  --no-trunc | grep $imagesId");
-    my $imageIns     = {};
+sub getContainerImage {
+    my ( $self, $imageId ) = @_;
+    my $dockerImages = $self->getCmdOutLines("docker images --no-trunc | grep $imageId");
+    
+    my $imageIns = {};
     foreach my $line (@$dockerImages) {
         my @lineInfo   = split( /  +/, $line );
         my $repository = $self->trim( @lineInfo[0] );
@@ -212,6 +202,7 @@ sub getContainerImages {
         my $name       = "$repository:$tag";
         my $imageId    = $self->trim( @lineInfo[2] );
 
+        my $imageIns     = {};
         $imageIns->{REPOSITORY} = $repository;
         $imageIns->{TAG}        = $tag;
         $imageIns->{NAME}       = $name;
@@ -219,6 +210,7 @@ sub getContainerImages {
         $imageIns->{CREATED}    = $self->trim( @lineInfo[3] );
         $imageIns->{SIZE}       = $self->trim( @lineInfo[4] );
     }
+
     return $imageIns;
 }
 
@@ -247,10 +239,10 @@ sub getContainerStats {
 }
 
 sub mergeMultiProcs {
-    my (@psList) = @_;
+    my ($self, $psList) = @_;
     print("INFO: Begin to merge connection information with parent processes...\n");
     my $parentPsMap = {};
-    foreach my $info (@psList) {
+    foreach my $info (@$psList) {
         my ( $parentConnStats, $parentOutBoundStat );
         if ( defined( $parentPsMap->{ConnStats} ) ) {
             $parentConnStats    = $parentPsMap->{ConnStats};
@@ -322,22 +314,21 @@ sub getContainerConn {
     if ( not defined($docker) or not defined($osPid) or $osPid eq '' ) {
         next;
     }
-    my $isContainer = 1;
-    my @psList      = $self->getContainerProcess( $osPid, $containerId );
+    my $psList      = $self->getContainerProcess( $osPid, $containerId );
     my $pFinder     = ProcessFinder->new();
-    foreach my $process (@psList) {
+    foreach my $process (@$psList) {
         my $pid         = $process->{PID};
-        my $connGather  = ConnGather->new(1);
-        my $connInfo    = $connGather->getListenInfo( $pid, 1 );
+        my $connGather  = ConnGather->new($self->{inspect});
+        $connGather->setNameSpace($osPid);
+        my $connInfo    = $connGather->getListenInfo( $pid );
         my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
         $process->{PORT_BIND} = $portInfoMap;
         $process->{CONN_INFO} = $connInfo;
-        my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, $isContainer );
-        $process->{statInfo} = $statInfo;
+        my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
     }
-    $docker->{PROCESS} = \@psList;
+    $docker->{PROCESS} = $psList;
 
-    my $connMap             = $self->mergeMultiProcs(@psList);
+    my $connMap             = $self->mergeMultiProcs($psList);
     my $CONN_STATS          = $connMap->{ConnStats};
     my $CONN_OUTBOUND_STATS = $connMap->{OutBoundStat};
     $docker->{CONN_STATS}          = $CONN_STATS;
@@ -371,15 +362,17 @@ sub collect {
     $docker->{RESOURCE_ID} = '0';
 
     $self->getContainerInfo( $containerId, $docker );
-    my $images = $docker->{IMAGE};
-    if ( $images =~ /sha256:\s*/ ) {
-        my $dockerImages = $self->getContainerImages($images);
-        $docker->{IMAGE} = $dockerImages->{NAME};
+    my $imageTag = $docker->{IMAGE};
+    if ( $imageTag =~ /(sha256:\S+)/ ) {
+        my $imageId = $1;
+        my $dockerImage = $self->getContainerImage($imageId);
+        $docker->{IMAGE} = $dockerImage->{NAME};
     }
 
     $self->getContainerStats( $containerId, $docker );
-
-    $self->getContainerConn( $osPid, $containerId, $docker );
+    if($self->{inspect} == 1){
+        $self->getContainerConn( $osPid, $containerId, $docker );
+    }
     return $docker;
 }
 

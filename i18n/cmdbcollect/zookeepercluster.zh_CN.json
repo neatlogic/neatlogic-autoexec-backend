@@ -28,6 +28,16 @@
             "type": "String"
         },
         {
+            "name": "PRIMARY_IP",
+            "desc": "主IP(非LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "端口",
+            "type": "Int"
+        },
+        {
             "name": "STATE",
             "desc": "使用状态",
             "type": "String"

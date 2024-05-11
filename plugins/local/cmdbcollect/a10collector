@@ -105,9 +105,14 @@ sub main {
         }
 
         my $pool = $vsInfo->{POOL};
-        $pool->{_OBJ_CATEGORY} = 'LOADBALANCER';
-        $pool->{_OBJ_TYPE}     = 'LOADBALANCER-POOL';
-        $vsInfo->{POOL}        = [$pool];
+        if (%$pool) {
+            $pool->{_OBJ_CATEGORY} = 'LOADBALANCER';
+            $pool->{_OBJ_TYPE}     = 'LOADBALANCER-POOL';
+            $vsInfo->{POOL}        = [$pool];
+        }
+        else {
+            $vsInfo->{POOL} = [];
+        }
 
         $clusterInfo->{MEMBER_PEER} = \@memberPeer;
 

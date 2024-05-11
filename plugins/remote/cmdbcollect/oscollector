@@ -563,9 +563,6 @@ sub doDetailCollect {
     my $pid     = $procInfo->{PID};
     my $objType = $procInfo->{_OBJ_TYPE};
 
-    #是否是容器进程，默认不是
-    my $isContainer = 0;
-
     print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
     my $connInfo;
     if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
@@ -574,7 +571,7 @@ sub doDetailCollect {
         $connInfo = { PEER => {}, LOCAL_PEER => {}, LISTEN => {} };
     }
     else {
-        $connInfo = $connGather->getListenInfo( $pid, $isContainer );
+        $connInfo = $connGather->getListenInfo( $pid );
         my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
         $connInfo->{PORT_BIND} = $portInfoMap;
         $procInfo->{CONN_INFO} = $connInfo;
@@ -600,15 +597,15 @@ sub doDetailCollect {
             my $statInfo = {};
             my $lsnPid   = $procInfo->{LISTENER_PID};
             if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
-                my $lsnInfo = $connGather->getListenInfo( $lsnPid, $isContainer );
+                my $lsnInfo = $connGather->getListenInfo( $lsnPid );
                 map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
                 my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
                 $connInfo->{PORT_BIND} = $portInfoMap;
 
-                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN}, $isContainer );
+                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN} );
             }
             else {
-                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, $isContainer );
+                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
             }
             map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
         }

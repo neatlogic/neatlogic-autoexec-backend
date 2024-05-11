@@ -28,6 +28,16 @@
             "type": "String"
         },
         {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
             "name": "STATE",
             "desc": "Use State",
             "type": "String"

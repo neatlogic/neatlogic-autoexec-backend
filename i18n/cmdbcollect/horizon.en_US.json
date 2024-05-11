@@ -68,6 +68,33 @@
             "type": "String"
         },
         {
+            "name": "REF_SWITCHES",
+            "desc": "Remote Port",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Switch Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Switch SN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DEV_NAME",
             "desc": "Device Name",
             "type": "String"
@@ -175,6 +202,33 @@
                                     "name": "PORT",
                                     "desc": "Port",
                                     "type": "String"
+                                },
+                                {
+                                    "name": "REF_INS",
+                                    "desc": "Reference INS",
+                                    "type": "JsonArray",
+                                    "subset": [
+                                        {
+                                            "name": "_OBJ_CATEGORY",
+                                            "desc": "Obj Catetory",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "_OBJ_TYPE",
+                                            "desc": "Obj Type",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "MGMT_IP",
+                                            "desc": "Managment IP",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "name": "PORT",
+                                            "desc": "Port",
+                                            "type": "String"
+                                        }
+                                    ]
                                 }
                             ]
                         }

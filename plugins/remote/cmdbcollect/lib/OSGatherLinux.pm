@@ -100,10 +100,11 @@ sub getVendorInfo {
         'VirtualBox'              => 1,
         'VMware Virtual Platform' => 1,
         'KVM Virtual Machine'     => 1,
-        'Alibaba Cloud ECS'       => 1
+        'Alibaba Cloud ECS'       => 1,
+        'QEMU'                    => 1
     };
 
-    if ( defined( $virtualPrdMap->{$productName} ) ) {
+    if ( defined( $virtualPrdMap->{$productName} ) or defined( $virtualPrdMap->{$sysVendor} ) ) {
         $osInfo->{IS_VIRTUAL} = 1;
     }
     $osInfo->{SYS_VENDOR}   = $sysVendor;
@@ -1195,6 +1196,7 @@ sub getNicInfo {
                 $i    = $i + 1;
                 $line = $$nicInfoLines[$i];
             }
+            $i = $i - 1;
 
             if ( $ethName =~ /^lo/i or $ipAddr =~ /^127/ or $ipAddr =~ '^::1' ) {
 
@@ -1202,13 +1204,15 @@ sub getNicInfo {
                 next;
             }
 
-            if ( defined($speed) and $speed ne '' and defined($macAddr) and $macAddr ne '' ) {
+            if (  defined($macAddr) and $macAddr ne '' ) {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
 
                 if ( not defined( $macsMap->{$macAddr} ) ) {
                     $macsMap->{$macAddr} = 1;
-                    ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
+                    if(defined($speed) and $speed ne ''){
+                        ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
+                    }
                     $nicInfo->{STATUS} = 'down';
                     if ( $linkState eq 'yes' ) {
                         $nicInfo->{STATUS} = 'up';
@@ -1216,8 +1220,6 @@ sub getNicInfo {
                     push( @nicInfos, $nicInfo );
                 }
             }
-
-            $i = $i - 1;
         }
     }
     @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
@@ -1310,6 +1312,18 @@ sub getHBAInfo {
     $hostInfo->{HBA_INTERFACES} = \@hbaPorts;
 }
 
+sub getKVMGuestOSUUIDs {
+    my ( $self, $hostInfo ) = @_;
+    my @uuids = ();
+    my $kvmLines = $self->getCmdOutLines("ps -efww |grep qemu-kvm");
+    foreach my $line (@$kvmLines){
+        if($line =~ /-uuid\s(\S+)/){
+            push(@uuids, $1);
+        }
+    }
+    $hostInfo->{GUESTOS_UUIDS} = \@uuids;
+}
+
 sub collectHostInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -1322,6 +1336,7 @@ sub collectHostInfo {
         $self->getCPUInfo($hostInfo);
         $self->getNicInfo($hostInfo);
         $self->getHBAInfo($hostInfo);
+        $self->getKVMGuestOSUUIDs($hostInfo);
     }
 
     return $hostInfo;

@@ -49,7 +49,7 @@ def getObjCatPkDef(objCat, customPkDef):
 def getObjCatIndexDef(objCat):
     idxDefs = {
         "DBINS": ["IP", "VIP"],
-        "HOST": ["OS_ID"],
+        "HOST": ["OS_ID", "GUESTOS_UUIDS"],
         "OS": ["OS_ID", "HBA_INTERFACES.WWNN", "HBA_INTERFACES.WWPN"],
         "CLUSTER": ["MEMBER_PEER"],
         "SWITCH": ["DEV_NAME"],
@@ -67,9 +67,7 @@ def createPKIndex(collection, pkDef):
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name="idx_pk", unique=True)
-    collection.create_index(
-        [("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200
-    )
+    collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
     collection.create_index([("_batch_tag", 1)], name="idx_batchtag")
 
 
@@ -116,9 +114,7 @@ def saveAppConnData(db, existsCollections, data):
             collection.create_index([("MGMT_IP", 1), ("PORT", 1)], name="idx_pk")
             collection.create_index([("BIND", 1)], name="idx_bind")
             collection.create_index([("PEER", 1)], name="idx_peer")
-            collection.create_index(
-                [("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200
-            )
+            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
             existsCollections["RELATION_INS_NETCONN"] = 1
 
         print("INFO: Save connection data success.")
@@ -146,9 +142,7 @@ def saveSwMacTableData(db, existsCollections, data):
             collection.create_index([("MGMT_IP", 1), ("SN", 1)], name="idx_pk")
             # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
             collection.create_index([("MAC_TABLE.MACS", 1)], name="idx_mac")
-            collection.create_index(
-                [("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200
-            )
+            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
             existsCollections["RELATION_NET_MACTABLE"] = 1
 
         print("INFO: Save mac table data success.")
@@ -169,20 +163,14 @@ def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
     if table not in existsCollections:
         createPKIndex(collection, pkDef)
         createIndex(collection, data, objCat)
-        collection.create_index(
-            [("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200
-        )
+        collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
         existsCollections[table] = 1
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--batchtag", default="", help="Json document tag for this batch"
-    )
-    parser.add_argument(
-        "--outputfile", default="", help="Output json file path for node"
-    )
+    parser.add_argument("--batchtag", default="", help="Json document tag for this batch")
+    parser.add_argument("--outputfile", default="", help="Output json file path for node")
     parser.add_argument("--node", default="", help="Execution node json")
     parser.add_argument(
         "toolnames",
@@ -199,9 +187,7 @@ if __name__ == "__main__":
         os.environ["NODE_OUTPUT_PATH"] = outputPath
 
     if outputPath is None:
-        print(
-            "ERROR: Must set environment variable NODE_OUTPUT_PATH or defined option --outputfile.\n"
-        )
+        print("ERROR: Must set environment variable NODE_OUTPUT_PATH or defined option --outputfile.\n")
         usage()
 
     collectionNames = {}
@@ -254,9 +240,7 @@ if __name__ == "__main__":
 
                     collectData = value.get("DATA")
                     if collectData is None:
-                        print(
-                            "WARN: Plugin {} did not return collect data.".format(key)
-                        )
+                        print("WARN: Plugin {} did not return collect data.".format(key))
                         continue
 
             if collectData is None:
@@ -304,19 +288,11 @@ if __name__ == "__main__":
                         primaryKey[pKey] = data[pKey]
                         if pVal is None or pVal == "":
                             # pkInvalid = True
-                            print(
-                                "WARN: {} PK attribute:{} is empty.".format(
-                                    typeName, pKey
-                                )
-                            )
+                            print("WARN: {} PK attribute:{} is empty.".format(typeName, pKey))
                     else:
                         primaryKey[pKey] = None
                         pkInvalid = True
-                        print(
-                            "WARN: {} not contain PK attribute:{}.".format(
-                                typeName, pKey
-                            )
-                        )
+                        print("WARN: {} not contain PK attribute:{}.".format(typeName, pKey))
 
                 if pkInvalid:
                     continue
@@ -338,21 +314,13 @@ if __name__ == "__main__":
                         pkDef = getObjCatPkDef(objCat, pkDef)
                     print("INFO: Save connection information success.")
 
-                    mergeAndSaveData(
-                        existsCollections, table, pkDef, primaryKey, data, objCat
-                    )
+                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat)
 
                     print("INFO: Save data success.\n".format(typeName, pkJson))
                 except Exception as ex:
-                    print(
-                        "ERROR: Save data for {}({}) failed, {}".format(
-                            typeName, pkJson, ex
-                        )
-                    )
+                    print("ERROR: Save data for {}({}) failed, {}".format(typeName, pkJson, ex))
                     traceback.print_exc()
-        AutoExecUtils.saveOutput(
-            {"collections": collectionNames, "objTypesMap": objTypesMap}
-        )
+        AutoExecUtils.saveOutput({"collections": collectionNames, "objTypesMap": objTypesMap})
     except Exception as ex:
         print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
         exit(-1)
