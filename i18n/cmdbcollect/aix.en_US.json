@@ -149,6 +149,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "Main Board Serial",
+            "type": "String"
+        },
+        {
             "name": "MAX_OPEN_FILES",
             "desc": "Max Open Files",
             "type": "Float"
@@ -755,11 +760,6 @@
         {
             "name": "AUTO_RESTART",
             "desc": "Auto Restart",
-            "type": "String"
-        },
-        {
-            "name": "BOARD_SERIAL",
-            "desc": "Main Board Serial",
             "type": "String"
         },
         {

@@ -16,6 +16,11 @@ use File::Basename;
 
 use Distribution;
 
+sub init {
+    my ($self) = @_;
+    $self->{VIRTUAL_VENDOR_KEYS} = [ 'Vmware', 'KVM', 'QEMU', 'Virtual', 'Cloud ECS' ];
+}
+
 sub stripDMIComment {
     my ( $self, $str ) = @_;
 
@@ -82,6 +87,21 @@ sub getOsVersion {
     $osInfo->{MAJOR_VERSION} = $osMajorVer;
 }
 
+sub isVirtualVendor {
+    my ( $self, $vendor ) = @_;
+    my $virtualKeys = $self->{VIRTUAL_VENDOR_KEYS};
+    my $isVirtual   = 0;
+    if ( defined($vendor) ) {
+        foreach my $key (@$virtualKeys) {
+            if ( $vendor =~ /$key/i ) {
+                $isVirtual = 1;
+                last;
+            }
+        }
+    }
+    return $isVirtual;
+}
+
 sub getVendorInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -93,20 +113,12 @@ sub getVendorInfo {
     $productUUID =~ s/^\*|\s$//g;
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
     $productName =~ s/^\*|\s$//g;
-    $osInfo->{IS_VIRTUAL} = 0;
 
-    my $virtualPrdMap = {
-        'KVM'                     => 1,
-        'VirtualBox'              => 1,
-        'VMware Virtual Platform' => 1,
-        'KVM Virtual Machine'     => 1,
-        'Alibaba Cloud ECS'       => 1,
-        'QEMU'                    => 1
-    };
-
-    if ( defined( $virtualPrdMap->{$productName} ) or defined( $virtualPrdMap->{$sysVendor} ) ) {
-        $osInfo->{IS_VIRTUAL} = 1;
+    $osInfo->{IS_VIRTUAL} = $self->isVirtualVendor($sysVendor);
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        $osInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
     }
+
     $osInfo->{SYS_VENDOR}   = $sysVendor;
     $osInfo->{PRODUCT_NAME} = $productName;
     $osInfo->{PRODUCT_UUID} = $productUUID;
@@ -979,7 +991,7 @@ sub collectOsInfo {
 sub collectOsPerfInfo {
     my ( $self, $osInfo ) = @_;
     if ( $self->{inspect} == 1 ) {
-        if ( not defined( $osInfo->{CPU_LOGIC_CORES}) or $osInfo->{CPU_LOGIC_CORES} == 0 ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES} ) or $osInfo->{CPU_LOGIC_CORES} == 0 ) {
             $osInfo->{CPU_LOGIC_CORES} = 1;
         }
 
@@ -1001,40 +1013,50 @@ sub getMainBoardInfo {
     }
     $hostInfo->{DMIDECODE_INSTALLED} = $dmidecodeInstalled;
 
-    my $sn = $self->getFileContent('/sys/class/dmi/id/board_serial');
-    $sn =~ s/^\s*|\s*$//g;
-    if ( $sn eq '' or $sn eq 'None' ) {
-        undef($sn);
-        if ($dmidecodeInstalled) {
-            my $snRet;
-            ( $snRet, $sn ) = $self->getCmdOut('dmidecode -s system-serial-number');
-            if ( $snRet == 0 ) {
-                $sn = $self->stripDMIComment($sn);
-                $sn =~ s/^\s*|\s*$//g;
-                if ( $sn eq '' ) {
-                    undef($sn);
-                }
-            }
-            else {
-                undef($sn);
-            }
-        }
-    }
-    $hostInfo->{BOARD_SERIAL} = $sn;
-
-    my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
-    $productName =~ s/^\*|\s$//g;
-    $hostInfo->{PRODUCT_NAME} = $productName;
-
-    my $vendorName = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
-    $vendorName =~ s/^\*|\s$//g;
-    $hostInfo->{MANUFACTURER} = $vendorName;
-
-    my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
-    $biosVersion =~ s/^\*|\s$//g;
-    $hostInfo->{BIOS_VERSION} = $biosVersion;
+    $hostInfo->{IS_VIRTUAL} = 0;
 
     if ($dmidecodeInstalled) {
+        my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
+        my $chassisInfo      = {};
+        foreach my $line (@$chassisInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $chassisInfo->{ $info[0] } = $info[1];
+            }
+        }
+        $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
+        my $sn = $chassisInfo->{'Serial Number'};
+        if ( $sn ne 'None' ) {
+            $hostInfo->{CHASSIS_SERIAL} = $sn;
+        }
+        else {
+            $hostInfo->{CHASSIS_SERIAL} = undef;
+        }
+
+        my $sysInfoLines = $self->getCmdOutLines('dmidecode -t system');
+        my $sysInfo      = {};
+        foreach my $line (@$sysInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $sysInfo->{ $info[0] } = $info[1];
+            }
+        }
+        
+        my $productName = $sysInfo->{'Product Name'};
+        if ( defined( $productName ) and $productName ne 'None' ) {
+            $hostInfo->{MODEL} = $productName;
+            $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
+        }
+        my $manufacturer = $sysInfo->{'Manufacturer'};
+        if ( defined( $manufacturer ) and $manufacturer ne 'None' ) {
+            $hostInfo->{MANUFACTURER} = $manufacturer;
+            if($hostInfo->{IS_VIRTUAL} == 0){
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($manufacturer)
+            }
+        }
+
         my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
         my $usedSlots    = 0;
         my $memInfo      = {};
@@ -1054,22 +1076,36 @@ sub getMainBoardInfo {
         $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
         $hostInfo->{MEM_MAXIMUM_CAPACITY} = $utils->getMemSizeFromStr( $memInfo->{'Maximum Capacity'} );
         $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
-
-        my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
-        my $chassisInfo      = {};
-        foreach my $line (@$chassisInfoLines) {
-            $line =~ s/^\s*|\s*$//g;
-            if ( $line ne '' and $line !~ /^#/ ) {
-                my @info = split( /\s*:\s*/, $line );
-                $chassisInfo->{ $info[0] } = $info[1];
-            }
+    }
+    else {
+        my $sn = $self->getFileContent('/sys/class/dmi/id/board_serial');
+        $sn =~ s/^\s*|\s*$//g;
+        if ( $sn eq '' or $sn eq 'None' ) {
+            undef($sn);
         }
-        $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
-        my $modelLines = $self->getCmdOutLines('dmidecode |grep Product');
-        foreach my $line (@$modelLines) {
-            if ( $line =~ /Product.*?:\s*(.*?)$/ ) {
-                $hostInfo->{MODEL} = $1;
-                last;
+        $hostInfo->{BOARD_SERIAL}   = $sn;
+        $hostInfo->{CHASSIS_SERIAL} = undef;
+
+        my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
+        $productName =~ s/^\*|\s$//g;
+        $hostInfo->{PRODUCT_NAME} = $productName;
+
+        my $vendorName = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
+        $vendorName =~ s/^\*|\s$//g;
+        $hostInfo->{MANUFACTURER} = $vendorName;
+
+        my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
+        $biosVersion =~ s/^\*|\s$//g;
+        $hostInfo->{BIOS_VERSION} = $biosVersion;
+
+        if ( defined( $productName ) and $productName ne 'None' ) {
+            $hostInfo->{MODEL} = $productName;
+            $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
+        }
+        if ( defined( $vendorName ) and $vendorName ne 'None' ) {
+            $hostInfo->{MANUFACTURER} = $vendorName;
+            if($hostInfo->{IS_VIRTUAL} == 0){
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($vendorName)
             }
         }
     }
@@ -1204,13 +1240,13 @@ sub getNicInfo {
                 next;
             }
 
-            if (  defined($macAddr) and $macAddr ne '' ) {
+            if ( defined($macAddr) and $macAddr ne '' ) {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
 
                 if ( not defined( $macsMap->{$macAddr} ) ) {
                     $macsMap->{$macAddr} = 1;
-                    if(defined($speed) and $speed ne ''){
+                    if ( defined($speed) and $speed ne '' ) {
                         ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
                     }
                     $nicInfo->{STATUS} = 'down';
@@ -1314,11 +1350,11 @@ sub getHBAInfo {
 
 sub getKVMGuestOSUUIDs {
     my ( $self, $hostInfo ) = @_;
-    my @uuids = ();
+    my @uuids    = ();
     my $kvmLines = $self->getCmdOutLines("ps -efww |grep qemu-kvm");
-    foreach my $line (@$kvmLines){
-        if($line =~ /-uuid\s(\S+)/){
-            push(@uuids, $1);
+    foreach my $line (@$kvmLines) {
+        if ( $line =~ /-uuid\s(\S+)/ ) {
+            push( @uuids, $1 );
         }
     }
     $hostInfo->{GUESTOS_UUIDS} = \@uuids;
@@ -1357,6 +1393,7 @@ sub collect {
     $osInfo->{CPU_MICROCODE}   = $hostInfo->{CPU_MICROCODE};
     $osInfo->{CPU_MODEL}       = $hostInfo->{CPU_MODEL};
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
+    $osInfo->{IS_VIRTUAL}      = $hostInfo->{IS_VIRTUAL};
 
     my @os_eths;
     foreach my $item ( @{ $hostInfo->{ETH_INTERFACES} } ) {

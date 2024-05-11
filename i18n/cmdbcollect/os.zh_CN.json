@@ -147,6 +147,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "机箱序列号",
+            "type": "String"
+        },
+        {
             "name": "MAX_OPEN_FILES",
             "desc": "最大打开文件数",
             "type": "Float"
@@ -636,11 +641,6 @@
         {
             "name": "AUTO_RESTART",
             "desc": "自动重启",
-            "type": "String"
-        },
-        {
-            "name": "BOARD_SERIAL",
-            "desc": "主板序列号",
             "type": "String"
         },
         {

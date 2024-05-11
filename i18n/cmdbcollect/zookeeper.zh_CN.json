@@ -693,6 +693,33 @@
             "type": "String"
         },
         {
+            "name": "MEMBERS",
+            "desc": "集群成员",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "中间件类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "名称",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "IP端口",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "RUN_ON",
             "desc": "所在OS",
             "type": "JsonArray",
@@ -728,33 +755,6 @@
             "name": "TICK_TIME",
             "desc": "心跳时间",
             "type": "Int"
-        },
-        {
-            "name": "MEMBERS",
-            "desc": "集群成员",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "归属类型",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "中间件类型",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "名称",
-                    "type": "String"
-                },
-                {
-                    "name": "VALUE",
-                    "desc": "IP端口",
-                    "type": "String"
-                }
-            ]
         },
         {
             "name": "_batch_tag",

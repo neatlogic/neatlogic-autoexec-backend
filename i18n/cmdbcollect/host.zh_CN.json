@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "主板序列号",
+            "type": "String"
+        },
+        {
             "name": "MODEL",
             "desc": "型号",
             "type": "String"
@@ -256,11 +261,6 @@
             ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "主板序列号",
-            "type": "String"
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA卡列表",
             "type": "JsonArray",
@@ -372,6 +372,11 @@
         {
             "name": "_batch_tag",
             "desc": "自动采集的批量标签",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "机箱序列号",
             "type": "String"
         }
     ]

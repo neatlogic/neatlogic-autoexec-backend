@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
             "name": "MODEL",
             "desc": "Model",
             "type": "String"
@@ -266,11 +271,6 @@
             ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "Board Serial",
-            "type": "String"
-        },
-        {
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",
@@ -382,6 +382,11 @@
         {
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
+            "type": "String"
+        },
+        {
+            "name": "CHASSIS_SERIAL",
+            "desc": "Chassis Serial",
             "type": "String"
         }
     ]

@@ -80,6 +80,11 @@
             "type": "Int"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "机箱序列号",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "用户",
             "type": "JsonArray",
