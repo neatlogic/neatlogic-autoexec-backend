@@ -461,8 +461,49 @@ sub getPatchInfo {
     $osInfo->{PATCHES_APPLIED} = \@patchs;
 }
 
+sub strToHex {
+    my ( $self, $str ) = @_;
+    my $hex = unpack( 'h*', $str );
+    return $hex;
+}
+
 sub getDiskInfo {
     my ( $self, $osInfo, $mountedDevicesMap ) = @_;
+
+    # CuAt:
+    #     name = "hdisk1"
+    #     attribute = "unique_id"
+    #     value = "2708ECVBZ1SC10IC35L146UCDY10-003IBXscsi"
+    #     type = "R"
+    #     generic = ""
+    #     rep = "nl"
+    #     nls_index = 79
+
+    # CuAt:
+    #     name = "hdisk2"
+    #     attribute = "unique_id"
+    #     value = "210800038FB50AST373453LC03IBXscsi"
+    #     type = "R"
+    #     generic = ""
+    #     rep = "nl"
+    my $diskUniqIdMap = {};
+    my $cutAtLines    = $self->getCmdOutLines(qq{odmget -qattribute=unique_id CuAt});
+    my $hdiskInfo;
+    my $diskName;
+    foreach my $line (@$cutAtLines) {
+        $line =~ s/^\s*|\s*$//g;
+        my ( $key, $val ) = split( /\s*=\s*/, $line, 2 );
+        $val =~ s/^"|"$//g;
+        if ( $key eq 'name' and $val =~ /^hdisk/ ) {
+            $diskName = $val;
+        }
+        elsif ( $key eq 'value' ) {
+            if ( defined($diskName) ) {
+                $diskUniqIdMap->{$diskName} = $val;
+                undef($diskName);
+            }
+        }
+    }
 
     #TODO: SAN磁盘的计算以及磁盘多链路聚合的计算，因没有测试环境，需要再确认
     # lsdev -Cc disk
@@ -513,9 +554,9 @@ sub getDiskInfo {
             #     Node:  disk
             #     Device Type:  block
             # AIX的磁盘的序列号和NNA号获取不同驱动不一样，需要组合lscfg和lsattr列出的属性进行计算和组合才能计算出来磁盘的LUN NNA号或者Serial number
-            # 譬如：lscfg列出的NetApp的信息是下面这样，但是Serial number需要吧每个字母toHex后才是Lun NNA号的值：3830456A6E3F4C71，Z1 toHex：5A696C4
-            # NetApp LUN 序列号必须使用序列号和设备专用（ Z1 ）（即 80Ejn ？ LqZilO ）进行计算
-            # 加上NetApp的厂商前缀（根据不同的NetApp存储系列，有三种前缀）：60a98000后才是完整的Lun NNA：60a98000 3830456A6E3F4C71 5A696C4
+            # 譬如：lscfg列出的NetApp的信息是下面这样，但是Serial number需要吧每个字母toHex后才是Lun NNA号的值：3830456A6E3F4C71，Z1 toHex：5A696C4F
+            # NetApp LUN 序列号必须使用Serial number 和设备专用（ Z1 ）（即 80Ejn ？ LqZilO ）进行计算
+            # 加上NetApp的厂商前缀（根据不同的NetApp存储系列，有三种前缀）：60a98000后才是完整的Lun NNA：60a98000 3830456A6E3F4C71 5A696C4F
             # 后面的Z0——Z4。。不同驱动的意义也不一样，所以AIX要完成fc disk到存储的mapping情况非常多
             # Manufacturer................NETAPP
             # Machine Type and Model......LUN C-Mode
@@ -527,51 +568,115 @@ sub getDiskInfo {
             # Device Specific.(Z3)........0
             # Device Specific.(Z4)........
 
-            my $lunInfo = $self->getCmdOut("lscfg -vp -l '$name'");
+            my $lscfgLines = $self->getCmdOutLines("lscfg -vp -l '$name'");
+            my $lunInfo    = {};
+            foreach my $line (@$lscfgLines) {
+                $line =~ s/^\s*|\s*$//g;
+                my ( $key, $val ) = split( /\.{3,}/, $line, 2 );
+                if ( not defined($val) ) {
+                    $lunInfo->{desc} = $line;
+                }
+                else {
+                    $val =~ s/\.*$//;
+                }
+                $lunInfo->{$key} = $val;
+            }
 
-            my $sn;
-            my $id;
-            if ( $lunInfo =~ /FlashSystem/ ) {
-                my $output = $self->getCmdOut("lsattr -El $name");
-                my $idInfo;
-                if ( $output =~ /unique_id\s+\S+\s+(\S+)/ ) {
-                    $idInfo = $1;
-                }
-                if ( $idInfo =~ /(?<=FlashSystem-9840)\w{8}/ ) {
-                    $sn = $&;
-                }
-                if ( $idInfo =~ /\w{4}(?=10FlashSystem)/ ) {
-                    $id = $&;
+            my $lsattrLines = $self->getCmdOutLines("lsattr -El $name");
+            foreach my $line (@$lsattrLines) {
+                $line =~ s/^\s*|\s*$//g;
+                my ( $key, $val ) = split( /\s+/, $line );
+                $lunInfo->{$key} = $val;
+            }
+            if ( not defined( $lunInfo->{unique_id} ) ) {
+                $lunInfo->{unique_id} = $diskUniqIdMap->{$name};
+            }
+
+            my $naaId = undef;
+            if ( $lunInfo->{Manufacturer} =~ /FlashSystem/ ) {
+
+                #TODO: 需要验证
+                my $uniqId    = $lunInfo->{unique_id};
+                my $uniqIdLen = len($uniqId);
+                if ( defined($uniqId) ) {
+                    if ( $uniqIdLen == 32 ) {
+                        $naaId = $uniqId;
+                    }
+                    elsif ( $uniqIdLen >= 36 ) {
+                        $naaId = substr( $uniqId, 4, 32 );
+                    }
                 }
             }
-            elsif ( $lunInfo =~ /hitachi/i ) {
-                if ( $lunInfo =~ /Serial\sNumber\.+(\w+)/ ) {
-                    $sn = $1;
-                    if ( $sn eq '50403269' ) {
-                        $sn = '412905';
+            elsif ( $lunInfo->{Manufacturer} =~ /IBM/i ) {
+
+                #TODO: 需要验证
+                my $uniqId    = $lunInfo->{unique_id};
+                my $uniqIdLen = len($uniqId);
+                if ( defined($uniqId) ) {
+                    if ( $uniqIdLen == 32 ) {
+                        $naaId = $uniqId;
                     }
-                    elsif ( $sn eq '5040326B' ) {
-                        $sn = '412907';
+                    elsif ( $uniqIdLen >= 36 ) {
+                        $naaId = substr( $uniqId, 4, 32 );
                     }
                 }
-                if ( $lunInfo =~ /\(Z1\)\.+(\w+)\s+/ ) {
-                    $id = $1;
-                    $id = '00' . $id;
-                    substr( $id, 2, 0 ) = ':';
-                    substr( $id, 5, 0 ) = ':';
+            }
+            elsif ( $lunInfo->{Manufacturer} =~ /NETAPP/i ) {
+                $naaId = '60a98000' . $self->strToHex( $lunInfo->{'Serial Number'} . $lunInfo->{'Device Specific.(Z1)'} );
+
+            }
+            elsif ( $lunInfo->{Manufacturer} =~ /hitachi/i ) {
+
+                #hdisk40U78AA.001.WZSJ6DV-P1-C3-T1-W50060E8012326B22-L11000000000000
+                #Manufacturer.........HITACHT
+                #Machine Type and Model......OPEN-V
+                #Part Number.................
+                #Ros Level and ID............38333031
+                #Serial Number............5040326B
+                #EC Level...
+                #FRU Number.
+                #Device specific.(Z0)......00000332EF000002
+                #Device specific.(Z1)......1c11 4c ....
+                #Device specific.(Z2)........
+                #Device specific.(Z3)........
+                #Device specific.(Z4)........
+                #Device!Specific.(Z5)........
+                #Device specific.(Z6)........
+                my $desc = $lunInfo->{desc};
+                if ( $desc =~ /w50([0-9a-f]{8})([0-9a-f]{4})[0-9a-f]{2}-L([0-9a-f]+)/i ) {
+                    my $vendorId = $1;
+                    my $arraySn  = $2;
+                    my $lunSeq   = $3;
+
+                    #TODO: 需要验证
+                    #补够10个字符,padding是字符0
+                    $arraySn = sprintf( "%010s", $arraySn );
+                    $lunSeq  = substr( $lunSeq, 0, -12 );
+
+                    #补够8个字符,padding是字符0
+                    $lunSeq = sprintf( "%08s", $lunSeq );
+                    $naaId  = $vendorId . $arraySn . $lunSeq;
                 }
+            }
+            elsif ( defined( $lunInfo->{ieee_volname} ) ) {
+                $naaId = $lunInfo->{ieee_volname};
             }
             else {
-
-                if ( $lunInfo =~ /Serial\sNumber\.+(\w+)/ ) {
-                    my $sn_id = $1;
-                    $id = substr( $sn_id, -4 );
-                    $sn = substr( $sn_id, 0, -4 );
+                my $desc      = $lunInfo->{desc};
+                my $serialNum = $lunInfo->{'Serial Number'};
+                my $uniqId    = $lunInfo->{unique_id};
+                if ( len($serialNum) == 32 ) {
+                    $naaId = $serialNum;
+                }
+                elsif ( len($uniqId) == 32 ) {
+                    $naaId = $uniqId;
                 }
             }
 
-            if ( defined($sn) ) {
-                $diskInfo->{WWID} = $sn . ':' . $id;
+            if ( defined($naaId) ) {
+                $naaId            = lc($naaId);
+                $diskInfo->{WWID} = $naaId;
+                $diskInfo->{WWN}  = $naaId;
             }
         }
 
