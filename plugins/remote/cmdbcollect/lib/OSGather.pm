@@ -31,10 +31,14 @@ sub new {
             print("ERROR: Load $gatherClass.pm failed, $@\n");
             $instance = OSGatherBase->new( $justBaseInfo, $inspect );
         }
+        $instance->init();
         $_INSTANCES->{$type} = $instance;
     }
 
     return $instance;
 }
 
+sub init {
+    my($self) = @_;
+}
 1;

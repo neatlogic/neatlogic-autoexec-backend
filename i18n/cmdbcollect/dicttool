@@ -91,6 +91,8 @@ def getDefaultFieldKeys():
         "VENDOR",
         "PRODUCT_UUID",
         "SN",
+        "CHASSIS_SERIAL",
+        "BOARD_SERIAL",
         "MODEL",
         "UPTIME",
         "OPEN_FILES_COUNT",

@@ -76,6 +76,7 @@ sub getCPUInfo {
     }
 
     $osInfo->{BOARD_SERIAL}         = $prtConfInfo->{'Machine Serial Number'};
+    $osInfo->{CHASSIS_SERIAL}       = $prtConfInfo->{'Machine Serial Number'};
     $osInfo->{CPU_MODEL}            = $prtConfInfo->{'System Model'};
     $osInfo->{CPU_CORES}            = int( $prtConfInfo->{'Number Of Processors'} );
     $osInfo->{CPU_LOGIC_CORES}      = $osInfo->{CPU_CORES};
@@ -1225,6 +1226,7 @@ sub collect {
     $hostInfo->{CPU_FIRMWARE_VERSION} = $osInfo->{CPU_FIRMWARE_VERSION};
     $hostInfo->{CPU_MICROCODE}        = $osInfo->{CPU_MICROCODE};
     $hostInfo->{AUTO_RESTART}         = $osInfo->{AUTO_RESTART};
+    $hostInfo->{CHASSIS_SERIAL}       = $osInfo->{CHASSIS_SERIAL};
 
     $self->collectOsPerfInfo($osInfo);
 

@@ -33,13 +33,13 @@
             "type": "Int"
         },
         {
-            "name": "BOARD_PRODUCT",
-            "desc": "设备型号",
+            "name": "BOARD_SERIAL",
+            "desc": "序列号",
             "type": "String"
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "序列号",
+            "name": "BOARD_PRODUCT",
+            "desc": "设备型号",
             "type": "String"
         },
         {
