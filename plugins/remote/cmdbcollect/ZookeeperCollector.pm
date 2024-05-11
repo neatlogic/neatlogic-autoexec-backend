@@ -114,6 +114,7 @@ sub collect {
     }
     $self->getJavaAttrs($appInfo);
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+    my $members        = [];
     my $clusterMembers = [];
     my $confMap        = {};
     my $primaryMember;
@@ -146,6 +147,16 @@ sub collect {
                     next;
                 }
 
+                push(
+                    @$members,
+                    {
+                        _OBJ_CATEGORY => 'ADMINSET',
+                        _OBJ_TYPE     => 'ZOOKEEPERCLUSTER_NODE',
+                        NAME          => $key,
+                        VALUE         => $val
+                    }
+                );
+                
                 my $lsnIp = $ipInfos[0];
                 if ($lsnIp eq '0.0.0.0' ){
                     $lsnIp = $mgmtIp;
@@ -171,6 +182,7 @@ sub collect {
     $appInfo->{SYNC_LIMIT}     = $confMap->{syncLimit};
     $appInfo->{ADMIN_PORT}     = $confMap->{'admin.serverPort'};
     $appInfo->{ADMIN_ENABLE}   = $confMap->{'admin.enableServer'};
+    $appInfo->{MEMBERS}        = $members;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
 

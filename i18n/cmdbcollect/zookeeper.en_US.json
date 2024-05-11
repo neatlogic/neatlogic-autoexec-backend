@@ -725,6 +725,33 @@
             "type": "Int"
         },
         {
+            "name": "MEMBERS",
+            "desc": "Members",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Application Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "VALUE",
+                    "desc": "IP Port",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
             "type": "String"
