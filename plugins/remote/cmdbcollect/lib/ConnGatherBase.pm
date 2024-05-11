@@ -12,12 +12,23 @@ use CollectUtils;
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
+    $self->{namespace} = undef;
     $self->{inspect}      = $inspect;
     $self->{collectUtils} = CollectUtils->new();
 
     bless( $self, $type );
     $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     return $self;
+}
+
+sub setNameSpace {
+    my ($self, $namespace) = @_;
+    $self->{namespace} = $namespace;
+}
+
+sub unsetNameSpace {
+    my ($self) = @_;
+    $self->{namespace} = undef;
 }
 
 sub getCPULogicCoreCount {
@@ -247,19 +258,17 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
+    my ( $self, $lsnPortsMap, $pid ) = @_;
 
     my $remoteAddrs  = {};
     my $connStatInfo = {};
     my $status       = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my $namespace = $self->{namespace};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwp|";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n netstat -ntudwp|";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t $namespace -p -n -r netstat -ntudwp|";
         }
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
@@ -277,8 +286,8 @@ sub getRemoteAddrs {
 
     if ( $status != 0 ) {
         my $cmd = "ss -ntudwp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n ss -ntudwp|";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t $namespace -p -n -r ss -ntudwp|";
         }
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
@@ -298,21 +307,19 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
 
     #Linux
     #ss -ntudwlp | grep pid=<pid>
     #netstat -tuwnlp |grep <pid>
     my $portsMap = {};
     my $status   = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my $namespace = $self->{namespace};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwlp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t  $pid -n -p netstat -ntudwlp ";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t  $namespace -p -n -r netstat -ntudwlp |";
         }
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
@@ -327,6 +334,9 @@ sub getListenPorts {
 
     if ( $status != 0 ) {
         my $cmd         = "ss -ntudwlp |";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t  $namespace -p -n -r ss -ntudwlp |";
+        }
         my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
@@ -343,8 +353,8 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid, $isContainer ) = @_;
-    my $lsnPortsMap = $self->getListenPorts( $pid, $isContainer );
+    my ( $self, $pid ) = @_;
+    my $lsnPortsMap = $self->getListenPorts( $pid );
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -353,8 +363,8 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid, $isContainer );
+    my ( $self, $pid, $lsnPortsMap ) = @_;
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
     my $connInfo = {};
     $connInfo->{PEER}  = $remoteAddrs;
@@ -365,18 +375,16 @@ sub getStatInfo {
 
 #获取连入某进程监听IP端口的远端的IP地址列表
 sub getInboundIps {
-    my ( $self, $bindAddr, $pid, $isContainer ) = @_;
+    my ( $self, $bindAddr, $pid ) = @_;
 
     my @ips    = ();
     my $status = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my $namespace = $self->{namespace};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwp| grep $bindAddr";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n netstat -ntudwp| grep $bindAddr";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t $namespace -p -n -r netstat -ntudwp| grep $bindAddr";
         }
         elsif ( defined($pid) and $pid ne '' ) {
             $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";
@@ -407,8 +415,8 @@ sub getInboundIps {
 
     if ( $status != 0 ) {
         my $cmd = "ss -ntudwp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n ss -ntudwp|grep $bindAddr";
+        if ( defined($namespace) ) {
+            $cmd = "nsenter -t $namespace -p -n -r ss -ntudwp|grep $bindAddr";
         }
         elsif ( defined($pid) and $pid ne '' ) {
             $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";

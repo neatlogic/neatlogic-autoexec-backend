@@ -671,7 +671,7 @@ sub getPrimaryIpAndPort {
         $vip = $pFinder->predictBizIp( $connInfo, $port );
     }
 
-    return $vip;
+    return ($vip, $port);
 }
 
 sub getValueWithInherit {
@@ -744,7 +744,7 @@ sub getHttpServers {
                 _OBJ_TYPE         => 'Nginx-Server',
                 APP_TYPE          => 'HTTP',
                 NAME              => $serverName,
-                UNIQUE_NAME       => "$serverName-$vip;$port",
+                UNIQUE_NAME       => "$serverName-$vip:$port",
                 VIP               => $vip,
                 PRIMARY_IP        => $vip,
                 PORT              => $port,

@@ -752,34 +752,34 @@
                             "type": "String"
                         },
                         {
-                            "name":"BACKEND",
-                            "desc":"服务转发",
-                            "type":"JsonArray",
-                            "subset":[
+                            "name": "BACKEND",
+                            "desc": "服务转发",
+                            "type": "JsonArray",
+                            "subset": [
                                 {
-                                    "name":"_OBJ_CATEGORY",
-                                    "desc":"归属类型",
-                                    "type":"String"
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属类型",
+                                    "type": "String"
                                 },
                                 {
-                                    "name":"_OBJ_TYPE",
-                                    "desc":"中间件类型",
-                                    "type":"String"
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "中间件类型",
+                                    "type": "String"
                                 },
                                 {
-                                    "name":"NAME",
-                                    "desc":"名称",
-                                    "type":"String"
+                                    "name": "NAME",
+                                    "desc": "名称",
+                                    "type": "String"
                                 },
                                 {
-                                    "name":"BACKEND_IP",
-                                    "desc":"后端IP地址",
-                                    "type":"String"
+                                    "name": "BACKEND_IP",
+                                    "desc": "后端IP地址",
+                                    "type": "String"
                                 },
                                 {
-                                    "name":"BACKEND_PORT",
-                                    "desc":"后端端口",
-                                    "type":"String"
+                                    "name": "BACKEND_PORT",
+                                    "desc": "后端端口",
+                                    "type": "String"
                                 }
                             ]
                         },

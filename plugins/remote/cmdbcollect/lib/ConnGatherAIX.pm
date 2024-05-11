@@ -14,7 +14,9 @@ use CollectUtils;
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
+    $self->{namespace} = undef;
     $self->{inspect}      = $inspect;
+
     $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
 
@@ -263,7 +265,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
+    my ( $self, $lsnPortsMap, $pid ) = @_;
 
     if ( not defined($pid) ) {
         my $remoteAddrs    = {};
@@ -300,7 +302,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
 
     if ( not defined($pid) ) {
 
@@ -346,7 +348,7 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
     my $lsnPortsMap   = $self->{lsnPortsMap};
     my $lsnBackLogMap = $self->{lsnBackLogMap};
 
@@ -364,7 +366,7 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
+    my ( $self, $pid, $lsnPortsMap ) = @_;
     my $remoteAddrs   = $self->{remoteAddrs};
     my $procConnStats = $self->{procConnStats};
 

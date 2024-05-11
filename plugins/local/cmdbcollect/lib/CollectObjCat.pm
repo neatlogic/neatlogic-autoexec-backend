@@ -51,6 +51,7 @@ our $INDEX_FIELDS = {
     FCSWITCH => [ 'WWNN', 'LINK_TABLE.PEER_WWPN' ],
     SWITCH   => ['DEV_NAME'],
     STORAGE  => [ 'VOLUMES.NAME', 'LUNS.WWN' ],
+    HOST     => ['GUESTOS_UUIDS']
 };
 
 sub get {
