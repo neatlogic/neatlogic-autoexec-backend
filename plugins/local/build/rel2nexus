@@ -4,6 +4,7 @@ use FindBin;
 
 use Cwd;
 use IO::File;
+use File::Temp;
 use MIME::Base64;
 use File::Basename;
 use Data::Dumper;
