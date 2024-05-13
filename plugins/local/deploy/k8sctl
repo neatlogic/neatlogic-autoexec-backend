@@ -3,12 +3,14 @@ use strict;
 use FindBin;
 
 use JSON;
+use YAML;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
 use POSIX qw(strftime);
 
 use AutoExecUtils;
+use DeployUtils;
 
 sub usage {
     my $pname = $FindBin::Script;
@@ -20,6 +22,7 @@ sub usage {
     print("       --apiport:      k8s api port, example:8843\n");
     print("       --mgmtport:     k8s web management port , example:30001\n");
     print("       --token:        k8s authenticate token\n");
+    print("       --dplyyamlfile: k8s deployment yaml config file path(relative to artifact root dir)\n");
     print("       --image:        docker image, example:nginx:1.7.6\n");
     print("       --name:         app name, example:nginx\n");
     print("       --namespace:    k8s namespace, example:default\n");
@@ -225,19 +228,20 @@ sub getPrevVerImage {
 
 sub main {
     my ( $host, $apiPort, $managerPort, $token );
-    my ( $image, $name, $namespace, $deployment, $action, $timeout );
+    my ( $dplyYamlFile, $image, $name, $namespace, $deployment, $action, $timeout );
 
     GetOptions(
-        'host=s'       => \$host,
-        'apiport=s'    => \$apiPort,
-        'mgmtport=s'   => \$managerPort,
-        'token=s'      => \$token,
-        'image=s'      => \$image,
-        'name=s'       => \$name,
-        'namespace=s'  => \$namespace,
-        'deployment=s' => \$deployment,
-        'action=s'     => \$action,
-        'timeout=i'    => \$timeout
+        'host=s'         => \$host,
+        'apiport=s'      => \$apiPort,
+        'mgmtport=s'     => \$managerPort,
+        'token=s'        => \$token,
+        'dplyyamlfile=s' => \$dplyYamlFile,
+        'image=s'        => \$image,
+        'name=s'         => \$name,
+        'namespace=s'    => \$namespace,
+        'deployment=s'   => \$deployment,
+        'action=s'       => \$action,
+        'timeout=i'      => \$timeout
     );
 
     my $optionError = 0;
@@ -249,16 +253,6 @@ sub main {
 
     if ( not defined($token) or $token eq '' ) {
         print("ERROR: Must defind Authenticate token for k8s api server.\n");
-        $optionError = 1;
-    }
-
-    if ( not defined($image) or $image eq '' ) {
-        print("ERROR: Must defind docker image\n");
-        $optionError = 1;
-    }
-
-    if ( not defined($name) or $name eq '' ) {
-        print("ERROR: Must defind app name\n");
         $optionError = 1;
     }
 
@@ -276,6 +270,80 @@ sub main {
         $timeout = 120;
     }
     my $org_timeout = $timeout;
+
+    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
+        my $deployUtils = DeployUtils->new();
+        my $deployEnv   = $deployUtils->deployInit();
+        my $dirInfo     = $deployUtils->getDataDirStruct($deployEnv);
+        my $mirrorDir   = $dirInfo->{mirror};
+        my $appDistPath = $dirInfo->{appdist};
+        if( -f "$appDistPath/$dplyYamlFile" ){
+            $dplyYamlFile = "$appDistPath/$dplyYamlFile";
+        }
+        elsif( -f "$mirrorDir/$dplyYamlFile"){
+            $dplyYamlFile = "$mirrorDir/$dplyYamlFile";
+        }
+        else{
+            print("ERROR: Can not find yaml deploy file:$dplyYamlFile in artifact directory $appDistPath or $mirrorDir.\n");
+        }
+    }
+    else {
+        undef($dplyYamlFile);
+        if ( not defined($name) or $name eq '' ) {
+            print("ERROR: Must defind app name\n");
+            $optionError = 1;
+        }
+        if ( not defined($image) or $image eq '' ) {
+            print("ERROR: Must defind docker image\n");
+            $optionError = 1;
+        }
+    }
+
+    my $reqObj;
+    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
+        $reqObj = YAML::LoadFile($dplyYamlFile);
+        if ( defined($image) and $image ne '' ) {
+            my $containers      = $reqObj->{spec}->{template}->{spec}->{containers};
+            my $containersCount = scalar(@$containers);
+            if ( $containersCount == 0 ) {
+                push(
+                    @$containers,
+                    {
+                        {
+                            image => $image
+                        }
+                    }
+                );
+            }
+
+            if ( $containersCount == 1 ) {
+                if ( defined($name) and $name ne '' ) {
+                    $$containers[0]->{name} = $name;
+                }
+                $$containers[0]->{image} = $image;
+            }
+            else {
+                $optionError = 1;
+                print("ERROR: Deployments containers count are $containersCount, can not use name and image option to update deployment. Please use yaml config file.\n");
+            }
+        }
+    }
+    else {
+        $reqObj = {
+            spec => {
+                template => {
+                    spec => {
+                        containers => [
+                            {
+                                name  => $name,
+                                image => $image
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+    }
 
     if ( $optionError == 1 ) {
         usage();
@@ -308,20 +376,6 @@ sub main {
         $image = $prevImage;
     }
 
-    my $reqObj = {
-        spec => {
-            template => {
-                spec => {
-                    containers => [
-                        {
-                            name  => $name,
-                            image => $image
-                        }
-                    ]
-                }
-            }
-        }
-    };
     if ( $action eq 'restart' ) {
         $reqObj->{spec}->{metadata} = {
             annotations => {
