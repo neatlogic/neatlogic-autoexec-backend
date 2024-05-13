@@ -70,6 +70,15 @@
             "defaultValue": "patch"
         },
         {
+            "opt": "dplyyamlfile",
+            "name": "Deploy配置文件",
+            "help": "Deployment的yaml配置文件在制品库中的相对路径",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "deployment.yaml"
+        },
+        {
             "opt": "image",
             "name": "镜像",
             "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",

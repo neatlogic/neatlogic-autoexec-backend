@@ -57,11 +57,14 @@ sub hidePwdInCmdLine {
 }
 
 sub deployInit {
-    my ( $self, $namePath, $version, $buildNo ) = @_;
+    my ( $self, $dpPath, $version, $buildNo ) = @_;
 
     AutoExecUtils::setEnv();
 
-    my $dpPath   = $ENV{DEPLOY_PATH};
+    if( not defined($dpPath) or $dpPath eq ''){
+        $dpPath   = $ENV{DEPLOY_PATH};
+    }
+
     my $dpIdPath = $ENV{DEPLOY_ID_PATH};
 
     if ( not defined($dpIdPath) or $dpIdPath eq '' ) {

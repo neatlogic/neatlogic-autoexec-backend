@@ -134,10 +134,11 @@ sub main {
         return 3;
     }
 
-    my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
-    my $releaseDir = $dirInfo->{release};
-    my $distDir    = $dirInfo->{distribute};
-    my $mirrorDir  = $dirInfo->{mirror};
+    my $dirInfo     = $deployUtils->getDataDirStruct($buildEnv);
+    my $releaseDir  = $dirInfo->{release};
+    my $distDir     = $dirInfo->{distribute};
+    my $appDistPath = $dirInfo->{appdist};
+    my $mirrorDir   = $dirInfo->{mirror};
 
     my $dbSrc  = "$releaseDir/db";
     my $docSrc = "$releaseDir/doc";
@@ -191,6 +192,10 @@ sub main {
             $lock->unlockMirror($mirrorLock);
             $lock->unlockWorkspace($spaceLockId);
         }
+    }
+
+    if ( -e $appDistPath ) {
+        rmtree($appDistPath);
     }
 
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName(mirror)...\n");
