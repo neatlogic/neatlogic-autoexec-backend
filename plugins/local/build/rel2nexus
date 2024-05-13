@@ -237,7 +237,7 @@ sub main {
         'Content'       => $contentMap
     );
     my $statusCode = $response->code();
-    if ( $statusCode == 200 ) {
+    if ( $statusCode == 200 or $statusCode == 204 ) {
         print("FINE: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
         $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }

@@ -11,6 +11,7 @@ use Cwd;
 use Data::Dumper;
 use Getopt::Long;
 use File::Basename;
+use File::Path;
 
 use DeployUtils;
 use DeployLock;
@@ -210,6 +211,9 @@ sub main {
             #使用HTTP::Tiny的mirror方法下载文件
             my $fileName = $downUrlSegs[-1];
             print("INFO: Downloading $downUrl to $saveDir/$fileName.\n");
+            if ( not -e $saveDir){
+                mkpath($saveDir);
+            }
 
             my $response = $http->mirror( $downUrl, "$saveDir/$fileName", { headers => $headers } );
             if ( $response->{success} ) {
