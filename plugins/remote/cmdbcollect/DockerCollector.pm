@@ -43,7 +43,7 @@ sub getContainerProcess {
     if ( $osPid < 1 ) {
         return \@psList;
     }
-    my $psCmd  = qq{nsenter -t $osPid -p -n -r  ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args};
+    my $psCmd  = qq{nsenter -t $osPid -p -n -r ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args};
     my $psInfo = $self->getCmdOutLines($psCmd);
     my @fields;
     my $fieldsCount;
