@@ -1303,6 +1303,7 @@ class RunNode:
                 remotePath = remoteRoot + "/" + op.opBunddleName
                 if op.opBunddleName == "":
                     remotePath = remoteRoot
+                remoteLibPath = "%s/lib" % (remotePath)
 
                 runEnv = {
                     "AUTOEXEC_JOBID": self.context.jobId,
@@ -1311,6 +1312,8 @@ class RunNode:
                     "NODE_HOST": self.host,
                     "NODE_PORT": str(self.port),
                     "NODE_NAME": self.name,
+                    "PYTHONPATH": remoteLibPath,
+                    "PERL5LIB": remoteLibPath,
                 }
                 insPath = os.getenv("INS_PATH")
                 insIdPath = os.getenv("INS_ID_PATH")
@@ -1559,26 +1562,31 @@ class RunNode:
             remotePath = "{}/{}".format(remoteRoot, op.opBunddleName)
             if op.opBunddleName == "":
                 remotePath = remoteRoot
+            remoteLibPath = "%s/lib" % (remotePath)
 
             remoteEnv = ""
             insPath = os.getenv("INS_PATH")
             insIdPath = os.getenv("INS_ID_PATH")
             if insPath:
-                remoteEnv = "&& HISTSIZE=0 NODE_HOST=\"{}\" NODE_PORT={} NODE_NAME=\"{}\" AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} AUTOEXEC_NODE='{}' ".format(
+                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
                     self.host,
                     str(self.port),
                     self.name,
                     self.context.jobId,
                     insPath,
                     insIdPath,
+                    remoteLibPath,
+                    remoteLibPath,
                     json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                 )
             else:
-                remoteEnv = '&& HISTSIZE=0 NODE_HOST="{}" NODE_PORT={} NODE_NAME="{}" AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' '.format(
+                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
                     self.host,
                     str(self.port),
                     self.name,
                     self.context.jobId,
+                    remoteLibPath,
+                    remoteLibPath,
                     json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                 )
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType="Unix").replace("&&", remoteEnv, 1)
