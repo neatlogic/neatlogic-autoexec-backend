@@ -20,6 +20,15 @@ use File::Basename;
 use IO::File;
 use CollectObjCat;
 use JSON;
+use HTTP::Tiny;
+
+sub init {
+    my ($self) = @_;
+    $self->{http} = HTTP::Tiny->new(
+        default_headers => {},
+        timeout         => 5
+    );
+}
 
 sub getConfig {
     return {
@@ -30,350 +39,313 @@ sub getConfig {
     };
 }
 
-sub trim {
-    my ( $self, $value ) = @_;
-    $value =~ s/^\s+|\s+$//g;
-    return $value;
-}
+# sub getContainerConn {
+#     my ( $self, $osPid, $containerId, $dockerInfo ) = @_;
+#     if ( not defined($dockerInfo) or not defined($osPid) or $osPid eq '' ) {
+#         next;
+#     }
+#     my $psList  = $self->getContainerProcesses( $osPid, $containerId );
+#     my $pFinder = ProcessFinder->new();
+#     foreach my $process (@$psList) {
+#         my $pid        = $process->{PID};
+#         my $connGather = ConnGather->new( $self->{inspect} );
+#         $connGather->setNsTarget($osPid);
+#         my $connInfo    = $connGather->getListenInfo($pid);
+#         my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
+#         $process->{PORT_BIND} = $portInfoMap;
+#         $process->{CONN_INFO} = $connInfo;
+#         my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+#     }
+#     $dockerInfo->{PROCESS} = $psList;
 
-sub getContainerProcess {
-    my ( $self, $osPid, $containerId ) = @_;
-    my @psList = ();
-    $osPid = int($osPid);
-    if ( $osPid < 1 ) {
-        return \@psList;
+#     my $connMap             = $self->mergeMultiProcs($psList);
+#     my $CONN_STATS          = $connMap->{ConnStats};
+#     my $CONN_OUTBOUND_STATS = $connMap->{OutBoundStat};
+#     $dockerInfo->{CONN_STATS}          = $CONN_STATS;
+#     $dockerInfo->{CONN_OUTBOUND_STATS} = $CONN_OUTBOUND_STATS;
+
+#     return $dockerInfo;
+# }
+
+sub getApiBaseUrl {
+    my ( $self, $cmdLine ) = @_;
+
+    my $apiBaseUrl = 'http://unix:///var/run/docker.sock';
+    my @customUrls = ();
+    if ( $cmdLine =~ /--config-file(=\S*)/ ) {
+        my $confFile = $1;
+        $confFile =~ s/^=//;
+        if ( not defined($confFile) or $confFile eq '' ) {
+            $confFile = '/etc/docker/daemon.json';
+        }
+        if ( -e $confFile ) {
+            my $confContent = $self->getFileContent($confFile);
+            my $confJson    = from_json($confContent);
+            my $confUrls    = $confJson->{hosts};
+            if (@$confUrls) {
+                for my $confUrl (@$confUrls) {
+                    push( @customUrls, $confUrl );
+                }
+            }
+        }
     }
-    my $psCmd  = qq{nsenter -t $osPid -p -n -r ps -eo pid,ppid,pgid,user,group,ruser,rgroup,pcpu,pmem,time,etime,comm,args};
-    my $psInfo = $self->getCmdOutLines($psCmd);
-    my @fields;
-    my $fieldsCount;
-    foreach my $line (@$psInfo) {
-        if ( $line =~ /PID/ ) {
-            $line =~ s/^\s*|\s*$//g;
-            $line =~ s/^.*?PID/PID/g;
-            my $cmdPos = rindex( $line, ' ' );
-            @fields      = split( /\s+/, substr( $line, 0, $cmdPos ) );
-            $fieldsCount = scalar(@fields);
+    while ( $cmdLine =~ /-H|--host=(\S+)/ ) {
+        push( @customUrls, $1 );
+    }
+    if (@customUrls) {
+        my @sortedCustomUrls = sort(@customUrls);
+        my $customUrl        = pop(@sortedCustomUrls);
+
+        if ( $customUrl =~ /^unix:\/\/.*/ ) {
+            $apiBaseUrl = "http://$customUrl";
+        }
+        elsif ( $customUrl =~ /^tcp:\/\/(.*)/ ) {
+            $apiBaseUrl = "http://$1";
         }
         else {
-            my $ins = {};
-            $line =~ s/^\s*|\s*$//g;
-            my @vars = split( /\s+/, $line );
-            for ( my $i = int(0) ; $i < $fieldsCount ; $i++ ) {
-                if ( $fields[$i] eq 'COMMAND' ) {
-                    $ins->{COMM} = shift(@vars);
-                }
-                else {
-                    $ins->{ $fields[$i] } = shift(@vars);
-                }
-            }
-            $ins->{COMMAND} = join( ' ', @vars );
-            push( @psList, $ins );
+            $apiBaseUrl = $customUrl;
         }
     }
 
-    return \@psList;
+    $apiBaseUrl =~ s/\/+$//g;
+    $self->{apiBaseUrl} = $apiBaseUrl;
+    my $versionInfo = $self->callDockerApi("/version");
+    $apiBaseUrl = $apiBaseUrl . '/v' . $versionInfo->{ApiVersion};
+    $self->{apiBaseUrl} = $apiBaseUrl;
+
+    return $apiBaseUrl;
 }
 
-sub getContainerListenPidsMap {
-    my ( $self, $osPid ) = @_;
-    my $pidsMap = {};
-    $osPid = int($osPid);
-    if ( $osPid < 1 ) {
-        return $pidsMap;
+sub callDockerApi {
+    my ( $self, $apiUri ) = @_;
+    my $apiBaseUrl = $self->{apiBaseUrl};
+    my $http       = $self->{http};
+    my $response   = $http->get("$apiBaseUrl$apiUri");
+    if ( $response->{success} ) {
+        return from_json( $response->{content} );
     }
-
-    my $netstatCmd  = qq{nsenter -t $osPid -p -n -r netstat -ntulp};
-    my $netstatLines = $self->getCmdOutLines($netstatCmd);
-    foreach my $line (@$netstatLines) {
-        if($line =~ /(\d+)\//){
-            $pidsMap->{$1} = 1;
-        }
+    else {
+        print( "WARN: " . $response->{content} );
+        return '';
     }
-    return $pidsMap;
 }
 
-sub getContainerId {
-    my ( $self, $pid ) = @_;
-    my $fh          = IO::File->new("</proc/$pid/cgroup");
-    my $containerId = '';
-    if ( defined($fh) ) {
-        my $line;
-        while ( $line = $fh->getline() ) {
-            $line =~ s/^\s*|\s*$//g;
-            my $len = rindex( $line, '/' );
-            if ( index( $line, '.slice' ) >= 0 ) {
-                $containerId = substr( $line, $len + 1, length($line) );
-                $containerId =~ s/docker-//g;
-                $containerId =~ s/\.scope//g;
-                last;
-            }
-            else {
-                $containerId = substr( $line, $len + 1, length($line) );
-                last;
-            }
+sub getContainerProcesses {
+    my ( $self, $dockerInfo, $containerId ) = @_;
+
+    #/containers/containerId/top
+    my $processesInfo = $self->callDockerApi("/containers/$containerId/top");
+
+    my @processList = ();
+    my $processMap  = {};
+    my $titles      = $processesInfo->{Titles};
+    my $processList = $processesInfo->{Processes};
+    my $fieldsCount = scalar(@$titles);
+    foreach my $procArray (@$processList) {
+        my $process = {};
+        for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
+            $process->{ $$titles[$i] } = $$procArray[$i];
         }
-        $fh->close();
+        push( @processList, $process );
+        $processMap->{ $process->{PID} } = $process;
     }
-    $containerId =~ s/(^s+|s+$)//g;
-    return $containerId;
+
+    return ( \@processList, $processMap );
 }
 
-sub getContainerInfo {
-    my ( $self, $containerId, $docker ) = @_;
-    my $dockerPs = $self->getCmdOutLines("docker ps --no-trunc | grep $containerId");
-    foreach my $line (@$dockerPs) {
-        my @lineInfo    = split( /  +/, $line );
-        my $containerId = $self->trim( @lineInfo[0] );
-        $docker->{CONTAINER_ID} = $containerId;
-        $docker->{IMAGE}        = $self->trim( @lineInfo[1] );
-        $docker->{COMMAND}      = $self->trim( @lineInfo[2] );
-        $docker->{CREATED}      = $self->trim( @lineInfo[3] );
-        $docker->{UPTIME}       = $self->trim( @lineInfo[4] );
-        $docker->{PORTS}        = $self->trim( @lineInfo[5] );
-        $docker->{NAME}         = $self->trim( @lineInfo[6] );
+sub getContainerDetail {
+    my ( $self, $dockerInfo, $containerId ) = @_;
 
-        #docker 容器详情
-        my $dockerInfo    = $self->getCmdOut("docker inspect $containerId");
-        my $dockerInspect = from_json($dockerInfo);
-        my $dockerObj     = @$dockerInspect[0];
-        my $osPid         = $dockerObj->{State}->{Pid};
-        my $cgroup        = $dockerObj->{HostConfig}->{CgroupParent};
+    #/v1.24/containers/97d1cae09135/json
+    my $detailInfo = $self->callDockerApi("/containers/$containerId/json");
 
-        $docker->{OS_PID}     = $osPid;
-        $docker->{PLATFORM}   = $dockerObj->{Platform};
-        $docker->{DRIVER}     = $dockerObj->{Driver};
-        $docker->{IPADDRESS}  = $dockerObj->{NetworkSettings}->{IPAddress};
-        $docker->{GATEWAY}    = $dockerObj->{NetworkSettings}->{Gateway};
-        $docker->{MACADDRESS} = $dockerObj->{NetworkSettings}->{MacAddress};
-        $docker->{HOSTNAME}   = $dockerObj->{Hostname};
-        $docker->{STATUS}     = $dockerObj->{State}->{Status};
+    my $osPid  = $detailInfo->{State}->{Pid};
+    my $cgroup = $detailInfo->{HostConfig}->{CgroupParent};
 
-        my $managedMethod = 'Standalone';
-        if ( $cgroup =~ /kubepods/ ) {
-            $managedMethod = 'K8s';
+    #$dockerInfo->{OS_PID}     = $osPid;
+    $dockerInfo->{PLATFORM} = $detailInfo->{Platform};
+    $dockerInfo->{DRIVER}   = $detailInfo->{Driver};
+    $dockerInfo->{HOSTNAME} = $detailInfo->{Hostname};
+
+    my $networks = $detailInfo->{NetworkSettings}->{Networks};
+    if ( defined($networks) ) {
+        my @netNics = values(%$networks);
+        if (@netNics) {
+            $dockerInfo->{IPADDRESS}  = $netNics[0]->{IPAddress};
+            $dockerInfo->{GATEWAY}    = $netNics[0]->{Gateway};
+            $dockerInfo->{MACADDRESS} = $netNics[0]->{MacAddress};
         }
-        $docker->{MANAGED_METHOD} = $managedMethod;
-        my @mountList = ();
-        my $mounts    = $dockerObj->{Mounts};
-        foreach my $mt (@$mounts) {
-            my $ins = {};
-            $ins->{TYPE}        = $mt->{Type};
-            $ins->{SOURCE}      = $mt->{Source};
-            $ins->{DESTINATION} = $mt->{Destination};
-            $ins->{MODE}        = $mt->{Mode};
-            $ins->{RW}          = $mt->{RW};
-            $ins->{PROPAGATION} = $mt->{Propagation};
-            push( @mountList, $ins );
-        }
-        $docker->{MOUNTS} = \@mountList;
-
-        my @envList = ();
-        my $env     = $dockerObj->{Config}->{Env};
-        foreach my $line (@$env) {
-            my @lineInfo = split( /=/, $line );
-            if ( scalar(@lineInfo) < 1 ) {
-                next;
-            }
-            my $ins   = {};
-            my $key   = @lineInfo[0];
-            my $value = @lineInfo[1];
-            if ( $key =~ /PASSWORD/ or $key =~ /password/ ) {
-                $value = '******';
-            }
-            $ins->{KEY}   = $key;
-            $ins->{VALUE} = $value;
-            push( @envList, $ins );
-        }
-        $docker->{ENV} = \@envList;
     }
-    return $docker;
-}
-
-sub getContainerImage {
-    my ( $self, $imageId ) = @_;
-    my $dockerImages = $self->getCmdOutLines("docker images --no-trunc | grep $imageId");
-    
-    my $imageIns = {};
-    foreach my $line (@$dockerImages) {
-        my @lineInfo   = split( /  +/, $line );
-        my $repository = $self->trim( @lineInfo[0] );
-        my $tag        = $self->trim( @lineInfo[1] );
-        my $name       = "$repository:$tag";
-        my $imageId    = $self->trim( @lineInfo[2] );
-
-        my $imageIns     = {};
-        $imageIns->{REPOSITORY} = $repository;
-        $imageIns->{TAG}        = $tag;
-        $imageIns->{NAME}       = $name;
-        $imageIns->{IMAGE_ID}   = $imageId;
-        $imageIns->{CREATED}    = $self->trim( @lineInfo[3] );
-        $imageIns->{SIZE}       = $self->trim( @lineInfo[4] );
+    else {
+        $dockerInfo->{IPADDRESS}  = $detailInfo->{NetworkSettings}->{IPAddress};
+        $dockerInfo->{GATEWAY}    = $detailInfo->{NetworkSettings}->{Gateway};
+        $dockerInfo->{MACADDRESS} = $detailInfo->{NetworkSettings}->{MacAddress};
     }
 
-    return $imageIns;
+    my $managedMethod = 'Standalone';
+    if ( $cgroup =~ /kubepods/ ) {
+        $managedMethod = 'K8s';
+    }
+    $dockerInfo->{MANAGED_METHOD} = $managedMethod;
+
+    my @mountList = ();
+    my $mounts    = $detailInfo->{Mounts};
+    foreach my $mt (@$mounts) {
+        my $mountInfo = {};
+        $mountInfo->{TYPE}        = $mt->{Type};
+        $mountInfo->{SOURCE}      = $mt->{Source};
+        $mountInfo->{DESTINATION} = $mt->{Destination};
+        $mountInfo->{MODE}        = $mt->{Mode};
+        $mountInfo->{RW}          = $mt->{RW};
+        $mountInfo->{PROPAGATION} = $mt->{Propagation};
+        push( @mountList, $mountInfo );
+    }
+    $dockerInfo->{MOUNTS} = \@mountList;
+
+    my @envList = ();
+    my $env     = $detailInfo->{Config}->{Env};
+    foreach my $line (@$env) {
+        my @envInfo = split( /=/, $line, 2 );
+        my $key     = @envInfo[0];
+        my $value   = @envInfo[1];
+        if ( $key =~ /PASSWORD/ or $key =~ /password/ ) {
+            $value = '******';
+        }
+        push( @envList, { KEY => $key, VALUE => $value } );
+    }
+    $dockerInfo->{ENV} = \@envList;
+
+    $self->getContainerStats( $dockerInfo, $containerId );
+
+    my @processes = ();
+    my ( $prcoessList, $processMap ) = $self->getContainerProcesses( $dockerInfo, $containerId );
+    my $pFinder = $self->{pFinder};
+
+    #获取收集网络信息的实现类
+    my $inspect    = $self->{inspect};
+    my $ipAddr     = $dockerInfo->{IPADDRESS};
+    my $connGather = ConnGather->new( $self->{inspect} );
+
+    #取容器内第一个进程作为namespace target
+    my $nsTarget      = $$prcoessList[0]->{PID};
+    my $dockerPFinder = ProcessFinder->new(
+        [],
+        nsTarget    => $nsTarget,
+        connGather  => $connGather,
+        passArgs    => $pFinder->{passArgs},
+        inspect     => $inspect,
+        bizIp       => $ipAddr,
+        ipAddrs     => [ { IP => $ipAddr } ],
+        ipv6Addrs   => [],
+        procEnvName => $pFinder->{procEnvName},
+        container   => $pFinder->{container}
+    );
+    $dockerPFinder->{mgmtIp} = $ipAddr;
+
+    my $appsMap   = $dockerPFinder->findProcess( $processMap, $containerId );
+    my $appsArray = $dockerPFinder->{appsArray};
+
+    #处理存在父子关系的进程的连接信息，并合并到父进程
+    my $apps = $dockerPFinder->mergeMultiProcs( $appsArray, $appsMap, [$ipAddr], [] );
+    $dockerInfo->{APPS} = $apps;
+
+    my $connInfo    = $connGather->getListenInfo();
+    my $portInfoMap = $dockerPFinder->getListenPortInfo( $connInfo->{LISTEN} );
+    $dockerInfo->{PORT_BIND} = $portInfoMap;
+    $dockerInfo->{CONN_INFO} = $connInfo;
+    my $statInfo = $connGather->getStatInfo( undef, $connInfo->{LISTEN} );
+    $connInfo->{PEER}  = $statInfo->{PEER};
+    $connInfo->{STATS} = $statInfo->{STATS};
 }
 
 sub getContainerStats {
-    my ( $self, $containerId, $docker ) = @_;
-    my $dockerStats = $self->getCmdOutLines("docker stats --no-stream  --no-trunc | grep $containerId");
-    foreach my $line (@$dockerStats) {
+    my ( $self, $dockerInfo, $containerId ) = @_;
 
-        my @lineInfo    = split( /  +/, $line );
-        my $containerId = $self->trim( @lineInfo[0] );
+    my $statInfo = $self->callDockerApi("/containers/$containerId/stats?stream=0");
+    my $cpuUsage = int( ( $statInfo->{cpu_stats}->{cpu_usage}->{total_usage} - $statInfo->{precpu_stats}->{cpu_usage}->{total_usage} ) * 10000 / ( $statInfo->{cpu_stats}->{system_cpu_usage} - $statInfo->{precpu_stats}->{system_cpu_usage} ) ) / 100;
+    my $memUsed  = int( $statInfo->{memory_stats}->{usage} / 1024 / 1024 );
+    my $memLimit = int( $statInfo->{memory_stats}->{limit} / 1024 / 1024 );
+    my $memUsage = int( $memUsed * 10000 / $memLimit ) * 100;
 
-        $docker->{CONTAINER_ID} = $containerId;
-        $docker->{NAME}         = $self->trim( @lineInfo[1] );
-        $docker->{CPU_USAGE}    = $self->trim( @lineInfo[2] );
+    $dockerInfo->{CPU_USAGE} = $cpuUsage;
+    $dockerInfo->{MEM_USED}  = $memUsed;
+    $dockerInfo->{MEM_LIMIT} = $memLimit;
+    $dockerInfo->{MEM_USAGE} = $memUsage;
 
-        my @menInfo = split( /\//, @lineInfo[3] );
-        $docker->{MEM_USED}  = $self->trim( @menInfo[0] );
-        $docker->{MEM_LIMIT} = $self->trim( @menInfo[1] );
-        $docker->{MEM_USAGE} = $self->trim( @lineInfo[4] );
-
-        $docker->{NET_IO}   = $self->trim( @lineInfo[5] );
-        $docker->{BLOCK_IO} = $self->trim( @lineInfo[6] );
-        $docker->{PIDS}     = $self->trim( @lineInfo[7] );
-    }
-    return $docker;
+    # $dockerInfo->{NET_IO}   = $netIo;
+    # $dockerInfo->{BLOCK_IO} = $blockIo;
+    # $dockerInfo->{PIDS}     = $pids;
 }
 
-sub mergeMultiProcs {
-    my ($self, $psList) = @_;
-    print("INFO: Begin to merge connection information with parent processes...\n");
-    my $parentPsMap = {};
-    foreach my $info (@$psList) {
-        my ( $parentConnStats, $parentOutBoundStat );
-        if ( defined( $parentPsMap->{ConnStats} ) ) {
-            $parentConnStats    = $parentPsMap->{ConnStats};
-            $parentOutBoundStat = $parentPsMap->{OutBoundStat};
-        }
-        else {
-            $parentConnStats->{TOTAL_COUNT}          = int(0);
-            $parentConnStats->{INBOUND_COUNT}        = int(0);
-            $parentConnStats->{OUTBOUND_COUNT}       = int(0);
-            $parentConnStats->{SYN_RECV_COUNT}       = int(0);
-            $parentConnStats->{CLOSE_WAIT_COUNT}     = int(0);
-            $parentConnStats->{RECV_QUEUED_COUNT}    = int(0);
-            $parentConnStats->{SEND_QUEUED_COUNT}    = int(0);
-            $parentConnStats->{RECV_QUEUED_SIZE}     = int(0);
-            $parentConnStats->{SEND_QUEUED_SIZE}     = int(0);
-            $parentConnStats->{RECV_QUEUED_RATE}     = int(0);
-            $parentConnStats->{SEND_QUEUED_RATE}     = int(0);
-            $parentConnStats->{RECV_QUEUED_SIZE_AVG} = int(0);
-            $parentConnStats->{SEND_QUEUED_SIZE_AVG} = int(0);
+sub getAllContainers {
+    my ($self) = @_;
 
-            $parentOutBoundStat->{OUTBOUND_COUNT}       = int(0);
-            $parentOutBoundStat->{SEND_QUEUED_SIZE}     = int(0);
-            $parentOutBoundStat->{SYN_SENT_COUNT}       = int(0);
-            $parentOutBoundStat->{SEND_QUEUED_RATE}     = int(0);
-            $parentOutBoundStat->{SEND_QUEUED_SIZE_AVG} = int(0);
+    my $procInfo = $self->{procInfo};
+    my $mgmtIp   = $procInfo->{MGMT_IP};
 
-        }
-        my $currentConnStats = $info->{statInfo}->{STATS};
-        $parentConnStats->{TOTAL_COUNT}       = $parentConnStats->{TOTAL_COUNT} + $currentConnStats->{TOTAL_COUNT};
-        $parentConnStats->{INBOUND_COUNT}     = $parentConnStats->{INBOUND_COUNT} + $currentConnStats->{INBOUND_COUNT};
-        $parentConnStats->{OUTBOUND_COUNT}    = $parentConnStats->{OUTBOUND_COUNT} + $currentConnStats->{OUTBOUND_COUNT};
-        $parentConnStats->{SYN_RECV_COUNT}    = $parentConnStats->{SYN_RECV_COUNT} + $currentConnStats->{SYN_RECV_COUNT};
-        $parentConnStats->{CLOSE_WAIT_COUNT}  = $parentConnStats->{CLOSE_WAIT_COUNT} + $currentConnStats->{CLOSE_WAIT_COUNT};
-        $parentConnStats->{RECV_QUEUED_COUNT} = $parentConnStats->{RECV_QUEUED_COUNT} + $currentConnStats->{RECV_QUEUED_COUNT};
-        $parentConnStats->{SEND_QUEUED_COUNT} = $parentConnStats->{SEND_QUEUED_COUNT} + $currentConnStats->{SEND_QUEUED_COUNT};
-        $parentConnStats->{RECV_QUEUED_SIZE}  = $parentConnStats->{RECV_QUEUED_SIZE} + $currentConnStats->{RECV_QUEUED_SIZE};
-        $parentConnStats->{SEND_QUEUED_SIZE}  = $parentConnStats->{SEND_QUEUED_SIZE} + $currentConnStats->{SEND_QUEUED_SIZE};
+    my $objCat = CollectObjCat->get('CONTAINER');
 
-        if ( $parentConnStats->{TOTAL_COUNT} > 0 ) {
-            $parentConnStats->{RECV_QUEUED_RATE}     = int( $parentConnStats->{RECV_QUEUED_COUNT} * 10000 / $parentConnStats->{TOTAL_COUNT} + 0.5 ) / 100;
-            $parentConnStats->{SEND_QUEUED_RATE}     = int( $parentConnStats->{SEND_QUEUED_COUNT} * 10000 / $parentConnStats->{TOTAL_COUNT} + 0.5 ) / 100;
-            $parentConnStats->{RECV_QUEUED_SIZE_AVG} = int( $parentConnStats->{RECV_QUEUED_SIZE} * 100 / $parentConnStats->{TOTAL_COUNT} + 0.5 ) / 100;
-            $parentConnStats->{SEND_QUEUED_SIZE_AVG} = int( $parentConnStats->{SEND_QUEUED_SIZE} * 100 / $parentConnStats->{TOTAL_COUNT} + 0.5 ) / 100;
-        }
+    #/containers/json
+    my $containerList = $self->callDockerApi('/containers/json');
 
-        #基于调用OutBound（目标）的统计信息合并
-        my $parentOutBoundStats  = $parentConnStats->{OUTBOUND_STATS};
-        my $currentOutBoundStats = $currentConnStats->{OUTBOUND_STATS};
-        while ( my ( $remoteAddr, $outBoundStat ) = each(%$currentOutBoundStats) ) {
-            my $parentOutBoundStat = $parentOutBoundStats->{$remoteAddr};
-            $parentOutBoundStat->{OUTBOUND_COUNT}   = $parentOutBoundStat->{OUTBOUND_COUNT} + $outBoundStat->{OUTBOUND_COUNT};
-            $parentOutBoundStat->{SEND_QUEUED_SIZE} = $parentOutBoundStat->{SEND_QUEUED_SIZE} + $outBoundStat->{SEND_QUEUED_SIZE};
-            $parentOutBoundStat->{SYN_SENT_COUNT}   = $parentOutBoundStat->{SYN_SENT_COUNT} + $outBoundStat->{SYN_SENT_COUNT};
+    my @containers = ();
+    foreach my $info (@$containerList) {
+        my $dockerInfo = {
+            _OBJ_CATEGORY => $objCat,
+            _OBJ_TYPE     => 'Docker',
+            RESOURCE_ID   => 0
+        };
 
-            if ( $parentOutBoundStat->{OUTBOUND_COUNT} > 0 ) {
-                $parentOutBoundStat->{SEND_QUEUED_RATE}     = int( $parentOutBoundStat->{SEND_QUEUED_RATE} * 10000 / $parentOutBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
-                $parentOutBoundStat->{SEND_QUEUED_SIZE_AVG} = int( $parentOutBoundStat->{SEND_QUEUED_SIZE} * 100 / $parentOutBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
+        $dockerInfo->{CONTAINER_ID} = $info->{Id};
+        $dockerInfo->{NAME}         = $info->{Names}[0];
+        $dockerInfo->{IMAGE}        = $info->{Image};
+        $dockerInfo->{IMAGE_ID}     = $info->{ImageID};
+        $dockerInfo->{COMMAND}      = $info->{Command};
+        $dockerInfo->{CREATED}      = $info->{Created};
+        $dockerInfo->{UPTIME}       = $info->{Status};
+        $dockerInfo->{STATUS}       = $info->{State};
+        $dockerInfo->{PORTS}        = $info->{Ports};
+
+        my $detailInfo = $self->getContainerDetail( $dockerInfo, $info->{Id} );
+
+        #把Docker的管理IP设置为OS IP
+        $dockerInfo->{MGMT_IP}     = $mgmtIp;
+        $dockerInfo->{NOT_PROCESS} = 1;
+        $dockerInfo->{RUN_ON}      = [
+            {
+                '_OBJ_CATEGORY' => 'OS',
+                '_OBJ_TYPE'     => $self->{ostype},
+                'OS_ID'         => $procInfo->{OS_ID},
+                'MGMT_IP'       => $mgmtIp
             }
-        }
-        $parentPsMap->{ConnStats}    = $parentConnStats;
-        $parentPsMap->{OutBoundStat} = $parentOutBoundStat;
+        ];
+        push( @containers, $dockerInfo );
     }
-    print("INFO: Connection information merged.\n");
-    return $parentPsMap;
-}
 
-sub getContainerConn {
-    my ( $self, $osPid, $containerId, $docker ) = @_;
-    if ( not defined($docker) or not defined($osPid) or $osPid eq '' ) {
-        next;
-    }
-    my $psList      = $self->getContainerProcess( $osPid, $containerId );
-    my $pFinder     = ProcessFinder->new();
-    foreach my $process (@$psList) {
-        my $pid         = $process->{PID};
-        my $connGather  = ConnGather->new($self->{inspect});
-        $connGather->setNameSpace($osPid);
-        my $connInfo    = $connGather->getListenInfo( $pid );
-        my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
-        $process->{PORT_BIND} = $portInfoMap;
-        $process->{CONN_INFO} = $connInfo;
-        my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
-    }
-    $docker->{PROCESS} = $psList;
-
-    my $connMap             = $self->mergeMultiProcs($psList);
-    my $CONN_STATS          = $connMap->{ConnStats};
-    my $CONN_OUTBOUND_STATS = $connMap->{OutBoundStat};
-    $docker->{CONN_STATS}          = $CONN_STATS;
-    $docker->{CONN_OUTBOUND_STATS} = $CONN_OUTBOUND_STATS;
-
-    return $docker;
+    return \@containers;
 }
 
 sub collect {
     my ($self) = @_;
-    my $utils = $self->{collectUtils};
-
-    my $procInfo    = $self->{procInfo};
-    my $cmdLine     = $procInfo->{COMMAND};
-    my $MGMT_PORT   = $procInfo->{MGMT_PORT};
-    my $MGMT_IP     = $procInfo->{MGMT_IP};
-    my $osPid       = $procInfo->{PID};
-    my $osPPid      = int( $procInfo->{PPID} );
-    my $containerId = $self->getContainerId($osPid);
-    if ( not defined($containerId) or $containerId eq '' or $osPPid <= 1 or $containerId eq 'docker.service' ) {
-        return undef;
+    if ( $self->{ostype} !~ /Linux/i ) {
+        print("WARN: Docker collect only support linux.\n");
+        return;
     }
 
-    my $docker = {};
-    $docker->{_OBJ_CATEGORY} = CollectObjCat->get('CONTAINER');
-    $docker->{_OBJ_TYPE}     = 'Docker';
-    $docker->{MGMT_PORT}     = $MGMT_PORT;
-    $docker->{MGMT_IP}       = $MGMT_IP;
-
-    #计算RESOURCE_ID
-    $docker->{RESOURCE_ID} = '0';
-
-    $self->getContainerInfo( $containerId, $docker );
-    my $imageTag = $docker->{IMAGE};
-    if ( $imageTag =~ /(sha256:\S+)/ ) {
-        my $imageId = $1;
-        my $dockerImage = $self->getContainerImage($imageId);
-        $docker->{IMAGE} = $dockerImage->{NAME};
+    my $pFinder = $self->{pFinder};
+    if ( not $pFinder->{container} ) {
+        return;
     }
 
-    $self->getContainerStats( $containerId, $docker );
-    if($self->{inspect} == 1){
-        $self->getContainerConn( $osPid, $containerId, $docker );
-    }
-    return $docker;
+    #获取docker的通讯地址
+    my $apiBaseUrl = $self->getApiBaseUrl();
+    my $containers = $self->getAllContainers();
+
+    # if ( $self->{inspect} == 1 ) {
+    #     $self->getContainerConn( $osPid, $containerId, $docker );
+    # }
+
+    return @$containers;
 }
 
 1;

@@ -18,23 +18,23 @@ sub new {
     $self->{inspect}      = $inspect;
     $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
-    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
+    #$self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     return $self;
 }
 
-sub getCPULogicCoreCount {
-    my ($self) = @_;
+# sub getCPULogicCoreCount {
+#     my ($self) = @_;
 
-    my $utils                 = $self->{collectUtils};
-    my $cpuLogicCores         = 0;
-    my $cpuLogicCorsInfoLines = $utils->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
-    foreach my $line (@$cpuLogicCorsInfoLines) {
-        $line =~ s/^\s*|\s*$//g;
-        $cpuLogicCores = $cpuLogicCores + int($line);
-    }
+#     my $utils                 = $self->{collectUtils};
+#     my $cpuLogicCores         = 0;
+#     my $cpuLogicCorsInfoLines = $utils->getCmdOutLines('wmic cpu get NumberOfLogicaLProcessors');
+#     foreach my $line (@$cpuLogicCorsInfoLines) {
+#         $line =~ s/^\s*|\s*$//g;
+#         $cpuLogicCores = $cpuLogicCores + int($line);
+#     }
 
-    return $cpuLogicCores;
-}
+#     return $cpuLogicCores;
+# }
 
 sub parseListenLines {
     my ( $self, %args ) = @_;
@@ -51,9 +51,11 @@ sub parseListenLines {
         my $line;
         while ( $line = <$pipe> ) {
             my @fields  = split( /\s+/, $line );
+            if(defined($pid) and $pid != 0){
             my $lastIdx = $#fields;
             if ( $fields[$lastIdx] ne $pid ) {
                 next;
+            }
             }
 
             my $listenAddr = $fields[$lsnFieldIdx];
@@ -112,7 +114,7 @@ sub parseConnLines {
     my $remoteAddrs = {};
     my $status      = 0;
     my $pipe;
-    my $pid = open( $pipe, $cmd );
+    my $pipePid = open( $pipe, $cmd );
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
@@ -126,10 +128,12 @@ sub parseConnLines {
                 my $port = $2;
 
                 my $lastIdx = $#fields;
+                if(defined($pid) and $pid != 0){
                 if ( index( $fields[$lastIdx], $pid ) < 0
                     and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
                 {
                     next;
+                }
                 }
 
                 $localAddr  =~ s/^::ffff:(\d+\.)/$1/;
@@ -244,7 +248,7 @@ sub getStatInfo {
 
 #获取连入某进程监听IP端口的远端的IP地址列表
 sub getInboundIps {
-    my ( $self, $bindAddr, $pid ) = @_;
+    my ( $self, $bindAddr ) = @_;
 
     my @ips = ();
 

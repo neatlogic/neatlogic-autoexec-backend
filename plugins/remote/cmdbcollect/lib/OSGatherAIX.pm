@@ -598,7 +598,7 @@ sub getDiskInfo {
 
                 #TODO: 需要验证
                 my $uniqId    = $lunInfo->{unique_id};
-                my $uniqIdLen = len($uniqId);
+                my $uniqIdLen = length($uniqId);
                 if ( defined($uniqId) ) {
                     if ( $uniqIdLen == 32 ) {
                         $naaId = $uniqId;
@@ -612,7 +612,7 @@ sub getDiskInfo {
 
                 #TODO: 需要验证
                 my $uniqId    = $lunInfo->{unique_id};
-                my $uniqIdLen = len($uniqId);
+                my $uniqIdLen = length($uniqId);
                 if ( defined($uniqId) ) {
                     if ( $uniqIdLen == 32 ) {
                         $naaId = $uniqId;
@@ -666,10 +666,10 @@ sub getDiskInfo {
                 my $desc      = $lunInfo->{desc};
                 my $serialNum = $lunInfo->{'Serial Number'};
                 my $uniqId    = $lunInfo->{unique_id};
-                if ( len($serialNum) == 32 ) {
+                if ( length($serialNum) == 32 ) {
                     $naaId = $serialNum;
                 }
-                elsif ( len($uniqId) == 32 ) {
+                elsif ( length($uniqId) == 32 ) {
                     $naaId = $uniqId;
                 }
             }
