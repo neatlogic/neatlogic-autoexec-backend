@@ -9,7 +9,8 @@ use strict;
 use FindBin;
 use IPC::Open2;
 use IO::File;
-use Cwd;
+use File::Basename;
+use Cwd qw(abs_path);
 use POSIX qw(uname);
 use JSON qw(from_json to_json);
 use CollectUtils;
@@ -33,7 +34,9 @@ sub new {
     #......
 
     my $self = {
-        callback    => $args{callback},
+
+        #callback    => $args{callback},
+        nsTarget    => $args{nsTarget},
         inspect     => $args{inspect},
         connGather  => $args{connGather},
         appsMap     => {},
@@ -44,7 +47,7 @@ sub new {
         ipAddrs     => $args{ipAddrs},
         ipv6Addrs   => $args{ipv6Addrs},
         procEnvName => $args{procEnvName},
-        containner  => $args{containner}
+        container  => $args{container}
     };
 
     if ( not defined($procFilters) ) {
@@ -77,6 +80,12 @@ sub new {
 
     my $utils = CollectUtils->new();
     $self->{utils} = $utils;
+
+    #设置connGather的nsTarget
+    if(defined($args{nsTarget}) and defined($args{connGather})){
+        my $connGather = $args{connGather};
+        $connGather->setNsTarget($args{nsTarget});
+    }
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
     $self->{procEnvCmd} = 'ps eww';
@@ -236,31 +245,653 @@ sub getProcMaxOpenFilesCount {
 
 sub isProcInContainer {
     my ( $self, $pid ) = @_;
-    my $fh = IO::File->new("</proc/$pid/cgroup");
 
-    my $isContainer   = 0;
-    my $containerType = '';
+    my $isContainer = 0;
 
-    if ( defined($fh) ) {
-        my $line;
-        while ( $line = $fh->getline() ) {
-            if ( index( $line, 'docker' ) >= 0 ) {
-                $isContainer   = 1;
-                $containerType = 'Docker';
-                last;
-            }
-        }
-        $fh->close();
+    if ( $self->{ostype} eq 'Windows' ) {
+        return $isContainer;
     }
 
-    return ( $isContainer, $containerType );
+    #如果进程有独立于OS的pid的namespace则运行于容器内
+    my $nativeNs = readlink('/proc/1/ns/pid');
+    my $selfNs   = readlink("/proc/$pid/ns/pid");
+
+    if ( not defined($nativeNs) or not defined($selfNs) ) {
+        return $isContainer;
+    }
+
+    if ( $selfNs ne $nativeNs ) {
+        $isContainer = 1;
+    }
+
+    return $isContainer;
+}
+
+sub resolveSymlinks {
+    my ( $self, $path ) = @_;
+
+    if ( -l $path ) {
+        my $target = readlink($path);
+
+        if ( !File::Spec->file_name_is_absolute($target) ) {
+            $target = File::Spec->rel2abs( $target, dirname($path) );
+        }
+        return $self->resolveSymlinks($target);
+    }
+    elsif ( -e $path ) {
+        return abs_path($path);
+    }
+    else {
+        return undef;
+    }
+}
+
+sub getRealInstallPath {
+    my ( $self, $appInfo, $procInfo ) = @_;
+
+    my $realInstallPath = '';
+    my $realBinPath;
+
+    my $installPath = $appInfo->{INSTALL_PATH};
+    if ( defined($installPath) and $installPath ne '' and -e $installPath ) {
+        $realBinPath = $self->resolveSymlinks("$installPath/bin");
+        if ( not defined($realBinPath) ) {
+            $realBinPath = $self->resolveSymlinks("$installPath/sbin");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = $self->resolveSymlinks("$installPath/lib");
+        }
+        if ( not defined($realBinPath) ) {
+            $realBinPath = $self->resolveSymlinks("$installPath");
+        }
+    }
+    else {
+        my $binPath = $appInfo->{BIN_PATH};
+        if ( defined($binPath) and $binPath ne '' ) {
+            $realBinPath = $self->resolveSymlinks($binPath);
+        }
+        else {
+            my $exePath = $appInfo->{EXE_PATH};
+            if ( defined($exePath) and $exePath ne '' ) {
+                $binPath     = dirname($exePath);
+                $realBinPath = $self->resolveSymlinks($binPath);
+            }
+            else {
+                my $executableFile = $procInfo->{EXECUTABLE_FILE};
+                if ( defined($executableFile) and $executableFile ne '' ) {
+                    $binPath     = dirname($executableFile);
+                    $realBinPath = $self->resolveSymlinks($binPath);
+                }
+            }
+        }
+    }
+
+    if ( defined($realBinPath) and $realBinPath ne '' ) {
+        $realInstallPath = dirname($realBinPath);
+    }
+
+    return $realInstallPath;
+}
+
+#提供给ProcessFinder调用的回调函数，当进程信息匹配配置的过滤配置时就会调用此函数
+#此回调函数会初始化Collector类并调用其collect方法
+sub doDetailCollect {
+    my ( $self, $collectorClass, $procInfo ) = @_;
+
+    #collectorClass: 收集器类名
+    #procInfo；ps的进程信息
+
+    #matchedProcsInfo：前面已经匹配上进程信息，用于多进程应用的连接去重
+    my $matchedProcsInfo = $self->{matchedProcsInfo};
+    my $appsMap          = $self->{appsMap};
+    my $appsArray        = $self->{appsArray};
+    my $osType           = $self->{ostype};
+    my $passArgs         = $self->{passArgs};
+    my $osInfo           = $self->{osInfo};
+    my $connGather       = $self->{connGather};
+
+    print("INFO: Os type:$osType\n");
+
+    my $isMatched = 0;
+    my $objCat;
+    my $pid     = $procInfo->{PID};
+    my $objType = $procInfo->{_OBJ_TYPE};
+
+    print("INFO: Process $pid matched filter:$objType, begin to collect data...\n");
+    my $connInfo;
+    if ( $osType eq 'Windows' and $procInfo->{COMMAND} =~ /^System\b/ ) {
+
+        #Windows System进程没有lisnten信息
+        $connInfo = { PEER => {}, LOCAL_PEER => {}, LISTEN => {} };
+    }
+    else {
+        $connInfo = $connGather->getListenInfo($pid);
+        my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
+        $connInfo->{PORT_BIND} = $portInfoMap;
+        $procInfo->{CONN_INFO} = $connInfo;
+    }
+    print("INFO: Process connection infomation collected.\n");
+
+    my $collector;
+    my @appInfos = ();
+
+    eval {
+        $collector = $collectorClass->new( $passArgs, $self, $procInfo, $matchedProcsInfo );
+        my @appInfosTmp = $collector->collect($procInfo);
+
+        foreach my $appInfo (@appInfosTmp) {
+            if ( defined($appInfo) and ref($appInfo) eq 'HASH' ) {
+                push( @appInfos, $appInfo );
+            }
+        }
+        if ( scalar(@appInfos) > 0 ) {
+            $connInfo = $procInfo->{CONN_INFO};
+
+            #有些进程match并不是监听进程，可以通过设置procInfo的属性LISTENER_PID指定监听进程
+            my $statInfo = {};
+            my $lsnPid   = $procInfo->{LISTENER_PID};
+            if ( defined($lsnPid) and $lsnPid ne '' and $lsnPid ne $pid ) {
+                my $lsnInfo = $connGather->getListenInfo($lsnPid);
+                map { $connInfo->{$_} = $lsnInfo->{$_} } keys(%$lsnInfo);
+                my $portInfoMap = $self->getListenPortInfo( $connInfo->{LISTEN} );
+                $connInfo->{PORT_BIND} = $portInfoMap;
+
+                $statInfo = $connGather->getStatInfo( $lsnPid, $connInfo->{LISTEN} );
+            }
+            else {
+                $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
+            }
+            map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
+        }
+    };
+
+    if ($@) {
+        print("ERROR: $collectorClass return failed, $@\n");
+        return 0;
+    }
+
+    my $idx = 0;
+    for ( $idx = 0 ; $idx < scalar(@appInfos) ; $idx++ ) {
+        my $appInfo = $appInfos[$idx];
+        $isMatched = 1;
+
+        my $insObjCat   = CollectObjCat->get('INS');
+        my $dbInsObjCat = CollectObjCat->get('DBINS');
+
+        $objType = $appInfo->{_OBJ_TYPE};
+        if ( not defined($objType) ) {
+            $objType = $procInfo->{_OBJ_TYPE};
+            $appInfo->{_OBJ_TYPE} = $objType;
+        }
+
+        $objCat = $appInfo->{_OBJ_CATEGORY};
+        if ( not defined($objCat) or $objCat eq '' ) {
+            $objCat = $insObjCat;
+            $appInfo->{_OBJ_CATEGORY} = $objCat;
+        }
+        else {
+            if ( not CollectObjCat->validate( $appInfo->{_OBJ_CATEGORY} ) ) {
+                print("WARN: Invalid object category: $appInfo->{_OBJ_CATEGORY}.\n");
+                return 0;
+            }
+
+            #从实例采集信息中抽取出软件资产
+            if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                my $softWare = {
+                    _OBJ_CATEGORY => $objCat,
+                    _OBJ_TYPE     => "Software-Asset",
+                    NAME          => $objType,
+                    VERSION       => $appInfo->{VERSION},
+                    INSTALL_PATH  => $self->getRealInstallPath( $appInfo, $procInfo )
+                };
+                $appInfo->{SOFTWARE_ASSETS} = $softWare;
+            }
+
+            #从实例采集信息中抽取出服务，参考另外SERVICE_PORTS属性的处理
+        }
+
+        print("INFO: Matched Object Type:$objCat/$objType.\n");
+
+        $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};
+        $appInfo->{MGMT_PORT}      = $procInfo->{MGMT_PORT};
+        $appInfo->{OS_ID}          = $procInfo->{OS_ID};
+        $appInfo->{OS_USER}        = $procInfo->{USER};
+        $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
+
+        push( @$appsArray, $appInfo );
+
+        if ( $idx == 0 ) {
+            $appsMap->{ $procInfo->{PID} } = $appInfo;
+        }
+        else {
+            #如果出现多个appInfo同一个进程号的情况，则是但进程多对象的情况，需要处理PID为不一样的PID
+            if ( defined( $appsMap->{ $procInfo->{PID} } ) ) {
+                my $realPid  = $procInfo->{REAL_PID};
+                my $realPpid = $procInfo->{REAL_PPID};
+                if ( not defined($realPid) ) {
+                    $realPid               = $procInfo->{PID};
+                    $realPpid              = $procInfo->{PPID};
+                    $procInfo->{REAL_PID}  = $realPid;
+                    $procInfo->{REAL_PPID} = $realPpid;
+                }
+                $procInfo->{PID}  = $procInfo->{REAL_PID} . '-' . $idx;
+                $procInfo->{PPID} = $procInfo->{REAL_PPID} . '-' . $idx;
+            }
+            $appsMap->{ $procInfo->{PID} } = $appInfo;
+        }
+
+        my $notProcess = $appInfo->{NOT_PROCESS};
+        if ( not defined($notProcess) ) {
+            if ( not defined( $appInfo->{PROC_INFO} ) ) {
+                $appInfo->{PROC_INFO} = $procInfo;
+            }
+            else {
+                $procInfo = $appInfo->{PROC_INFO};
+            }
+
+            $appInfo->{PID}     = $procInfo->{PID};
+            $appInfo->{COMMAND} = $procInfo->{COMMAND};
+
+            my $cpuLogicCores = $osInfo->{CPU_LOGIC_CORES};
+            $appInfo->{CPU_LOGIC_CORES} = $cpuLogicCores;
+            if ( $cpuLogicCores > 0 ) {
+                $appInfo->{CPU_USAGE} = int( ( $procInfo->{'%CPU'} + 0.0 ) * 100 / $cpuLogicCores ) / 100;
+            }
+            else {
+                $appInfo->{CPU_USAGE} = $procInfo->{'%CPU'} + 0.0;
+            }
+
+            if ( $osType eq 'Windows' ) {
+                $appInfo->{MEM_USED} = $procInfo->{MEMSIZE} + 0.0;
+                if ( not defined( $appInfo->{MEM_USAGE} ) and $osInfo->{MEM_TOTAL} > 0 ) {
+                    $appInfo->{MEM_USAGE} = int( $appInfo->{MEM_SIZE} * 10000 / $osInfo->{MEM_TOTAL} ) / 100;
+                }
+            }
+            else {
+                $appInfo->{MEM_USED}  = int( ( $procInfo->{'%MEM'} + 0.0 ) * $osInfo->{MEM_TOTAL} ) / 100;
+                $appInfo->{MEM_USAGE} = $procInfo->{'%MEM'} + 0.0;
+            }
+        }
+
+        my $envMap      = delete( $procInfo->{ENVIRONMENT} );
+        my $insNamePath = $envMap->{TS_INSNAME};
+        if ( defined($insNamePath) and $insNamePath ne '' ) {
+            my @insPaths = split( '/', $insNamePath );
+            if ( scalar(@insPaths) > 1 ) {
+                $appInfo->{BELONG_APPLICATION} = [
+                    {
+                        _OBJ_CATEGORY => 'APPLICATION',
+                        _OBJ_TYPE     => 'APPLICATION',
+                        APP_NAME      => $insPaths[0],
+                    }
+                ];
+                $appInfo->{BELONG_APPLICATION_MODULE} = [
+                    {
+                        _OBJ_CATEGORY  => 'APPLICATION',
+                        _OBJ_TYPE      => 'APPLICATION_MODULE',
+                        APP_NAME       => $insPaths[0],
+                        APPMODULE_NAME => $insPaths[1],
+                    }
+                ];
+            }
+            else {
+                $appInfo->{BELONG_APPLICATION}        = [];
+                $appInfo->{BELONG_APPLICATION_MODULE} = [];
+            }
+        }
+
+        if ( not defined( $appInfo->{PK} ) ) {
+            my $pkConfig = CollectObjCat->getPK($objCat);
+            if ( defined($pkConfig) ) {
+                $appInfo->{PK} = $pkConfig;
+            }
+            else {
+                $appInfo->{PK} = [ 'MGMT_IP', 'PORT' ];
+                print("ERROR: $objType PK not defined for obj catetory:$objCat.\n");
+            }
+        }
+
+        my @envEntries = ();
+        while ( my ( $envName, $envVal ) = each(%$envMap) ) {
+            push( @envEntries, { NAME => $envName, VALUE => $envVal } );
+        }
+        if ( scalar(@envEntries) > 0 ) {
+            $appInfo->{MAIN_ENV} = \@envEntries;
+        }
+
+        #如果采集器自身未定义RUN_ON则自动添加
+        my $collectedRunOn = $appInfo->{RUN_ON};
+        if ( not defined($collectedRunOn) ) {
+            $appInfo->{RUN_ON} = [
+                {
+                    '_OBJ_CATEGORY' => 'OS',
+                    '_OBJ_TYPE'     => $osType,
+                    'OS_ID'         => $procInfo->{OS_ID},
+                    'MGMT_IP'       => $procInfo->{MGMT_IP}
+                }
+            ];
+        }
+        elsif ( scalar(@$collectedRunOn) == 0 ) {
+
+            #如果采集器定义了空的RUN_ON，代表不需要RUN_ON，可能是集群相关的采集，RUN_ON在多个OS上，无法全部采集
+            delete( $appInfo->{RUN_ON} );
+        }
+    }
+
+    return $isMatched;
+}
+
+#处理存在父子关系的进程的连接信息，并合并到父进程
+sub mergeMultiProcs {
+    my ( $self, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs ) = @_;
+
+    my $inspect  = $self->{inspect};
+    my $pidToDel = {};
+    my @apps     = ();
+    print("INFO: Begin to merge connection information with parent processes...\n");
+    foreach my $pid ( keys(%$appsMap) ) {
+        my $info = $appsMap->{$pid};
+        if ( not defined( $info->{_MULTI_PROC} ) ) {
+            next;
+        }
+
+        my $procInfo = $info->{PROC_INFO};
+
+        my $parentInfo = $appsMap->{ $procInfo->{PPID} };
+
+        my $currentInfo = $info;
+        my $objCat      = $currentInfo->{_OBJ_CATEGORY};
+        my $objType     = $currentInfo->{_OBJ_TYPE};
+
+        my $parentTopInfo;
+        while ( defined($parentInfo) and $parentInfo->{_OBJ_CATEGORY} eq $objCat and $parentInfo->{_OBJ_TYPE} eq $objType ) {
+            $parentTopInfo = $parentInfo;
+            $currentInfo   = $parentInfo;
+            $parentInfo    = $appsMap->{ $currentInfo->{PROC_INFO}->{PPID} };
+        }
+
+        if ( defined($parentTopInfo) ) {
+            $parentTopInfo->{CPU_USAGE} = $parentTopInfo->{CPU_USAGE} + $procInfo->{CPU_USAGE};
+            $parentTopInfo->{MEM_USAGE} = $parentTopInfo->{MEM_USAGE} + $procInfo->{MEM_USAGE};
+            $parentTopInfo->{MEM_USED}  = $parentTopInfo->{MEM_USED} + $procInfo->{MEM_USED};
+
+            if ( index( $pid, '-' ) < 0 ) {
+                my $maxOpenFilesCount = $self->getProcMaxOpenFilesCount($pid);
+                my $openFilesCount    = $self->getProcOpenFilesCount($pid);
+                my $openFilesRate     = 0;
+                if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
+                    $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+                }
+
+                my $openFilesInfo = $info->{OPEN_FILES_INFO};
+                if ( not defined($openFilesInfo) ) {
+                    $openFilesInfo = [];
+                    $info->{OPEN_FILES_INFO} = $openFilesInfo;
+                }
+                push( @$openFilesInfo, { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } );
+            }
+
+            $parentTopInfo->{OPEN_FILES_COUNT} = $parentTopInfo->{OPEN_FILES_COUNT} + $self->getProcOpenFilesCount($pid);
+
+            my $parentConnInfo  = $parentTopInfo->{PROC_INFO}->{CONN_INFO};
+            my $currentConnInfo = $procInfo->{CONN_INFO};
+
+            my $parentLsnInfo = $parentConnInfo->{LISTEN};
+            map { $parentLsnInfo->{$_} = 1 } keys( %{ $currentConnInfo->{LISTEN} } );
+
+            #把基于端口统计的显式、隐式监听IP合并到父进程
+            my $portInfoMap       = $currentConnInfo->{PORT_BIND};
+            my $parentPortInfoMap = $parentConnInfo->{PORT_BIND};
+            while ( my ( $port, $portInfo ) = each(%$portInfoMap) ) {
+                my $parentPortInfo = $parentPortInfoMap->{$port};
+                while ( my ( $key, $ipMap ) = each(%$portInfo) ) {
+                    map { $parentPortInfo->{$key}->{$_} = 1 } keys(%$ipMap);
+                }
+            }
+
+            my $parentPeerInfo = $parentConnInfo->{PEER};
+            map { $parentPeerInfo->{$_} = 1 } keys( %{ $currentConnInfo->{PEER} } );
+
+            #连接统计数据的合并
+            my $parentConnStats  = $parentConnInfo->{STATS};
+            my $currentConnStats = $currentConnInfo->{STATS};
+
+            $parentConnStats->{TOTAL_COUNT}       = $parentConnStats->{TOTAL_COUNT} + $currentConnStats->{TOTAL_COUNT};
+            $parentConnStats->{INBOUND_COUNT}     = $parentConnStats->{INBOUND_COUNT} + $currentConnStats->{INBOUND_COUNT};
+            $parentConnStats->{OUTBOUND_COUNT}    = $parentConnStats->{OUTBOUND_COUNT} + $currentConnStats->{OUTBOUND_COUNT};
+            $parentConnStats->{SYN_RECV_COUNT}    = $parentConnStats->{SYN_RECV_COUNT} + $currentConnStats->{SYN_RECV_COUNT};
+            $parentConnStats->{CLOSE_WAIT_COUNT}  = $parentConnStats->{CLOSE_WAIT_COUNT} + $currentConnStats->{CLOSE_WAIT_COUNT};
+            $parentConnStats->{RECV_QUEUED_COUNT} = $parentConnStats->{RECV_QUEUED_COUNT} + $currentConnStats->{RECV_QUEUED_COUNT};
+            $parentConnStats->{SEND_QUEUED_COUNT} = $parentConnStats->{SEND_QUEUED_COUNT} + $currentConnStats->{SEND_QUEUED_COUNT};
+            $parentConnStats->{RECV_QUEUED_SIZE}  = $parentConnStats->{RECV_QUEUED_SIZE} + $currentConnStats->{RECV_QUEUED_SIZE};
+            $parentConnStats->{SEND_QUEUED_SIZE}  = $parentConnStats->{SEND_QUEUED_SIZE} + $currentConnStats->{SEND_QUEUED_SIZE};
+
+            if ( $inspect == 1 ) {
+
+                #基于调用OutBound（目标）的统计信息合并
+                my $parentOutBoundStats  = $parentConnStats->{OUTBOUND_STATS};
+                my $currentOutBoundStats = $currentConnStats->{OUTBOUND_STATS};
+                while ( my ( $remoteAddr, $outBoundStat ) = each(%$currentOutBoundStats) ) {
+                    my $parentOutBoundStat = $parentOutBoundStats->{$remoteAddr};
+                    $parentOutBoundStat->{OUTBOUND_COUNT}   = $parentOutBoundStat->{OUTBOUND_COUNT} + $outBoundStat->{OUTBOUND_COUNT};
+                    $parentOutBoundStat->{SEND_QUEUED_SIZE} = $parentOutBoundStat->{SEND_QUEUED_SIZE} + $outBoundStat->{SEND_QUEUED_SIZE};
+                    $parentOutBoundStat->{SYN_SENT_COUNT}   = $parentOutBoundStat->{SYN_SENT_COUNT} + $outBoundStat->{SYN_SENT_COUNT};
+                }
+            }
+            $pidToDel->{$pid} = 1;
+
+        }
+        elsif ( index( $pid, '-' ) < 0 ) {
+            my $maxOpenFilesCount = $self->getProcMaxOpenFilesCount($pid);
+            my $openFilesCount    = $self->getProcOpenFilesCount($pid);
+            my $openFilesRate     = 0;
+            if ( defined($maxOpenFilesCount) and $maxOpenFilesCount > 0 ) {
+                $openFilesRate = int( $openFilesCount * 10000 / $maxOpenFilesCount ) / 100;
+            }
+            $info->{OPEN_FILES_INFO} = [ { PID => $pid, OPEN => $openFilesCount, MAX => $maxOpenFilesCount, RATE => $openFilesRate } ];
+        }
+    }
+    print("INFO: Connection information merged.\n");
+
+    #抽取所有的top层的进程，并对CONN_INFO信息进行整理，转换为数组的格式
+    #while ( my ( $pid, $appInfo ) = each(%$appsMap) ) {
+    foreach my $appInfo (@$appsArray) {
+        my $pid = $appInfo->{PROC_INFO}->{PID};
+        if ( not defined( $pidToDel->{$pid} ) ) {
+            my $procInfo = $appInfo->{PROC_INFO};
+            my $connInfo = {};
+            if ( defined($procInfo) ) {
+                $connInfo = $procInfo->{CONN_INFO};
+            }
+
+            my @lsnStats    = ();
+            my @lsnPorts    = ();
+            my @appLsnPorts = ();
+            while ( my ( $lsnAddr, $backlogQ ) = each( %{ $connInfo->{LISTEN} } ) ) {
+                push( @lsnPorts,    $lsnAddr );
+                push( @appLsnPorts, { ADDR => $lsnAddr } );
+                push( @lsnStats,    { ADDR => $lsnAddr, QUEUED => $backlogQ } );
+            }
+            $connInfo->{LISTEN} = \@lsnPorts;
+            if ( not defined( $appInfo->{LISTEN} ) ) {
+                $appInfo->{LISTEN} = \@appLsnPorts;
+            }
+
+            my $minPort      = 65535;
+            my $insPort      = $appInfo->{PORT};
+            my $portsMap     = {};
+            my $bindAddrsMap = {};
+            my @bindAddrs    = ();
+            if ( defined($insPort) and $insPort ne '' ) {
+                $portsMap->{$insPort} = 1;
+            }
+            foreach my $lsnPort (@lsnPorts) {
+                if ( $lsnPort !~ /:\d+$/ ) {
+                    $lsnPort = int($lsnPort);
+                    if ( $lsnPort < $minPort ) {
+                        $minPort = $lsnPort;
+                    }
+                    $portsMap->{$lsnPort} = 1;
+                    foreach my $ipInfo (@$ipAddrs) {
+                        $bindAddrsMap->{"$ipInfo->{IP}:$lsnPort"} = 1;
+                    }
+                    foreach my $ipInfo (@$ipv6Addrs) {
+                        $bindAddrsMap->{"$ipInfo->{IP}:$lsnPort"} = 1;
+                    }
+                }
+                else {
+                    $bindAddrsMap->{$lsnPort} = 1;
+                    push( @bindAddrs, $lsnPort );
+                    my $myPort = $lsnPort;
+                    $myPort =~ s/^.*://;
+                    $myPort = int($myPort);
+                    if ( $myPort < $minPort ) {
+                        $minPort = $myPort;
+                    }
+                    $portsMap->{$myPort} = 1;
+                }
+            }
+            @bindAddrs = keys(%$bindAddrsMap);
+            $connInfo->{BIND} = \@bindAddrs;
+
+            #把connInfo中的PEER信息，区分开local ip和远端IP，分开存放
+            my @localPeerAddrs  = ();
+            my @remotePeerAddrs = ();
+            foreach my $rAddr ( keys( %{ $connInfo->{PEER} } ) ) {
+                if ( $rAddr =~ /^127\./ or $rAddr =~ /^::1:/ ) {
+                    push( @localPeerAddrs, $rAddr );
+                }
+                else {
+                    push( @remotePeerAddrs, $rAddr );
+                }
+            }
+            $connInfo->{PEER}       = \@remotePeerAddrs;
+            $connInfo->{LOCAL_PEER} = \@localPeerAddrs;
+            delete( $procInfo->{CONN_INFO} );
+
+            #TCP连接统计信息中的比率指标统计
+            my $connStats = $connInfo->{STATS};
+            if ( $connStats->{TOTAL_COUNT} > 0 ) {
+                $connStats->{RECV_QUEUED_RATE}     = int( $connStats->{RECV_QUEUED_COUNT} * 10000 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{SEND_QUEUED_RATE}     = int( $connStats->{SEND_QUEUED_COUNT} * 10000 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{RECV_QUEUED_SIZE_AVG} = int( $connStats->{RECV_QUEUED_SIZE} * 100 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+                $connStats->{SEND_QUEUED_SIZE_AVG} = int( $connStats->{SEND_QUEUED_SIZE} * 100 / $connStats->{TOTAL_COUNT} + 0.5 ) / 100;
+            }
+
+            #TCP OutBound连接的比率指标统计
+            if ( $inspect == 1 ) {
+                while ( my ( $remoteAddr, $outBoundStat ) = each( %{ $connStats->{OUTBOUND_STATS} } ) ) {
+                    if ( $outBoundStat->{OUTBOUND_COUNT} > 0 ) {
+                        $outBoundStat->{SEND_QUEUED_RATE}     = int( $outBoundStat->{SEND_QUEUED_RATE} * 10000 / $outBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
+                        $outBoundStat->{SEND_QUEUED_SIZE_AVG} = int( $outBoundStat->{SEND_QUEUED_SIZE} * 100 / $outBoundStat->{OUTBOUND_COUNT} + 0.5 ) / 100;
+                    }
+                }
+            }
+
+            #重新整理连接统计数据，从CONN_INFO中抽离出来CONN_STATS和CONN_OUTBOUND_STATS
+            my @outBoundStats = ();
+            while ( my ( $remoteAddr, $outBoundStat ) = each( %{ $connStats->{OUTBOUND_STATS} } ) ) {
+                $outBoundStat->{REMOTE_ADDR} = $remoteAddr;
+                push( @outBoundStats, $outBoundStat );
+            }
+            delete( $connStats->{OUTBOUND_STATS} );
+
+            if ( scalar(@bindAddrs) > 0 ) {
+                $appInfo->{CONN_OUTBOUND_STATS} = \@outBoundStats;
+                my $inBoundStats = delete( $connInfo->{STATS} );
+                if ( defined($inBoundStats) ) {
+                    $appInfo->{CONN_STATS} = $inBoundStats;
+                }
+                else {
+                    $appInfo->{CONN_STATS} = [];
+                }
+
+                $appInfo->{LISTEN_STATS} = \@lsnStats;
+
+                $appInfo->{CONN_INFO} = $connInfo;
+
+                if ( $minPort < 65535 and not defined( $appInfo->{PORT} ) ) {
+                    $appInfo->{PORT} = $minPort;
+                }
+
+                #把SERVICE_PORTS格式从Map转换为可以支持导入的数组类型(应用实例提供的服务)
+                my $insObjCat   = CollectObjCat->get('INS');
+                my $dbInsObjCat = CollectObjCat->get('DBINS');
+                my $objCat      = $appInfo->{_OBJ_CATEGORY};
+
+                my @servicePortsArray = ();
+                my $servicePorts      = $appInfo->{SERVICE_PORTS};
+                if ( defined($servicePorts) ) {
+
+                    #如果存在服务端口，则加入SERVICE_PORTS对象
+                    while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
+                        push(
+                            @servicePortsArray,
+                            {
+                                _OBJ_CATEGORY => $objCat,
+                                _OBJ_TYPE     => 'Service-Ports',
+                                NAME          => $svcName,
+                                PORT          => $svcPort
+                            }
+                        );
+                    }
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
+                }
+                if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
+
+                    #如果是应用实例，补充其他监听的端口（未知协议或服务名）
+                    foreach my $svcPort ( keys(%$portsMap) ) {
+                        if ( not defined( $servicePorts->{$svcPort} ) ) {
+                            push(
+                                @servicePortsArray,
+                                {
+                                    _OBJ_CATEGORY => $objCat,
+                                    _OBJ_TYPE     => 'Service-Ports',
+                                    NAME          => $svcPort,
+                                    PORT          => $svcPort
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            #估算主业务IP和VIP，如果有特殊情况
+            #需要定制修改ProcessFinder的方法predictBizIp（应用的VIP和主业务IP）, OSGatherBase的方法getBizIp（主机业务IP）
+            if ( not defined( $appInfo->{PRIMARY_IP} ) or not defined( $appInfo->{VIP} ) ) {
+                my ( $bizIp, $vip ) = $self->predictBizIp( $connInfo, $minPort );
+                if ( not defined( $appInfo->{PRIMARY_IP} ) ) {
+                    $appInfo->{PRIMARY_IP} = $bizIp;
+                }
+                if ( not defined( $appInfo->{VIP} ) ) {
+                    $appInfo->{VIP} = $vip;
+                }
+            }
+
+            $appInfo->{UPTIME} = $procInfo->{ELAPSED};
+
+            #如果是非进程类别的信息采集信息，则清除PROC_INFO
+            if ( delete( $appInfo->{NOT_PROCESS} ) ) {
+                delete( $appInfo->{PROC_INFO} );
+            }
+            delete( $connInfo->{PORT_BIND} );
+
+            push( @apps, $appInfo );
+        }
+    }
+
+    return \@apps;
 }
 
 sub findProcess {
-    my ($self) = @_;
+    my ( $self, $pidsInContainer, $containerId ) = @_;
     print("INFO: Begin to find and match processes.\n");
-    my $callback     = $self->{callback};
+
+    #my $callback = $self->{callback};
+
     my @matchedProcs = ();
+
     my $chldOut;
     open( $chldOut, $self->{listProcCmd} . '|' );
     if ( defined($chldOut) ) {
@@ -314,66 +945,66 @@ sub findProcess {
                     }
                 }
 
-                $matchedMap->{COMMAND} = join( ' ', @vars );
-                my $envMap;
                 my $myPid = $matchedMap->{PID};
 
-                #容器进程只采集容器信息
-                my ( $isContainer, $containerType ) = $self->isProcInContainer( $matchedMap->{PID} );
-                if ($isContainer) {
-                    $matchedMap->{_CONTAINERTYPE} = $containerType;
-                    $config->{className}          = "$containerType" . "Collector";
-                    if ( $self->{containner} == 0 ) {
+                #容器内的进程不做单独采集
+                if ( defined($pidsInContainer) ) {
+                    if ( not defined( $pidsInContainer->{$myPid} ) ) {
                         next;
                     }
+                    $matchedMap->{CONTAINER_ID} = $containerId;
                 }
-                else {
+                elsif ( $self->isProcInContainer($myPid) == 1 ) {
+                    next;
+                }
 
-                    if ( defined($psAttrs) ) {
-                        my $psAttrVal;
-                        foreach my $attr ( keys(%$psAttrs) ) {
-                            my $attrVal = $psAttrs->{$attr};
-                            $psAttrVal = $matchedMap->{$attr};
-                            if ( $attrVal ne $psAttrVal ) {
+                $matchedMap->{COMMAND} = join( ' ', @vars );
+                my $envMap;
+
+                if ( defined($psAttrs) ) {
+                    my $psAttrVal;
+                    foreach my $attr ( keys(%$psAttrs) ) {
+                        my $attrVal = $psAttrs->{$attr};
+                        $psAttrVal = $matchedMap->{$attr};
+                        if ( $attrVal ne $psAttrVal ) {
+                            $isMatched = 0;
+                            last;
+                        }
+                    }
+                }
+
+                if ( $isMatched == 0 ) {
+                    next;
+                }
+
+                if ( defined($envAttrs) ) {
+                    my $envAttrVal;
+                    foreach my $attr ( keys(%$envAttrs) ) {
+                        my $attrVal = $envAttrs->{$attr};
+                        if ( not defined($envMap) ) {
+                            $envMap = $self->getProcEnv($myPid);
+                        }
+
+                        $envAttrVal = $envMap->{$attr};
+
+                        if ( not defined($envAttrVal) ) {
+                            $isMatched = 0;
+                            last;
+                        }
+
+                        if ( not defined($attrVal) or $attrVal eq '' ) {
+                            if ( defined($envAttrVal) ) {
+                                next;
+                            }
+                            else {
                                 $isMatched = 0;
                                 last;
                             }
                         }
-                    }
 
-                    if ( $isMatched == 0 ) {
-                        next;
-                    }
-
-                    if ( defined($envAttrs) ) {
-                        my $envAttrVal;
-                        foreach my $attr ( keys(%$envAttrs) ) {
-                            my $attrVal = $envAttrs->{$attr};
-                            if ( not defined($envMap) ) {
-                                $envMap = $self->getProcEnv($myPid);
-                            }
-
-                            $envAttrVal = $envMap->{$attr};
-
-                            if ( not defined($envAttrVal) ) {
-                                $isMatched = 0;
-                                last;
-                            }
-
-                            if ( not defined($attrVal) or $attrVal eq '' ) {
-                                if ( defined($envAttrVal) ) {
-                                    next;
-                                }
-                                else {
-                                    $isMatched = 0;
-                                    last;
-                                }
-                            }
-
-                            if ( $envAttrVal !~ /$attrVal/ ) {
-                                $isMatched = 0;
-                                last;
-                            }
+                        if ( $envAttrVal !~ /$attrVal/ ) {
+                            $isMatched = 0;
+                            last;
                         }
                     }
                 }
@@ -393,17 +1024,6 @@ sub findProcess {
                 $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
                 push( @matchedProcs, { className => $config->{className}, procMap => $matchedMap } );
                 last;
-
-                # my $matched = &$callback( $config->{className}, $matchedMap, $self );
-                # if ( $matched == 1 ) {
-                #     $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
-                #     $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
-                #     if ( defined( $matchedMap->{ELAPSED} ) ) {
-                #         $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
-                #     }
-                #     $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
-                #     last;
-                # }
             }
         }
 
@@ -418,7 +1038,7 @@ sub findProcess {
         foreach my $matchedProc (@matchedProcs) {
             my $matchedMap = $matchedProc->{procMap};
             my $className  = $matchedProc->{className};
-            my $matched    = &$callback( $className, $matchedMap, $self );
+            my $matched    = $self->doDetailCollect( $className, $matchedMap );
             if ( $matched == 1 ) {
                 $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
                 $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
@@ -452,6 +1072,11 @@ sub getProcess {
         IP_ADDRS   => $self->{ipAddrs},
         IPV6_ADDRS => $self->{ipv6Addrs}
     };
+
+    my $containerId = $args{containerId};
+    if ( defined($containerId) ) {
+        $procInfo->{CONTAINER_ID} = $containerId;
+    }
 
     my ($chldOut);
     open( $chldOut, "$self->{listProcCmdByPid} $pid |" );

@@ -20,7 +20,7 @@ sub new {
     $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
 
-    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
+    #$self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     $self->{procConnStats}   = {};
     my ( $lsnBackLogMap, $lsnPortsMap ) = $self->getListenPorts();
     $self->{lsnPortsMap}   = $lsnPortsMap;
@@ -30,23 +30,23 @@ sub new {
     return $self;
 }
 
-sub getCPULogicCoreCount {
-    my ($self) = @_;
+# sub getCPULogicCoreCount {
+#     my ($self) = @_;
 
-    my $cpuLogicCores = 0;
-    my $utils         = $self->{collectUtils};
-    my $prtConfLines  = $utils->getCmdOutLines('prtconf');
-    foreach my $line (@$prtConfLines) {
-        if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
-            if ( $1 eq 'Number Of Processors' ) {
-                $cpuLogicCores = int($2);
-                last;
-            }
-        }
-    }
+#     my $cpuLogicCores = 0;
+#     my $utils         = $self->{collectUtils};
+#     my $prtConfLines  = $utils->getCmdOutLines('prtconf');
+#     foreach my $line (@$prtConfLines) {
+#         if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
+#             if ( $1 eq 'Number Of Processors' ) {
+#                 $cpuLogicCores = int($2);
+#                 last;
+#             }
+#         }
+#     }
 
-    return $cpuLogicCores;
-}
+#     return $cpuLogicCores;
+# }
 
 sub findSockPid {
     my ( $self, $sockAddr ) = @_;
