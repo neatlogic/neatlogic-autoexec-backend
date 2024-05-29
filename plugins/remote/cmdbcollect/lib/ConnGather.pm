@@ -10,10 +10,14 @@ use POSIX qw(uname);
 our $_INSTANCES = {};
 
 sub new {
-    my ( $type, $inspect ) = @_;
+    my ( $type, $inspect, $newInstance ) = @_;
 
-    #实现单态
-    my $instance = $_INSTANCES->{$type};
+    my $instance;
+    if ( not defined($newInstance) ) {
+
+        #实现单态
+        $instance = $_INSTANCES->{$type};
+    }
 
     if ( not defined($instance) ) {
         my @uname  = uname();
@@ -35,7 +39,9 @@ sub new {
             our @ISA = ($gatherClass);
             $instance = $gatherClass->new($inspect);
         }
-        $_INSTANCES->{$type} = $instance;
+        if ( not defined($newInstance) ) {
+            $_INSTANCES->{$type} = $instance;
+        }
     }
 
     return $instance;

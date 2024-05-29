@@ -217,7 +217,14 @@ sub getClusterDB {
                             VIP           => $nodeInfo->{VIP},
                             PORT          => $miniPort,
                             SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort,
-                            RAC_CLUSTER   => [
+                            RUN_ON        => [
+                                {
+                                    '_OBJ_CATEGORY' => 'OS',
+                                    '_OBJ_TYPE'     => $nodeInfo->{_OBJ_TYPE},
+                                    'MGMT_IP'       => $nodeInfo->{IP}
+                                }
+                            ],
+                            RAC_CLUSTER => [
                                 _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
                                 _OBJ_TYPE     => 'DBCluster',
                                 _APP_TYPE     => 'Oracle',
@@ -823,8 +830,7 @@ sub collectRAC {
         foreach my $instance (@$instances) {
             my $collectInstance = {};
             map { $collectInstance->{$_} = $instance->{$_} } keys(%$instance);
-            $collectInstance->{NOT_PROCESS}            = 1;
-            $collectInstance->{RUN_ON}                 = [];
+            $collectInstance->{NOT_PROCESS} = 1;
             $instanceMap->{ $collectInstance->{NAME} } = $collectInstance;
         }
     }

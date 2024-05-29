@@ -102,7 +102,7 @@ sub collectHostOSInfo {
 
     my ( $hostInfo, $osInfo );
     if ( not defined($collectClassMap) or defined( $collectClassMap->{OS} ) ) {
-        print("INFO: Begin to collect OS information...\n");
+        print("INFO: Begin to collect $osType OS information...\n");
         my $osGather = OSGather->new( $ignoreOsInfo, $inspect );
         ( $hostInfo, $osInfo ) = $osGather->collect();
         if ( defined($hostInfo) ) {

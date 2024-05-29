@@ -497,6 +497,7 @@ sub collectCDB {
     $dbInfo->{DBID}          = $insInfo->{DBID};
 
     $dbInfo->{NAME} = $dbName;
+	$dbInfo->{DB_NAME} = $dbName;
 
     #采集instance对应的DB，可能是CDB或者是普通的DB
     if ( $insInfo->{IS_CDB} ) {
@@ -560,7 +561,7 @@ sub collectCDB {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'DB-CONNECT',
                 SERVICE_NAME  => $serviceInfo->{SERVICE_NAME},
-                USER_NAME     => $userInfo->{USER_NAME}
+                USER_NAME     => $userInfo->{NAME}
             };
             push( @dbConns, $connInfo );
         }
@@ -628,7 +629,7 @@ sub collectPDB {
             $pdb->{_APP_TYPE}     = 'Oracle-PDB';
             $pdb->{IS_CDB}        = 0;
             $pdb->{CDB}           = $dbName;
-
+            $pdb->{DB_NAME}       = $row->{NAME};
             $pdb->{NOT_PROCESS} = 1;
             $pdb->{RUN_ON}      = [];
 
@@ -672,7 +673,7 @@ sub collectPDB {
                             _OBJ_CATEGORY => CollectObjCat->get('DB'),
                             _OBJ_TYPE     => 'DB-CONNECT',
                             SERVICE_NAME  => $row->{NAME},
-                            USER_NAME     => $pdb->{ $user->{USER_NAME} }
+                            USER_NAME     => $user->{NAME}
                         }
                     );
                 }
@@ -868,7 +869,8 @@ sub getClusterDB {
         my $dbInfo = {
             _OBJ_CATEGORY => CollectObjCat->get('DB'),
             _OBJ_TYPE     => 'Oracle-DB',
-            NAME          => $dbName
+            NAME          => $dbName,
+            DB_NAME       => $dbName
         };
 
         my $miniPort    = 65535;
@@ -932,11 +934,13 @@ sub getClusterDB {
                             PORT          => $miniPort,
                             SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort,
                             RAC_CLUSTER   => [
-                                _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-                                _OBJ_TYPE     => 'DBCluster',
-                                _APP_TYPE     => 'Oracle',
-                                UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
-                                NAME          => $racInfo->{NAME}
+                                                {
+                                                    _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+                                                    _OBJ_TYPE     => 'DBCluster',
+                                                    _APP_TYPE     => 'Oracle',
+                                                    UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
+                                                    NAME          => $racInfo->{NAME}
+                                                }
                             ]
                         }
                     );
@@ -1555,7 +1559,7 @@ sub collectRAC {
                 PPID => $collectDatabase->{PROC_INFO}->{PPID}
             };
             $collectInstance->{NOT_PROCESS}            = 1;
-            $collectInstance->{RUN_ON}                 = [];
+            #$collectInstance->{RUN_ON}                 = [];
             $instanceMap->{ $collectInstance->{NAME} } = $collectInstance;
         }
     }

@@ -264,7 +264,7 @@ sub read_file {
 
     my $fh;
     open( $fh, $filename ) or die "Can't open [$filename]: $!";
-    binmode( $fh, $binmode || ':utf8' );
+    binmode( $fh );
     my $text = join( '', <$fh> );
     close($fh);
 
@@ -345,7 +345,7 @@ sub read_file_with_include {
 
     my $fh;
     open( $fh, $filename ) or die "Can't open [$filename]: $!";
-    binmode( $fh, $binmode || ':utf8' );
+    binmode( $fh );
 
     #my $text = join('', <$fh>);
     if ( not defined($confDir) ) {

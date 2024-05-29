@@ -1303,7 +1303,7 @@ class RunNode:
                 remotePath = remoteRoot + "/" + op.opBunddleName
                 if op.opBunddleName == "":
                     remotePath = remoteRoot
-                remoteLibPath = "%s/lib" % (remotePath)
+                remoteLibPath = remotePath
 
                 runEnv = {
                     "AUTOEXEC_JOBID": self.context.jobId,
@@ -1562,7 +1562,7 @@ class RunNode:
             remotePath = "{}/{}".format(remoteRoot, op.opBunddleName)
             if op.opBunddleName == "":
                 remotePath = remoteRoot
-            remoteLibPath = "%s/lib" % (remotePath)
+            remoteLibPath = remotePath
 
             remoteEnv = ""
             insPath = os.getenv("INS_PATH")
