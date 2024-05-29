@@ -105,14 +105,14 @@ sub collect {
             while ( $dbNameInfo =~ /name\s+(\S+)/sg ) {
                 my $dbName  = $1;
                 my @dbUsers = ();
-
+				my @dbConns  = ();
                 my $userInfo = $self->getCmdOut( qq{echo "select * from sysusers"|dbaccess $dbName\@$insName}, $user );
                 while ( $userInfo =~ /username\s+(\S+)/g ) {
                     my $user = $1;
                     push(
                         @insUsers,
                         {
-                            _OBJ_CATEGORY => 'DBINS',
+                            _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
                             _OBJ_TYPE     => 'DB-USER',
                             NAME          => $user,
                         }
@@ -121,9 +121,19 @@ sub collect {
                     push(
                         @dbUsers,
                         {
-                            _OBJ_CATEGORY => 'DB',
+                            _OBJ_CATEGORY => CollectObjCat->get('DB'),
                             _OBJ_TYPE     => 'DB-USER',
                             NAME          => $user,
+                        }
+                    );
+					
+					push(
+                        @dbConns,
+                        {
+                            _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                            _OBJ_TYPE     => 'DB-CONNECT',
+                            USER_NAME     => $user,
+							SERVICE_NAME  => $dbName
                         }
                     );
                 }
@@ -149,6 +159,7 @@ sub collect {
                         SSL_PORT      => undef,
                         SERVICE_ADDR  => $insInfo->{SERVICE_ADDR},
                         USERS         => \@dbUsers,
+                        CONNECTIONS   => \@dbConns,
                         CHARSET       => $charset,
                         INSTANCES     => [
                             {

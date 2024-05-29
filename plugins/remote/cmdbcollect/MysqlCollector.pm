@@ -99,6 +99,7 @@ sub getUserGrants {
             $user2DBsMap->{$dbName} = 1;
             my $db2UsersMap = $dbGrantedUserMap->{$dbName};
             $db2UsersMap->{$userName} = 1;
+            $dbGrantedUserMap->{$dbName} = $db2UsersMap;
         }
     }
 
@@ -328,6 +329,7 @@ sub collect {
         $dbInfo->{_OBJ_TYPE}             = 'Mysql-DB';
         $dbInfo->{_APP_TYPE}             = 'Mysql';
         $dbInfo->{NAME}                  = $dbName;
+        $dbInfo->{DB_NAME}               = $dbName;
         $dbInfo->{SERVICE_NAME}          = $dbName;
         $dbInfo->{DEFAULT_CHARACTER_SET} = $row->{DEFAULT_CHARACTER_SET_NAME};
         $dbInfo->{DEFAULT_COLLATION}     = $row->{DEFAULT_COLLATION_NAME};
@@ -349,27 +351,26 @@ sub collect {
         my @dbUserInfos = ();
         my @dbConns     = ();
         my $dbUsers     = $db2UsersMap->{$dbName};
-        if ( defined($dbUsers) ) {
-            foreach my $dbUser (@$dbUsers) {
-                push(
-                    @dbUserInfos,
-                    {
-                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                        _OBJ_TYPE     => 'DB-USER',
-                        NAME          => $dbUser
-                    }
-                );
+        my @dbUserNames = keys(%$dbUsers);
+        foreach my $dbUser (@dbUserNames) {
+            push(
+                @dbUserInfos,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $dbUser
+                }
+            );
 
-                push(
-                    @dbConns,
-                    {
-                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                        _OBJ_TYPE     => 'DB-CONNECT',
-                        SERVICE_NAME  => $dbName,
-                        USER_NAME     => $dbUser
-                    }
-                );
-            }
+            push(
+                @dbConns,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE     => 'DB-CONNECT',
+                    SERVICE_NAME  => $dbName,
+                    USER_NAME     => $dbUser
+                }
+            );
         }
 
         $dbInfo->{USERS}       = \@dbUserInfos;
