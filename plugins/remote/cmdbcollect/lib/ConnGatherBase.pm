@@ -8,6 +8,7 @@ use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use CollectUtils;
+use NSSwitcher;
 
 sub new {
     my ( $type, $inspect ) = @_;
@@ -22,42 +23,6 @@ sub new {
     return $self;
 }
 
-sub setNsTarget {
-    my ( $self, $nsTarget ) = @_;
-    $self->{nsTarget} = $nsTarget;
-}
-
-sub unsetNsTarget {
-    my ($self) = @_;
-    $self->{nsTarget} = undef;
-}
-
-# sub getCPULogicCoreCount {
-#     my ($self) = @_;
-
-#     my $utils = $self->{collectUtils};
-
-#     my $cpuCount     = 0;
-#     my $cpuInfoLines = $utils->getFileLines('/proc/cpuinfo');
-#     my $pCpuMap      = {};
-#     my $cpuInfo      = {};
-#     for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
-#         my $line = $$cpuInfoLines[$i];
-#         $line =~ s/^\s*|\s*$//g;
-#         if ( $line ne '' ) {
-#             my @info = split( /\s*:\s*/, $line );
-#             $cpuInfo->{ $info[0] } = $info[1];
-#             if ( $info[0] eq 'physical id' ) {
-#                 $pCpuMap->{ $info[1] } = 1;
-#             }
-#         }
-#     }
-#     my $cpuCount      = scalar( keys(%$pCpuMap) );
-#     my $cpuLogicCores = $cpuCount * $cpuInfo->{siblings};
-
-#     return $cpuLogicCores;
-# }
-
 sub parseListenLines {
     my ( $self, %args ) = @_;
     my $cmd         = $args{cmd};
@@ -69,6 +34,7 @@ sub parseListenLines {
     my $portsMap = {};
     my $status   = 0;
     my $pipe;
+
     my $pipePid = open( $pipe, $cmd );
     if ( defined($pipe) ) {
         my $line;
@@ -131,9 +97,11 @@ sub parseListenLines {
 
 sub parseConnLines {
     my ( $self, %args ) = @_;
-    print("INFO: Try to collect process connections.\n");
     my $cmd            = $args{cmd};
     my $pid            = $args{pid};
+
+    print("INFO: Try to collect process $pid connections.\n");
+
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $recvQIdx       = $args{recvQIdx};

@@ -402,6 +402,7 @@ sub collect {
     my $procInfo = $self->{procInfo};
     my $insInfo  = {};
     $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $insInfo->{_MULTI_PROC}   = 1;
     $insInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
 
     my $db2InstUser = $procInfo->{USER};

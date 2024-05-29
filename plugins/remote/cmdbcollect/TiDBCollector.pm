@@ -12,7 +12,7 @@ use BaseCollector;
 our @ISA = qw(BaseCollector);
 
 use Socket;
-use utf8;
+#use utf8;
 use JSON;
 use File::Spec;
 use File::Find;

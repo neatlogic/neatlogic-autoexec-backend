@@ -14,6 +14,8 @@ use Cwd qw(abs_path);
 use POSIX qw(uname);
 use JSON qw(from_json to_json);
 use CollectUtils;
+use NSSwitcher;
+use LinuxPS;
 
 sub new {
     my ( $type, $procFilters, %args ) = @_;
@@ -36,7 +38,6 @@ sub new {
     my $self = {
 
         #callback    => $args{callback},
-        nsTarget    => $args{nsTarget},
         inspect     => $args{inspect},
         connGather  => $args{connGather},
         appsMap     => {},
@@ -47,7 +48,7 @@ sub new {
         ipAddrs     => $args{ipAddrs},
         ipv6Addrs   => $args{ipv6Addrs},
         procEnvName => $args{procEnvName},
-        container  => $args{container}
+        container   => $args{container}
     };
 
     if ( not defined($procFilters) ) {
@@ -78,14 +79,10 @@ sub new {
         $self->{osId}     = $nodeInfo->{resourceId};
     }
 
+    $self->{LinuxPS}    = LinuxPS->new();
+
     my $utils = CollectUtils->new();
     $self->{utils} = $utils;
-
-    #设置connGather的nsTarget
-    if(defined($args{nsTarget}) and defined($args{connGather})){
-        my $connGather = $args{connGather};
-        $connGather->setNsTarget($args{nsTarget});
-    }
 
     #列出某个进程的信息，要求：前面的列的值都不能有空格，args（就是命令行）放后面，因为命令行有空格
     $self->{procEnvCmd} = 'ps eww';
@@ -122,8 +119,14 @@ sub convertEplapsed {
         $uptimeSeconds = int($uptimeSeconds);
     }
     else {
-        if ( $timeStr =~ /(\d+)-(\d+):(\d+):(\d+)/ ) {
+        if ( $timeStr =~ /^(\d+)-(\d+):(\d+):(\d+)$/ ) {
             $uptimeSeconds = 86400 * $1 + 3600 * $2 + 60 * $3 + $4;
+        }
+        elsif ( $timeStr =~ /^(\d+):(\d+):(\d+)$/ ) {
+            $uptimeSeconds = 3600 * $2 + 60 * $3 + $4;
+        }
+        else{
+            $uptimeSeconds = int($timeStr);
         }
     }
 
@@ -349,8 +352,6 @@ sub doDetailCollect {
     my $passArgs         = $self->{passArgs};
     my $osInfo           = $self->{osInfo};
     my $connGather       = $self->{connGather};
-
-    print("INFO: Os type:$osType\n");
 
     my $isMatched = 0;
     my $objCat;
@@ -884,175 +885,218 @@ sub mergeMultiProcs {
     return \@apps;
 }
 
-sub findProcess {
-    my ( $self, $pidsInContainer, $containerId ) = @_;
-    print("INFO: Begin to find and match processes.\n");
+sub processMatch {
+    my ( $self, $processAttrs ) = @_;
 
-    #my $callback = $self->{callback};
+    my $matchedProc;
 
-    my @matchedProcs = ();
+    my $procFilters  = $self->{procFilters};
+    my $filtersCount = $self->{filtersCount};
+    for ( my $i = 0 ; $i < $filtersCount ; $i++ ) {
+        my $myPid = $processAttrs->{PID};
 
-    my $chldOut;
-    open( $chldOut, $self->{listProcCmd} . '|' );
-    if ( defined($chldOut) ) {
-        my $procFilters  = $self->{procFilters};
-        my $filtersCount = $self->{filtersCount};
+        my $config   = $$procFilters[$i];
+        my $regExps  = $config->{regExps};
+        my $psAttrs  = $config->{psAttrs};
+        my $envAttrs = $config->{envAttrs};
 
-        my $line;
-        my $headLine = <$chldOut>;
-        $headLine =~ s/^\s*|\s*$//g;
-        $headLine =~ s/^.*?PID/PID/g;
-        my $cmdPos      = rindex( $headLine, ' ' );
-        my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
-        my $fieldsCount = scalar(@fields);
-        while ( $line = <$chldOut> ) {
-            for ( my $i = 0 ; $i < $filtersCount ; $i++ ) {
-                my $config   = $$procFilters[$i];
-                my $regExps  = $config->{regExps};
-                my $psAttrs  = $config->{psAttrs};
-                my $envAttrs = $config->{envAttrs};
+        $processAttrs->{_OBJ_TYPE} = $config->{objType};
 
-                my $isMatched = 1;
-                foreach my $pattern (@$regExps) {
-                    if ( $line !~ /$pattern/ ) {
+        my $isMatched = 1;
+        foreach my $pattern (@$regExps) {
+            if ( $processAttrs->{COMMAND} !~ /$pattern/ ) {
+                $isMatched = 0;
+                last;
+            }
+        }
+
+        if ( $isMatched == 0 ) {
+            next;
+        }
+
+        #容器内的进程不做单独采集
+        if ( $self->isProcInContainer($myPid) == 1 ) {
+            next;
+        }
+
+        my $envMap;
+        if ( defined($psAttrs) ) {
+            my $psAttrVal;
+            foreach my $attr ( keys(%$psAttrs) ) {
+                my $attrVal = $psAttrs->{$attr};
+                $psAttrVal = $processAttrs->{$attr};
+                if ( $attrVal ne $psAttrVal ) {
+                    $isMatched = 0;
+                    last;
+                }
+            }
+        }
+
+        if ( $isMatched == 0 ) {
+            next;
+        }
+
+        if ( defined($envAttrs) ) {
+            my $envAttrVal;
+            foreach my $attr ( keys(%$envAttrs) ) {
+                my $attrVal = $envAttrs->{$attr};
+                if ( not defined($envMap) ) {
+                    $envMap = $self->getProcEnv($myPid);
+                }
+
+                $envAttrVal = $envMap->{$attr};
+
+                if ( not defined($envAttrVal) ) {
+                    $isMatched = 0;
+                    last;
+                }
+
+                if ( not defined($attrVal) or $attrVal eq '' ) {
+                    if ( defined($envAttrVal) ) {
+                        next;
+                    }
+                    else {
                         $isMatched = 0;
                         last;
                     }
                 }
 
-                if ( $isMatched == 0 ) {
-                    next;
+                if ( $envAttrVal !~ /$attrVal/ ) {
+                    $isMatched = 0;
+                    last;
                 }
+            }
+        }
 
+        if ( $isMatched == 0 ) {
+            next;
+        }
+
+        if ( -e "/proc/$myPid/exe" ) {
+            $processAttrs->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
+        }
+        if ( not defined($envMap) ) {
+            $envMap = $self->getProcEnv($myPid);
+        }
+        $processAttrs->{ENVIRONMENT} = $envMap;
+
+        $self->{matchedProcsInfo}->{$myPid} = $processAttrs;
+
+        $matchedProc = { className => $config->{className}, procMap => $processAttrs };
+        last;
+    }
+
+    return $matchedProc;
+}
+
+sub findProcess {
+    my ( $self, $pidsInContainer, $containerId ) = @_;
+    print("INFO: Begin to find and match processes.\n");
+
+    my $ostype = $self->{ostype};
+
+    #my $callback = $self->{callback};
+    my @matchedProcs = ();
+    my $procFilters  = $self->{procFilters};
+    my $filtersCount = $self->{filtersCount};
+
+    if ( $ostype eq 'Linux' ) {
+        my $linuxPs       = $self->{LinuxPS};
+        my $processesList = $linuxPs->getProcessList();
+        foreach my $process (@$processesList) {
+
+            #PID PPID PGID USER GID RUSER RGID %CPU %MEM TIME ELAPSED COMM ARGS
+            my $processAttrs = {
+                OS_ID     => $self->{osId},
+                OS_TYPE   => $self->{ostype},
+                HOST_NAME => $self->{hostname},
+                MGMT_IP   => $self->{mgmtIp},
+                MGMT_PORT => $self->{mgmtPort},
+                PID       => $$process[0],
+                PPID      => $$process[1],
+                PGID      => $$process[2],
+                USER      => $$process[3],
+                GID       => $$process[4],
+                RUSER     => $$process[5],
+                RGID      => $$process[6],
+                '%CPU'    => $$process[7],
+                '%MEM'    => $$process[8],
+                TIME      => $$process[9],
+                ELAPSED   => $$process[10],
+                COMM      => $$process[11],
+                COMMAND   => $$process[12]
+            };
+            my $matchedProc = $self->processMatch($processAttrs);
+            if ( defined($matchedProc) ) {
+                push( @matchedProcs, $matchedProc );
+            }
+        }
+    }
+    else {
+        my $chldOut;
+        open( $chldOut, $self->{listProcCmd} . '|' );
+        if ( defined($chldOut) ) {
+            my $line;
+            my $headLine = <$chldOut>;
+            $headLine =~ s/^\s*|\s*$//g;
+            $headLine =~ s/^.*?PID/PID/g;
+            my $cmdPos      = rindex( $headLine, ' ' );
+            my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
+            my $fieldsCount = scalar(@fields);
+            while ( $line = <$chldOut> ) {
                 $line =~ s/^\s*|\s*$//g;
                 my @vars = split( /\s+/, $line );
 
-                my $matchedMap = {
+                my $processAttrs = {
                     OS_ID     => $self->{osId},
                     OS_TYPE   => $self->{ostype},
                     HOST_NAME => $self->{hostname},
                     MGMT_IP   => $self->{mgmtIp},
-                    MGMT_PORT => $self->{mgmtPort},
-                    _OBJ_TYPE => $config->{objType}
+                    MGMT_PORT => $self->{mgmtPort}
                 };
 
                 for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
                     if ( $fields[$i] eq 'COMMAND' ) {
-                        $matchedMap->{COMM} = shift(@vars);
+                        $processAttrs->{COMM} = shift(@vars);
                     }
                     else {
-                        $matchedMap->{ $fields[$i] } = shift(@vars);
+                        $processAttrs->{ $fields[$i] } = shift(@vars);
                     }
                 }
+                $processAttrs->{COMMAND} = join( ' ', @vars );
 
-                my $myPid = $matchedMap->{PID};
-
-                #容器内的进程不做单独采集
-                if ( defined($pidsInContainer) ) {
-                    if ( not defined( $pidsInContainer->{$myPid} ) ) {
-                        next;
-                    }
-                    $matchedMap->{CONTAINER_ID} = $containerId;
-                }
-                elsif ( $self->isProcInContainer($myPid) == 1 ) {
-                    next;
-                }
-
-                $matchedMap->{COMMAND} = join( ' ', @vars );
-                my $envMap;
-
-                if ( defined($psAttrs) ) {
-                    my $psAttrVal;
-                    foreach my $attr ( keys(%$psAttrs) ) {
-                        my $attrVal = $psAttrs->{$attr};
-                        $psAttrVal = $matchedMap->{$attr};
-                        if ( $attrVal ne $psAttrVal ) {
-                            $isMatched = 0;
-                            last;
-                        }
-                    }
-                }
-
-                if ( $isMatched == 0 ) {
-                    next;
-                }
-
-                if ( defined($envAttrs) ) {
-                    my $envAttrVal;
-                    foreach my $attr ( keys(%$envAttrs) ) {
-                        my $attrVal = $envAttrs->{$attr};
-                        if ( not defined($envMap) ) {
-                            $envMap = $self->getProcEnv($myPid);
-                        }
-
-                        $envAttrVal = $envMap->{$attr};
-
-                        if ( not defined($envAttrVal) ) {
-                            $isMatched = 0;
-                            last;
-                        }
-
-                        if ( not defined($attrVal) or $attrVal eq '' ) {
-                            if ( defined($envAttrVal) ) {
-                                next;
-                            }
-                            else {
-                                $isMatched = 0;
-                                last;
-                            }
-                        }
-
-                        if ( $envAttrVal !~ /$attrVal/ ) {
-                            $isMatched = 0;
-                            last;
-                        }
-                    }
-                }
-
-                if ( $isMatched == 0 ) {
-                    next;
-                }
-
-                if ( -e "/proc/$myPid/exe" ) {
-                    $matchedMap->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
-                }
-                if ( not defined($envMap) ) {
-                    $envMap = $self->getProcEnv($myPid);
-                }
-                $matchedMap->{ENVIRONMENT} = $envMap;
-
-                $self->{matchedProcsInfo}->{$myPid} = $matchedMap;
-                push( @matchedProcs, { className => $config->{className}, procMap => $matchedMap } );
-                last;
-            }
-        }
-
-        close($chldOut);
-        my $status = $?;
-
-        if ( $status != 0 ) {
-            print("ERROR: Get Process list failed.\n");
-            exit(1);
-        }
-
-        foreach my $matchedProc (@matchedProcs) {
-            my $matchedMap = $matchedProc->{procMap};
-            my $className  = $matchedProc->{className};
-            my $matched    = $self->doDetailCollect( $className, $matchedMap );
-            if ( $matched == 1 ) {
-                $matchedMap->{IP_ADDRS}   = $self->{ipAddrs};
-                $matchedMap->{IPV6_ADDRS} = $self->{ipv6Addrs};
-                if ( defined( $matchedMap->{ELAPSED} ) ) {
-                    $matchedMap->{ELAPSED} = $self->convertEplapsed( $matchedMap->{ELAPSED} );
+                my $matchedProc = $self->processMatch($processAttrs);
+                if ( defined($matchedProc) ) {
+                    push( @matchedProcs, $matchedProc );
                 }
             }
-        }
 
-        print("INFO: List all processes and find matched processes complete.\n");
+            close($chldOut);
+            my $status = $?;
+
+            if ( $status != 0 ) {
+                print("ERROR: Get Process list failed.\n");
+                exit(1);
+            }
+        }
+        else {
+            print("ERROR: Can not launch list process command:$self->{listProcCmd}\n");
+        }
     }
-    else {
-        print("ERROR: Can not launch list process command:$self->{listProcCmd}\n");
+
+    foreach my $matchedProc (@matchedProcs) {
+        my $procInfo = $matchedProc->{procMap};
+        my $className  = $matchedProc->{className};
+        my $matched    = $self->doDetailCollect( $className, $procInfo );
+        if ( $matched == 1 ) {
+            $procInfo->{IP_ADDRS}   = $self->{ipAddrs};
+            $procInfo->{IPV6_ADDRS} = $self->{ipv6Addrs};
+            if ( defined( $procInfo->{ELAPSED} ) ) {
+                $procInfo->{ELAPSED} = $self->convertEplapsed( $procInfo->{ELAPSED} );
+            }
+        }
     }
+    print("INFO: List all processes and find matched processes complete.\n");
 
     return $self->{appsMap};
 }
@@ -1060,12 +1104,13 @@ sub findProcess {
 sub getProcess {
     my ( $self, $pid, %args ) = @_;
 
+    my $ostype        = $self->{ostype};
     my $parseListen   = $args{parseListen};
     my $parseConnStat = $args{parseConnStat};
 
     my $procInfo = {
         OS_ID      => $self->{osId},
-        OS_TYPE    => $self->{ostype},
+        OS_TYPE    => $ostype,
         HOST_NAME  => $self->{hostname},
         MGMT_IP    => $self->{mgmtIp},
         MGMT_PORT  => $self->{mgmtPort},
@@ -1078,48 +1123,76 @@ sub getProcess {
         $procInfo->{CONTAINER_ID} = $containerId;
     }
 
-    my ($chldOut);
-    open( $chldOut, "$self->{listProcCmdByPid} $pid |" );
-    if ( defined($chldOut) ) {
+    if ( $ostype eq 'Linux' ) {
+        my $linuxPs = $self->{LinuxPS};
+        my $process = $linuxPs->_getProcess($pid);
 
-        my $headLine = <$chldOut>;
-        $headLine =~ s/^\s*|\s*$//g;
-        $headLine =~ s/^.*?PID/PID/g;
-        my $cmdPos      = rindex( $headLine, ' ' );
-        my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
-        my $fieldsCount = scalar(@fields);
+        if ( defined($process) ) {
 
-        my $line;
-        while ( $line = <$chldOut> ) {
-            $line =~ s/^\s*|\s*$//g;
-            my @vars = split( /\s+/, $line );
-
-            for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
-                if ( $fields[$i] eq 'COMMAND' ) {
-                    $procInfo->{COMM} = shift(@vars);
-                }
-                else {
-                    $procInfo->{ $fields[$i] } = shift(@vars);
-                }
-            }
-            $procInfo->{COMMAND} = join( ' ', @vars );
-            my $myPid = $procInfo->{PID};
-
-            if ( -e "/proc/$myPid/exe" ) {
-                $procInfo->{EXECUTABLE_FILE} = readlink("/proc/$myPid/exe");
-            }
-
-            my $envMap = $self->getProcEnv($myPid);
-            $procInfo->{ENVIRONMENT} = $envMap;
+            #PID PPID PGID USER GID RUSER RGID %CPU %MEM TIME ELAPSED COMM ARGS
+            $procInfo->{PID}     = $$process[0];
+            $procInfo->{PPID}    = $$process[1];
+            $procInfo->{PGID}    = $$process[2];
+            $procInfo->{USER}    = $$process[3];
+            $procInfo->{GID}     = $$process[4];
+            $procInfo->{RUSER}   = $$process[5];
+            $procInfo->{RGID}    = $$process[6];
+            $procInfo->{'%CPU'}  = $$process[7];
+            $procInfo->{'%MEM'}  = $$process[8];
+            $procInfo->{TIME}    = $$process[9];
+            $procInfo->{ELAPSED} = $$process[10];
+            $procInfo->{COMM}    = $$process[11];
+            $procInfo->{COMMAND} = $$process[12];
         }
+    }
+    else {
+        my ($chldOut);
+        open( $chldOut, "$self->{listProcCmdByPid} $pid |" );
+        if ( defined($chldOut) ) {
 
-        close($chldOut);
-        my $status = $?;
+            my $headLine = <$chldOut>;
+            $headLine =~ s/^\s*|\s*$//g;
+            $headLine =~ s/^.*?PID/PID/g;
+            my $cmdPos      = rindex( $headLine, ' ' );
+            my @fields      = split( /\s+/, substr( $headLine, 0, $cmdPos ) );
+            my $fieldsCount = scalar(@fields);
 
-        if ( $status != 0 ) {
-            print("WARN: Get Process $pid information failed.\n");
+            my $line;
+            while ( $line = <$chldOut> ) {
+                $line =~ s/^\s*|\s*$//g;
+                my @vars = split( /\s+/, $line );
+
+                for ( my $i = 0 ; $i < $fieldsCount ; $i++ ) {
+                    if ( $fields[$i] eq 'COMMAND' ) {
+                        $procInfo->{COMM} = shift(@vars);
+                    }
+                    else {
+                        $procInfo->{ $fields[$i] } = shift(@vars);
+                    }
+                }
+                $procInfo->{COMMAND} = join( ' ', @vars );
+            }
+
+            close($chldOut);
+            my $status = $?;
+
+            if ( $status != 0 ) {
+                print("WARN: Get Process $pid information failed.\n");
+                return undef;
+            }
+        }
+        else {
+            print("ERROR: Can not launch list process command:$self->{listProcCmdByPid}\n");
             return undef;
         }
+    }
+
+    if ( defined( $procInfo->{PID} ) ) {
+        if ( -e "/proc/$pid/exe" ) {
+            $procInfo->{EXECUTABLE_FILE} = readlink("/proc/$pid/exe");
+        }
+        my $envMap = $self->getProcEnv($pid);
+        $procInfo->{ENVIRONMENT} = $envMap;
 
         my $connGather = $self->{connGather};
         if ($parseListen) {
@@ -1136,13 +1209,12 @@ sub getProcess {
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
             }
         }
+
+        return $procInfo;
     }
     else {
-        print("ERROR: Can not launch list process command:$self->{listProcCmdByPid}\n");
-        return undef;
+        return;
     }
-
-    return $procInfo;
 }
 
 sub getListenPortInfo {

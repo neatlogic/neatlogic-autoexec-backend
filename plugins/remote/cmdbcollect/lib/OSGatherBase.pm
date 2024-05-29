@@ -12,6 +12,7 @@ use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use JSON qw(from_json to_json);
 
 use CollectUtils;
+use ConnGather;
 
 sub new {
     my ( $type, $justBaseInfo, $inspect ) = @_;

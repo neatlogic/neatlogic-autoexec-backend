@@ -152,11 +152,13 @@ sub collect {
     my $nginxInfo = $self->getNginxInsInfo($mainBlock);
     $nginxInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
     $nginxInfo->{_OBJ_TYPE}     = 'Nginx';
+    $nginxInfo->{_MULTI_PROC}   = 1;
     $nginxInfo->{SERVER_NAME}   = 'nginx';
-    $nginxInfo->{EXE_PATH}     = $exePath;
-    $nginxInfo->{BIN_PATH}     = $binPath;
-    $nginxInfo->{INSTALL_PATH} = $basePath;
-    $nginxInfo->{VERSION}      = $version;
+    $nginxInfo->{EXE_PATH}      = $exePath;
+    $nginxInfo->{BIN_PATH}      = $binPath;
+    $nginxInfo->{INSTALL_PATH}  = $basePath;
+    $nginxInfo->{VERSION}       = $version;
+
     if ( $version =~ /(\d+)/ ) {
         $nginxInfo->{MAJOR_VERSION} = "Nginx$1";
     }
@@ -426,14 +428,14 @@ sub getProxyPassMembers {
     return \@members;
 }
 
-
 sub getProxyPassBackendUpstreamMembers {
     my ( $self, $proxyPassVal, $upstreamsMap, $serverListenPorts ) = @_;
 
     my @upstreamList = ();
-    my $matched = 0;
+    my $matched      = 0;
     foreach my $upstreamName ( keys(%$upstreamsMap) ) {
         if ( $proxyPassVal =~ /\b$upstreamName\b/ ) {
+
             #如果匹配upstream的名称，则从upstream中找server member
             $matched = 1;
             my $upstreamServersList = $upstreamsMap->{$upstreamName}->{server};
@@ -451,20 +453,20 @@ sub getProxyPassBackendUpstreamMembers {
                         foreach my $listenPort (@$serverListenPorts) {
                             my $upstream = {};
                             $upstream->{'_OBJ_CATEGORY'} = "INS";
-                            $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
-                            $upstream->{'NAME'} = $upstreamName;
-                            $upstream->{'BACKEND_IP'} = $host;
-                            $upstream->{'BACKEND_PORT'} = $listenPort;
+                            $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
+                            $upstream->{'NAME'}          = $upstreamName;
+                            $upstream->{'BACKEND_IP'}    = $host;
+                            $upstream->{'BACKEND_PORT'}  = $listenPort;
                             push( @upstreamList, $upstream );
                         }
                     }
                     else {
                         my $upstream = {};
                         $upstream->{'_OBJ_CATEGORY'} = "INS";
-                        $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
-                        $upstream->{'NAME'} = $upstreamName;
-                        $upstream->{'BACKEND_IP'} = $host;
-                        $upstream->{'BACKEND_PORT'} = $port;
+                        $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
+                        $upstream->{'NAME'}          = $upstreamName;
+                        $upstream->{'BACKEND_IP'}    = $host;
+                        $upstream->{'BACKEND_PORT'}  = $port;
                         push( @upstreamList, $upstream );
                     }
                 }
@@ -473,6 +475,7 @@ sub getProxyPassBackendUpstreamMembers {
     }
 
     if ( $matched == 0 ) {
+
         #如果不匹配upstream的名称，则从proxy_pass本身抽取backend member
         if ( $proxyPassVal =~ /:\/\/([^\/]+)/ ) {
 
@@ -487,10 +490,10 @@ sub getProxyPassBackendUpstreamMembers {
                 }
                 my $upstream = {};
                 $upstream->{'_OBJ_CATEGORY'} = "INS";
-                $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
-                $upstream->{'NAME'} = $backendAddr;
-                $upstream->{'BACKEND_IP'} = $host;
-                $upstream->{'BACKEND_PORT'} = $port;
+                $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
+                $upstream->{'NAME'}          = $backendAddr;
+                $upstream->{'BACKEND_IP'}    = $host;
+                $upstream->{'BACKEND_PORT'}  = $port;
                 push( @upstreamList, $upstream );
             }
         }
@@ -507,10 +510,10 @@ sub getProxyPassBackendUpstreamMembers {
                 }
                 my $upstream = {};
                 $upstream->{'_OBJ_CATEGORY'} = "INS";
-                $upstream->{'_OBJ_TYPE'} = "NginxUpstream";
-                $upstream->{'NAME'} = $backendAddr;
-                $upstream->{'BACKEND_IP'} = $host;
-                $upstream->{'BACKEND_PORT'} = $port;
+                $upstream->{'_OBJ_TYPE'}     = "NginxUpstream";
+                $upstream->{'NAME'}          = $backendAddr;
+                $upstream->{'BACKEND_IP'}    = $host;
+                $upstream->{'BACKEND_PORT'}  = $port;
                 push( @upstreamList, $upstream );
             }
         }
@@ -671,7 +674,7 @@ sub getPrimaryIpAndPort {
         $vip = $pFinder->predictBizIp( $connInfo, $port );
     }
 
-    return ($vip, $port);
+    return ( $vip, $port );
 }
 
 sub getValueWithInherit {
@@ -683,8 +686,8 @@ sub getValueWithInherit {
     foreach my $confBlock (@confBlocks) {
         my $confVal = $confBlock->{$confName};
         if ( defined($confVal) and $confVal ne '' ) {
-            if (ref($confVal) eq 'ARRAY') {
-                   $confVal = join(' ' , @$confVal);
+            if ( ref($confVal) eq 'ARRAY' ) {
+                $confVal = join( ' ', @$confVal );
             }
             last;
         }
@@ -712,11 +715,12 @@ sub getHttpServers {
 
     my $serverList = $httpBlock->{server};
 
-    if ( ref($serverList) ne 'ARRAY' ){
-       #如果只有一个server，返回不是数组，转换成数组
-       $serverList = [$serverList];
+    if ( ref($serverList) ne 'ARRAY' ) {
+
+        #如果只有一个server，返回不是数组，转换成数组
+        $serverList = [$serverList];
     }
-	
+
     foreach my $serverBlock (@$serverList) {
         my @serverNames = split( /\s+/, $serverBlock->{server_name} );
         foreach my $serverName (@serverNames) {
@@ -758,8 +762,8 @@ sub getHttpServers {
                 LOCATIONS         => \@locationInfos
             };
             while ( my ( $uri, $locationBlock ) = each(%$locationsMap) ) {
-                my $proxyPassVal     = $locationBlock->{proxy_pass};
-                my $proxyPassMembers = [];
+                my $proxyPassVal           = $locationBlock->{proxy_pass};
+                my $proxyPassMembers       = [];
                 my $backendUpstreamMembers = [];
                 if ( defined($proxyPassVal) ) {
                     $proxyPassMembers = $self->getProxyPassMembers( $proxyPassVal, $upstreamsMap, $myListenPorts );

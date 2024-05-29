@@ -983,6 +983,7 @@ sub collectOsInfo {
         $self->getUpTime($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getOsServices($osInfo);
     }
 
     return $osInfo;
@@ -1358,6 +1359,44 @@ sub getKVMGuestOSUUIDs {
         }
     }
     $hostInfo->{GUESTOS_UUIDS} = \@uuids;
+}
+
+sub getOsServices {
+    my ($self, $osInfo) = @_;
+    my $connGather = ConnGather->new( $self->{inspect} );
+    my $connInfo    = $connGather->getListenInfo();
+    my $listenMap = $connInfo->{LISTEN};
+
+    my $svcPortsMap = {};
+    if(defined($listenMap)){
+        foreach my $lsnAddr (keys(%$listenMap)){
+            if($lsnAddr =~ /(\d+)/){
+                my $lsnPort = int($1);
+                if($lsnPort < 1024 and $lsnPort > 1){
+                    $svcPortsMap->{$lsnPort} = 1;
+                }
+            }
+        }
+    }
+
+    my @services = ();
+    my $servicesTxt = $self->getFileContent("/etc/services");
+    foreach my $line (split(/\n+/, $servicesTxt)){
+        if($line =~ /^\s*(\w+)\s+(\d+)\/(\w+)/){
+            my $svcName = $1;
+            my $port = int($2);
+            my $protocol = $3;
+            if($svcPortsMap->{$port}){
+                my $svcInfo = {
+                    NAME => $svcName,
+                    PORT => $port,
+                    PROTOCOL => $protocol
+                };
+                push(@services, $svcInfo);
+            }
+        }
+    }
+    $osInfo->{SERVICES} = \@services;
 }
 
 sub collectHostInfo {

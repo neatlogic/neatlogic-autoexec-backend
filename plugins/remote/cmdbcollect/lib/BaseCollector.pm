@@ -10,6 +10,7 @@ use File::Basename;
 use ConnGather;
 use CollectObjCat;
 use CollectUtils;
+use NSSwitcher;
 
 #参数：
 #procInfo：进程的基本信息，就是ps输出的各种字段
@@ -31,7 +32,10 @@ sub new {
     $self->{matchedProcsInfo} = $matchedProcsInfo;
     $self->{defaultObjType}   = $objType;
 
-    my $utils = CollectUtils->new();
+    my $nsTarget = $pFinder->{nsTarget};
+    $self->{nsTarget} = $nsTarget;
+
+    my $utils = CollectUtils->new($nsTarget);
     $self->{ostype}       = $utils->{ostype};
     $self->{collectUtils} = $utils;
 
@@ -145,6 +149,7 @@ sub isMainProcess {
 
     my $isMainProcess = 1;
 
+    my $pFinder = $self->{pFinder};
     my $procInfo         = $self->{procInfo};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
@@ -172,7 +177,7 @@ sub isMainProcess {
                 map { $parentPortBindInfo->{$_} = $portBindInfo->{$_} } keys(%$portBindInfo);
 
                 #Conn stat info是匹配后采集的，这里补充采集这部分信息
-                my $connGather = ConnGather->new();
+                my $connGather = $pFinder->{connGather};
                 my $statInfo   = $connGather->getStatInfo( $pid, $connInfo->{LISTEN}, 0 );
                 map { $connInfo->{$_} = $statInfo->{$_} } keys(%$statInfo);
 
@@ -183,7 +188,6 @@ sub isMainProcess {
                 }
                 map { $parentPeerInfo->{$_} = 1 } keys( %{ $connInfo->{PEER} } );
 
-                my $pFinder           = $self->{pFinder};
                 my $maxOpenFilesCount = $pFinder->getProcMaxOpenFilesCount($pid);
                 my $openFilesCount    = $pFinder->getProcOpenFilesCount($pid);
                 my $openFilesRate     = 0;

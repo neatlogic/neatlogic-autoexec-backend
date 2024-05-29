@@ -10,11 +10,6 @@ package DockerCollector;
 use BaseCollector;
 our @ISA = qw(BaseCollector);
 
-use ProcessFinder;
-use OSGather;
-use ConnGather;
-use ProcessFinder;
-
 use File::Spec;
 use File::Basename;
 use IO::File;
@@ -22,12 +17,18 @@ use CollectObjCat;
 use JSON;
 use HTTP::Tiny;
 
+use ProcessFinder;
+use OSGather;
+use ConnGather;
+use NSSwitcher;
+
 sub init {
     my ($self) = @_;
     $self->{http} = HTTP::Tiny->new(
         default_headers => {},
         timeout         => 5
     );
+    $self->{nsSwitcher} = NSSwitcher->new();
 }
 
 sub getConfig {
@@ -38,34 +39,6 @@ sub getConfig {
         envAttrs => {}
     };
 }
-
-# sub getContainerConn {
-#     my ( $self, $osPid, $containerId, $dockerInfo ) = @_;
-#     if ( not defined($dockerInfo) or not defined($osPid) or $osPid eq '' ) {
-#         next;
-#     }
-#     my $psList  = $self->getContainerProcesses( $osPid, $containerId );
-#     my $pFinder = ProcessFinder->new();
-#     foreach my $process (@$psList) {
-#         my $pid        = $process->{PID};
-#         my $connGather = ConnGather->new( $self->{inspect} );
-#         $connGather->setNsTarget($osPid);
-#         my $connInfo    = $connGather->getListenInfo($pid);
-#         my $portInfoMap = $pFinder->getListenPortInfo( $connInfo->{LISTEN} );
-#         $process->{PORT_BIND} = $portInfoMap;
-#         $process->{CONN_INFO} = $connInfo;
-#         my $statInfo = $connGather->getStatInfo( $pid, $connInfo->{LISTEN} );
-#     }
-#     $dockerInfo->{PROCESS} = $psList;
-
-#     my $connMap             = $self->mergeMultiProcs($psList);
-#     my $CONN_STATS          = $connMap->{ConnStats};
-#     my $CONN_OUTBOUND_STATS = $connMap->{OutBoundStat};
-#     $dockerInfo->{CONN_STATS}          = $CONN_STATS;
-#     $dockerInfo->{CONN_OUTBOUND_STATS} = $CONN_OUTBOUND_STATS;
-
-#     return $dockerInfo;
-# }
 
 sub getApiBaseUrl {
     my ( $self, $cmdLine ) = @_;
@@ -156,6 +129,8 @@ sub getContainerProcesses {
 sub getContainerDetail {
     my ( $self, $dockerInfo, $containerId ) = @_;
 
+    print("INFO: Begin to collect container $containerId.\n");
+
     #/v1.24/containers/97d1cae09135/json
     my $detailInfo = $self->callDockerApi("/containers/$containerId/json");
 
@@ -219,18 +194,21 @@ sub getContainerDetail {
 
     my @processes = ();
     my ( $prcoessList, $processMap ) = $self->getContainerProcesses( $dockerInfo, $containerId );
-    my $pFinder = $self->{pFinder};
+    my $pFinder  = $self->{pFinder};
+    my $nsTarget = $$prcoessList[0]->{PID};
 
     #获取收集网络信息的实现类
-    my $inspect    = $self->{inspect};
-    my $ipAddr     = $dockerInfo->{IPADDRESS};
-    my $connGather = ConnGather->new( $self->{inspect} );
+    my $inspect = $self->{inspect};
+    my $ipAddr  = $dockerInfo->{IPADDRESS};
+
+    my $nsSwitcher = $self->{nsSwitcher};
+    $nsSwitcher->joinNamespace($nsTarget);
+
+    my $connGather = ConnGather->new( $self->{inspect}, 1 );
 
     #取容器内第一个进程作为namespace target
-    my $nsTarget      = $$prcoessList[0]->{PID};
     my $dockerPFinder = ProcessFinder->new(
-        [],
-        nsTarget    => $nsTarget,
+        $pFinder->{procFilters},
         connGather  => $connGather,
         passArgs    => $pFinder->{passArgs},
         inspect     => $inspect,
@@ -242,12 +220,7 @@ sub getContainerDetail {
     );
     $dockerPFinder->{mgmtIp} = $ipAddr;
 
-    my $appsMap   = $dockerPFinder->findProcess( $processMap, $containerId );
-    my $appsArray = $dockerPFinder->{appsArray};
-
-    #处理存在父子关系的进程的连接信息，并合并到父进程
-    my $apps = $dockerPFinder->mergeMultiProcs( $appsArray, $appsMap, [$ipAddr], [] );
-    $dockerInfo->{APPS} = $apps;
+    my $appsMap = $dockerPFinder->findProcess( undef, $containerId );
 
     my $connInfo    = $connGather->getListenInfo();
     my $portInfoMap = $dockerPFinder->getListenPortInfo( $connInfo->{LISTEN} );
@@ -256,6 +229,14 @@ sub getContainerDetail {
     my $statInfo = $connGather->getStatInfo( undef, $connInfo->{LISTEN} );
     $connInfo->{PEER}  = $statInfo->{PEER};
     $connInfo->{STATS} = $statInfo->{STATS};
+
+    my $appsArray = $dockerPFinder->{appsArray};
+
+    #处理存在父子关系的进程的连接信息，并合并到父进程
+    my $apps = $dockerPFinder->mergeMultiProcs( $appsArray, $appsMap, [ { IP => $ipAddr } ], [] );
+    $dockerInfo->{APPS} = $apps;
+
+    $nsSwitcher->restoreNamespace();
 }
 
 sub getContainerStats {
@@ -338,12 +319,10 @@ sub collect {
     }
 
     #获取docker的通讯地址
+    print("INFO: Try to collect docker container detail information...\n");
     my $apiBaseUrl = $self->getApiBaseUrl();
     my $containers = $self->getAllContainers();
-
-    # if ( $self->{inspect} == 1 ) {
-    #     $self->getContainerConn( $osPid, $containerId, $docker );
-    # }
+    print("INFO: Docker container detail information collected.\n");
 
     return @$containers;
 }
