@@ -249,27 +249,41 @@ sub deployVersion {
     my $deployment       = $self->{deployment};
     my $defaultNamespace = $self->{namespace};
 
+    my @dplyYamlFiles = ();
     if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
-        if ( not -f "$dplyYamlFile" ) {
-            my $deployUtils = DeployUtils->new();
-            my $deployEnv   = $deployUtils->deployInit();
-            my $dirInfo     = $deployUtils->getDataDirStruct($deployEnv);
-            my $mirrorDir   = $dirInfo->{mirror};
-            my $appDistPath = $dirInfo->{appdist};
+        foreach my $aDplyYamlFile ( split( /\s*,\s*/, $dplyYamlFile ) ) {
+            if ( not -f $aDplyYamlFile ) {
+                my $deployUtils = DeployUtils->new();
+                my $deployEnv   = $deployUtils->deployInit();
+                my $dirInfo     = $deployUtils->getDataDirStruct($deployEnv);
+                my $mirrorDir   = $dirInfo->{mirror};
+                my $appDistPath = $dirInfo->{appdist};
 
-            if ( -f "$appDistPath/$dplyYamlFile" ) {
-                $dplyYamlFile = "$appDistPath/$dplyYamlFile";
-            }
-            elsif ( -f "$mirrorDir/$dplyYamlFile" ) {
-                $dplyYamlFile = "$mirrorDir/$dplyYamlFile";
+                my @files = glob("$appDistPath/$aDplyYamlFile");
+                if (@files) {
+                    push( @dplyYamlFiles, @files );
+                }
+                else {
+                    @files = glob("$mirrorDir/$aDplyYamlFile");
+                    if (@files) {
+                        push( @dplyYamlFiles, @files );
+                    }
+                    else {
+                        print("ERROR: Can not find yaml deploy file:$aDplyYamlFile in artifact directory $appDistPath or $mirrorDir.\n");
+                    }
+                }
+
             }
             else {
-                print("ERROR: Can not find yaml deploy file:$dplyYamlFile in artifact directory $appDistPath or $mirrorDir.\n");
+                push( @dplyYamlFiles, $aDplyYamlFile );
             }
+        }
+        if(not @dplyYamlFiles){
+            $self->{optionError} = 1;
+            print("ERROR: Can not find any file for: $dplyYamlFile.\n");
         }
     }
     else {
-        undef($dplyYamlFile);
         if ( not defined($name) or $name eq '' ) {
             print("ERROR: Must defind app name\n");
             $self->{optionError} = 1;
@@ -287,9 +301,14 @@ sub deployVersion {
 
     my $hasConfErr    = 0;
     my @resourceSpecs = ();
-    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
-        my $yamlDocs = YAML::Tiny->read($dplyYamlFile);
-        foreach my $resourceSpec (@$yamlDocs) {
+    if ( @dplyYamlFiles ) {
+        my @yamlDocs = ();
+        foreach my $aYamlFile (@dplyYamlFiles){
+            my $aYamlDocs = YAML::Tiny->read($aYamlFile);
+            push(@yamlDocs, @$aYamlDocs);
+        }
+        
+        foreach my $resourceSpec (@yamlDocs) {
             if ( not defined( $resourceSpec->{kind} ) ) {
                 $hasConfErr = 1;
                 print(qq{ERROR: Attribute "kind" not defined in yaml file.\n});
@@ -375,14 +394,14 @@ sub deployVersion {
                     $$containers[0]->{image} = $image;
                 }
                 else {
-                    $self->{optionError} = 1;
+                    $hasConfErr = 1;
                     print("ERROR: Deployments containers count are $containersCount, can not use name and image option to update deployment. Please use yaml config file.\n");
                 }
             }
             push( @resourceSpecs, $resourceSpec );
         }
     }
-    else {
+    else{
         my $resourceSpec = {
             apiVersion => 'apps/v1',
             kind       => 'Deployment',
@@ -405,7 +424,10 @@ sub deployVersion {
         push( @resourceSpecs, $resourceSpec );
     }
 
+
     if ( $hasConfErr == 0 ) {
+        my $result;
+
         foreach my $resourceSpec (@resourceSpecs) {
             my $kind       = $resourceSpec->{kind};
             my $apiVersion = $resourceSpec->{apiVersion};
@@ -426,7 +448,6 @@ sub deployVersion {
                 }
             }
 
-            my $result;
             if ($resExists) {
                 $result = $self->patchResource( $resourceSpec, $kind, $apiVersion, $namespace, $name );
             }
@@ -434,10 +455,13 @@ sub deployVersion {
                 $result = $self->createResource( $resourceSpec, $kind, $apiVersion, $namespace );
             }
             if ( not defined($result) ) {
+                $self->{hasError} = 1;
                 last;
             }
         }
         $self->refreshLiveData();
+
+        return $result;
     }
 }
 
@@ -476,7 +500,7 @@ sub rollbackDeployment {
                 my $bContainer = $$problemContainers[$j];
                 if ( $aContainer->{image} ne $bContainer->{image} ) {
                     $rollbackTargetContainers = $preContainers;
-                    $olderImageFound = 1;
+                    $olderImageFound          = 1;
                     last;
                 }
             }
@@ -498,7 +522,7 @@ sub rollbackDeployment {
                     }
                 }
             };
-            
+
             my $rc = $self->patchDeployment($resourceSpecs);
             if ( defined($rc) ) {
                 $self->refreshLiveData();

@@ -1386,7 +1386,7 @@
                 "--dplyyamlfile",
                 "/tmp/demo.yaml",
                 "--action",
-                "start",
+                "deploy",
                 "--autocreate",
                 "1",
                 "--name",

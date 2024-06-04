@@ -69,9 +69,30 @@
             "defaultValue": "patch"
         },
         {
+            "opt": "autocreate",
+            "name": "自动创建",
+            "help": "如资源对象不存在，则自动创建",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
             "opt": "dplyyamlfile",
             "name": "Deploy配置文件",
-            "help": "Deployment的yaml配置文件在制品库中的相对路径",
+            "help": "Yaml配置文件在制品库中的相对路径，如提供了文件，则下面其他属性名非必须",
             "type": "text",
             "required": "false",
             "validate": "",
@@ -82,7 +103,7 @@
             "name": "镜像",
             "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}"
         },
@@ -91,7 +112,7 @@
             "name": "应用名",
             "help": "K8S中定义的应用名",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
         },
@@ -100,7 +121,7 @@
             "name": "命令空间",
             "help": "应用所在的K8S命令空间",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
@@ -109,7 +130,7 @@
             "name": "部署名",
             "help": "K8S中定义的deployment名称",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
