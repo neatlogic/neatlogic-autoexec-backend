@@ -39,7 +39,7 @@ sub main {
     );
 
     if ( not defined($objType) or $objType eq '' ) {
-        $objType = 'Swtich';
+        $objType = 'Switch';
     }
 
     my $nodeInfo  = {};

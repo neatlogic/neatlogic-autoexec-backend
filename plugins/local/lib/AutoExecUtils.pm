@@ -97,7 +97,7 @@ sub saveLiveData {
     my ($outputData) = @_;
     my $outputPath = $ENV{LIVEDATA_PATH};
 
-    print("INFO: Try to save output to $outputPath.\n");
+    #print("INFO: Try to save output to $outputPath.\n");
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $outputDir = dirname($outputPath);
         if ( $outputDir ne '' and not -e $outputDir ) {
@@ -114,7 +114,7 @@ sub saveLiveData {
         }
     }
     else {
-        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n");
+        print("WARN: Could not save output file, because of environ LIVEDATA_PATH not defined.\n");
     }
 }
 

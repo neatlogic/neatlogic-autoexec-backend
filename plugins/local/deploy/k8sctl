@@ -2,13 +2,18 @@
 use strict;
 use FindBin;
 
+package K8sDeploy;
+
 use JSON;
-use YAML;
+use YAML::Tiny;
 use REST::Client;
 use Getopt::Long;
 use JSON qw(to_json from_json);
+use AnyEvent::HTTP;
+use URI::Escape qw(uri_escape);
 use POSIX qw(strftime);
 
+use WebCtl;
 use AutoExecUtils;
 use DeployUtils;
 
@@ -20,7 +25,6 @@ sub usage {
     print("\n");
     print("       --host:         k8s host, example:192.168.99.100\n");
     print("       --apiport:      k8s api port, example:8843\n");
-    print("       --mgmtport:     k8s web management port , example:30001\n");
     print("       --token:        k8s authenticate token\n");
     print("       --dplyyamlfile: k8s deployment yaml config file path(relative to artifact root dir)\n");
     print("       --image:        docker image, example:nginx:1.7.6\n");
@@ -28,212 +32,809 @@ sub usage {
     print("       --namespace:    k8s namespace, example:default\n");
     print("       --deployment:   k8s deployment: example:nginx-deployment\n");
     print("       --acton:        k8s deploy action patch|del\n");
+    print("       --autocreate:   auto create none exist deployment\n");
 
     exit(1);
 }
 
-sub doGet {
-    my ( $url, $headers ) = @_;
+sub new {
+    my ( $type, %args ) = @_;
+    my $self = \%args;
+    $self->{optionError} = 0;
+    $self->{hasError}    = 0;
+    $self->{tailLogPods} = {};
+    $self->{updateTime}  = time();
 
-    my $client = REST::Client->new();
-    $client->addHeader( 'Content-Type', 'application/json' );
-    if ( defined($headers) ) {
-        foreach my $keyName ( keys(%$headers) ) {
-            $client->addHeader( $keyName, $headers->{$keyName} );
+    my $webCtl = WebCtl->new();
+
+    #使用Header的基于token的认证
+    $webCtl->setHeaders(
+        {
+            'Authorization' => 'Bearer ' . $args{token},
+            'Content-Type'  => 'application/json'
+        }
+    );
+    $self->{webCtl} = $webCtl;
+
+    bless( $self, $type );
+    return $self;
+}
+
+# sub DESTROY {
+#     my ($self) = @_;
+#     my $tailLogPodsMap = $self->{tailLogPods};
+#     foreach my $podName ( keys(%$tailLogPodsMap) ) {
+#         my $guard = delete( $tailLogPodsMap->{$podName} );
+#         undef($guard);
+#     }
+# }
+sub getApiUrl {
+    my ( $self, $kind, $apiVersion, $namespace, $objName, $queryMap ) = @_;
+
+    my $baseUrl = $self->{baseUrl};
+    if ( not defined($namespace) or $namespace eq '' ) {
+        $namespace = $self->{namespace};
+    }
+
+    my $apiGroup;
+    if ( $apiVersion =~ /^(\w+)\/v\d+$/ ) {
+        $apiGroup = $1;
+    }
+
+    my $url;
+    if ( defined($apiGroup) ) {
+        $url = "$baseUrl/apis/$apiVersion/namespaces/$namespace/" . lc($kind) . 's';
+    }
+    else {
+        $url = "$baseUrl/api/$apiVersion/namespaces/$namespace/" . lc($kind) . 's';
+    }
+
+    if ( defined($objName) and $objName ne '' ) {
+        $url = $url . '/' . $objName;
+    }
+
+    if ( defined($queryMap) ) {
+        my $queryStr = '?';
+        while ( my ( $key, $value ) = each(%$queryMap) ) {
+            $queryStr = $queryStr . uri_escape($key) . '=' . uri_escape($value) . '&';
+        }
+        $queryStr = substr( $queryStr, 0, -1 );
+        $url      = $url . $queryStr;
+    }
+
+    return $url;
+}
+
+sub getResource {
+    my ( $self, $kind, $apiVersion, $namespace, $objName, $queryMap ) = @_;
+
+    my $webCtl = $self->{webCtl};
+    my $url    = $self->getApiUrl( $kind, $apiVersion, $namespace, $objName, $queryMap );
+
+    my $client = $webCtl->{restClient};
+
+    my $rc;
+    my $content;
+    eval {
+        $content = $webCtl->doRest( 'GET', $url );
+        $rc      = from_json($content);
+    };
+    if ($@) {
+        if ( $client->responseCode() eq 404 ) {
+            $content = $webCtl->convCharSet( $client->responseContent() );
+            $rc      = from_json($content);
+        }
+        else {
+            my $msg = $@;
+            $msg =~ s/ at .*?$//;
+            die($msg);
         }
     }
 
-    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
-    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
-    $client->GET($url);
-    my $data;
-    if ( $client->responseCode() ne 200 ) {
-        my $errMsg = $client->responseContent();
-        print("ERROR: Get restful api:$url failed, cause by:$errMsg\n");
-        exit(1);
-    }
-    else {
-        my $content = $client->responseContent();
-        $data = from_json($content);
-    }
-    return $data;
+    return $rc;
 }
 
-sub doPost {
-    my ( $url, $param, $headers ) = @_;
+sub patchResource {
+    my ( $self, $resourcePatch, $kind, $apiVersion, $namespace, $objName, $queryMap ) = @_;
 
-    my $client = REST::Client->new();
-    $client->addHeader( 'Content-Type', 'application/json' );
-    if ( defined($headers) ) {
-        foreach my $keyName ( keys(%$headers) ) {
-            $client->addHeader( $keyName, $headers->{$keyName} );
-        }
-    }
+    my $webCtl = $self->{webCtl};
+    my $url    = $self->getApiUrl( $kind, $apiVersion, $namespace, $objName, $queryMap );
 
-    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
-    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
-    $client->POST( $url, $param );
-    my $data;
-    if ( $client->responseCode() ne 200 ) {
-        my $errMsg = $client->responseContent();
-        print("ERROR: Get restful api:$url failed, cause by:$errMsg\n");
-        exit(1);
+    my $header = { Content_Type => 'application/strategic-merge-patch+json' };
+    $self->{updateTime} = time();
+    my $content = $webCtl->doRest( 'PATCH', $url, $resourcePatch, $header );
+    my $rc      = from_json($content);
+    if ( $rc->{kind} eq 'Status' ) {
+        $self->{hasError} = 1;
+        print( "ERROR: Patch resource $kind:$namespace/$objName failed, " . $rc->{message} . "\n" );
+        return;
     }
-    else {
-        my $content = $client->responseContent();
-        $data = from_json($content);
-    }
-    return $data;
+    return $rc;
 }
 
-sub login {
-    my ( $baseUrl, $token ) = @_;
+sub deleteResource {
+    my ( $self, $kind, $apiVersion, $namespace, $objName, $queryMap ) = @_;
 
-    my $csrfUrl = $baseUrl . "/api/v1/csrftoken/login";
-    my $csrfRes = doGet($csrfUrl);
-    my $csrf    = $csrfRes->{'token'};
+    my $webCtl = $self->{webCtl};
+    my $url    = $self->getApiUrl( $kind, $apiVersion, $namespace, $objName, $queryMap );
 
-    my $v1Url   = $baseUrl . "/api/v1/login";
-    my $param   = { 'token' => $token };
-    my $data    = to_json($param);
-    my $headers = { 'x-csrf-token' => $csrf };
+    $self->{updateTime} = time();
+    my $content = $webCtl->doRest( 'DELETE', $url );
+    my $rc      = from_json($content);
+    if ( $rc->{kind} eq 'Status' ) {
+        $self->{hasError} = 1;
+        print( "ERROR: Delete resource $kind:$namespace/$objName failed, " . $rc->{message} . "\n" );
+        return;
+    }
+    return $rc;
+}
 
-    my $res      = doPost( $v1Url, $data, $headers );
-    my $jweToken = $res->{'jweToken'};
-    return $jweToken;
+sub putResource {
+    my ( $self, $resource, $kind, $apiVersion, $namespace, $queryMap ) = @_;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->getApiUrl( $kind, $apiVersion, $namespace, undef, $queryMap );
+    my $objName = $resource->{metadata}->{name};
+
+    $self->{updateTime} = time();
+    my $content = $webCtl->doRest( 'PUT', $url, $resource );
+    my $rc      = from_json($content);
+    if ( $rc->{kind} eq 'Status' ) {
+        $self->{hasError} = 1;
+        print( "ERROR: Update resource $kind:$namespace/$objName failed, " . $rc->{message} . "\n" );
+        return;
+    }
+    return $rc;
+}
+
+sub createResource {
+    my ( $self, $resource, $kind, $apiVersion, $namespace, $queryMap ) = @_;
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->getApiUrl( $kind, $apiVersion, $namespace, undef, $queryMap );
+    my $objName = $resource->{metadata}->{name};
+
+    $self->{updateTime} = time();
+    my $content = $webCtl->doRest( 'POST', $url, $resource );
+    my $rc      = from_json($content);
+    if ( $rc->{kind} eq 'Status' ) {
+        $self->{hasError} = 1;
+        print( "ERROR: Create resource $kind:$namespace/$objName failed, " . $rc->{message} . "\n" );
+        return;
+    }
+    return $rc;
 }
 
 sub getDeployment {
-    my ( $baseUrl, $jwetoken, $namespace, $deploymentName ) = @_;
-    my $url     = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName";
-    my $headers = { 'jwetoken' => $jwetoken };
-    my $res     = doGet( $url, $headers );
-    return $res;
+    my ($self)     = @_;
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
+    my $rc         = $self->getResource( 'Deployment', 'apps/v1', $namespace, $deployment );
+
+    if ( $rc->{kind} eq 'Deployment' ) {
+        $self->{deploymentLabels} = $rc->{spec}->{selector}->{matchLabels};
+        $self->{replicas}         = $rc->{spec}->{replicas};
+        $self->{revision}         = $rc->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'};
+        my $lastConfJson = $rc->{metadata}->{annotations}->{'kubectl.kubernetes.io/last-applied-configuration'};
+        if ( defined($lastConfJson) and $lastConfJson ne '' ) {
+            $self->{lastConf} = from_json($lastConfJson);
+        }
+    }
+    elsif ( $rc->{kind} eq 'Status' ) {
+        print( 'WARN: ' . $rc->{message} . ".\n" );
+        return undef;
+    }
+    return $rc;
 }
 
-sub getRplicaset {
-    my ( $baseUrl, $jwetoken, $namespace, $deploymentName ) = @_;
-    my $newrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/newreplicaset";
-    my $headers  = { 'jwetoken' => $jwetoken };
-    my $newRes   = doGet( $newrsUrl, $headers );
+sub createDeployment {
+    my ( $self, $depoymentSpec ) = @_;
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
 
-    #历史副本只取最新1条
-    my $oldrsUrl = $baseUrl . "/api/v1/deployment/$namespace/$deploymentName/oldreplicaset?itemsPerPage=1&page=1&sortBy=d,creationTimestamp";
-    my $oldRes   = doGet( $oldrsUrl, $headers );
-
-    return ( $newRes, $oldRes );
+    return $self->createResource( $depoymentSpec, 'Deployment', 'apps/v1', $namespace );
 }
 
-sub getPods {
-    my ( $baseUrl, $jwetoken, $namespace, $podName ) = @_;
+sub patchDeployment {
+    my ( $self, $resourceSpecs ) = @_;
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
 
-    #pods数量上限最多100
-    my $url     = $baseUrl . "/api/v1/replicaset/$namespace/$podName/pod?itemsPerPage=100&page=1&sortBy=d,creationTimestamp";
-    my $headers = { 'jwetoken' => $jwetoken };
-    my $res     = doGet( $url, $headers );
-
-    return $res;
+    return $self->patchResource( $resourceSpecs, 'Deployment', 'apps/v1', $namespace, $deployment );
 }
 
-sub getRollUpdateInfo {
-    my ( $baseUrl, $token, $namespace, $deploymentName ) = @_;
-    my $data     = {};
-    my $jwetoken = login( $baseUrl, $token );
-    if ( defined($jwetoken) ) {
-        my $deployment = getDeployment( $baseUrl, $jwetoken, $namespace, $deploymentName );
-        if ( defined($deployment) ) {
-            $data->{'deployment'} = $deployment;
-        }
+sub deployVersion {
+    my ( $self, $dplyYamlFile, $name, $image, $autoCreate ) = @_;
 
-        my ( $newRs, $oldRs ) = getRplicaset( $baseUrl, $jwetoken, $namespace, $deploymentName );
+    my $deployment       = $self->{deployment};
+    my $defaultNamespace = $self->{namespace};
 
-        #最新副本
-        if ( defined($newRs) ) {
-            $data->{'newreplicaset'} = $newRs;
-            my $rsName = $newRs->{'objectMeta'}->{'name'};
-            my $pods   = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
-            if ( defined($pods) ) {
-                $data->{'newreplicaset'}->{'pod'} = $pods;
-            }
-            else {
-                $data->{'newreplicaset'}->{'pod'} = undef;
-            }
-        }
-        else {
-            $data->{'newreplicaset'} = undef;
-        }
+    my @dplyYamlFiles = ();
+    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
+        foreach my $aDplyYamlFile ( split( /\s*,\s*/, $dplyYamlFile ) ) {
+            if ( not -f $aDplyYamlFile ) {
+                my $deployUtils = DeployUtils->new();
+                my $deployEnv   = $deployUtils->deployInit();
+                my $dirInfo     = $deployUtils->getDataDirStruct($deployEnv);
+                my $mirrorDir   = $dirInfo->{mirror};
+                my $appDistPath = $dirInfo->{appdist};
 
-        #上个副本
-        if ( defined($oldRs) ) {
-            my $prevRs = $oldRs->{'replicaSets'};
-            if ( defined($prevRs) && scalar(@$prevRs) > 0 ) {
-                my $prevRsIns = @$prevRs[0];
-                $data->{'oldreplicaset'} = $prevRsIns;
-                my $rsName = $prevRsIns->{'objectMeta'}->{'name'};
-                my $pods   = getPods( $baseUrl, $jwetoken, $namespace, $rsName );
-                if ( defined($pods) ) {
-                    $data->{'oldreplicaset'}->{'pod'} = $pods;
+                my @files = glob("$appDistPath/$aDplyYamlFile");
+                if (@files) {
+                    push( @dplyYamlFiles, @files );
                 }
                 else {
-                    $data->{'oldreplicaset'}->{'pod'} = undef;
+                    @files = glob("$mirrorDir/$aDplyYamlFile");
+                    if (@files) {
+                        push( @dplyYamlFiles, @files );
+                    }
+                    else {
+                        print("ERROR: Can not find yaml deploy file:$aDplyYamlFile in artifact directory $appDistPath or $mirrorDir.\n");
+                    }
                 }
+
             }
             else {
-                $data->{'oldreplicaset'} = undef;
+                push( @dplyYamlFiles, $aDplyYamlFile );
             }
         }
-        else {
-            $data->{'oldreplicaset'} = undef;
+        if(not @dplyYamlFiles){
+            $self->{optionError} = 1;
+            print("ERROR: Can not find any file for: $dplyYamlFile.\n");
         }
     }
-    return $data;
-}
-
-sub getPrevVerImage {
-    my ( $client, $url, $image ) = @_;
-    my $preVerImage;
-    my $causeBy = '';
-    $client->GET($url);
-    if ( $client->responseCode() ne 200 ) {
-        my $errMsg = $client->responseContent();
-        $causeBy = "ERROR: Rollback application $image failed, cause by:$errMsg\n";
-    }
     else {
-        my $content    = $client->responseContent();
-        my $data       = from_json($content);
-        my $rsItems    = $data->{'items'};
-        my $imgMap     = {};
-        my $currentGen = 0;
-        foreach my $rs (@$rsItems) {
-            my $img;
-            my $containers = $rs->{'spec'}->{'template'}->{'spec'}->{'containers'};
-            my $gen        = int( $rs->{'metadata'}->{'generation'} );
-            foreach my $ct (@$containers) {
-                $img = $ct->{'image'};
-                if ( $image eq $img ) {
-                    $currentGen = $gen;
+        if ( not defined($name) or $name eq '' ) {
+            print("ERROR: Must defind app name\n");
+            $self->{optionError} = 1;
+        }
+        if ( not defined($image) or $image eq '' ) {
+            print("ERROR: Must defind docker image\n");
+            $self->{optionError} = 1;
+        }
+    }
+
+    if ( $self->{optionError} != 0 ) {
+        $self->{hasError} = 1;
+        return;
+    }
+
+    my $hasConfErr    = 0;
+    my @resourceSpecs = ();
+    if ( @dplyYamlFiles ) {
+        my @yamlDocs = ();
+        foreach my $aYamlFile (@dplyYamlFiles){
+            my $aYamlDocs = YAML::Tiny->read($aYamlFile);
+            push(@yamlDocs, @$aYamlDocs);
+        }
+        
+        foreach my $resourceSpec (@yamlDocs) {
+            if ( not defined( $resourceSpec->{kind} ) ) {
+                $hasConfErr = 1;
+                print(qq{ERROR: Attribute "kind" not defined in yaml file.\n});
+            }
+
+            if ( not defined( $resourceSpec->{apiVersion} ) ) {
+                $hasConfErr = 1;
+                print(qq{ERROR: Attribute "apiVersion" not defined in yaml file.\n});
+            }
+
+            if ( not defined( $resourceSpec->{metadata} ) ) {
+                $hasConfErr = 1;
+                print(qq{ERROR: Attribute "metadata" not defined in yaml file.\n});
+            }
+            else {
+                if ( not defined( $resourceSpec->{metadata}->{name} ) ) {
+                    print(qq{ERROR: Attribute "metadata.name" not defined in yaml file.\n});
+                }
+                if ( not defined( $resourceSpec->{metadata}->{labels} ) or not( %{ $resourceSpec->{metadata}->{labels} } ) ) {
+                    $hasConfErr = 1;
+                    print(qq{ERROR: Attribute "labels" not defined in yaml file.\n});
+                }
+            }
+
+            if ( not defined( $resourceSpec->{spec} ) ) {
+                $hasConfErr = 1;
+                print(qq{ERROR: Attribute "spec" not defined in yaml file.\n});
+            }
+            elsif ( $resourceSpec->{kind} eq 'Deployment' ) {
+                if ( defined( $self->{deployment} ) and $self->{deployment} ne '' ) {
+                    if ( not defined( $resourceSpec->{metadata} ) ) {
+                        $resourceSpec->{metadata} = {};
+                    }
+                    $resourceSpec->{metadata}->{name} = $self->{deployment};
+                }
+
+                if ( not defined( $resourceSpec->{spec}->{template} ) ) {
+                    $hasConfErr = 1;
+                    print(qq{ERROR: Attribute "spec.template" not defined in yaml file.\n});
+                }
+                else {
+                    if ( not defined( $resourceSpec->{spec}->{template}->{metadata} ) ) {
+                        $hasConfErr = 1;
+                        print(qq{ERROR: Attribute "spec.template.metadata" not defined in yaml file.\n});
+                    }
+                    else {
+                        my $labels = $resourceSpec->{spec}->{template}->{metadata}->{labels};
+                        if ( not defined($labels) or not(%$labels) ) {
+                            $hasConfErr = 1;
+                            print(qq{ERROR: Attribute "spec.template.metadata.labels" not defined in yaml file.\n});
+                        }
+                    }
+                }
+            }
+
+            if ( $hasConfErr == 1 ) {
+                $self->{hasError} = 1;
+                next;
+            }
+
+            if ( not defined( $resourceSpec->{metadata} ) or not defined( $resourceSpec->{metadata}->{namespace} ) ) {
+                $resourceSpec->{metadata}->{namespace} = $defaultNamespace;
+            }
+
+            if ( defined($image) and $image ne '' and $resourceSpec->{kinde} eq 'Deployment' ) {
+                my $containers      = $resourceSpec->{spec}->{template}->{spec}->{containers};
+                my $containersCount = scalar(@$containers);
+                if ( $containersCount == 0 ) {
+                    push(
+                        @$containers,
+                        {
+                            {
+                                image => $image
+                            }
+                        }
+                    );
+                }
+
+                if ( $containersCount == 1 ) {
+                    if ( defined($name) and $name ne '' ) {
+                        $$containers[0]->{name} = $name;
+                    }
+                    $$containers[0]->{image} = $image;
+                }
+                else {
+                    $hasConfErr = 1;
+                    print("ERROR: Deployments containers count are $containersCount, can not use name and image option to update deployment. Please use yaml config file.\n");
+                }
+            }
+            push( @resourceSpecs, $resourceSpec );
+        }
+    }
+    else{
+        my $resourceSpec = {
+            apiVersion => 'apps/v1',
+            kind       => 'Deployment',
+            metadata   => {
+                name => $deployment
+            },
+            spec => {
+                template => {
+                    spec => {
+                        containers => [
+                            {
+                                name  => $name,
+                                image => $image
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+        push( @resourceSpecs, $resourceSpec );
+    }
+
+
+    if ( $hasConfErr == 0 ) {
+        my $result;
+
+        foreach my $resourceSpec (@resourceSpecs) {
+            my $kind       = $resourceSpec->{kind};
+            my $apiVersion = $resourceSpec->{apiVersion};
+            my $name       = $resourceSpec->{metadata}->{name};
+            my $namespace  = $resourceSpec->{metadata}->{namespace};
+
+            my $resExists = 1;
+            my $rc        = $self->getResource( $kind, $apiVersion, $namespace, $name );
+            if ( $rc->{kind} eq 'Status' ) {
+                $resExists = 0;
+                if ($autoCreate) {
+                    print( 'WARN: ' . $rc->{message} . "\n" );
+                }
+                else {
+                    $self->{hasError} = 1;
+                    print( 'ERROR: ' . $rc->{message} . "\n" );
                     last;
                 }
             }
-            $imgMap->{$gen} = $img;
+
+            if ($resExists) {
+                $result = $self->patchResource( $resourceSpec, $kind, $apiVersion, $namespace, $name );
+            }
+            else {
+                $result = $self->createResource( $resourceSpec, $kind, $apiVersion, $namespace );
+            }
+            if ( not defined($result) ) {
+                $self->{hasError} = 1;
+                last;
+            }
         }
-        my $prevGen = $currentGen + 1;
-        $preVerImage = $imgMap->{$prevGen};
-        if ( not defined($preVerImage) or $preVerImage eq '' ) {
-            $causeBy = "ERROR: Rollback application $image failed, cause by: can not found history version.\n";
-        }
+        $self->refreshLiveData();
+
+        return $result;
     }
-    return ( $preVerImage, $causeBy );
 }
 
-sub main {
-    my ( $host, $apiPort, $managerPort, $token );
-    my ( $dplyYamlFile, $image, $name, $namespace, $deployment, $action, $timeout );
+sub rollbackDeployment {
+    my ( $self, $resourceSpecs ) = @_;
+    my $deployment = $self->{deployment};
 
+    my $deployInfo     = $self->getDeployment();
+    my $replicasetList = $self->getDeploymentReplicasets($deployInfo);
+    my $replicasCount  = scalar(@$replicasetList);
+    if ( @$replicasetList < 2 ) {
+        print("WARN: There is no revision history for deployment $deployment, can not rollback.\n");
+    }
+    else {
+        my $problemReplica         = $$replicasetList[0];
+        my $problemName            = $problemReplica->{metadata}->{name};
+        my $problemNamespace       = $problemReplica->{metadata}->{namespace};
+        my $problemContainers      = $problemReplica->{spec}->{template}->{spec}->{containers};
+        my $problemContainersCount = scalar(@$problemContainers);
+
+        #找出最近的一个image不一样的版本的Pod
+        my $rollbackTargetContainers;
+        my $preReplica;
+        for ( my $i = 1 ; $i < $replicasCount ; $i++ ) {
+            $preReplica = $$replicasetList[$i];
+            my $preContainers = $preReplica->{spec}->{template}->{spec}->{containers};
+
+            my $preContainersCount = scalar(@$preContainers);
+            if ( $problemContainersCount != $preContainersCount ) {
+                last;
+            }
+
+            my $olderImageFound = 0;
+            for ( my $j = 0 ; $j < $preContainersCount ; $j++ ) {
+                my $aContainer = $$preContainers[$j];
+                my $bContainer = $$problemContainers[$j];
+                if ( $aContainer->{image} ne $bContainer->{image} ) {
+                    $rollbackTargetContainers = $preContainers;
+                    $olderImageFound          = 1;
+                    last;
+                }
+            }
+            if ( $olderImageFound == 1 ) {
+                last;
+            }
+        }
+
+        if ( defined($preReplica) ) {
+            my $preName      = $preReplica->{metadata}->{name};
+            my $preNamespace = $preReplica->{metadata}->{namespace};
+
+            my $resourceSpecs = {
+                spec => {
+                    template => {
+                        spec => {
+                            containers => $rollbackTargetContainers
+                        }
+                    }
+                }
+            };
+
+            my $rc = $self->patchDeployment($resourceSpecs);
+            if ( defined($rc) ) {
+                $self->refreshLiveData();
+                print("INFO: Try to delete replica set $preName.\n");
+                $self->deleteResource( 'ReplicaSet', 'apps/v1', $problemNamespace, $problemName );
+                print("INFO: Replica set $preName deleted.\n");
+            }
+            return $rc;
+        }
+        else {
+            print("ERROR: Can not find different pre image in replica set history.\n");
+        }
+    }
+}
+
+sub zeroReplicas {
+    my ($self) = @_;
+
+    my $deployInfo = $self->getDeployment();
+
+    if ( $deployInfo->{spec}->{replicas} > 0 ) {
+        my $annotations = $deployInfo->{metadata}->{annotations};
+
+        my $metadata = $deployInfo->{metadata};
+        delete( $metadata->{managedFields} );
+        $metadata->{annotations} = {};
+        $deployInfo->{status}    = {};
+
+        $annotations->{'kubectl.kubernetes.io/last-applied-configuration'} = to_json($deployInfo);
+        my $resourceSpecs = {
+
+            metadata => {
+                annotations => $annotations
+            },
+            spec => {
+                replicas => 0
+            }
+        };
+
+        my $rc = $self->patchDeployment($resourceSpecs);
+        $self->refreshLiveData();
+        return $rc;
+    }
+}
+
+sub resumeReplicas {
+    my ($self) = @_;
+
+    my $deployInfo    = $self->getDeployment();
+    my $preReplicas   = $self->{lastConf}->{spec}->{replicas};
+    my $resourceSpecs = {
+        spec => {
+            replicas => $preReplicas
+        }
+    };
+    my $rc = $self->patchDeployment($resourceSpecs);
+    $self->refreshLiveData();
+    return $rc;
+}
+
+sub restartDeployment {
+    my ($self) = @_;
+
+    my $deployInfo = $self->getDeployment();
+
+    my $resourceSpecs = {
+        spec => {
+            metadata => {
+                annotations => {
+                    'kubectl.kubernetes.io/restartedAt' => strftime( "%Y-%m-%d %H:%M:%S", localtime() )
+                }
+            }
+        }
+    };
+
+    my $rc = $self->patchDeployment($resourceSpecs);
+    $self->refreshLiveData();
+    return $rc;
+}
+
+sub getDeploymentDetail {
+    my ($self) = @_;
+
+    my $webCtl     = $self->{webCtl};
+    my $baseUrl    = $self->{baseUrl};
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
+
+    my $data       = {};
+    my $deployInfo = $self->getDeployment();
+    $data->{deployment} = $deployInfo;
+
+    my $replicasetList = $self->getDeploymentReplicasets($deployInfo);
+    foreach my $replicasetInfo (@$replicasetList) {
+        $replicasetInfo->{pods} = $self->getReplicasetPods( $replicasetInfo->{spec}->{selector}->{matchLabels} );
+    }
+    $data->{replicasets} = $replicasetList;
+
+    return $data;
+}
+
+sub refreshLiveData {
+    my ($self) = @_;
+
+    my $action     = $self->{action};
+    my $timeout    = $self->{timeout};
+    my $deployment = $self->{deployment};
+    my $startTime  = time();
+
+    my $data = {};
+
+    my $deployInfo = $self->getDeployment();
+    $data->{deployment} = $deployInfo;
+
+    while (1) {
+        my $replicasetList  = $self->getDeploymentReplicasets($deployInfo);
+        my $replicasetCount = scalar(@$replicasetList);
+        for ( my $i = 0 ; $i < 2 and $i < $replicasetCount ; $i++ ) {
+            my $replicasetInfo = $$replicasetList[$i];
+            $replicasetInfo->{pods} = $self->getReplicasetPods( $replicasetInfo->{spec}->{selector}->{matchLabels} );
+        }
+
+        my $replicasetsCount = scalar(@$replicasetList);
+        if ( $replicasetsCount > 0 ) {
+            $data->{newreplicaset} = $$replicasetList[0];
+        }
+        if ( $replicasetsCount > 1 ) {
+            $data->{oldreplicaset} = $$replicasetList[1];
+        }
+        else {
+            $data->{oldreplicaset} = {};
+        }
+
+        AutoExecUtils::saveLiveData( { k8s_data => $data } );
+        my $replicas;
+        my $runningReplicas = 0;
+        if (@$replicasetList) {
+            $replicas = $$replicasetList[0]->{status}->{replicas};
+            my $pods = $$replicasetList[0]->{pods};
+            foreach my $pod (@$pods) {
+                if ( $pod->{status}->{phase} eq 'Running' ) {
+                    $runningReplicas = $runningReplicas + 1;
+                }
+            }
+            $self->tailPodsLog($pods);
+
+            if ( $runningReplicas == $replicas ) {
+                last;
+            }
+        }
+        if ( time() - $startTime > $timeout ) {
+            print("ERROR: Perform action $action for $deployment timeout.\n");
+            $self->{hasError} = 1;
+            last;
+        }
+
+        #等待5秒,因为使用了AnyEvent，不能使用sleep来延时，否则会破环AnyEvent的事件循环
+        my $timerFired = AnyEvent->condvar;
+        my $w          = AnyEvent->timer(
+            after => 5,
+            cb    => sub { $timerFired->send() },
+        );
+        $timerFired->recv();
+        ###
+    }
+
+    #最后等待2秒,因为使用了AnyEvent，不能使用sleep来延时，否则会破环AnyEvent的事件循环
+    my $timerFired = AnyEvent->condvar;
+    my $w          = AnyEvent->timer(
+        after => 5,
+        cb    => sub { $timerFired->send() },
+    );
+    $timerFired->recv();
+    ###
+}
+
+sub getDeploymentReplicasets {
+    my ( $self, $deployInfo ) = @_;
+    my $webCtl     = $self->{webCtl};
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
+
+    my $labels        = $deployInfo->{spec}->{selector}->{matchLabels};
+    my $labelSelector = join( ',', map { $_ . '=' . $labels->{$_} } keys(%$labels) );
+
+    #my $url           = "$baseUrl/apis/apps/v1/namespaces/$namespace/replicasets?labelSelector=$labelSelector";
+    my $url = $self->getApiUrl( 'Replicaset', 'apps/v1', $namespace, undef, { labelSelector => $labelSelector } );
+
+    my $content = $webCtl->doRest( 'GET', $url );
+    my $rc      = from_json($content);
+
+    my @replicasets = ();
+
+    if ( $rc->{kind} eq 'ReplicaSetList' ) {
+
+        sub sortReplicaset($$) {
+            my ( $a, $b ) = @_;
+            my $aRevision = 0;
+            my $bRevision = 0;
+            if ( defined( $a->{metadata} ) and defined( $a->{metadata}->{annotations} ) ) {
+                $aRevision = $a->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'};
+            }
+            if ( defined( $b->{metadata} ) and defined( $b->{metadata}->{annotations} ) ) {
+                $bRevision = $b->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'};
+            }
+            return $bRevision <=> $bRevision;
+        }
+        my $replicasetList = $rc->{items};
+        my @replicasets    = sort sortReplicaset (@$replicasetList);
+
+        return \@replicasets;
+    }
+    else {
+        print( 'WARN: ' . $rc->{message} . "\n" );
+        return [];
+    }
+}
+
+sub getReplicasetPods {
+    my ( $self, $labels ) = @_;
+    my $webCtl     = $self->{webCtl};
+    my $namespace  = $self->{namespace};
+    my $deployment = $self->{deployment};
+
+    my $labelSelector = join( ',', map { $_ . '=' . $labels->{$_} } keys(%$labels) );
+
+    #my $url          = "$baseUrl/api/v1/namespaces/$namespace/pods?labelSelector=$labelSelector";
+    my $url = $self->getApiUrl( 'Pod', 'v1', $namespace, undef, { labelSelector => $labelSelector } );
+
+    my $content = $webCtl->doRest( 'GET', $url );
+    my $rc      = from_json($content);
+
+    if ( $rc->{kind} eq 'PodList' ) {
+        return $rc->{items};
+    }
+    else {
+        print( 'WARN: ' . $rc->{message} . "\n" );
+        return [];
+    }
+}
+
+sub tailPodsLog {
+    my ( $self, $pods ) = @_;
+    my $webCtl         = $self->{webCtl};
+    my $namespace      = $self->{namespace};
+    my $restClient     = $webCtl->{restClient};
+    my $headers        = $restClient->{_headers};
+    my $tailLogPodsMap = $self->{tailLogPods};
+
+    foreach my $pod (@$pods) {
+        my $podName = $pod->{metadata}->{name};
+        if ( not defined( $tailLogPodsMap->{$podName} ) ) {
+            my $podStatus    = $pod->{status}->{phase};
+            my $sinceSeconds = int( time() - $self->{updateTime} ) || 1;
+
+            #my $url          = "$baseUrl/api/v1/namespaces/$namespace/pods/$podName/log?sinceSeconds=$sinceSeconds&follow=true";
+            my $url       = my $url = $self->getApiUrl( 'Pod', 'v1', $namespace, "$podName/log", { sinceSeconds => $sinceSeconds, follow => 'true' }, $podName );
+            my $httpGuard = AnyEvent::HTTP::http_request(
+                GET       => $url,
+                headers   => $headers,
+                on_header => sub {
+                    my ($hdr) = @_;
+                    if ( $hdr->{Status} == 404 ) {
+                        if ( $self->{action} ne 'stop' ) {
+                            print("ERROR: Pod $namespace/pods/$podName not exists.\n");
+                        }
+                        else {
+                            print("FINEST: Pod $namespace/pods/$podName stopped.\n");
+                        }
+                    }
+                    1;
+                },
+                on_body => sub {
+                    my ( $data, $hdr ) = @_;
+                    my $statusCode = $hdr->{Status};
+                    if ( $statusCode =~ /^4/ ) {
+                        $tailLogPodsMap->{$podName} = undef;
+                        my $rc     = from_json($data);
+                        my $errMsg = $rc->{reason} . ' ' . $rc->{message};
+                        if ( $rc->{status} eq 'Failure' ) {
+                            if ( $errMsg !~ /ContainerCreating/ ) {
+
+                                #$self->{hasError} = 1;
+                                print("WARN: $podName($statusCode) - $errMsg \n");
+                            }
+                        }
+                        else {
+                            print( $errMsg . "\n" );
+                        }
+                    }
+                    else {
+                        print( $podName . "->$statusCode " . $data );
+                    }
+                    1;
+                },
+                sub {
+                }
+            );
+            $tailLogPodsMap->{$podName} = $httpGuard;
+        }
+    }
+}
+
+1;
+
+sub main {
+    my ( $host, $apiPort, $token );
+    my ( $dplyYamlFile, $image, $name, $namespace, $deployment, $action, $timeout );
+    my $autoCreate = 0;
     GetOptions(
         'host=s'         => \$host,
         'apiport=s'      => \$apiPort,
-        'mgmtport=s'     => \$managerPort,
         'token=s'        => \$token,
         'dplyyamlfile=s' => \$dplyYamlFile,
         'image=s'        => \$image,
@@ -241,6 +842,7 @@ sub main {
         'namespace=s'    => \$namespace,
         'deployment=s'   => \$deployment,
         'action=s'       => \$action,
+        'autocreate:s'   => \$autoCreate,
         'timeout=i'      => \$timeout
     );
 
@@ -271,241 +873,51 @@ sub main {
     }
     my $org_timeout = $timeout;
 
-    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
-        my $deployUtils = DeployUtils->new();
-        my $deployEnv   = $deployUtils->deployInit();
-        my $dirInfo     = $deployUtils->getDataDirStruct($deployEnv);
-        my $mirrorDir   = $dirInfo->{mirror};
-        my $appDistPath = $dirInfo->{appdist};
-        if( -f "$appDistPath/$dplyYamlFile" ){
-            $dplyYamlFile = "$appDistPath/$dplyYamlFile";
-        }
-        elsif( -f "$mirrorDir/$dplyYamlFile"){
-            $dplyYamlFile = "$mirrorDir/$dplyYamlFile";
-        }
-        else{
-            print("ERROR: Can not find yaml deploy file:$dplyYamlFile in artifact directory $appDistPath or $mirrorDir.\n");
-        }
-    }
-    else {
-        undef($dplyYamlFile);
-        if ( not defined($name) or $name eq '' ) {
-            print("ERROR: Must defind app name\n");
-            $optionError = 1;
-        }
-        if ( not defined($image) or $image eq '' ) {
-            print("ERROR: Must defind docker image\n");
-            $optionError = 1;
-        }
-    }
-
-    my $reqObj;
-    if ( defined($dplyYamlFile) and $dplyYamlFile ne '' ) {
-        $reqObj = YAML::LoadFile($dplyYamlFile);
-        if ( defined($image) and $image ne '' ) {
-            my $containers      = $reqObj->{spec}->{template}->{spec}->{containers};
-            my $containersCount = scalar(@$containers);
-            if ( $containersCount == 0 ) {
-                push(
-                    @$containers,
-                    {
-                        {
-                            image => $image
-                        }
-                    }
-                );
-            }
-
-            if ( $containersCount == 1 ) {
-                if ( defined($name) and $name ne '' ) {
-                    $$containers[0]->{name} = $name;
-                }
-                $$containers[0]->{image} = $image;
-            }
-            else {
-                $optionError = 1;
-                print("ERROR: Deployments containers count are $containersCount, can not use name and image option to update deployment. Please use yaml config file.\n");
-            }
-        }
-    }
-    else {
-        $reqObj = {
-            spec => {
-                template => {
-                    spec => {
-                        containers => [
-                            {
-                                name  => $name,
-                                image => $image
-                            }
-                        ]
-                    }
-                }
-            }
-        };
-    }
-
-    if ( $optionError == 1 ) {
-        usage();
-    }
-
-# my $name = 'nginx';
-# my $image = 'nginx:1.7.6';
-# my $baseUrl = 'https://192.168.99.100:8443';
-# my $namespace = 'default';
-# my $deployment = 'nginx-deployment';
-# my $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLXo4ZmYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZWJmMTFkNS00NDI2LTQ3ZjgtODA2OS1kNjNhZWY1NmIzZTkiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.qhFQ1y4GsvwhjfSKPrvWx7sHAgrwPitCID9j7otXD6bnxIVcreb_cfPN_9L_S2h8wOp4qsqWWOCXTpK84xlTIIY4Jk2jjBl2keJOW64oI2TN2gxAE368iAC9EnlCF0kyd7_-a-A0zbhRszd0-zD_7Pn3ejzQbqqouUUIzBAcD3Bj4Dmr95tnEBUI4NbtnrZB8AUb9BjlBjr8NqXpXQjNJiUfXSW6TVhxYGSAtSBzacHSWpXAkoiw6lqLaCz4hL-8sXGvLjRsC3klLLt73jATz3eDmdMHmZB7OtAEK2U10VxPTMKvxiIZptGF_8o5proLXpd4ft0ChBgRgPAck5BJNA';
     my $baseUrl = "https://$host:$apiPort";
-    my $url     = "$baseUrl/apis/apps/v1/namespaces/$namespace/deployments/$deployment";
 
-    my $client = REST::Client->new();
-    $client->addHeader( "Authorization", "Bearer $token" );
-    $client->addHeader( 'Content-Type',  'application/strategic-merge-patch+json' );
-    $client->getUseragent()->ssl_opts( verify_hostname => 0 );
-    $client->getUseragent()->ssl_opts( SSL_verify_mode => 0 );
+    my $k8sDeploy = K8sDeploy->new(
+        baseUrl    => $baseUrl,
+        token      => $token,
+        namespace  => $namespace,
+        deployment => $deployment,
+        action     => $action,
+        timeout    => $timeout
+    );
 
-    if ( $action eq 'rollback' ) {
-        my $replicasetsUrl = "$baseUrl/apis/apps/v1/namespaces/$namespace/replicasets?labelSelector=app%3D$name";
-        my ( $prevImage, $causeBy ) = getPrevVerImage( $client, $replicasetsUrl, $image );
-        if ( not defined($prevImage) or $prevImage eq '' ) {
-            print($causeBy);
-            exit(1);
+    eval {
+        my $rc;
+
+        if ( $action eq 'deploy' ) {
+            $rc = $k8sDeploy->deployVersion( $dplyYamlFile, $name, $image, $autoCreate );
+        }
+        elsif ( $action eq 'rollback' ) {
+            $rc = $k8sDeploy->rollbackDeployment();
+        }
+        elsif ( $action eq 'stop' ) {
+            $rc = $k8sDeploy->zeroReplicas();
+        }
+        elsif ( $action eq 'start' ) {
+            $rc = $k8sDeploy->resumeReplicas();
+        }
+        elsif ( $action eq 'restart' ) {
+            $rc = $k8sDeploy->restartDeployment();
         }
 
-        #用上个版本镜像回退
-        $image = $prevImage;
-    }
-
-    if ( $action eq 'restart' ) {
-        $reqObj->{spec}->{metadata} = {
-            annotations => {
-                'kubectl.kubernetes.io/restartedAt' => strftime( "%Y-%m-%d %H:%M:%S", localtime() )
-            }
-        };
-    }
-    my $hasError = 0;
-    my $queryData;
-    my $req = to_json($reqObj);
-
-    #TODO: 增加其他的action，譬如：del、put等
-    if ( $action eq 'patch' or $action eq 'rollback' or $action eq 'restart' ) {
-        $client->PATCH( $url, $req );
-    }
-    else {
-        print("ERROR: Action:$action not supported.\n");
-        $hasError = $hasError + 1;
-        return $hasError;
-    }
-
-    if ( $client->responseCode() ne 200 ) {
-        my $errMsg = $client->responseContent();
-        print("ERROR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed, cause by:$errMsg\n");
-        $hasError = $hasError + 1;
-    }
-    else {
-        my $content = $client->responseContent();
-        my $data    = from_json($content);
-
-        my $name  = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'name'};
-        my $image = $data->{'spec'}->{'template'}->{'spec'}->{'containers'}[0]->{'image'};
-
-        #TODO：需要获取滚动升级的信息以及日志，并push到页面进行显示，检测全部滚动升级完成
-        $baseUrl = "https://$host:$managerPort";
-        while (1) {
-            $queryData = getRollUpdateInfo( $baseUrl, $token, $namespace, $deployment );
-            if ( defined($queryData) ) {
-
-                if ( not defined( $queryData->{'newreplicaset'} ) or not defined( $queryData->{'newreplicaset'}->{'pod'} ) ) {
-                    last;
-                }
-
-                #print(to_json($queryData));
-                my $pod     = $queryData->{'newreplicaset'}->{'pod'};
-                my $pods    = $pod->{'pods'};
-                my $desired = int( $pod->{'listMeta'}->{'totalItems'} );
-                my $pending = 0;
-                my $running = 0;
-                my $failed  = 0;
-
-                #状态转换，0 正常；1异常 ；2 初始化中
-                my $statusMap = {
-                    'Running'                               => 0,
-                    'CrashLoopBackOff'                      => 1,    #容器退出，kubelet正在将它重启
-                    'InvalidImageName'                      => 1,    #无法解析镜像名称
-                    'ImageInspectError'                     => 1,    #无法校验镜像
-                    'ErrImageNeverPull'                     => 1,    #策略禁止拉取镜像
-                    'ImagePullBackOff'                      => 2,    #正在重试拉取
-                    'RegistryUnavailable'                   => 1,    #连接不到镜像中心
-                    'ErrImagePull'                          => 1,    #拉取镜像出错
-                    'CreateContainerConfigError'            => 1,    #不能创建kubelet使用的容器配置
-                    'CreateContainerError'                  => 1,    #创建容器失败
-                    'm.internalLifecycle.PreStartContainer' => 1,    #执行hook报错
-                    'RunContainerError'                     => 1,    #启动容器失败
-                    'PostStartHookError'                    => 1,    #执行hook报错
-                    'ContainersNotInitialized'              => 2,    #容器没有初始化完毕
-                    'ContainersNotReady'                    => 2,    #容器没有准备完毕
-                    'ContainerCreating'                     => 2,    #容器创建中
-                    'PodInitializing'                       => 2,    #pod 初始化中
-                    'ContainersNotReady'                    => 2,    #容器没有准备完毕
-                    'DockerDaemonNotReady'                  => 2,    #docker还没有完全启动
-                    'NetworkPluginNotReady'                 => 2     #网络插件还没有完全启动
-                };
-
-                foreach my $pod (@$pods) {
-                    my $podStatus    = $pod->{'status'};
-                    my $podStatusVal = $statusMap->{$podStatus};
-                    if ( not defined($podStatusVal) ) {
-                        $podStatusVal = 2;
-                    }
-                    if ( $podStatusVal == 0 ) {
-                        $running++;
-                    }
-                    elsif ( $podStatusVal == 1 ) {
-                        $failed++;
-                    }
-                    elsif ( $podStatusVal == 2 ) {
-                        $pending++;
-                    }
-                }
-
-                print("INFO: Desired pod: $desired, Pending pod: $pending, Running pod: $running, Failed pod: $failed .\n");
-                if ( $desired == ( $running + $failed ) ) {
-                    print("INFO: Desired pod: $desired, Running pod: $running, Failed pod: $failed.\n");
-                    if ( $failed > 0 ) {
-                        $hasError = 1;
-                    }
-                    last;
-                }
-                else {
-                    sleep(3);
-                    $timeout--;
-                }
-            }
-            else {
-                last;
-            }
-
-            if ( $timeout <= 0 ) {
-                $hasError = 1;
-                print("ERROR: Read application $name(nanmespace:$namespace, deployment:$deployment) with $image timeout ,waiting $org_timeout second.\n");
-                last;
-            }
-        }
-
-        if ( $hasError > 0 ) {
-            print("ERROR: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image failed.\n");
+        if ( $k8sDeploy->{hasError} == 1 or not defined($rc) ) {
+            print("ERROR: Deployment $k8sDeploy->{deployment} $action failed.\n");
         }
         else {
-            print("FINE: Patch application $name(nanmespace:$namespace, deployment:$deployment) with $image success.\n");
+            print("FINEST: Deployment $k8sDeploy->{deployment} $action succeed.\n");
         }
+    };
+    if ($@) {
+        $k8sDeploy->{hasError} = 1;
+        my $msg = $@;
+        $msg =~ s/ at .*?$//;
+        print($msg);
     }
 
-    my $out = {};
-    $out->{k8s_data} = $queryData;
-    AutoExecUtils::saveOutput($out);
-    AutoExecUtils::saveLiveData($out);
-
-    return $hasError;
+    return $k8sDeploy->{hasError};
 }
 
 exit main();

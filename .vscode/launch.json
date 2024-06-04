@@ -1343,6 +1343,76 @@
                 "dis current"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "k8sctl",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/deploy/k8sctl",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "run-sql",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "_DEPLOY_PATH": "k8sTest/springbootdemo/PRD",
+                "_DEPLOY_ID_PATH": "847563837988864/847564165144576/481856650534914",
+                "_DEPLOY_RUNNERGROUP": "{\"1\":\"192.168.1.140\"}",
+                "_VERSION": "1.0.0",
+                "_BUILD_NO": "1",
+                "_IS_RELEASE": "1",
+                "OUTPUT_PATH": "/tmp/output.json",
+                "LIVEDATA_PATH": "/tmp/livedata.json",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"bsm\",\"protocol\":\"tagent\",\"password\":\"ts9012501\",\"resourceId\":493223793188870,\"port\":3306,\"host\":\"192.168.0.26\",\"nodeType\":\"MySQL\",\"nodeId\":608528129384494,\"protocolPort\":3939,\"username\":\"root\"}"
+            },
+            "args": [
+                "--host",
+                "192.168.1.90",
+                "--apiport",
+                "6443",
+                "--token",
+                "eyJhbGciOiJSUzI1NiIsImtpZCI6IjRVbVAwYU1WMlpQcUlZclpXVndPR1BWRnpfME5HTUF6OXlLWGhkQjZxVWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTY5cGtnIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIwZjVkN2E5Zi0yOGI0LTRlODUtODVkMy02ZDBiZWVkYTQ4NjEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6YWRtaW4tdXNlciJ9.ONrXfbH4KReVY1uBIRHYVjBkXRtRjsI45klndOQRV8pLUEJ0SjzBgS1nqQA1aRUR3H1EpRFmbkPfKyWq5DLYVr7hOtca_bEk11Wi13c7hYG7sLS7cIciBPKHjCcSPZfuAjDfWxdqy6XvPWDX79Bqd2hoADnr5ZcBGSB3Cc2J3boPiGBeFKHAkJXV0lbkQ7fTBLnZrYOODJMPMh-fmPqhiTz4oCxFeb7EnQpdqtEh2cz8aaFbrcdrvL1vR4FXXRO62XMlP46peDmOg1B18d4cM9bOH5StTAF8t0Jykx3BxIqPSKHJ6cWxFatzZFSYcWDYoOWFFEhpz3UQ7Xm5mT098w",
+                "--namespace",
+                "default",
+                "--deployment",
+                "demo",
+                "--dplyyamlfile",
+                "/tmp/demo.yaml",
+                "--action",
+                "deploy",
+                "--autocreate",
+                "1",
+                "--name",
+                "springbootdemo",
+                "--image",
+                "192.168.0.104/springbootdemo/springbootdemo:dev-1.0.0"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "anyeventhttp",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/anyeventhttp.pl",
+            "inc": [
+                "${workspaceFolder}/plugins/local/deploy/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {},
+            "args": [],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
         }
     ]
 }
