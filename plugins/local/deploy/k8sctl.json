@@ -27,15 +27,6 @@
             "defaultValue": "8443"
         },
         {
-            "opt": "mgmtport",
-            "name": "k8s管理端口",
-            "help": "K8S 管理端口，例如：30001",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": "30001"
-        },
-        {
             "opt": "token",
             "name": "验证TOKEN",
             "help": "K8S API服务的验证TOKEN",
@@ -55,7 +46,7 @@
                 "dataList": [
                     {
                         "text": "更新",
-                        "value": "patch"
+                        "value": "deploy"
                     },
                     {
                         "text": "回滚",
@@ -64,6 +55,14 @@
                     {
                         "text": "重启",
                         "value": "restart"
+                    },
+                    {
+                        "text": "启动",
+                        "value": "start"
+                    },
+                    {
+                        "text": "停止",
+                        "value": "stop"
                     }
                 ]
             },
