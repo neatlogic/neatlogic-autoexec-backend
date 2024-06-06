@@ -90,6 +90,27 @@
             "defaultValue": "0"
         },
         {
+            "opt": "healthcheckneeded",
+            "name": "需健康检查",
+            "help": "检查deployment配置中是否配置了健康检查",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
             "opt": "dplyyamlfile",
             "name": "Deploy配置文件",
             "help": "Yaml配置文件在制品库中的相对路径，如提供了文件，则下面其他属性名非必须",
