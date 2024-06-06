@@ -242,7 +242,7 @@ sub checkConfiHealthCheck {
 sub getDeployment {
     my ( $self, $checkConf ) = @_;
 
-    if(not defined($checkConf)){
+    if ( not defined($checkConf) ) {
         $checkConf = 1;
     }
 
@@ -375,6 +375,10 @@ sub deployVersion {
                     $hasConfErr = 1;
                     print(qq{ERROR: Attribute ".labels" not defined in yaml file.\n});
                 }
+                if ( $defaultNamespace ne $resourceSpec->{metadata}->{namespace} ) {
+                    $resourceSpec->{metadata}->{namespace} = $defaultNamespace;
+                    print("INFO: Reset $resourceSpec->{kind} .metadata.namespace to $defaultNamespace.\n");
+                }
             }
 
             if ( not defined( $resourceSpec->{spec} ) ) {
@@ -383,10 +387,10 @@ sub deployVersion {
             }
             elsif ( $resourceSpec->{kind} eq 'Deployment' ) {
                 if ( defined( $self->{deployment} ) and $self->{deployment} ne '' ) {
-                    if ( not defined( $resourceSpec->{metadata} ) ) {
-                        $resourceSpec->{metadata} = {};
+                    if ( $self->{deployment} ne $resourceSpec->{metadata}->{name} ) {
+                        $resourceSpec->{metadata}->{name} = $self->{deployment};
+                        print("INFO: Reset Deployment .metadata.name to $self->{deployment}.\n");
                     }
-                    $resourceSpec->{metadata}->{name} = $self->{deployment};
                 }
 
                 if ( not defined( $resourceSpec->{spec}->{template} ) ) {
@@ -421,25 +425,32 @@ sub deployVersion {
                 $resourceSpec->{metadata}->{namespace} = $defaultNamespace;
             }
 
-            if ( defined($image) and $image ne '' and $resourceSpec->{kinde} eq 'Deployment' ) {
+            if ( $resourceSpec->{kinde} eq 'Deployment' ) {
                 my $containers      = $resourceSpec->{spec}->{template}->{spec}->{containers};
                 my $containersCount = scalar(@$containers);
-                if ( $containersCount == 0 ) {
-                    push(
-                        @$containers,
-                        {
-                            {
-                                image => $image
-                            }
-                        }
-                    );
-                }
 
-                if ( $containersCount == 1 ) {
+                if ( $containersCount == 0 ) {
+                    if ( defined($name) and $name ne '' and defined($image) and $image ne '' ) {
+                        push(
+                            @$containers,
+                            {
+                                {
+                                    name  => $name,
+                                    image => $image
+                                }
+                            }
+                        );
+                    }
+                }
+                elsif ( $containersCount == 1 ) {
                     if ( defined($name) and $name ne '' ) {
+                        print("INFO: Reset container name to $name.\n");
                         $$containers[0]->{name} = $name;
                     }
-                    $$containers[0]->{image} = $image;
+                    if ( defined($image) and $image ne '' ) {
+                        print("INFO: Reset container image to $image.\n");
+                        $$containers[0]->{image} = $image;
+                    }
                 }
                 else {
                     $hasConfErr = 1;
