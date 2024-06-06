@@ -31,7 +31,7 @@ sub usage {
     print("       --name:         app name, example:nginx\n");
     print("       --namespace:    k8s namespace, example:default\n");
     print("       --deployment:   k8s deployment: example:nginx-deployment\n");
-    print("       --acton:        k8s deploy action patch|del\n");
+    print("       --acton:        k8s deploy action deploy|stop|start|rollback\n");
     print("       --autocreate:   auto create none exist deployment\n");
 
     exit(1);
@@ -237,6 +237,144 @@ sub checkConfiHealthCheck {
     }
 
     return $confOk;
+}
+
+sub saveDeploymentStatus {
+    my ( $self, $deployDetail ) = @_;
+    my $data       = {};
+    my $deployment = $deployDetail->{deployment};
+    $data->{deployment} = {
+        name              => $deployment->{metadata}->{name},
+        namespace         => $deployment->{metadata}->{namespace},
+        uid               => $deployment->{metadata}->{uid},
+        labels            => $deployment->{metadata}->{labels},
+        revision          => $deployment->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'},
+        creationTimestamp => $deployment->{metadata}->{creationTimestamp},
+        replicas          => $deployment->{status}->{replicas},
+        updatedReplicas   => $deployment->{status}->{updatedReplicas},
+        readyReplicas     => $deployment->{status}->{readyReplicas},
+        availableReplicas => $deployment->{status}->{availableReplicas},
+    };
+
+    foreach my $statusCondition ( @{ $deployment->{status}->{conditions} } ) {
+        if ( defined( $statusCondition->{lastTransitionTime} ) ) {
+            $data->{deployment}->{lastTransitionTime} = $statusCondition->{lastTransitionTime};
+            last;
+        }
+    }
+
+    my $newReplicaset = $deployDetail->{newreplicaset};
+    $data->{newreplicaset} = {
+        name              => $newReplicaset->{metadata}->{name},
+        namespace         => $newReplicaset->{metadata}->{namespace},
+        uid               => $newReplicaset->{metadata}->{uid},
+        labels            => $newReplicaset->{metadata}->{labels},
+        revision          => $newReplicaset->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'},
+        creationTimestamp => $newReplicaset->{metadata}->{creationTimestamp},
+        replicas          => $newReplicaset->{status}->{replicas},
+        readyReplicas     => $newReplicaset->{status}->{readyReplicas},
+        availableReplicas => $newReplicaset->{status}->{availableReplicas}
+    };
+
+    my @newPods = ();
+    foreach my $pod ( @{ $newReplicaset->{pods} } ) {
+        my $podInfo = {
+            name              => $pod->{metadata}->{name},
+            namespace         => $pod->{metadata}->{namespace},
+            uid               => $pod->{metadata}->{uid},
+            labels            => $pod->{metadata}->{labels},
+            status            => $pod->{status}->{phase},
+            nodeName          => $pod->{spec}->{nodeName},
+            creationTimestamp => $pod->{metadata}->{creationTimestamp},
+            startTime         => $pod->{status}->{startTime},
+            podIP             => $pod->{status}->{podIP},
+            podIPs            => $pod->{status}->{podIPs}
+        };
+
+        my $containerCount = scalar( @{ $pod->{spec}->{containers} } );
+        my @containers     = ();
+        my $readyCount     = 0;
+        foreach my $containerStatus ( @{ $pod->{status}->{containerStatuses} } ) {
+            if ( $containerStatus->{ready} ) {
+                $readyCount = $readyCount + 1;
+            }
+            push(
+                @containers,
+                {
+                    name         => $containerStatus->{name},
+                    image        => $containerStatus->{image},
+                    restartCount => $containerStatus->{restartCount},
+                    ready        => $containerStatus->{ready},
+                }
+            );
+        }
+        $podInfo->{containerCount}      = $containerCount;
+        $podInfo->{readyContainerCount} = $readyCount;
+        if ( $readyCount == $containerCount ) {
+            $podInfo->{ready} = 1;
+        }
+        $podInfo->{containers} = \@containers;
+        push( @newPods, $podInfo );
+    }
+    $data->{newreplicaset}->{pods} = \@newPods;
+
+    my $oldReplicaset = $deployDetail->{oldreplicaset};
+    if ( defined($oldReplicaset) ) {
+        $data->{oldreplicaset} = {
+            name              => $oldReplicaset->{metadata}->{name},
+            namespace         => $oldReplicaset->{metadata}->{namespace},
+            uid               => $oldReplicaset->{metadata}->{uid},
+            labels            => $oldReplicaset->{metadata}->{labels},
+            revision          => $oldReplicaset->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'},
+            creationTimestamp => $oldReplicaset->{metadata}->{creationTimestamp},
+            replicas          => $oldReplicaset->{status}->{replicas},
+            readyReplicas     => $oldReplicaset->{status}->{readyReplicas},
+            availableReplicas => $oldReplicaset->{status}->{availableReplicas}
+        };
+
+        my @oldPods = ();
+        foreach my $pod ( @{ $oldReplicaset->{pods} } ) {
+            my $podInfo = {
+                name              => $pod->{metadata}->{name},
+                namespace         => $pod->{metadata}->{namespace},
+                uid               => $pod->{metadata}->{uid},
+                labels            => $pod->{metadata}->{labels},
+                status            => $pod->{status}->{phase},
+                nodeName          => $pod->{spec}->{nodeName},
+                creationTimestamp => $pod->{metadata}->{creationTimestamp},
+                startTime         => $pod->{status}->{startTime},
+                podIP             => $pod->{status}->{podIP},
+                podIPs            => $pod->{status}->{podIPs}
+            };
+
+            my $containerCount = scalar( @{ $pod->{spec}->{containers} } );
+            my @containers     = ();
+            my $readyCount     = 0;
+            foreach my $containerStatus ( @{ $pod->{status}->{containerStatuses} } ) {
+                if ( $containerStatus->{ready} ) {
+                    $readyCount = $readyCount + 1;
+                }
+                push(
+                    @containers,
+                    {
+                        name         => $containerStatus->{name},
+                        image        => $containerStatus->{image},
+                        restartCount => $containerStatus->{restartCount},
+                        ready        => $containerStatus->{ready},
+                    }
+                );
+            }
+            $podInfo->{containerCount}      = $containerCount;
+            $podInfo->{readyContainerCount} = $readyCount;
+            if ( $readyCount == $containerCount ) {
+                $podInfo->{ready} = 1;
+            }
+            $podInfo->{containers} = \@containers;
+            push( @oldPods, $podInfo );
+        }
+        $data->{oldreplicaset}->{pods} = \@oldPods;
+    }
+    AutoExecUtils::saveLiveData( { k8s_data => $data } );
 }
 
 sub getDeployment {
@@ -714,7 +852,8 @@ sub refreshLiveData {
             $data->{oldreplicaset} = {};
         }
 
-        AutoExecUtils::saveLiveData( { k8s_data => $data } );
+        $self->saveDeploymentStatus($data);
+
         my $replicas;
         my $runningReplicas = 0;
         if (@$replicasetList) {
@@ -800,7 +939,7 @@ sub getDeploymentReplicasets {
             if ( defined( $b->{metadata} ) and defined( $b->{metadata}->{annotations} ) ) {
                 $bRevision = $b->{metadata}->{annotations}->{'deployment.kubernetes.io/revision'};
             }
-            return $bRevision <=> $bRevision;
+            return $bRevision <=> $aRevision;
         }
         my $replicasetList = $rc->{items};
         my @replicasets    = sort sortReplicaset (@$replicasetList);
@@ -976,6 +1115,10 @@ sub main {
         }
         elsif ( $action eq 'restart' ) {
             $rc = $k8sDeploy->restartDeployment();
+        }
+        else {
+            $k8sDeploy->{hasError} = 1;
+            print("ERROR: Deployment $k8sDeploy->{deployment} $action not supported.\n");
         }
 
         if ( $k8sDeploy->{hasError} == 1 or not defined($rc) ) {
