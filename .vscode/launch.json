@@ -1382,9 +1382,8 @@
                 "--namespace",
                 "default",
                 "--deployment",
-                "demo",
-                "--dplyyamlfile",
-                "/tmp/demo.yaml",
+                "springbootdemo",
+
                 "--action",
                 "deploy",
                 "--autocreate",
@@ -1392,7 +1391,7 @@
                 "--name",
                 "springbootdemo",
                 "--image",
-                "192.168.0.104/springbootdemo/springbootdemo:dev-1.0.0"
+                "192.168.0.104/k8stest/springbootdemo:prd-1.0.0"
             ],
             "reloadModules": true,
             "stopOnEntry": false,
