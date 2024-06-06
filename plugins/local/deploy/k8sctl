@@ -205,8 +205,47 @@ sub createResource {
     return $rc;
 }
 
+sub checkConfiHealthCheck {
+    my ( $self, $containers, $justCheck ) = @_;
+
+    if ( not defined($justCheck) ) {
+        $justCheck = 0;
+    }
+
+    my $confOk = 1;
+    foreach my $container (@$containers) {
+        my $containerName  = $container->{name};
+        my $containerImage = $container->{image};
+        if ( not defined( $container->{readinessProbe} ) ) {
+            if ( $justCheck == 0 and $self->{healthCheckNeeded} == 1 ) {
+                $confOk = 0;
+                print("ERROR: .spec.template.spec.containers.readinessProbe not defined in container $containerName($containerImage), can not check the pod healthy.\n");
+            }
+            else {
+                print("WARN: .spec.template.spec.containers.readinessProbe not defined in container $containerName($containerImage), can not check the pod healthy.\n");
+            }
+        }
+        if ( not defined( $container->{livenessProbe} ) ) {
+            if ( $justCheck == 0 and $self->{healthCheckNeeded} == 1 ) {
+                $confOk = 0;
+                print("ERROR: .spec.template.spec.containers.livenessProbe not defined in container $containerName($containerImage), can not check the healty while running.\n");
+            }
+            else {
+                print("WARN: .spec.template.spec.containers.livenessProbe not defined in container $containerName($containerImage), can not check the healty while running.\n");
+            }
+        }
+    }
+
+    return $confOk;
+}
+
 sub getDeployment {
-    my ($self)     = @_;
+    my ( $self, $checkConf ) = @_;
+
+    if(not defined($checkConf)){
+        $checkConf = 1;
+    }
+
     my $namespace  = $self->{namespace};
     my $deployment = $self->{deployment};
     my $rc         = $self->getResource( 'Deployment', 'apps/v1', $namespace, $deployment );
@@ -218,6 +257,11 @@ sub getDeployment {
         my $lastConfJson = $rc->{metadata}->{annotations}->{'kubectl.kubernetes.io/last-applied-configuration'};
         if ( defined($lastConfJson) and $lastConfJson ne '' ) {
             $self->{lastConf} = from_json($lastConfJson);
+        }
+
+        if ( $checkConf == 1 ) {
+            my $containers = $rc->{spec}->{template}->{spec}->{containers};
+            $self->checkConfiHealthCheck( $containers, 1 );
         }
     }
     elsif ( $rc->{kind} eq 'Status' ) {
@@ -278,7 +322,7 @@ sub deployVersion {
                 push( @dplyYamlFiles, $aDplyYamlFile );
             }
         }
-        if(not @dplyYamlFiles){
+        if ( not @dplyYamlFiles ) {
             $self->{optionError} = 1;
             print("ERROR: Can not find any file for: $dplyYamlFile.\n");
         }
@@ -301,41 +345,41 @@ sub deployVersion {
 
     my $hasConfErr    = 0;
     my @resourceSpecs = ();
-    if ( @dplyYamlFiles ) {
+    if (@dplyYamlFiles) {
         my @yamlDocs = ();
-        foreach my $aYamlFile (@dplyYamlFiles){
+        foreach my $aYamlFile (@dplyYamlFiles) {
             my $aYamlDocs = YAML::Tiny->read($aYamlFile);
-            push(@yamlDocs, @$aYamlDocs);
+            push( @yamlDocs, @$aYamlDocs );
         }
-        
+
         foreach my $resourceSpec (@yamlDocs) {
             if ( not defined( $resourceSpec->{kind} ) ) {
                 $hasConfErr = 1;
-                print(qq{ERROR: Attribute "kind" not defined in yaml file.\n});
+                print(qq{ERROR: Attribute ".kind" not defined in yaml file.\n});
             }
 
             if ( not defined( $resourceSpec->{apiVersion} ) ) {
                 $hasConfErr = 1;
-                print(qq{ERROR: Attribute "apiVersion" not defined in yaml file.\n});
+                print(qq{ERROR: Attribute ".apiVersion" not defined in yaml file.\n});
             }
 
             if ( not defined( $resourceSpec->{metadata} ) ) {
                 $hasConfErr = 1;
-                print(qq{ERROR: Attribute "metadata" not defined in yaml file.\n});
+                print(qq{ERROR: Attribute ".metadata" not defined in yaml file.\n});
             }
             else {
                 if ( not defined( $resourceSpec->{metadata}->{name} ) ) {
-                    print(qq{ERROR: Attribute "metadata.name" not defined in yaml file.\n});
+                    print(qq{ERROR: Attribute ".metadata.name" not defined in yaml file.\n});
                 }
                 if ( not defined( $resourceSpec->{metadata}->{labels} ) or not( %{ $resourceSpec->{metadata}->{labels} } ) ) {
                     $hasConfErr = 1;
-                    print(qq{ERROR: Attribute "labels" not defined in yaml file.\n});
+                    print(qq{ERROR: Attribute ".labels" not defined in yaml file.\n});
                 }
             }
 
             if ( not defined( $resourceSpec->{spec} ) ) {
                 $hasConfErr = 1;
-                print(qq{ERROR: Attribute "spec" not defined in yaml file.\n});
+                print(qq{ERROR: Attribute ".spec" not defined in yaml file.\n});
             }
             elsif ( $resourceSpec->{kind} eq 'Deployment' ) {
                 if ( defined( $self->{deployment} ) and $self->{deployment} ne '' ) {
@@ -347,19 +391,23 @@ sub deployVersion {
 
                 if ( not defined( $resourceSpec->{spec}->{template} ) ) {
                     $hasConfErr = 1;
-                    print(qq{ERROR: Attribute "spec.template" not defined in yaml file.\n});
+                    print(qq{ERROR: Attribute ".spec.template" not defined in yaml file.\n});
                 }
                 else {
                     if ( not defined( $resourceSpec->{spec}->{template}->{metadata} ) ) {
                         $hasConfErr = 1;
-                        print(qq{ERROR: Attribute "spec.template.metadata" not defined in yaml file.\n});
+                        print(qq{ERROR: Attribute ".spec.template.metadata" not defined in yaml file.\n});
                     }
                     else {
                         my $labels = $resourceSpec->{spec}->{template}->{metadata}->{labels};
                         if ( not defined($labels) or not(%$labels) ) {
                             $hasConfErr = 1;
-                            print(qq{ERROR: Attribute "spec.template.metadata.labels" not defined in yaml file.\n});
+                            print(qq{ERROR: Attribute ".spec.template.metadata.labels" not defined in yaml file.\n});
                         }
+                    }
+                    my $containers = $resourceSpec->{spec}->{template}->{spec}->{containers};
+                    if ( not $self->checkConfiHealthCheck($containers) ) {
+                        $hasConfErr = 1;
                     }
                 }
             }
@@ -401,7 +449,7 @@ sub deployVersion {
             push( @resourceSpecs, $resourceSpec );
         }
     }
-    else{
+    else {
         my $resourceSpec = {
             apiVersion => 'apps/v1',
             kind       => 'Deployment',
@@ -423,7 +471,6 @@ sub deployVersion {
         };
         push( @resourceSpecs, $resourceSpec );
     }
-
 
     if ( $hasConfErr == 0 ) {
         my $result;
@@ -634,7 +681,7 @@ sub refreshLiveData {
 
     my $data = {};
 
-    my $deployInfo = $self->getDeployment();
+    my $deployInfo = $self->getDeployment(0);
     $data->{deployment} = $deployInfo;
 
     while (1) {
@@ -664,7 +711,19 @@ sub refreshLiveData {
             my $pods = $$replicasetList[0]->{pods};
             foreach my $pod (@$pods) {
                 if ( $pod->{status}->{phase} eq 'Running' ) {
-                    $runningReplicas = $runningReplicas + 1;
+                    my $isReady           = 1;
+                    my $containerStatuses = $pod->{status}->{containerStatuses};
+                    if ( defined($containerStatuses) ) {
+                        foreach my $containerStatus (@$containerStatuses) {
+                            if ( not $containerStatus->{ready} ) {
+                                $isReady = 0;
+                                last;
+                            }
+                        }
+                    }
+                    if ( $isReady == 1 ) {
+                        $runningReplicas = $runningReplicas + 1;
+                    }
                 }
             }
             $self->tailPodsLog($pods);
@@ -685,6 +744,7 @@ sub refreshLiveData {
             after => 5,
             cb    => sub { $timerFired->send() },
         );
+        print("INFO: Waiting pods ready...\n");
         $timerFired->recv();
         ###
     }
@@ -695,6 +755,7 @@ sub refreshLiveData {
         after => 5,
         cb    => sub { $timerFired->send() },
     );
+    print("INFO: Pods ready tail pod logs...\n");
     $timerFired->recv();
     ###
 }
@@ -814,7 +875,7 @@ sub tailPodsLog {
                         }
                     }
                     else {
-                        print( $podName . "->$statusCode " . $data );
+                        print( $podName . "-> " . $data );
                     }
                     1;
                 },
@@ -831,19 +892,21 @@ sub tailPodsLog {
 sub main {
     my ( $host, $apiPort, $token );
     my ( $dplyYamlFile, $image, $name, $namespace, $deployment, $action, $timeout );
-    my $autoCreate = 0;
+    my $autoCreate        = 0;
+    my $healthCheckNeeded = 0;
     GetOptions(
-        'host=s'         => \$host,
-        'apiport=s'      => \$apiPort,
-        'token=s'        => \$token,
-        'dplyyamlfile=s' => \$dplyYamlFile,
-        'image=s'        => \$image,
-        'name=s'         => \$name,
-        'namespace=s'    => \$namespace,
-        'deployment=s'   => \$deployment,
-        'action=s'       => \$action,
-        'autocreate:s'   => \$autoCreate,
-        'timeout=i'      => \$timeout
+        'host=s'              => \$host,
+        'apiport=s'           => \$apiPort,
+        'token=s'             => \$token,
+        'dplyyamlfile=s'      => \$dplyYamlFile,
+        'image=s'             => \$image,
+        'name=s'              => \$name,
+        'namespace=s'         => \$namespace,
+        'deployment=s'        => \$deployment,
+        'action=s'            => \$action,
+        'autocreate:s'        => \$autoCreate,
+        'healthcheckneeded:s' => \$healthCheckNeeded,
+        'timeout=i'           => \$timeout
     );
 
     my $optionError = 0;
@@ -876,12 +939,13 @@ sub main {
     my $baseUrl = "https://$host:$apiPort";
 
     my $k8sDeploy = K8sDeploy->new(
-        baseUrl    => $baseUrl,
-        token      => $token,
-        namespace  => $namespace,
-        deployment => $deployment,
-        action     => $action,
-        timeout    => $timeout
+        baseUrl           => $baseUrl,
+        token             => $token,
+        namespace         => $namespace,
+        deployment        => $deployment,
+        action            => $action,
+        timeout           => $timeout,
+        healthCheckNeeded => $healthCheckNeeded
     );
 
     eval {
