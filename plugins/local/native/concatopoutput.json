@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对单个节点的相同工具输出的某个变量进行连接整合到一起, 支持字符串和数组连接, 建议节点数不超过32",
+    "description": "对单个节点的相同工具输出的某个变量进行连接整合到一起, 支持字符串和数组连接",
     "option": [
         {
             "opt": "delimiter",
