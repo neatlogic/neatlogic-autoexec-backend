@@ -26,6 +26,7 @@ sub usage {
 sub main {
     my ( $envPath, $version, $buildNo,  $isHelp );
     my ( $image,   $tagname, $registry, $project );
+    my $buildFile = 'Dockerfile';
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -35,7 +36,8 @@ sub main {
         'registry=s' => \$registry,
         'project=s'  => \$project,
         'image=s'    => \$image,
-        'tagname=s'  => \$tagname
+        'tagname=s'  => \$tagname,
+        'buidfile=s' => \$buildFile
     );
 
     usage() if ( defined($isHelp) );
@@ -92,7 +94,10 @@ sub main {
     my $registry4Tag = $registry;
     $registry4Tag =~ s/^http.*?:\/\///;
     my $image_name = "$registry4Tag/$project/$image:$tagname";
-    my $cmd        = "sudo docker build -t $image_name $distDir/app";
+    my $cmd        = "sudo docker build -t '$image_name' '$distDir/app'";
+    if(defined($buildFile) and $buildFile ne ''){
+        $cmd        = "sudo docker build -t '$image_name' -f '$buildFile' '$distDir/app'";
+    }
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
