@@ -130,7 +130,6 @@ sub main {
         if ( $line =~ /password-stdin/ ) {
             $stdinPwdNotSupported = 1;
         }
-        print($line, "\n");
     };
 
     # login first
