@@ -90,6 +90,10 @@ sub main {
     # $ENV{Username} = $username;
     # $ENV{Secret}   = $password;
 
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
+
     my $hasError = 0;
 
     if ( $storeType eq 'harbor' ) {
