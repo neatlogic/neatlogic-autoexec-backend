@@ -1080,7 +1080,7 @@ sub main {
     my $org_timeout = $timeout;
 
     my @imageList = ();
-    foreach my $image ( split( /\n/, $imagesTxt ) ) {
+    foreach my $image ( split( /\\n|,/, $imagesTxt ) ) {
         my $name = lc($image);
         $image =~ s/^\s+|\s+$//g;
         $name  =~ s/^.*\/|:.*$//;
