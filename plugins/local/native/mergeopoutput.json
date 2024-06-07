@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "对单节点相同工具输出key-value集合进行并集处理, 如下游传值使用, 建议节点数不超过32",
+    "description": "对单节点相同工具输出key-value集合进行并集处理",
     "option": [
         {
             "opt": "outputkey",
