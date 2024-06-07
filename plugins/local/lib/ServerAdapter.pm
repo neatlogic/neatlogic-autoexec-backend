@@ -555,10 +555,24 @@ sub getAutoCfgConf {
     my $serverConf   = $self->{serverConf};
     my $autoCfg      = $rcObj->{autoCfg};
     my $passwordKeys = $rcObj->{passwordKeys};
-    if ( defined($passwordKeys) ) {
-        while ( my ( $key, $val ) = each(%$autoCfg) ) {
-            if ( grep { $_ eq $key } @$passwordKeys ) {
-                $autoCfg->{$key} = $serverConf->decryptPwd($val);
+    while ( my ( $key, $val ) = each(%$autoCfg) ) {
+        if ( defined($passwordKeys) and grep { $_ eq $key } @$passwordKeys ) {
+            $autoCfg->{$key} = $serverConf->decryptPwd($val);
+        }
+        else {
+            #支持autoconfig中引用环境变量 ${ENV_VARNAME}
+            my $hasEnvVar = 0;
+            my $newVal    = $val;
+            while ( $val =~ /\$\{(\w+)\}/g ) {
+                my $varName = $1;
+                my $varVal  = $ENV{$varName};
+                if ( defined($varVal) ) {
+                    $hasEnvVar = 1;
+                    $newVal =~ s/\$\{$varName\}/$varVal/g;
+                }
+            }
+            if ( $hasEnvVar == 1 ) {
+                $autoCfg->{$key} = $newVal;
             }
         }
     }
@@ -567,10 +581,24 @@ sub getAutoCfgConf {
     foreach my $insCfg (@$insCfgList) {
         my $insAutoCfg      = $insCfg->{autoCfg};
         my $insPasswordKeys = $insCfg->{passwordKeys};
-        if ( defined($insPasswordKeys) ) {
-            while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
-                if ( grep { $_ eq $key } @$insPasswordKeys ) {
-                    $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+        while ( my ( $key, $val ) = each(%$insAutoCfg) ) {
+            if ( defined($passwordKeys) and grep { $_ eq $key } @$insPasswordKeys ) {
+                $insAutoCfg->{$key} = $serverConf->decryptPwd($val);
+            }
+            else {
+                #支持autoconfig中引用环境变量 ${ENV_VARNAME}
+                my $hasEnvVar = 0;
+                my $newVal    = $val;
+                while ( $val =~ /\$\{(\w+)\}/g ) {
+                    my $varName = $1;
+                    my $varVal  = $ENV{$varName};
+                    if ( defined($varVal) ) {
+                        $hasEnvVar = 1;
+                        $newVal =~ s/\$\{$varName\}/$varVal/g;
+                    }
+                }
+                if ( $hasEnvVar == 1 ) {
+                    $insAutoCfg->{$key} = $newVal;
                 }
             }
         }
@@ -628,18 +656,21 @@ sub getDBConf {
         if ( defined($password) ) {
             $nodeInfo->{password} = $serverConf->decryptPwd($password);
         }
-        
-        if ( defined($nodeInfo->{name}) ){
+
+        if ( defined( $nodeInfo->{name} ) ) {
+
             #在CMDB中nodeName对应的是显示名，getDBConf给过来的信息包含了nodeName和name
             #如果存在name，那么就以name作为DB的库名称，把nodeName更换为name
             $nodeInfo->{nodeName} = $nodeInfo->{name};
         }
 
-        if ( defined($nodeInfo->{db_type})){
+        if ( defined( $nodeInfo->{db_type} ) ) {
+
             #对于DB类型不区分模型的情况，如有属性db_type，直接使用
             $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
         }
-        elsif ( defined($nodeInfo->{obj_type}) and $nodeInfo->{obj_type} ne '' ){
+        elsif ( defined( $nodeInfo->{obj_type} ) and $nodeInfo->{obj_type} ne '' ) {
+
             #对于DB类型不区分模型的情况，而且没有db_type属性，则使用obj_type属性标记DB的类型
             $nodeInfo->{nodeType} = $nodeInfo->{obj_type};
         }
@@ -1418,8 +1449,8 @@ sub callNativeApi {
 
     my $webCtl  = $self->{webCtl};
     my $url     = $self->_getApiUrl('refireJob');
-    my $url = $self->{serverConf}->{baseurl} . $apiUri;
-    my $content = $webCtl->postJson( $url, $params, undef);
+    my $url     = $self->{serverConf}->{baseurl} . $apiUri;
+    my $content = $webCtl->postJson( $url, $params, undef );
     my $rcObj   = $self->_getReturn($content);
 
     return $rcObj;

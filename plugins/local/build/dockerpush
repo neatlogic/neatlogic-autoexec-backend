@@ -124,12 +124,24 @@ sub main {
         return $hasError;
     }
 
-    # login first
-    my $loginCmd = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin >/dev/null 2>&1";
+    my $stdinPwdNotSupported = 0;
+    my $loginCallBack        = sub {
+        my ($line) = @_;
+        if ( $line =~ /password-stdin/ ) {
+            $stdinPwdNotSupported = 1;
+        }
+    };
 
-    #my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
+    # login first
+    my $loginCmd  = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
+    my $loginCmd2 = "sudo docker login $registry --username '$username' --password '$password'";
+
     print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
-    my $loginRet = $deployUtils->execmd($loginCmd);
+    my $loginRet = $deployUtils->execmd( $loginCmd, undef, $loginCallBack );
+    if ( $stdinPwdNotSupported == 1 ) {
+        $loginRet = $deployUtils->execmd($loginCmd2);
+    }
+
     if ( $loginRet eq 0 ) {
         print("INFO: Docker login success!\n");
     }
@@ -145,7 +157,9 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
-    my $image_name = "$registry/$project/$image:$tagname";
+    my $registry4Tag = $registry;
+    $registry4Tag =~ s/^http.*?:\/\///;
+    my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
