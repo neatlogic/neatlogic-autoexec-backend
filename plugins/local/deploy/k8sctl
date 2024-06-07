@@ -571,21 +571,24 @@ sub deployVersion {
                     foreach my $imageInfo (@$imageList) {
                         $imagesMap->{ ( $imageInfo->{name} ) } = $imageInfo;
                     }
+
                     my $imagesResetCount = 0;
                     foreach my $container (@$containers) {
-                        my $imageInfo = $imagesMap->{ lc( $container->{name} ) };
+                        my $containerName = lc($container->{name});
+                        my $imageInfo = $imagesMap->{ $containerName };
                         if ( defined($imageInfo) ) {
                             $imagesResetCount = $imagesResetCount + 1;
                             $container->{image} = $imageInfo->{image};
                             print("INFO: Reset container $container->{name} image to $imageInfo->{image}.\n");
                         }
                         else {
-                            $container->{image} = lc( $container->{image} );
+                            #$container->{image} = lc( $container->{image} );
+                            print("ERROR: Container $containerName not found in imagelist option value.\n");
                         }
                     }
                     if ( $imagesResetCount != $containersCount ) {
                         $hasConfErr = 1;
-                        print("ERROR: There are $containersCount containers in yaml spec, but only $imagesResetCount found in imagelist option.\n");
+                        print("ERROR: There are $containersCount containers in yaml spec, but only $imagesResetCount found in imagelist option value.\n");
                     }
                 }
                 else {
@@ -1084,8 +1087,8 @@ sub main {
     foreach my $image ( split( /\n|,/, $imagesTxt ) ) {
         my $name = lc($image);
         $image =~ s/^\s+|\s+$//g;
-        $name  =~ s/^.*\/|:.*$//;
-        push( @imageList, { name => $name, $image => $image } );
+        $name  =~ s/^.*\/|:.*$//g;
+        push( @imageList, { name => $name, image => $image } );
     }
 
     my $baseUrl = "https://$host:$apiPort";
