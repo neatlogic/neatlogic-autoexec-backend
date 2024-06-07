@@ -559,11 +559,7 @@ sub deployVersion {
                 next;
             }
 
-            if ( not defined( $resourceSpec->{metadata} ) or not defined( $resourceSpec->{metadata}->{namespace} ) ) {
-                $resourceSpec->{metadata}->{namespace} = $defaultNamespace;
-            }
-
-            if ( $resourceSpec->{kinde} eq 'Deployment' ) {
+            if ( $resourceSpec->{kind} eq 'Deployment' ) {
                 my $containers      = $resourceSpec->{spec}->{template}->{spec}->{containers};
                 my $containersCount = scalar(@$containers);
 
@@ -905,8 +901,8 @@ sub refreshLiveData {
         after => 5,
         cb    => sub { $timerFired->send() },
     );
-    print("INFO: Pods ready tail pod logs...\n");
     $timerFired->recv();
+    print("INFO: Pods ready.\n");
     ###
 }
 

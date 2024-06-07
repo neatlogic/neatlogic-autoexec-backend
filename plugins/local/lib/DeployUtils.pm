@@ -61,8 +61,8 @@ sub deployInit {
 
     AutoExecUtils::setEnv();
 
-    if( not defined($dpPath) or $dpPath eq ''){
-        $dpPath   = $ENV{DEPLOY_PATH};
+    if ( not defined($dpPath) or $dpPath eq '' ) {
+        $dpPath = $ENV{DEPLOY_PATH};
     }
 
     my $dpIdPath = $ENV{DEPLOY_ID_PATH};
@@ -332,7 +332,7 @@ sub getScriptExtName {
 }
 
 sub execmd {
-    my ( $self, $cmd, $pattern ) = @_;
+    my ( $self, $cmd, $pattern, $callback ) = @_;
     my $encoding;
     my $lang = $ENV{LANG};
 
@@ -355,7 +355,13 @@ sub execmd {
                     $line =~ s/$pattern//;
                 }
 
-                print($line);
+                if ( defined($callback) ) {
+                    chomp($line);
+                    &$callback($line);
+                }
+                else {
+                    print($line);
+                }
             }
         }
         else {
@@ -363,7 +369,15 @@ sub execmd {
                 if ( defined($pattern) ) {
                     $line =~ s/$pattern//;
                 }
-                print( Encode::encode( "utf-8", Encode::decode( $encoding, $line ) ) );
+
+                $line = Encode::encode( "utf-8", Encode::decode( $encoding, $line ) );
+                if ( defined($callback) ) {
+                    chomp($line);
+                    &$callback($line);
+                }
+                else {
+                    print($line );
+                }
             }
         }
 
@@ -439,7 +453,14 @@ sub handlePipeOut {
             print("----------------------------------------------------------------------\n");
         }
         else {
-            print("$cmd\n");
+            my $cmd2Print   = $cmd;
+            my @pwdPatterns = ( qr{(pass\w+=)('.*?')+}, qr{(pass\w+=)(".*?(?<!\\)")+}, qr{(pass\w+\s+)('.*?')+}, qr{(pass\w+\s+)(".*?(?<!\\)")+}, qr{(pass\w+=)\S+}, qr{(pass\w+\s+)\S+} );
+            foreach my $pwdPattern (@pwdPatterns) {
+                if ( $cmd2Print =~ s/$pwdPattern/$1*******/g ) {
+                    last;
+                }
+            }
+            print("$cmd2Print\n");
             print("----------------------------------------------------------------------\n");
         }
     }
@@ -451,8 +472,8 @@ sub handlePipeOut {
             if ( $isVerbose == 1 ) {
                 print($line);
             }
-            chomp($line);
             if ( defined($callback) ) {
+                chomp($line);
                 &$callback($line);
             }
         }
