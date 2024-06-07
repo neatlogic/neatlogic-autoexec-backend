@@ -38,10 +38,6 @@ sub main {
         usage();
     }
 
-    $project = lc($project);
-    $image   = lc($image);
-    $tagname = lc($tagname);
-
     my $hasError = 0;
 
     #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
@@ -66,9 +62,7 @@ sub main {
         return $hasError;
     }
 
-    my $registry4Tag = $registry;
-    $registry4Tag =~ s/^http.*?:\/\///;
-    my $image_name = "$registry4Tag/$project/$image:$tagname";
+    my $image_name = "$project/$image:$tagname";
     my $cmd        = "docker rmi $image_name $image:$tagname";
     print("INFO: Execute->$cmd\n");
 

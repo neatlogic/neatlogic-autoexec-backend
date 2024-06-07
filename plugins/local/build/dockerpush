@@ -90,10 +90,6 @@ sub main {
     # $ENV{Username} = $username;
     # $ENV{Secret}   = $password;
 
-    $project = lc($project);
-    $image   = lc($image);
-    $tagname = lc($tagname);
-
     my $hasError = 0;
 
     if ( $storeType eq 'harbor' ) {
@@ -157,9 +153,7 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
-    my $registry4Tag = $registry;
-    $registry4Tag =~ s/^http.*?:\/\///;
-    my $image_name = "$registry4Tag/$project/$image:$tagname";
+    my $image_name = "$project/$image:$tagname";
     my $cmd        = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
