@@ -42,6 +42,15 @@
             "required": "true",
             "validate": "",
             "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "buildfile",
+            "name": "Dockerfile",
+            "help": "Dockerfile的相对路径",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "Dockerfile"
         }
     ],
     "output": [
