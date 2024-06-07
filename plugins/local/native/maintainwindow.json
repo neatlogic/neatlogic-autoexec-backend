@@ -17,5 +17,14 @@
             "defaultValue": "20:00-21:00 23:00-03:00\nWeekDay 7 20:00-21:00 23:00-06:00\nMonthDay 02-18 23:00-06:00\nDate 2060-12-28 22:00-06:00\n"
         }
     ],
-    "argument": {}
+    "argument": {
+        "name": "特权权限",
+        "help": "具有时间窗豁免的权限名称",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "APP_CONFIG_MODIFY",
+        "required": "false",
+        "validate": ""
+    }
 }

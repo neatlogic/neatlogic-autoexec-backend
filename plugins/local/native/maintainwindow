@@ -2,9 +2,12 @@
 # -*- coding:UTF-8 -*-
 
 import sys
+import os
 import argparse
 import re
 import time
+
+import AutoExecUtils
 
 
 class REMatcher(object):
@@ -26,86 +29,99 @@ class REMatcher(object):
 def parseTimeWinDefine(timeWinDefine):
     hasError = False
     timeWins = []
-    winType = 'ByTime'
+    winType = "ByTime"
     year = None
     month = None
     day = None
     weekDay = None
 
     m = REMatcher(timeWinDefine)
-    if m.match('^WeekDay'):
-        if m.match('^WeekDay\s*(\d+)\s'):
+    if m.match("^WeekDay"):
+        if m.match("^WeekDay\s*(\d+)\s"):
             weekDay = int(m.group(1))
             if weekDay < 1 or weekDay > 7:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: WeekDay must between 1 and 7.")
             weekDay = weekDay - 1
-            winType = 'ByWeekDay'
+            winType = "ByWeekDay"
         else:
-            hasError =  True
+            hasError = True
             print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
             print("INFO: Format example: WeekDay 3 19:00-21:00 22:00-24:00")
 
-    elif m.match('^MonthDay'):
-        if m.match('^MonthDay\s*(\d{1,2})-(\d{1,2})\s'):
+    elif m.match("^MonthDay"):
+        if m.match("^MonthDay\s*(\d{1,2})-(\d{1,2})\s"):
             month = int(m.group(1))
             day = int(m.group(2))
             if month < 1 or month > 12:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: Month must between 1 and 12.")
             if day < 1 or day > 31:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: Month day must between 1 and 31.")
-            winType = 'ByMonthDay'
+            winType = "ByMonthDay"
         else:
-            hasError =  True
+            hasError = True
             print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
             print("INFO: Format example: MonthDay 08-15 19:00-21:00 22:00-24:00")
-    elif m.match('^Date'):
-        if m.match('^Date\s*(\d{4})-(\d{1,2})-(\d{1,2})'):
+    elif m.match("^Date"):
+        if m.match("^Date\s*(\d{4})-(\d{1,2})-(\d{1,2})"):
             year = int(m.group(1))
             month = int(m.group(2))
             day = int(m.group(3))
             if month < 1 or month > 12:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: Month must between 1 and 12.")
             if day < 1 or day > 31:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: Month day must between 1 and 31.")
-            
+
             try:
-                time.strptime('%d-%02d-%02d' % (year, month, day), '%Y-%m-%d')
+                time.strptime("%d-%02d-%02d" % (year, month, day), "%Y-%m-%d")
             except Exception as err:
-                hasError =  True
+                hasError = True
                 print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
                 print("INFO: " + str(err))
-            winType = 'ByDate'
+            winType = "ByDate"
         else:
-            hasError =  True
+            hasError = True
             print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
             print("INFO: Format example: Date 2060-08-15 19:00-21:00 22:00-24:00")
 
-    for f in re.finditer('(\d{2}):(\d{2})-(\d{2}):(\d{2})', timeWinDefine):
+    for f in re.finditer("(\d{2}):(\d{2})-(\d{2}):(\d{2})", timeWinDefine):
         startHour = int(f.group(1))
         startMinute = int(f.group(2))
         endHour = int(f.group(3))
         endMinute = int(f.group(4))
 
         if startHour < 0 or startHour > 24 or endHour < 0 or endHour > 24:
-            hasError =  True
+            hasError = True
             print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
             print("INFO: Hour must between 0 and 24.")
         if startMinute < 0 or startMinute > 60 or endMinute < 0 or endMinute > 60:
-            hasError =  True
+            hasError = True
             print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
             print("INFO: Minute must between 0 and 60.")
 
-        timeWins.append({'WinType': winType, 'DefineLine': timeWinDefine, 'Year': year, 'Month': month, 'Day': day, 'WeekDay': weekDay, 'StartHour': startHour, 'StartMinute': startMinute, 'EndHour': endHour, 'EndMinute': endMinute})
+        timeWins.append(
+            {
+                "WinType": winType,
+                "DefineLine": timeWinDefine,
+                "Year": year,
+                "Month": month,
+                "Day": day,
+                "WeekDay": weekDay,
+                "StartHour": startHour,
+                "StartMinute": startMinute,
+                "EndHour": endHour,
+                "EndMinute": endMinute,
+            }
+        )
 
     if len(timeWins) == 0:
         print("ERROR: Malform time windows defined: %s" % (timeWinDefine))
@@ -117,7 +133,7 @@ def parseTimeWinDefine(timeWinDefine):
 
     if hasError:
         raise Exception("Malform time windows defined")
-    
+
     return timeWins
 
 
@@ -125,7 +141,12 @@ if __name__ == "__main__":
     exitCode = 0
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--timewindow', default='', help='Time windows define')
+    parser.add_argument("--timewindow", default="", help="Time windows define")
+    parser.add_argument(
+        "privwhilelist",
+        nargs=argparse.REMAINDER,
+        help="White list privileges",
+    )
 
     args = parser.parse_args()
     timeWinsDef = args.timewindow
@@ -133,10 +154,35 @@ if __name__ == "__main__":
     timeWinLines = []
     timeWins = []
 
+    # 检查特权
+    whitelistDict = {}
+    for privilege in args.privwhilelist:
+        whitelistDict[privilege] = 1
+
+    hasPrivilege = 0
     try:
-        for timeWinDefine in timeWinsDef.split('\\n'):
+        userUuid = os.getenv("AUTOEXEC_USER")
+        if userUuid is not None:
+            privileges = AutoExecUtils.callNativeApi(
+                "/neatlogic/api/rest/user/get",
+                {"userUuid": userUuid},
+            )
+            userAuthList = privileges.get("userAuthList")
+            if userAuthList is not None:
+                for userAuth in userAuthList:
+                    if whitelistDict.get(userAuth.get("auth")) == 1:
+                        hasPrivilege = 1
+                        break
+    except Exception as err:
+        print("ERROR: Get user {} privileges failed, {}".format(userUuid, err))
+        exit(-1)
+    if hasPrivilege == 1:
+        sys.exit(0)
+
+    try:
+        for timeWinDefine in timeWinsDef.split("\\n"):
             timeWinDefine = timeWinDefine.strip()
-            if(timeWinDefine != ''):
+            if timeWinDefine != "":
                 timeWinLines.append(timeWinDefine)
                 timeWins.extend(parseTimeWinDefine(timeWinDefine))
     except Exception as err:
@@ -151,46 +197,136 @@ if __name__ == "__main__":
 
     for timeWin in timeWins:
         startMinutes = 0
-        startMinutes = timeWin['StartHour'] * 60 + timeWin['StartMinute']
+        startMinutes = timeWin["StartHour"] * 60 + timeWin["StartMinute"]
         endMinutes = 1440
-        endMinutes = timeWin['EndHour'] * 60 + timeWin['EndMinute']
+        endMinutes = timeWin["EndHour"] * 60 + timeWin["EndMinute"]
 
-        if timeWin['WinType'] == 'ByDate':
+        if timeWin["WinType"] == "ByDate":
             nowEpoch = time.time()
             startTime = 0
             endTime = 0
             if endMinutes >= startMinutes:
-                startTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (timeWin['Year'], timeWin['Month'], timeWin['Day'], timeWin['StartHour'], timeWin['StartMinute']), '%Y-%m-%d %H:%M'))
-                endTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (timeWin['Year'], timeWin['Month'], timeWin['Day'], timeWin['EndHour'], timeWin['EndMinute']), '%Y-%m-%d %H:%M'))
+                startTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (
+                            timeWin["Year"],
+                            timeWin["Month"],
+                            timeWin["Day"],
+                            timeWin["StartHour"],
+                            timeWin["StartMinute"],
+                        ),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
+                endTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (timeWin["Year"], timeWin["Month"], timeWin["Day"], timeWin["EndHour"], timeWin["EndMinute"]),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
             else:
-                startTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (timeWin['Year'], timeWin['Month'], timeWin['Day'], timeWin['StartHour'], timeWin['StartMinute']), '%Y-%m-%d %H:%M'))
-                endTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (timeWin['Year'], timeWin['Month'], timeWin['Day'], timeWin['EndHour'], timeWin['EndMinute']), '%Y-%m-%d %H:%M')) + 86400
+                startTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (
+                            timeWin["Year"],
+                            timeWin["Month"],
+                            timeWin["Day"],
+                            timeWin["StartHour"],
+                            timeWin["StartMinute"],
+                        ),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
+                endTime = (
+                    time.mktime(
+                        time.strptime(
+                            "%d-%02d-%02d %02d:%02d"
+                            % (
+                                timeWin["Year"],
+                                timeWin["Month"],
+                                timeWin["Day"],
+                                timeWin["EndHour"],
+                                timeWin["EndMinute"],
+                            ),
+                            "%Y-%m-%d %H:%M",
+                        )
+                    )
+                    + 86400
+                )
             if nowEpoch >= startTime and nowEpoch <= endTime:
                 isInTimeWin = True
-        elif timeWin['WinType'] == 'ByMonthDay':
+        elif timeWin["WinType"] == "ByMonthDay":
             nowEpoch = time.time()
             startTime = 0
             endTime = 0
             if endMinutes >= startMinutes:
-                startTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (nowTime.tm_year, timeWin['Month'], timeWin['Day'], timeWin['StartHour'], timeWin['StartMinute']), '%Y-%m-%d %H:%M'))
-                endTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (nowTime.tm_year, timeWin['Month'], timeWin['Day'], timeWin['EndHour'], timeWin['EndMinute']), '%Y-%m-%d %H:%M'))
+                startTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (
+                            nowTime.tm_year,
+                            timeWin["Month"],
+                            timeWin["Day"],
+                            timeWin["StartHour"],
+                            timeWin["StartMinute"],
+                        ),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
+                endTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (nowTime.tm_year, timeWin["Month"], timeWin["Day"], timeWin["EndHour"], timeWin["EndMinute"]),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
             else:
-                startTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (nowTime.tm_year, timeWin['Month'], timeWin['Day'], timeWin['StartHour'], timeWin['StartMinute']), '%Y-%m-%d %H:%M'))
-                endTime = time.mktime(time.strptime('%d-%02d-%02d %02d:%02d' % (nowTime.tm_year, timeWin['Month'], timeWin['Day'], timeWin['EndHour'], timeWin['EndMinute']), '%Y-%m-%d %H:%M')) + 86400
+                startTime = time.mktime(
+                    time.strptime(
+                        "%d-%02d-%02d %02d:%02d"
+                        % (
+                            nowTime.tm_year,
+                            timeWin["Month"],
+                            timeWin["Day"],
+                            timeWin["StartHour"],
+                            timeWin["StartMinute"],
+                        ),
+                        "%Y-%m-%d %H:%M",
+                    )
+                )
+                endTime = (
+                    time.mktime(
+                        time.strptime(
+                            "%d-%02d-%02d %02d:%02d"
+                            % (
+                                nowTime.tm_year,
+                                timeWin["Month"],
+                                timeWin["Day"],
+                                timeWin["EndHour"],
+                                timeWin["EndMinute"],
+                            ),
+                            "%Y-%m-%d %H:%M",
+                        )
+                    )
+                    + 86400
+                )
             if nowEpoch >= startTime and nowEpoch <= endTime:
                 isInTimeWin = True
-        elif timeWin['WinType'] == 'ByWeekDay':
+        elif timeWin["WinType"] == "ByWeekDay":
             if endMinutes >= startMinutes:
-                if timeWin['WeekDay'] != nowTime.tm_wday:
+                if timeWin["WeekDay"] != nowTime.tm_wday:
                     continue
                 if nowMinutes >= startMinutes and nowMinutes <= endMinutes:
                     isInTimeWin = True
             else:
-                if timeWin['WeekDay'] != nowTime.tm_wday and (timeWin['WeekDay'] + 1) % 7 != nowTime.tm_wday:
+                if timeWin["WeekDay"] != nowTime.tm_wday and (timeWin["WeekDay"] + 1) % 7 != nowTime.tm_wday:
                     continue
                 if nowMinutes >= startMinutes or nowMinutes <= endMinutes:
                     isInTimeWin = True
-        elif timeWin['WinType'] == 'ByTime':
+        elif timeWin["WinType"] == "ByTime":
             if endMinutes > startMinutes:
                 if nowMinutes >= startMinutes and nowMinutes <= endMinutes:
                     isInTimeWin = True
@@ -199,13 +335,13 @@ if __name__ == "__main__":
                     isInTimeWin = True
 
         if isInTimeWin:
-            print("FINE: TimeWindow:%s is matched." % (timeWin['DefineLine']))
+            print("FINE: TimeWindow:%s is matched." % (timeWin["DefineLine"]))
             break
 
-    nowTimeStr = time.strftime('%Y-%m-%d %H:%M:%S')
+    nowTimeStr = time.strftime("%Y-%m-%d %H:%M:%S")
     if isInTimeWin is False:
         print("ERROR: Now time %s is not in defined time window." % (nowTimeStr))
-        print('->' + '\n->'.join(timeWinLines))
+        print("->" + "\n->".join(timeWinLines))
         sys.exit(-1)
     else:
         print("FINE: Now time %s is in maintaince time window." % (nowTimeStr))
