@@ -130,12 +130,12 @@ sub main {
         if ( $line =~ /password-stdin/ ) {
             $stdinPwdNotSupported = 1;
         }
+        print($line, "\n");
     };
 
     # login first
-    my $loginCmd  = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin";
-    my $loginCmd2 = "sudo docker login $registry --username '$username' --password '$password'";
-
+    my $loginCmd  = "echo  '$password' |sudo docker login '$registry' --username '$username' --password-stdin";
+    my $loginCmd2 = "sudo docker login '$registry' --username '$username' --password '$password'";
     print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
     my $loginRet = $deployUtils->execmd( $loginCmd, undef, $loginCallBack );
     if ( $stdinPwdNotSupported == 1 ) {
