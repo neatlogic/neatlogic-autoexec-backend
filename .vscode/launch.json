@@ -1412,6 +1412,29 @@
             "reloadModules": true,
             "stopOnEntry": false,
             "console": "integratedTerminal"
+        },
+        {
+            "name": "maintainwindow",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/native/maintainwindow",
+            "env": {
+                "PYTHONPATH": "/Users/wenhb/git/autoexec/lib:$/Users/wenhb/git/autoexec/plib:/Users/wenhb/git/autoexec/plugins/local/lib",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "736961878614016",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"ssh\",\"password\":\"TsSWpwd1207\",\"resourceId\":733926947348487,\"host\":\"192.168.0.1\",\"runnerId\":1,\"nodeType\":\"Router\",\"protocolPort\":22,\"username\":\"inspect\"}",
+                "AUTOEXEC_USER": "fccf704231734072a1bf80d90b2d1de2",
+                "HISTSIZE": "0",
+                "NODE_HOST": "192.168.0.1",
+                "NODE_PORT": "",
+                "NODE_NAME": "router1"
+            },
+            "args": [
+                "--timewindow",
+                "20:00-21:00 23:00-03:00\\nWeekDay 7 20:00-21:00 23:00-06:00\\nMonthDay 02-18 23:00-06:00"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
