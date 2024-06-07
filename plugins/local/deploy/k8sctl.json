@@ -120,6 +120,7 @@
             "defaultValue": "deployment.yaml"
         },
         {
+<<<<<<< Updated upstream
             "opt": "image",
             "name": "镜像",
             "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
@@ -138,6 +139,8 @@
             "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
         },
         {
+=======
+>>>>>>> Stashed changes
             "opt": "namespace",
             "name": "命令空间",
             "help": "应用所在的K8S命令空间",
@@ -163,6 +166,15 @@
             "required": "true",
             "validate": ["integer_p"],
             "defaultValue": "120"
+        },
+        {
+            "opt": "imagelist",
+            "name": "镜像列表",
+            "help": "镜像列表，支持多镜像，一行一个，会自动转小写",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "repository/${SYS_NAME}/${MODULE_NAME}:${ENV_NAME}-${VERSION}"
         }
     ],
     "output": [

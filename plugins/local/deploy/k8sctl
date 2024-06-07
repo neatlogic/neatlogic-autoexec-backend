@@ -21,18 +21,17 @@ sub usage {
     my $pname = $FindBin::Script;
 
     print("Usage: $pname --host K8sHost --apiport APIServerPort --mgmtport ManagermentPort --token Token\n");
-    print("       --image DockerImage --name AppName  --namespace K8sNameSpace --deployment K8sDeployment\n");
+    print("       --namespace K8sNameSpace --deployment K8sDeployment\n");
     print("\n");
     print("       --host:         k8s host, example:192.168.99.100\n");
     print("       --apiport:      k8s api port, example:8843\n");
     print("       --token:        k8s authenticate token\n");
     print("       --dplyyamlfile: k8s deployment yaml config file path(relative to artifact root dir)\n");
-    print("       --image:        docker image, example:nginx:1.7.6\n");
-    print("       --name:         app name, example:nginx\n");
     print("       --namespace:    k8s namespace, example:default\n");
     print("       --deployment:   k8s deployment: example:nginx-deployment\n");
     print("       --acton:        k8s deploy action deploy|stop|start|rollback\n");
     print("       --autocreate:   auto create none exist deployment\n");
+    print("       --imagelist:    Image list, example:repository/name:tag\n");
 
     exit(1);
 }
@@ -426,7 +425,7 @@ sub patchDeployment {
 }
 
 sub deployVersion {
-    my ( $self, $dplyYamlFile, $name, $image, $autoCreate ) = @_;
+    my ( $self, $dplyYamlFile, $imageList, $autoCreate ) = @_;
 
     my $deployment       = $self->{deployment};
     my $defaultNamespace = $self->{namespace};
@@ -466,12 +465,8 @@ sub deployVersion {
         }
     }
     else {
-        if ( not defined($name) or $name eq '' ) {
-            print("ERROR: Must defind app name\n");
-            $self->{optionError} = 1;
-        }
-        if ( not defined($image) or $image eq '' ) {
-            print("ERROR: Must defind docker image\n");
+        if ( not @$imageList ) {
+            print("ERROR: Must defind images list by option --imagelist\n");
             $self->{optionError} = 1;
         }
     }
@@ -562,33 +557,41 @@ sub deployVersion {
             if ( $resourceSpec->{kind} eq 'Deployment' ) {
                 my $containers      = $resourceSpec->{spec}->{template}->{spec}->{containers};
                 my $containersCount = scalar(@$containers);
+                my $imageListCount  = scalar(@$imageList);
 
                 if ( $containersCount == 0 ) {
-                    if ( defined($name) and $name ne '' and defined($image) and $image ne '' ) {
-                        push(
-                            @$containers,
-                            {
-                                {
-                                    name  => $name,
-                                    image => $image
-                                }
-                            }
-                        );
+                    foreach my $imageInfo (@$imageList) {
+                        push( @$containers, $imageInfo );
                     }
                 }
-                elsif ( $containersCount == 1 ) {
-                    if ( defined($name) and $name ne '' ) {
-                        print("INFO: Reset container name to $name.\n");
-                        $$containers[0]->{name} = $name;
+                elsif (@$imageList) {
+                    print("INFO: Image list count defined in option are equal to yaml file specified.\n");
+                    print("INFO: Try to reset the image specified in yaml file by name.\n");
+                    my $imagesMap = {};
+                    foreach my $imageInfo (@$imageList) {
+                        $imagesMap->{ ( $imageInfo->{name} ) } = $imageInfo;
                     }
-                    if ( defined($image) and $image ne '' ) {
-                        print("INFO: Reset container image to $image.\n");
-                        $$containers[0]->{image} = $image;
+                    my $imagesResetCount = 0;
+                    foreach my $container (@$containers) {
+                        my $imageInfo = $imagesMap->{ lc( $container->{name} ) };
+                        if ( defined($imageInfo) ) {
+                            $imagesResetCount = $imagesResetCount + 1;
+                            $container->{image} = $imageInfo->{image};
+                            print("INFO: Reset container $container->{name} image to $imageInfo->{image}.\n");
+                        }
+                        else {
+                            $container->{image} = lc( $container->{image} );
+                        }
+                    }
+                    if ( $imagesResetCount != $containersCount ) {
+                        $hasConfErr = 1;
+                        print("ERROR: There are $containersCount containers in yaml spec, but only $imagesResetCount found in imagelist option.\n");
                     }
                 }
                 else {
-                    $hasConfErr = 1;
-                    print("ERROR: Deployments containers count are $containersCount, can not use name and image option to update deployment. Please use yaml config file.\n");
+                    foreach my $container (@$containers) {
+                        $container->{image} = lc( $container->{image} );
+                    }
                 }
             }
             push( @resourceSpecs, $resourceSpec );
@@ -604,12 +607,7 @@ sub deployVersion {
             spec => {
                 template => {
                     spec => {
-                        containers => [
-                            {
-                                name  => $name,
-                                image => $image
-                            }
-                        ]
+                        containers => $imageList
                     }
                 }
             }
@@ -1037,7 +1035,7 @@ sub tailPodsLog {
 
 sub main {
     my ( $host, $apiPort, $token );
-    my ( $dplyYamlFile, $image, $name, $namespace, $deployment, $action, $timeout );
+    my ( $dplyYamlFile, $imagesTxt, $namespace, $deployment, $action, $timeout );
     my $autoCreate        = 0;
     my $healthCheckNeeded = 0;
     GetOptions(
@@ -1045,14 +1043,13 @@ sub main {
         'apiport=s'           => \$apiPort,
         'token=s'             => \$token,
         'dplyyamlfile=s'      => \$dplyYamlFile,
-        'image=s'             => \$image,
-        'name=s'              => \$name,
         'namespace=s'         => \$namespace,
         'deployment=s'        => \$deployment,
         'action=s'            => \$action,
         'autocreate:s'        => \$autoCreate,
         'healthcheckneeded:s' => \$healthCheckNeeded,
-        'timeout=i'           => \$timeout
+        'timeout=i'           => \$timeout,
+        'imagelist=s'         => \$imagesTxt
     );
 
     my $optionError = 0;
@@ -1082,6 +1079,17 @@ sub main {
     }
     my $org_timeout = $timeout;
 
+<<<<<<< Updated upstream
+=======
+    my @imageList = ();
+    foreach my $image ( split( /\n/, $imagesTxt ) ) {
+        my $name = lc($image);
+        $image =~ s/^\s+|\s+$//g;
+        $name  =~ s/^.*\/|:.*$//;
+        push( @imageList, { name => $name, $image => $image } );
+    }
+
+>>>>>>> Stashed changes
     my $baseUrl = "https://$host:$apiPort";
 
     my $k8sDeploy = K8sDeploy->new(
@@ -1098,7 +1106,7 @@ sub main {
         my $rc;
 
         if ( $action eq 'deploy' ) {
-            $rc = $k8sDeploy->deployVersion( $dplyYamlFile, $name, $image, $autoCreate );
+            $rc = $k8sDeploy->deployVersion( $dplyYamlFile, \@imageList, $autoCreate );
         }
         elsif ( $action eq 'rollback' ) {
             $rc = $k8sDeploy->rollbackDeployment();
