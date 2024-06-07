@@ -52,7 +52,7 @@ sub main {
     #my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
     print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
     my $loginRet = system($loginCmd);
-    if ( $loginRet ne 0 ) {
+    if($loginRet ne 0){
         $loginCmd = "sudo docker login $registry --username '$username' --password '$password' >/dev/null 2>&1";
         $loginRet = system($loginCmd);
     }
@@ -66,7 +66,9 @@ sub main {
         return $hasError;
     }
 
-    my $image_name = "$project/$image:$tagname";
+    my $registry4Tag = $registry;
+    $registry4Tag =~ s/^http.*?:\/\///;
+    my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "docker rmi $image_name $image:$tagname";
     print("INFO: Execute->$cmd\n");
 

@@ -157,7 +157,9 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 
-    my $image_name = "$project/$image:$tagname";
+    my $registry4Tag = $registry;
+    $registry4Tag =~ s/^http.*?:\/\///;
+    my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
