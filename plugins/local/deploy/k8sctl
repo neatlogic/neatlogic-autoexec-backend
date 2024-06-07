@@ -1079,8 +1079,6 @@ sub main {
     }
     my $org_timeout = $timeout;
 
-<<<<<<< Updated upstream
-=======
     my @imageList = ();
     foreach my $image ( split( /\n/, $imagesTxt ) ) {
         my $name = lc($image);
@@ -1089,7 +1087,6 @@ sub main {
         push( @imageList, { name => $name, $image => $image } );
     }
 
->>>>>>> Stashed changes
     my $baseUrl = "https://$host:$apiPort";
 
     my $k8sDeploy = K8sDeploy->new(
