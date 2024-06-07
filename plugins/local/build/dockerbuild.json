@@ -48,7 +48,7 @@
             "name": "Dockerfile",
             "help": "Dockerfile的相对路径",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "Dockerfile"
         }
