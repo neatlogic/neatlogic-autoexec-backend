@@ -96,7 +96,7 @@ sub main {
     my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "sudo docker build -t '$image_name' '$distDir/app'";
     if(defined($buildFile) and $buildFile ne ''){
-        $cmd        = "sudo docker build -t '$image_name' -f '$buildFile' '$distDir/app'";
+        $cmd        = "sudo docker build -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
     }
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
