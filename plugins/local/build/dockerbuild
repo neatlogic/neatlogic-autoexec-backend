@@ -72,6 +72,10 @@ sub main {
     my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
     my $distDir = $dirInfo->{distribute};
 
+    $project = lc($project);
+    $image   = lc($image);
+    $tagname = lc($tagname);
+
     my $lock      = DeployLock->new($buildEnv);
     my $appLockId = $lock->lockEnvApp($DeployLock::READ);
 

@@ -122,7 +122,7 @@
         {
             "opt": "image",
             "name": "镜像",
-            "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
+            "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或library/nginx:1.7.6",
             "type": "text",
             "required": "false",
             "validate": "",

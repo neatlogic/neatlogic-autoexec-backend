@@ -1082,6 +1082,10 @@ sub main {
     }
     my $org_timeout = $timeout;
 
+    if (defined($image)){
+        $image = lc($image);
+    }
+    
     my $baseUrl = "https://$host:$apiPort";
 
     my $k8sDeploy = K8sDeploy->new(
