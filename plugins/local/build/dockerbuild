@@ -25,8 +25,7 @@ sub usage {
 
 sub main {
     my ( $envPath, $version, $buildNo,  $isHelp );
-    my ( $image,   $tagname, $registry, $project );
-    my $buildFile = 'Dockerfile';
+    my ( $image,   $tagname, $registry, $project, $buildFile );
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -37,7 +36,7 @@ sub main {
         'project=s'  => \$project,
         'image=s'    => \$image,
         'tagname=s'  => \$tagname,
-        'buidfile=s' => \$buildFile
+        'buildfile=s' => \$buildFile
     );
 
     usage() if ( defined($isHelp) );
