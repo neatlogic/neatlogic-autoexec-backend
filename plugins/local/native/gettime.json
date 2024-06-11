@@ -1,11 +1,11 @@
 {
-    "opDesc": "抽取上游输出数据的部分数据",
+    "opDesc": "获取当前时间",
     "opType": "native",
     "typeName": "NATIVE",
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "抽取上游输出数据中的部分数据, 提供给外部流程工具引用",
+    "description": "获取并生成时间戳, 提供给下游工具引用",
     "enabled": 1,
     "option": [{
             "opt": "timeformat",
