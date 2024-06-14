@@ -25,7 +25,7 @@ class Operation(object):
 class UnaryOperation(Operation):
     # 一元运算
     def __init__(self, tokens):
-        self.AST_TYPE = 'OPERATOR'
+        self.AST_TYPE = "OPERATOR"
         op = tokens[0][0].lower()
         operand = tokens[0][1]
         self.AST = [op, operand]
@@ -34,7 +34,7 @@ class UnaryOperation(Operation):
 class BinaryOperation(Operation):
     # 二元运算
     def __init__(self, tokens):
-        self.AST_TYPE = 'OPERATOR'
+        self.AST_TYPE = "OPERATOR"
         op = tokens[0][1].lower()
         operands = tokens[0][0::2]
 
@@ -43,7 +43,7 @@ class BinaryOperation(Operation):
         myAST.append(operands[1])
         for operand in operands[2:]:
             operation = Operation()
-            operation.AST_TYPE = 'OPERATOR'
+            operation.AST_TYPE = "OPERATOR"
             operation.AST = myAST
             myAST = [op]
             myAST.append(operation)
@@ -56,10 +56,10 @@ def Parser(ruleTxt):
     number = pp.pyparsing_common.integer | pp.pyparsing_common.real
     string = pp.QuotedString('"') | pp.QuotedString("'")
     value = number | string
-    variable = pp.Regex(r'\$\{\w+\}|\$\w+')
+    variable = pp.Regex(r"\$\{\w+\}|\$\w+")
 
-    cmpOperator = pp.oneOf('= == != >= <= < > + - * / contains startswith')
-    fileOperator = pp.oneOf('-f -d -e -l')
+    cmpOperator = pp.oneOf("= == != >= <= < > + - * / contains startswith")
+    fileOperator = pp.oneOf("-f -d -e -l")
     AND = pp.CaselessLiteral("and")
     OR = pp.CaselessLiteral("or")
     NOT = pp.CaselessLiteral("not")
@@ -69,7 +69,7 @@ def Parser(ruleTxt):
         (fileOperator, 1, pp.opAssoc.RIGHT, UnaryOperation),
         (NOT, 1, pp.opAssoc.RIGHT, UnaryOperation),
         (AND, 2, pp.opAssoc.LEFT, BinaryOperation),
-        (OR, 2, pp.opAssoc.LEFT, BinaryOperation)
+        (OR, 2, pp.opAssoc.LEFT, BinaryOperation),
     ]
 
     ruleExp = pp.Forward()
@@ -82,7 +82,7 @@ def Parser(ruleTxt):
     except pp.ParseSyntaxException as ex:
         print("Syntax error: " + str(ex))
         print(ex.line)
-        print(' ' * ex.loc + '^')
+        print(" " * ex.loc + "^")
 
 
 class DSLError(Exception):
@@ -134,26 +134,26 @@ class Interpreter(object):
 
     def __init__(self):
         self.operators = {
-            '=': operator.eq,
-            '==': operator.eq,
-            '!=': operator.ne,
-            '>=': operator.ge,
-            '<=': operator.le,
-            '<': operator.lt,
-            '>': operator.gt,
-            '+': operator.add,
-            '-': operator.sub,
-            '*': operator.mul,
-            '/': operator.truediv,
-            '-e': _fileExist,
-            '-f': _isfile,
-            '-d': _isdir,
-            '-l': _isLink,
-            'contains': operator.contains,
-            'startswith': _startswith,
-            'and': _and,
-            'or': _or,
-            'not': _not
+            "=": operator.eq,
+            "==": operator.eq,
+            "!=": operator.ne,
+            ">=": operator.ge,
+            "<=": operator.le,
+            "<": operator.lt,
+            ">": operator.gt,
+            "+": operator.add,
+            "-": operator.sub,
+            "*": operator.mul,
+            "/": operator.truediv,
+            "-e": _fileExist,
+            "-f": _isfile,
+            "-d": _isdir,
+            "-l": _isLink,
+            "contains": operator.contains,
+            "startswith": _startswith,
+            "and": _and,
+            "or": _or,
+            "not": _not,
         }
 
         # 初始化计算条件需要的发布相关的进程环境变量
@@ -175,36 +175,43 @@ class Interpreter(object):
         return varVal
 
         # 展开字串中的变量
+
     def resolveValue(self, nodeEnv, val):
         if not isinstance(val, str):
             return int(val)
 
-        matchObjs = re.findall(r'^\$\{(\w+)\}$|^\$(\w+)$', val)
+        matchObjs = re.findall(r"^\$\{(\w+)\}$|^\$(\w+)$", val)
         if matchObjs:
             for varName in matchObjs[0]:
-                if varName != '':
+                if varName != "":
                     varVal = self.getVarValue(nodeEnv, varName)
                     if varVal is not None:
                         val = varVal
+                    else:
+                        val = ""
         else:
-            matchObjs1 = re.findall(r'(\$\{\s*([^\{\}]+)\s*\})', val)
+            matchObjs1 = re.findall(r"(\$\{\s*([^\{\}]+)\s*\})", val)
             for matchObj in matchObjs1:
                 exp = matchObj[0]
                 varVal = self.getVarValue(nodeEnv, matchObj[1])
                 if varVal is not None:
                     val = val.replace(exp, varVal)
+                else:
+                    val = ""
 
-            matchObjs2 = re.findall(r'(\$(\w+))', val)
+            matchObjs2 = re.findall(r"(\$(\w+))", val)
             for matchObj in matchObjs2:
                 exp = matchObj[0]
                 varVal = self.getVarValue(nodeEnv, matchObj[1])
                 if varVal is not None:
                     val = val.replace(exp, varVal)
+                else:
+                    val = ""
 
         if isinstance(val, str):
-            if re.match(r'^\d+$', val):
+            if re.match(r"^\d+$", val):
                 val = int(val)
-            elif re.match(r'^[\d\.]+$', val):
+            elif re.match(r"^[\d\.]+$", val):
                 val = float(val)
 
         return val
@@ -238,8 +245,9 @@ if __name__ == "__main__":
     print("Test...")
     print("----------------------------\n")
 
-    rule = '$MYVAR == "hot_standby" and (-f "/tmp/test.txt" or -d "/tmp/tt")'
-    rule = '$WAL_LEVEL == "replica" and ($WAL_LEVEL == "hot_standby" and $WAL_LEVEL == "logical")'
+    rule = '$MYVAR == "" and (-f "/tmp/test.txt" or -d "/tmp/tt")'
+    # rule = '$WAL_LEVEL == "replica" and ($WAL_LEVEL == "hot_standby" and $WAL_LEVEL == "logical")'
+    rule = '($ENV_NAME=="UAT" or $ENV_NAME=="PRD") and ($approveResult=="拒绝执行" or "$approveResult"==""'
     ast = Parser(rule)
     if isinstance(ast, Operation):
         print(json.dumps(ast.asList(), sort_keys=True, indent=4, ensure_ascii=False))

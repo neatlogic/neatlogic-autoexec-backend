@@ -816,6 +816,19 @@ class RunNode:
                                 msg = arg.get("value", "")
                                 msgLine = msgLine + msg
                             self.writeNodeLog(msgLine + "\n")
+                        elif op.opSubName == "pausejob":
+                            msgLine = "INFO: "
+                            for arg in op.arguments:
+                                msg = arg.get("value", "")
+                                msgLine = msgLine + msg
+                            self.writeNodeLog(msgLine + "\n")
+                            jobPid = os.getenv("AUTOEXEC_PID")
+                            if jobPid is None:
+                                serverAdapter = self.context.serverAdapter
+                                serverAdapter.jobPaused()
+                                print("INFO: Job process puased.\n")
+                            else:
+                                os.kill(jobPid, signal.SIGUSR1)
                         elif op.opSubName == "extractprestepstatus":
                             envName = op.options.get("envname")
                             envScope = op.options.get("scope")

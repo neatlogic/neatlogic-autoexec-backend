@@ -44,6 +44,10 @@ sub new {
     $self->{tailLogPods} = {};
     $self->{updateTime}  = time();
 
+    if ( not defined( $self->{replicas} ) ) {
+        $self->{replicas} = 0;
+    }
+
     my $webCtl = WebCtl->new();
 
     #使用Header的基于token的认证
@@ -90,6 +94,15 @@ sub getApiUrl {
 
     if ( defined($objName) and $objName ne '' ) {
         $url = $url . '/' . $objName;
+    }
+
+    if ( defined( $self->{dryRun} ) ) {
+        if ( defined($queryMap) ) {
+            $queryMap->{dryRun} = $self->{dryRun};
+        }
+        else {
+            $queryMap = { dryRun => $self->{dryRun} };
+        }
     }
 
     if ( defined($queryMap) ) {
@@ -275,6 +288,10 @@ sub saveDeploymentStatus {
         availableReplicas => $newReplicaset->{status}->{availableReplicas}
     };
 
+    if ( not defined( $data->{newreplicaset}->{readyReplicas} ) ) {
+        $data->{newreplicaset}->{readyReplicas} = 0;
+    }
+
     my @newPods = ();
     foreach my $pod ( @{ $newReplicaset->{pods} } ) {
         my $podInfo = {
@@ -291,8 +308,12 @@ sub saveDeploymentStatus {
         };
 
         my $containerCount = scalar( @{ $pod->{spec}->{containers} } );
-        my @containers     = ();
-        my $readyCount     = 0;
+        if ( not defined($containerCount) ) {
+            $containerCount = 0;
+        }
+
+        my @containers = ();
+        my $readyCount = 0;
         foreach my $containerStatus ( @{ $pod->{status}->{containerStatuses} } ) {
             if ( $containerStatus->{ready} ) {
                 $readyCount = $readyCount + 1;
@@ -331,6 +352,10 @@ sub saveDeploymentStatus {
             availableReplicas => $oldReplicaset->{status}->{availableReplicas}
         };
 
+        if ( not defined( $data->{oldreplicaset}->{readyReplicas} ) ) {
+            $data->{oldreplicaset}->{readyReplicas} = 0;
+        }
+
         my @oldPods = ();
         foreach my $pod ( @{ $oldReplicaset->{pods} } ) {
             my $podInfo = {
@@ -347,8 +372,12 @@ sub saveDeploymentStatus {
             };
 
             my $containerCount = scalar( @{ $pod->{spec}->{containers} } );
-            my @containers     = ();
-            my $readyCount     = 0;
+            if ( not defined($containerCount) ) {
+                $containerCount = 0;
+            }
+
+            my @containers = ();
+            my $readyCount = 0;
             foreach my $containerStatus ( @{ $pod->{status}->{containerStatuses} } ) {
                 if ( $containerStatus->{ready} ) {
                     $readyCount = $readyCount + 1;
@@ -547,6 +576,9 @@ sub deployVersion {
                         $hasConfErr = 1;
                     }
                 }
+                if ( defined( $resourceSpec->{spec}->{replicas} ) ) {
+                    $self->{replicas} = $resourceSpec->{spec}->{replicas};
+                }
             }
 
             if ( $hasConfErr == 1 ) {
@@ -574,8 +606,8 @@ sub deployVersion {
 
                     my $imagesResetCount = 0;
                     foreach my $container (@$containers) {
-                        my $containerName = lc($container->{name});
-                        my $imageInfo = $imagesMap->{ $containerName };
+                        my $containerName = lc( $container->{name} );
+                        my $imageInfo     = $imagesMap->{$containerName};
                         if ( defined($imageInfo) ) {
                             $imagesResetCount = $imagesResetCount + 1;
                             $container->{image} = $imageInfo->{image};
@@ -833,6 +865,7 @@ sub refreshLiveData {
     while (1) {
         my $replicasetList  = $self->getDeploymentReplicasets($deployInfo);
         my $replicasetCount = scalar(@$replicasetList);
+
         for ( my $i = 0 ; $i < 2 and $i < $replicasetCount ; $i++ ) {
             my $replicasetInfo = $$replicasetList[$i];
             $replicasetInfo->{pods} = $self->getReplicasetPods( $replicasetInfo->{spec}->{selector}->{matchLabels} );
@@ -850,11 +883,20 @@ sub refreshLiveData {
         }
 
         $self->saveDeploymentStatus($data);
+        if ( defined( $self->{dryRun} ) ) {
+            last;
+        }
 
         my $replicas;
         my $runningReplicas = 0;
         if (@$replicasetList) {
-            $replicas = $$replicasetList[0]->{status}->{replicas};
+
+            #$replicas = $$replicasetList[0]->{status}->{replicas};
+            $replicas = $self->{replicas};
+            if ( not defined($replicas) or $replicas == 0 ) {
+                $replicas = $$replicasetList[0]->{status}->{replicas};
+            }
+
             my $pods = $$replicasetList[0]->{pods};
             foreach my $pod (@$pods) {
                 if ( $pod->{status}->{phase} eq 'Running' ) {
@@ -1039,6 +1081,7 @@ sub tailPodsLog {
 sub main {
     my ( $host, $apiPort, $token );
     my ( $dplyYamlFile, $imagesTxt, $namespace, $deployment, $action, $timeout );
+    my $isDryrun          = 0;
     my $autoCreate        = 0;
     my $healthCheckNeeded = 0;
     GetOptions(
@@ -1049,11 +1092,14 @@ sub main {
         'namespace=s'         => \$namespace,
         'deployment=s'        => \$deployment,
         'action=s'            => \$action,
+        'dryrun=i'            => \$isDryrun,
         'autocreate:s'        => \$autoCreate,
         'healthcheckneeded:s' => \$healthCheckNeeded,
         'timeout=i'           => \$timeout,
         'imagelist=s'         => \$imagesTxt
     );
+
+    $| = 1;
 
     my $optionError = 0;
 
@@ -1091,6 +1137,11 @@ sub main {
         push( @imageList, { name => $name, image => $image } );
     }
 
+    my $dryRun;
+    if ( $isDryrun == 1 ) {
+        $dryRun = 'All';
+    }
+
     my $baseUrl = "https://$host:$apiPort";
 
     my $k8sDeploy = K8sDeploy->new(
@@ -1099,6 +1150,7 @@ sub main {
         namespace         => $namespace,
         deployment        => $deployment,
         action            => $action,
+        dryRun            => $dryRun,
         timeout           => $timeout,
         healthCheckNeeded => $healthCheckNeeded
     );

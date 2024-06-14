@@ -49,8 +49,8 @@
         },
         {
             "opt": "tagprefix",
-            "name": "仓库地址",
-            "help": "GIT的仓库地址或SVN仓库的根路径",
+            "name": "标签前缀",
+            "help": "SVN标签前缀",
             "type": "text",
             "required": "true",
             "validate": "",
