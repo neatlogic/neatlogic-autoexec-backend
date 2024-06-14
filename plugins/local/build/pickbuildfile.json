@@ -1,0 +1,50 @@
+{
+    "opDesc": "从其他工程最新build目录抽取文件",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "release-args",
+    "description": "从其他系统的最新的build目录中抽取文件到当前Build",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "srcenvpath",
+            "name": "源系统模块",
+            "help": "被抽取的系统模块，前提是其他系统的版本已存在于制品库中",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "SYS-NAME/MODULE/NAME"
+        },
+        {
+            "opt": "srcversion",
+            "name": "被抽取的版本",
+            "help": "被抽取的系统的版本",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "latest"
+        },
+        {
+            "opt": "destsubdir",
+            "name": "目标子目录",
+            "help": "当前系统的版本制品中的子目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "app"
+        }
+    ],
+    "argument": {
+        "name": "抽取列表",
+        "help": "从工程目录中抽取的文件或目录，例如：Dockerfile 或者 target/*.jar 或者 *。yaml",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "Dockerfile",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

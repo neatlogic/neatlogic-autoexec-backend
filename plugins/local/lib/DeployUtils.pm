@@ -186,6 +186,57 @@ sub deployInit {
     return $deployEnv;
 }
 
+sub getVerBaseEnv {
+    my ( $self, $dpPath, $version, $buildNo ) = @_;
+    my $serverAdapter = ServerAdapter->new();
+    my $dpIdPath      = $serverAdapter->getIdPath($dpPath);
+
+    my $verEnv = {};
+
+    my @pathLevels = ( 'SYS', 'MODULE', 'ENV' );
+    my @pathIds    = split( '/', $dpIdPath );
+    for ( my $i = 0 ; $i <= $#pathIds ; $i++ ) {
+        $verEnv->{ $pathLevels[$i] . '_ID' } = $pathIds[$i];
+    }
+    my @pathNames = split( '/', $dpPath );
+    for ( my $i = 0 ; $i <= $#pathNames ; $i++ ) {
+        $verEnv->{ $pathLevels[$i] . '_NAME' } = $pathNames[$i];
+    }
+
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+    }
+    $verEnv->{AUTOEXEC_HOME} = $autoexecHome;
+
+    my $verDataRoot = "$autoexecHome/data/verdata";
+    my $dataPath    = "$verDataRoot/$verEnv->{SYS_ID}/$verEnv->{MODULE_ID}";
+    my $prjRoot     = "$dataPath/workspace";
+    my $prjPath     = "$prjRoot/project";
+    my $verRoot     = "$dataPath/artifact/$version";
+    my $distRoot    = "$verRoot/env";
+    my $mirrorRoot  = "$dataPath/mirror";
+    my $buildRoot   = "$dataPath/artifact/$version/build";
+
+    $verEnv->{VERDATA_ROOT} = $verDataRoot;
+    $verEnv->{DATA_PATH}    = $dataPath;
+    $verEnv->{VER_ROOT}     = $verRoot;
+    $verEnv->{PRJ_ROOT}     = $prjRoot;
+    $verEnv->{PRJ_PATH}     = $prjPath;
+    $verEnv->{DIST_ROOT}    = $distRoot;
+    $verEnv->{MIRROR_ROOT}  = $mirrorRoot;
+
+    $verEnv->{BUILD_ROOT} = $buildRoot;
+    if ( defined($buildNo) ) {
+        $verEnv->{BUILD_PATH} = "$buildRoot/$buildNo";
+    }
+
+    $verEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
+    $verEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
+
+    return $verEnv;
+}
+
 sub getDataDirStruct {
     my ( $self, $buildEnv, $isRelative ) = @_;
 

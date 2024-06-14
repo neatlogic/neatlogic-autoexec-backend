@@ -137,58 +137,7 @@ def parseTimeWinDefine(timeWinDefine):
     return timeWins
 
 
-if __name__ == "__main__":
-    exitCode = 0
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--timewindow", default="", help="Time windows define")
-    parser.add_argument(
-        "privwhilelist",
-        nargs=argparse.REMAINDER,
-        help="White list privileges",
-    )
-
-    args = parser.parse_args()
-    timeWinsDef = args.timewindow
-
-    timeWinLines = []
-    timeWins = []
-
-    # 检查特权
-    whitelistDict = {}
-    for privilege in args.privwhilelist:
-        whitelistDict[privilege] = 1
-
-    hasPrivilege = 0
-    try:
-        userUuid = os.getenv("AUTOEXEC_USER")
-        if userUuid is not None:
-            privileges = AutoExecUtils.callNativeApi(
-                "/neatlogic/api/rest/user/get",
-                {"userUuid": userUuid},
-            )
-            userAuthList = privileges.get("userAuthList")
-            if userAuthList is not None:
-                for userAuth in userAuthList:
-                    if whitelistDict.get(userAuth.get("auth")) == 1:
-                        hasPrivilege = 1
-                        break
-    except Exception as err:
-        print("ERROR: Get user {} privileges failed, {}".format(userUuid, err))
-        exit(-1)
-    if hasPrivilege == 1:
-        sys.exit(0)
-
-    try:
-        for timeWinDefine in timeWinsDef.split("\\n"):
-            timeWinDefine = timeWinDefine.strip()
-            if timeWinDefine != "":
-                timeWinLines.append(timeWinDefine)
-                timeWins.extend(parseTimeWinDefine(timeWinDefine))
-    except Exception as err:
-        print("ERROR: %s" % (str(err)))
-        sys.exit(2)
-
+def isTimeInTimeWin(timeWins):
     nowTime = time.localtime()
 
     isInTimeWin = False
@@ -335,13 +284,76 @@ if __name__ == "__main__":
                     isInTimeWin = True
 
         if isInTimeWin:
-            print("FINE: TimeWindow:%s is matched." % (timeWin["DefineLine"]))
-            break
+            # print("FINE: TimeWindow:%s is matched." % (timeWin["DefineLine"]))
+            return timeWin
+
+
+if __name__ == "__main__":
+    exitCode = 0
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--wait2fullfill", default="0", help="If wait time to full fill time windows.\n")
+    parser.add_argument("--timewindow", default="", help="Time windows define")
+    parser.add_argument(
+        "privwhilelist",
+        nargs=argparse.REMAINDER,
+        help="White list privileges",
+    )
+
+    args = parser.parse_args()
+    timeWinsDef = args.timewindow
+    waitTime2Fullfilled = int(args.wait2fullfill)
+
+    timeWinLines = []
+    timeWins = []
+
+    # 检查特权
+    whitelistDict = {}
+    for privilege in args.privwhilelist:
+        whitelistDict[privilege] = 1
+
+    hasPrivilege = 0
+    try:
+        userUuid = os.getenv("AUTOEXEC_USER")
+        if userUuid is not None:
+            privileges = AutoExecUtils.callNativeApi(
+                "/neatlogic/api/rest/user/get",
+                {"userUuid": userUuid},
+            )
+            userAuthList = privileges.get("userAuthList")
+            if userAuthList is not None:
+                for userAuth in userAuthList:
+                    if whitelistDict.get(userAuth.get("auth")) == 1:
+                        hasPrivilege = 1
+                        break
+    except Exception as err:
+        print("ERROR: Get user {} privileges failed, {}".format(userUuid, err))
+        exit(-1)
+    if hasPrivilege == 1:
+        sys.exit(0)
+
+    try:
+        for timeWinDefine in timeWinsDef.split("\\n"):
+            timeWinDefine = timeWinDefine.strip()
+            if timeWinDefine != "":
+                timeWinLines.append(timeWinDefine)
+                timeWins.extend(parseTimeWinDefine(timeWinDefine))
+    except Exception as err:
+        print("ERROR: %s" % (str(err)))
+        sys.exit(2)
+
+    matchedTimeWin = isTimeInTimeWin(timeWins)
+    if waitTime2Fullfilled == 1:
+        if matchedTimeWin is None:
+            print("INFO: Wait to full fill the time windows.\n")
+        while matchedTimeWin is None:
+            time.sleep(60)
+            matchedTimeWin = isTimeInTimeWin(timeWins)
 
     nowTimeStr = time.strftime("%Y-%m-%d %H:%M:%S")
-    if isInTimeWin is False:
+    if matchedTimeWin is None:
         print("ERROR: Now time %s is not in defined time window." % (nowTimeStr))
         print("->" + "\n->".join(timeWinLines))
         sys.exit(-1)
     else:
-        print("FINE: Now time %s is in maintaince time window." % (nowTimeStr))
+        print("FINE: Now time %s is in maintaince time window %s." % (nowTimeStr, matchedTimeWin["DefineLine"]))

@@ -105,14 +105,28 @@ sub main {
         pipeFile   => $pipeFile
     );
 
-    my ( $userId, $enter ) = AutoExecUtils::doInteract(
-        title    => $title,
-        opType   => $opType,
-        message  => $message,
-        options  => $options,
-        role     => $role,
-        pipeFile => $pipeFile
-    );
+    my ( $userId, $enter );
+    my $hasPrivilege = 0;
+    while ( $hasPrivilege == 0 ) {
+        ( $userId, $enter ) = AutoExecUtils::doInteract(
+            title    => $title,
+            opType   => $opType,
+            message  => $message,
+            options  => $options,
+            role     => $role,
+            pipeFile => $pipeFile
+        );
+
+        if ( not defined($role) or $role eq '' ) {
+            $hasPrivilege = 1;
+            last;
+        }
+        if ( defined($userId) and $userId ne '' ) {
+            $hasPrivilege = AutoExecUtils::checkInteractPrivilege( $userId, $role );
+        }
+
+        print("WARN: You do not has interact privileges.\n");
+    }
 
     AutoExecUtils::informNodeWaitInput(
         phaseName  => $phaseName,

@@ -362,6 +362,12 @@ sub _load_scalar {
         elsif($string =~ /^\d*\.\d+$/){
             $string = $string + 0.0;
         }
+        elsif($string =~ /^true$/i){
+            $string = \1;
+        }
+        elsif($string =~ /^false$/i){
+            $string = \0;
+        }
         elsif($string eq 'null'){
             $string = undef;
         }

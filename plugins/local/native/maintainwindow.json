@@ -8,6 +8,26 @@
     "description": "检查当前时间是否在维护窗口内，支持多参数，每个参数设置若干个窗口设置。",
     "option": [
         {
+            "opt": "wait2fullfill",
+            "name": "等待时间满足",
+            "help": "一直等待到时间窗口满足",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [{
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
             "opt": "timewindow",
             "name": "时间窗口",
             "help": "例如:\n    20:00-21:00 23:00-03:00\n    WeekDay 7 20:00-21:00 23:00-06:00\n    MonthDay 02-18 23:00-06:00\n    Date 2060-12-28 22:00-06:00\n",

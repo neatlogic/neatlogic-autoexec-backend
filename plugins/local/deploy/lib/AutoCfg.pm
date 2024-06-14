@@ -598,9 +598,10 @@ sub replacePlaceHolder {
 
                     $content = $content . $line;
 
-                    if ( $line =~ /\{\{(.+?)\}\}/ ) {
+                    while ( $line =~ /\{\{(.+?)\}\}/g ) {
                         my $key = $1;
                         if ( not defined( $notPlaceholders->{$key} ) ) {
+                            $key =~ s/^\s+|\s+$//g;
                             if ( $key =~ /^[\w\-\.]+$/ ) {
                                 $self->{hasError} = $self->{hasError} + 1;
                                 if ( not defined( $keysNotConf->{$key} ) ) {
@@ -629,7 +630,7 @@ sub replacePlaceHolder {
                         print("ERROR: Can not rewrite file $orgFileName while modify config file.\n");
                     }
 
-                    if ( $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
+                    if ($self->{hasError} == 0 and $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
                         rmtree($fileName);
                     }
                 }
@@ -1510,7 +1511,7 @@ sub updateConfig {
                 $self->replacePlaceHolder( $autoCfgDocRoot, $cfgFilePath, $cfgFile, $rplOrgFiles, undef );
             }
 
-            if ($cleanAutoCfgFiles) {
+            if ($self->{hasError} == 0 and $cleanAutoCfgFiles) {
                 rmtree($cfgFilePath);
                 rmtree("$cfgFilePath.md5");
             }
