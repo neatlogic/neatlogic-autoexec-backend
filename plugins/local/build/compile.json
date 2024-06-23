@@ -60,16 +60,36 @@
                         "value": "maven"
                     },
                     {
+                        "text": "maven3.6.3",
+                        "value": "maven3.6.3"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    },
+                    {
+                        "text": "npm8",
+                        "value": "npm8"
+                    },
+                    {
+                        "text": "npm10",
+                        "value": "npm10"
+                    },
+                    {
+                        "text": "npm12",
+                        "value": "npm12"
+                    },
+                    {
+                        "text": "npm13",
+                        "value": "npm13"
+                    },
+                    {
                         "text": "ant",
                         "value": "ant"
                     },
                     {
                         "text": "gradle",
                         "value": "gradle"
-                    },
-                    {
-                        "text": "npm",
-                        "value": "npm"
                     }
                 ]
             },
