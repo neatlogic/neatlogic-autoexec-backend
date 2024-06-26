@@ -50,6 +50,10 @@ sub new {
     return $self;
 }
 
+sub init {
+
+}
+
 #su运行命令，并返回输出的文本
 sub getCmdOut {
     my ( $self, $cmd, $user, $opts ) = @_;

@@ -1367,8 +1367,7 @@ sub getKVMAllocateInfo {
     my $memAllocatedSize = 0;
     my $vcpuAllocated    = 0;
     foreach my $confFile ( glob("/etc/libvirt/qemu/*.xml") ) {
-        my $confObj = xml_to_object( $confFile, { file => 1 } );
-        my $domain  = $confObj->path('domain');
+        my $domain = xml_to_object( $confFile, { file => 1 } );
         if ( not defined($domain) or $domain->attr('type') ne 'kvm' ) {
             next;
         }
