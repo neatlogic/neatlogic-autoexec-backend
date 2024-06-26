@@ -433,11 +433,6 @@
             "type": "Int"
         },
         {
-            "name": "KVM_ALLOCATED_VCPU",
-            "desc": "已分配的VCPU核数",
-            "type": "Int"
-        },
-        {
             "name": "IOWAIT_PCT",
             "desc": "IOWait百分比",
             "type": "Float"
@@ -563,12 +558,7 @@
             "name": "MEM_TOTAL",
             "desc": "总内存(M)",
             "type": "Float"
-        },
-        {
-            "name": "KVM_ALLOCATED_MEM",
-            "desc": "已分配KVM内存(M)",
-            "type": "Float"
-        },       
+        },     
         {
             "name": "MEM_USAGE",
             "desc": "内存使用率%",

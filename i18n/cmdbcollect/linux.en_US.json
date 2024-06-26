@@ -448,11 +448,6 @@
             "type": "Int"
         },
         {
-            "name": "KVM_ALLOCATED_VCPU",
-            "desc": "Allocated Vcpu for KVM",
-            "type": "Int"
-        },
-        {
             "name": "IOWAIT_PCT",
             "desc": "Iowait%",
             "type": "Float"
@@ -582,11 +577,6 @@
         {
             "name": "MEM_TOTAL",
             "desc": "Memory Total(M)",
-            "type": "Float"
-        },
-        {
-            "name": "KVM_ALLOCATED_MEM",
-            "desc": "Allocated KVM memory(M)",
             "type": "Float"
         },
         {
