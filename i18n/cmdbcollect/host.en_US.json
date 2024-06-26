@@ -182,6 +182,11 @@
             "type": "Float"
         },
         {
+            "name": "KVM_ALLOCATED_VCPU",
+            "desc": "Allocated Vcpu for KVM",
+            "type": "Int"
+        },
+        {
             "name": "CPU_FREQUENCY",
             "desc": "CPU Frequency",
             "type": "String"
@@ -355,8 +360,13 @@
             "type": "String"
         },
         {
-            "name": "MEM_MAXIMUM_CAPACITY",
-            "desc": "Memory Maximum Capacity",
+            "name": "MEM_TOTAL",
+            "desc": "Memory Size(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_ALLOCATED_MEM",
+            "desc": "Allocated KVM memory(M)",
             "type": "Float"
         },
         {

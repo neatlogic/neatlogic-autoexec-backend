@@ -1395,7 +1395,7 @@ sub getKVMAllocateInfo {
             $vcpuAllocated = $vcpuAllocated + $vcpuCount;
         }
     }
-    $hostInfo->{KVM_ALLOCATED_MEM} = $memAllocatedSize;
+    $hostInfo->{KVM_ALLOCATED_MEM}  = $memAllocatedSize;
     $hostInfo->{KVM_ALLOCATED_VCPU} = $vcpuAllocated;
 }
 
@@ -1443,6 +1443,7 @@ sub collectHostInfo {
     my $hostInfo = {};
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};
+    $hostInfo->{MEM_TOTAL}  = $osInfo->{MEM_TOTAL};
 
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getMainBoardInfo($hostInfo);

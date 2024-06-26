@@ -182,6 +182,11 @@
             "type": "Float"
         },
         {
+            "name": "KVM_ALLOCATED_VCPU",
+            "desc": "已分配的VCPU核数",
+            "type": "Int"
+        },
+        {
             "name": "CPU_FREQUENCY",
             "desc": "CPU频率",
             "type": "String"
@@ -344,6 +349,16 @@
             "desc": "制造商",
             "type": "String"
         },
+        {
+            "name": "MEM_TOTAL",
+            "desc": "内存大小(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_ALLOCATED_MEM",
+            "desc": "已分配KVM内存(M)",
+            "type": "Float"
+        },  
         {
             "name": "MEM_MAXIMUM_CAPACITY",
             "desc": "可安装内存",
