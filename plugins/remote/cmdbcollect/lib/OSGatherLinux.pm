@@ -13,6 +13,7 @@ use POSIX;
 use Cwd;
 use IO::File;
 use File::Basename;
+use XML::MyXML qw(xml_to_object);
 
 use Distribution;
 
@@ -1044,17 +1045,17 @@ sub getMainBoardInfo {
                 $sysInfo->{ $info[0] } = $info[1];
             }
         }
-        
+
         my $productName = $sysInfo->{'Product Name'};
-        if ( defined( $productName ) and $productName ne 'None' ) {
-            $hostInfo->{MODEL} = $productName;
+        if ( defined($productName) and $productName ne 'None' ) {
+            $hostInfo->{MODEL}      = $productName;
             $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
         }
         my $manufacturer = $sysInfo->{'Manufacturer'};
-        if ( defined( $manufacturer ) and $manufacturer ne 'None' ) {
+        if ( defined($manufacturer) and $manufacturer ne 'None' ) {
             $hostInfo->{MANUFACTURER} = $manufacturer;
-            if($hostInfo->{IS_VIRTUAL} == 0){
-                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($manufacturer)
+            if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($manufacturer);
             }
         }
 
@@ -1099,14 +1100,14 @@ sub getMainBoardInfo {
         $biosVersion =~ s/^\*|\s$//g;
         $hostInfo->{BIOS_VERSION} = $biosVersion;
 
-        if ( defined( $productName ) and $productName ne 'None' ) {
-            $hostInfo->{MODEL} = $productName;
+        if ( defined($productName) and $productName ne 'None' ) {
+            $hostInfo->{MODEL}      = $productName;
             $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
         }
-        if ( defined( $vendorName ) and $vendorName ne 'None' ) {
+        if ( defined($vendorName) and $vendorName ne 'None' ) {
             $hostInfo->{MANUFACTURER} = $vendorName;
-            if($hostInfo->{IS_VIRTUAL} == 0){
-                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($vendorName)
+            if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($vendorName);
             }
         }
     }
@@ -1361,38 +1362,75 @@ sub getKVMGuestOSUUIDs {
     $hostInfo->{GUESTOS_UUIDS} = \@uuids;
 }
 
+sub getKVMAllocateInfo {
+    my ( $self, $hostInfo ) = @_;
+    my $memAllocatedSize = 0;
+    my $vcpuAllocated    = 0;
+    foreach my $confFile ( glob("/etc/libvirt/qemu/*.xml") ) {
+        my $confObj = xml_to_object( $confFile, { file => 1 } );
+        my $domain  = $confObj->path('domain');
+        if ( not defined($domain) or $domain->attr('type') ne 'kvm' ) {
+            next;
+        }
+
+        my $memory = $domain->path('memory');
+        if ( defined($memory) ) {
+            my $memSize = int( $memory->value() );
+            my $memUnit = $memory->attr('unit');
+            if ( $memUnit =~ /^K/ ) {
+                $memSize = $memSize / 1024;
+            }
+            elsif ( $memUnit =~ /^G/ ) {
+                $memSize = $memSize * 1024;
+            }
+            elsif ( $memUnit =~ /^T/ ) {
+                $memSize = $memSize * 1024 * 1024;
+            }
+            $memAllocatedSize = $memAllocatedSize + $memSize;
+        }
+
+        my $vcpu = $domain->path('vcpu');
+        if ( defined($vcpu) ) {
+            my $vcpuCount = int( $vcpu->value() );
+            $vcpuAllocated = $vcpuAllocated + $vcpuCount;
+        }
+    }
+    $hostInfo->{KVM_ALLOCATED_MEM} = $memAllocatedSize;
+    $hostInfo->{KVM_ALLOCATED_VCPU} = $vcpuAllocated;
+}
+
 sub getOsServices {
-    my ($self, $osInfo) = @_;
+    my ( $self, $osInfo ) = @_;
     my $connGather = ConnGather->new( $self->{inspect} );
-    my $connInfo    = $connGather->getListenInfo();
-    my $listenMap = $connInfo->{LISTEN};
+    my $connInfo   = $connGather->getListenInfo();
+    my $listenMap  = $connInfo->{LISTEN};
 
     my $svcPortsMap = {};
-    if(defined($listenMap)){
-        foreach my $lsnAddr (keys(%$listenMap)){
-            if($lsnAddr =~ /(\d+)/){
+    if ( defined($listenMap) ) {
+        foreach my $lsnAddr ( keys(%$listenMap) ) {
+            if ( $lsnAddr =~ /(\d+)/ ) {
                 my $lsnPort = int($1);
-                if($lsnPort < 1024 and $lsnPort > 1){
+                if ( $lsnPort < 1024 and $lsnPort > 1 ) {
                     $svcPortsMap->{$lsnPort} = 1;
                 }
             }
         }
     }
 
-    my @services = ();
+    my @services    = ();
     my $servicesTxt = $self->getFileContent("/etc/services");
-    foreach my $line (split(/\n+/, $servicesTxt)){
-        if($line =~ /^\s*(\w+)\s+(\d+)\/(\w+)/){
-            my $svcName = $1;
-            my $port = int($2);
+    foreach my $line ( split( /\n+/, $servicesTxt ) ) {
+        if ( $line =~ /^\s*(\w+)\s+(\d+)\/(\w+)/ ) {
+            my $svcName  = $1;
+            my $port     = int($2);
             my $protocol = $3;
-            if($svcPortsMap->{$port}){
+            if ( $svcPortsMap->{$port} ) {
                 my $svcInfo = {
-                    NAME => $svcName,
-                    PORT => $port,
+                    NAME     => $svcName,
+                    PORT     => $port,
                     PROTOCOL => $protocol
                 };
-                push(@services, $svcInfo);
+                push( @services, $svcInfo );
             }
         }
     }
@@ -1412,6 +1450,7 @@ sub collectHostInfo {
         $self->getNicInfo($hostInfo);
         $self->getHBAInfo($hostInfo);
         $self->getKVMGuestOSUUIDs($hostInfo);
+        $self->getKVMAllocateInfo($hostInfo);
     }
 
     return $hostInfo;
