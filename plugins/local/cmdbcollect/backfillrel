@@ -538,9 +538,7 @@ def genLBRel(db):
 
                 port["REMOTE_PORTS"] = refSwPorts
 
-            lbUpdCollection.update_one(
-                {"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"PORTS": ports, "REF_SWITCHES": list(refSwitchesMap.values())}}
-            )
+            lbUpdCollection.update_one({"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"PORTS": ports, "REF_SWITCHES": list(refSwitchesMap.values())}})
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
 
@@ -605,6 +603,7 @@ def genOSRel(db):
             # 计算host_on在哪个物理机上
             productId = os.get("PRODUCT_UUID")
             hostOn = os.get("HOST_ON", [])
+            hostOnKvm = os.get("HOST_ON_KVM", [])
             if productId is not None:
                 hostInfo = hostCollection.find_one(
                     {"GUESTOS_UUIDS": productId},
@@ -612,6 +611,7 @@ def genOSRel(db):
                 )
                 if hostInfo is not None:
                     hostOn = [hostInfo]
+                    hostOnKvm = [{"_OBJ_CATEGORY": "HOST", "_OBJ_TYPE": "KVM", "UUID": productId, "IP": hostInfo.get("MGMT_IP")}]
 
             # 计算网卡连接的交换机端口信息
             refSwitchesMap = {}
@@ -835,6 +835,7 @@ def genOSRel(db):
                         "DISKS": disks,
                         "BELONG_CLUSTER": belongCls,
                         "HOST_ON": hostOn,
+                        "HOST_ON_KVM": hostOnKvm
                     }
                 },
             )
