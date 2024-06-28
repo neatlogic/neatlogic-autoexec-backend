@@ -269,7 +269,7 @@ class GlobalLock(object):
         phaseName = lockParams.get("phaseName", "-")
         phaseLocks = self.phaseLockHandles.get(phaseName, [])
         for lockId in phaseLocks:
-            self.unlock(lockId)
+            self.unlock(lockId, True)
         self.phaseLockHandles.pop(phaseName, None)
         return {"lockIds": ",".join(str(lockId) for lockId in phaseLocks)}
 
