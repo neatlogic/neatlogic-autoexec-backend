@@ -129,8 +129,8 @@ class ListenWorkThread(threading.Thread):
                     lockTarget = lockInfo.get("lockTarget", lockTarget)
                     if lockAction == "phaseEnd":
                         lockIds = lockInfo.get("lockIds", None)
-                        if lockIds is not None:
-                            print("INFO: Clean locks({}) for phase:{} success.\n".format(lockInfo.get("lockIds", "-"), phaseName), end="")
+                        if lockIds is not None and lockIds != "":
+                            print("INFO: Clean locks({}) for phase:{} success.\n".format(lockIds, phaseName), end="")
                     else:
                         if lockScope != "process" and lockAction == "unlock":
                             print("INFO: PID({}) {} {} lockId({}) scope is {}, lock will reserve untill phase {} ended.\n".format(lockPid, lockMode, lockAction, lockId, lockScope, phaseName), end="")
