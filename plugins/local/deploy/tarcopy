@@ -155,7 +155,7 @@ sub main {
     $port = 22 if ( not defined($port) );
 
     my $lock      = DeployLock->new($deployEnv);
-    my $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+    my $appLockId = $lock->lockEnvApp($DeployLock::READ);
 
     END {
         local $?;
