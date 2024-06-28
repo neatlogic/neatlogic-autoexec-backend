@@ -1435,6 +1435,35 @@
                 "20:00-21:00 23:00-03:00\\nWeekDay 7 20:00-21:00 23:00-06:00\\nMonthDay 02-18 23:00-06:00"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "switchcollector",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/cmdbcollect/switchcollector",
+            "inc": [
+                "${workspaceFolder}/plugins/local/cmdbcollect/lib",
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "collect",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "OUTPUT_PATH": "/tmp/output.json",
+                "LIVEDATA_PATH": "/tmp/livedata.json",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"snmp\",\"password\":\"Tpublic\",\"resourceId\":0,\"host\":\"192.168.0.1\",\"nodeType\":\"Switch\",\"nodeId\":0,\"protocolPort\":161,\"username\":\"root\"}"
+            },
+            "args": [
+                
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
         }
     ]
 }

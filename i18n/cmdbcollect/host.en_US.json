@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "CHASSIS_SERIAL",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
             "name": "BOARD_SERIAL",
             "desc": "Board Serial",
             "type": "String"
@@ -182,7 +187,7 @@
             "type": "Float"
         },
         {
-            "name": "KVM_ALLOCATED_VCPU",
+            "name": "KVM_VCPU_ALLOCATE",
             "desc": "Allocated Vcpu for KVM",
             "type": "Int"
         },
@@ -365,11 +370,6 @@
             "type": "Float"
         },
         {
-            "name": "KVM_ALLOCATED_MEM",
-            "desc": "Allocated KVM memory(M)",
-            "type": "Float"
-        },
-        {
             "name": "MEM_SLOTS",
             "desc": "Memory Slots",
             "type": "Float"
@@ -390,13 +390,152 @@
             "type": "String"
         },
         {
-            "name": "_batch_tag",
-            "desc": "Batch tag for auto collect",
-            "type": "String"
+            "name": "KVM_MEM_ALLOCATE",
+            "desc": "Allocated KVM Memory(M)",
+            "type": "Float"
         },
         {
-            "name": "CHASSIS_SERIAL",
-            "desc": "Chassis Serial",
+            "name": "KVM_MEM_USED",
+            "desc": "KVM Memoryu Used(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_ALLOCATE",
+            "desc": "KVM Allocate Disk(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_USED",
+            "desc": "KVM Disk Used(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_MACHINES",
+            "desc": "KVM Machines",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "UUID",
+                    "desc": "uuid",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "Cpu Arch",
+                    "type": "String"
+                },
+                {
+                    "name": "VCPU",
+                    "desc": "Cpu Cores",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "Memory(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "USED_MEMORY",
+                    "desc": "Used Memory(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_TYPE",
+                    "desc": "OS Type",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "CPU Arch",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_POWEROFF",
+                    "desc": "on_poweroff",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_REBOOT",
+                    "desc": "on_reboot",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_CRASH",
+                    "desc": "on_crash",
+                    "type": "String"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "KVM Disks",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Switch Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FORMAT",
+                            "desc": "Format",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIRTUAL_SIZE",
+                            "desc": "Virtual Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "ACTUAL_SIZE",
+                            "desc": "Actual Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "DEVICE",
+                            "desc": "Device",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TARGET_DEV",
+                            "desc": "Target Dev",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FILE",
+                            "desc": "Image File",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
             "type": "String"
         }
     ]

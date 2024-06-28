@@ -146,7 +146,7 @@ def saveSwMacTableData(db, existsCollections, data):
             existsCollections["RELATION_NET_MACTABLE"] = 1
 
         print("INFO: Save mac table data success.")
-        del data["MAC_TABLE"]
+        # del data["MAC_TABLE"]
 
 
 def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
@@ -228,11 +228,7 @@ if __name__ == "__main__":
                     collectData = value
                 else:
                     # svcinspect巡检插件，包含补充CMDB采集数据对象的数据
-                    if (
-                        not key.startswith("cmdbcollect/")
-                        and not key.startswith("svcinspect/")
-                        and not key in toolNamesMap
-                    ):
+                    if not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/") and not key in toolNamesMap:
                         continue
 
                     if key.startswith("cmdbcollect/savedata"):
@@ -254,11 +250,7 @@ if __name__ == "__main__":
                 pkDef = data.get("PK")
                 pkDef = getObjCatPkDef(objCat, pkDef)
 
-                print(
-                    "INFO: Try to validate data PID:{} OBJ_TYPE:{} IP:{} PORT:{} ...".format(
-                        data.get("PID"), objType, data.get("MGMT_IP"), data.get("PORT")
-                    )
-                )
+                print("INFO: Try to validate data PID:{} OBJ_TYPE:{} IP:{} PORT:{} ...".format(data.get("PID"), objType, data.get("MGMT_IP"), data.get("PORT")))
                 isMalformData = 0
                 if pkDef is None:
                     isMalformData = 1

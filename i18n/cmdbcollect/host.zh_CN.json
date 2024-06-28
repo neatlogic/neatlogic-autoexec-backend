@@ -56,6 +56,11 @@
             "type": "String"
         },
         {
+            "name": "CHASSIS_SERIAL",
+            "desc": "机箱序列号",
+            "type": "String"
+        },
+        {
             "name": "BOARD_SERIAL",
             "desc": "主板序列号",
             "type": "String"
@@ -182,7 +187,7 @@
             "type": "Float"
         },
         {
-            "name": "KVM_ALLOCATED_VCPU",
+            "name": "KVM_VCPU_ALLOCATE",
             "desc": "已分配的VCPU核数",
             "type": "Int"
         },
@@ -355,11 +360,6 @@
             "type": "Float"
         },
         {
-            "name": "KVM_ALLOCATED_MEM",
-            "desc": "已分配KVM内存(M)",
-            "type": "Float"
-        },  
-        {
             "name": "MEM_MAXIMUM_CAPACITY",
             "desc": "可安装内存",
             "type": "Float"
@@ -385,13 +385,152 @@
             "type": "String"
         },
         {
-            "name": "_batch_tag",
-            "desc": "自动采集的批量标签",
-            "type": "String"
+            "name": "KVM_MEM_ALLOCATE",
+            "desc": "已分配KVM内存(M)",
+            "type": "Float"
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "机箱序列号",
+            "name": "KVM_MEM_USED",
+            "desc": "KVM使用内存(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_ALLOCATE",
+            "desc": "KVM磁盘已分配(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_USED",
+            "desc": "KVM磁盘已使用(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_MACHINES",
+            "desc": "KVM虚拟机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "交换机类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "机器名",
+                    "type": "String"
+                },
+                {
+                    "name": "UUID",
+                    "desc": "uuid",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "CPU架构",
+                    "type": "String"
+                },
+                {
+                    "name": "VCPU",
+                    "desc": "CPU核数",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "分配内存(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "USED_MEMORY",
+                    "desc": "使用内存(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_TYPE",
+                    "desc": "OS类型",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "CPU架构",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_POWEROFF",
+                    "desc": "on_poweroff",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_REBOOT",
+                    "desc": "on_reboot",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_CRASH",
+                    "desc": "on_crash",
+                    "type": "String"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "KVM磁盘",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FORMAT",
+                            "desc": "格式",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIRTUAL_SIZE",
+                            "desc": "分配大小(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "ACTUAL_SIZE",
+                            "desc": "实际大小(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "DEVICE",
+                            "desc": "设备类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TARGET_DEV",
+                            "desc": "设备名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FILE",
+                            "desc": "镜像文件",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
             "type": "String"
         }
     ]

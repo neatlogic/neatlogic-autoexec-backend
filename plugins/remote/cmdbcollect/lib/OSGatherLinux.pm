@@ -11,6 +11,7 @@ use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 use POSIX;
 use Cwd;
+use JSON qw(to_json from_json);
 use IO::File;
 use File::Basename;
 use XML::MyXML qw(xml_to_object);
@@ -550,7 +551,7 @@ sub getDiskInfo {
     }
 
     foreach my $line (@$diskLines) {
-        if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\wB)/ ) {
+        if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\w+B)/ ) {
             my $diskInfo = {
                 '_OBJ_CATEGORY' => 'COLLECT_OS',
                 '_OBJ_TYPE'     => 'OS-DISK'
@@ -1059,6 +1060,10 @@ sub getMainBoardInfo {
             }
         }
 
+        my $biosVersion = $self->getCmdOut('dmidecode -s bios-version');
+        $biosVersion =~ s/^\s*|\s*$//g;
+        $hostInfo->{BIOS_VERSION} = $biosVersion;
+
         my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
         my $usedSlots    = 0;
         my $memInfo      = {};
@@ -1096,6 +1101,7 @@ sub getMainBoardInfo {
         $vendorName =~ s/^\*|\s$//g;
         $hostInfo->{MANUFACTURER} = $vendorName;
 
+        my $biosVersion;
         my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
         $biosVersion =~ s/^\*|\s$//g;
         $hostInfo->{BIOS_VERSION} = $biosVersion;
@@ -1136,8 +1142,9 @@ sub getCPUInfo {
     $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
     $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{CPU_MODEL}     = $modelInfo[0];
-    $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
+    $hostInfo->{CPU_MODEL} = $modelInfo[0];
+    my $cpuFrequency = $cpuInfo->{'cpu MHz'};
+    $hostInfo->{CPU_FREQUENCY} = sprintf( '%.2f', $cpuFrequency / 1000 ) . 'GHz';
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
 }
@@ -1364,15 +1371,48 @@ sub getKVMGuestOSUUIDs {
 
 sub getKVMAllocateInfo {
     my ( $self, $hostInfo ) = @_;
-    my $memAllocatedSize = 0;
-    my $vcpuAllocated    = 0;
+    my $memAllocatedSize  = 0;
+    my $currentMemorySize = 0;
+    my $vcpuAllocated     = 0;
+    my $diskAllocatedSize = 0;
+    my $diskUsedSize      = 0;
+
+    my @kvmMachines = ();
     foreach my $confFile ( glob("/etc/libvirt/qemu/*.xml") ) {
-        my $confObj = xml_to_object( $confFile, { file => 1 } );
-        my $domain  = $confObj->path('domain');
+        my $domain = xml_to_object( $confFile, { file => 1 } );
         if ( not defined($domain) or $domain->attr('type') ne 'kvm' ) {
             next;
         }
 
+        my ( $name, $uuid, $osType, $arch, $on_poweroff, $on_reboot, $on_crash );
+        my $childDom = undef;
+        $childDom = $domain->path('name');
+        if ( defined($childDom) ) {
+            $name = $childDom->value();
+        }
+        $childDom = $domain->path('uuid');
+        if ( defined($childDom) ) {
+            $uuid = $childDom->value();
+        }
+        $childDom = $domain->path('os/type');
+        if ( defined($childDom) ) {
+            $osType = $childDom->value();
+            $arch   = $childDom->attr('arch');
+        }
+        $childDom = $domain->path('on_poweroff');
+        if ( defined($childDom) ) {
+            $on_poweroff = $childDom->value();
+        }
+        $childDom = $domain->path('on_reboot');
+        if ( defined($childDom) ) {
+            $on_reboot = $childDom->value();
+        }
+        $childDom = $domain->path('on_crash');
+        if ( defined($childDom) ) {
+            $on_crash = $childDom->value();
+        }
+
+        my $allocatedMem;
         my $memory = $domain->path('memory');
         if ( defined($memory) ) {
             my $memSize = int( $memory->value() );
@@ -1386,17 +1426,108 @@ sub getKVMAllocateInfo {
             elsif ( $memUnit =~ /^T/ ) {
                 $memSize = $memSize * 1024 * 1024;
             }
+            $allocatedMem     = $memSize;
             $memAllocatedSize = $memAllocatedSize + $memSize;
         }
 
+        my $currentMemory;
+        my $currMemory = $domain->path('currentMemory');
+        if ( defined($currMemory) ) {
+            my $memSize = int( $currMemory->value() );
+            my $memUnit = $currMemory->attr('unit');
+            if ( $memUnit =~ /^K/ ) {
+                $memSize = $memSize / 1024;
+            }
+            elsif ( $memUnit =~ /^G/ ) {
+                $memSize = $memSize * 1024;
+            }
+            elsif ( $memUnit =~ /^T/ ) {
+                $memSize = $memSize * 1024 * 1024;
+            }
+            $currentMemory     = $memSize;
+            $currentMemorySize = $currentMemorySize + $memSize;
+        }
+
+        my $vcpuCount;
         my $vcpu = $domain->path('vcpu');
         if ( defined($vcpu) ) {
-            my $vcpuCount = int( $vcpu->value() );
+            $vcpuCount     = int( $vcpu->value() );
             $vcpuAllocated = $vcpuAllocated + $vcpuCount;
         }
+
+        my @diskList     = ();
+        my @diskInfoList = $domain->path('devices/disk');
+        foreach my $disk (@diskInfoList) {
+            my $diskType = $disk->attr('type');
+            my $diskDev  = $disk->attr('device');
+
+            my $targetDom = $disk->path('target');
+            my $targetDev;
+            if ( defined($targetDom) ) {
+                $targetDev = $targetDom->attr('dev');
+            }
+
+            my ( $format, $virtualSize, $actualSize );
+            my $imgFile;
+            if ( $diskType eq 'file' ) {
+                my $sourceDom = $disk->path('source');
+                if ( defined($sourceDom) ) {
+                    $imgFile = $sourceDom->attr('file');
+                    if ( -f $imgFile ) {
+                        my $jsonTxt     = $self->getCmdOut(qq{qemu-img info --output=json '$imgFile'});
+                        my $imgFileJson = from_json($jsonTxt);
+                        $format      = $imgFileJson->{'format'};
+                        $virtualSize = springf( '%.2f', $imgFileJson->{'virtual-size'} / 1024 / 1024 / 1024 );
+                        $actualSize  = sprintf( '%.2f', $imgFileJson->{'actual-size'} / 1024 / 1024 / 1024 );
+
+                        $diskAllocatedSize = $diskAllocatedSize + $virtualSize;
+                        $diskUsedSize      = $diskUsedSize + $actualSize;
+                    }
+                }
+            }
+            push(
+                @diskList,
+                {
+                    _OBJ_CATEGORY => 'HOST',
+                    _OBJ_TYPE     => 'DISK',
+                    TYPE          => $diskType,
+                    FORMAT        => $format,
+                    VIRTUAL_SIZE  => $virtualSize,
+                    ACTUAL_SIZE   => $actualSize,
+                    DEVICE        => $diskDev,
+                    TARGET_DEV    => $targetDev,
+                    FILE          => $imgFile
+                }
+            );
+        }
+
+        push(
+            @kvmMachines,
+            {
+                _OBJ_CATEGORY => 'HOST',
+                _OBJ_TYPE     => 'KVM-MACHINE',
+                NAME          => $name,
+                UUID          => $uuid,
+                ARCH          => $arch,
+                OS_TYPE       => $osType,
+                ON_POWEROFF   => $on_poweroff,
+                ON_REBOOT     => $on_reboot,
+                ON_CRASH      => $on_crash,
+                MEMORY        => $allocatedMem,
+                USED_MEMORY   => $currentMemory,
+                VCPU          => $vcpuCount,
+                DISKS         => \@diskList
+            }
+        );
     }
-    $hostInfo->{KVM_ALLOCATED_MEM}  = $memAllocatedSize;
-    $hostInfo->{KVM_ALLOCATED_VCPU} = $vcpuAllocated;
+
+    $hostInfo->{KVM_MEM_ALLOCATE}  = $memAllocatedSize;
+    $hostInfo->{KVM_MEM_USED}      = $currentMemorySize;
+    $hostInfo->{KVM_VCPU_ALLOCATE} = $vcpuAllocated;
+    $hostInfo->{KVM_DISK_ALLOCATE} = $diskAllocatedSize;
+    $hostInfo->{KVM_DISK_USED}     = $diskUsedSize;
+
+    $hostInfo->{KVM_MACHINES} = \@kvmMachines;
 }
 
 sub getOsServices {
