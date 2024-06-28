@@ -185,10 +185,10 @@ sub main {
     my $lock = DeployLock->new($deployEnv);
     my $appLockId;
     if ( $isMirror == 1 ) {
-        $appLockId = $lock->lockMirror($DeployLock::WRITE);
+        $appLockId = $lock->lockMirror($DeployLock::READ);
     }
     else {
-        $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
+        $appLockId = $lock->lockEnvApp($DeployLock::READ);
     }
 
     END {
