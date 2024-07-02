@@ -153,8 +153,29 @@ sub main {
         return $hasError;
     }
 
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
+
+    my $namePath = $deployEnv->{NAME_PATH};
+    my $envName  = $deployEnv->{ENV_NAME};
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $appLockId = $lock->lockEnvApp($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($appLockId);
+        }
+    }
+
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
+    my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version is not released to $envName.\n");
+        return 3;
+    }
 
     my $registry4Tag = $registry;
     $registry4Tag =~ s/^http.*?:\/\///;
@@ -169,13 +190,6 @@ sub main {
     else {
         $hasError = $hasError + 1;
         print("ERROR: Push image $image_name failed!\n");
-    }
-
-    if ( $hasError == 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
-    }
-    else {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
 
     my $out = {};
