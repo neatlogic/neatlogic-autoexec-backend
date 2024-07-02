@@ -315,4 +315,32 @@ sub unlockEnvSql {
     $self->_unlock($lockId);
 }
 
+sub lockIns {
+    my ( $self, $ins, $lockMode ) = @_;
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId/$envId";
+    $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
+    $params->{lockTarget}    = "$sysName/$moduleName/$envName/$ins";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
+}
+
+sub unlockIns {
+    my ( $self, $lockId ) = @_;
+    $self->_unlock($lockId);
+}
+
 1;
