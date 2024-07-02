@@ -124,6 +124,18 @@ sub main {
     my $dataPath = $buildEnv->{DATA_PATH};
     my $envName  = $buildEnv->{ENV_NAME};
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $mirrorLock  = $lock->lockMirror($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockMirror($mirrorLock);
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+    
     my $tmpDir = $buildEnv->{AUTOEXEC_HOME} . '/tmp';
 
     my $serverAdapter = ServerAdapter->new();
@@ -179,18 +191,6 @@ sub main {
         if ( not mkpath($dest) ) {
             print("ERROR: Create directory $dest failed, $!\n");
             return 3;
-        }
-    }
-
-    my $lock        = DeployLock->new($buildEnv);
-    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
-    my $mirrorLock  = $lock->lockMirror($DeployLock::WRITE);
-
-    END {
-        local $?;
-        if ( defined($lock) ) {
-            $lock->unlockMirror($mirrorLock);
-            $lock->unlockWorkspace($spaceLockId);
         }
     }
 

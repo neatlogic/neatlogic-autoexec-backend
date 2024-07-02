@@ -98,6 +98,18 @@ sub main {
     my $namePath = $deployEnv->{NAME_PATH};
     my $envName  = $deployEnv->{ENV_NAME};
 
+    my $lock            = DeployLock->new($deployEnv);
+    my $mirrorAppLockId = $lock->lockMirror($DeployLock::READ);
+    my $envAppLockId    = $lock->lockEnvApp($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($envAppLockId);
+            $lock->unlockMirror($mirrorAppLockId);
+        }
+    }
+    
     my $serverAdapter = ServerAdapter->new();
 
     my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
@@ -153,16 +165,6 @@ sub main {
     }
 
     $port = 22 if ( not defined($port) );
-
-    my $lock      = DeployLock->new($deployEnv);
-    my $appLockId = $lock->lockEnvApp($DeployLock::READ);
-
-    END {
-        local $?;
-        if ( defined($lock) ) {
-            $lock->unlockEnvApp($appLockId);
-        }
-    }
 
     my $verDiffPath = "$verPath.ins/$insUniqName";
 
