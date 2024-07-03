@@ -964,7 +964,7 @@ sub updatePhaseStatus {
 
     my $params = {
         jobId          => $jobId,
-        groupNo        => $ENV{GROUP_NO},
+        groupNo        => $ENV{AUTOEXEC_GROUP_NO},
         phase          => $ENV{AUTOEXEC_PHASE_NAME},
         status         => $phaseStatus,
         passThroughEnv => $passThroughEnv

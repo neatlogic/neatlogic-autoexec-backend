@@ -204,7 +204,7 @@ def loadNodeOutput():
 
 def getOpPreOutput():
     # 获取当前操作前一次执行的输出参数
-    opId = os.getenv("OPERATION_ID")
+    opId = os.getenv("AUTOEXEC_OPERATION_ID")
     nodeOutput = loadNodeOutput()
     opPreOutput = nodeOutput.get(opId)
     return opPreOutput
@@ -248,11 +248,7 @@ def informNodeWaitInput(
         except Exception as ex:
             print("WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(resourceId, ex))
     else:
-        print(
-            "WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(
-                resourceId, sockPath
-            )
-        )
+        print("WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(resourceId, sockPath))
     return
 
 
