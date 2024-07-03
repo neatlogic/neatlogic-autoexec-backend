@@ -182,7 +182,7 @@ sub loadNodeOutput {
 
 # 获取当前操作前一次执行的输出参数
 sub getOpPreOutput {
-    my $opId        = $ENV{OPERATION_ID};
+    my $opId        = $ENV{AUTOEXEC_OPERATION_ID};
     my $nodeOutput  = loadNodeOutput();
     my $opPreOutput = $nodeOutput->{$opId};
 
