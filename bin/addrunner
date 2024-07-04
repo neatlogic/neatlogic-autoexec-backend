@@ -15,7 +15,7 @@ import argparse
 
 
 def execOneHost(host, port, user, password, cmdList):
-    cmd = ''
+    cmd = ""
     for cmdPart in cmdList:
         cmd = cmd + "'{}' ".format(cmdPart)
 
@@ -24,7 +24,9 @@ def execOneHost(host, port, user, password, cmdList):
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host, port, user, password)
+
+        ssh.connect(host, port, user, password, banner_timeout=10, timeout=10, look_for_keys=True, disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]))
+
         channel = ssh.get_transport().open_session()
         channel.set_combine_stderr(True)
         channel.exec_command(cmd)
@@ -32,18 +34,18 @@ def execOneHost(host, port, user, password, cmdList):
         while True:
             r, w, x = select.select([channel], [], [], 10)
             while channel.recv_ready():
-                print(channel.recv(4096).decode(errors='ignore'))
+                print(channel.recv(4096).decode(errors="ignore"))
             if channel.exit_status_ready():
                 errCode = channel.recv_exit_status()
                 break
 
         if errCode == 0:
-            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end='')
+            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end="")
         else:
-            print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end='')
+            print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end="")
     except Exception as ex:
         errCode = 2
-        print("ERROR: {}@{}:{} execute failed, {}\n".format(user, host, port, ex), end='')
+        print("ERROR: {}@{}:{} execute failed, {}\n".format(user, host, port, ex), end="")
     finally:
         if ssh is not None:
             ssh.close()
@@ -53,11 +55,11 @@ def execOneHost(host, port, user, password, cmdList):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", action='store_true', default=False, help="Output verbose")
-    parser.add_argument('--host', default='', help='SSH to host')
-    parser.add_argument('--port', default='22', help='SSH Port')
-    parser.add_argument('--password', default='', help='Default password')
-    parser.add_argument('--user', default='root',  help='Connect user')
+    parser.add_argument("-v", action="store_true", default=False, help="Output verbose")
+    parser.add_argument("--host", default="", help="SSH to host")
+    parser.add_argument("--port", default="22", help="SSH Port")
+    parser.add_argument("--password", default="", help="Default password")
+    parser.add_argument("--user", default="root", help="Connect user")
 
     args = parser.parse_args()
     port = args.port
@@ -67,39 +69,39 @@ if __name__ == "__main__":
         port = int(port)
 
     password = args.password
-    if password == '':
+    if password == "":
         password = getpass.getpass()
 
-    HOME = os.environ.get('HOME')
-    if HOME is None or HOME == '':
+    HOME = os.environ.get("HOME")
+    if HOME is None or HOME == "":
         print("ERROR: Can not determine HOME directory.")
         sys.exit(2)
 
-    sshConfPath = '%s/.ssh' % (HOME)
+    sshConfPath = "%s/.ssh" % (HOME)
     if not os.path.exists(sshConfPath):
         os.makedirs(sshConfPath, exist_ok=True)
     os.chmod(sshConfPath, stat.S_IRWXU)
 
-    identiyPath = '%s/.ssh/id_rsa' % (HOME)
-    pubKeyPath = '%s/.ssh/id_rsa.pub' % (HOME)
-    auhKeyPath = '%s/.ssh/authorized_keys' % (HOME)
+    identiyPath = "%s/.ssh/id_rsa" % (HOME)
+    pubKeyPath = "%s/.ssh/id_rsa.pub" % (HOME)
+    auhKeyPath = "%s/.ssh/authorized_keys" % (HOME)
 
     if not os.path.exists(identiyPath):
         os.system('ssh-keygen -t rsa -b 2048 -f "%s" -N "" -C "autoexec-runner@local"' % (identiyPath))
         os.system('cat "%s" >> "%s" && chmod 600 "%s"' % (pubKeyPath, auhKeyPath, auhKeyPath))
 
-    pubKey = ''
-    privateKey = ''
-    with open(identiyPath, 'r') as f:
+    pubKey = ""
+    privateKey = ""
+    with open(identiyPath, "r") as f:
         privateKey = f.read()
         privateKey = privateKey.strip()
-    with open(pubKeyPath, 'r') as f:
+    with open(pubKeyPath, "r") as f:
         pubKey = f.read()
         pubKey = pubKey.strip()
 
-    cmdList = ['sh', '-c']
+    cmdList = ["sh", "-c"]
 
-    cmd = '''
+    cmd = """
 if [ ! -e "$HOME/.ssh" ];then
     mkdir "$HOME/.ssh";
 fi;
@@ -127,7 +129,13 @@ fi;
 chmod 600 id_rsa id_rsa.pub authorized_keys;
 echo "Config %s@%s complete"
 
-    ''' % (privateKey, pubKey, pubKey, args.user, args.host)
+    """ % (
+        privateKey,
+        pubKey,
+        pubKey,
+        args.user,
+        args.host,
+    )
 
     cmdList.append(cmd)
 

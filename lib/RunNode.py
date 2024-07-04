@@ -1551,29 +1551,17 @@ class RunNode:
                 # 建立连接
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                if self.password == "noauth":
-                    private_key_path = str(Path.home() / ".ssh" / "id_rsa")
-                    private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
-                    ssh.connect(
-                        self.host,
-                        self.protocolPort,
-                        self.username,
-                        pkey=private_key,
-                        disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
-                        timeout=self.context.rexecConnTimeout,
-                        banner_timeout=self.context.rexecConnTimeout,
-                        auth_timeout=self.context.rexecConnTimeout,
-                    )
-                else:
-                    ssh.connect(
-                        self.host,
-                        self.protocolPort,
-                        self.username,
-                        self.password,
-                        timeout=self.context.rexecConnTimeout,
-                        banner_timeout=self.context.rexecConnTimeout,
-                        auth_timeout=self.context.rexecConnTimeout,
-                    )
+                ssh.connect(
+                    self.host,
+                    self.protocolPort,
+                    self.username,
+                    self.password,
+                    look_for_keys=True,
+                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
+                    timeout=self.context.rexecConnTimeout,
+                    banner_timeout=self.context.rexecConnTimeout,
+                    auth_timeout=self.context.rexecConnTimeout,
+                )
                 sftp = ssh.open_sftp()
 
                 # 更新节点状态为running
@@ -1934,6 +1922,8 @@ class RunNode:
                     self.protocolPort,
                     self.username,
                     self.password,
+                    look_for_keys=True,
+                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
                     timeout=self.context.rexecConnTimeout,
                     banner_timeout=self.context.rexecConnTimeout,
                     auth_timeout=self.context.rexecConnTimeout,

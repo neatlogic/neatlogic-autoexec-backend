@@ -30,14 +30,14 @@ import AutoExecUtils
 class LocalRemoteExec:
 
     def __init__(self):
-        self.output = ''
+        self.output = ""
         self.IS_FAIELD = False
 
     def pingCheck(self, host, timeOut):
         second = ping(dest_addr=host, timeout=timeOut)
         second = round(second, 4)
         if second:
-            print('INFO: {} is reachable, took {} second'.format(host, second))
+            print("INFO: {} is reachable, took {} second".format(host, second))
             return (True, None)
         else:
             loopCount = 2
@@ -46,28 +46,28 @@ class LocalRemoteExec:
                 second = round(second, 4)
                 loopCount = loopCount - 1
             if second:
-                print('INFO: {} is reachable, took {} second'.format(host, second))
+                print("INFO: {} is reachable, took {} second".format(host, second))
                 return (True, None)
             else:
-                errorMsg = 'ERROR: {} is unreachable, took {} second'.format(host, second)
+                errorMsg = "ERROR: {} is unreachable, took {} second".format(host, second)
                 print(errorMsg)
                 return (False, errorMsg)
 
     def tcpCheck(self, endPoint, timeOut):
-        if ':' not in endPoint:
+        if ":" not in endPoint:
             self.IS_FAIELD = True
             errorMsg = "ERROR: Malform end point format: {}".format(endPoint)
             print(errorMsg)
             return (False, errorMsg)
 
         try:
-            colonPos = endPoint.rindex(':')
+            colonPos = endPoint.rindex(":")
             host = endPoint[0:colonPos]
-            port = int(endPoint[colonPos+1:])
+            port = int(endPoint[colonPos + 1 :])
             sock = socket.socket()
             sock.settimeout(timeOut)
             sock.connect((host, port))
-            print('INFO: Tcp handshake ' + endPoint + ' success.')
+            print("INFO: Tcp handshake " + endPoint + " success.")
         except Exception as ex:
             errorMsg = "ERROR: Can not connect {}.".format(endPoint)
             print(errorMsg)
@@ -77,14 +77,14 @@ class LocalRemoteExec:
 
     def urlCheck(self, endPoint, timeOut):
         url = endPoint
-        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+        userAgent = "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)"
 
         req = urllib.request.Request(url)
-        req.add_header('User-Agent', userAgent)
+        req.add_header("User-Agent", userAgent)
 
         try:
             response = urllib.request.urlopen(req, timeout=timeOut)
-            print('INFO: Http request ' + endPoint + ' success.')
+            print("INFO: Http request " + endPoint + " success.")
         except HTTPError as ex:
             errorMsg = ex.code
             if ex.code > 500:
@@ -103,54 +103,54 @@ class LocalRemoteExec:
         return (True, None)
 
     def execOneHttpReq(self, urlConf, cookie, valuesJar, timeOut):
-        url = urlConf['url']
-        method = urlConf['method']
-        data = urlConf['data']
-        proxyStr = urlConf['proxy']
-        matchKey = urlConf['matchKey']
-        extractContent = urlConf['extractConf']
+        url = urlConf["url"]
+        method = urlConf["method"]
+        data = urlConf["data"]
+        proxyStr = urlConf["proxy"]
+        matchKey = urlConf["matchKey"]
+        extractContent = urlConf["extractConf"]
 
         dataContent = json.dumps(data, ensure_ascii=False)
         for varName, varValue in valuesJar.items():
-            dataContent = dataContent.replace('\$\{' + varName + '\}', varValue)
+            dataContent = dataContent.replace("\$\{" + varName + "\}", varValue)
         data = json.loads(dataContent)
 
         cookieHandler = request.HTTPCookieProcessor(cookie)
         httpHandler = request.HTTPHandler()
         httpsHandler = request.HTTPSHandler()
         proxyHandler = None
-        if proxyStr is not None and proxyStr != '':
-            proxyInfo = proxyStr.split('://', 1)
+        if proxyStr is not None and proxyStr != "":
+            proxyInfo = proxyStr.split("://", 1)
             proxy = {proxyInfo[0]: proxyInfo[1]}
             proxyHandler = request.ProxyHandler(proxy)
 
         opener = request.build_opener(httpHandler, httpsHandler, cookieHandler, proxyHandler)
 
         req = None
-        if method == 'POST-FORM':
+        if method == "POST-FORM":
             formData = parse.urlencode(data).encode()
             req = request.Request(url, data=formData)
-            req.add_header('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
-        elif method == 'POST-JSON':
+            req.add_header("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+        elif method == "POST-JSON":
             jsonData = json.dumps(data)
             req = request.Request(url, data=jsonData)
-            req.add_header('Content-Type', 'application/json; charset=utf-8')
+            req.add_header("Content-Type", "application/json; charset=utf-8")
         else:
             formData = parse.urlencode(data).encode()
             req = request.Request(url + formData)
 
-        userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-        req.add_header('User-Agent', userAgent)
+        userAgent = "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)"
+        req.add_header("User-Agent", userAgent)
 
         ret = False
-        errorMsg = ''
+        errorMsg = ""
 
         try:
             res = opener.open(req, timeout=timeOut)
             content = res.read().decode()
-            print('INFO: Http request ' + url + ' success.')
+            print("INFO: Http request " + url + " success.")
             ret = True
-            if matchKey is not None and matchKey != '':
+            if matchKey is not None and matchKey != "":
                 matchObj = re.search(matchKey, content)
                 if matchObj is None:
                     ret = False
@@ -193,14 +193,14 @@ class LocalRemoteExec:
         # ]
 
         ret = False
-        errorMsg = ''
+        errorMsg = ""
 
-        resourceId = nodeInfo['resourceId']
+        resourceId = nodeInfo["resourceId"]
         endPointConf = AutoExecUtils.getAccessEndpointConf(resourceId)
-        if 'config' in endPointConf:
-            config = endPointConf['config']
-            confType = config['type']
-            if confType.upper() != 'URL-SEQUENCE':
+        if "config" in endPointConf:
+            config = endPointConf["config"]
+            confType = config["type"]
+            if confType.upper() != "URL-SEQUENCE":
                 errorMsg = "WARN: URL sequence not config, {}".format(json.dumps(endPointConf))
                 print(errorMsg)
             else:
@@ -236,61 +236,61 @@ class LocalRemoteExec:
             line = line.encode()
 
         detectInfo = chardet.detect(line)
-        detectEnc = detectInfo['encoding']
-        if detectEnc != 'ascii' and not detectEnc.startswith('ISO-8859'):
-            line = line.decode(self.srcEncoding, 'ignore')
+        detectEnc = detectInfo["encoding"]
+        if detectEnc != "ascii" and not detectEnc.startswith("ISO-8859"):
+            line = line.decode(self.srcEncoding, "ignore")
         else:
-            line = line.decode('utf-8', errors='ignore')
+            line = line.decode("utf-8", errors="ignore")
 
-        print(line, end='')
+        print(line, end="")
         self.output = self.output + line
         outLen = len(self.output)
-        if (outLen > 1024):
-            self.output = self.output[outLen-1024:]
+        if outLen > 1024:
+            self.output = self.output[outLen - 1024 :]
 
     def _remoteExecute(self, nodeInfo, scriptDef, args=None):
-        jobId = os.getenv('AUTOEXEC_JOBID')
-        resourceId = nodeInfo['resourceId']
-        host = nodeInfo['host']
-        protocol = nodeInfo['protocol']
-        protocolPort = nodeInfo['protocolPort']
-        username = nodeInfo['username']
-        password = nodeInfo['password']
+        jobId = os.getenv("AUTOEXEC_JOBID")
+        resourceId = nodeInfo["resourceId"]
+        host = nodeInfo["host"]
+        protocol = nodeInfo["protocol"]
+        protocolPort = nodeInfo["protocolPort"]
+        username = nodeInfo["username"]
+        password = nodeInfo["password"]
 
         scriptName = self.getScriptFileName(scriptDef)
-        scriptContent = scriptDef['script']
+        scriptContent = scriptDef["script"]
 
         scriptCmd = None
         remoteCmd = None
 
         ret = -1
-        if protocol == 'tagent':
+        if protocol == "tagent":
             try:
-                jobSubDir = 'autoexec-{}-{}'.format(jobId, resourceId)
-                remoteRoot = '$TMPDIR/autoexec-{}-{}'.format(jobId, resourceId)
+                jobSubDir = "autoexec-{}-{}".format(jobId, resourceId)
+                remoteRoot = "$TMPDIR/autoexec-{}-{}".format(jobId, resourceId)
                 remotePath = remoteRoot
-                runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
+                runEnv = {"AUTOEXEC_JOBID": jobId, "AUTOEXEC_NODE": json.dumps(nodeInfo), "HISTSIZE": "0"}
 
                 tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
-                uploadRet = tagent.execCmd(username, 'cd $TMPDIR && mkdir ' + jobSubDir, env=None, isVerbose=0)
-                uploadRet = tagent.writeFile(username, scriptContent.encode(), remotePath + '/' + scriptName, isVerbose=1, convertCharset=1)
+                uploadRet = tagent.execCmd(username, "cd $TMPDIR && mkdir " + jobSubDir, env=None, isVerbose=0)
+                uploadRet = tagent.writeFile(username, scriptContent.encode(), remotePath + "/" + scriptName, isVerbose=1, convertCharset=1)
 
                 if uploadRet == 0:
                     scriptCmd = self.getScriptCmd(scriptDef, tagent.agentOsType, remotePath, args)
-                    remoteCmd = 'cd {} && {}'.format(remotePath, scriptCmd)
+                    remoteCmd = "cd {} && {}".format(remotePath, scriptCmd)
 
                     ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
                     try:
-                        print('INFO: Try to execute script command:{}'.format(scriptCmd))
+                        print("INFO: Try to execute script command:{}".format(scriptCmd))
                         if ret == 0:
-                            if tagent.agentOsType == 'windows':
+                            if tagent.agentOsType == "windows":
                                 tagent.execCmd(username, "rd /s /q {}".format(remoteRoot), env=runEnv)
                             else:
                                 tagent.execCmd(username, "rm -rf {}".format(remoteRoot), env=runEnv)
                     except Exception as ex:
                         self.IS_FAIELD = True
-                        print('ERROR: Remote remove directory {} failed {}'.format(remoteRoot, ex))
-                        #print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                        print("ERROR: Remote remove directory {} failed {}".format(remoteRoot, ex))
+                        # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             except Exception as ex:
                 self.IS_FAIELD = True
                 print("ERROR: Execute remote script {} failed, {}".format(scriptName, ex))
@@ -301,11 +301,11 @@ class LocalRemoteExec:
             else:
                 print("ERROR: Execute remote script by agent failed: {}".format(scriptCmd))
 
-        elif protocol == 'ssh':
+        elif protocol == "ssh":
             logging.getLogger("paramiko").setLevel(logging.FATAL)
-            remoteRoot = '/tmp/autoexec-{}-{}'.format(jobId, resourceId)
+            remoteRoot = "/tmp/autoexec-{}-{}".format(jobId, resourceId)
             remotePath = remoteRoot
-            remoteCmd = 'cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}'.format(remotePath, jobId, scriptName)
+            remoteCmd = "cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}".format(remotePath, jobId, scriptName)
             uploaded = False
             hasError = False
             scp = None
@@ -331,7 +331,7 @@ class LocalRemoteExec:
 
                 tmp = tempfile.NamedTemporaryFile(delete=False)
                 try:
-                    #print("WARN: DEBUG:" + tmp.name + ":" + scriptContent)
+                    # print("WARN: DEBUG:" + tmp.name + ":" + scriptContent)
                     tmp.write(scriptContent.encode())
                     tmp.close()
                     sftp.put(tmp.name, os.path.join(remotePath, scriptName))
@@ -339,15 +339,15 @@ class LocalRemoteExec:
                     os.unlink(tmp.name)
 
                 sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
-                scriptCmd = self.getScriptCmd(scriptDef, 'Linux', remotePath, args)
-                remoteCmd = 'cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE=\'{}\' {}'.format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
+                scriptCmd = self.getScriptCmd(scriptDef, "Linux", remotePath, args)
+                remoteCmd = "cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE='{}' {}".format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
 
                 if hasError == False:
                     uploaded = True
             except Exception as err:
                 self.IS_FAIELD = True
-                print('ERROR: Upload script:{} to remoteRoot:{} failed, {}'.format(scriptName, remoteRoot, err))
-                #print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                print("ERROR: Upload script:{} to remoteRoot:{} failed, {}".format(scriptName, remoteRoot, err))
+                # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             if uploaded:
                 print("INFO: Upload script success, begin to execute remote operation...")
                 ssh = None
@@ -355,10 +355,19 @@ class LocalRemoteExec:
                     ret = 0
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh.connect(host, protocolPort, username, password)
+                    ssh.connect(
+                        host,
+                        protocolPort,
+                        username,
+                        password,
+                        banner_timeout=15,
+                        timeout=15,
+                        look_for_keys=True,
+                        disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
+                    )
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
-                    print('INFO: Try to execute script command:{}'.format(scriptCmd))
+                    print("INFO: Try to execute script command:{}".format(scriptCmd))
                     channel.exec_command(remoteCmd)
                     while True:
                         r, w, x = select.select([channel], [], [], 10)
@@ -367,8 +376,8 @@ class LocalRemoteExec:
                             print(out)
                             self.output = self.output + out
                             outLen = len(self.output)
-                            if (outLen > 1024):
-                                self.output = self.output[outLen-1024:]
+                            if outLen > 1024:
+                                self.output = self.output[outLen - 1024 :]
                         if channel.exit_status_ready():
                             ret = channel.recv_exit_status()
                             break
@@ -379,11 +388,11 @@ class LocalRemoteExec:
                     except Exception as ex:
                         self.IS_FAIELD = True
                         print("ERROR: Remove remote directory {} failed {}".format(remoteRoot, ex))
-                        #print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                        # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
                 except Exception as err:
                     self.IS_FAIELD = True
                     print("ERROR: Execute remote script {} failed, {}".format(scriptName, err))
-                    #print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                    # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
                 finally:
                     if ssh:
                         ssh.close()
@@ -397,7 +406,7 @@ class LocalRemoteExec:
                 print("ERROR: Execute remote script by ssh failed:{}".format(scriptCmd))
 
         result = False
-        errorMsg = ''
+        errorMsg = ""
         if ret == 0 and self.IS_FAIELD == False:
             result = True
         else:
@@ -405,31 +414,31 @@ class LocalRemoteExec:
         return (result, errorMsg)
 
     def _remoteExecCmd(self, nodeInfo, command, timeout):
-        jobId = os.getenv('AUTOEXEC_JOBID')
-        host = nodeInfo['host']
-        protocol = nodeInfo['protocol']
-        protocolPort = nodeInfo['protocolPort']
-        username = nodeInfo['username']
-        password = nodeInfo['password']
+        jobId = os.getenv("AUTOEXEC_JOBID")
+        host = nodeInfo["host"]
+        protocol = nodeInfo["protocol"]
+        protocolPort = nodeInfo["protocolPort"]
+        username = nodeInfo["username"]
+        password = nodeInfo["password"]
 
         remoteCmd = command
         if remoteCmd is not None:
-            remoteCmd = re.sub(r'^\s*|\s*$', '', remoteCmd, flags=re.IGNORECASE)
+            remoteCmd = re.sub(r"^\s*|\s*$", "", remoteCmd, flags=re.IGNORECASE)
             remoteCmd = remoteCmd + "\n"
 
         ret = -1
-        if protocol == 'tagent':
+        if protocol == "tagent":
             try:
-                runEnv = {'AUTOEXEC_JOBID': jobId, 'AUTOEXEC_NODE': json.dumps(nodeInfo), 'HISTSIZE': '0'}
+                runEnv = {"AUTOEXEC_JOBID": jobId, "AUTOEXEC_NODE": json.dumps(nodeInfo), "HISTSIZE": "0"}
 
                 tagent = TagentClient.TagentClient(host, protocolPort, password, connectTimeout=60, readTimeout=360, writeTimeout=10)
-                
+
                 ret = tagent.execCmd(username, remoteCmd, env=runEnv, isVerbose=0, callback=self.getOutputLine)
                 try:
-                    print('INFO: Try to execute command:{}'.format(remoteCmd))
+                    print("INFO: Try to execute command:{}".format(remoteCmd))
                 except Exception as ex:
                     self.IS_FAIELD = True
-                    print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                    print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
             except Exception as ex:
                 self.IS_FAIELD = True
                 print("ERROR: Execute remote command {} failed, {}".format(remoteCmd, ex))
@@ -440,7 +449,7 @@ class LocalRemoteExec:
             else:
                 print("ERROR: Execute remote command by agent failed: {}".format(remoteCmd))
 
-        elif protocol == 'ssh':
+        elif protocol == "ssh":
             logging.getLogger("paramiko").setLevel(logging.FATAL)
             ssh = None
             try:
@@ -448,7 +457,18 @@ class LocalRemoteExec:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 print(host, protocolPort, username, password)
-                ssh.connect(hostname=host, port=protocolPort, username=username, password=password, timeout=timeout, allow_agent=False,look_for_keys=False)
+                ssh.connect(
+                    hostname=host,
+                    port=protocolPort,
+                    username=username,
+                    password=password,
+                    timeout=timeout,
+                    allow_agent=False,
+                    banner_timeout=timeout,
+                    timeout=15,
+                    look_for_keys=True,
+                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
+                )
                 time.sleep(1)  # 等待1秒，等待命令执行结果返回
                 shell = ssh.invoke_shell()
                 shell.send(remoteCmd)
@@ -456,13 +476,13 @@ class LocalRemoteExec:
                 output = shell.recv(65535).decode()  # 读取输出
                 lines = output.split("\n")
                 for line in lines:
-                    if line.startswith('Error:'):
+                    if line.startswith("Error:"):
                         self.IS_FAIELD = True
                     print(line)
             except Exception as err:
                 self.IS_FAIELD = True
                 print("ERROR: Execute remote command {} failed, {}".format(remoteCmd, err))
-                #print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+                # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             finally:
                 if ssh:
                     ssh.close()
@@ -473,7 +493,7 @@ class LocalRemoteExec:
                 print("ERROR: Execute remote command by ssh failed:{}".format(remoteCmd))
 
         result = False
-        errorMsg = ''
+        errorMsg = ""
         if ret == 0 and self.IS_FAIELD == False:
             result = True
         else:
@@ -481,48 +501,36 @@ class LocalRemoteExec:
         return (result, errorMsg)
 
     def getScriptFileName(self, scriptDef):
-        extNameMap = {
-            'perl': '.pl',
-            'python': '.py',
-            'ruby': '.rb',
-            'cmd': '.bat',
-            'powershell': '.ps1',
-            'vbscript': '.vbs',
-            'bash': '.sh',
-            'ksh': '.sh',
-            'csh': '.sh',
-            'sh': '.sh',
-            'javascript:': '.js'
-        }
+        extNameMap = {"perl": ".pl", "python": ".py", "ruby": ".rb", "cmd": ".bat", "powershell": ".ps1", "vbscript": ".vbs", "bash": ".sh", "ksh": ".sh", "csh": ".sh", "sh": ".sh", "javascript:": ".js"}
 
         scriptFileName = None
-        interpreter = scriptDef['config']['parser']
+        interpreter = scriptDef["config"]["parser"]
         if interpreter not in extNameMap:
             print("WARN: Can not determine script file extension name.")
-            scriptFileName = scriptDef['config']['scriptName']
+            scriptFileName = scriptDef["config"]["scriptName"]
         else:
-            scriptFileName = scriptDef['config']['scriptName']
+            scriptFileName = scriptDef["config"]["scriptName"]
             if not scriptFileName.endswith(extNameMap[interpreter]):
                 scriptFileName = scriptFileName + extNameMap[interpreter]
         return scriptFileName
 
     def getScriptCmd(self, scriptDef, osType, remotePath, args):
         scriptFileName = self.getScriptFileName(scriptDef)
-        interpreter = scriptDef['config']['parser']
+        interpreter = scriptDef["config"]["parser"]
         # 自定义插件动态参数
         if args is None:
-            args = ''
+            args = ""
 
-        if interpreter == 'cmd':
-            cmd = 'cmd /c {}/{} {}'.format(remotePath, scriptFileName, args)
-        elif interpreter in ('sh', 'bash', 'csh'):
-            cmd = '{} -l {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
-        elif interpreter == 'vbscript':
-            cmd = 'cscript {}/{} {}'.format(remotePath, scriptFileName, args)
-        elif interpreter == 'javascript':
-            cmd = 'node {}/{} {}'.format(remotePath, scriptFileName, args)
+        if interpreter == "cmd":
+            cmd = "cmd /c {}/{} {}".format(remotePath, scriptFileName, args)
+        elif interpreter in ("sh", "bash", "csh"):
+            cmd = "{} -l {}/{} {}".format(interpreter, remotePath, scriptFileName, args)
+        elif interpreter == "vbscript":
+            cmd = "cscript {}/{} {}".format(remotePath, scriptFileName, args)
+        elif interpreter == "javascript":
+            cmd = "node {}/{} {}".format(remotePath, scriptFileName, args)
         else:
-            cmd = '{} {}/{} {}'.format(interpreter, remotePath, scriptFileName, args)
+            cmd = "{} {}/{} {}".format(interpreter, remotePath, scriptFileName, args)
         return cmd
 
     def getScriptDef(self, scriptId):
