@@ -1559,6 +1559,7 @@ class RunNode:
                         self.protocolPort,
                         self.username,
                         pkey=private_key,
+                        disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
                         timeout=self.context.rexecConnTimeout,
                         banner_timeout=self.context.rexecConnTimeout,
                         auth_timeout=self.context.rexecConnTimeout,
