@@ -1552,7 +1552,7 @@ class RunNode:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 if self.password == "noauth":
-                    private_key_path = Path.home() + "/.ssh/id_rsa"
+                    private_key_path = str(Path.home() / ".ssh" / "id_rsa")
                     private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
                     ssh.connect(
                         self.host,
