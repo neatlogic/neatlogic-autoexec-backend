@@ -1550,15 +1550,28 @@ class RunNode:
                 # 建立连接
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(
-                    self.host,
-                    self.protocolPort,
-                    self.username,
-                    self.password,
-                    timeout=self.context.rexecConnTimeout,
-                    banner_timeout=self.context.rexecConnTimeout,
-                    auth_timeout=self.context.rexecConnTimeout,
-                )
+                if self.password == "noauth":
+                    private_key_path = "~/.ssh/id_rsa"
+                    private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
+                    ssh.connect(
+                        self.host,
+                        self.protocolPort,
+                        self.username,
+                        pkey=private_key,
+                        timeout=self.context.rexecConnTimeout,
+                        banner_timeout=self.context.rexecConnTimeout,
+                        auth_timeout=self.context.rexecConnTimeout,
+                    )
+                else:
+                    ssh.connect(
+                        self.host,
+                        self.protocolPort,
+                        self.username,
+                        self.password,
+                        timeout=self.context.rexecConnTimeout,
+                        banner_timeout=self.context.rexecConnTimeout,
+                        auth_timeout=self.context.rexecConnTimeout,
+                    )
                 sftp = ssh.open_sftp()
 
                 # 更新节点状态为running
