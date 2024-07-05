@@ -158,6 +158,11 @@ sub collect {
                 );
                 
                 my $lsnIp = $ipInfos[0];
+                $lsnIp = gethostbyname($lsnIp);
+                if ( defined($lsnIp) ) {
+                    $lsnIp = inet_ntoa($lsnIp);
+                }
+                
                 if ($lsnIp eq '0.0.0.0' ){
                     $lsnIp = $mgmtIp;
                 }
