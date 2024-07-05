@@ -110,7 +110,7 @@ sub _doLockByJob {
             $client->send( to_json($request) );
 
             my $lockRet;
-            $client->recv( $lockRet, 1024 );
+            $client->recv( $lockRet, 4096 );
             $client->close();
             $lockRetObj = from_json($lockRet);
             unlink($localAddr);
