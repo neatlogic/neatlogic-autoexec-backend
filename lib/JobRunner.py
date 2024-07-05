@@ -140,7 +140,7 @@ class ListenWorkThread(threading.Thread):
                         if addr is not None:
                             self.server.sendto(json.dumps(lockInfo, ensure_ascii=False).encode("utf-8", "ingore"), addr)
             except Exception as ex:
-                lockInfo = {"lockId": None, "message": str(ex)}
+                lockInfo = {"lockId": None, "message": str(ex)[:1024]}
                 if lockAction == "phaseEnd":
                     print("INFO: Clean locks for phase:{} failed, {}.\n".format(phaseName, str(ex)), end="")
                 else:
@@ -164,7 +164,7 @@ class ListenWorkThread(threading.Thread):
                 result.append(item)
             self.server.sendto(json.dumps({"result": result, "error": None}, ensure_ascii=False).encode("utf-8", "ingore"), addr)
         except Exception as ex:
-            self.server.sendto(json.dumps({"result": None, "error": str(ex)}, ensure_ascii=False).encode("utf-8", "ingore"), addr)
+            self.server.sendto(json.dumps({"result": None, "error": str(ex)[:1024]}, ensure_ascii=False).encode("utf-8", "ingore"), addr)
 
 
 class ListenThread(threading.Thread):  # 继承父类threading.Thread
