@@ -169,6 +169,182 @@
             "type": "String"
         },
         {
+            "name": "DISK_GROUPS",
+            "desc": "asm diskGROUP",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "CATEGORY",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "DBID",
+                    "desc": "TYPE",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "vip",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "diskGroup name",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "diskGroup type",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "TOTAL(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "USED(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "FREE(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "USED_PCT%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "disk list",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "NAME",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "failgroup",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "MOUNT",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL",
+                            "desc": "TOTAL(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "USED(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "FREE",
+                            "desc": "FREE(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "USED_PCT%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "DEV_PATH",
+                            "desc": "DEV_PATH",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UUID",
+                            "desc": "UUID",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "PATH",
+                    "desc": "disk路径",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "CATEGORY",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "TYPE",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP",
+                            "desc": "ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "NAME",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "failgroup",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "MOUNT",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL",
+                            "desc": "TOTAL(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "USED(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "FREE",
+                            "desc": "FREE(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "USED_PCT%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "PATH",
+                            "desc": "PATH",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UUID",
+                            "desc": "UUID",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "INSTANCES",
             "desc": "DB Instances",
             "type": "JsonArray",

@@ -27,15 +27,6 @@
             "defaultValue": "8443"
         },
         {
-            "opt": "mgmtport",
-            "name": "k8s管理端口",
-            "help": "K8S 管理端口，例如：30001",
-            "type": "text",
-            "required": "true",
-            "validate": "",
-            "defaultValue": "30001"
-        },
-        {
             "opt": "token",
             "name": "验证TOKEN",
             "help": "K8S API服务的验证TOKEN",
@@ -55,7 +46,7 @@
                 "dataList": [
                     {
                         "text": "更新",
-                        "value": "patch"
+                        "value": "deploy"
                     },
                     {
                         "text": "回滚",
@@ -64,35 +55,98 @@
                     {
                         "text": "重启",
                         "value": "restart"
+                    },
+                    {
+                        "text": "启动",
+                        "value": "start"
+                    },
+                    {
+                        "text": "停止",
+                        "value": "stop"
                     }
                 ]
             },
             "defaultValue": "patch"
         },
         {
-            "opt": "image",
-            "name": "镜像",
-            "help": "镜像在仓库内的相对路径，例如：nginx:1.7.6, 或Library/nginx:1.7.6",
-            "type": "text",
+            "opt": "autocreate",
+            "name": "自动创建",
+            "help": "如资源对象不存在，则自动创建",
+            "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "${SYS_NAME}-${MODULE_NAME}:${ENV_NAME}-${VERSION}"
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
-            "opt": "name",
-            "name": "应用名",
-            "help": "K8S中定义的应用名",
-            "type": "text",
+            "opt": "dryrun",
+            "name": "dryRun",
+            "help": "干跑验证",
+            "type": "select",
             "required": "true",
             "validate": "",
-            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "否",
+                        "value": "0"
+                    },
+                    {
+                        "text": "是",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
         },
         {
+            "opt": "healthcheckneeded",
+            "name": "需健康检查",
+            "help": "检查deployment配置中是否配置了健康检查",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "是",
+                        "value": "1"
+                    },
+                    {
+                        "text": "否",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "dplyyamlfile",
+            "name": "Deploy配置文件",
+            "help": "Yaml配置文件在制品库中的相对路径，如提供了文件，则下面其他属性名非必须",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "deployment.yaml"
+        },
+        {
+
             "opt": "namespace",
             "name": "命令空间",
             "help": "应用所在的K8S命令空间",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
@@ -101,7 +155,7 @@
             "name": "部署名",
             "help": "K8S中定义的deployment名称",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },
@@ -113,6 +167,15 @@
             "required": "true",
             "validate": ["integer_p"],
             "defaultValue": "120"
+        },
+        {
+            "opt": "imagelist",
+            "name": "镜像列表",
+            "help": "镜像列表，支持多镜像，一行一个，会自动转小写",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "repository/${SYS_NAME}/${MODULE_NAME}:${ENV_NAME}-${VERSION}"
         }
     ],
     "output": [

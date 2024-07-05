@@ -64,12 +64,6 @@ sub main {
     my $envName  = $buildEnv->{ENV_NAME};
 
     my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
-    my $verStatus     = $verInfo->{status};
-    if ( $verInfo->{status} ne 'released' ) {
-        print("ERROR: $namePath version:$version build $buildNo($verStatus) is not released, can not release to env.\n");
-        return 3;
-    }
 
     my $dirInfo    = $deployUtils->getDataDirStruct($buildEnv);
     my $releaseDir = $dirInfo->{release};
@@ -123,6 +117,13 @@ sub main {
         }
     }
 
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    my $verStatus     = $verInfo->{status};
+    if ( $verStatus ne 'released' ) {
+        print("ERROR: $namePath version:$version build $buildNo($verStatus) is not released, can not release to env.\n");
+        return 3;
+    }
+    
     print("INFO: Try to release(sync) $namePath $version build:$buildNo to $envName...\n");
     $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
 

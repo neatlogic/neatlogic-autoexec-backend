@@ -10,7 +10,7 @@ use IO::File;
 use POSIX qw(uname);
 
 sub new {
-    my ($type) = @_;
+    my ( $type ) = @_;
     my $self = {};
 
     my @uname  = uname();

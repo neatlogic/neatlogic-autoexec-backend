@@ -14,11 +14,13 @@ use CollectUtils;
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
+    $self->{namespace} = undef;
     $self->{inspect}      = $inspect;
+
     $self->{collectUtils} = CollectUtils->new();
     bless( $self, $type );
 
-    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
+    #$self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     $self->{procConnStats}   = {};
     my ( $lsnBackLogMap, $lsnPortsMap ) = $self->getListenPorts();
     $self->{lsnPortsMap}   = $lsnPortsMap;
@@ -28,23 +30,23 @@ sub new {
     return $self;
 }
 
-sub getCPULogicCoreCount {
-    my ($self) = @_;
+# sub getCPULogicCoreCount {
+#     my ($self) = @_;
 
-    my $cpuLogicCores = 0;
-    my $utils         = $self->{collectUtils};
-    my $prtConfLines  = $utils->getCmdOutLines('prtconf');
-    foreach my $line (@$prtConfLines) {
-        if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
-            if ( $1 eq 'Number Of Processors' ) {
-                $cpuLogicCores = int($2);
-                last;
-            }
-        }
-    }
+#     my $cpuLogicCores = 0;
+#     my $utils         = $self->{collectUtils};
+#     my $prtConfLines  = $utils->getCmdOutLines('prtconf');
+#     foreach my $line (@$prtConfLines) {
+#         if ( $line =~ /^\s*(.*?):\s*(.*)\s*$/ ) {
+#             if ( $1 eq 'Number Of Processors' ) {
+#                 $cpuLogicCores = int($2);
+#                 last;
+#             }
+#         }
+#     }
 
-    return $cpuLogicCores;
-}
+#     return $cpuLogicCores;
+# }
 
 sub findSockPid {
     my ( $self, $sockAddr ) = @_;
@@ -263,7 +265,7 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
+    my ( $self, $lsnPortsMap, $pid ) = @_;
 
     if ( not defined($pid) ) {
         my $remoteAddrs    = {};
@@ -300,7 +302,7 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
 
     if ( not defined($pid) ) {
 
@@ -346,7 +348,7 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
     my $lsnPortsMap   = $self->{lsnPortsMap};
     my $lsnBackLogMap = $self->{lsnBackLogMap};
 
@@ -364,7 +366,7 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
+    my ( $self, $pid, $lsnPortsMap ) = @_;
     my $remoteAddrs   = $self->{remoteAddrs};
     my $procConnStats = $self->{procConnStats};
 

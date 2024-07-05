@@ -277,7 +277,7 @@ sub doRest {
 
     $self->signRequest( $url, $params );
     if ( defined($headers) ) {
-        $client->request( $method, $url, $params, %$headers );
+        $client->request( $method, $url, $params, $headers );
     }
     else {
         $client->request( $method, $url, $params );

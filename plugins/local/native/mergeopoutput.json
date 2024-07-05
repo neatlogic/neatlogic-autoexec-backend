@@ -1,0 +1,28 @@
+{
+    "opDesc": "相同工具输出连接输出合并",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "对单节点相同工具输出key-value集合进行并集处理",
+    "option": [
+        {
+            "opt": "outputkey",
+            "name": "变量名",
+            "help": "上游输出的变量名",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "mergedData",
+            "name": "合并后数据",
+            "help": "多节点输出合并后的数据，合并后节点信息丢失，如上游节点存在key相同的数据，会发生互相覆盖",
+            "type": "json"
+        }
+    ]
+}

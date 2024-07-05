@@ -97,6 +97,16 @@ sub main {
         usage();
     }
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
     my $namePath = $buildEnv->{NAME_PATH};
     my $dataPath = $buildEnv->{DATA_PATH};
     my $envName  = $buildEnv->{ENV_NAME};

@@ -124,12 +124,23 @@ sub main {
         return $hasError;
     }
 
-    # login first
-    my $loginCmd = "echo  '$password' |sudo docker login $registry --username '$username' --password-stdin >/dev/null 2>&1";
+    my $stdinPwdNotSupported = 0;
+    my $loginCallBack        = sub {
+        my ($line) = @_;
+        if ( $line =~ /password-stdin/ ) {
+            $stdinPwdNotSupported = 1;
+        }
+    };
 
-    #my $loginCmdPrint = "echo  '******' |sudo docker login $registry --username '$username' --password-stdin";
+    # login first
+    my $loginCmd  = "echo  '$password' |sudo docker login '$registry' --username '$username' --password-stdin";
+    my $loginCmd2 = "sudo docker login '$registry' --username '$username' --password '$password'";
     print("INFO: Execute->Try to login to the docker registery $registry by user $username.\n");
-    my $loginRet = $deployUtils->execmd($loginCmd);
+    my $loginRet = $deployUtils->execmd( $loginCmd, undef, $loginCallBack );
+    if ( $stdinPwdNotSupported == 1 ) {
+        $loginRet = $deployUtils->execmd($loginCmd2);
+    }
+
     if ( $loginRet eq 0 ) {
         print("INFO: Docker login success!\n");
     }
@@ -142,10 +153,33 @@ sub main {
         return $hasError;
     }
 
-    my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->releaseVerToEnv( $buildEnv, 'releasing' );
+    my $deployEnv = $deployUtils->deployInit( $envPath, $version );
+    $envPath = $deployEnv->{NAME_PATH};
+    $version = $deployEnv->{VERSION};
 
-    my $image_name = "$registry/$project/$image:$tagname";
+    my $namePath = $deployEnv->{NAME_PATH};
+    my $envName  = $deployEnv->{ENV_NAME};
+
+    my $lock      = DeployLock->new($buildEnv);
+    my $appLockId = $lock->lockEnvApp($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockEnvApp($appLockId);
+        }
+    }
+
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
+    if ( $verInfo->{status} ne 'released' ) {
+        print("ERROR: $namePath version:$version is not released to $envName.\n");
+        return 3;
+    }
+
+    my $registry4Tag = $registry;
+    $registry4Tag =~ s/^http.*?:\/\///;
+    my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "sudo docker push $image_name";
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
@@ -156,13 +190,6 @@ sub main {
     else {
         $hasError = $hasError + 1;
         print("ERROR: Push image $image_name failed!\n");
-    }
-
-    if ( $hasError == 0 ) {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
-    }
-    else {
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
 
     my $out = {};

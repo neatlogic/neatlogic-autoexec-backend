@@ -270,7 +270,7 @@
             "defaultValue": "0"
         },
         {
-            "opt": "containner",
+            "opt": "container",
             "name": "采集容器",
             "help": "是否采集容器信息，如:docker",
             "type": "select",

@@ -395,6 +395,7 @@ sub collect {
     my $dmInfo = {};
     $dmInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
     $dmInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $dmInfo->{_MULTI_PROC}   = 1;
 
     #$dmInfo->{_MULTI_PROC}   = 1;
 

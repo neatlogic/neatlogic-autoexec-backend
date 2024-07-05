@@ -493,8 +493,9 @@ sub getBoardInfo {
     my $biosSerialInfo = $self->getCmdOutLines('wmic bios get serialnumber');
     my $machineId      = $$biosSerialInfo[1];
     $machineId =~ s/^\s+|\s+$//g;
-    $hostInfo->{MACHINE_ID}   = $machineId;
-    $hostInfo->{BOARD_SERIAL} = $machineId;
+    $hostInfo->{MACHINE_ID}     = $machineId;
+    $hostInfo->{BOARD_SERIAL}   = $machineId;
+    $hostInfo->{CHASSIS_SERIAL} = $machineId;
 
     my $biosVerInfo = $self->getCmdOutLines('wmic bios get version');
     my $biosVer     = $$biosVerInfo[1];

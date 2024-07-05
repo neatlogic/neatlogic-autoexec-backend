@@ -93,7 +93,7 @@ def saveOutput(outputData):
 def saveLiveData(outputData):
     # 保存工具产生的特性数据，最终作为json数据提供给个性化的工具执行状态页面
     outputPath = os.getenv("LIVEDATA_PATH")
-    print("INFO: Try save output to {}.\n".format(outputPath), end="")
+    # print("INFO: Try save output to {}.\n".format(outputPath), end="")
     if outputPath is not None and outputPath != "":
         outputDir = os.path.dirname(outputPath)
         if not outputDir == "" and not os.path.exists(outputDir):
@@ -104,7 +104,7 @@ def saveLiveData(outputData):
         print("INFO: Save output success.\n", end="")
     else:
         print(
-            "WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n",
+            "WARN: Could not save output file, because of environ LIVEDATA_PATH not defined.\n",
             end="",
         )
 
@@ -204,7 +204,7 @@ def loadNodeOutput():
 
 def getOpPreOutput():
     # 获取当前操作前一次执行的输出参数
-    opId = os.getenv("OPERATION_ID")
+    opId = os.getenv("AUTOEXEC_OPERATION_ID")
     nodeOutput = loadNodeOutput()
     opPreOutput = nodeOutput.get(opId)
     return opPreOutput
@@ -230,9 +230,7 @@ def informNodeWaitInput(
             request["phaseName"] = phaseName
             request["resourceId"] = resourceId
 
-            if options is not None and (
-                isinstance(options, tuple) or isinstance(options, list)
-            ):
+            if options is not None and (isinstance(options, tuple) or isinstance(options, list)):
                 request["interact"] = {
                     "title": title,  # 交互操作标题
                     "opType": opType,  # 类型：button|input|select|mselect
@@ -246,23 +244,11 @@ def informNodeWaitInput(
 
             client.send(json.dumps(request))
             client.close()
-            print(
-                "INFO: Inform node:{} udpate status to waitInput success.\n".format(
-                    resourceId
-                )
-            )
+            print("INFO: Inform node:{} udpate status to waitInput success.\n".format(resourceId))
         except Exception as ex:
-            print(
-                "WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(
-                    resourceId, ex
-                )
-            )
+            print("WARN: Inform node:{} udpate status to waitInput failed, {}\n".format(resourceId, ex))
     else:
-        print(
-            "WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(
-                resourceId, sockPath
-            )
-        )
+        print("WARN: Inform node:{} update status to waitInput failed:socket file {} not exist.\n".format(resourceId, sockPath))
     return
 
 

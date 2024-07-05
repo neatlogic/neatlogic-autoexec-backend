@@ -93,8 +93,9 @@ sub main {
     my $isFailed = 0;
 
     my $brand       = $type;
-    my $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo );
+    my $storageBase;
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
+        $storageBase = StorageBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo );
         $brand = $storageBase->getBrand();
     }
 

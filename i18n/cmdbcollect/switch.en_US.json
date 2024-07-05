@@ -85,6 +85,33 @@
             "type": "String"
         },
         {
+            "name": "REF_SWITCHES",
+            "desc": "Remote Port",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Switch Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Switch SN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "DEV_NAME",
             "desc": "Device Name",
             "type": "String"
@@ -252,6 +279,77 @@
             "name": "PORTS_COUNT",
             "desc": "Ports Count",
             "type": "Int"
+        },
+        {
+            "name": "VLANS",
+            "desc": "SWitch Vlans",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "VlanId",
+                    "type": "String"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "SWitch Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Object Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Object Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "Port Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MAC",
+                            "desc": "Port Mac",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ARPARP_TABLE",
+            "desc": "Arp Table",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "Mac Address",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "_batch_tag",

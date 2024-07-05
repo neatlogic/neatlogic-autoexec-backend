@@ -132,6 +132,7 @@ sub collect {
     my $gbaseInfo = {};
     $gbaseInfo->{MGMT_IP}       = $procInfo->{MGMT_IP};
     $gbaseInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $gbaseInfo->{_MULTI_PROC}   = 1;
 
     #设置此采集到的对象对象类型，可以是：CollectObjCat->get('INS')，CollectObjCat->get('DBINS')，CollectObjCat::OS
 

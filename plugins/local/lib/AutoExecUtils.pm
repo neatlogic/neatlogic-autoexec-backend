@@ -93,11 +93,12 @@ sub saveOutput {
 }
 
 sub saveLiveData {
+
     # 保存工具产生的特性数据，最终作为json数据提供给个性化的工具执行状态页面
     my ($outputData) = @_;
     my $outputPath = $ENV{LIVEDATA_PATH};
 
-    print("INFO: Try to save output to $outputPath.\n");
+    #print("INFO: Try to save output to $outputPath.\n");
     if ( defined($outputPath) and $outputPath ne '' ) {
         my $outputDir = dirname($outputPath);
         if ( $outputDir ne '' and not -e $outputDir ) {
@@ -114,7 +115,7 @@ sub saveLiveData {
         }
     }
     else {
-        print("WARN: Could not save output file, because of environ OUTPUT_PATH not defined.\n");
+        print("WARN: Could not save output file, because of environ LIVEDATA_PATH not defined.\n");
     }
 }
 
@@ -181,8 +182,8 @@ sub loadNodeOutput {
 
 # 获取当前操作前一次执行的输出参数
 sub getOpPreOutput {
-    my $opId  = $ENV{OPERATION_ID};
-    my $nodeOutput    = loadNodeOutput();
+    my $opId        = $ENV{AUTOEXEC_OPERATION_ID};
+    my $nodeOutput  = loadNodeOutput();
     my $opPreOutput = $nodeOutput->{$opId};
 
     return $opPreOutput;
@@ -385,6 +386,36 @@ sub informNodeWaitInput {
         print("WARN: Inform runner update status to $destStatus failed:socket file $sockPath not exist.\n");
     }
     return;
+}
+
+sub checkInteractPrivilege {
+    my ( $userId, $role ) = @_;
+    my $hasPrivilege = 0;
+    my $privileges   = AutoExecUtils::callNativeApi( "/neatlogic/api/rest/user/get", { "userUuid" => $userId } );
+    my $userAuthList = $privileges->{userAuthList};
+
+    if (@$userAuthList) {
+        foreach my $userAuth (@$userAuthList) {
+            if ( $role eq $userAuth->{auth} ) {
+                $hasPrivilege = 1;
+                last;
+            }
+        }
+    }
+
+    if ( $hasPrivilege == 0 ) {
+        my $userRoleList = $privileges->{roleList};
+        if (@$userRoleList) {
+            foreach my $userRole (@$userRoleList) {
+                if ( $role eq $userRole->{name} ) {
+                    $hasPrivilege = 1;
+                    last;
+                }
+            }
+        }
+    }
+
+    return $hasPrivilege;
 }
 
 sub setJobEnv {
@@ -651,10 +682,10 @@ sub hashToTable {
     return $myRows;
 }
 
-sub callNativeApi{
-    my($apiUri, $params) = @_;
+sub callNativeApi {
+    my ( $apiUri, $params ) = @_;
     my $serverAdapter = ServerAdapter->new();
-    $serverAdapter->callNativeApi($apiUri, $params);
+    $serverAdapter->callNativeApi( $apiUri, $params );
 }
 
 1;

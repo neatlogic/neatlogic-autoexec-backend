@@ -12,6 +12,7 @@ use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use JSON qw(from_json to_json);
 
 use CollectUtils;
+use ConnGather;
 
 sub new {
     my ( $type, $justBaseInfo, $inspect ) = @_;
@@ -47,6 +48,10 @@ sub new {
 
     bless( $self, $type );
     return $self;
+}
+
+sub init {
+
 }
 
 #su运行命令，并返回输出的文本

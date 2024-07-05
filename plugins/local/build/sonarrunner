@@ -88,6 +88,16 @@ sub main {
         usage();
     }
 
+    # my $lock        = DeployLock->new($buildEnv);
+    # my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+
+    # END {
+    #     local $?;
+    #     if ( defined($lock) ) {
+    #         $lock->unlockWorkspace($spaceLockId);
+    #     }
+    # }
+
     my $toolsPath = $buildEnv->{TOOLS_PATH};
 
     my $prjDir     = $buildEnv->{PRJ_PATH};

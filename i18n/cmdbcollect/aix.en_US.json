@@ -149,6 +149,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "Main Board Serial",
+            "type": "String"
+        },
+        {
             "name": "MAX_OPEN_FILES",
             "desc": "Max Open Files",
             "type": "Float"
@@ -689,13 +694,72 @@
             ]
         },
         {
-            "name": "AUTO_RESTART",
-            "desc": "Auto Restart",
-            "type": "String"
+            "name": "REF_SWITCHES",
+            "desc": "Remote Port",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Switch Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Switch SN",
+                    "type": "String"
+                }
+            ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "Main Board Serial",
+            "name": "REF_FCSWITCHES",
+            "desc": "Connted FC Switch",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "DEV_NAME",
+                    "desc": "Device Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managent IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "AUTO_RESTART",
+            "desc": "Auto Restart",
             "type": "String"
         },
         {

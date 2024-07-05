@@ -53,6 +53,16 @@
             "type": "String"
         },
         {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
             "name": "ACCESS_ENDPOINT",
             "desc": "Access Endpoint",
             "type": "String"

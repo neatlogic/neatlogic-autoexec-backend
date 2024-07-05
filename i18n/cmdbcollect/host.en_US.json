@@ -56,6 +56,16 @@
             "type": "String"
         },
         {
+            "name": "CHASSIS_SERIAL",
+            "desc": "Chassis Serial",
+            "type": "String"
+        },
+        {
+            "name": "BOARD_SERIAL",
+            "desc": "Board Serial",
+            "type": "String"
+        },
+        {
             "name": "MODEL",
             "desc": "Model",
             "type": "String"
@@ -177,6 +187,11 @@
             "type": "Float"
         },
         {
+            "name": "KVM_VCPU_ALLOCATE",
+            "desc": "Allocated Vcpu for KVM",
+            "type": "Int"
+        },
+        {
             "name": "CPU_FREQUENCY",
             "desc": "CPU Frequency",
             "type": "String"
@@ -202,9 +217,68 @@
             "type": "String"
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "Board Serial",
-            "type": "String"
+            "name": "REF_SWITCHES",
+            "desc": "Remote Port",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Switch Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Switch SN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_FCSWITCHES",
+            "desc": "Connted FC Switch",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "DEV_NAME",
+                    "desc": "Device Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managent IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port Name",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "HBA_INTERFACES",
@@ -291,8 +365,8 @@
             "type": "String"
         },
         {
-            "name": "MEM_MAXIMUM_CAPACITY",
-            "desc": "Memory Maximum Capacity",
+            "name": "MEM_TOTAL",
+            "desc": "Memory Size(M)",
             "type": "Float"
         },
         {
@@ -314,6 +388,150 @@
             "name": "UUID",
             "desc": "Vcenter UUID",
             "type": "String"
+        },
+        {
+            "name": "KVM_MEM_ALLOCATE",
+            "desc": "Allocated KVM Memory(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_MEM_USED",
+            "desc": "KVM Memoryu Used(M)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_ALLOCATE",
+            "desc": "KVM Allocate Disk(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_DISK_USED",
+            "desc": "KVM Disk Used(G)",
+            "type": "Float"
+        },
+        {
+            "name": "KVM_MACHINES",
+            "desc": "KVM Machines",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "UUID",
+                    "desc": "uuid",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "Cpu Arch",
+                    "type": "String"
+                },
+                {
+                    "name": "VCPU",
+                    "desc": "Cpu Cores",
+                    "type": "String"
+                },
+                {
+                    "name": "MEMORY",
+                    "desc": "Memory(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "USED_MEMORY",
+                    "desc": "Used Memory(M)",
+                    "type": "String"
+                },
+                {
+                    "name": "OS_TYPE",
+                    "desc": "OS Type",
+                    "type": "String"
+                },
+                {
+                    "name": "ARCH",
+                    "desc": "CPU Arch",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_POWEROFF",
+                    "desc": "on_poweroff",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_REBOOT",
+                    "desc": "on_reboot",
+                    "type": "String"
+                },
+                {
+                    "name": "ON_CRASH",
+                    "desc": "on_crash",
+                    "type": "String"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "KVM Disks",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Switch Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TYPE",
+                            "desc": "Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FORMAT",
+                            "desc": "Format",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIRTUAL_SIZE",
+                            "desc": "Virtual Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "ACTUAL_SIZE",
+                            "desc": "Actual Size(G)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "DEVICE",
+                            "desc": "Device",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TARGET_DEV",
+                            "desc": "Target Dev",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FILE",
+                            "desc": "Image File",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "_batch_tag",

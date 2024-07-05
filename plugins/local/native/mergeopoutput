@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import fcntl
+import json
+import traceback
+import argparse
+import re
+
+import AutoExecError
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--outputkey", default="", help="Output key")
+    args = parser.parse_args()
+
+    outputKey = args.outputkey
+
+    hasOptError = False
+    if outputKey == "":
+        hasOptError = True
+        print("ERROR: Must define output key name by option --outputkey")
+
+    if hasOptError:
+        sys.exit(2)
+
+    outputKey = re.sub(r"^#\{", "", outputKey)
+    outputKey = re.sub(r"\}$", "", outputKey)
+    outputKeyInfo = outputKey.split(".")
+
+    if len(outputKeyInfo) != 3:
+        print("ERROR: Malform output key %s." % (outputKey))
+        sys.exit(3)
+
+    opId = outputKeyInfo[1]
+    varKey = outputKeyInfo[2]
+    opName = re.sub(r"_\d+$", "", opId)
+
+    isStr = False
+    mergedData = None
+
+    try:
+        # 加载操作输出并进行合并
+        nodeOut = {}
+        nodeOutputPath = os.getenv("NODE_OUTPUT_PATH")
+        if os.path.exists(nodeOutputPath):
+            # 如果runner本地存在output文件，则从本地加载
+            # TODO：如果运行runner是随机选择的，那就要必须强制从mongodb中加载output
+            outputFile = None
+            try:
+                outputFile = open(nodeOutputPath, "r")
+                fcntl.flock(outputFile, fcntl.LOCK_SH)
+                content = outputFile.read()
+                if content:
+                    nodeOut = json.loads(content)
+            except Exception as ex:
+                raise AutoExecError("Load output file:{}, failed {}".format(nodeOutputPath, ex))
+            finally:
+                if outputFile is not None:
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
+
+        print("INFO: Try to load operation name:%s output:%s." % (opName, varKey))
+        for myOpId in nodeOut:
+            myOpName = myOpId
+            myOpName = re.sub(r"_\d+$", "", myOpId)
+
+            if myOpName == opName:
+                val = nodeOut[myOpId].get(varKey)
+                if isinstance(val, list):
+                    if mergedData is None:
+                        mergedData = []
+                    mergedData = mergedData + val
+                elif isinstance(val, dict):
+                    if mergedData is None:
+                        mergedData = {}
+                    mergedData.update(val)
+                else:
+                    print(
+                        "ERROR: Value for {} can not to be merged, only support dictionary or list object.".format(
+                            outputKey
+                        )
+                    )
+
+        if not mergedData:
+            print("WARN: Can not find any output for:%s." % (outputKey))
+        else:
+            print("FINE: Aggregate output for:%s success." % (outputKey))
+
+        out = {}
+        out["mergedData"] = mergedData
+        AutoExecUtils.saveOutput(out)
+    except:
+        print("ERROR: Merge output for {} failed, {}".format(outputKey, traceback.format_exc()))
+        sys.exit(1)

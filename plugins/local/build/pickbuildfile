@@ -1,0 +1,191 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use File::Basename;
+use Getopt::Long;
+
+use ServerAdapter;
+use DeployUtils;
+use DeployLock;
+use BuildUtils;
+use FileUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--srcenvpath SourceEnvPath] [--envpath EnvPath] [--version VERSION]");
+    print("\n");
+    print("       --envpath:          example:SYS-A/MODULE-X\n");
+    print("       --srcenvpath:       example:SYS-S/MODULE-S\n");
+    print("       --version:          version number\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $srcEnvPath, $srcVersion, $envPath, $destSubDir, $version, $buildNo );
+
+    GetOptions(
+        'h|help'       => \$isHelp,
+        'envpath=s'    => \$envPath,
+        'srcenvpath:s' => \$srcEnvPath,
+        "srcversion:s" => \$srcVersion,
+        'destsubdir:s' => \$destSubDir,
+        'version=s'    => \$version,
+        'buildno=s'    => \$buildNo
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $hasError = 0;
+    my @srcFiles = @ARGV;
+
+    my $namePath = $buildEnv->{NAME_PATH};
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    my $srcVerEnv = $deployUtils->getVerBaseEnv( $srcEnvPath, $srcVersion );
+
+    my $srcDataPath = $srcVerEnv->{DATA_PATH};
+    if ( lc($srcVersion) eq 'latest' ) {
+        my @srcVersions = ();
+        foreach my $srcVerPath ( glob("$srcDataPath/artifact/*") ) {
+            my $aSrcVersion = basename($srcVerPath);
+            push( @srcVersions, $aSrcVersion );
+        }
+        my @sortedSrcVersions = sort(@srcVersions);
+        if (@sortedSrcVersions) {
+            $srcVersion = pop(@sortedSrcVersions);
+        }
+        if ( not defined($srcVersion) ) {
+            print("ERROR: There is no version artifact for $srcEnvPath.\n");
+            exit(2);
+        }
+        else {
+            print("INFO: $srcEnvPath latest version: $srcVersion\n");
+        }
+    }
+
+    my @srcBuildNos  = ();
+    my $srcBuildPath = "$srcDataPath/artifact/$srcVersion/build";
+    foreach my $srcBuildPath ( glob("$srcBuildPath/*") ) {
+        my $srcBuildNoStr = basename($srcBuildPath);
+        if ( $srcBuildNoStr =~ /^\d+$/ ) {
+            push( @srcBuildNos, int($srcBuildNoStr) );
+        }
+    }
+    my @sortedSrcBuildNos = sort(@srcBuildNos);
+    my $srcLatestBuildNo;
+    if (@sortedSrcBuildNos) {
+        $srcLatestBuildNo = pop(@sortedSrcBuildNos);
+    }
+    if ( not defined($srcLatestBuildNo) ) {
+        print("ERROR: There is no build artifact for $srcEnvPath.\n");
+        exit(3);
+    }
+    else {
+        print("INFO: $srcEnvPath latest build: ${srcVersion}_${srcLatestBuildNo}\n");
+    }
+
+    $srcVerEnv = $deployUtils->getVerBaseEnv( $srcEnvPath, $srcVersion, $srcLatestBuildNo );
+    my $srcBuildPath = $srcVerEnv->{BUILD_PATH};
+
+    my $lock    = DeployLock->new($buildEnv);
+    my $srcLock = DeployLock->new($srcVerEnv);
+
+    my $srcBuildLock = $srcLock->lockBuild($DeployLock::READ);
+    my $buildLock    = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockBuild($buildLock);
+            $srcLock->unlockBuild($srcBuildLock);
+        }
+    }
+
+    #$buildEnv = $deployUtils->deployInit( $envPath, $version, $buildNo );
+    my $destPath = $buildEnv->{BUILD_PATH};
+    
+    if ( defined($destSubDir) and $destSubDir ne '' ) {
+        $destPath = $destPath . '/' . $destSubDir;
+    }
+
+    if ( not -d $destPath ) {
+        $hasError = 1;
+        print("ERROR: Copy destination directory $destPath not exists, check option --destsubdir.\n");
+    }
+
+    foreach my $filePattern (@srcFiles) {
+        my @subFiles = glob("$srcBuildPath/$filePattern");
+        if ( not @subFiles ) {
+            $hasError = 1;
+            print("ERROR: Copy source $srcBuildPath/$filePattern not exists.\n");
+        }
+        foreach my $filePath (@subFiles) {
+            my $ret = system(qq{cp -rf "$filePath" "$destPath/"});
+            if ( $ret != 0 ) {
+                $hasError = 1;
+                print(qq{ERROR: Copy "$filePath" to "$destPath/" failed.\n});
+            }
+            else {
+                print("INFO: Pick $filePath to $destPath.\n");
+                my ( $md5Provided, $md5Sum );
+                eval {
+                    if ( -f "$filePath.md5" ) {
+                        my $fileName = basename($filePath);
+                        $md5Provided = FileUtils::getFileContent("$filePath.md5");
+                        $md5Sum      = FileUtils::getFileMd5("$destPath/$fileName");
+                        if ( $md5Provided ne $md5Sum ) {
+                            $hasError = 1;
+                            print("ERROR: $filePath md5 check failed, actual md5checksum($md5Sum) not equal to($md5Provided).\n");
+                        }
+                        else {
+                            print("INFO: $filePath md5 check success.\n");
+                        }
+                    }
+                };
+                if ($@) {
+                    $hasError = 1;
+                    my $errMsg = $@;
+                    $errMsg =~ s/ at\s*.*$//;
+                    print($errMsg );
+                }
+            }
+        }
+    }
+
+    if ( $hasError eq 0 ) {
+        my $buildUtils = BuildUtils->new();
+        eval { $hasError = $buildUtils->release( $buildEnv, $version, $buildNo ); };
+        if ($@) {
+            print("ERROR: $@\n");
+        }
+        else {
+            print("FINE: Sync picked files for $namePath version:$version with build($buildNo) success.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

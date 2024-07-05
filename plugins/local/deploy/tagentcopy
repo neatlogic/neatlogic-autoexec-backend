@@ -111,6 +111,34 @@ sub main {
     my $namePath = $deployEnv->{NAME_PATH};
     my $envName  = $deployEnv->{ENV_NAME};
 
+    my $nodeInfo = $deployUtils->getNodeInfo($node);
+    if ( not $nodeInfo ) {
+        $optionError = 1;
+        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
+    }
+
+    my $host  = $nodeInfo->{host};
+    my $port  = $nodeInfo->{protocolPort};
+    my $user  = $nodeInfo->{username};
+    my $pass  = $nodeInfo->{password};
+    my $insId = $nodeInfo->{resourceId};
+
+    my $insUniqName = $nodeInfo->{nodeUniqName};
+
+    my $lock            = DeployLock->new($deployEnv);
+    my $mirrorAppLockId = $lock->lockMirror($DeployLock::READ);
+    my $envAppLockId    = $lock->lockEnvApp($DeployLock::READ);
+    my $insLockId = $lock->lockIns("$host:$port", $DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockIns($insLockId);
+            $lock->unlockEnvApp($envAppLockId);
+            $lock->unlockMirror($mirrorAppLockId);
+        }
+    }
+
     my $serverAdapter = ServerAdapter->new();
 
     my $verInfo   = $serverAdapter->getEnvVer( $deployEnv, $version );
@@ -139,12 +167,6 @@ sub main {
         }
     }
 
-    my $nodeInfo = $deployUtils->getNodeInfo($node);
-    if ( not $nodeInfo ) {
-        $optionError = 1;
-        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
-    }
-
     if ( $optionError == 1 ) {
         usage();
     }
@@ -157,42 +179,11 @@ sub main {
     my $envName = $deployEnv->{ENV_NAME};
     my $verRoot = $dirInfo->{appRoot};
 
-    my $host  = $nodeInfo->{host};
-    my $port  = $nodeInfo->{protocolPort};
-    my $user  = $nodeInfo->{username};
-    my $pass  = $nodeInfo->{password};
-    my $insId = $nodeInfo->{resourceId};
-
-    #my $insName = $nodeInfo->{nodeName};
-    my $insUniqName = $nodeInfo->{nodeUniqName};
-
     if ( defined($pass) and $pass ne '' ) {
         $pass = $deployUtils->decryptPwd($pass);
     }
 
     $port = 22 if ( not defined($port) );
-
-    my $lock = DeployLock->new($deployEnv);
-    my $appLockId;
-
-    if ( $isMirror == 1 ) {
-        $appLockId = $lock->lockMirror($DeployLock::WRITE);
-    }
-    else {
-        $appLockId = $lock->lockEnvApp($DeployLock::WRITE);
-    }
-
-    END {
-        local $?;
-        if ( defined($lock) ) {
-            if ( $isMirror == 1 ) {
-                $lock->unlockMirror($appLockId);
-            }
-            else {
-                $lock->unlockEnvApp($appLockId);
-            }
-        }
-    }
 
     my $verDiffPath = "$verPath.ins/$insUniqName";
 

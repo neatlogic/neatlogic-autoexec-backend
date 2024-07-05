@@ -169,6 +169,182 @@
             "type": "String"
         },
         {
+            "name": "DISK_GROUPS",
+            "desc": "asm diskGROUP列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "diskGroup名称",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "diskGroup类型",
+                    "type": "String"
+                },
+                {
+                    "name": "TOTAL",
+                    "desc": "容量(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED",
+                    "desc": "使用(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "FREE",
+                    "desc": "空闲(MB)",
+                    "type": "Float"
+                },
+                {
+                    "name": "USED_PCT",
+                    "desc": "使用%",
+                    "type": "Float"
+                },
+                {
+                    "name": "DISKS",
+                    "desc": "disk列表",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DBID",
+                            "desc": "DBID",
+                            "type": "String"
+                        },
+                        {
+                            "name": "VIP",
+                            "desc": "vip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "failgroup名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "MOUNT状态",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL",
+                            "desc": "容量(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "使用(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "FREE",
+                            "desc": "空闲(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "使用%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "DEV_PATH",
+                            "desc": "路径",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UUID",
+                            "desc": "唯一编号",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "PATH",
+                    "desc": "disk路径",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP",
+                            "desc": "ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "NAME",
+                            "desc": "名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "FAIL_GROUP",
+                            "desc": "failgroup名称",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MOUNT_STATUS",
+                            "desc": "MOUNT状态",
+                            "type": "String"
+                        },
+                        {
+                            "name": "TOTAL",
+                            "desc": "容量(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED",
+                            "desc": "使用(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "FREE",
+                            "desc": "空闲(MB)",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "USED_PCT",
+                            "desc": "使用%",
+                            "type": "Float"
+                        },
+                        {
+                            "name": "PATH",
+                            "desc": "路径",
+                            "type": "String"
+                        },
+                        {
+                            "name": "UUID",
+                            "desc": "唯一编号",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "INSTANCES",
             "desc": "关联实例",
             "type": "JsonArray",

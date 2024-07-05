@@ -81,20 +81,35 @@ sub convmvdir {
                         }
                         else {
                             $succeed = 0;
-                            print("ERROR: 无法识别文件名$dir/$srcPath的编码\n");
+                            print("ERROR: 文件名$dir/$srcPath的编码不是$from，并且无法识别\n");
                         }
                     }
-                    elsif ( $guessCharset eq $to ) {
-                        print("WARN: 文件名$dir/$srcPath, 已经是编码$to, 不需要转换\n");
-                    }
-                    elsif ( $guessCharset ne 'US-ASCII' and $guessCharset ne $from ) {
-                        print("WARN: $srcPath encoding is not $from but $guessCharset\n");
-                        $destPath     = Encode::encode( $to, Encode::decode( $guessCharset, $srcPath ) );
-                        $hasConverted = 1;
-                    }
-                    elsif ( $guessCharset eq $from ) {
-                        $destPath     = Encode::encode( $to, Encode::decode( $from, $srcPath ) );
-                        $hasConverted = 1;
+                    elsif ( $guessCharset ne 'US-ASCII' ) {
+                        my $destPathTmp = Encode::encode( $to,           Encode::decode( $guessCharset, $srcPath ) );
+                        my $srcPathTmp  = Encode::encode( $guessCharset, Encode::decode( $to,           $destPathTmp ) );
+                        if ( $srcPathTmp eq $srcPath ) {
+                            $hasConverted = 1;
+                            if ( $guessCharset eq $to ) {
+                                $hasConverted = 0;
+                                print("WARN: 文件名$dir/$srcPath, 已经是编码$to, 不需要转换\n");
+                            }
+                            elsif ( $guessCharset ne $from ) {
+                                $destPath = $destPathTmp;
+                                print("WARN: $srcPath encoding is not $from but $guessCharset\n");
+                            }
+                        }
+                        else {
+                            my $destPathTmp = Encode::encode( $to,   Encode::decode( $from, $srcPath ) );
+                            my $srcPathTmp  = Encode::encode( $from, Encode::decode( $to,   $destPathTmp ) );
+                            if ( $srcPathTmp eq $srcPath ) {
+                                $hasConverted = 1;
+                                $destPath     = $destPathTmp;
+                            }
+                            else {
+                                $succeed = 0;
+                                print("ERROR: 文件名$dir/$srcPath的编码不是$from，并且自动识别结果$guessCharset也不正确\n");
+                            }
+                        }
                     }
 
                     if ( $hasConverted == 1 and $destPath ne $srcPath ) {
