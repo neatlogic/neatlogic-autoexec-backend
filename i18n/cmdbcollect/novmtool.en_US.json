@@ -290,6 +290,70 @@
             "type": "Float"
         },
         {
+            "name": "REF_SWITCHES",
+            "desc": "Remote Port",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Switch Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Switch SN",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "REF_FCSWITCHES",
+            "desc": "Connted FC Switch",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "DEV_NAME",
+                    "desc": "Device Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Managent IP",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "Serial",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "HBA_INTERFACES",
             "desc": "HBA Interfaces",
             "type": "JsonArray",

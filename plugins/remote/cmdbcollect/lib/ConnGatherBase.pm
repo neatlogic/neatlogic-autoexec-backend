@@ -8,42 +8,19 @@ use strict;
 use FindBin;
 use POSIX qw(:sys_wait_h WNOHANG setsid uname);
 use CollectUtils;
+use NSSwitcher;
 
 sub new {
     my ( $type, $inspect ) = @_;
     my $self = {};
+    $self->{nsTarget}     = undef;
     $self->{inspect}      = $inspect;
     $self->{collectUtils} = CollectUtils->new();
 
     bless( $self, $type );
-    $self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
+
+    #$self->{CPU_LOGIC_CORES} = $self->getCPULogicCoreCount();
     return $self;
-}
-
-sub getCPULogicCoreCount {
-    my ($self) = @_;
-
-    my $utils = $self->{collectUtils};
-
-    my $cpuCount     = 0;
-    my $cpuInfoLines = $utils->getFileLines('/proc/cpuinfo');
-    my $pCpuMap      = {};
-    my $cpuInfo      = {};
-    for ( my $i = 0 ; $i < scalar(@$cpuInfoLines) ; $i++ ) {
-        my $line = $$cpuInfoLines[$i];
-        $line =~ s/^\s*|\s*$//g;
-        if ( $line ne '' ) {
-            my @info = split( /\s*:\s*/, $line );
-            $cpuInfo->{ $info[0] } = $info[1];
-            if ( $info[0] eq 'physical id' ) {
-                $pCpuMap->{ $info[1] } = 1;
-            }
-        }
-    }
-    my $cpuCount      = scalar( keys(%$pCpuMap) );
-    my $cpuLogicCores = $cpuCount * $cpuInfo->{siblings};
-
-    return $cpuLogicCores;
 }
 
 sub parseListenLines {
@@ -57,24 +34,27 @@ sub parseListenLines {
     my $portsMap = {};
     my $status   = 0;
     my $pipe;
+
     my $pipePid = open( $pipe, $cmd );
     if ( defined($pipe) ) {
         my $line;
         while ( $line = <$pipe> ) {
-            if ( rindex( $line, $pid ) < 0 ) {
-                next;
-            }
-
             my @fields = split( /\s+/, $line );
 
-            my $pidMatched = 0;
-            for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
-                if ( index( $fields[$i], $pid ) >= 0 ) {
-                    $pidMatched = 1;
+            if ( defined($pid) and $pid != 0 ) {
+                if ( rindex( $line, $pid ) < 0 ) {
+                    next;
                 }
-            }
-            if ( $pidMatched == 0 ) {
-                next;
+
+                my $pidMatched = 0;
+                for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
+                    if ( index( $fields[$i], $pid ) >= 0 ) {
+                        $pidMatched = 1;
+                    }
+                }
+                if ( $pidMatched == 0 ) {
+                    next;
+                }
             }
 
             my $backlogQ   = int( $fields[$recvQIdx] );
@@ -96,20 +76,20 @@ sub parseListenLines {
         close($pipe);
         $status = $?;
         if ( $status != 0 ) {
-            print("WARN: Collect process:$pid listen addresses failed.\n");
+            print("WARN: Collect process $pid listen addresses failed.\n");
         }
         else {
             if (%$portsMap) {
-                print("INFO: Collect process:$pid listen addresses success.\n");
+                print("INFO: Collect process $pid listen addresses success.\n");
             }
             else {
-                print("INFO: Process:$pid is not listened any addresses.\n");
+                print("INFO: Process $pid is not listened any addresses.\n");
             }
         }
     }
     else {
         $status = -1;
-        print("ERROR: Can not launch command:$cmd to collect process listen addressses.\n");
+        print("ERROR: Can not launch command $cmd to collect process listen addressses.\n");
     }
 
     return ( $status, $portsMap );
@@ -117,9 +97,11 @@ sub parseListenLines {
 
 sub parseConnLines {
     my ( $self, %args ) = @_;
-    print("INFO: Try to collect process connections.\n");
     my $cmd            = $args{cmd};
     my $pid            = $args{pid};
+
+    print("INFO: Try to collect process $pid connections.\n");
+
     my $localFieldIdx  = $args{localFieldIdx};
     my $remoteFieldIdx = $args{remoteFieldIdx};
     my $recvQIdx       = $args{recvQIdx};
@@ -153,17 +135,19 @@ sub parseConnLines {
                 my $ip   = $1;
                 my $port = $2;
 
-                my $pidMatched = 0;
-                for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
-                    if ( index( $fields[$i], $pid ) >= 0 ) {
-                        $pidMatched = 1;
+                if ( defined($pid) and $pid != 0 ) {
+                    my $pidMatched = 0;
+                    for ( my $i = 6 ; $i <= $#fields ; $i++ ) {
+                        if ( index( $fields[$i], $pid ) >= 0 ) {
+                            $pidMatched = 1;
+                        }
                     }
-                }
 
-                if ( $pidMatched == 0
-                    and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
-                {
-                    next;
+                    if ( $pidMatched == 0
+                        and not( defined( $lsnPortsMap->{$localAddr} ) or defined( $lsnPortsMap->{$port} ) ) )
+                    {
+                        next;
+                    }
                 }
 
                 $localAddr  =~ s/^::ffff:(\d+\.)/$1/;
@@ -247,19 +231,17 @@ sub parseConnLines {
 }
 
 sub getRemoteAddrs {
-    my ( $self, $lsnPortsMap, $pid, $isContainer ) = @_;
+    my ( $self, $lsnPortsMap, $pid ) = @_;
 
     my $remoteAddrs  = {};
     my $connStatInfo = {};
     my $status       = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my $nsTarget     = $self->{nsTarget};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwp|";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n netstat -ntudwp|";
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
         }
         my $localFieldIdx  = 3;
         my $remoteFieldIdx = 4;
@@ -277,9 +259,10 @@ sub getRemoteAddrs {
 
     if ( $status != 0 ) {
         my $cmd = "ss -ntudwp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n ss -ntudwp|";
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
         }
+
         my $localFieldIdx  = 4;
         my $remoteFieldIdx = 5;
         ( $status, $remoteAddrs, $connStatInfo ) = $self->parseConnLines(
@@ -298,21 +281,19 @@ sub getRemoteAddrs {
 }
 
 sub getListenPorts {
-    my ( $self, $pid, $isContainer ) = @_;
+    my ( $self, $pid ) = @_;
 
     #Linux
     #ss -ntudwlp | grep pid=<pid>
     #netstat -tuwnlp |grep <pid>
     my $portsMap = {};
     my $status   = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my $nsTarget = $self->{nsTarget};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwlp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t  $pid -n -p netstat -ntudwlp ";
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
         }
         my $lsnFieldIdx = 3;
         ( $status, $portsMap ) = $self->parseListenLines(
@@ -326,7 +307,10 @@ sub getListenPorts {
     }
 
     if ( $status != 0 ) {
-        my $cmd         = "ss -ntudwlp |";
+        my $cmd = "ss -ntudwlp |";
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
+        }
         my $lsnFieldIdx = 4;
         ( $status, $portsMap ) = $self->parseListenLines(
             cmd         => $cmd,
@@ -343,8 +327,8 @@ sub getListenPorts {
 
 #获取单个进程的连出的TCP/UDP连接
 sub getListenInfo {
-    my ( $self, $pid, $isContainer ) = @_;
-    my $lsnPortsMap = $self->getListenPorts( $pid, $isContainer );
+    my ( $self, $pid ) = @_;
+    my $lsnPortsMap = $self->getListenPorts($pid);
 
     my $connInfo = {};
     $connInfo->{LISTEN} = $lsnPortsMap;
@@ -353,8 +337,8 @@ sub getListenInfo {
 }
 
 sub getStatInfo {
-    my ( $self, $pid, $lsnPortsMap, $isContainer ) = @_;
-    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid, $isContainer );
+    my ( $self, $pid, $lsnPortsMap ) = @_;
+    my ( $remoteAddrs, $connStatInfo ) = $self->getRemoteAddrs( $lsnPortsMap, $pid );
 
     my $connInfo = {};
     $connInfo->{PEER}  = $remoteAddrs;
@@ -365,21 +349,20 @@ sub getStatInfo {
 
 #获取连入某进程监听IP端口的远端的IP地址列表
 sub getInboundIps {
-    my ( $self, $bindAddr, $pid, $isContainer ) = @_;
+    my ( $self, $bindAddr, $pid ) = @_;
 
-    my @ips    = ();
-    my $status = 3;
-    if ( not defined($isContainer) ) {
-        $isContainer = 0;
-    }
+    my @ips      = ();
+    my $status   = 3;
+    my $nsTarget = $self->{nsTarget};
 
     if ( $status != 0 ) {
         my $cmd = "netstat -ntudwp| grep $bindAddr";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n netstat -ntudwp| grep $bindAddr";
+        if ( defined($pid) and $pid ne '' ) {
+            $cmd = "netstat -ntudwp | grep $pid | grep $bindAddr";
         }
-        elsif ( defined($pid) and $pid ne '' ) {
-            $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";
+
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
         }
 
         my $localFieldIdx  = 3;
@@ -407,11 +390,11 @@ sub getInboundIps {
 
     if ( $status != 0 ) {
         my $cmd = "ss -ntudwp |";
-        if ( $isContainer == 1 ) {
-            $cmd = "nsenter -t $pid -n ss -ntudwp|grep $bindAddr";
+        if ( defined($pid) and $pid ne '' ) {
+            $cmd = "netstat -ntudwp| grep $pid | grep $bindAddr";
         }
-        elsif ( defined($pid) and $pid ne '' ) {
-            $cmd = "netstat -ntudwp| grep $pid | |grep $bindAddr";
+        if ( defined($nsTarget) ) {
+            $cmd = "nsenter -t $nsTarget -n $cmd";
         }
 
         my $localFieldIdx  = 4;

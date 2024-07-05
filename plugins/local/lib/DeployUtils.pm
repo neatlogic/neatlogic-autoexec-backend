@@ -57,11 +57,14 @@ sub hidePwdInCmdLine {
 }
 
 sub deployInit {
-    my ( $self, $namePath, $version, $buildNo ) = @_;
+    my ( $self, $dpPath, $version, $buildNo ) = @_;
 
     AutoExecUtils::setEnv();
 
-    my $dpPath   = $ENV{DEPLOY_PATH};
+    if ( not defined($dpPath) or $dpPath eq '' ) {
+        $dpPath = $ENV{DEPLOY_PATH};
+    }
+
     my $dpIdPath = $ENV{DEPLOY_ID_PATH};
 
     if ( not defined($dpIdPath) or $dpIdPath eq '' ) {
@@ -181,6 +184,57 @@ sub deployInit {
     }
 
     return $deployEnv;
+}
+
+sub getVerBaseEnv {
+    my ( $self, $dpPath, $version, $buildNo ) = @_;
+    my $serverAdapter = ServerAdapter->new();
+    my $dpIdPath      = $serverAdapter->getIdPath($dpPath);
+
+    my $verEnv = {};
+
+    my @pathLevels = ( 'SYS', 'MODULE', 'ENV' );
+    my @pathIds    = split( '/', $dpIdPath );
+    for ( my $i = 0 ; $i <= $#pathIds ; $i++ ) {
+        $verEnv->{ $pathLevels[$i] . '_ID' } = $pathIds[$i];
+    }
+    my @pathNames = split( '/', $dpPath );
+    for ( my $i = 0 ; $i <= $#pathNames ; $i++ ) {
+        $verEnv->{ $pathLevels[$i] . '_NAME' } = $pathNames[$i];
+    }
+
+    my $autoexecHome = $ENV{AUTOEXEC_HOME};
+    if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
+        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+    }
+    $verEnv->{AUTOEXEC_HOME} = $autoexecHome;
+
+    my $verDataRoot = "$autoexecHome/data/verdata";
+    my $dataPath    = "$verDataRoot/$verEnv->{SYS_ID}/$verEnv->{MODULE_ID}";
+    my $prjRoot     = "$dataPath/workspace";
+    my $prjPath     = "$prjRoot/project";
+    my $verRoot     = "$dataPath/artifact/$version";
+    my $distRoot    = "$verRoot/env";
+    my $mirrorRoot  = "$dataPath/mirror";
+    my $buildRoot   = "$dataPath/artifact/$version/build";
+
+    $verEnv->{VERDATA_ROOT} = $verDataRoot;
+    $verEnv->{DATA_PATH}    = $dataPath;
+    $verEnv->{VER_ROOT}     = $verRoot;
+    $verEnv->{PRJ_ROOT}     = $prjRoot;
+    $verEnv->{PRJ_PATH}     = $prjPath;
+    $verEnv->{DIST_ROOT}    = $distRoot;
+    $verEnv->{MIRROR_ROOT}  = $mirrorRoot;
+
+    $verEnv->{BUILD_ROOT} = $buildRoot;
+    if ( defined($buildNo) ) {
+        $verEnv->{BUILD_PATH} = "$buildRoot/$buildNo";
+    }
+
+    $verEnv->{JOB_ID}    = $ENV{AUTOEXEC_JOBID};
+    $verEnv->{RUNNER_ID} = $ENV{RUNNER_ID};
+
+    return $verEnv;
 }
 
 sub getDataDirStruct {
@@ -329,7 +383,7 @@ sub getScriptExtName {
 }
 
 sub execmd {
-    my ( $self, $cmd, $pattern ) = @_;
+    my ( $self, $cmd, $pattern, $callback ) = @_;
     my $encoding;
     my $lang = $ENV{LANG};
 
@@ -352,7 +406,13 @@ sub execmd {
                     $line =~ s/$pattern//;
                 }
 
-                print($line);
+                if ( defined($callback) ) {
+                    chomp($line);
+                    &$callback($line);
+                }
+                else {
+                    print($line);
+                }
             }
         }
         else {
@@ -360,7 +420,15 @@ sub execmd {
                 if ( defined($pattern) ) {
                     $line =~ s/$pattern//;
                 }
-                print( Encode::encode( "utf-8", Encode::decode( $encoding, $line ) ) );
+
+                $line = Encode::encode( "utf-8", Encode::decode( $encoding, $line ) );
+                if ( defined($callback) ) {
+                    chomp($line);
+                    &$callback($line);
+                }
+                else {
+                    print($line );
+                }
             }
         }
 
@@ -436,7 +504,14 @@ sub handlePipeOut {
             print("----------------------------------------------------------------------\n");
         }
         else {
-            print("$cmd\n");
+            my $cmd2Print   = $cmd;
+            my @pwdPatterns = ( qr{(pass\w+=)('.*?')+}, qr{(pass\w+=)(".*?(?<!\\)")+}, qr{(pass\w+\s+)('.*?')+}, qr{(pass\w+\s+)(".*?(?<!\\)")+}, qr{(pass\w+=)\S+}, qr{(pass\w+\s+)\S+} );
+            foreach my $pwdPattern (@pwdPatterns) {
+                if ( $cmd2Print =~ s/$pwdPattern/$1*******/g ) {
+                    last;
+                }
+            }
+            print("$cmd2Print\n");
             print("----------------------------------------------------------------------\n");
         }
     }
@@ -448,8 +523,8 @@ sub handlePipeOut {
             if ( $isVerbose == 1 ) {
                 print($line);
             }
-            chomp($line);
             if ( defined($callback) ) {
+                chomp($line);
                 &$callback($line);
             }
         }

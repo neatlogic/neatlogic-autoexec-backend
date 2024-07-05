@@ -1,122 +1,91 @@
-#!/usr/bin/perl
-use strict;
-use FindBin;
-use JSON;
-use Cwd 'abs_path';
-use Getopt::Long;
-use Net::OpenSSH;
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+ Copyright © 2017 NeatLogic
+"""
+import sys
+import os
+import json
+import argparse
+import paramiko
 
-use DeployUtils;
-use TagentClient;
+import VContext
+import Utils
+import TagentClient
 
-Getopt::Long::Configure("pass_through");
+if __name__ == "__main__":
+    # 参数处理
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--node", default="{}", help='Json, example:{"nodeName":"myNode","protocol":"ssh","password":"{ENCRYPTED}0bad068c79dd721e","resourceId":497544471568384,"host":"192.168.0.101","nodeType":"Linux","protocolPort":22,"username":"root"}')
+    parser.add_argument("--verbose", default=0, help="Verbose or not, default:0")
+    parser.add_argument("--timeout", default=15, help="Connection timeout, default:15 seconds")
 
-sub usage {
-    my $pname = $FindBin::Script;
+    args = parser.parse_args()
+    node = args.node
+    if node == "{}":
+        node = os.getenv("AUTOEXEC_NODE")
+    nodeInfo = json.loads(node)
 
-    print("Usage: $pname [--verbose 0|1]\n");
-    print("              [--node NodeJson]\n");
-    print("              [--timeout TimeoutSecs]\n");
-    print("\n");
-    print("       --node:         Host node json\n");
-    print("       --timeout:      tiemout for ssh execute\n");
+    host = nodeInfo["host"]
+    username = nodeInfo["username"]
+    password = nodeInfo["password"]
+    if password.startswith("{ENCRYPTED}"):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[11:])
+    elif password.startswith("{RC4}"):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[5:])
+    if password.startswith("RC:"):
+        vContext = VContext.VContext(0)
+        password = Utils._rc4_decrypt_hex(vContext.passKey, password[3:])
 
-    exit(1);
-}
+    protocol = nodeInfo.get("protocol")
+    protocolPort = nodeInfo.get("protocolPort")
+    servicePorts = nodeInfo.get("servicePorts")
 
-# windows测试target server是否可连接
-# tagentexec --inspath "qqqq" -h 192.168.0.178 -p 3939 -u tagent --pass ts9012501  "dir C:"
-sub main {
-    my ( $isHelp, $isVerbose );
-    my ( $node,   $timeOut );
+    if servicePorts is not None:
+        servicePort = servicePorts.get(protocol)
+        if servicePort is not None and servicePort != "":
+            protocolPort = servicePort
 
-    $isVerbose = 0;
-    $timeOut   = 0;
+    if protocol.startswith("tagent."):
+        protocol = "tagent"
+        protocolPortTxt = protocol[7:]
+        if protocolPortTxt != "":
+            protocolPort = int(protocolPortTxt)
 
-    GetOptions(
-        'h|help'      => \$isHelp,
-        'v|verbose=i' => \$isVerbose,
-        'node=s'      => \$node,
-        'timeout=i'   => \$timeOut
-    );
+    if protocolPort is None or protocolPort == "":
+        protocolPort = nodeInfo.get("port", 0)
 
-    usage() if ( defined($isHelp) );
+    hasError = 0
 
-    my $pname = $FindBin::Script;
+    if protocol == "ssh":
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        sys.tracebacklimit = -1
+        try:
+            ssh.connect(
+                hostname=host,
+                port=protocolPort,
+                username=username,
+                password=password,
+                banner_timeout=10,
+                timeout=10,
+                look_for_keys=True,
+                disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
+            )
+            print("INFO: Connect to {}@{}:{} success.".format(username, host, protocolPort))
+        except BaseException as ex:
+            hasError = 1
+            print("ERROR: Connect to {}@{}:{} failed, {}".format(username, host, protocolPort, ex))
+        finally:
+            if ssh is not None:
+                ssh.close()
+    elif protocol == "tagent":
+        try:
+            tagent = TagentClient.TagentClient(host, protocolPort, password=password, connectTimeout=15, readTimeout=360, writeTimeout=10)
+            exitCode = tagent.execCmd("root", "echo test")
+        except Exception as ex:
+            hasError = 1
 
-    my $optionError = 0;
-
-    my $deployUtils = DeployUtils->new();
-
-    my $nodeInfo = $deployUtils->getNodeInfo($node);
-    if ( not $nodeInfo ) {
-        $optionError = 1;
-        print("ERROR: Execute node json not defined by environment AUTOEXEC_NODE or option --node\n");
-    }
-
-    if ( $optionError == 1 ) {
-        usage();
-    }
-
-    my $hasError = 0;
-
-    my $protocol = $nodeInfo->{protocol};
-    my $host     = $nodeInfo->{host};
-    my $port     = $nodeInfo->{protocolPort};
-    my $user     = $nodeInfo->{username};
-    my $pass     = $nodeInfo->{password};
-    my $insId    = $nodeInfo->{resourceId};
-    my $insName  = $nodeInfo->{nodeName};
-
-    if ( defined($pass) and $pass ne '' ) {
-        $pass = $deployUtils->decryptPwd($pass);
-    }
-
-    if ( $protocol eq 'tagent' ) {
-        print("INFO: Try to do tagent test for $host:$port...\n");
-        my $tagent = new TagentClient( $host, $port, $pass, $timeOut, $timeOut );
-        my $ret    = $tagent->execCmd( $user, 'echo x' );
-        if ( $ret != 0 ) {
-            $hasError = 2;
-            print("ERROR: Tagent test failed.\n");
-        }
-        else {
-            print("FINE: Tagent test succeed.\n");
-        }
-    }
-    elsif ( $protocol eq 'ssh' ) {
-        print("INFO: Try to ssh logon to $host:$port.\n");
-        my $startTime = time();
-        my $ssh       = Net::OpenSSH->new(
-            $host,
-            port        => $port,
-            user        => $user,
-            password    => $pass,
-            timeout     => $timeOut,
-            master_opts => [ -o => "StrictHostKeyChecking=no" ]
-        );
-
-        if ( not $ssh->error ) {
-            my $out = $ssh->capture("echo HEALTH_OK");
-            if ( $out =~ /HEALTH_OK/ ) {
-                print("FINE: SSH logon succeed.\n");
-            }
-            else {
-                print("ERROR: SSH test failed.\n");
-                $hasError = 1;
-            }
-        }
-        else {
-            $hasError = 2;
-            print("ERROR: SSH logo failed.\n");
-        }
-    }
-    else {
-        print("WARN: Protocol:$protocol not supported by $pname.\n");
-    }
-
-    return $hasError;
-}
-
-exit main();
-
+    exit(hasError)

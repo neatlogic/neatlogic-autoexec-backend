@@ -13,7 +13,7 @@ import argparse
 
 
 def execOneHost(host, port, user, password, cmdList):
-    cmd = ''
+    cmd = ""
     for cmdPart in cmdList:
         cmd = cmd + "'{}' ".format(cmdPart)
 
@@ -22,7 +22,14 @@ def execOneHost(host, port, user, password, cmdList):
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host, port, user, password)
+        ssh.connect(
+            host,
+            port,
+            user,
+            password,
+            look_for_keys=True,
+            disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
+        )
         channel = ssh.get_transport().open_session()
         channel.set_combine_stderr(True)
         channel.exec_command(cmd)
@@ -30,18 +37,18 @@ def execOneHost(host, port, user, password, cmdList):
         while True:
             r, w, x = select.select([channel], [], [], 10)
             while channel.recv_ready():
-                print(channel.recv(4096).decode(errors='ignore'))
+                print(channel.recv(4096).decode(errors="ignore"))
             if channel.exit_status_ready():
                 errCode = channel.recv_exit_status()
                 break
 
         if errCode == 0:
-            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end='')
+            print("FINE: {}@{}:{} execute success.\n\n".format(user, host, port), end="")
         else:
-            print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end='')
+            print("ERROR: {}@{}:{} execute failed.\n".format(user, host, port), end="")
     except Exception as ex:
         errCode = 2
-        print("ERROR: {}@{}:{} execute failed, {}\n".format(user, host, port, ex), end='')
+        print("ERROR: {}@{}:{} execute failed, {}\n".format(user, host, port, ex), end="")
     finally:
         if ssh is not None:
             ssh.close()
@@ -51,13 +58,13 @@ def execOneHost(host, port, user, password, cmdList):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", action='store_true', default=False, help="Output verbose")
-    parser.add_argument('--host', default='', help='SSH to host')
-    parser.add_argument('--port', default='22', help='SSH Port')
-    parser.add_argument('--user', default='root',  help='Connect user')
-    parser.add_argument('--password', default='13456', help='Default password')
-    parser.add_argument('--hostsfile', default='', help='Default password')
-    parser.add_argument('rest', nargs=argparse.REMAINDER, help="Remote command to execute")
+    parser.add_argument("-v", action="store_true", default=False, help="Output verbose")
+    parser.add_argument("--host", default="", help="SSH to host")
+    parser.add_argument("--port", default="22", help="SSH Port")
+    parser.add_argument("--user", default="root", help="Connect user")
+    parser.add_argument("--password", default="13456", help="Default password")
+    parser.add_argument("--hostsfile", default="", help="Default password")
+    parser.add_argument("rest", nargs=argparse.REMAINDER, help="Remote command to execute")
 
     args = parser.parse_args()
     port = args.port
@@ -68,23 +75,23 @@ if __name__ == "__main__":
 
     cmdList = args.rest
     if len(cmdList) == 0:
-        print("ERROR: Command not defined.\n", end='')
+        print("ERROR: Command not defined.\n", end="")
         exit(2)
 
     hostsFileDir = args.hostsfile
 
     hasError = 0
 
-    if hostsFileDir != '':
+    if hostsFileDir != "":
         if not os.path.exists(hostsFileDir):
-            print("ERROR: File {} not exists.\n".format(hostsFileDir), end='')
+            print("ERROR: File {} not exists.\n".format(hostsFileDir), end="")
             os.exit(2)
 
         splitRe = re.compile("\s+")
-        with open(hostsFileDir, 'r', encoding="utf-8") as hostFile:
+        with open(hostsFileDir, "r", encoding="utf-8") as hostFile:
             for line in hostFile:
                 line = line.strip()
-                if line == '' or line.startswith('#'):
+                if line == "" or line.startswith("#"):
                     next
 
                 user = args.user
@@ -92,12 +99,12 @@ if __name__ == "__main__":
 
                 myHost = None
                 myPort = port
-                myUser = 'anonymouse'
-                myPassword = 'nopassword'
+                myUser = "anonymouse"
+                myPassword = "nopassword"
 
                 hInfoList = splitRe.split(line)
 
-                hostAndPort = hInfoList[0].split(':')
+                hostAndPort = hInfoList[0].split(":")
                 myHost = hostAndPort[0]
                 if len(hostAndPort) > 1:
                     myPort = hostAndPort[1]

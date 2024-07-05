@@ -35,7 +35,11 @@ sub new {
 }
 
 sub _getParams {
-    my ($self) = @_;
+    my ($self, $lockScope) = @_;
+    #lock scope: process|phase|job
+    if(not defined($lockScope)){
+        $lockScope = 'process'
+    }
 
     my $jobId     = $self->{jobId};
     my $deployEnv = $self->{deployEnv};
@@ -51,8 +55,10 @@ sub _getParams {
 
     my $params = {
         jobId         => $jobId,
+        phaseName     => $ENV{AUTOEXEC_PHASE_NAME},
         runnerId      => $runnerId,
         pid           => "$$",
+        lockScope     => $lockScope, 
         lockOwner     => "$sysId/$moduleId",
         lockOwnerName => "$sysName/$moduleName",
         operType      => 'deploy',
@@ -183,7 +189,7 @@ sub lockWorkspace {
     my $sysName    = $deployEnv->{SYS_NAME};
     my $moduleName = $deployEnv->{MODULE_NAME};
 
-    my $params = $self->_getParams();
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId";
     $params->{lockOwnerName} = "$sysName/$moduleName";
@@ -195,6 +201,7 @@ sub lockWorkspace {
 
 sub unlockWorkspace {
     my ( $self, $lockId ) = @_;
+    #workspace的lock scope为phase，在phase完成时会自动解锁
     $self->_unlock($lockId);
 }
 
@@ -209,7 +216,7 @@ sub lockMirror {
     my $moduleName = $deployEnv->{MODULE_NAME};
     my $envName    = $deployEnv->{ENV_NAME};
 
-    my $params = $self->_getParams();
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId/$envId";
     $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
@@ -221,6 +228,7 @@ sub lockMirror {
 
 sub unlockMirror {
     my ( $self, $lockId ) = @_;
+    #mirror的lock scope为phase，在phase完成时会自动解锁
     $self->_unlock($lockId);
 }
 
@@ -262,7 +270,7 @@ sub lockEnvApp {
     my $envName    = $deployEnv->{ENV_NAME};
     my $version    = $deployEnv->{VERSION};
 
-    my $params = $self->_getParams();
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId/$envId";
     $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
@@ -274,6 +282,7 @@ sub lockEnvApp {
 
 sub unlockEnvApp {
     my ( $self, $lockId ) = @_;
+    #环境的应用版本制品为phase，在phase完成时会自动解锁
     $self->_unlock($lockId);
 }
 
@@ -290,7 +299,7 @@ sub lockEnvSql {
     my $version    = $deployEnv->{VERSION};
     my $buildNo    = $deployEnv->{BUILD_NO};
 
-    my $params = $self->_getParams();
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId/$envId";
     $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
@@ -301,6 +310,35 @@ sub lockEnvSql {
 }
 
 sub unlockEnvSql {
+    my ( $self, $lockId ) = @_;
+    #环境的SQL版本制品为phase，在phase完成时会自动解锁
+    $self->_unlock($lockId);
+}
+
+sub lockIns {
+    my ( $self, $ins, $lockMode ) = @_;
+
+    my $deployEnv  = $self->{deployEnv};
+    my $sysId      = $deployEnv->{SYS_ID};
+    my $moduleId   = $deployEnv->{MODULE_ID};
+    my $envId      = $deployEnv->{ENV_ID};
+    my $sysName    = $deployEnv->{SYS_NAME};
+    my $moduleName = $deployEnv->{MODULE_NAME};
+    my $envName    = $deployEnv->{ENV_NAME};
+    my $version    = $deployEnv->{VERSION};
+    my $buildNo    = $deployEnv->{BUILD_NO};
+
+    my $params = $self->_getParams();
+
+    $params->{lockOwner}     = "$sysId/$moduleId/$envId";
+    $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
+    $params->{lockTarget}    = "$sysName/$moduleName/$envName/$ins";
+    $params->{lockMode}      = $lockMode;
+
+    return $self->_lock($params);
+}
+
+sub unlockIns {
     my ( $self, $lockId ) = @_;
     $self->_unlock($lockId);
 }

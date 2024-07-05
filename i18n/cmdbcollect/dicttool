@@ -17,9 +17,7 @@ def usage():
     pname = os.path.basename(__file__)
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
     print("         --mode <mode> eg : truncate or append ,default value truncate.\n")
-    print(
-        " --action [beautify|remove|append|savetodb|dropcollection｜clearcollection] \n"
-    )
+    print(" --action [beautify|remove|append|savetodb|dropcollection｜clearcollection] \n")
     print("Examples:")
     print("Remove field:")
     print(
@@ -93,6 +91,8 @@ def getDefaultFieldKeys():
         "VENDOR",
         "PRODUCT_UUID",
         "SN",
+        "CHASSIS_SERIAL",
+        "BOARD_SERIAL",
         "MODEL",
         "UPTIME",
         "OPEN_FILES_COUNT",
@@ -163,6 +163,8 @@ def getDefaultFieldKeys():
         "REF_INS",
         "REF_CLUSTER",
         "REF_SERVICE",
+        "REF_SWITCHES",
+        "REF_FCSWITCHES",
     ]
     return defaultKeys
 
@@ -377,19 +379,13 @@ if __name__ == "__main__":
 
                 if "collection" not in data:
                     hasError = True
-                    print(
-                        "ERROR: Object decription data does not defined attribue 'collection'.\n"
-                    )
+                    print("ERROR: Object decription data does not defined attribue 'collection'.\n")
                 if "filter" not in data:
                     hasError = True
-                    print(
-                        "ERROR: Object decription data does not defined attribue 'filter'.\n"
-                    )
+                    print("ERROR: Object decription data does not defined attribue 'filter'.\n")
                 if "label" not in data:
                     hasError = True
-                    print(
-                        "ERROR: Object decription data does not defined attribue 'label'.\n"
-                    )
+                    print("ERROR: Object decription data does not defined attribue 'label'.\n")
 
             if action == "savetodb":
                 print("INFO: Import", dfile, "start...")
@@ -404,9 +400,7 @@ if __name__ == "__main__":
                     if colFilter is not None:
                         objType = colFilter.get("_OBJ_TYPE")
                     if objType is not None:
-                        objTypeList.append(
-                            {"_OBJ_CATETORY": objCat, "_OBJ_TYPE": objType}
-                        )
+                        objTypeList.append({"_OBJ_CATETORY": objCat, "_OBJ_TYPE": objType})
                     collection.delete_one({"name": name})
 
                     data["name"] = name
@@ -415,12 +409,8 @@ if __name__ == "__main__":
                     print("INFO: Import", dfile, "success.")
 
                     # 巡检文件内定义的默认阀值
-                    defaultThreshold = getDefaultThreshold(
-                        dictPath, data["label"], tableName
-                    )
-                    print(
-                        "INFO: {} inspect plugin default threshold Loaded.".format(name)
-                    )
+                    defaultThreshold = getDefaultThreshold(dictPath, data["label"], tableName)
+                    print("INFO: {} inspect plugin default threshold Loaded.".format(name))
                     # 获取已经选择进入巡检报告定义的字段
                     inspectObj = inspectDef.find_one({"name": name})
                     # 如果巡检定义不存在则自动生成一个空的定义
@@ -460,9 +450,7 @@ if __name__ == "__main__":
                     # 如果集合定义中存在新的字段不在巡检定义里，则自动加入巡检定义中
                     for collectFieldObj in data["fields"]:
                         if collectFieldObj["name"] not in inspectFieldsMap:
-                            inspectFields.append(
-                                {"name": collectFieldObj["name"], "selected": 1}
-                            )
+                            inspectFields.append({"name": collectFieldObj["name"], "selected": 1})
 
                     inspectDef.replace_one({"name": name}, inspectObj, upsert=True)
                     inspectDef.create_index([("name", 1)], name="idx_pk", unique=True)
@@ -476,12 +464,7 @@ if __name__ == "__main__":
                 filterMatched = True
                 for filterKey in filterObj.keys():
                     if filterKey not in data or data[filterKey] != filterObj[filterKey]:
-                        print(
-                            "INFO: "
-                            + data[filterKey]
-                            + " not match filter "
-                            + matchFilter
-                        )
+                        print("INFO: " + data[filterKey] + " not match filter " + matchFilter)
                         filterMatched = False
                         break
                 if not filterMatched:
@@ -510,16 +493,8 @@ if __name__ == "__main__":
                     filterObj = json.loads(matchFilter)
                     filterMatched = True
                     for filterKey in filterObj.keys():
-                        if (
-                            filterKey not in data
-                            or data[filterKey] != filterObj[filterKey]
-                        ):
-                            print(
-                                "INFO: "
-                                + data[filterKey]
-                                + " not match filter "
-                                + matchFilter
-                            )
+                        if filterKey not in data or data[filterKey] != filterObj[filterKey]:
+                            print("INFO: " + data[filterKey] + " not match filter " + matchFilter)
                             filterMatched = False
                             break
                     if not filterMatched:

@@ -14,6 +14,7 @@ use Cwd;
 use File::Spec;
 use File::Basename;
 use IO::File;
+use Socket;
 use CollectObjCat;
 
 sub getConfig {
@@ -34,6 +35,7 @@ sub collect {
     }
 
     my $procInfo         = $self->{procInfo};
+    my $mgmtIp   = $procInfo->{MGMT_IP};
     my $envMap           = $procInfo->{ENVIRONMENT};
     my $matchedProcsInfo = $self->{matchedProcsInfo};
     my $exeFile          = $procInfo->{EXECUTABLE_FILE};
@@ -112,12 +114,13 @@ sub collect {
     }
     $self->getJavaAttrs($appInfo);
     my ( $ports, $port ) = $self->getPortFromProcInfo($appInfo);
+    my $members        = [];
     my $clusterMembers = [];
     my $confMap        = {};
     my $primaryMember;
     my $primaryMemberPort;
 
-    my $primaryMemberNo = 0;
+    my $primaryMemberNo = ~0; #最大的无符号整数
     my $confLines       = $self->getFileLines($confPath);
 
     foreach my $line (@$confLines) {
@@ -137,17 +140,34 @@ sub collect {
             # server.2=192.168.1.123:2182:2183
             # server.3=192.168.1.124:2182:2183
             if ( $key =~ /server\.(\d+)/ ) {
+                my $memberNo = int($1);
+
                 my @ipInfos = split( ':', $val );
                 if ( scalar(@ipInfos) < 2 ) {
                     next;
                 }
 
-                push( @$clusterMembers, "$ipInfos[0]:$ipInfos[1]" );
-                push( @$clusterMembers, "$ipInfos[0]:$ipInfos[2]" );
-                my $memberNo = int($1);
+                push(
+                    @$members,
+                    {
+                        _OBJ_CATEGORY => 'ADMINSET',
+                        _OBJ_TYPE     => 'ZOOKEEPERCLUSTER_NODE',
+                        NAME          => $key,
+                        VALUE         => $val
+                    }
+                );
+                
+                my $lsnIp = $ipInfos[0];
+                if ($lsnIp eq '0.0.0.0' ){
+                    $lsnIp = $mgmtIp;
+                }
+
+                push( @$clusterMembers, "$lsnIp:$ipInfos[1]" );
+                push( @$clusterMembers, "$lsnIp:$ipInfos[2]" );
+                
                 if ( $memberNo < $primaryMemberNo ) {
                     $primaryMemberNo   = $memberNo;
-                    $primaryMember     = $ipInfos[0];
+                    $primaryMember     = $lsnIp;
                     $primaryMemberPort = $ipInfos[1];
                 }
             }
@@ -162,6 +182,7 @@ sub collect {
     $appInfo->{SYNC_LIMIT}     = $confMap->{syncLimit};
     $appInfo->{ADMIN_PORT}     = $confMap->{'admin.serverPort'};
     $appInfo->{ADMIN_ENABLE}   = $confMap->{'admin.enableServer'};
+    $appInfo->{MEMBERS}        = $members;
     $appInfo->{SSL_PORT}       = undef;
     $appInfo->{ADMIN_SSL_PORT} = undef;
 
@@ -174,7 +195,7 @@ sub collect {
             _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
             _OBJ_TYPE     => 'ZookeeperCluster'
         };
-        my $uniqName = 'Zookeeper:' . $primaryMember;
+        my $uniqName = "Zookeeper-$primaryMember:$primaryMemberPort";
         $clusterInfo->{UNIQUE_NAME} = $uniqName;
         $clusterInfo->{NAME}        = $uniqName;
         my $primaryIp = gethostbyname($primaryMember);

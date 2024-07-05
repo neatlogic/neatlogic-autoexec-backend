@@ -11,10 +11,17 @@ use OSGatherBase;
 our @ISA = qw(OSGatherBase);
 use POSIX;
 use Cwd;
+use JSON qw(to_json from_json);
 use IO::File;
 use File::Basename;
+use XML::MyXML qw(xml_to_object);
 
 use Distribution;
+
+sub init {
+    my ($self) = @_;
+    $self->{VIRTUAL_VENDOR_KEYS} = [ 'Vmware', 'KVM', 'QEMU', 'Virtual', 'Cloud ECS' ];
+}
 
 sub stripDMIComment {
     my ( $self, $str ) = @_;
@@ -82,6 +89,21 @@ sub getOsVersion {
     $osInfo->{MAJOR_VERSION} = $osMajorVer;
 }
 
+sub isVirtualVendor {
+    my ( $self, $vendor ) = @_;
+    my $virtualKeys = $self->{VIRTUAL_VENDOR_KEYS};
+    my $isVirtual   = 0;
+    if ( defined($vendor) ) {
+        foreach my $key (@$virtualKeys) {
+            if ( $vendor =~ /$key/i ) {
+                $isVirtual = 1;
+                last;
+            }
+        }
+    }
+    return $isVirtual;
+}
+
 sub getVendorInfo {
     my ( $self, $osInfo ) = @_;
 
@@ -93,19 +115,12 @@ sub getVendorInfo {
     $productUUID =~ s/^\*|\s$//g;
     my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
     $productName =~ s/^\*|\s$//g;
-    $osInfo->{IS_VIRTUAL} = 0;
 
-    my $virtualPrdMap = {
-        'KVM'                     => 1,
-        'VirtualBox'              => 1,
-        'VMware Virtual Platform' => 1,
-        'KVM Virtual Machine'     => 1,
-        'Alibaba Cloud ECS'       => 1
-    };
-
-    if ( defined( $virtualPrdMap->{$productName} ) ) {
-        $osInfo->{IS_VIRTUAL} = 1;
+    $osInfo->{IS_VIRTUAL} = $self->isVirtualVendor($sysVendor);
+    if ( $osInfo->{IS_VIRTUAL} == 0 ) {
+        $osInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
     }
+
     $osInfo->{SYS_VENDOR}   = $sysVendor;
     $osInfo->{PRODUCT_NAME} = $productName;
     $osInfo->{PRODUCT_UUID} = $productUUID;
@@ -536,7 +551,7 @@ sub getDiskInfo {
     }
 
     foreach my $line (@$diskLines) {
-        if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\wB)/ ) {
+        if ( $line =~ /^\s*Disk\s+(\/[^:]+):\s+([\d\.]+)\s*(\w+B)/ ) {
             my $diskInfo = {
                 '_OBJ_CATEGORY' => 'COLLECT_OS',
                 '_OBJ_TYPE'     => 'OS-DISK'
@@ -970,6 +985,7 @@ sub collectOsInfo {
         $self->getUpTime($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getOsServices($osInfo);
     }
 
     return $osInfo;
@@ -978,7 +994,7 @@ sub collectOsInfo {
 sub collectOsPerfInfo {
     my ( $self, $osInfo ) = @_;
     if ( $self->{inspect} == 1 ) {
-        if ( not defined( $osInfo->{CPU_LOGIC_CORES}) or $osInfo->{CPU_LOGIC_CORES} == 0 ) {
+        if ( not defined( $osInfo->{CPU_LOGIC_CORES} ) or $osInfo->{CPU_LOGIC_CORES} == 0 ) {
             $osInfo->{CPU_LOGIC_CORES} = 1;
         }
 
@@ -1000,40 +1016,54 @@ sub getMainBoardInfo {
     }
     $hostInfo->{DMIDECODE_INSTALLED} = $dmidecodeInstalled;
 
-    my $sn = $self->getFileContent('/sys/class/dmi/id/board_serial');
-    $sn =~ s/^\s*|\s*$//g;
-    if ( $sn eq '' or $sn eq 'None' ) {
-        undef($sn);
-        if ($dmidecodeInstalled) {
-            my $snRet;
-            ( $snRet, $sn ) = $self->getCmdOut('dmidecode -s system-serial-number');
-            if ( $snRet == 0 ) {
-                $sn = $self->stripDMIComment($sn);
-                $sn =~ s/^\s*|\s*$//g;
-                if ( $sn eq '' ) {
-                    undef($sn);
-                }
-            }
-            else {
-                undef($sn);
-            }
-        }
-    }
-    $hostInfo->{BOARD_SERIAL} = $sn;
-
-    my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
-    $productName =~ s/^\*|\s$//g;
-    $hostInfo->{PRODUCT_NAME} = $productName;
-
-    my $vendorName = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
-    $vendorName =~ s/^\*|\s$//g;
-    $hostInfo->{MANUFACTURER} = $vendorName;
-
-    my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
-    $biosVersion =~ s/^\*|\s$//g;
-    $hostInfo->{BIOS_VERSION} = $biosVersion;
+    $hostInfo->{IS_VIRTUAL} = 0;
 
     if ($dmidecodeInstalled) {
+        my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
+        my $chassisInfo      = {};
+        foreach my $line (@$chassisInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $chassisInfo->{ $info[0] } = $info[1];
+            }
+        }
+        $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
+        my $sn = $chassisInfo->{'Serial Number'};
+        if ( $sn ne 'None' ) {
+            $hostInfo->{CHASSIS_SERIAL} = $sn;
+        }
+        else {
+            $hostInfo->{CHASSIS_SERIAL} = undef;
+        }
+
+        my $sysInfoLines = $self->getCmdOutLines('dmidecode -t system');
+        my $sysInfo      = {};
+        foreach my $line (@$sysInfoLines) {
+            $line =~ s/^\s*|\s*$//g;
+            if ( $line ne '' and $line !~ /^#/ ) {
+                my @info = split( /\s*:\s*/, $line );
+                $sysInfo->{ $info[0] } = $info[1];
+            }
+        }
+
+        my $productName = $sysInfo->{'Product Name'};
+        if ( defined($productName) and $productName ne 'None' ) {
+            $hostInfo->{MODEL}      = $productName;
+            $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
+        }
+        my $manufacturer = $sysInfo->{'Manufacturer'};
+        if ( defined($manufacturer) and $manufacturer ne 'None' ) {
+            $hostInfo->{MANUFACTURER} = $manufacturer;
+            if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($manufacturer);
+            }
+        }
+
+        my $biosVersion = $self->getCmdOut('dmidecode -s bios-version');
+        $biosVersion =~ s/^\s*|\s*$//g;
+        $hostInfo->{BIOS_VERSION} = $biosVersion;
+
         my $memInfoLines = $self->getCmdOutLines('dmidecode -t memory');
         my $usedSlots    = 0;
         my $memInfo      = {};
@@ -1053,22 +1083,37 @@ sub getMainBoardInfo {
         $hostInfo->{MEM_SLOTS}            = int( $memInfo->{'Number Of Devices'} );
         $hostInfo->{MEM_MAXIMUM_CAPACITY} = $utils->getMemSizeFromStr( $memInfo->{'Maximum Capacity'} );
         $hostInfo->{MEM_SPEED}            = $memInfo->{Speed};
-
-        my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
-        my $chassisInfo      = {};
-        foreach my $line (@$chassisInfoLines) {
-            $line =~ s/^\s*|\s*$//g;
-            if ( $line ne '' and $line !~ /^#/ ) {
-                my @info = split( /\s*:\s*/, $line );
-                $chassisInfo->{ $info[0] } = $info[1];
-            }
+    }
+    else {
+        my $sn = $self->getFileContent('/sys/class/dmi/id/board_serial');
+        $sn =~ s/^\s*|\s*$//g;
+        if ( $sn eq '' or $sn eq 'None' ) {
+            undef($sn);
         }
-        $hostInfo->{POWER_CORDS_COUNT} = $chassisInfo->{'Number Of Power Cords'};
-        my $modelLines = $self->getCmdOutLines('dmidecode |grep Product');
-        foreach my $line (@$modelLines) {
-            if ( $line =~ /Product.*?:\s*(.*?)$/ ) {
-                $hostInfo->{MODEL} = $1;
-                last;
+        $hostInfo->{BOARD_SERIAL}   = $sn;
+        $hostInfo->{CHASSIS_SERIAL} = undef;
+
+        my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
+        $productName =~ s/^\*|\s$//g;
+        $hostInfo->{PRODUCT_NAME} = $productName;
+
+        my $vendorName = $self->getFileContent('/sys/class/dmi/id/sys_vendor');
+        $vendorName =~ s/^\*|\s$//g;
+        $hostInfo->{MANUFACTURER} = $vendorName;
+
+        my $biosVersion;
+        my $biosVersion = $self->getFileContent('/sys/class/dmi/id/bios_version');
+        $biosVersion =~ s/^\*|\s$//g;
+        $hostInfo->{BIOS_VERSION} = $biosVersion;
+
+        if ( defined($productName) and $productName ne 'None' ) {
+            $hostInfo->{MODEL}      = $productName;
+            $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
+        }
+        if ( defined($vendorName) and $vendorName ne 'None' ) {
+            $hostInfo->{MANUFACTURER} = $vendorName;
+            if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
+                $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($vendorName);
             }
         }
     }
@@ -1097,8 +1142,9 @@ sub getCPUInfo {
     $hostInfo->{CPU_LOGIC_CORES} = $hostInfo->{CPU_COUNT} * $cpuInfo->{siblings};
     $hostInfo->{CPU_MICROCODE}   = $cpuInfo->{microcode};
     my @modelInfo = split( /\s*\@\s*/, $cpuInfo->{'model name'} );
-    $hostInfo->{CPU_MODEL}     = $modelInfo[0];
-    $hostInfo->{CPU_FREQUENCY} = $modelInfo[1];
+    $hostInfo->{CPU_MODEL} = $modelInfo[0];
+    my $cpuFrequency = $cpuInfo->{'cpu MHz'};
+    $hostInfo->{CPU_FREQUENCY} = sprintf( '%.2f', $cpuFrequency / 1000 ) . 'GHz';
     my $cpuArch = ( POSIX::uname() )[4];
     $hostInfo->{CPU_ARCH} = $cpuArch;
 }
@@ -1195,6 +1241,7 @@ sub getNicInfo {
                 $i    = $i + 1;
                 $line = $$nicInfoLines[$i];
             }
+            $i = $i - 1;
 
             if ( $ethName =~ /^lo/i or $ipAddr =~ /^127/ or $ipAddr =~ '^::1' ) {
 
@@ -1202,13 +1249,15 @@ sub getNicInfo {
                 next;
             }
 
-            if ( defined($speed) and $speed ne '' and defined($macAddr) and $macAddr ne '' ) {
+            if ( defined($macAddr) and $macAddr ne '' ) {
                 $nicInfo->{NAME} = $ethName;
                 $nicInfo->{MAC}  = $macAddr;
 
                 if ( not defined( $macsMap->{$macAddr} ) ) {
                     $macsMap->{$macAddr} = 1;
-                    ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
+                    if ( defined($speed) and $speed ne '' ) {
+                        ( $nicInfo->{UNIT}, $nicInfo->{SPEED} ) = $utils->getNicSpeedFromStr($speed);
+                    }
                     $nicInfo->{STATUS} = 'down';
                     if ( $linkState eq 'yes' ) {
                         $nicInfo->{STATUS} = 'up';
@@ -1216,8 +1265,6 @@ sub getNicInfo {
                     push( @nicInfos, $nicInfo );
                 }
             }
-
-            $i = $i - 1;
         }
     }
     @nicInfos = sort { $a->{NAME} <=> $b->{NAME} } @nicInfos;
@@ -1310,18 +1357,232 @@ sub getHBAInfo {
     $hostInfo->{HBA_INTERFACES} = \@hbaPorts;
 }
 
+sub getKVMGuestOSUUIDs {
+    my ( $self, $hostInfo ) = @_;
+    my @uuids    = ();
+    my $kvmLines = $self->getCmdOutLines("ps -efww |grep qemu-kvm");
+    foreach my $line (@$kvmLines) {
+        if ( $line =~ /-uuid\s(\S+)/ ) {
+            push( @uuids, $1 );
+        }
+    }
+    $hostInfo->{GUESTOS_UUIDS} = \@uuids;
+}
+
+sub getKVMAllocateInfo {
+    my ( $self, $hostInfo ) = @_;
+    my $memAllocatedSize  = 0;
+    my $currentMemorySize = 0;
+    my $vcpuAllocated     = 0;
+    my $diskAllocatedSize = 0;
+    my $diskUsedSize      = 0;
+
+    my @kvmMachines = ();
+    foreach my $confFile ( glob("/etc/libvirt/qemu/*.xml") ) {
+        my $domain = xml_to_object( $confFile, { file => 1 } );
+        if ( not defined($domain) or $domain->attr('type') ne 'kvm' ) {
+            next;
+        }
+
+        my ( $name, $uuid, $osType, $arch, $on_poweroff, $on_reboot, $on_crash );
+        my $childDom = undef;
+        $childDom = $domain->path('name');
+        if ( defined($childDom) ) {
+            $name = $childDom->value();
+        }
+        $childDom = $domain->path('uuid');
+        if ( defined($childDom) ) {
+            $uuid = $childDom->value();
+        }
+        $childDom = $domain->path('os/type');
+        if ( defined($childDom) ) {
+            $osType = $childDom->value();
+            $arch   = $childDom->attr('arch');
+        }
+        $childDom = $domain->path('on_poweroff');
+        if ( defined($childDom) ) {
+            $on_poweroff = $childDom->value();
+        }
+        $childDom = $domain->path('on_reboot');
+        if ( defined($childDom) ) {
+            $on_reboot = $childDom->value();
+        }
+        $childDom = $domain->path('on_crash');
+        if ( defined($childDom) ) {
+            $on_crash = $childDom->value();
+        }
+
+        my $allocatedMem;
+        my $memory = $domain->path('memory');
+        if ( defined($memory) ) {
+            my $memSize = int( $memory->value() );
+            my $memUnit = $memory->attr('unit');
+            if ( $memUnit =~ /^K/ ) {
+                $memSize = $memSize / 1024;
+            }
+            elsif ( $memUnit =~ /^G/ ) {
+                $memSize = $memSize * 1024;
+            }
+            elsif ( $memUnit =~ /^T/ ) {
+                $memSize = $memSize * 1024 * 1024;
+            }
+            $allocatedMem     = $memSize;
+            $memAllocatedSize = $memAllocatedSize + $memSize;
+        }
+
+        my $currentMemory;
+        my $currMemory = $domain->path('currentMemory');
+        if ( defined($currMemory) ) {
+            my $memSize = int( $currMemory->value() );
+            my $memUnit = $currMemory->attr('unit');
+            if ( $memUnit =~ /^K/ ) {
+                $memSize = $memSize / 1024;
+            }
+            elsif ( $memUnit =~ /^G/ ) {
+                $memSize = $memSize * 1024;
+            }
+            elsif ( $memUnit =~ /^T/ ) {
+                $memSize = $memSize * 1024 * 1024;
+            }
+            $currentMemory     = $memSize;
+            $currentMemorySize = $currentMemorySize + $memSize;
+        }
+
+        my $vcpuCount;
+        my $vcpu = $domain->path('vcpu');
+        if ( defined($vcpu) ) {
+            $vcpuCount     = int( $vcpu->value() );
+            $vcpuAllocated = $vcpuAllocated + $vcpuCount;
+        }
+
+        my @diskList     = ();
+        my @diskInfoList = $domain->path('devices/disk');
+        foreach my $disk (@diskInfoList) {
+            my $diskType = $disk->attr('type');
+            my $diskDev  = $disk->attr('device');
+
+            my $targetDom = $disk->path('target');
+            my $targetDev;
+            if ( defined($targetDom) ) {
+                $targetDev = $targetDom->attr('dev');
+            }
+
+            my ( $format, $virtualSize, $actualSize );
+            my $imgFile;
+            if ( $diskType eq 'file' ) {
+                my $sourceDom = $disk->path('source');
+                if ( defined($sourceDom) ) {
+                    $imgFile = $sourceDom->attr('file');
+                    if ( -f $imgFile ) {
+                        my $jsonTxt     = $self->getCmdOut(qq{qemu-img info --output=json '$imgFile'});
+                        my $imgFileJson = from_json($jsonTxt);
+                        $format      = $imgFileJson->{'format'};
+                        $virtualSize = springf( '%.2f', $imgFileJson->{'virtual-size'} / 1024 / 1024 / 1024 );
+                        $actualSize  = sprintf( '%.2f', $imgFileJson->{'actual-size'} / 1024 / 1024 / 1024 );
+
+                        $diskAllocatedSize = $diskAllocatedSize + $virtualSize;
+                        $diskUsedSize      = $diskUsedSize + $actualSize;
+                    }
+                }
+            }
+            push(
+                @diskList,
+                {
+                    _OBJ_CATEGORY => 'HOST',
+                    _OBJ_TYPE     => 'DISK',
+                    TYPE          => $diskType,
+                    FORMAT        => $format,
+                    VIRTUAL_SIZE  => $virtualSize,
+                    ACTUAL_SIZE   => $actualSize,
+                    DEVICE        => $diskDev,
+                    TARGET_DEV    => $targetDev,
+                    FILE          => $imgFile
+                }
+            );
+        }
+
+        push(
+            @kvmMachines,
+            {
+                _OBJ_CATEGORY => 'HOST',
+                _OBJ_TYPE     => 'KVM-MACHINE',
+                NAME          => $name,
+                UUID          => $uuid,
+                ARCH          => $arch,
+                OS_TYPE       => $osType,
+                ON_POWEROFF   => $on_poweroff,
+                ON_REBOOT     => $on_reboot,
+                ON_CRASH      => $on_crash,
+                MEMORY        => $allocatedMem,
+                USED_MEMORY   => $currentMemory,
+                VCPU          => $vcpuCount,
+                DISKS         => \@diskList
+            }
+        );
+    }
+
+    $hostInfo->{KVM_MEM_ALLOCATE}  = $memAllocatedSize;
+    $hostInfo->{KVM_MEM_USED}      = $currentMemorySize;
+    $hostInfo->{KVM_VCPU_ALLOCATE} = $vcpuAllocated;
+    $hostInfo->{KVM_DISK_ALLOCATE} = $diskAllocatedSize;
+    $hostInfo->{KVM_DISK_USED}     = $diskUsedSize;
+
+    $hostInfo->{KVM_MACHINES} = \@kvmMachines;
+}
+
+sub getOsServices {
+    my ( $self, $osInfo ) = @_;
+    my $connGather = ConnGather->new( $self->{inspect} );
+    my $connInfo   = $connGather->getListenInfo();
+    my $listenMap  = $connInfo->{LISTEN};
+
+    my $svcPortsMap = {};
+    if ( defined($listenMap) ) {
+        foreach my $lsnAddr ( keys(%$listenMap) ) {
+            if ( $lsnAddr =~ /(\d+)/ ) {
+                my $lsnPort = int($1);
+                if ( $lsnPort < 1024 and $lsnPort > 1 ) {
+                    $svcPortsMap->{$lsnPort} = 1;
+                }
+            }
+        }
+    }
+
+    my @services    = ();
+    my $servicesTxt = $self->getFileContent("/etc/services");
+    foreach my $line ( split( /\n+/, $servicesTxt ) ) {
+        if ( $line =~ /^\s*(\w+)\s+(\d+)\/(\w+)/ ) {
+            my $svcName  = $1;
+            my $port     = int($2);
+            my $protocol = $3;
+            if ( $svcPortsMap->{$port} ) {
+                my $svcInfo = {
+                    NAME     => $svcName,
+                    PORT     => $port,
+                    PROTOCOL => $protocol
+                };
+                push( @services, $svcInfo );
+            }
+        }
+    }
+    $osInfo->{SERVICES} = \@services;
+}
+
 sub collectHostInfo {
     my ( $self, $osInfo ) = @_;
 
     my $hostInfo = {};
     $hostInfo->{IS_VIRTUAL} = $osInfo->{IS_VIRTUAL};
     $hostInfo->{DISKS}      = $osInfo->{DISKS};
+    $hostInfo->{MEM_TOTAL}  = $osInfo->{MEM_TOTAL};
 
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getMainBoardInfo($hostInfo);
         $self->getCPUInfo($hostInfo);
         $self->getNicInfo($hostInfo);
         $self->getHBAInfo($hostInfo);
+        $self->getKVMGuestOSUUIDs($hostInfo);
+        $self->getKVMAllocateInfo($hostInfo);
     }
 
     return $hostInfo;
@@ -1342,6 +1603,7 @@ sub collect {
     $osInfo->{CPU_MICROCODE}   = $hostInfo->{CPU_MICROCODE};
     $osInfo->{CPU_MODEL}       = $hostInfo->{CPU_MODEL};
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
+    $osInfo->{IS_VIRTUAL}      = $hostInfo->{IS_VIRTUAL};
 
     my @os_eths;
     foreach my $item ( @{ $hostInfo->{ETH_INTERFACES} } ) {

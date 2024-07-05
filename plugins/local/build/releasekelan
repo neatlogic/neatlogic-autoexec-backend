@@ -82,6 +82,26 @@ sub main {
         }
     }
 
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+    my $buildLock   = $lock->lockBuild($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockBuild($buildLock);
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $namePath  = $buildEnv->{NAME_PATH};
+    my $serverAdapter = ServerAdapter->new();
+    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version, $buildNo );
+    if ( $verInfo->{isFreeze} ne 0 ) {
+        print("ERROR: Version: $namePath $version is freezed, please contact the configuration manager.\n");
+        return 3;
+    }
+
     my $targets  = {};
     my $callback = sub {
         my ($line) = @_;
@@ -102,13 +122,6 @@ sub main {
     }
 
     my $namePath      = $buildEnv->{NAME_PATH};
-    my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer($buildEnv);
-
-    if ( not defined($verInfo) ) {
-        print("ERROR: Can not find application $namePath version:$version.\n");
-        return 3;
-    }
 
     if ( defined($userName) and $userName ne '' ) {
         $verInfo->{username} = $userName;
@@ -126,8 +139,6 @@ sub main {
         print("==============================================================\n");
     }
 
-    my $serverAdapter = ServerAdapter->new();
-    my $verInfo       = $serverAdapter->getVer( $buildEnv, $version );
     my $versionInfo   = {
         version => $version,
         buildNo => $buildEnv->{BUILD_NO},

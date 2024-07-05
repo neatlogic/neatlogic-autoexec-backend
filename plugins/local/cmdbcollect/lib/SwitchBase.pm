@@ -13,7 +13,7 @@ use Data::Dumper;
 
 use CollectUtils;
 
-my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie' ];
+my $BRANDS = [ 'Huawei', 'Cisco', 'H3C', 'HillStone', 'Juniper', 'Ruijie', 'Maipu', 'ZTE' ];
 
 sub new {
     my ( $class, %args ) = @_;
@@ -21,6 +21,7 @@ sub new {
     $self->{hasError} = 0;
 
     $self->{node}       = $args{node};
+    $self->{host}       = $self->{node}->{host};
     $self->{sshAccount} = $args{sshAccount};
     $self->{brand}      = $args{brand};
     $self->{DATA}       = { PK => ['MGMT_IP'] };
@@ -66,7 +67,8 @@ sub new {
     }
 
     $options->{'-maxmsgsize'} = 65535;
-    $self->{snmpOptions}      = $options;
+
+    $self->{snmpOptions} = $options;
 
     my ( $session, $error ) = Net::SNMP->session(%$options);
     if ( !defined $session ) {
@@ -101,9 +103,9 @@ sub new {
         $commOidDef = {
 
             #端口信息
-            #PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',      #ifIndex
-            #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',      #ifDescr
-            PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
+            PORT_INDEX        => '1.3.6.1.2.1.2.2.1.1',       #ifIndex
+                                                              #PORT_NAME         => '1.3.6.1.2.1.2.2.1.2',      #ifDescr
+                                                              #PORT_INDEX        => '1.3.6.1.2.1.17.1.4.1.2',    #dot1dBasePortIfIndex
             PORT_NAME         => '1.3.6.1.2.1.31.1.1.1.1',    #ifName
             PORT_TYPE         => '1.3.6.1.2.1.2.2.1.3',       #ifType
             PORT_MAC          => '1.3.6.1.2.1.2.2.1.6',       #ifPhysAddress
@@ -126,6 +128,10 @@ sub new {
             PORT_OUT_DISCARDS      => '1.3.6.1.2.1.2.2.1.19',    #ifOutDiscards
             PORT_OUT_ERRORS        => '1.3.6.1.2.1.2.2.1.20',    #ifOutErrors
 
+            #ARP对照表
+            ARP_MAC => "1.3.6.1.2.1.4.22.1.2",                   #1pNetToMediaPhysAddress
+            ARP_IP  => "1.3.6.1.2.1.4.22.1.3",                   #ipNetToMediaNetAddress
+
             #MAC地址和端口对照表
             CISCO_VLAN_STATE => '1.3.6.1.4.1.9.9.46.1.3.1.1.2',    #vtpVlanState
             MAC_TABLE_PORT   => '1.3.6.1.2.1.17.4.3.1.2',          #dot1qTpFdbPort
@@ -140,7 +146,11 @@ sub new {
             CDP_REMOTE_SYSNAME => '1.3.6.1.4.1.9.9.23.1.2.1.1.6',    #cdpCacheDeviceId
             CDP_REMOTE_PORT    => '1.3.6.1.4.1.9.9.23.1.2.1.1.7',    #cdpCacheDevicePort
             CDP_TYPE           => '1.3.6.1.4.1.9.9.23.1.2.1.1.3',    #cdpCacheAddressType
-            CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4'     #cdpCacheAddress
+            CDP_IP             => '1.3.6.1.4.1.9.9.23.1.2.1.1.4',    #cdpCacheAddress
+
+            #Vlan 端口列表
+            VLAN_ROW_STATUS => '1.3.6.1.2.1.17.7.1.4.3.1.5',         #dot1qVlanStaticRowStatus
+            VLAN_PORT       => '1.3.6.1.2.1.17.7.1.4.3.1.2'          #dot1qVlanStaticEgressPorts
         };
     }
     elsif ( $objType =~ /route/i ) {
@@ -510,10 +520,134 @@ sub _getPorts {
     }
 
     my @ports = sort { $a->{NO} <=> $b->{NO} } values(%$portsMap);
-    $self->{DATA}->{PORTS} = \@ports;
+    $self->{DATA}->{PORTS} = $self->_deleteVirtualPorts(\@ports);
     $self->{portIdxMap}    = $portIdxMap;
     $self->{portNoMap}     = $portNoMap;
     $self->{portNameMap}   = $portNameMap;
+}
+
+sub _getVlanPort {
+    my ($self)     = @_;
+    my $snmp       = $self->{snmpSession};
+    my $commOidDef = $self->{commonOidDef};
+
+    my $csmacdPorts = $self->_getCsmacdPorts();
+
+    #取$vlanRowStatus只是为了获取vlan个数，然后设置成get_bulk_request的max_repetitions，1.3.6.1.2.1.17.7.1.4.3.1/2/3/4这几个oid都会报错：“Received tooBig(1) error-status at error-index 0.”
+    my $vlanRowStatus = $snmp->get_table( -baseoid => $commOidDef->{VLAN_ROW_STATUS} );
+    $self->_errCheck( $vlanRowStatus, $commOidDef->{VLAN_ROW_STATUS}, 'VLAN_ROW_STATUS' );
+    my $VlanCount = keys(%$vlanRowStatus);
+
+    my $vlanPortInfo = $snmp->get_bulk_request(
+        -varbindlist    => [ $commOidDef->{VLAN_PORT} ],
+        -maxrepetitions => $VlanCount,
+        -nonrepeaters   => 0
+    );
+    $self->_errCheck( $vlanPortInfo, $commOidDef->{VLAN_PORT}, 'VLAN_PORT' );
+
+    my $devName = $self->{DATA}->{DEV_NAME};
+    my @vlan    = ();
+    while ( my ( $oid, $val ) = each(%$vlanPortInfo) ) {
+        if ( $oid =~ /(\d+)$/ ) {
+            my $vlanName = $1;
+            if ( not( $val =~ s/^0x// ) ) {
+                $val = unpack( 'H*', $val );
+            }
+
+            # 将字节序列解析为二进制字符串
+            my $bitVal = unpack( "B*", pack( "H*", $val ) );
+
+            my @ports       = ();
+            my @portsBitMap = split( //, $bitVal );
+            for ( my $i = 0 ; $i < scalar(@portsBitMap) and $i < scalar(@$csmacdPorts) ; $i++ ) {
+                if ( $portsBitMap[$i] eq '1' ) {
+                    my $portInfo = $$csmacdPorts[$i];
+                    if ( defined( $portInfo->{NAME} ) ) {
+                        push(
+                            @ports,
+                            {
+                                _OBJ_CATEGORY => 'SWITCH',
+                                _OBJ_TYPE     => 'SWITCH-PORT',
+                                NAME          => $portInfo->{NAME},
+                                MAC           => $portInfo->{MAC},
+                                MGMT_IP       => $self->{host},
+                                DEV_NAME      => $devName
+                            }
+                        );
+                    }
+                }
+            }
+            
+            push(
+                @vlan,
+                {
+                    _OBJ_CATEGORY => 'SWITCH',
+                    _OBJ_TYPE     => 'SWITCH-VLAN',
+                    NAME          => $vlanName,
+                    PORTS    => \@ports
+                }
+            );
+        }
+    }
+
+    $self->{DATA}->{VLANS} = \@vlan;
+}
+
+sub _deleteVirtualPorts {
+    my ($self, $portsList) = @_;
+
+    my @newPorts = ();
+    foreach my $portInfo (@$portsList) {
+        if ( defined($portInfo->{MAC}) and $portInfo->{MAC} ne '' ) {
+            push( @newPorts, $portInfo );
+        }
+    }
+
+    return \@newPorts;
+}
+
+sub _getCsmacdPorts {
+    my ($self) = @_;
+
+    my $portType    = 'ethernet-csmacd(6)';
+    my $portsList   = $self->{DATA}->{PORTS};
+    my @csmacdPorts = ();
+    foreach my $portInfo (@$portsList) {
+        if ( $portInfo->{'TYPE'} eq $portType ) {
+            push( @csmacdPorts, $portInfo );
+        }
+    }
+    my @sortedCsmacdPorts = sort { $a->{NO} <=> $b->{NO} } @csmacdPorts;
+
+    return \@sortedCsmacdPorts;
+}
+
+sub _getArp {
+    my ($self) = @_;
+
+    my $snmp       = $self->{snmpSession};
+    my $snmpHelper = $self->{snmpHelper};
+    my $commOidDef = $self->{commonOidDef};
+    my $tableDef   = { ARP_TABLE => { MAC => $commOidDef->{ARP_MAC}, IP => $commOidDef->{ARP_IP} } };
+    my $tableData  = $snmpHelper->getTable( $snmp, $tableDef );
+    my $arpData    = $tableData->{ARP_TABLE};
+
+    my @arpTable = ();
+    for ( my $i = 0 ; $i < scalar(@$arpData) ; $i++ ) {
+        my $arpInfo = $$arpData[$i];
+        my $mac     = $snmpHelper->hex2mac( $arpInfo->{MAC} );
+        my $ip      = $arpInfo->{IP};
+
+        push(
+            @arpTable,
+            {
+                MAC => $mac,
+                IP  => $ip
+            }
+        );
+    }
+
+    $self->{DATA}->{ARP_TABLE} = \@arpTable;
 }
 
 sub _decimalMacToHex {
@@ -810,6 +944,8 @@ sub collect {
     $self->_getScalar();
     $self->_getTable();
     $self->_getPorts($objType);
+    $self->_getVlanPort();
+    $self->_getArp();
 
     if ( $brand =~ /Cisco/i ) {
         $self->_getCDP();
@@ -824,6 +960,7 @@ sub collect {
     $self->after();
 
     my $data = $self->{DATA};
+    
     if ( not defined( $data->{VENDOR} ) or $data->{VENDOR} eq '' or $data->{VENDOR} eq '-' ) {
         $data->{VENDOR} = $data->{BRAND};
     }

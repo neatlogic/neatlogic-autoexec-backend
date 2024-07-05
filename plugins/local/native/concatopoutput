@@ -1,0 +1,107 @@
+#!/usr/bin/python3
+# -*- coding:UTF-8 -*-
+
+import os
+import sys
+import fcntl
+import json
+import traceback
+import argparse
+import re
+
+import AutoExecError
+import AutoExecUtils
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--delimiter", default=",", help="String concat delimiter")
+    parser.add_argument("--outputkey", default="", help="Output key")
+    args = parser.parse_args()
+
+    delimiter = args.delimiter
+    outputKey = args.outputkey
+
+    hasOptError = False
+    if outputKey == "":
+        hasOptError = True
+        print("ERROR: Must define output key name by option --outputkey")
+
+    if hasOptError:
+        sys.exit(2)
+
+    outputKey = re.sub(r"^#\{", "", outputKey)
+    outputKey = re.sub(r"\}$", "", outputKey)
+    outputKeyInfo = outputKey.split(".")
+
+    if len(outputKeyInfo) != 3:
+        print("ERROR: Malform output key %s." % (outputKey))
+        sys.exit(3)
+
+    opId = outputKeyInfo[1]
+    varKey = outputKeyInfo[2]
+    opName = re.sub(r"_\d+$", "", opId)
+
+    isStr = False
+    aggData = None
+
+    try:
+        # 加载操作输出并进行合并
+        nodeOut = {}
+        nodeOutputPath = os.getenv("NODE_OUTPUT_PATH")
+        if os.path.exists(nodeOutputPath):
+            # 如果runner本地存在output文件，则从本地加载
+            # TODO：如果运行runner是随机选择的，那就要必须强制从mongodb中加载output
+            outputFile = None
+            try:
+                outputFile = open(nodeOutputPath, "r")
+                fcntl.flock(outputFile, fcntl.LOCK_SH)
+                content = outputFile.read()
+                if content:
+                    nodeOut = json.loads(content)
+            except Exception as ex:
+                raise AutoExecError("Load output file:{}, failed {}".format(nodeOutputPath, ex))
+            finally:
+                if outputFile is not None:
+                    fcntl.flock(outputFile, fcntl.LOCK_UN)
+                    outputFile.close()
+
+        print("INFO: Try to load output for operation name:%s output:%s." % (opName, varKey))
+        for myOpId in nodeOut:
+            myOpName = myOpId
+            myOpName = re.sub(r"_\d+$", "", myOpId)
+            if myOpName == opName:
+                val = nodeOut[myOpId].get(varKey)
+                if isinstance(val, str):
+                    isStr = True
+                    if aggData is None:
+                        aggData = ""
+                    aggData = aggData + delimiter + val
+                elif isinstance(val, list):
+                    if aggData is None:
+                        aggData = []
+                    aggData = aggData + val
+                else:
+                    if aggData is None:
+                        aggData = []
+                    aggData.append(val)
+
+        if not aggData:
+            print("WARN: Can not find any output for:%s." % (outputKey))
+        else:
+            if isStr:
+                if aggData.startswith(delimiter):
+                    aggData = aggData[len(delimiter) :]
+            print("FINE: Aggregate output for:%s success." % (outputKey))
+
+        out = {}
+        if isStr:
+            out["aggTxtData"] = aggData
+            out["aggJsonData"] = {varKey: aggData}
+        else:
+            out["aggTxtData"] = json.dumps(aggData, ensure_ascii=False)
+            out["aggJsonData"] = aggData
+
+        AutoExecUtils.saveOutput(out)
+    except:
+        print("ERROR: Aggregate output for {} failed, {}".format(outputKey, traceback.format_exc()))
+        sys.exit(1)

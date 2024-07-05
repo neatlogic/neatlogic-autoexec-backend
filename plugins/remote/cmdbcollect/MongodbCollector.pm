@@ -94,13 +94,14 @@ sub collect {
     $mongodbInfo->{ADMIN_SSL_PORT} = undef;
 
     my $version = $self->getCmdOut("$exePath --version");
-    $version =~ /\"version\": (\S+)\s+/;
-    $version = $1;
-    $version =~ s/,//g;
-    $version =~ s/"//g;
-    $mongodbInfo->{VERSION} = $version;
-    if ( $version =~ /(\d+)/ ) {
-        $mongodbInfo->{MAJOR_VERSION} = "mongodb$1";
+    if ( $version =~ /\"version\": (\S+)\s+/ ) {
+        $version = $1;
+        $version =~ s/,//g;
+        $version =~ s/"//g;
+        $mongodbInfo->{VERSION} = $version;
+        if ( $version =~ /(\d+)/ ) {
+            $mongodbInfo->{MAJOR_VERSION} = "mongodb$1";
+        }
     }
     $mongodbInfo->{CHARACTERSET} = $procInfo->{'ENVIRONMENT'}->{'LANG'};
 

@@ -93,9 +93,7 @@ class ServerAdapter:
             else:
                 request.add_header(k, str(v))
 
-    def getSignHeaders(
-        self, apiUri, postBody=None, currentUsername=None, currentPassword=None
-    ):
+    def getSignHeaders(self, apiUri, postBody=None, currentUsername=None, currentPassword=None):
         user = self.serverUserName
         password = self.serverPassword
 
@@ -106,16 +104,9 @@ class ServerAdapter:
 
         signContent = user + "#" + apiUri + "#"
         if postBody is not None and postBody != "":
-            signContent = signContent + base64.b64encode(
-                postBody.encode("utf-8")
-            ).decode("utf-8")
+            signContent = signContent + base64.b64encode(postBody.encode("utf-8")).decode("utf-8")
 
-        digest = (
-            "Hmac "
-            + hmac.new(
-                password.encode("utf-8"), signContent.encode("utf-8"), digestmod=sha256
-            ).hexdigest()
-        )
+        digest = "Hmac " + hmac.new(password.encode("utf-8"), signContent.encode("utf-8"), digestmod=sha256).hexdigest()
         headers = {
             "Tenant": self.context.tenant,
             "AuthType": "hmac",
@@ -124,12 +115,8 @@ class ServerAdapter:
         }
         return headers
 
-    def signRequest(
-        self, request, apiUri, postBody=None, currentUsername=None, currentPassword=None
-    ):
-        headers = self.getSignHeaders(
-            apiUri, postBody, currentUsername, currentPassword
-        )
+    def signRequest(self, request, apiUri, postBody=None, currentUsername=None, currentPassword=None):
+        headers = self.getSignHeaders(apiUri, postBody, currentUsername, currentPassword)
         for k, v in headers.items():
             request.add_header(k, v)
 
@@ -224,9 +211,7 @@ class ServerAdapter:
                 content = response.read().decode(charset, errors="ignore")
                 contentObj = json.loads(content)
                 if contentObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "Request failed, {}".format(contentObj.get("Message"))
-                    )
+                    raise AutoExecError("Request failed, {}".format(contentObj.get("Message")))
 
                 mongoDBConf = contentObj.get("Return")
                 optionStr = mongoDBConf.get("option")
@@ -236,9 +221,7 @@ class ServerAdapter:
                         optionStr,
                     )
                 else:
-                    contextCfg["autoexec"]["db.url"] = "mongodb://%s/" % (
-                        mongoDBConf["host"]
-                    )
+                    contextCfg["autoexec"]["db.url"] = "mongodb://%s/" % (mongoDBConf["host"])
                 contextCfg["autoexec"]["db.name"] = mongoDBConf["database"]
                 contextCfg["autoexec"]["db.username"] = mongoDBConf["username"]
                 contextCfg["autoexec"]["db.password"] = mongoDBConf["passwordPlain"]
@@ -271,13 +254,9 @@ class ServerAdapter:
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
                     return params
                 else:
-                    raise "Get parameters for job {} failed, {}".format(
-                        self.context.jobId, retObj["Message"]
-                    )
+                    raise "Get parameters for job {} failed, {}".format(self.context.jobId, retObj["Message"])
             else:
-                raise "Get parameters for job {} failed, status code:{} {}".format(
-                    self.context.jobId, response.status, content
-                )
+                raise "Get parameters for job {} failed, status code:{} {}".format(self.context.jobId, response.status, content)
         except:
             raise
         finally:
@@ -336,9 +315,7 @@ class ServerAdapter:
                 nodesFile.close()
 
     # 更新运行阶段某个节点的状态到服务端
-    def pushNodeStatus(
-        self, groupNo, phaseName, runNode, status, failIgnore=0, warnCount=0
-    ):
+    def pushNodeStatus(self, groupNo, phaseName, runNode, status, failIgnore=0, warnCount=0):
         if self.context.devMode:
             return {}
 
@@ -573,9 +550,7 @@ class ServerAdapter:
 
             return fileName
         except:
-            raise AutoExecError(
-                "ERROR: Fetch file:{} to {} failed.\n".format(fileId, savePath)
-            )
+            raise AutoExecError("ERROR: Fetch file:{} to {} failed.\n".format(fileId, savePath))
         finally:
             if cachedFileTmp is not None:
                 cachedFileTmp.close()
@@ -641,9 +616,7 @@ class ServerAdapter:
                 useLibs = json.loads(resHeaders.get("ScriptUseLibs", "[]"))
                 interpreter = resHeaders.get("ScriptInterpreter")
 
-                scriptFileName = operation.getScriptFileName(
-                    scriptName, interpreter, isLib
-                )
+                scriptFileName = operation.getScriptFileName(scriptName, interpreter, isLib)
                 scriptFilePath = "%s/%s.%s" % (
                     pluginParentPath,
                     scriptVerId,
@@ -703,20 +676,12 @@ class ServerAdapter:
                         with tarfile.open(scriptFilePath, "r") as tf:
                             tf.extractall(path=pluginParentPath)
                     except Exception as ex:
-                        raise AutoExecError(
-                            "ERROR: Extract package from file {} failed, {}.".format(
-                                scriptFileName, str(ex)
-                            )
-                        )
+                        raise AutoExecError("ERROR: Extract package from file {} failed, {}.".format(scriptFileName, str(ex)))
 
             return (scriptFilePath, useLibs)
 
         except Exception as ex:
-            raise AutoExecError(
-                "ERROR: Fetch {} custom lib to {}/{} failed, {}.\n".format(
-                    scriptId, pluginParentPath, scriptFileName, str(ex)
-                )
-            )
+            raise AutoExecError("ERROR: Fetch {} custom lib to {}/{} failed, {}.\n".format(scriptId, pluginParentPath, scriptFileName, str(ex)))
         finally:
             if lockFile is not None:
                 fcntl.flock(lockFile, fcntl.LOCK_UN)
@@ -752,16 +717,12 @@ class ServerAdapter:
 
             useLibs = []
             opScriptFilePath = None
-            (opScriptFilePath, useLibs) = self.fetchScriptLib(
-                operation, operation.scriptId, opId
-            )
+            (opScriptFilePath, useLibs) = self.fetchScriptLib(operation, operation.scriptId, opId)
 
             # 避免使用递归，如果使用递归，会因为循环递归导致死锁
             while useLibs:
                 libScriptId = useLibs.pop()
-                (scriptFilePath, myUseLibs) = self.fetchScriptLib(
-                    operation, libScriptId
-                )
+                (scriptFilePath, myUseLibs) = self.fetchScriptLib(operation, libScriptId)
                 useLibs.extend(myUseLibs)
 
             if oldScriptFilePath != opScriptFilePath:
@@ -774,11 +735,7 @@ class ServerAdapter:
             return opScriptFilePath
 
         except Exception as ex:
-            raise AutoExecError(
-                "ERROR: Fetch {} custom script to {}/{} failed, {}.\n".format(
-                    opId, operation.pluginParentPath, operation.scriptFileName, str(ex)
-                )
-            )
+            raise AutoExecError("ERROR: Fetch {} custom script to {}/{} failed, {}.\n".format(opId, operation.pluginParentPath, operation.scriptFileName, str(ex)))
         finally:
             if opFileLockFile is not None:
                 fcntl.flock(opFileLockFile, fcntl.LOCK_UN)
@@ -812,9 +769,7 @@ class ServerAdapter:
 
     # 清除不存在的native工具
     def cleanNativeTools(self, importTime):
-        response = self.httpJSON(
-            self.apiMap["cleanNativeTools"], {"importTime": importTime}
-        )
+        response = self.httpJSON(self.apiMap["cleanNativeTools"], {"importTime": importTime})
 
         try:
             charset = response.info().get_content_charset()
@@ -846,7 +801,9 @@ class ServerAdapter:
         #     'lockId': 83205734845,
         # }
         try:
+            lockParams["execId"] = self.context.execId
             response = self.httpJSON(self.apiMap["globalLock"], lockParams)
+            # print("DEBUG: Send lock req:" + json.dumps(lockParams))
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             retObj = json.loads(content)
@@ -916,21 +873,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get Account for {} user:{} failed, {}".format(
-                            protocol, username, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get Account for {} user:{} failed, status code:{} {}".format(
-                        protocol, username, response.status, content
-                    )
-                )
+                raise AutoExecError("Get Account for {} user:{} failed, status code:{} {}".format(protocol, username, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get Account for {} user:{} failed, {}".format(protocol, username, ex)
-            )
+            raise AutoExecError("Get Account for {} user:{} failed, {}".format(protocol, username, ex))
 
     def getNodePwd(self, resourceId, host, port, username, protocol):
         if self.context.devMode:
@@ -956,23 +903,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get password for {}://{}@{}:{} failed, {}".format(
-                            protocol, username, host, port, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get password for {}://{}@{}:{} failed, {}".format(protocol, username, host, port, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get password for {}://{}@{}:{} failed, status code:{} {}".format(
-                        protocol, username, host, port, response.status, content
-                    )
-                )
+                raise AutoExecError("Get password for {}://{}@{}:{} failed, status code:{} {}".format(protocol, username, host, port, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get password for {}://{}@{}:{} failed, {}".format(
-                    protocol, username, host, port, ex
-                )
-            )
+            raise AutoExecError("Get password for {}://{}@{}:{} failed, {}".format(protocol, username, host, port, ex))
 
     def getInspectConf(self, ciType, resourceId):
         if self.context.devMode:
@@ -995,21 +930,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get Inspect Config for {}/{} failed, {}".format(
-                            ciType, resourceId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get Inspect Config for {}/{} failed, status code:{} {}".format(
-                        ciType, resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Get Inspect Config for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex)
-            )
+            raise AutoExecError("Get Inspect Config for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def updateInspectStatus(self, ciType, resourceId, status, alertCount):
         if self.context.devMode:
@@ -1033,23 +958,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return True
                 else:
-                    raise AutoExecError(
-                        "Update inspect status for {}/{} failed, {}".format(
-                            ciType, resourceId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Update inspect status for {}/{} failed, status code:{} {}".format(
-                        ciType, resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Update inspect status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Update inspect status for {}/{} failed, {}".format(
-                    ciType, resourceId, ex
-                )
-            )
+            raise AutoExecError("Update inspect status for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def updateMonitorStatus(self, ciType, resourceId, status, alertCount):
         if self.context.devMode:
@@ -1073,23 +986,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return True
                 else:
-                    raise AutoExecError(
-                        "Update monitor status for {}/{} failed, {}".format(
-                            ciType, resourceId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Update monitor status for {}/{} failed, status code:{} {}".format(
-                        ciType, resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Update monitor status for {}/{} failed, status code:{} {}".format(ciType, resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Update monitor status for {}/{} failed, {}".format(
-                    ciType, resourceId, ex
-                )
-            )
+            raise AutoExecError("Update monitor status for {}/{} failed, {}".format(ciType, resourceId, ex))
 
     def setResourceInspectJobId(self, resourceId, jobId, phaseName):
         if self.context.devMode:
@@ -1111,23 +1012,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return True
                 else:
-                    raise AutoExecError(
-                        "Set resrouce({}) inspect job Id({}) faield, {}".format(
-                            resourceId, jobId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, {}".format(resourceId, jobId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Set resrouce({}) inspect job Id({}) faield, status code:{} {}".format(
-                        resourceId, jobId, response.status, content
-                    )
-                )
+                raise AutoExecError("Set resrouce({}) inspect job Id({}) faield, status code:{} {}".format(resourceId, jobId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Set resrouce({}) inspect job Id({}) failed, {}".format(
-                    resourceId, jobId, ex
-                )
-            )
+            raise AutoExecError("Set resrouce({}) inspect job Id({}) failed, {}".format(resourceId, jobId, ex))
 
     def getCmdbCiAttrs(self, resourceId, attrList):
         if self.context.devMode:
@@ -1160,21 +1049,11 @@ class ServerAdapter:
 
                     return attrsMap
                 else:
-                    raise AutoExecError(
-                        "Get attributes for resourceId:{} failed, {}".format(
-                            resourceId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get attributes for resourceId:{} failed, {}".format(resourceId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get attributes for resourceId:{} failed, status code:{} {}".format(
-                        resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Get attributes for resourceId:{} failed, status code:{} {}".format(resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get attributes for resourceId:{} failed, {}".format(resourceId, ex)
-            )
+            raise AutoExecError("Get attributes for resourceId:{} failed, {}".format(resourceId, ex))
 
     def getAccessEndpointConf(self, resourceId):
         if self.context.devMode:
@@ -1195,21 +1074,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get AccessEndpoint Config for {} failed, {}".format(
-                            resourceId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get AccessEndpoint Config for {} failed, status code:{} {}".format(
-                        resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Get AccessEndpoint Config for {} failed, status code:{} {}".format(resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get AccessEndpoint Config for {} failed, {}".format(resourceId, ex)
-            )
+            raise AutoExecError("Get AccessEndpoint Config for {} failed, {}".format(resourceId, ex))
 
     def getDeployIdPath(self, namePath):
         namePath = namePath.strip()
@@ -1229,21 +1098,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get deploy id path for {} failed, {}".format(
-                            namePath, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get deploy id path for {} failed, status code:{} {}".format(
-                        namePath, response.status, content
-                    )
-                )
+                raise AutoExecError("Get deploy id path for {} failed, status code:{} {}".format(namePath, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get deploy id path for {} failed, {}".format(namePath, ex)
-            )
+            raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, ex))
 
     def getDeployRunnerGroup(self, sysId, moduleId, envId):
         idPath = "%s/%s/%s" % (sysId, moduleId, envId)
@@ -1258,27 +1117,15 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Get deploy runner group config for {} failed, {}".format(
-                            idPath, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Get deploy runner group config for {} failed, {}".format(idPath, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Get deploy runner group config for {} failed, status code:{} {}".format(
-                        idPath, response.status, content
-                    )
-                )
+                raise AutoExecError("Get deploy runner group config for {} failed, status code:{} {}".format(idPath, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get deploy runner group config for {} failed, {}".format(idPath, ex)
-            )
+            raise AutoExecError("Get deploy runner group config for {} failed, {}".format(idPath, ex))
 
     def getCITxtFilePathList(self, resourceId):
         try:
-            response = self.httpJSON(
-                self.apiMap["getCITxtFilePathList"], {"resourceId": resourceId}
-            )
+            response = self.httpJSON(self.apiMap["getCITxtFilePathList"], {"resourceId": resourceId})
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             retObj = json.loads(content)
@@ -1286,21 +1133,11 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"].get("tbodyList")
                 else:
-                    raise AutoExecError(
-                        "Get config file list for ci:{} failed, {}".format(
-                            resourceId, retObj.get("Message")
-                        )
-                    )
+                    raise AutoExecError("Get config file list for ci:{} failed, {}".format(resourceId, retObj.get("Message")))
             else:
-                raise AutoExecError(
-                    "Get config file list for ci:{} failed, status code:{} {}".format(
-                        resourceId, response.status, content
-                    )
-                )
+                raise AutoExecError("Get config file list for ci:{} failed, status code:{} {}".format(resourceId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Get config file list for ci:{} failed, {}".format(resourceId, ex)
-            )
+            raise AutoExecError("Get config file list for ci:{} failed, {}".format(resourceId, ex))
 
     def uploadFile(self, filePath, fileType="inspectconfigfile"):
         try:
@@ -1323,45 +1160,25 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj["Return"]
                 else:
-                    raise AutoExecError(
-                        "Upload file:{} failed, {}".format(
-                            filePath, retObj.get("Message")
-                        )
-                    )
+                    raise AutoExecError("Upload file:{} failed, {}".format(filePath, retObj.get("Message")))
             else:
-                raise AutoExecError(
-                    "Upload file:{} failed, status code:{} {}".format(
-                        filePath, response.status_code, json.dumps(retObj)
-                    )
-                )
+                raise AutoExecError("Upload file:{} failed, status code:{} {}".format(filePath, response.status_code, json.dumps(retObj)))
         except Exception as ex:
             raise AutoExecError("Upload file:{} failed, {}".format(filePath, ex))
 
     def removeUploadedFile(self, fileId):
         try:
-            response = self.httpJSON(
-                self.apiMap["removeUploadedFile"], {"fileId": fileId}
-            )
+            response = self.httpJSON(self.apiMap["removeUploadedFile"], {"fileId": fileId})
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "Remove uploaded file(fileId={}) failed, {}".format(
-                            fileId, retObj.get("Message")
-                        )
-                    )
+                    raise AutoExecError("Remove uploaded file(fileId={}) failed, {}".format(fileId, retObj.get("Message")))
             else:
-                raise AutoExecError(
-                    "Remove uploaded file(fileId={}) failed, status code:{} {}".format(
-                        fileId, response.status, content
-                    )
-                )
+                raise AutoExecError("Remove uploaded file(fileId={}) failed, status code:{} {}".format(fileId, response.status, content))
         except Exception as ex:
-            raise AutoExecError(
-                "Remove uploaded file(fileId={}) failed, {}".format(fileId, ex)
-            )
+            raise AutoExecError("Remove uploaded file(fileId={}) failed, {}".format(fileId, ex))
 
     def txtFileInspectSave(self, params):
         try:
@@ -1376,17 +1193,9 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "Save Inspect for {} failed, {}".format(
-                            objHint, retObj.get("Message")
-                        )
-                    )
+                    raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, retObj.get("Message")))
             else:
-                raise AutoExecError(
-                    "Save Inspect for {} failed, status code:{} {}".format(
-                        objHint, response.status, content
-                    )
-                )
+                raise AutoExecError("Save Inspect for {} failed, status code:{} {}".format(objHint, response.status, content))
         except Exception as ex:
             raise AutoExecError("Save Inspect for {} failed, {}".format(objHint, ex))
 
@@ -1399,17 +1208,9 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "Notify inspect Report {} failed, {}".format(
-                            jobId, retObj["Message"]
-                        )
-                    )
+                    raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, retObj["Message"]))
             else:
-                raise AutoExecError(
-                    "Notify inspect Report {} failed, status code:{} {}".format(
-                        jobId, response.status, content
-                    )
-                )
+                raise AutoExecError("Notify inspect Report {} failed, status code:{} {}".format(jobId, response.status, content))
         except Exception as ex:
             raise AutoExecError("Notify inspect Report {} failed, {}".format(jobId, ex))
 
@@ -1496,29 +1297,13 @@ class ServerAdapter:
                     if retObj.get("Status") == "OK":
                         return retObj["Return"].get("tbodyList")
                     else:
-                        raise AutoExecError(
-                            "Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(
-                                ip, name, port, type, retObj.get("Message")
-                            )
-                        )
+                        raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, retObj.get("Message")))
                 else:
-                    raise AutoExecError(
-                        "Get Resource info ip:{}/name:{}/port:{}/type:{} failed, status code:{} {}".format(
-                            ip, name, port, type, response.status, content
-                        )
-                    )
+                    raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, status code:{} {}".format(ip, name, port, type, response.status, content))
             except Exception as ex:
-                raise AutoExecError(
-                    "Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(
-                        ip, name, port, type, ex
-                    )
-                )
+                raise AutoExecError("Get Resource info ip:{}/name:{}/port:{}/type:{} failed, {}".format(ip, name, port, type, ex))
         else:
-            raise AutoExecError(
-                "Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(
-                    ip, name, port, type
-                )
-            )
+            raise AutoExecError("Get Resource info  ip:{}/name:{}/port:{}/type:{} failed, parameter empty or not value.".format(ip, name, port, type))
 
     def saveVersionMetrics(self, data):
         try:
@@ -1530,9 +1315,7 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj
                 else:
-                    raise AutoExecError(
-                        "saveVersionMetrics {} {}".format(data, content)
-                    )
+                    raise AutoExecError("saveVersionMetrics {} {}".format(data, content))
             else:
                 print(data)
                 raise AutoExecError("saveVersionMetrics: ".format(content))
@@ -1551,9 +1334,7 @@ class ServerAdapter:
                 if retObj.get("Status") == "OK":
                     return retObj
                 else:
-                    raise AutoExecError(
-                        "saveVersionCveList {} {}".format(data, content)
-                    )
+                    raise AutoExecError("saveVersionCveList {} {}".format(data, content))
             else:
                 print(data)
                 raise AutoExecError("saveVersionCveList: ".format(content))
@@ -1571,17 +1352,11 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "getJobStatus {} failed, {}".format(jobId, retObj["Message"])
-                    )
+                    raise AutoExecError("getJobStatus {} failed, {}".format(jobId, retObj["Message"]))
 
                 return retObj.get("Return").get("status")
             else:
-                raise AutoExecError(
-                    "getJobStatus {} failed, status code:{} {}".format(
-                        jobId, response.status, content
-                    )
-                )
+                raise AutoExecError("getJobStatus {} failed, status code:{} {}".format(jobId, response.status, content))
         except AutoExecError as e:
             raise e
         except Exception as ex:
@@ -1600,41 +1375,27 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "createJobFromCombop failed, {}".format(retObj["Message"])
-                    )
+                    raise AutoExecError("createJobFromCombop failed, {}".format(retObj["Message"]))
 
                 return retObj.get("Return")
             else:
-                raise AutoExecError(
-                    "createJobFromCombop failed, status code:{} {}".format(
-                        response.status, content
-                    )
-                )
+                raise AutoExecError("createJobFromCombop failed, status code:{} {}".format(response.status, content))
         except Exception as ex:
             raise AutoExecError("createJobFromCombop failed, {}".format(ex))
 
     def refireJob(self, params, currentUsername=None, currentPassword=None):
         try:
-            response = self.httpJSON(
-                self.apiMap["refireJob"], params, currentUsername, currentPassword
-            )
+            response = self.httpJSON(self.apiMap["refireJob"], params, currentUsername, currentPassword)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "refireJob failed, {}".format(retObj["Message"])
-                    )
+                    raise AutoExecError("refireJob failed, {}".format(retObj["Message"]))
 
                 return retObj.get("Return")
             else:
-                raise AutoExecError(
-                    "refireJob failed, status code:{} {}".format(
-                        response.status, content
-                    )
-                )
+                raise AutoExecError("refireJob failed, status code:{} {}".format(response.status, content))
         except Exception as ex:
             raise AutoExecError("refireJob failed, {}".format(ex))
 
@@ -1646,17 +1407,11 @@ class ServerAdapter:
             retObj = json.loads(content)
             if response.status == 200:
                 if retObj.get("Status") != "OK":
-                    raise AutoExecError(
-                        "call api {} failed, {}".format(apiUri, retObj["Message"])
-                    )
+                    raise AutoExecError("call api {} failed, {}".format(apiUri, retObj["Message"]))
 
                 return retObj.get("Return")
             else:
-                raise AutoExecError(
-                    "call api {} failed, status code:{} {}".format(
-                        apiUri, response.status, content
-                    )
-                )
+                raise AutoExecError("call api {} failed, status code:{} {}".format(apiUri, response.status, content))
         except AutoExecError as e:
             raise e
         except Exception as ex:

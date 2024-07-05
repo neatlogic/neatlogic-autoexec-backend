@@ -147,6 +147,11 @@
             "type": "String"
         },
         {
+            "name": "BOARD_SERIAL",
+            "desc": "机箱序列号",
+            "type": "String"
+        },
+        {
             "name": "MAX_OPEN_FILES",
             "desc": "最大打开文件数",
             "type": "Float"
@@ -580,13 +585,62 @@
             ]
         },
         {
-            "name": "AUTO_RESTART",
-            "desc": "自动重启",
-            "type": "String"
+            "name": "REF_SWITCHES",
+            "desc": "连接交换机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "交换机类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "交换机管理Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "交换机序列号",
+                    "type": "String"
+                }
+            ]
         },
         {
-            "name": "BOARD_SERIAL",
-            "desc": "主板序列号",
+            "name": "REF_FCSWITCHES",
+            "desc": "连接光交换机",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "交换机类型",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "光交管理Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "SN",
+                    "desc": "光交序列号",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "AUTO_RESTART",
+            "desc": "自动重启",
             "type": "String"
         },
         {

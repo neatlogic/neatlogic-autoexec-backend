@@ -29,11 +29,7 @@ def genInsRel(db):
             "BIND": {
                 "$filter": {
                     "input": "$BIND",
-                    "cond": {
-                        "$not": {
-                            "$regexMatch": {"input": "$$this", "regex": "^127\.|^::1:"}
-                        }
-                    },
+                    "cond": {"$not": {"$regexMatch": {"input": "$$this", "regex": "^127\.|^::1:"}}},
                 }
             },
             "PEER": 1,
@@ -50,7 +46,7 @@ def genInsRel(db):
             mgmtIp = ins.get("MGMT_IP")
             peer = ins.get("PEER", [])
             localPeer = ins.get("LOCAL_PEER", [])
-            if peer is not None:
+            if peer or localPeer:
                 # 计算调用的应用实例
                 for rel in relDestCollection.find(
                     {
@@ -66,12 +62,7 @@ def genInsRel(db):
                         "BIND": {
                             "$filter": {
                                 "input": "$BIND",
-                                "cond": {
-                                    "$or": {
-                                        {"BIND": {"$in": peer}},
-                                        {"MGMT_IP": mgmtIp, "BIND": {"$in": localPeer}},
-                                    }
-                                },
+                                "cond": {"$not": {"$regexMatch": {"input": "$$this", "regex": "^127\.|^::1:"}}},
                             }
                         },
                         "_OBJ_CATEGORY": 1,
@@ -101,7 +92,7 @@ def genInsRel(db):
                             refDbs.append(refInfo)
 
                             for bindPeer in rel["BIND"]:
-                                (peerIp, peerPort) = bindPeer.split(":", 2)
+                                (peerIp, peerPort) = bindPeer.split(":", 1)
                                 refSvcInfo = {
                                     "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
                                     "_OBJ_TYPE": "Service-Ports",
@@ -122,14 +113,14 @@ def genInsRel(db):
                         refIns.append(refInfo)
 
                         for bindPeer in rel["BIND"]:
-                            (peerIp, peerPort) = bindPeer.split(":", 2)
+                            (peerIp, peerPort) = bindPeer.split(":", 1)
                             refSvcInfo = {
-                                "_OBJ_CATEGORY": dbIns["_OBJ_CATEGORY"],
+                                "_OBJ_CATEGORY": rel["_OBJ_CATEGORY"],
                                 "_OBJ_TYPE": "Service-Ports",
-                                "OS_ID": dbIns["OS_ID"],
-                                "MGMT_IP": dbIns["MGMT_IP"],
+                                "OS_ID": rel["OS_ID"],
+                                "MGMT_IP": rel["MGMT_IP"],
                                 "PORT": peerPort,
-                                "INSTANCE_NAME": dbIns["INSTANCE_NAME"],
+                                # "INSTANCE_NAME": rel["INSTANCE_NAME"],
                             }
                             refSvc.append(refSvcInfo)
 
@@ -245,11 +236,7 @@ def genDBInsRel(db):
             "BIND": {
                 "$filter": {
                     "input": "$BIND",
-                    "cond": {
-                        "$not": {
-                            "$regexMatch": {"input": "$$this", "regex": "^127\.|^::1:"}
-                        }
-                    },
+                    "cond": {"$not": {"$regexMatch": {"input": "$$this", "regex": "^127\.|^::1:"}}},
                 }
             },
             "PEER": 1,
@@ -265,7 +252,7 @@ def genDBInsRel(db):
             mgmtIp = db.get("MGMT_IP")
             peer = db.get("PEER", [])
             localPeer = db.get("LOCAL_PEER", [])
-            if peer is not None:
+            if peer or localPeer:
                 for cluster in clusterCollection.find(
                     {
                         "$or": [
@@ -357,18 +344,13 @@ def genHostRel(db):
     hostUpdCollection = db["COLLECT_HOST"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
 
-    for host in hostCollection.find(
-        {}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}
-    ).batch_size(500):
+    for host in hostCollection.find({}, {"MGMT_IP": 1, "HBA_INTERFACES": 1, "ETH_INTERFACES": 1}).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
             nics = host.get("ETH_INTERFACES", [])
-            if nics is None:
-                print(
-                    "WARN: No eth interfaces found for os:{}".format(
-                        host.get("MGMT_IP")
-                    )
-                )
+            refSwitchesMap = {}
+            if not nics:
+                print("WARN: No eth interfaces found for os:{}".format(host.get("MGMT_IP")))
                 nics = []
             for nic in nics:
                 # macCount = sys.maxsize
@@ -416,16 +398,21 @@ def genHostRel(db):
                     }
                     refSwPorts.append(refSwPort)
 
+                    refSwitch = {
+                        "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remotePort["_OBJ_TYPE"],
+                        "MGMT_IP": remotePort["MGMT_IP"],
+                        "SN": remotePort["SN"],
+                    }
+                    refSwitchesMap[remotePort["MGMT_IP"]] = refSwitch
+
                 nic["REMOTE_PORTS"] = refSwPorts
 
             # 计算HBA卡连接的光交
+            refFcSwitchesMap = {}
             hbas = host.get("HBA_INTERFACES", [])
             if hbas is None:
-                print(
-                    "INFO: No HBA interfaces found for host:{}".format(
-                        host.get("MGMT_IP")
-                    )
-                )
+                print("INFO: No HBA interfaces found for host:{}".format(host.get("MGMT_IP")))
                 hbas = []
             for hba in hbas:
                 wwpn = hba.get("WWPN")
@@ -433,20 +420,14 @@ def genHostRel(db):
                     continue
 
                 remoteFcPort = fcSwCollection.find_one(
-                    {
-                        "LINK_TABLE": {
-                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
-                        }
-                    },
+                    {"LINK_TABLE": {"$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}}},
                     {
                         "_OBJ_CATEGORY": 1,
                         "_OBJ_TYPE": 1,
                         "MGMT_IP": 1,
                         "DEV_NAME": 1,
                         "SN": 1,
-                        "LINK_TABLE": {
-                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
-                        },
+                        "LINK_TABLE": {"$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}},
                     },
                 )
                 refFcPorts = []
@@ -461,11 +442,26 @@ def genHostRel(db):
                     }
                     refFcPorts.append(refFcPort)
 
+                    refFcSwitch = {
+                        "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remoteFcPort["_OBJ_TYPE"],
+                        "MGMT_IP": remoteFcPort["MGMT_IP"],
+                        "SN": remoteFcPort["SN"],
+                    }
+                    refFcSwitchesMap[remoteFcPort["MGMT_IP"]] = refFcSwitch
+
                 hba["REMOTE_PORTS"] = refFcPorts
 
             hostUpdCollection.update_one(
                 {"MGMT_IP": host["MGMT_IP"]},
-                {"$set": {"ETH_INTERFACES": nics, "HBA_INTERFACES": hbas}},
+                {
+                    "$set": {
+                        "ETH_INTERFACES": nics,
+                        "HBA_INTERFACES": hbas,
+                        "REF_SWITCHS": list(refSwitchesMap.values()),
+                        "REF_FCSWITCHS": list(refFcSwitchesMap.values()),
+                    }
+                },
             )
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
@@ -476,16 +472,15 @@ def genLBRel(db):
     lbCollection = db["COLLECT_LOADBALANCER"]
     lbUpdCollection = db["COLLECT_LOADBALANCER"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
+    relDestCollection = db["RELATION_INS_NETCONN"]
 
     for lb in lbCollection.find({}, {"MGMT_IP": 1, "PORTS": 1}).batch_size(500):
         try:
             # 计算网卡连接的交换机端口信息
+            refSwitchesMap = {}
             ports = lb.get("PORTS", [])
-            if ports is None:
-                print(
-                    "WARN: No eth interfaces found for os:{}".format(lb.get("MGMT_IP"))
-                )
-                ports = []
+            if not ports:
+                print("WARN: No eth interfaces found for os:{}".format(lb.get("MGMT_IP")))
             for port in ports:
                 # macCount = sys.maxsize
                 remotePort = macTblCollection.find_one(
@@ -533,11 +528,51 @@ def genLBRel(db):
                     }
                     refSwPorts.append(refSwPort)
 
+                    refSwitch = {
+                        "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remotePort["_OBJ_TYPE"],
+                        "MGMT_IP": remotePort["MGMT_IP"],
+                        "SN": remotePort["SN"],
+                    }
+                    refSwitchesMap[remotePort["MGMT_IP"]] = refSwitch
+
                 port["REMOTE_PORTS"] = refSwPorts
 
-            lbUpdCollection.update_one(
-                {"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"PORTS": ports}}
-            )
+            lbUpdCollection.update_one({"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"PORTS": ports, "REF_SWITCHES": list(refSwitchesMap.values())}})
+        except Exception as ex:
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
+
+    # POOL member关联instance
+    for lb in lbCollection.find({}, {"MGMT_IP": 1, "VIRTUAL_SERVERS": 1}).batch_size(50):
+        try:
+            # 计算网卡连接的交换机端口信息
+            virtualServers = lb.get("VIRTUAL_SERVERS", [])
+            for vs in virtualServers:
+                for pool in vs.get("POOL", []):
+                    for member in pool.get("MEMBERS", []):
+                        ip = member.get("IP")
+                        port = member.get("PORT")
+                        insInfo = relDestCollection.find_one(
+                            {"$or": [{"BIND": "%s:%s" % (ip, port)}]},
+                            {
+                                "OS_ID": 1,
+                                "MGMT_IP": 1,
+                                "PORT": 1,
+                                "_OBJ_CATEGORY": 1,
+                                "_OBJ_TYPE": 1,
+                            },
+                        )
+                        if insInfo is not None:
+                            refInfo = {
+                                "_OBJ_CATEGORY": insInfo["_OBJ_CATEGORY"],
+                                "_OBJ_TYPE": insInfo["_OBJ_TYPE"],
+                                "OS_ID": insInfo["OS_ID"],
+                                "MGMT_IP": insInfo["MGMT_IP"],
+                                "PORT": insInfo["PORT"],
+                            }
+                            member["REF_INS"] = [refInfo]
+
+            lbUpdCollection.update_one({"MGMT_IP": lb["MGMT_IP"]}, {"$set": {"VIRTUAL_SERVERS": virtualServers}})
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
 
@@ -545,6 +580,7 @@ def genLBRel(db):
 def genOSRel(db):
     # 生成OS和交换机的关系，存放于OS的属性ETH_INTERFACES.REMOTE_PORTS下
     osCollection = db["COLLECT_OS"]
+    hostCollection = db["COLLECT_HOST"]
     macTblCollection = db["RELATION_NET_MACTABLE"]
     fcSwCollection = db["COLLECT_FCDEV"]
     osUpdCollection = db["COLLECT_OS"]
@@ -555,19 +591,33 @@ def genOSRel(db):
         {
             "OS_ID": 1,
             "MGMT_IP": 1,
+            "PRODUCT_UUID": 1,
             "ETH_INTERFACES": 1,
             "HBA_INTERFACES": 1,
             "NFS_INFO": 1,
             "DISKS": 1,
+            "HOST_ON": 1,
         },
     ).batch_size(500):
         try:
-            # 计算网卡连接的交换机端口信息
-            nics = os.get("ETH_INTERFACES", [])
-            if nics is None:
-                print(
-                    "WARN: No eth interfaces found for os:{}".format(os.get("MGMT_IP"))
+            # 计算host_on在哪个物理机上
+            productId = os.get("PRODUCT_UUID")
+            hostOn = os.get("HOST_ON", [])
+            hostOnKvm = os.get("HOST_ON_KVM", [])
+            if productId is not None:
+                hostInfo = hostCollection.find_one(
+                    {"GUESTOS_UUIDS": productId},
+                    {"_OBJ_CATEGORY": 1, "_OBJ_TYPE": 1, "MGMT_IP": 1, "DEV_NAME": 1, "SN": 1},
                 )
+                if hostInfo is not None:
+                    hostOn = [hostInfo]
+                    hostOnKvm = [{"_OBJ_CATEGORY": "HOST", "_OBJ_TYPE": "KVM", "UUID": productId, "IP": hostInfo.get("MGMT_IP")}]
+
+            # 计算网卡连接的交换机端口信息
+            refSwitchesMap = {}
+            nics = os.get("ETH_INTERFACES", [])
+            if not nics:
+                print("WARN: No eth interfaces found for os:{}".format(os.get("MGMT_IP")))
             for nic in nics:
                 # macCount = sys.maxsize
                 remotePort = macTblCollection.find_one(
@@ -615,34 +665,35 @@ def genOSRel(db):
                     }
                     refSwPorts.append(refSwPort)
 
+                    refSwitch = {
+                        "_OBJ_CATEGORY": remotePort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remotePort["_OBJ_TYPE"],
+                        "MGMT_IP": remotePort["MGMT_IP"],
+                        "SN": remotePort["SN"],
+                    }
+                    refSwitchesMap[remotePort["MGMT_IP"]] = refSwitch
+
                 nic["REMOTE_PORTS"] = refSwPorts
 
             # 计算HBA卡连接的光交
+            refFcSwitchesMap = {}
             hbas = os.get("HBA_INTERFACES", [])
             if hbas is None:
-                print(
-                    "INFO: No HBA interfaces found for os:{}".format(os.get("MGMT_IP"))
-                )
+                print("INFO: No HBA interfaces found for os:{}".format(os.get("MGMT_IP")))
             for hba in hbas:
                 wwpn = hba.get("WWPN")
                 if wwpn is None:
                     continue
 
                 remoteFcPort = fcSwCollection.find_one(
-                    {
-                        "LINK_TABLE": {
-                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
-                        }
-                    },
+                    {"LINK_TABLE": {"$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}}},
                     {
                         "_OBJ_CATEGORY": 1,
                         "_OBJ_TYPE": 1,
                         "MGMT_IP": 1,
                         "DEV_NAME": 1,
                         "SN": 1,
-                        "LINK_TABLE": {
-                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
-                        },
+                        "LINK_TABLE": {"$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}},
                     },
                 )
                 refFcPorts = []
@@ -656,6 +707,14 @@ def genOSRel(db):
                         "PORT": remoteFcPort["LINK_TABLE"][0]["PORT_NAME"],
                     }
                     refFcPorts.append(refFcPort)
+
+                    refFcSwitch = {
+                        "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remoteFcPort["_OBJ_TYPE"],
+                        "MGMT_IP": remoteFcPort["MGMT_IP"],
+                        "SN": remoteFcPort["SN"],
+                    }
+                    refFcSwitchesMap[remoteFcPort["MGMT_IP"]] = refFcSwitch
 
                 hba["REMOTE_PORTS"] = refFcPorts
 
@@ -770,9 +829,13 @@ def genOSRel(db):
                     "$set": {
                         "ETH_INTERFACES": nics,
                         "HBA_INTERFACES": hbas,
+                        "REF_SWITCHES": list(refSwitchesMap.values()),
+                        "REF_FCSWITCHES": list(refFcSwitchesMap.values()),
                         "NFS_INFO": nfsMounts,
                         "DISKS": disks,
                         "BELONG_CLUSTER": belongCls,
+                        "HOST_ON": hostOn,
+                        "HOST_ON_KVM": hostOnKvm
                     }
                 },
             )
@@ -784,11 +847,10 @@ def genStorageRel(db):
     storageCollection = db["COLLECT_STORAGE"]
     storUpdCollection = db["COLLECT_STORAGE"]
     fcSwCollection = db["COLLECT_FCDEV"]
-    for storage in storageCollection.find(
-        {}, {"SN": 1, "MGMT_IP": 1, "HBA_INTERFACES": 1}
-    ).batch_size(500):
+    for storage in storageCollection.find({}, {"SN": 1, "MGMT_IP": 1, "HBA_INTERFACES": 1}).batch_size(500):
         try:
             # 计算HBA卡连接的光交
+            refFcSwitchesMap = {}
             hbas = storage.get("HBA_INTERFACES", [])
             storageMgmtIp = storage.get("MGMT_IP", [])
             for hba in hbas:
@@ -803,9 +865,7 @@ def genStorageRel(db):
                         "_OBJ_TYPE": 1,
                         "MGMT_IP": 1,
                         "SN": 1,
-                        "LINK_TABLE": {
-                            "$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}
-                        },
+                        "LINK_TABLE": {"$elemMatch": {"PEER_WWPN": wwpn, "LINK_COUNT": 1}},
                     },
                 )
                 refFcPorts = []
@@ -819,11 +879,19 @@ def genStorageRel(db):
                         "PORT": remoteFcPort["LINK_TABLE"][0]["DOMAIN_IDX"],
                     }
                     refFcPorts.append(refFcPort)
+                    refFcSwitch = {
+                        "_OBJ_CATEGORY": remoteFcPort["_OBJ_CATEGORY"],
+                        "_OBJ_TYPE": remoteFcPort["_OBJ_TYPE"],
+                        "MGMT_IP": remoteFcPort["MGMT_IP"],
+                        "SN": remoteFcPort["SN"],
+                    }
+                    refFcSwitchesMap[remoteFcPort["MGMT_IP"]] = refFcSwitch
 
                 hba["REMOTE_PORTS"] = refFcPorts
 
                 storUpdCollection.update_one(
-                    {"MGMT_IP": storageMgmtIp}, {"$set": {"HBA_INTERFACES": hbas}}
+                    {"MGMT_IP": storageMgmtIp},
+                    {"$set": {"HBA_INTERFACES": hbas, "REF_FCSWITCHES": list(refFcSwitchesMap.values())}},
                 )
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
@@ -834,11 +902,10 @@ def genSwitchRel(db):
     cdpSrcCollection = db["COLLECT_SWITCH"]
     cdpDestCollection = db["COLLECT_SWITCH"]
 
-    for swInfo in cdpSrcCollection.find(
-        {}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1}
-    ).batch_size(500):
+    for swInfo in cdpSrcCollection.find({}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1}).batch_size(500):
         try:
             needUpdate = False
+            refSwitchesMap = {}
             ports = swInfo.get("PORTS", [])
             for port in ports:
                 if "NEIGHBORS" not in port:
@@ -866,10 +933,18 @@ def genSwitchRel(db):
                             neighbor["MGMT_IP"] = dev["MGMT_IP"]
                             neighbor["SN"] = dev.get("SN")
 
+                            refSwitch = {
+                                "_OBJ_CATEGORY": dev["_OBJ_CATEGORY"],
+                                "_OBJ_TYPE": dev["_OBJ_TYPE"],
+                                "MGMT_IP": dev["MGMT_IP"],
+                                "SN": dev["SN"],
+                            }
+                            refSwitchesMap[dev["MGMT_IP"]] = refSwitch
+
             if needUpdate:
                 cdpDestCollection.update_one(
                     {"MGMT_IP": swInfo["MGMT_IP"], "SN": swInfo.get("SN")},
-                    {"$set": {"PORTS": ports}},
+                    {"$set": {"PORTS": ports, "REF_SWITCHES": list(refSwitchesMap.values())}},
                 )
         except Exception as ex:
             print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
@@ -922,10 +997,7 @@ def handleFCSwitchCacadePort(db):
                         zoneNeedUpdate = True
                     else:
                         # 不存在WWPN,不存在DOMAIN_IDX,存在PEER_WWPN 级联端口
-                        if (
-                            "PEER_WWPN" in member
-                            and member.get("PEER_WWPN") is not None
-                        ):
+                        if "PEER_WWPN" in member and member.get("PEER_WWPN") is not None:
                             peerwwpn = member.get("PEER_WWPN")
                             member["SN"] = cascade_switchSn
                             if peerwwpn in peerwwpn2wwpnMap:
@@ -976,10 +1048,7 @@ def handleFCSwitchCacadePort(db):
                             new_wwpn_members.append(member)
                             continue
                         # 不存在WWPN,存在DOMAIN_IDX级联端口
-                        if (
-                            "DOMAIN_IDX" in member
-                            and member.get("DOMAIN_IDX") is not None
-                        ):
+                        if "DOMAIN_IDX" in member and member.get("DOMAIN_IDX") is not None:
                             domain_idx = member.get("DOMAIN_IDX")
                             member["SN"] = cascade_switchSn
                             member["WWPN"] = doaminIdx2wwpnMap[domain_idx]
@@ -988,10 +1057,7 @@ def handleFCSwitchCacadePort(db):
                             new_wwpn_members.append(member)
                         else:
                             # 不存在WWPN,不存在DOMAIN_IDX,存在PEER_WWPN 级联端口
-                            if (
-                                "PEER_WWPN" in member
-                                and member.get("PEER_WWPN") is not None
-                            ):
+                            if "PEER_WWPN" in member and member.get("PEER_WWPN") is not None:
                                 peerwwpn = member.get("PEER_WWPN")
                                 member["SN"] = cascade_switchSn
                                 if peerwwpn in peerwwpn2wwpnMap:
@@ -1000,9 +1066,7 @@ def handleFCSwitchCacadePort(db):
                                         continue
                                     # 找到了PEER_WWPN对应的WWPN
                                     member["WWPN"] = peerwwpn2wwpnMap[peerwwpn]
-                                    member["DOMAIN_IDX"] = peerwwpn2domainIdxMap[
-                                        peerwwpn
-                                    ]
+                                    member["DOMAIN_IDX"] = peerwwpn2domainIdxMap[peerwwpn]
                                     member["PORT"] = peerwwpn2portMap[peerwwpn]
                                     configNeedUpdate = True
                                     new_wwpn_members.append(member)
@@ -1019,9 +1083,7 @@ def handleFCSwitchCacadePort(db):
 
 # 根据光交wwnn查询对应的光交属性
 def getCascadeSwitchAttr(fcSwCollection, switchwwnn):
-    fcSw = fcSwCollection.find_one(
-        {"WWNN": {"$eq": switchwwnn}}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1}
-    )
+    fcSw = fcSwCollection.find_one({"WWNN": {"$eq": switchwwnn}}, {"MGMT_IP": 1, "SN": 1, "PORTS": 1})
     sn = ""
     doaminIdx2wwpnMap = {}
     doaminIdx2peerwwpnMap = {}

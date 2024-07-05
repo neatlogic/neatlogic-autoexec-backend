@@ -57,14 +57,8 @@ sub collect {
 
     my $pFinder     = $self->{pFinder};
     my $procEnvName = $pFinder->{procEnvName};
-    if ( not defined($procEnvName) or $procEnvName ne '' ) {
-        if ( not defined( $envMap->{TS_INSNAME} ) or $envMap->{TS_INSNAME} eq '' ) {
 
-            #没有标记的Java进程，忽略
-            return undef;
-        }
-    }
-    else{
+    if ( defined($procEnvName) and $procEnvName ne '' ) {
         if(not defined($envMap->{$procEnvName})){
             return undef;
         }
