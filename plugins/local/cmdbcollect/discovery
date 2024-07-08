@@ -14,9 +14,8 @@ import AutoExecUtils
 
 
 class SnmpCollectWorker(threading.Thread):
-    def __init__(
-        self, name, execQueue, snmpPort, db, pluginDir, communities, unknownItems
-    ):
+    # snmpwalk -v3 -l authPriv -u monitor -a sha -A AuthPassword -x AES -X DataPassword 192.168.0.1 SNMPv2-MIB::sysDescr.0
+    def __init__(self, name, execQueue, snmpPort, db, pluginDir, communities, unknownItems):
         threading.Thread.__init__(self, name=name, daemon=True)
         self.goToStop = False
         self._queue = execQueue
@@ -44,19 +43,57 @@ class SnmpCollectWorker(threading.Thread):
 
         return matched
 
+    def getSnmpV3UsmUserData(self, authDict):
+        # {"userName": "monitor", "authKey": "authPasssword", "authProtocol": "md5", "privKey": "dataEncryptPassword", "privProtocol": "aes"}
+        usmUserData = UsmUserData(authDict.get("userName", None), authKey=authDict.get("authPassword", None), privKey=authDict.get("privPassword", None))
+
+        authProcol = authDict.get("authProtocol", "").upper()
+
+        if authProcol == "":
+            usmUserData.authProtocol = auth.usmNoAuthProtocol
+        elif authProcol in ("MD5", "HMAC-MD5"):
+            usmUserData.authProtocol = auth.usmHMACMD5AuthProtocol
+        elif authProcol in ("SHA", "SHA1", "SHA-1"):
+            usmUserData.authProtocol = auth.usmHMACSHAAuthProtocol
+        elif authProcol in ("SHA2", "SHA224", "SHA-224"):
+            usmUserData.authProtocol = auth.usmHMAC128SHA224AuthProtocol
+        elif authProcol in ("SHA256", "SHA-256"):
+            usmUserData.authProtocol = auth.usmHMAC192SHA256AuthProtocol
+        elif authProcol in ("SHA384", "SHA-384"):
+            usmUserData.authProtocol = auth.usmHMAC256SHA384AuthProtocol
+        elif authProcol in ("SHA512", "SHA-256"):
+            usmUserData.authProtocol = auth.usmHMAC384SHA512AuthProtocol
+
+        privProtocol = authDict.get("privProtocol", "").upper()
+        if privProtocol == "":
+            usmUserData.privProtocol = auth.usmNoPrivProtocol
+        elif privProtocol in ("AES", "AES128", "AES-128"):
+            usmUserData.privProtocol = auth.usmAesCfb128Protocol
+        elif privProtocol in ("AES192", "AES-192"):
+            usmUserData.privProtocol = auth.usmAesCfb192Protocol
+        elif privProtocol in ("AES256", "AES-256"):
+            usmUserData.privProtocol = auth.usmAesCfb256Protocol
+        elif privProtocol in ("DES"):
+            usmUserData.privProtocol = auth.usmDESPrivProtocol
+        elif privProtocol in ("3DES"):
+            usmUserData.privProtocol = auth.usm3DESEDEPrivProtocol
+
+        return usmUserData
+
     def snmpGetSysInfo(self, objInfo, communities):
         workCommunity = None
         snmpQuery = False
         ip = objInfo.get("MGMT_IP")
         for community in communities:
+            authData = None
+            if isinstance(community, dict):
+                authData = self.getSnmpV3UsmUserData(community)
+            else:
+                authData = CommunityData(community)
+
             iterator = getCmd(
                 SnmpEngine(),
-                # UsmUserData(
-                #     'usr-sha-aes128', 'authkey1', 'privkey1',
-                #     authProtocol=USM_AUTH_HMAC96_SHA,
-                #     privProtocol=USM_PRIV_CFB128_AES
-                # ),
-                CommunityData(community),
+                authData,
                 UdpTransportTarget((ip, self.snmpPort)),
                 ContextData(),
                 ObjectType(ObjectIdentity("1.3.6.1.2.1.1.2.0")),
@@ -100,9 +137,7 @@ class SnmpCollectWorker(threading.Thread):
                     workCommunity = community
                 else:
                     print(
-                        "INFO: There no device regconized rule matched for {}.\n".format(
-                            ip
-                        ),
+                        "INFO: There no device regconized rule matched for {}.\n".format(ip),
                         end="",
                     )
 
@@ -121,9 +156,15 @@ class SnmpCollectWorker(threading.Thread):
             "protocol": "snmp",
             "protocolPort": 161,
             "username": "none",
-            "password": community,
+            # "password": community,
             "nodeType": objType,
         }
+
+        if isinstance(community, dict):
+            nodeInfo["password"] = community.get("authPassword")
+            nodeInfo["authData"] = json.dumps(community, ensure_ascii=False)
+        else:
+            nodeInfo["password"] = community
 
         nodeJsonStr = json.dumps(nodeInfo, ensure_ascii=False)
 
@@ -173,9 +214,7 @@ class SnmpCollectWorker(threading.Thread):
         if hasError == 0:
             ret = 0
             # Call collect tool
-            collectCmd = self.getCollectCmd(
-                objInfo, objInfo.get("DEV_NAME"), workCommunity
-            )
+            collectCmd = self.getCollectCmd(objInfo, objInfo.get("DEV_NAME"), workCommunity)
             if collectCmd is not None:
                 print(
                     "INFO: Collect information for " + objInfo["MGMT_IP"] + ".\n",
@@ -267,9 +306,7 @@ class NmapScan:
         if ports is None:
             ports = "22,161,135,139,445,3389"
         # nmap -oG - 192.168.0.1/24,192.168.1.1/24 -p 22,161,135,139,445,3389 -T5 -sSU --top-ports 100 -n -O > /tmp/nmap.txt
-        nmapCmd = "sudo nmap -oG - {} -p {} -T{} -O -n -sSU --top-ports 5".format(
-            net, ports, timingTmpl
-        )
+        nmapCmd = "sudo nmap -oG - {} -p {} -T{} -O -n -sSU --top-ports 5".format(net, ports, timingTmpl)
         child = subprocess.Popen(
             nmapCmd,
             shell=True,
@@ -288,11 +325,7 @@ class NmapScan:
 
             line = line.strip()
             line = line.decode("utf-8")
-            if (
-                line != ""
-                and not line.startswith("#")
-                and not line.startswith("RTTVAR has grown to over")
-            ):
+            if line != "" and not line.startswith("#") and not line.startswith("RTTVAR has grown to over"):
                 hostInfo = None
                 for field in line.split("\t"):
                     name = None
@@ -350,18 +383,13 @@ class NmapScan:
                     else:
                         if hostInfo is None:
                             user = getpass.getuser()
-                            print(
-                                "WARN: Execute nmap failed, check the sudoers setting for user %s to execute command nmap."
-                                % (user)
-                            )
+                            print("WARN: Execute nmap failed, check the sudoers setting for user %s to execute command nmap." % (user))
                         hostInfo[name] = val
 
         return result
 
 
-def buildWorkerPool(
-    workerCount, execQueue, snmpPort, db, pluginDir, communities, unknownItems
-):
+def buildWorkerPool(workerCount, execQueue, snmpPort, db, pluginDir, communities, unknownItems):
     workers = []
     for i in range(workerCount):
         worker = SnmpCollectWorker(
@@ -380,7 +408,7 @@ def buildWorkerPool(
     return workers
 
 
-def discovery(snmpPort, workerCount, net, ports, timingTmpl):
+def discovery(snmpPort, workerCount, net, ports, communities, timingTmpl):
     binDirs = os.path.split(os.path.realpath(__file__))
     pluginDir = os.path.realpath(binDirs[0])
 
@@ -392,9 +420,7 @@ def discovery(snmpPort, workerCount, net, ports, timingTmpl):
     otherItems = []
 
     execQueue = queue.Queue(workerCount * 2)
-    workerThreads = buildWorkerPool(
-        workerCount, execQueue, snmpPort, db, pluginDir, communities, otherItems
-    )
+    workerThreads = buildWorkerPool(workerCount, execQueue, snmpPort, db, pluginDir, communities, otherItems)
 
     hasError = 0
     try:
@@ -450,12 +476,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--communities",
         default='["public"]',
-        help='Snmp Communities(JSON Array), ecample:["public","mary"]',
+        help='Snmp Communities(JSON Array), example:snmpv2:["public","mary"]或snmpv3:[{"userName": "monitor", "authKey": "AuthPasssword", "authProtocol": "md5", "privKey": "EncryptDataPassword", "privProtocol": "aes"}]',
     )
     parser.add_argument("--workercount", default=16, help="Worker thread counts")
-    parser.add_argument(
-        "--timingtmpl", default=4, help="Timing template, 1-5, 5 is fastest"
-    )
+    parser.add_argument("--timingtmpl", default=4, help="Timing template, 1-5, 5 is fastest")
 
     args = parser.parse_args()
 
@@ -464,6 +488,8 @@ if __name__ == "__main__":
     timingTmpl = int(args.timingtmpl)
 
     ports = args.ports
+
+    isSnmpV3 = False
     communities = json.loads(args.communities)
 
     autoexecHome = os.environ.get("AUTOEXEC_HOME")
@@ -472,4 +498,4 @@ if __name__ == "__main__":
     os.chdir(os.environ.get("AUTOEXEC_WORK_PATH"))
 
     for net in args.nets.split(","):
-        discovery(snmpPort, workerCount, net, ports, timingTmpl)
+        discovery(snmpPort, workerCount, net, ports, communities, timingTmpl)

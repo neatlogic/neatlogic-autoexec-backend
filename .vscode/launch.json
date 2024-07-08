@@ -1456,6 +1456,7 @@
                 "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
                 "OUTPUT_PATH": "/tmp/output.json",
                 "LIVEDATA_PATH": "/tmp/livedata.json",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"snmp\",\"password\":\"Tpublic\",\"resourceId\":0,\"host\":\"192.168.0.1\",\"nodeType\":\"Switch\",\"nodeId\":0,\"protocolPort\":161,\"username\":\"root\",\"authData\":{\"username\":\"monitor\",\"authPassword\":\"Techsure\",\"authProtocol\":\"sha\",\"privPassword\":\"Techsure123\",\"privProtocol\":\"aes\"}}",
                 "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"snmp\",\"password\":\"Tpublic\",\"resourceId\":0,\"host\":\"192.168.0.1\",\"nodeType\":\"Switch\",\"nodeId\":0,\"protocolPort\":161,\"username\":\"root\"}"
             },
             "args": [
