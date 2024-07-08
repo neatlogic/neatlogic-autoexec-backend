@@ -25,6 +25,8 @@ export PERL_EXTUTILS_AUTOINSTALL=--default-deps #安装交互中依赖自动安�
 
 install_base=$PL_LIB_PATH
 
+echo "Install Base:$install_base."
+
 cd $PERL_MEDIA_HOME/perl-pkgs || exit 1
 
 echo "Delete directory in media path"
