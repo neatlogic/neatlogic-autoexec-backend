@@ -75,7 +75,6 @@ sub new {
         print("ERROR: Create snmp session to $args{hostname} failed, $error\n");
         exit(-1);
     }
-
     #单值定义
     my $scalarOidDef = {
         DEV_NAME    => '1.3.6.1.2.1.1.5.0',               #sysName

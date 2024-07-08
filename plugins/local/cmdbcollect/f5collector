@@ -32,6 +32,7 @@ sub main {
         'timeout=i'   => \$timeout
     );
 
+    my $nodeInfo  = {};
     my $hasOptErr = 0;
     if ( not defined($node) ) {
         $node = $ENV{'AUTOEXEC_NODE'};
@@ -42,23 +43,58 @@ sub main {
         $hasOptErr = 1;
     }
     else {
-        $node = from_json($node);
+        $nodeInfo = from_json($node);
     }
 
     if ( not defined($timeout) ) {
         $timeout = 10;
     }
 
-    my $hostname  = $node->{host};
-    my $community = $node->{password};
+    my $hostname     = $nodeInfo->{host};
+    my $community    = $nodeInfo->{password};
+    my $protocol     = $nodeInfo->{protocol};
+    my $protocolPort = $nodeInfo->{protocolPort};
+
+    #version (i.e. 'snmpv1', 'snmpv2c', or 'snmpv3')
+    if ( not defined($protocol) or $protocol eq '' or $protocol eq 'snmp' ) {
+        $protocol = 'snmpv2c';
+    }
+
     if ( not defined($community) or $community eq '' ) {
+
+        #如果执行节点给出的协议不是snmp或者没有给出密码，则使用默认密码选项给出的团体字
         $community = $defaultCommunity;
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';
     }
 
-    my $collector = F5Snmp->new( hostname => $node->{host}, community => $community, timeout => $timeout );
+    my $usmData  = {};
+    my $authData = $nodeInfo->{authData};
+    if ( defined($authData) ) {
+
+        #snmpv3
+        $usmData->{version}      = 'snmpv3';
+        $usmData->{username}     = $authData->{username};
+        $usmData->{authpassword} = $authData->{authPassword};
+        $usmData->{authprotocol} = $authData->{authProtocol};
+        $usmData->{privpassword} = $authData->{privPassword};
+        $usmData->{privprotocol} = $authData->{privProtocol};
+
+        if ( not defined( $usmData->{username} ) ) {
+            $usmData->{username} = $nodeInfo->{username};
+        }
+        if ( not defined( $usmData->{authpassword} ) ) {
+            $usmData->{authpassword} = $community;
+        }
+    }
+    else {
+        #snmpv2
+        $usmData->{version}   = $protocol;
+        $usmData->{community} = $community;
+    }
+
+    my $collector = F5Snmp->new( hostname => $node->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
     my $data      = $collector->collect();
     my $objCat    = CollectObjCat->get('LOADBALANCER');
     $data->{_OBJ_CATEGORY} = $objCat;
