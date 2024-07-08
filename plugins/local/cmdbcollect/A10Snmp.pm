@@ -82,9 +82,18 @@ sub new {
         $args{retries} = 2;
     }
 
+    my $noneSnmpOpt = {
+        node       => 1,
+        brand      => 1,
+        inspect    => 1,
+        sshAccount => 1,
+        objType    => 1
+    };
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        $options->{"-$key"} = $args{$key};
+        if ( not defined( $noneSnmpOpt->{$key} ) ) {
+            $options->{"-$key"} = $args{$key};
+        }
     }
     $options->{'-maxmsgsize'} = 65535;
 

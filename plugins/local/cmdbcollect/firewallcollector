@@ -69,13 +69,48 @@ sub main {
         $timeout = 10;
     }
 
-    my $hostname  = $nodeInfo->{host};
-    my $community = $nodeInfo->{password};
+    my $hostname     = $nodeInfo->{host};
+    my $community    = $nodeInfo->{password};
+    my $protocol     = $nodeInfo->{protocol};
+    my $protocolPort = $nodeInfo->{protocolPort};
+
+    #version (i.e. 'snmpv1', 'snmpv2c', or 'snmpv3')
+    if ( not defined($protocol) or $protocol eq '' or $protocol eq 'snmp' ) {
+        $protocol = 'snmpv2c';
+    }
+
     if ( not defined($community) or $community eq '' ) {
+
+        #如果执行节点给出的协议不是snmp或者没有给出密码，则使用默认密码选项给出的团体字
         $community = $defaultCommunity;
     }
     if ( not defined($community) or $community eq '' ) {
         $community = 'public';
+    }
+
+    my $usmData  = {};
+    my $authData = $nodeInfo->{authData};
+    if ( defined($authData) ) {
+
+        #snmpv3
+        $usmData->{version}      = 'snmpv3';
+        $usmData->{username}     = $authData->{username};
+        $usmData->{authpassword} = $authData->{authPassword};
+        $usmData->{authprotocol} = $authData->{authProtocol};
+        $usmData->{privpassword} = $authData->{privPassword};
+        $usmData->{privprotocol} = $authData->{privProtocol};
+
+        if ( not defined( $usmData->{username} ) ) {
+            $usmData->{username} = $nodeInfo->{username};
+        }
+        if ( not defined( $usmData->{authpassword} ) ) {
+            $usmData->{authpassword} = $community;
+        }
+    }
+    else {
+        #snmpv2
+        $usmData->{version}   = $protocol;
+        $usmData->{community} = $community;
     }
 
     my $sshAccountInfo = {};
@@ -99,7 +134,7 @@ sub main {
     my $isFailed = 0;
 
     my $brand        = $type;
-    my $firewallBase = FireWallBase->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo );
+    my $firewallBase = FireWallBase->new( hostname => $hostname, port => $protocolPort, timeout => $timeout, node => $nodeInfo, sshAccount => $sshAccountInfo, %$usmData );
     if ( not defined($type) or $type eq '' or $type eq 'auto' ) {
         $brand = $firewallBase->getBrand();
     }

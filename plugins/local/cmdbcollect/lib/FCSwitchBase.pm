@@ -155,9 +155,16 @@ sub new {
     }
     $self->{timeout} = $timeout;
 
+    my $noneSnmpOpt = {
+        node       => 1,
+        brand      => 1,
+        inspect    => 1,
+        sshAccount => 1,
+        objType    => 1
+    };
     my $options = {};
     foreach my $key ( keys(%args) ) {
-        if ( $key ne 'node' and $key ne 'brand' and $key ne 'inspect' and $key ne 'sshAccount' ) {
+        if ( not defined( $noneSnmpOpt->{$key} ) ) {
             $options->{"-$key"} = $args{$key};
         }
     }
