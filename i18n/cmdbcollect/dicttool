@@ -20,12 +20,8 @@ def usage():
     print(" --action [beautify|remove|append|savetodb|dropcollection｜clearcollection] \n")
     print("Examples:")
     print("Remove field:")
-    print(
-        'dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION'
-    )
-    print(
-        'dicttool --lang en_US --action append --filter \'{"collection": "COLLECT_INS"}\' --content \'{"name":"STATE", "desc":"Use State", "type":"String"}\''
-    )
+    print('dicttool --lang en_US --action remove --filter \'{"collection": "COLLECT_INS"}\' --content BELONG_APPLICATION')
+    print('dicttool --lang en_US --action append --filter \'{"collection": "COLLECT_INS"}\' --content \'{"name":"STATE", "desc":"Use State", "type":"String"}\'')
     print("dicttool --lang en_US --action beautify")
     print("dicttool --lang zh_CN --action beautify")
     print("dicttool --lang en_US --action savetodb")
@@ -79,6 +75,7 @@ def getDefaultFieldKeys():
         "OS_ID",
         "MACHINE_ID",
         "IP_ADDRS",
+        "IPV4_ADDRS",
         "IPV6_ADDRS",
         "ADMIN_PORT",
         "ADMIN_SSL_PORT",

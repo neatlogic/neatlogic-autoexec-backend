@@ -6,6 +6,7 @@ package ServerConf;
 use FindBin;
 use feature 'state';
 use Cwd;
+use File::Basename;
 use Crypt::RC4;
 use Config::Tiny;
 
@@ -14,7 +15,8 @@ sub new {
 
     state $instance;
     if ( !defined($instance) ) {
-        my $confFile = Cwd::abs_path("$FindBin::Bin/../../../conf/config.ini");
+        my $moduleDir = dirname(__FILE__);
+        my $confFile = Cwd::abs_path("$moduleDir/../../../conf/config.ini");
         my $config   = Config::Tiny->read($confFile);
         my $baseurl  = $config->{server}->{'server.baseurl'};
         my $username = $config->{server}->{'server.username'};

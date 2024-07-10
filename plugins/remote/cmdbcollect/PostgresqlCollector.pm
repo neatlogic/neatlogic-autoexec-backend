@@ -50,23 +50,23 @@ sub getUsers {
     my $postgresql = $self->{postgresql};
     my @users;
     my $rows = $postgresql->query(
-        sql     => q{select distinct rolname FROM pg_authid},
+        sql     => q{select usename FROM pg_user},
         verbose => $self->{isVerbose}
     );
 
-    #rolname
+    #usename
     #----------
     #postgres
     #(1 row)
     my @users;
     foreach my $row (@$rows) {
-        if ( $row->{rolname} ne '' ) {
+        if ( $row->{usename} ne '' ) {
             push(
                 @users,
                 {
                     _OBJ_CATEGORY => CollectObjCat->get($objCat),
                     _OBJ_TYPE     => 'DB-USER',
-                    NAME          => $row->{rolname}
+                    NAME          => $row->{usename}
                 }
             );
         }
@@ -171,27 +171,155 @@ sub collect {
     );
     $self->{$postgresql} = $postgresql;
 
-    $postgresqlInfo->{USERS} = $self->getUsers();
-
+    #获取用户
     my $rows;
+    my @users;
+    my $rows = $postgresql->query(
+        sql     => q{select usename FROM pg_user},
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        if ( $row->{usename} ne '' ) {
+            push( @users, $row->{usename} );
+        }
+    }
+
+    #获取数据目录
+    my $pgdata;
+    $rows = $postgresql->query(
+        sql     => 'SHOW data_directory;',
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        $pgdata = $row->{data_directory};
+        last;
+    }
+
+    #获取DB编码
+    my $charset;
+    $rows = $postgresql->query(
+        sql     => 'SELECT pg_encoding_to_char(encoding) AS encoding FROM pg_database WHERE datname = current_database();',
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        $charset = $row->{encoding};
+        last;
+    }
+    $postgresqlInfo->{CHARSET} = $charset;
+
+    #获取DB主从角色
+    my $mode;
+    $rows = $postgresql->query(
+        sql     => 'select pg_is_in_recovery();',
+        verbose => $self->{isVerbose}
+    );
+    foreach my $row (@$rows) {
+        $mode = $row->{pg_is_in_recovery};
+        last;
+    }
+    if ( $mode eq 't' ) {
+        $postgresqlInfo->{CLUSTER_MODE} = 'Master-Slave';
+        $postgresqlInfo->{CLUSTER_ROLE}      = 'Slave';
+    }
+    elsif ( $mode eq 'f' ) {
+        my $isCluster   = 0;
+        my $pgConfLines = $self->getFileLines("$pgdata/postgresql.conf");
+        foreach my $line (@$pgConfLines) {
+            if ( $line =~ /^cluster_name\s*=\s*/ ) {
+                $isCluster = 1;
+                last;
+            }
+        }
+
+        if ($isCluster) {
+            $postgresqlInfo->{CLUSTER_MODE} = 'Master-Slave';
+            $postgresqlInfo->{CLUSTER_ROLE}      = 'Master';
+        }
+        else {
+            $postgresqlInfo->{CLUSTER_MODE} = 'Single';
+            $postgresqlInfo->{CLUSTER_ROLE}      = '';
+        }
+    }
+
+    #vip是浮动IP，bizIp是固定IP，predictBizIp对于Linux做了修正，secondary IP优先作为VIP
+    # if ( $postgresqlInfo->{CLUSTER_ROLE} eq 'Master' ) {
+    #     my $ip_return = `ip a`;
+    #     my @lines     = split(/\n/, $ip_return);    # 将输出按行拆分成数组
+    #     foreach my $line (@lines) {
+    #         if ( $line =~ /secondary/ ) {
+    #             if ( $line =~ /(\d+\.\d+\.\d+\.\d+)/ ) {    # 修正正则表达式
+    #                 $bizIp = $1;
+    #                 last;
+    #             }
+    #         }
+    #     }
+    # }
+
+    #DB实例
+    my @dbInstances;
+    if ( $postgresqlInfo->{CLUSTER_MODE} eq 'Single' ) {
+        my $ins;
+        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+        $ins->{_OBJ_TYPE}     = 'Postgresql';
+        $ins->{INSTANCE_NAME} = $postgresqlInfo->{INSTANCE_NAME};
+        $ins->{MGMT_IP}       = $postgresqlInfo->{MGMT_IP};
+        $ins->{PORT}          = $postgresqlInfo->{PORT};
+        push( @dbInstances, $ins );
+    }
+    else {
+        my $ins;
+        if ( $postgresqlInfo->{CLUSTER_ROLE} eq 'Master' ) {
+             my @ipAddrs = ();
+            my $pgHbaConfLines = $self->getFileLines("$pgdata/pg_hba.conf");
+            foreach my $line (@$pgHbaConfLines){
+                if ( $line =~ /^\s*host\s+replication\s+replicator\s+(\d+\.\d+\.\d+\.\d+)\/\d+\s+trust\s*$/ ) {
+                    my $ip_address = $1;
+                    push (@ipAddrs, $ip_address);
+                }
+            }
+
+            foreach my $ip (@ipAddrs) {
+
+                $ins->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+                $ins->{_OBJ_TYPE}     = 'Postgresql';
+                $ins->{INSTANCE_NAME} = $postgresqlInfo->{INSTANCE_NAME};
+                $ins->{MGMT_IP}       = $ip;
+                $ins->{PORT}          = $postgresqlInfo->{PORT};
+                push (@dbInstances, $ins);
+            }
+
+        }
+    }
+
+    #获取所有的DB库
     $rows = $postgresql->query(
         sql     => 'select datname from pg_database;',
         verbose => $self->{isVerbose}
     );
 
-    my $dbUsers = $self->getUsers('dummy');
-    my @dbs     = ();
+    my @dbs = ();
     foreach my $row (@$rows) {
-        my $dbName = $row->{datname};
-        my @dbconns     = ();
-        foreach my $user (@$dbUsers) {
+        my $dbName      = $row->{datname};
+        my @dbUserInfos = ();
+        my @dbConns     = ();
+
+        foreach my $dbUser (@users) {
             push(
-                @dbconns,
+                @dbUserInfos,
                 {
-                     _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                    _OBJ_TYPE      => 'DB-CONNECT',
-                    USER_NAME      => $user->{NAME},
-                    SERVICE_NAME   => $dbName
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE     => 'DB-USER',
+                    NAME          => $dbUser
+                }
+            );
+
+            push(
+                @dbConns,
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                    _OBJ_TYPE     => 'DB-CONNECT',
+                    SERVICE_NAME  => $dbName,
+                    USER_NAME     => $dbUser
                 }
             );
         }
@@ -201,29 +329,24 @@ sub collect {
             {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'Postgresql-DB',
-                _APP_TYPE     => 'Postgresql',
                 NAME          => $dbName,
+                CLUSTER_MODE     => $postgresqlInfo->{CLUSTER_MODE},
+                VERSION       => $postgresqlInfo->{VERSION},
+                CHARSET       => $postgresqlInfo->{CHARSET},
                 PRIMARY_IP    => $bizIp,
                 VIP           => $vip,
                 PORT          => $port,
+                USERS         => \@dbUserInfos,
+                CONNECTIONS   => \@dbConns,
                 SSL_PORT      => undef,
                 SERVICE_ADDR  => "$vip:$port",
-                CONNCTIONS    => \@dbconns,
-                INSTANCES     => [
-                    {
-                        _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
-                        _OBJ_TYPE     => 'Postgresql',
-                        INSTANCE_NAME => $postgresqlInfo->{INSTANCE_NAME},
-                        MGMT_IP       => $postgresqlInfo->{MGMT_IP},
-                        PORT          => $postgresqlInfo->{PORT}
-                    }
-                ],
-                USERS => $dbUsers
+                INSTANCES     => \@dbInstances
             }
         );
     }
-    $postgresqlInfo->{DATABASES} = \@dbs;
-
+    if ( $postgresqlInfo->{CLUSTER_MODE} eq 'Single' or $postgresqlInfo->{CLUSTER_ROLE} eq 'Master' ) {
+        $postgresqlInfo->{DATABASES} = \@dbs;
+    }
     $rows = $postgresql->query(
         sql     => q{show all},
         verbose => $self->{isVerbose}
@@ -273,11 +396,14 @@ sub collect {
     #服务名, 要根据实际来设置
     $postgresqlInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
     $postgresqlInfo->{INSTANCE_NAME} = '-';
-
     my @collectSet = ();
     push( @collectSet, $postgresqlInfo );
-    push( @collectSet, @{ $postgresqlInfo->{DATABASES} } );
+    if ( defined( $postgresqlInfo->{DATABASES} ) ) {
+        if ( @{ $postgresqlInfo->{DATABASES} } ) {
+            push( @collectSet, @{ $postgresqlInfo->{DATABASES} } );
+        }
+    }
     return @collectSet;
-}
 
+}
 1;

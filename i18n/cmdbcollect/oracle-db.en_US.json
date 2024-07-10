@@ -78,6 +78,16 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "version",
+            "type": "String"
+        },
+        {
+            "name": "NLS_CHARACTERSET",
+            "desc": "charset",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",
@@ -100,6 +110,38 @@
                 {
                     "name": "DEFAULT_TABLESPACE",
                     "desc": "Default Table Space",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BACKUP_DB",
+            "desc": "dg",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "port",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "Primary_IP",
                     "type": "String"
                 }
             ]

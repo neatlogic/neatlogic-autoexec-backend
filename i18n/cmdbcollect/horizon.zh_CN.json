@@ -105,10 +105,89 @@
             "type": "String"
         },
         {
-            "name": "VIRTUAL_SERVERS",
-            "desc": "虚拟服务器列表",
+            "name": "PORTS",
+            "desc": "ports",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "索引",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "端口名",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "mac地址",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "连接交换机端口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类别",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "交换机类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "交换机名",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "交换机管理Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "交换机序列号",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "VIRTUAL_SERVERS",
+            "desc": "VS服务",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属集合",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "名称",
@@ -125,8 +204,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "POOLNAME",
-                    "desc": "Pool 名称",
+                    "name": "POOL_NAME",
+                    "desc": "POOL名",
                     "type": "String"
                 },
                 {
@@ -134,6 +213,16 @@
                     "desc": "SNAT 地址转换池",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "名称",
@@ -150,7 +239,17 @@
                             "type": "JsonArray",
                             "subset": [
                                 {
-                                    "name": "VALUE",
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属集合",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "IP",
                                     "desc": "IP Value",
                                     "type": "String"
                                 }
@@ -164,33 +263,53 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "名称",
                             "type": "String"
                         },
                         {
-                            "name": "LBMETHOD",
-                            "desc": "负载均衡方式",
+                            "name": "LB_MODE",
+                            "desc": "均衡模式",
                             "type": "String"
                         },
                         {
-                            "name": "PROTOCOL",
-                            "desc": "TCP OR UDP",
+                            "name": "MONITOR_RULE",
+                            "desc": "监控规则",
                             "type": "String"
                         },
                         {
                             "name": "MEMBERS",
-                            "desc": "地址池",
+                            "desc": "成员列表",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "归属集合",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "归属类型",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "NAME",
                                     "desc": "名称",
                                     "type": "String"
                                 },
                                 {
-                                    "name": "STATUS",
-                                    "desc": "状态",
+                                    "name": "POOL_NAME",
+                                    "desc": "POOL名称",
                                     "type": "String"
                                 },
                                 {
@@ -235,6 +354,11 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "自动采集的批量标签",
+            "type": "String"
         }
     ]
 }

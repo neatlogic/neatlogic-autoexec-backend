@@ -198,8 +198,16 @@ sub getContainerDetail {
     my $nsTarget = $$prcoessList[0]->{PID};
 
     #获取收集网络信息的实现类
-    my $inspect = $self->{inspect};
-    my $ipAddr  = $dockerInfo->{IPADDRESS};
+    my $inspect   = $self->{inspect};
+    my $ipAddr    = $dockerInfo->{IPADDRESS};
+    my @ipv4Addrs = ();
+    my @ipv6Addrs = ();
+    if ( $ipAddr =~ /^\d+\.\d+\.\d+\.\d+$/ ) {
+        push( @ipv4Addrs, $ipAddr );
+    }
+    else {
+        push( @ipv6Addrs, $ipAddr );
+    }
 
     my $nsSwitcher = $self->{nsSwitcher};
     $nsSwitcher->joinNamespace($nsTarget);
@@ -213,8 +221,8 @@ sub getContainerDetail {
         passArgs    => $pFinder->{passArgs},
         inspect     => $inspect,
         bizIp       => $ipAddr,
-        ipAddrs     => [ { IP => $ipAddr } ],
-        ipv6Addrs   => [],
+        ipv4Addrs   => \@ipv4Addrs,
+        ipv6Addrs   => \@ipv6Addrs,
         procEnvName => $pFinder->{procEnvName},
         container   => $pFinder->{container}
     );

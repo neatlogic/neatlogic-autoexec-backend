@@ -1,15 +1,15 @@
 {
-    "label": "Postgresql Instance",
-    "collection": "COLLECT_DBINS",
+    "label": "Nacos",
+    "collection": "COLLECT_INS",
     "docroot": null,
-    "collection_label": "Database Instance",
+    "collection_label": "App Instance",
     "filter": {
-        "_OBJ_TYPE": "Postgresql"
+        "_OBJ_TYPE": "NACOS"
     },
     "fields": [
         {
             "name": "_OBJ_CATEGORY",
-            "desc": "Object Type",
+            "desc": "Object Category",
             "type": "String"
         },
         {
@@ -20,11 +20,6 @@
         {
             "name": "SERVER_NAME",
             "desc": "Server Name",
-            "type": "String"
-        },
-        {
-            "name": "INSTANCE_NAME",
-            "desc": "Instance Name",
             "type": "String"
         },
         {
@@ -58,6 +53,11 @@
             "type": "String"
         },
         {
+            "name": "MAJOR_VERSION",
+            "desc": "Major Version",
+            "type": "String"
+        },
+        {
             "name": "VERSION",
             "desc": "Version",
             "type": "String"
@@ -65,21 +65,6 @@
         {
             "name": "PORT",
             "desc": "Port",
-            "type": "String"
-        },
-        {
-            "name": "CHARSET",
-            "desc": "charset",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_ROLE",
-            "desc": "角色",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_MODE",
-            "desc": "架构类型",
             "type": "String"
         },
         {
@@ -159,8 +144,62 @@
             ]
         },
         {
+            "name": "BELONG_APPLICATION",
+            "desc": "Applicaton",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "APP_NAME",
+                    "desc": "Application Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BELONG_APPLICATION_MODULE",
+            "desc": "Applicaton Module",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "APPMODULE_NAME",
+                    "desc": "Application Module Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
             "name": "OS_ID",
             "desc": "OS ID",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_PORT",
+            "desc": "Admin Port",
+            "type": "String"
+        },
+        {
+            "name": "ADMIN_SSL_PORT",
+            "desc": "Admin SSL Port",
             "type": "String"
         },
         {
@@ -206,31 +245,39 @@
             "type": "String"
         },
         {
+            "name": "CONFIG_PATH",
+            "desc": "Conf Path",
+            "type": "String"
+        },
+        {
             "name": "EXE_PATH",
             "desc": "Executable File Path",
             "type": "String"
         },
         {
-            "name": "USERS",
-            "desc": "User List",
-            "type": "JsonArray",
-            "subset": [
-                {
-                    "name": "_OBJ_CATEGORY",
-                    "desc": "category",
-                    "type": "String"
-                },
-                {
-                    "name": "_OBJ_TYPE",
-                    "desc": "type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "User Name",
-                    "type": "String"
-                }
-            ]
+            "name": "JVM_TYPE",
+            "desc": "JVM Type",
+            "type": "String"
+        },
+        {
+            "name": "JVM_VERSION",
+            "desc": "JVM Version",
+            "type": "String"
+        },
+        {
+            "name": "JAVA_HOME",
+            "desc": "JAVA Home Dir",
+            "type": "String"
+        },
+        {
+            "name": "MIN_HEAP_SIZE",
+            "desc": "Min Heap Size",
+            "type": "Float"
+        },
+        {
+            "name": "MAX_HEAP_SIZE",
+            "desc": "Max Heap Size",
+            "type": "Float"
         },
         {
             "name": "MAIN_ENV",
@@ -250,6 +297,21 @@
             ]
         },
         {
+            "name": "JAVA_VERSION",
+            "desc": "JAVA Version",
+            "type": "String"
+        },
+        {
+            "name": "JMX_PORT",
+            "desc": "JMX Port",
+            "type": "Int"
+        },
+        {
+            "name": "JMX_SSL",
+            "desc": "JMX SSL Enabled",
+            "type": "String"
+        },
+        {
             "name": "CPU_USAGE",
             "desc": "CPU%",
             "type": "Float"
@@ -262,6 +324,11 @@
         {
             "name": "MEM_USAGE",
             "desc": "Memory%",
+            "type": "Float"
+        },
+        {
+            "name": "MEM_USED",
+            "desc": "Memroy used(M)",
             "type": "Float"
         },
         {
@@ -443,68 +510,23 @@
             ]
         },
         {
-            "name": "APPLICATION_NAME",
-            "desc": "application_name",
-            "type": "String"
-        },
-        {
-            "name": "CHECKPOINT_COMPLETION_TARGET",
-            "desc": "checkpoint_completion_target",
-            "type": "String"
-        },
-        {
-            "name": "CHECKPOINT_SEGMENTS",
-            "desc": "checkpoint_segments",
-            "type": "String"
-        },
-        {
-            "name": "CLUSTER_NAME",
-            "desc": "cluster_name",
-            "type": "String"
-        },
-        {
-            "name": "COMMAND",
-            "desc": "Command Line",
-            "type": "Text"
-        },
-        {
-            "name": "COMMIT_DELAY",
-            "desc": "commit_delay",
-            "type": "String"
-        },
-        {
-            "name": "COMMIT_SIBLINGS",
-            "desc": "commit_siblings",
-            "type": "String"
-        },
-        {
-            "name": "DATABASES",
-            "desc": "Databases List",
+            "name": "REF_DB",
+            "desc": "Reference Databases",
             "type": "JsonArray",
             "subset": [
                 {
                     "name": "_OBJ_CATEGORY",
-                    "desc": "CATEGORY",
+                    "desc": "Object Catetory",
                     "type": "String"
                 },
                 {
                     "name": "_OBJ_TYPE",
-                    "desc": "TYPE",
+                    "desc": "Object Type",
                     "type": "String"
                 },
                 {
-                    "name": "_APP_TYPE",
-                    "desc": "Database Type",
-                    "type": "String"
-                },
-                {
-                    "name": "NAME",
-                    "desc": "DB Name",
-                    "type": "String"
-                },
-                {
-                    "name": "VIP",
-                    "desc": "VIP",
+                    "name": "MGMT_IP",
+                    "desc": "Management IP",
                     "type": "String"
                 },
                 {
@@ -513,172 +535,122 @@
                     "type": "Int"
                 },
                 {
-                    "name": "PRIMARY_IP",
-                    "desc": "Primary IP",
+                    "name": "INSTANCE_NAME",
+                    "desc": "Instance Name",
                     "type": "String"
                 },
                 {
-                    "name": "USERS",
-                    "desc": "用户列表",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属类别",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "对象类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "NAME",
-                            "desc": "用户名",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "CONNECTIONS",
-                    "desc": "访问入口列表",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属类别",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "对象类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "SERVICE_NAME",
-                            "desc": "服务名",
-                            "type": "String"
-                        },
-                        {
-                            "name": "USER_NAME",
-                            "desc": "用户名",
-                            "type": "String"
-                        }
-                    ]
-                },
-                {
-                    "name": "INSTANCE",
-                    "desc": "关联实例",
-                    "type": "JsonArray",
-                    "subset": [
-                        {
-                            "name": "_OBJ_CATEGORY",
-                            "desc": "归属集合",
-                            "type": "String"
-                        },
-                        {
-                            "name": "_OBJ_TYPE",
-                            "desc": "归属类型",
-                            "type": "String"
-                        },
-                        {
-                            "name": "MGMT_IP",
-                            "desc": "管理IP",
-                            "type": "String"
-                        },
-                        {
-                            "name": "PORT",
-                            "desc": "端口",
-                            "type": "String"
-                        },
-                        {
-                            "name": "INSTANCE_NAME",
-                            "desc": "实例名称",
-                            "type": "String"
-                        }
-                    ]
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
                 }
             ]
         },
         {
-            "name": "DATA_DIRECTORY",
-            "desc": "data_directory",
-            "type": "String"
+            "name": "REF_INS",
+            "desc": "Reference Instances",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "MGMT_IP",
+                    "desc": "Management IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "OS_ID",
+                    "desc": "OS ID",
+                    "type": "String"
+                }
+            ]
         },
         {
-            "name": "DATESTYLE",
-            "desc": "datestyle",
-            "type": "String"
+            "name": "REF_CLUSTER",
+            "desc": "Reference Clusters",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "VIP",
+                    "desc": "Virtual IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                },
+                {
+                    "name": "UNIQUE_NAME",
+                    "desc": "Cluster Unique Name",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_MODE",
+                    "desc": "Cluster Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "CLUSTER_SOFTWARE",
+                    "desc": "Cluster Software",
+                    "type": "String"
+                }
+            ]
         },
         {
-            "name": "DEFAULT_TEXT_SEARCH_CONFIG",
-            "desc": "default_text_search_config",
-            "type": "String"
+            "name": "REF_SERVICE",
+            "desc": "Reference Service",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Catetory",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "Mgmt Ip",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "Port",
+                    "type": "Int"
+                }
+            ]
         },
         {
-            "name": "EFFECTIVE_CACHE_SIZE",
-            "desc": "effective_cache_size",
-            "type": "String"
-        },
-        {
-            "name": "HBA_FILE",
-            "desc": "hba_file",
-            "type": "String"
-        },
-        {
-            "name": "HOT_STANDBY",
-            "desc": "hot_standby",
-            "type": "String"
-        },
-        {
-            "name": "IDENT_FILE",
-            "desc": "ident_file",
-            "type": "String"
-        },
-        {
-            "name": "LC_TIME",
-            "desc": "lc_time",
-            "type": "String"
-        },
-        {
-            "name": "LISTEN_ADDRESSES",
-            "desc": "listen_addresses",
-            "type": "String"
-        },
-        {
-            "name": "MAINTENANCE_WORK_MEM",
-            "desc": "maintenance_work_mem",
-            "type": "String"
-        },
-        {
-            "name": "MAX_CONNECTIONS",
-            "desc": "max_connections",
-            "type": "String"
-        },
-        {
-            "name": "MAX_LOCKS_PER_TRANSACTION",
-            "desc": "max_locks_per_transaction",
-            "type": "String"
-        },
-        {
-            "name": "MAX_PREPARED_TRANSACTIONS",
-            "desc": "max_prepared_transactions",
-            "type": "String"
-        },
-        {
-            "name": "MAX_REPLICATION_SLOTS",
-            "desc": "max_replication_slots",
-            "type": "String"
-        },
-        {
-            "name": "MAX_WAL_SENDERS",
-            "desc": "max_wal_senders",
-            "type": "String"
-        },
-        {
-            "name": "MAX_WORKER_PROCESSES",
-            "desc": "max_worker_processes",
-            "type": "String"
+            "name": "COMMAND",
+            "desc": "Command Line",
+            "type": "Text"
         },
         {
             "name": "RUN_ON",
@@ -706,41 +678,6 @@
                     "type": "String"
                 }
             ]
-        },
-        {
-            "name": "SERVER_VERSION",
-            "desc": "server_version",
-            "type": "String"
-        },
-        {
-            "name": "SHARED_BUFFERS",
-            "desc": "shared_buffers",
-            "type": "String"
-        },
-        {
-            "name": "TRACK_COMMIT_TIMESTAMP",
-            "desc": "track_commit_timestamp",
-            "type": "String"
-        },
-        {
-            "name": "WAL_BUFFERS",
-            "desc": "wal_buffers",
-            "type": "String"
-        },
-        {
-            "name": "WAL_LEVEL",
-            "desc": "wal_level",
-            "type": "String"
-        },
-        {
-            "name": "WAL_LOG_HINTS",
-            "desc": "wal_log_hints",
-            "type": "String"
-        },
-        {
-            "name": "WORK_MEM",
-            "desc": "work_mem",
-            "type": "String"
         },
         {
             "name": "_batch_tag",
