@@ -1,0 +1,103 @@
+{
+    "label": "RabbitMQ Cluster",
+    "collection": "COLLECT_CLUSTER",
+    "docroot": null,
+    "collection_label": "Cluster",
+    "filter": {
+        "_OBJ_TYPE": "RabbitMQCluster"
+    },
+    "fields": [
+        {
+            "name": "_OBJ_CATEGORY",
+            "desc": "Object Category",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "Cluster Type",
+            "type": "String"
+        },
+        {
+            "name": "NAME",
+            "desc": "Cluster Name",
+            "type": "String"
+        },
+        {
+            "name": "UNIQUE_NAME",
+            "desc": "Unique Name",
+            "type": "String"
+        },
+        {
+            "name": "STATE",
+            "desc": "Use State",
+            "type": "String"
+        },
+        {
+            "name": "AVAILABILITY",
+            "desc": "Availability flag",
+            "type": "Int"
+        },
+        {
+            "name": "RESPONSE_TIME",
+            "desc": "Response Time",
+            "type": "Float"
+        },
+        {
+            "name": "ERROR_MESSAGE",
+            "desc": "Error Message",
+            "type": "String"
+        },
+        {
+            "name": "VIP",
+            "desc": "VIP",
+            "type": "String"
+        },
+        {
+            "name": "PRIMARY_IP",
+            "desc": "Primary IP(Not LB)",
+            "type": "String"
+        },
+        {
+            "name": "PORT",
+            "desc": "Port",
+            "type": "Int"
+        },
+        {
+            "name": "ACCESS_ENDPOINT",
+            "desc": "Access Endpoint",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "Cluster Mode",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_SOFTWARE",
+            "desc": "Cluster Software",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_VERSION",
+            "desc": "Cluster Version",
+            "type": "String"
+        },
+        {
+            "name": "MEMBER_PEER",
+            "desc": "Members Addrs",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "_batch_tag",
+            "desc": "Batch tag for auto collect",
+            "type": "String"
+        }
+    ]
+}

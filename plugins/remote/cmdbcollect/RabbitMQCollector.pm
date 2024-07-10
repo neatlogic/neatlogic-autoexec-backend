@@ -463,28 +463,37 @@ sub collect {
     #my @memberIps       = $connGather->getInboundIps( ":$clusterPort", $mainPid );
     my @memberIps = ();
     foreach my $runningNode ( @{ $clusterInfo->{running_nodes} } ) {
-        my $runningNode =~ s/.*?\@//;
+        $runningNode =~ s/.*?\@//;
         my $nodeIp = gethostbyname($runningNode);
         if ( defined($nodeIp) ) {
+            $nodeIp = inet_ntoa($nodeIp);
             push( @memberIps, $nodeIp );
         }
     }
-    my @sortedMemberIps = sort(@memberIps);
-    my $primaryIp       = $sortedMemberIps[0];
-    my @memberPeer      = ();
-    foreach my $memberIp (@sortedMemberIps) {
-        push( @memberPeer, "$memberIp:$amqPort" );
-    }
+    my $clusterInfo = undef;
+    if ( scalar(@memberIps) > 1 ) {
+        my @sortedMemberIps = sort(@memberIps);
+        my $primaryIp       = $sortedMemberIps[0];
+        my @memberPeer      = ();
+        foreach my $memberIp (@sortedMemberIps) {
+            push( @memberPeer, "$memberIp:$amqPort" );
+        }
 
-    my $clusterInfo = {
-        _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-        _OBJ_TYPE     => 'RabbitMQCluster',
-        UNIQUE_NAME   => "RabbitMQ:$primaryIp:$amqPort",
-        PRIMARY_IP    => $primaryIp,
-        PORT          => $amqPort,
-        CLUSTER_MODE  => 'distribute',
-        MEMBER_PEER   => \@memberPeer
-    };
+        my $uniqName = "RabbitMQ-$primaryIp:$amqPort";
+        $clusterInfo = {
+            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+            _OBJ_TYPE         => 'RabbitMQCluster',
+            NAME              => $uniqName,
+            UNIQUE_NAME       => $uniqName,
+            PRIMARY_IP        => $primaryIp,
+            PORT              => $amqPort,
+            CLUSTER_SOFTWARE  => 'RabbitMQ',
+            CLUSTER_MODE      => 'distribute',
+            CLUSTER_VERSION   => $basicInfo->{rabbitmq_version},
+            MEMBER_PEER       => \@memberPeer,
+            NOT_PROCESS       => 1
+        };
+    }
 
     return ( $appInfo, $clusterInfo );
 }

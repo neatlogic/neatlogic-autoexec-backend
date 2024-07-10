@@ -18,7 +18,7 @@ use Data::Dumper;
 use DeployUtils;
 use FileUtils;
 
-my $TMPDIR = Cwd::abs_path("$FindBin::Bin/../../../tmp");
+my $TMPDIR = Cwd::abs_path(dirname(__FILE__) . "/../../../../tmp");
 my $suffix = 'autocfg';
 
 sub new {

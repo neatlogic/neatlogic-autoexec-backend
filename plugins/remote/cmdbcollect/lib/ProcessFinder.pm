@@ -45,7 +45,7 @@ sub new {
         osInfo      => $args{osInfo},
         passArgs    => $args{passArgs},
         bizIp       => $args{bizIp},
-        ipAddrs     => $args{ipAddrs},
+        ipv4Addrs   => $args{ipv4Addrs},
         ipv6Addrs   => $args{ipv6Addrs},
         procEnvName => $args{procEnvName},
         container   => $args{container}
@@ -79,7 +79,7 @@ sub new {
         $self->{osId}     = $nodeInfo->{resourceId};
     }
 
-    $self->{LinuxPS}    = LinuxPS->new();
+    $self->{LinuxPS} = LinuxPS->new();
 
     my $utils = CollectUtils->new();
     $self->{utils} = $utils;
@@ -125,7 +125,7 @@ sub convertEplapsed {
         elsif ( $timeStr =~ /^(\d+):(\d+):(\d+)$/ ) {
             $uptimeSeconds = 3600 * $2 + 60 * $3 + $4;
         }
-        else{
+        else {
             $uptimeSeconds = int($timeStr);
         }
     }
@@ -584,7 +584,7 @@ sub doDetailCollect {
 
 #处理存在父子关系的进程的连接信息，并合并到父进程
 sub mergeMultiProcs {
-    my ( $self, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs ) = @_;
+    my ( $self, $appsArray, $appsMap, $ipv4Addrs, $ipv6Addrs ) = @_;
 
     my $inspect  = $self->{inspect};
     my $pidToDel = {};
@@ -733,7 +733,7 @@ sub mergeMultiProcs {
                         $minPort = $lsnPort;
                     }
                     $portsMap->{$lsnPort} = 1;
-                    foreach my $ipInfo (@$ipAddrs) {
+                    foreach my $ipInfo (@$ipv4Addrs) {
                         $bindAddrsMap->{"$ipInfo->{IP}:$lsnPort"} = 1;
                     }
                     foreach my $ipInfo (@$ipv6Addrs) {
@@ -1085,11 +1085,11 @@ sub findProcess {
     }
 
     foreach my $matchedProc (@matchedProcs) {
-        my $procInfo = $matchedProc->{procMap};
-        my $className  = $matchedProc->{className};
-        my $matched    = $self->doDetailCollect( $className, $procInfo );
+        my $procInfo  = $matchedProc->{procMap};
+        my $className = $matchedProc->{className};
+        my $matched   = $self->doDetailCollect( $className, $procInfo );
         if ( $matched == 1 ) {
-            $procInfo->{IP_ADDRS}   = $self->{ipAddrs};
+            $procInfo->{IPV4_ADDRS} = $self->{ipv4Addrs};
             $procInfo->{IPV6_ADDRS} = $self->{ipv6Addrs};
             if ( defined( $procInfo->{ELAPSED} ) ) {
                 $procInfo->{ELAPSED} = $self->convertEplapsed( $procInfo->{ELAPSED} );
@@ -1114,7 +1114,7 @@ sub getProcess {
         HOST_NAME  => $self->{hostname},
         MGMT_IP    => $self->{mgmtIp},
         MGMT_PORT  => $self->{mgmtPort},
-        IP_ADDRS   => $self->{ipAddrs},
+        IPV4_ADDRS => $self->{ipv4Addrs},
         IPV6_ADDRS => $self->{ipv6Addrs}
     };
 
@@ -1222,8 +1222,19 @@ sub getListenPortInfo {
     #根据监听地址计算出显式绑定的IP和隐式绑定的IP，IP分开IPV6和非IPV6IP
     my ( $self, $lsnAddrMap ) = @_;
 
-    my $ipAddrs   = $self->{ipAddrs};
+    my $ipv4Addrs = $self->{ipv4Addrs};
     my $ipv6Addrs = $self->{ipv6Addrs};
+    my $ipv4Map   = {};
+    my $ipV6Map   = {};
+    map { $ipv4Map->{ $_->{IP} } = 1 } (@$ipv4Addrs);
+    map { $ipV6Map->{ $_->{IP} } = 1 } (@$ipv6Addrs);
+
+    my $secondaryIpMap = {};
+    foreach my $ipInfo ( @$ipv4Addrs, @$ipv6Addrs ) {
+        if ( $ipInfo->{SECONDARY} ) {
+            $secondaryIpMap->{ $ipInfo->{IP} } = 1;
+        }
+    }
 
     my $portInfoMap = {};
 
@@ -1237,16 +1248,13 @@ sub getListenPortInfo {
             if ( not defined($portInfo) ) {
                 $portInfo = {
                     EXPLICIT_IP   => {},
-                    IMPLICIT_IP   => {},
+                    IMPLICIT_IP   => $ipv4Map,
                     EXPLICIT_IPV6 => {},
-                    IMPLICIT_IPV6 => {}
+                    IMPLICIT_IPV6 => $ipV6Map,
+                    SECONDARY_IP  => $secondaryIpMap
                 };
                 $portInfoMap->{$port} = $portInfo;
             }
-            my $implicitIpMap   = $portInfo->{IMPLICIT_IP};
-            my $implicitIpV6Map = $portInfo->{IMPLICIT_IPV6};
-            map { $implicitIpMap->{ $_->{IP} }   = 1 } (@$ipAddrs);
-            map { $implicitIpV6Map->{ $_->{IP} } = 1 } (@$ipv6Addrs);
         }
         elsif ( $lsnAddr =~ /^(.*):(\d+)$/ ) {
             my $ip = $1;
@@ -1263,19 +1271,27 @@ sub getListenPortInfo {
                     EXPLICIT_IP   => {},
                     IMPLICIT_IP   => {},
                     EXPLICIT_IPV6 => {},
-                    IMPLICIT_IPV6 => {}
+                    IMPLICIT_IPV6 => {},
+                    SECONDARY_IP  => {}
                 };
                 $portInfoMap->{$port} = $portInfo;
             }
 
-            my $explicitIpMap   = $portInfo->{EXPLICIT_IP};
-            my $explicitIpV6Map = $portInfo->{IMPLICIT_IPV6};
+            my $explicitIpMap       = $portInfo->{EXPLICIT_IP};
+            my $explicitIpV6Map     = $portInfo->{EXPLICIT_IPV6};
+            my $explicitSecondIpMap = $portInfo->{SECONDARY_IP};
 
             if ( $ip =~ /^[\d\.]+$/ ) {
                 $explicitIpMap->{$ip} = 1;
+                if ( defined( $secondaryIpMap->{$ip} ) ) {
+                    $explicitSecondIpMap->{$ip} = 1;
+                }
             }
             else {
                 $explicitIpV6Map->{$ip} = 1;
+                if ( defined( $secondaryIpMap->{$ip} ) ) {
+                    $explicitSecondIpMap->{$ip} = 1;
+                }
             }
         }
     }
@@ -1305,6 +1321,7 @@ sub predictBizIp {
     my @explicitIpV6s = sort( keys( %{ $portInfo->{EXPLICIT_IPV6} } ) );
     my @implicitIps   = sort( keys( %{ $portInfo->{IMPLICIT_IP} } ) );
     my @implicitIpV6s = sort( keys( %{ $portInfo->{IMPLICIT_IPV6} } ) );
+    my @secondaryIps  = sort( keys( %{ $portInfo->{SECONDARY_IP} } ) );
 
     if ( scalar(@explicitIpV6s) > 0 ) {
         $vip   = $explicitIpV6s[-1];
@@ -1329,10 +1346,13 @@ sub predictBizIp {
 
     if ( not defined($vip) ) {
         if ( scalar(@implicitIps) == 1 ) {
-            $vip = $implicitIps[-1];
+            $vip = $implicitIps[0];
         }
         elsif ( scalar(@implicitIpV6s) == 1 ) {
-            $vip = $implicitIpV6s[-1];
+            $vip = $implicitIpV6s[0];
+        }
+        elsif ( scalar(@secondaryIps) >= 1 ){
+            $vip = $secondaryIps[-1];
         }
         else {
             $vip = $mgmtIp;

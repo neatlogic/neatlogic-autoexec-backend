@@ -57,7 +57,8 @@ class VsphereQuery:
                 available = round(summary.freeSpace / 1024 / 1204 / 1024, 2)
                 capacity = round(summary.capacity / 1024 / 1024 / 1024, 2)
                 used = capacity - available
-                used_pct = round((used / capacity) * 100)
+                #used_pct = round((used / capacity) * 100)
+                used_pct = round((used / capacity) * 100) if capacity > 0 else 0
                 uuid = summary.url.replace("ds:///vmfs/volumes/", "").replace("/", "").replace("-", "")
                 ins["AVAILABLE"] = available
                 ins["CAPACITY"] = capacity
@@ -196,13 +197,16 @@ class VsphereQuery:
         os_name = vm.name
         guest = vm.guest
         config = vm.config
-        os_type = config.guestFullName.lower()
-        if "windows" in os_type or "win" in os_type:
-            os_type = "Windows"
-        elif "aix" in os_type:
-            os_type = "AIX"
+        if config is None:
+            os_type = "Unknown"
         else:
-            os_type = "Linux"
+            os_type = config.guestFullName.lower()
+            if "windows" in os_type or "win" in os_type:
+                os_type = "Windows"
+            elif "aix" in os_type:
+                os_type = "AIX"
+            else:
+                os_type = "Linux"
 
         # 先看vmtools拿到的ip是不是ipv6
         os_ip = self.str_format(guest.ipAddress)

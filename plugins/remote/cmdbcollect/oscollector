@@ -907,7 +907,7 @@ sub main {
 
     #收集OS和硬件信息
     my ( $osInfo, $hostInfo ) = collectHostOSInfo( $osType, $collectClassMap, $ignoreOsInfo, $inspect );
-    my $ipAddrs   = $osInfo->{IP_ADDRS};
+    my $ipv4Addrs   = $osInfo->{IPV4_ADDRS};
     my $ipv6Addrs = $osInfo->{IPV6_ADDRS};
 
     #获取收集网络信息的实现类
@@ -916,13 +916,13 @@ sub main {
     #加载各个Collector，调用getConfig方法获取Process的filter配置
     my $procFilters = getProcessFilters($collectClassMap);
 
-    my $pFinder   = ProcessFinder->new( $procFilters, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipAddrs => $ipAddrs, ipv6Addrs => $ipv6Addrs, procEnvName => $procEnvName, container => $container );
+    my $pFinder   = ProcessFinder->new( $procFilters, connGather => $connGather, passArgs => $passArgs, osInfo => $osInfo, inspect => $inspect, bizIp => $osInfo->{BIZ_IP}, ipv4Addrs => $ipv4Addrs, ipv6Addrs => $ipv6Addrs, procEnvName => $procEnvName, container => $container );
     my $appsMap   = $pFinder->findProcess();
     my $appsArray = $pFinder->{appsArray};
 
     #处理存在父子关系的进程的连接信息，并合并到父进程
-    #my $apps = mergeMultiProcs( $pFinder, $osInfo, $appsArray, $appsMap, $ipAddrs, $ipv6Addrs, $inspect );
-    my $apps = $pFinder->mergeMultiProcs( $appsArray, $appsMap, $ipAddrs, $ipv6Addrs );
+    #my $apps = mergeMultiProcs( $pFinder, $osInfo, $appsArray, $appsMap, $ipv4Addrs, $ipv6Addrs, $inspect );
+    my $apps = $pFinder->mergeMultiProcs( $appsArray, $appsMap, $ipv4Addrs, $ipv6Addrs );
 
     #保存数据到output
     print("INFO: Begin to save collected data.\n");

@@ -104,7 +104,8 @@ sub deployInit {
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
-        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+        my $moduleDir = dirname(__FILE__);
+        $autoexecHome = Cwd::realpath("$moduleDir/../../..");
     }
     $deployEnv->{AUTOEXEC_HOME} = $autoexecHome;
 
@@ -205,7 +206,8 @@ sub getVerBaseEnv {
 
     my $autoexecHome = $ENV{AUTOEXEC_HOME};
     if ( not defined($autoexecHome) or $autoexecHome eq '' ) {
-        $autoexecHome = Cwd::realpath("$FindBin::Bin/../../..");
+        my $moduleDir = dirname(__FILE__);
+        $autoexecHome = Cwd::realpath("$moduleDir/../../..");
     }
     $verEnv->{AUTOEXEC_HOME} = $autoexecHome;
 

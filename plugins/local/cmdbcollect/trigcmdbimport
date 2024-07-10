@@ -22,16 +22,19 @@ if __name__ == "__main__":
         "--batchtag", default="", help="Json document tag for this batch"
     )
     parser.add_argument(
-        "--collections", default="{}", help="Collections map to trigger cmdb import"
+        "--collectionObjs", default="{}", help="Collections map to trigger cmdb import"
     )
 
     args = parser.parse_args()
     startTime = args.starttime
     batchTag = args.batchtag
-    collectionsMap = json.loads(args.collections)
-    collections = list(collectionsMap.keys())
+    collectionsMap = json.loads(args.collectionObjs)
+    collectionObjs = []
+    for key in collectionsMap :
+        keys = key.split('/')
+        collectionObjs.append({"category": "{}".format(keys[0]), "type": keys[1]})
 
-    if startTime is None:
+    if startTime is None or startTime == "":
         startTime = 0
 
     try:
@@ -40,7 +43,7 @@ if __name__ == "__main__":
             {
                 "startTime": int(1000 * float(startTime)),
                 "batchTag": batchTag,
-                "collectionList": collections,
+                "collectionObjList": collectionObjs
             },
         )
     except Exception as err:

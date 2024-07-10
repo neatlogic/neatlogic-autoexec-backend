@@ -39,7 +39,8 @@ sub collect {
     my $matchedProcsInfo = $self->{matchedProcsInfo};
 
     my $appInfo = {};
-    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('INS');
+    $appInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+    $appInfo->{_OBJ_TYPE}     = 'Elasticsearch';
 
     my $pid     = $procInfo->{PID};
     my $cmdLine = $procInfo->{COMMAND};
@@ -89,6 +90,7 @@ sub collect {
 
     $appInfo->{INSTALL_PATH} = $homePath;
     $appInfo->{CONFIG_PATH}  = $confPath;
+    $appInfo->{MGMT_IP}     = $procInfo->{MGMT_IP};
 
     my $servicePorts = $appInfo->{SERVICE_PORTS};
     if ( not defined($servicePorts) ) {
@@ -101,7 +103,11 @@ sub collect {
     my $clusterName = $yaml->[0]->{'cluster.name'};
     my $nodeName    = $yaml->[0]->{'node.name'};
     my $port        = $yaml->[0]->{'http.port'};
+    $port           = int($port);
     my $sslPort     = $yaml->[0]->{'https.port'};
+    $sslPort        = int($sslPort);
+    my $timeout     = $yaml->[0]->{'discovery.zen.fd.ping_timeout'};
+    my $auth        = $yaml->[0]->{'xpack.security.enabled'};
     if ( defined($port) ) {
         $servicePorts->{http} = $port;
     }
@@ -119,11 +125,76 @@ sub collect {
 
     my $initNodes       = $yaml->[0]{'discovery.seed_hosts'};
     my $initMasterNodes = $yaml->[0]{'cluster.initial_master_nodes'};
+    my $masterName;
+    if ($initMasterNodes =~ /\["([^"]+)"\]/){
+        $masterName = $1;
+    }
+
+    my $nodes = $yaml->[0]{'discovery.zen.ping.unicast.hosts'};
+    my @n;
+    # 使用正则表达式提取 IP:Port
+    while ($nodes =~ /(\d+\.\d+\.\d+\.\d+)/g) {
+        push (@n, $1);
+    }
+    my $nodesCount = scalar @n;
+    my $node_str = join(',',@n);
     $appInfo->{CLUSTER_NAME}         = $clusterName;
+    $appInfo->{INSTANCE_NAME}        = $nodeName;
     $appInfo->{NODE_NAME}            = $nodeName;
     $appInfo->{PORT}                 = $port;
     $appInfo->{CLUSTER_MEMBERS}      = $initNodes;
-    $appInfo->{INITIAL_MASTER_NODES} = $initMasterNodes;
+    $appInfo->{INITIAL_MASTER_NODES} = $masterName;
+    $appInfo->{NODES_COUNT}          = $nodesCount;
+    $appInfo->{NODES}                = $node_str;
+
+    my @dbConns = ();
+    my @all_ins;
+    foreach my $item (@n){
+        my $ins;
+        $ins->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
+        $ins->{_OBJ_TYPE}     = 'Elasticsearch';
+        $ins->{INSTANCE_NAME} = $appInfo->{CLUSTER_NAME};
+        $ins->{MGMT_IP}       = $item;
+        $ins->{PORT}          = $port;
+        push (@all_ins, $ins);
+
+        my $conn;
+        $conn->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
+        $conn->{_OBJ_TYPE} = 'DB-CONNECT';
+        $conn->{IP} = $item;
+        $conn->{PORT} = $port;
+        $conn->{USER} = '-';
+        $conn->{SERVICE_NAME} = $appInfo->{CLUSTER_NAME};
+        push (@dbConns,$conn);
+    }
+
+    my @dbNames = ();
+    push(
+            @dbNames,
+            {
+                _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                _OBJ_TYPE     => 'Elasticsearch-DB',
+                NAME          => $appInfo->{CLUSTER_NAME},
+                VERSION       => $appInfo->{VERSION},
+                AUTHENTICATION       => $auth,
+                PRIMARY_NODE       => $appInfo->{INITIAL_MASTER_NODES},
+                NODES_COUNT       => $appInfo->{NODES_COUNT},
+                NODES       => $appInfo->{NODES},
+                TIMEOUT     => $timeout,
+                PRIMARY_IP    => $appInfo->{MGMT_IP},
+                #VIP           => $vip,
+                PORT          => $port,
+                CONNECTIONS   => \@dbConns,
+                #SERVICE_ADDR  => "$vip:$port",
+                INSTANCES     => \@all_ins
+            }
+        );
+    if ($masterName eq $nodeName){
+        $appInfo->{ROLE}             = 'master';
+        $appInfo->{DATABASES}        = \@dbNames;
+    }else{
+        $appInfo->{ROLE}             = 'data';
+    }
 
     $appInfo->{ADMIN_PORT}     = $port;
     $appInfo->{SSL_PORT}       = undef;

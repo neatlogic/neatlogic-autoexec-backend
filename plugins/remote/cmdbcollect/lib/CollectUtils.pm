@@ -10,7 +10,7 @@ use IO::File;
 use POSIX qw(uname);
 
 sub new {
-    my ( $type ) = @_;
+    my ($type) = @_;
     my $self = {};
 
     my @uname  = uname();
@@ -380,8 +380,8 @@ sub getDiskSizeFormStr {
     return ( $unit, $size );
 }
 
-#转换带不确定单位的内存空间字串为数值，对应标准单位MB
-#譬如：10240 KB：转换为：10、 10 GB：转换为10240
+#转换带不确定单位的内存空间字串为数值，对应标准单位GB
+#譬如：10240 KB：转换为：1、 10 GB：转换为10
 sub getMemSizeFromStr {
     my ( $self, $sizeStr, $defaultUnit ) = @_;
     chomp($sizeStr);
@@ -394,27 +394,27 @@ sub getMemSizeFromStr {
     my $size;
     my $unit = 'GB';
     if ( $sizeStr =~ /K|KB|KiB$/i ) {
-        $size = int( ( $sizeStr + 0.0 ) / 1024 * 1000 + 0.5 ) / 1000;
+        $size = int( ( $sizeStr + 0.0 ) / 1024 / 1024 * 1000 + 0.5 ) / 1000;
     }
     elsif ( $sizeStr =~ /M|MB|MiB$/i ) {
-        $size = $sizeStr + 0.0;
+        $size = int( ( $sizeStr + 0.0 ) / 1024 * 1000 + 0.5 ) / 1000;
     }
     elsif ( $sizeStr =~ /G|GB|GiB$/i ) {
-        $size = ( $sizeStr + 0.0 ) * 1024;
+        $size = int( ( $sizeStr + 0.0 ) * 1000 + 0.5 ) / 1000;
     }
     elsif ( $sizeStr =~ /T|TB|TiB$/i ) {
-        $size = ( $sizeStr + 0.0 ) * 1024 * 1024;
+        $size = int( ( $sizeStr + 0.0 ) * 1024 * 1000 + 0.5 ) / 1000;
     }
     elsif ( $sizeStr =~ /P|PB|PiB$/i ) {
-        $size = ( $sizeStr + 0.0 ) * 1024 * 1024 * 1024;
+        $size = int( ( $sizeStr + 0.0 ) * 1024 * 1024 * 1024 * 1000 + 0.5 ) / 1000;
     }
     elsif ( $sizeStr =~ /\d$/i ) {
 
         #默认是MB
-        $size = $sizeStr + 0.0;
+        $size = int( ( $sizeStr + 0.0 ) * 1000 + 0.5 ) / 1000;
     }
     else {
-        $size = $sizeStr;
+        $size = $sizeStr + 0.0;
         $unit = 'unknown';
     }
 

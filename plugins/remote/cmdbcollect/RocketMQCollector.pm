@@ -154,7 +154,7 @@ sub collect {
         $appInfo->{BROKER_ROLE}              = $brokerConf->{'brokerRole'};
     }
 
-    my @collectSet = ();
+    my @collectSet = ($appInfo);
 
     my $rocketmqVersion = '';
     my $mqadminPath     = "$homePath/bin/mqadmin";
@@ -181,25 +181,41 @@ sub collect {
             push( @memberPeer, $brokerAddr );
         }
 
-        my @sortedMemberIps = sort(@memberIps);
-        my $primaryIp       = $sortedMemberIps[0];
-        my $primaryPort     = $memberIpPortMap->{$primaryIp};
+        if ( scalar(@memberIps) > 1 ) {
+            my @sortedMemberIps = sort(@memberIps);
+            my $primaryIp       = $sortedMemberIps[0];
+            my $primaryPort     = $memberIpPortMap->{$primaryIp};
+            my $uniqName        = "RocketMQ-$primaryIp:$primaryPort";
+            my $clusterInfo = {
+                _OBJ_CATEGORY     => CollectObjCat->get('CLUSTER'),
+                _OBJ_TYPE         => 'RocketMQCluster',
+                NAME              => $uniqName,
+                UNIQUE_NAME       => $uniqName,
+                PRIMARY_IP        => $primaryIp,
+                PORT              => $primaryPort,
+                CLUSTER_MODE      => 'distribute',
+                CLUSTER_SOFTWARE  => 'RocketMQ',
+                CLUSTER_VERSION   => $rocketmqVersion,
+                MEMBER_PEER       => \@memberPeer,
+                NOT_PROCESS       => 1
+            };
 
-        my $clusterInfo = {
-            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-            _OBJ_TYPE     => 'RocketMQCluster',
-            UNIQUE_NAME   => "RocketMQ:$primaryIp:$primaryPort",
-            PRIMARY_IP    => $primaryIp,
-            PORT          => $primaryPort,
-            CLUSTER_MODE  => 'distribute',
-            MEMBER_PEER   => \@memberPeer
-        };
+            push( @collectSet, $clusterInfo );
+        }
+    }
 
-        push( @collectSet, $clusterInfo );
+    if( $rocketmqVersion == '') {
+        my ($status, $outLines) = $self->getCmdOutLines(qq{unzip -p "$homePath/lib/rocketmq-client-*.jar" META-INF/MANIFEST.MF});
+        if ( $status == 0){
+            foreach my $line (@$outLines){
+                if ($line =~ /Implementation-Version\s*:\s*(.*)\s*$/){
+                    $rocketmqVersion = $1;
+                }
+            }
+        }
     }
 
     $appInfo->{VERSION} = $rocketmqVersion;
-    push( @collectSet, $appInfo );
 
     return @collectSet;
 }

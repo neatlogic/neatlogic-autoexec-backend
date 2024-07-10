@@ -78,6 +78,16 @@
             "type": "Int"
         },
         {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "NLS_CHARACTERSET",
+            "desc": "字符集",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
@@ -100,6 +110,38 @@
                 {
                     "name": "DEFAULT_TABLESPACE",
                     "desc": "默认表空间",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BACKUP_DB",
+            "desc": "dg",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "用户名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "IP",
                     "type": "String"
                 }
             ]

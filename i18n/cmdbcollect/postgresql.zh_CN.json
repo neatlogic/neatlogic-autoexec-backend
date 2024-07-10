@@ -68,6 +68,21 @@
             "type": "String"
         },
         {
+            "name": "CHARSET",
+            "desc": "字符集",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_ROLE",
+            "desc": "角色",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "架构类型",
+            "type": "String"
+        },
+        {
             "name": "SERVICE_PORTS",
             "desc": "服务监听端口",
             "type": "JsonArray",
@@ -506,6 +521,87 @@
                     "name": "PRIMARY_IP",
                     "desc": "主IP",
                     "type": "String"
+                },
+                {
+            	    "name": "USERS",
+            	    "desc": "用户列表",
+            	    "type": "JsonArray",
+            	    "subset": [
+                	{
+                    	    "name": "_OBJ_CATEGORY",
+                    	    "desc": "归属类别",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "_OBJ_TYPE",
+                    	    "desc": "对象类型",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "NAME",
+                    	    "desc": "用户名",
+                    	    "type": "String"
+                	}
+            	    ]
+        	},
+                {
+	            "name": "CONNECTIONS",
+        	    "desc": "访问入口列表",
+          	    "type": "JsonArray",
+          	    "subset": [
+                	{
+                    	    "name": "_OBJ_CATEGORY",
+                    	    "desc": "归属类别",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "_OBJ_TYPE",
+                    	    "desc": "对象类型",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "SERVICE_NAME",
+                    	    "desc": "服务名",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "USER_NAME",
+                    	    "desc": "用户名",
+                    	    "type": "String"
+                	}
+            	    ]
+        	},
+                {
+            	    "name": "INSTANCE",
+            	    "desc": "关联实例",
+            	    "type": "JsonArray",
+            	    "subset": [
+                	{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+			},
+                	{
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+			},
+                	{
+                            "name": "MGMT_IP",
+                            "desc": "管理IP",
+                            "type": "String"
+			},
+                	{
+                            "name": "PORT",
+                            "desc": "端口",
+                            "type": "String"
+			},
+                	{
+                            "name": "INSTANCE_NAME",
+                            "desc": "实例名称",
+                            "type": "String"
+			}
+		    ]
                 }
             ]
         },
