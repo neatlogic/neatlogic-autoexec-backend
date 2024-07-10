@@ -1,5 +1,5 @@
 {
-    "label": "Elastic Search实例",
+    "label": "Elasticsearch实例",
     "collection": "COLLECT_DBINS",
     "docroot": null,
     "collection_label": "DB实例",
@@ -14,7 +14,7 @@
         },
         {
             "name": "_OBJ_TYPE",
-            "desc": "中间件类型",
+            "desc": "对象类型",
             "type": "String"
         },
         {
@@ -65,7 +65,7 @@
         {
             "name": "PORT",
             "desc": "端口",
-            "type": "String"
+            "type": "Int"
         },
         {
             "name": "SERVICE_PORTS",
@@ -484,6 +484,143 @@
             "name": "NODE_NAME",
             "desc": "节点名",
             "type": "String"
+        },
+        {
+            "name": "ROLE",
+            "desc": "角色",
+            "type": "String"
+        },
+        {
+            "name": "DATABASES",
+            "desc": "DB列表",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_APP_TYPE",
+                    "desc": "数据库类型",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "DB库名",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "端口",
+                    "type": "Int"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "主IP",
+                    "type": "String"
+                },
+                {
+                    "name": "AUTHENTICATION",
+                    "desc": "开启用户认证",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_NODE",
+                    "desc": "主节点",
+                    "type": "String"
+                },
+                {
+                    "name": "NODES_COUNT",
+                    "desc": "节点数",
+                    "type": "String"
+                },
+                {
+                    "name": "NODES",
+                    "desc": "节点",
+                    "type": "String"
+                },
+                {
+                    "name": "TIMEOUT",
+                    "desc": "超时时间",
+                    "type": "String"
+                },
+                {
+	            "name": "CONNECTIONS",
+        	    "desc": "访问入口列表",
+          	    "type": "JsonArray",
+          	    "subset": [
+                	{
+                    	    "name": "_OBJ_CATEGORY",
+                    	    "desc": "归属类别",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "_OBJ_TYPE",
+                    	    "desc": "对象类型",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "SERVICE_NAME",
+                    	    "desc": "服务名",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "PORT",
+                    	    "desc": "端口",
+                    	    "type": "Int"
+                	},
+                	{
+                    	    "name": "USER",
+                    	    "desc": "用户",
+                    	    "type": "String"
+                	},
+                	{
+                    	    "name": "IP",
+                    	    "desc": "ip",
+                    	    "type": "String"
+                	}
+            	    ]
+        	},
+                {
+            	    "name": "INSTANCE",
+            	    "desc": "关联实例",
+            	    "type": "JsonArray",
+            	    "subset": [
+                	{
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属集合",
+                            "type": "String"
+			},
+                	{
+                            "name": "_OBJ_TYPE",
+                            "desc": "归属类型",
+                            "type": "String"
+			},
+                	{
+                            "name": "MGMT_IP",
+                            "desc": "管理IP",
+                            "type": "String"
+			},
+                	{
+                            "name": "PORT",
+                            "desc": "端口",
+                            "type": "Int"
+			},
+                	{
+                            "name": "INSTANCE_NAME",
+                            "desc": "实例名称",
+                            "type": "String"
+			}
+		    ]
+                }
+		
+            ]
         },
         {
             "name": "RUN_ON",

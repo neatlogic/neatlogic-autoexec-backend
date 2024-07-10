@@ -369,6 +369,7 @@ sub getMaxOpenInfo {
 sub getIpAddrs {
     my ( $self, $osInfo ) = @_;
 
+    my $objCat = CollectObjCat->get('OS');
     my @ipv4;
     my @ipv6;
     my $ipInfoLines = $self->getCmdOutLines('ifconfig -a');
@@ -383,7 +384,7 @@ sub getIpAddrs {
 
             if ( $ip !~ /^127\./ ) {
                 my $netmask = join( '.', unpack( "C4", pack( "N", hex($mask) ) ) );
-                push( @ipv4, { IP => $ip, NETMASK => $netmask } );
+                push( @ipv4, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV4' } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\%\d+\/(\d+)/ ) {
@@ -402,14 +403,16 @@ sub getIpAddrs {
                 else {
                     print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
-                push( @ipv6, { IP => $ip, NETMASK => $netmask } );
+                push( @ipv6, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV6' } );
             }
         }
     }
 
     $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipv4, \@ipv6 );
-    $osInfo->{IP_ADDRS}   = \@ipv4;
+    $osInfo->{IPV4_ADDRS} = \@ipv4;
     $osInfo->{IPV6_ADDRS} = \@ipv6;
+    my @ipAddrs = ( @ipv4, @ipv6 );
+    $osInfo->{IP_ADDRS} = \@ipAddrs;
 }
 
 sub getUserInfo {

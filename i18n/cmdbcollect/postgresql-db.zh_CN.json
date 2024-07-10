@@ -64,7 +64,7 @@
         },
         {
             "name": "VIP",
-            "desc": "服务IP",
+            "desc": "VIP",
             "type": "String"
         },
         {
@@ -76,6 +76,26 @@
             "name": "PORT",
             "desc": "端口",
             "type": "Int"
+        },
+        {
+            "name": "CLUSTER_ROLE",
+            "desc": "角色",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
+            "name": "CHARSET",
+            "desc": "字符集",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "架构类型",
+            "type": "String"
         },
         {
             "name": "USERS",

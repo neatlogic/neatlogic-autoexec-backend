@@ -113,6 +113,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -120,6 +130,43 @@
                 {
                     "name": "NETMASK",
                     "desc": "掩码",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "IP类型",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "IPV4_ADDRS",
+            "desc": "IPV4地址",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "掩码",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "IP类型",
                     "type": "String"
                 }
             ]
@@ -130,6 +177,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -137,6 +194,11 @@
                 {
                     "name": "NETMASK",
                     "desc": "掩码",
+                    "type": "String"
+                },
+                {
+                    "name": "TYPE",
+                    "desc": "IP类型",
                     "type": "String"
                 }
             ]
@@ -529,12 +591,12 @@
         },
         {
             "name": "MEM_AVAILABLE",
-            "desc": "可用内存(M)",
+            "desc": "可用内存(GB)",
             "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
-            "desc": "总内存(M)",
+            "desc": "总内存(GB)",
             "type": "Float"
         },
         {
@@ -544,7 +606,7 @@
         },
         {
             "name": "SWAP_TOTAL",
-            "desc": "SWAP大小(M)",
+            "desc": "SWAP大小(GB)",
             "type": "Float"
         },
         {

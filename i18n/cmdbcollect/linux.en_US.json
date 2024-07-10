@@ -115,6 +115,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -122,6 +132,43 @@
                 {
                     "name": "NETMASK",
                     "desc": "Net Mask",
+                    "type": "String"
+                }
+                {
+                    "name": "TYPE",
+                    "desc": "IP Type",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "IPV4_ADDRS",
+            "desc": "IPV4 Addresses",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "NETMASK",
+                    "desc": "Net Mask",
+                    "type": "String"
+                }
+                {
+                    "name": "TYPE",
+                    "desc": "IP Type",
                     "type": "String"
                 }
             ]
@@ -132,6 +179,16 @@
             "type": "JsonArray",
             "subset": [
                 {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
                     "name": "IP",
                     "desc": "IP",
                     "type": "String"
@@ -139,6 +196,11 @@
                 {
                     "name": "NETMASK",
                     "desc": "Net Mask",
+                    "type": "String"
+                }
+                {
+                    "name": "TYPE",
+                    "desc": "IP Type",
                     "type": "String"
                 }
             ]
@@ -571,12 +633,12 @@
         },
         {
             "name": "MEM_AVAILABLE",
-            "desc": "Memory Available(M)",
+            "desc": "Memory Available(GB)",
             "type": "Float"
         },
         {
             "name": "MEM_TOTAL",
-            "desc": "Memory Total(M)",
+            "desc": "Memory Total(GB)",
             "type": "Float"
         },
         {
@@ -586,27 +648,27 @@
         },
         {
             "name": "MEM_FREE",
-            "desc": "Memory Free(M)",
+            "desc": "Memory Free(GB)",
             "type": "Float"
         },
         {
             "name": "MEM_BUFFERS",
-            "desc": "Memory Buffers(M)",
+            "desc": "Memory Buffers(GB)",
             "type": "Float"
         },
         {
             "name": "MEM_CACHED",
-            "desc": "Memory Cached(M)",
+            "desc": "Memory Cached(GB)",
             "type": "Float"
         },
         {
             "name": "SWAP_TOTAL",
-            "desc": "Swap Total(M)",
+            "desc": "Swap Total(GB)",
             "type": "Float"
         },
         {
             "name": "SWAP_FREE",
-            "desc": "Swap Free(M)",
+            "desc": "Swap Free(GB)",
             "type": "Float"
         },
         {

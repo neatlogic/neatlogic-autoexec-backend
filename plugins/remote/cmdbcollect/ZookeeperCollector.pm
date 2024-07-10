@@ -213,6 +213,7 @@ sub collect {
         $clusterInfo->{CLUSTER_SOFTWARE} = 'Zookeeper';
         $clusterInfo->{CLUSTER_VERSION}  = $version;
         $clusterInfo->{MEMBER_PEER}      = $clusterMembers;
+        $clusterInfo->{NOT_PROCESS}      = 1;
     }
 
     return ( $appInfo, $clusterInfo );

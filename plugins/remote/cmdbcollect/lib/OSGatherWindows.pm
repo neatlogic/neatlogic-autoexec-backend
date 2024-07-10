@@ -218,6 +218,7 @@ sub getIpAddrs {
     # {"192.168.0.35"}  {"255.255.255.0"}
     # IPAddress                                     IPSubnet                 MACAddress
     # {"10.0.249.114", "fe80::1aa:f8e7:a15d:888d"}  {"255.255.255.0", "64"}  00:0C:29:5E:C8:C2
+    my $objCat      = CollectObjCat->get('OS');
     my @ipV4Addrs   = ();
     my @ipV6Addrs   = ();
     my $ipInfoLines = $self->getCmdOutLines( 'wmic nicconfig where "IPEnabled = True" get ipaddress,ipsubnet,macaddress', 'Administrator', { charset => $self->{codepage} } );
@@ -242,10 +243,10 @@ sub getIpAddrs {
                         else {
                             print("WARN: Invalid CIDR $ip/$netmask\n");
                         }
-                        push( @ipV6Addrs, { IP => $ip, NETMASK => $netmask } );
+                        push( @ipV6Addrs, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV4' } );
                     }
                     else {
-                        push( @ipV4Addrs, { IP => $ip, NETMASK => $netmask } );
+                        push( @ipV4Addrs, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV6' } );
                     }
                 }
             }
@@ -253,8 +254,10 @@ sub getIpAddrs {
     }
 
     $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipV4Addrs, \@ipV6Addrs );
-    $osInfo->{IP_ADDRS}   = \@ipV4Addrs;
+    $osInfo->{IPV4_ADDRS} = \@ipV4Addrs;
     $osInfo->{IPV6_ADDRS} = \@ipV6Addrs;
+    my @ipAddrs = ( @ipv4, @ipv6 );
+    $osInfo->{IP_ADDRS} = \@ipAddrs;
 }
 
 sub getOsVersion {
