@@ -28,6 +28,11 @@
             "type": "String"
         },
         {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
             "name": "DB_NAME",
             "desc": "DB Name",
             "type": "String"
@@ -95,6 +100,38 @@
                 {
                     "name": "NAME",
                     "desc": "User Name",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BACKUP_DB",
+            "desc": "slave",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Object Cat",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Object Type",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "port",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "DB Name",
                     "type": "String"
                 }
             ]

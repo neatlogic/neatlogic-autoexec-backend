@@ -56,6 +56,26 @@ sub isCDB {
     return $isCdb;
 }
 
+sub getOraLog {
+    my ($self) = @_;
+
+    my $log     = '';
+    my $sqlplus = $self->{sqlplus};
+
+    my $sql = q{select value LOG from v$diag_info where name = 'Diag Trace' and rownum <=1;};
+
+    my $rows = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+
+    if ( defined($rows) and scalar(@$rows) > 0 ) {
+        $log = $$rows[0]->{LOG};
+    }
+
+    return $log;
+}
+
 sub getInsVersion {
     my ( $self, $insInfo ) = @_;
 
@@ -107,7 +127,7 @@ sub getUserInfo {
     if ( defined($rows) ) {
         foreach my $row (@$rows) {
             my $userInfo = {};
-            $userInfo->{_OBJ_CATEGORY}      = CollectObjCat->get($objCat);
+            $userInfo->{_OBJ_CATEGORY}      = CollectObjCat->get('DB');
             $userInfo->{_OBJ_TYPE}          = "DB-USER";
             $userInfo->{NAME}               = $row->{USERNAME};
             $userInfo->{DEFAULT_TABLESPACE} = $row->{DEFAULT_TABLESPACE};
@@ -116,6 +136,28 @@ sub getUserInfo {
     }
 
     return \@userInfos;
+}
+
+sub getServiceNames {
+    my ($self) = @_;
+
+    my $sqlplus = $self->{sqlplus};
+    my $sql     = q{select value as service_name from v$parameter where NAME='service_names' union select a.name as service_name from dba_services a,v$database b where b.DATABASE_ROLE='PRIMARY' and a.name not like 'SYS%';};
+
+    my @svcNames = ();
+    my $rows     = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+
+    if ( defined($rows) ) {
+        foreach my $row (@$rows) {
+            my $name = $row->{SERVICE_NAME};
+            push( @svcNames, $name );
+        }
+    }
+
+    return \@svcNames;
 }
 
 sub getTableSpaceInfo {
@@ -257,16 +299,17 @@ sub getParams {
         $insInfo->{LOG_ARCHIVE_DEST} = $param->{log_archive_dest};
     }
 
-    my $svcNameMap      = {};
-    my @svcNames        = ();
-    my $serviceNamesTxt = $param->{service_names};
-    foreach my $oneSvcName ( split( /,/, $serviceNamesTxt ) ) {
-        push( @svcNames, $oneSvcName );
-        $svcNameMap->{$oneSvcName} = 1;
-    }
-    $insInfo->{SERVICE_NAMES} = \@svcNames;
-    if ( scalar(@svcNames) > 0 ) {
-        $insInfo->{SERVICE_NAME} = $svcNames[0];
+    #my $svcNameMap      = {};
+    #my @svcNames        = ();
+    #my $serviceNamesTxt = $param->{service_names};
+    #foreach my $oneSvcName ( split( /,/, $serviceNamesTxt ) ) {
+    #    push( @svcNames, $oneSvcName );
+    #    $svcNameMap->{$oneSvcName} = 1;
+    #}
+    my $svcNames = $self->getServiceNames();
+    $insInfo->{SERVICE_NAMES} = $svcNames;
+    if ( scalar(@$svcNames) > 0 ) {
+        $insInfo->{SERVICE_NAME} = $svcNames->[0];
     }
 
     $rows = $sqlplus->query(
@@ -487,17 +530,21 @@ sub collectCDB {
     map { $dbInfo->{$_} = $insInfo->{$_} } keys(%$insInfo);
     delete( $dbInfo->{DATABASES} );
 
-    $dbInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
-    $dbInfo->{_OBJ_TYPE}     = 'Oracle-DB';
-    $dbInfo->{_APP_TYPE}     = 'Oracle-CDB';
-    $dbInfo->{IS_RAC}        = $insInfo->{IS_RAC};
-    $dbInfo->{CDB}           = undef;
-    $dbInfo->{NOT_PROCESS}   = 1;
-    $dbInfo->{RUN_ON}        = [];
-    $dbInfo->{DBID}          = $insInfo->{DBID};
+    $dbInfo->{_OBJ_CATEGORY}    = CollectObjCat->get('DB');
+    $dbInfo->{_OBJ_TYPE}        = 'Oracle-DB';
+    $dbInfo->{IS_RAC}           = $insInfo->{IS_RAC};
+    $dbInfo->{CDB}              = undef;
+    $dbInfo->{NOT_PROCESS}      = 1;
+    $dbInfo->{RUN_ON}           = [];
+    $dbInfo->{DBID}             = $insInfo->{DBID};
+    $dbInfo->{VERSION}          = $insInfo->{VERSION};
+    $dbInfo->{NLS_CHARACTERSET} = $insInfo->{NLS_CHARACTERSET};
 
-    $dbInfo->{NAME} = $dbName;
-	$dbInfo->{DB_NAME} = $dbName;
+    $dbInfo->{NAME}    = $dbName;
+    $dbInfo->{DB_NAME} = $dbName;
+
+    my $dg = $self->getDG($dbName);
+    $dbInfo->{BACKUP_DB} = $dg;
 
     #采集instance对应的DB，可能是CDB或者是普通的DB
     if ( $insInfo->{IS_CDB} ) {
@@ -505,7 +552,8 @@ sub collectCDB {
         $dbInfo->{IS_CDB}    = 1;
     }
     else {
-        $dbInfo->{IS_CDB} = 0;
+        $dbInfo->{_APP_TYPE} = 'DB';
+        $dbInfo->{IS_CDB}    = 0;
     }
 
     if ( $insInfo->{IS_RAC} == 1 ) {
@@ -615,10 +663,12 @@ sub collectPDB {
                 $pdb->{PORT} = $insInfo->{PORT};
             }
 
-            $pdb->{ORACLE_SID}  = $insInfo->{ORACLE_SID};
-            $pdb->{ORACLE_HOME} = $insInfo->{ORACLE_HOME};
-            $pdb->{ORACLE_BASE} = $insInfo->{ORACLE_BASE};
-            $pdb->{IS_RAC}      = $insInfo->{IS_RAC};
+            $pdb->{ORACLE_SID}       = $insInfo->{ORACLE_SID};
+            $pdb->{ORACLE_HOME}      = $insInfo->{ORACLE_HOME};
+            $pdb->{ORACLE_BASE}      = $insInfo->{ORACLE_BASE};
+            $pdb->{IS_RAC}           = $insInfo->{IS_RAC};
+            $pdb->{VERSION}          = $insInfo->{VERSION};
+            $pdb->{NLS_CHARACTERSET} = $insInfo->{NLS_CHARACTERSET};
 
             $pdb->{NAME}   = $row->{NAME};
             $pdb->{DBID}   = $row->{DBID};
@@ -626,12 +676,12 @@ sub collectPDB {
 
             $pdb->{_OBJ_CATEGORY} = CollectObjCat->get('DB');
             $pdb->{_OBJ_TYPE}     = 'Oracle-DB';
-            $pdb->{_APP_TYPE}     = 'Oracle-PDB';
+            $pdb->{_APP_TYPE}     = 'PDB';
             $pdb->{IS_CDB}        = 0;
             $pdb->{CDB}           = $dbName;
             $pdb->{DB_NAME}       = $row->{NAME};
-            $pdb->{NOT_PROCESS} = 1;
-            $pdb->{RUN_ON}      = [];
+            $pdb->{NOT_PROCESS}   = 1;
+            $pdb->{RUN_ON}        = [];
 
             my $dbName2DBIDMap = $self->{dbName2DBIDMap};
             $dbName2DBIDMap->{ $pdb->{NAME} } = $pdb->{DBID};
@@ -869,6 +919,7 @@ sub getClusterDB {
         my $dbInfo = {
             _OBJ_CATEGORY => CollectObjCat->get('DB'),
             _OBJ_TYPE     => 'Oracle-DB',
+            _APP_TYPE     => 'DB',
             NAME          => $dbName,
             DB_NAME       => $dbName
         };
@@ -934,13 +985,13 @@ sub getClusterDB {
                             PORT          => $miniPort,
                             SERVICE_ADDR  => $nodeInfo->{IP} . ':' . $miniPort,
                             RAC_CLUSTER   => [
-                                                {
-                                                    _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-                                                    _OBJ_TYPE     => 'DBCluster',
-                                                    _APP_TYPE     => 'Oracle',
-                                                    UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
-                                                    NAME          => $racInfo->{NAME}
-                                                }
+                                {
+                                    _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
+                                    _OBJ_TYPE     => 'DBCluster',
+                                    _APP_TYPE     => 'Oracle',
+                                    UNIQUE_NAME   => $racInfo->{UNIQUE_NAME},
+                                    NAME          => $racInfo->{NAME}
+                                }
                             ]
                         }
                     );
@@ -1558,7 +1609,8 @@ sub collectRAC {
                 PID  => $collectDatabase->{PROC_INFO}->{PID},
                 PPID => $collectDatabase->{PROC_INFO}->{PPID}
             };
-            $collectInstance->{NOT_PROCESS}            = 1;
+            $collectInstance->{NOT_PROCESS} = 1;
+
             #$collectInstance->{RUN_ON}                 = [];
             $instanceMap->{ $collectInstance->{NAME} } = $collectInstance;
         }
@@ -1612,6 +1664,63 @@ sub getTnsListenerBackLog {
     }
 
     return $lsnrPortsMap;
+}
+
+sub getDG {
+    my ( $self, $dbName ) = @_;
+    my @dg;
+    my $sqlplus = $self->{sqlplus};
+    my $sql     = q{select database_role from v$database};
+    my $rows    = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+    my $databaseRole;
+    if ( defined($rows) ) {
+        $databaseRole = $$rows[0]->{DATABASE_ROLE};
+    }
+    if ( $databaseRole =~ /primary/i ) {
+        $sql = q{select a.value from v$system_parameter a where a.name like 'log_archive_dest_%' and a.value like 'SERVICE=%' and lower((select value from v$database where name = ('log_archive_dest_state_'||replace(a.name,'log_archive_dest_','')))) = 'enable'};
+    }
+    else {
+        #双向关系只需要一条
+        #$sql = q{select a.value from v$system_parameter a where a.name like 'log_archive_dest_%' and a.value like 'SERVICE=%ALL_LOGFILES,ALL_ROLES%' and lower((select value from v$database where name = ('log_archive_dest_state_'||replace(a.name,'log_archive_dest_','')))) = 'enable'};
+        return \@dg;
+    }
+
+    $rows = $sqlplus->query(
+        sql     => $sql,
+        verbose => $self->{isVerbose}
+    );
+    my $osUser = $self->{procInfo}->{OS_USER};
+    if ( defined($rows) and scalar(@$rows) > 0 ) {
+        foreach my $row (@$rows) {
+            my $dgServiceName = ( split /\s+/, $row )[0];
+            $dgServiceName =~ s/SERVICE=//g;
+            my $tns_output = $self->getCmdOutLines( "tnsping $dgServiceName", $osUser );
+
+            my $dgIp;
+            my $dgPort;
+            if ( $tns_output =~ /(\d+\.\d+\.\d+\.\d+)/ ) {
+                $dgIp = $1;
+            }
+            if ( $tns_output =~ /PORT = (\d+)/ ) {
+                $dgPort = $1;
+            }
+
+            my $item = {};
+            $item->{PRIMARY_IP}    = $dgIp;
+            $item->{PORT}          = $dgPort;
+            $item->{NAME}          = $dbName;
+            $item->{_OBJ_TYPE}     = 'Oracle-DB';
+            $item->{_OBJ_CATEGORY} = 'DB';
+            my @pk = ( "PRIMARY_IP", "PORT", "NAME" );
+            $item->{PK} = \@pk;
+
+            push( @dg, $item );
+        }
+    }
+    return \@dg;
 }
 
 sub collect {

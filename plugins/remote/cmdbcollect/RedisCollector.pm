@@ -438,28 +438,32 @@ sub collect {
     $redisInfo->{SERVER_NAME}   = $procInfo->{HOST_NAME};
     $redisInfo->{INSTANCE_NAME} = $procInfo->{HOST_NAME};
 
-    my @data = ($redisInfo);
+    my @collectSet = ($redisInfo);
 
     #集群信息
-    my $clusterInfo;
     if (@memberPeers) {
         my @sortedMemberPeers = sort(@memberPeers);
         my $primaryAddr       = $sortedMemberPeers[0];
         my ( $primaryIp, $primaryPort ) = split( ':', $primaryAddr, 2 );
-
+        my $uniqName = "Redis:$primaryIp:$primaryPort";
         my $clusterInfo = {
-            _OBJ_CATEGORY => CollectObjCat->get('CLUSTER'),
-            _OBJ_TYPE     => 'RedisCluster',
-            CLUSTER_MODE  => $redisMode,
-            UNIQUE_NAME   => "Redis:$primaryAddr",
-            PRIMARY_IP    => $primaryIp,
-            PORT          => $primaryPort,
-            MEMBER_PEER   => \@sortedMemberPeers
+            _OBJ_CATEGORY     => CollectObjCat->get('CLUSTER'),
+            _OBJ_TYPE         => 'RedisCluster',
+            CLUSTER_SOFTWARE  => 'Redis',
+            CLUSTER_MODE      => $redisMode,
+            CLUSTER_VERSION   => $redisInfo->{VERSION},
+            NAME              => $uniqName,
+            UNIQUE_NAME       => $uniqName,
+            PRIMARY_IP        => $primaryIp,
+            PORT              => $primaryPort,
+            MEMBER_PEER       => \@sortedMemberPeers,
+            NOT_PROCESS       => 1
         };
-        push( @data, $clusterInfo );
+
+        push( @collectSet, $clusterInfo );
     }
 
-    return @data;
+    return @collectSet;
 }
 
 1;

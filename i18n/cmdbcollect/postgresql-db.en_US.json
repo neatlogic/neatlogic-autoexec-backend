@@ -64,7 +64,7 @@
         },
         {
             "name": "VIP",
-            "desc": "Service IP",
+            "desc": "VIP",
             "type": "String"
         },
         {
@@ -76,6 +76,26 @@
             "name": "PORT",
             "desc": "Port",
             "type": "Int"
+        },
+        {
+            "name": "CLUSTER_ROLE",
+            "desc": "role",
+            "type": "String"
+        },
+        {
+            "name": "VERSION",
+            "desc": "version",
+            "type": "String"
+        },
+        {
+            "name": "CHARSET",
+            "desc": "charset",
+            "type": "String"
+        },
+        {
+            "name": "CLUSTER_MODE",
+            "desc": "structure",
+            "type": "String"
         },
         {
             "name": "USERS",

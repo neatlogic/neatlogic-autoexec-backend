@@ -98,7 +98,7 @@ sub getUserGrants {
         foreach my $dbName (@$grantedDBs) {
             $user2DBsMap->{$dbName} = 1;
             my $db2UsersMap = $dbGrantedUserMap->{$dbName};
-            $db2UsersMap->{$userName} = 1;
+            $db2UsersMap->{$userName}    = 1;
             $dbGrantedUserMap->{$dbName} = $db2UsersMap;
         }
     }
@@ -252,6 +252,18 @@ sub collect {
 
     my $pFinder = $self->{pFinder};
     my ( $bizIp, $vip ) = $pFinder->predictBizIp( $connInfo, $port );
+    #predictBizIp对Linux做了修正，secondary IP优先作为vip
+    #上面获取vip的结果不对
+    # my $vip = $mysqlInfo->{MGMT_IP};
+    # if ( -e '/etc/keepalived/keepalived.conf' ) {
+    #     my $keepaliveLines = $self->getFileLines('/etc/keepalived/keepalived.conf');
+    #     foreach my $line (@$keepaliveLines) {
+    #         if ( $line =~ /(\d+\.\d+\.\d+\.\d+)\//i ) {
+    #             $vip = $1;
+    #             last;
+    #         }
+    #     }
+    # }
 
     $mysqlInfo->{PRIMARY_IP}     = $bizIp;
     $mysqlInfo->{VIP}            = $vip;
@@ -267,7 +279,7 @@ sub collect {
     }
     my $version;
     foreach my $line (@$verOutLines) {
-        if ( $line =~ /\bmysqld\s+(.*?)$/s ) {
+        if ( $line =~ /\bmysqld\s+Ver\s+(\S+)/s ) {
             $version = $1;
             last;
         }
@@ -325,58 +337,62 @@ sub collect {
     foreach my $row (@$rows) {
         my $dbInfo = {};
         my $dbName = $row->{SCHEMA_NAME};
-        $dbInfo->{_OBJ_CATEGORY}         = CollectObjCat->get('DB');
-        $dbInfo->{_OBJ_TYPE}             = 'Mysql-DB';
-        $dbInfo->{_APP_TYPE}             = 'Mysql';
-        $dbInfo->{NAME}                  = $dbName;
-        $dbInfo->{DB_NAME}               = $dbName;
-        $dbInfo->{SERVICE_NAME}          = $dbName;
-        $dbInfo->{DEFAULT_CHARACTER_SET} = $row->{DEFAULT_CHARACTER_SET_NAME};
-        $dbInfo->{DEFAULT_COLLATION}     = $row->{DEFAULT_COLLATION_NAME};
-        $dbInfo->{PRIMARY_IP}            = $bizIp;
-        $dbInfo->{VIP}                   = $vip;
-        $dbInfo->{PORT}                  = $port;
-        $dbInfo->{SSL_PORT}              = undef;
-        $dbInfo->{SERVICE_ADDR}          = "$vip:$port";
-        $dbInfo->{INSTANCES}             = [
-            {
-                _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
-                _OBJ_TYPE     => 'Mysql',
-                INSTANCE_NAME => $procInfo->{HOST_NAME},
-                MGMT_IP       => $mysqlInfo->{MGMT_IP},
-                PORT          => $port
+        if ( $dbName ne 'information_schema' and $dbName ne 'mysql' and $dbName ne 'performance_schema' and $dbName ne 'sys' ) {
+            $dbInfo->{_OBJ_CATEGORY}         = CollectObjCat->get('DB');
+            $dbInfo->{_OBJ_TYPE}             = 'Mysql-DB';
+            $dbInfo->{_APP_TYPE}             = 'Mysql';
+            $dbInfo->{NAME}                  = $dbName;
+            $dbInfo->{DB_NAME}               = $dbName;
+            $dbInfo->{SERVICE_NAME}          = $dbName;
+            $dbInfo->{DEFAULT_CHARACTER_SET} = $row->{DEFAULT_CHARACTER_SET_NAME};
+            $dbInfo->{DEFAULT_COLLATION}     = $row->{DEFAULT_COLLATION_NAME};
+            $dbInfo->{PRIMARY_IP}            = $bizIp;
+            $dbInfo->{VERSION}               = $mysqlInfo->{'VERSION'};
+            $dbInfo->{MAJOR_VERSION}         = $mysqlInfo->{'MAJOR_VERSION'};
+            $dbInfo->{VIP}                   = $vip;
+            $dbInfo->{PORT}                  = $port;
+            $dbInfo->{SSL_PORT}              = undef;
+            $dbInfo->{SERVICE_ADDR}          = "$vip:$port";
+            $dbInfo->{INSTANCES}             = [
+                {
+                    _OBJ_CATEGORY => CollectObjCat->get('DBINS'),
+                    _OBJ_TYPE     => 'Mysql',
+                    INSTANCE_NAME => $procInfo->{HOST_NAME},
+                    MGMT_IP       => $mysqlInfo->{MGMT_IP},
+                    PORT          => $port
+                }
+            ];
+
+            my @dbUserInfos = ();
+            my @dbConns     = ();
+            my $dbUsers     = $db2UsersMap->{$dbName};
+            my @dbUserNames = keys(%$dbUsers);
+            foreach my $dbUser (@dbUserNames) {
+                push(
+                    @dbUserInfos,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-USER',
+                        NAME          => $dbUser
+                    }
+                );
+
+                push(
+                    @dbConns,
+                    {
+                        _OBJ_CATEGORY => CollectObjCat->get('DB'),
+                        _OBJ_TYPE     => 'DB-CONNECT',
+                        SERVICE_NAME  => $dbName,
+                        USER_NAME     => $dbUser
+                    }
+                );
             }
-        ];
 
-        my @dbUserInfos = ();
-        my @dbConns     = ();
-        my $dbUsers     = $db2UsersMap->{$dbName};
-        my @dbUserNames = keys(%$dbUsers);
-        foreach my $dbUser (@dbUserNames) {
-            push(
-                @dbUserInfos,
-                {
-                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                    _OBJ_TYPE     => 'DB-USER',
-                    NAME          => $dbUser
-                }
-            );
+            $dbInfo->{USERS}       = \@dbUserInfos;
+            $dbInfo->{CONNECTIONS} = \@dbConns;
 
-            push(
-                @dbConns,
-                {
-                    _OBJ_CATEGORY => CollectObjCat->get('DB'),
-                    _OBJ_TYPE     => 'DB-CONNECT',
-                    SERVICE_NAME  => $dbName,
-                    USER_NAME     => $dbUser
-                }
-            );
+            $dbInfosMap->{$dbName} = $dbInfo;
         }
-
-        $dbInfo->{USERS}       = \@dbUserInfos;
-        $dbInfo->{CONNECTIONS} = \@dbConns;
-
-        $dbInfosMap->{$dbName} = $dbInfo;
     }
 
     my @dbInfos = values(%$dbInfosMap);
@@ -395,7 +411,7 @@ sub collect {
     #binlog dump is a thread on a master server for sending binary log contents to a slave server.
     #Slave端连接到Master执行binlog提送到Slave，host字段是Slave的hostname
     $rows = $mysql->query(
-        sql     => q{select substring_index(host,':',1) slave_host from information_schema.processlist where COMMAND='Binlog Dump'},
+        sql     => q{select substring_index(host,':',1) slave_host from information_schema.processlist where COMMAND like 'Binlog Dump%'},
         verbose => $self->{isVerbose}
     );
     my @slaveIps   = ();
@@ -430,7 +446,7 @@ sub collect {
     else {
         #否则就是单节点运行
         $mysqlInfo->{'IS_CLUSTER'}   = 0;
-        $mysqlInfo->{'CLUSTER_MODE'} = undef;
+        $mysqlInfo->{'CLUSTER_MODE'} = 'Single';
         $mysqlInfo->{'CLUSTER_ROLE'} = undef;
     }
 

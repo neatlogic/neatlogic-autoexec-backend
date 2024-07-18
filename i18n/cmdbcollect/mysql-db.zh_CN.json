@@ -28,6 +28,11 @@
             "type": "String"
         },
         {
+            "name": "VERSION",
+            "desc": "版本",
+            "type": "String"
+        },
+        {
             "name": "DB_NAME",
             "desc": "库名",
             "type": "String"
@@ -95,6 +100,38 @@
                 {
                     "name": "NAME",
                     "desc": "用户名",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "BACKUP_DB",
+            "desc": "备库",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "PRIMARY_IP",
+                    "desc": "IP",
+                    "type": "String"
+                },
+                {
+                    "name": "PORT",
+                    "desc": "port",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "库名",
                     "type": "String"
                 }
             ]

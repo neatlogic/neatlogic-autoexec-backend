@@ -426,6 +426,7 @@ sub getServiceInfo {
 
 sub getIpAddrs {
     my ( $self, $osInfo ) = @_;
+    my $objCat = CollectObjCat->get('OS');
     my @ipv4;
     my @ipv6;
     my $ipInfoLines = $self->getCmdOutLines('ip addr');
@@ -448,7 +449,13 @@ sub getIpAddrs {
                 else {
                     print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
-                push( @ipv4, { IP => $ip, NETMASK => $netmask } );
+                
+                my $isSecondary = 0;
+                if ($line =~ /secondary/){
+                    $isSecondary = 1;
+                }
+
+                push( @ipv4, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV4', SECONDARY=>$isSecondary } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/(\d+)/ ) {
@@ -467,13 +474,21 @@ sub getIpAddrs {
                 else {
                     print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
-                push( @ipv6, { IP => $ip, NETMASK => $netmask } );
+                
+                my $isSecondary = 0;
+                if ($line =~ /secondary/){
+                    $isSecondary = 1;
+                }
+
+                push( @ipv6, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV6', SECONDARY=>$isSecondary } );
             }
         }
     }
     $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipv4, \@ipv6 );
-    $osInfo->{IP_ADDRS}   = \@ipv4;
+    $osInfo->{IPV4_ADDRS} = \@ipv4;
     $osInfo->{IPV6_ADDRS} = \@ipv6;
+    my @ipAddrs = ( @ipv4, @ipv6 );
+    $osInfo->{IP_ADDRS} = \@ipAddrs;
 }
 
 sub getUserInfo {
@@ -802,6 +817,17 @@ sub getMiscInfo {
     my $maxOpenFiles = $self->getFileContent('/proc/sys/fs/file-max');
     $maxOpenFiles =~ s/^\s*|\s*$//g;
     $osInfo->{MAX_OPEN_FILES} = int($maxOpenFiles);
+
+    my $nproc;
+    my $limitLines = $self->getFileLines('/etc/security/limits.conf');
+    foreach my $line (@$limitLines) {
+        if ( $line =~ /^\s*\*\s+soft\s+nproc\s+(\d+)\s*$/ ) {
+            $nproc = int($1);
+            last;
+        }
+    }
+    $osInfo->{MAX_USER_PROCESS_COUNT} = $nproc;
+
 }
 
 sub getPerformanceInfo {

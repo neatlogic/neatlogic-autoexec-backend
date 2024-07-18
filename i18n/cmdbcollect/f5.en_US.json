@@ -105,10 +105,89 @@
             "type": "String"
         },
         {
+            "name": "PORTS",
+            "desc": "ports",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "INDEX",
+                    "desc": "index",
+                    "type": "Int"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Port Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MAC",
+                    "desc": "mac address",
+                    "type": "String"
+                },
+                {
+                    "name": "REMOTE_PORTS",
+                    "desc": "Remote Switch Port",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Switch Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV_NAME",
+                            "desc": "Device Name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "Switch Ip",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SN",
+                            "desc": "SN",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "Port",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "VIRTUAL_SERVERS",
             "desc": "Virtual Server List",
             "type": "JsonArray",
             "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
                 {
                     "name": "NAME",
                     "desc": "Name",
@@ -135,8 +214,23 @@
                     "type": "JsonArray",
                     "subset": [
                         {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
+                        {
                             "name": "NAME",
                             "desc": "name",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP_TYPE",
+                            "desc": "IP Type",
                             "type": "String"
                         },
                         {
@@ -144,6 +238,16 @@
                             "desc": "IP List Pool",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Obj Category",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Obj Type",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "IP",
                                     "desc": "IP Value",
@@ -158,6 +262,16 @@
                     "desc": "POOL",
                     "type": "JsonArray",
                     "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
                         {
                             "name": "NAME",
                             "desc": "Name",
@@ -178,6 +292,16 @@
                             "desc": "Member List",
                             "type": "JsonArray",
                             "subset": [
+                                {
+                                    "name": "_OBJ_CATEGORY",
+                                    "desc": "Obj Category",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "_OBJ_TYPE",
+                                    "desc": "Obj Type",
+                                    "type": "String"
+                                },
                                 {
                                     "name": "NAME",
                                     "desc": "Name",
