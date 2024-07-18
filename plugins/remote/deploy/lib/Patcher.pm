@@ -378,6 +378,10 @@ sub backup {
         print("ERROR: $ins $backupType $target for $backupFile version $version failed.\n");
     }
 
+    if ($status > 255){
+        $status = $status >> 8;
+    }
+    
     return $status;
 }
 
@@ -653,6 +657,10 @@ sub deploy {
         $status = -1;
     }
 
+    if ($status > 255){
+        $status = $status >> 8;
+    }
+
     return $status;
 }
 
@@ -820,6 +828,10 @@ sub rollback {
     }
     else {
         print("ERROR: Rollback $ins $version failed.\n");
+    }
+
+    if ($status > 255){
+        $status = $status >> 8;
     }
 
     return $status;
