@@ -1,0 +1,12 @@
+{
+  "opDesc": "关联buildno",
+  "opType": "runner",
+  "typeName": "BUILD",
+  "riskName": "LOW",
+  "interpreter": "perl",
+  "defaultProfile": "",
+  "description": "关联buildno，用于触发作业参数选择时可以选择buildno",
+  "enabled": 1,
+  "option": [],
+  "output": []
+}
