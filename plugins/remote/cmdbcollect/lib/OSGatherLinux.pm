@@ -20,7 +20,6 @@ use Distribution;
 
 sub init {
     my ($self) = @_;
-    $self->{VIRTUAL_VENDOR_KEYS} = [ 'Vmware', 'KVM', 'QEMU', 'Virtual', 'Cloud ECS' ];
 }
 
 sub stripDMIComment {
@@ -87,21 +86,6 @@ sub getOsVersion {
 
     $osInfo->{VERSION}       = $osVer;
     $osInfo->{MAJOR_VERSION} = $osMajorVer;
-}
-
-sub isVirtualVendor {
-    my ( $self, $vendor ) = @_;
-    my $virtualKeys = $self->{VIRTUAL_VENDOR_KEYS};
-    my $isVirtual   = 0;
-    if ( defined($vendor) ) {
-        foreach my $key (@$virtualKeys) {
-            if ( $vendor =~ /$key/i ) {
-                $isVirtual = 1;
-                last;
-            }
-        }
-    }
-    return $isVirtual;
 }
 
 sub getVendorInfo {
@@ -449,13 +433,13 @@ sub getIpAddrs {
                 else {
                     print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
-                
+
                 my $isSecondary = 0;
-                if ($line =~ /secondary/){
+                if ( $line =~ /secondary/ ) {
                     $isSecondary = 1;
                 }
 
-                push( @ipv4, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV4', SECONDARY=>$isSecondary } );
+                push( @ipv4, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV4', SECONDARY => $isSecondary } );
             }
         }
         elsif ( $line =~ /^\s*inet6\s+(.*?)\/(\d+)/ ) {
@@ -474,13 +458,13 @@ sub getIpAddrs {
                 else {
                     print("WARN: Invalid CIDR $ip/$maskBit\n");
                 }
-                
+
                 my $isSecondary = 0;
-                if ($line =~ /secondary/){
+                if ( $line =~ /secondary/ ) {
                     $isSecondary = 1;
                 }
 
-                push( @ipv6, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV6', SECONDARY=>$isSecondary } );
+                push( @ipv6, { _OBJ_CATEGORY => $objCat, _OBJ_TYPE => 'OS-IP', IP => $ip, NETMASK => $netmask, TYPE => 'IPV6', SECONDARY => $isSecondary } );
             }
         }
     }
@@ -986,7 +970,7 @@ sub getSecurityInfo {
 sub collectOsInfo {
     my ($self) = @_;
 
-    my $osInfo = {};
+    my $osInfo = { IS_VIRTUAL => 0 };
     if ( $self->{justBaseInfo} == 0 ) {
         $self->getUpTime($osInfo);
         $self->getMiscInfo($osInfo);
@@ -1012,6 +996,7 @@ sub collectOsInfo {
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
         $self->getOsServices($osInfo);
+        $self->getVendorInfo($osInfo);
     }
 
     return $osInfo;
@@ -1042,7 +1027,7 @@ sub getMainBoardInfo {
     }
     $hostInfo->{DMIDECODE_INSTALLED} = $dmidecodeInstalled;
 
-    $hostInfo->{IS_VIRTUAL} = 0;
+    #$hostInfo->{IS_VIRTUAL} = 0;
 
     if ($dmidecodeInstalled) {
         my $chassisInfoLines = $self->getCmdOutLines('dmidecode -t chassis');
@@ -1079,8 +1064,8 @@ sub getMainBoardInfo {
             $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
         }
         my $manufacturer = $sysInfo->{'Manufacturer'};
+        $hostInfo->{MANUFACTURER} = $manufacturer;
         if ( defined($manufacturer) and $manufacturer ne 'None' ) {
-            $hostInfo->{MANUFACTURER} = $manufacturer;
             if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
                 $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($manufacturer);
             }
@@ -1117,7 +1102,7 @@ sub getMainBoardInfo {
             undef($sn);
         }
         $hostInfo->{BOARD_SERIAL}   = $sn;
-        $hostInfo->{CHASSIS_SERIAL} = undef;
+        #$hostInfo->{CHASSIS_SERIAL} = undef;
 
         my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
         $productName =~ s/^\*|\s$//g;
@@ -1137,7 +1122,6 @@ sub getMainBoardInfo {
             $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($productName);
         }
         if ( defined($vendorName) and $vendorName ne 'None' ) {
-            $hostInfo->{MANUFACTURER} = $vendorName;
             if ( $hostInfo->{IS_VIRTUAL} == 0 ) {
                 $hostInfo->{IS_VIRTUAL} = $self->isVirtualVendor($vendorName);
             }
@@ -1609,6 +1593,10 @@ sub collectHostInfo {
         $self->getHBAInfo($hostInfo);
         $self->getKVMGuestOSUUIDs($hostInfo);
         $self->getKVMAllocateInfo($hostInfo);
+    }
+    else{
+        $self->getMainBoardInfo($hostInfo);
+        $self->getCPUInfo($hostInfo);
     }
 
     return $hostInfo;
