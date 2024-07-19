@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+
+my $hasError = 0;
+my $version  = $ENV{VERSION};
+my $buildNo  = $ENV{BUILD_NO};
+if ( not defined($version) or $version eq '' ) {
+    $hasError = 1;
+    print("ERROR: Version is empty, associate version failed.\n");
+}
+if ( not defined($buildNo) or $buildNo eq '' ) {
+    $hasError = 1;
+    print("ERROR: Build no is empty, associate build no failed.\n");
+}
+
+if ( $hasError == 0 ) {
+    print("INFO: Association $ENV{VERSION}_build$ENV{BUILD_NO}\n");
+}
+
+exit $hasError;
