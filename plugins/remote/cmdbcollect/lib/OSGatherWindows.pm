@@ -53,10 +53,7 @@ sub getMiscInfo {
     $osInfo->{MACHINE_ID} = $machineId;
 
     #是否虚拟机的判断
-    $osInfo->{IS_VIRTUAL} = 0;
-    if ( $machineId =~ /^vmware/i or $machineId =~ /^kvm/i or $machineId =~ /Nutanix/ ) {
-        $osInfo->{IS_VIRTUAL} = 1;
-    }
+    $osInfo->{IS_VIRTUAL} = $self->isVirtualVendor($machineId);
 }
 
 sub getDNSInfo {
@@ -472,6 +469,7 @@ sub collectOsInfo {
     }
     else {
         $self->getUpTime($osInfo);
+        $self->getMiscInfo($osInfo);
         $self->getSystemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
