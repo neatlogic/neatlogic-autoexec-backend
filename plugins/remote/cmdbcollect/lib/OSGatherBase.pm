@@ -46,12 +46,30 @@ sub new {
 
     $self->{collectUtils} = CollectUtils->new();
 
+    $self->{VIRTUAL_VENDOR_KEYS} = [ 'Vmware', 'KVM', 'QEMU', 'Virtual', 'Cloud ECS', 'oVirt' ];
+
     bless( $self, $type );
     return $self;
 }
 
 sub init {
 
+}
+
+#通过vendor名称或产品名判断是否是虚拟机
+sub isVirtualVendor {
+    my ( $self, $vendor ) = @_;
+    my $virtualKeys = $self->{VIRTUAL_VENDOR_KEYS};
+    my $isVirtual   = 0;
+    if ( defined($vendor) ) {
+        foreach my $key (@$virtualKeys) {
+            if ( $vendor =~ /$key/i ) {
+                $isVirtual = 1;
+                last;
+            }
+        }
+    }
+    return $isVirtual;
 }
 
 #su运行命令，并返回输出的文本

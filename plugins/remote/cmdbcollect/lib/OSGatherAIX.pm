@@ -917,6 +917,9 @@ sub collectOsInfo {
         $self->getPatchInfo($osInfo);
     }
     else {
+        $self->getUpTime($osInfo);
+        $self->getMiscInfo($osInfo);
+        $self->getCPUInfo($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
     }
@@ -973,7 +976,6 @@ sub getHostNicInfo {
 
     #TODO：detect if os is vios or vioc or lpart
     #现在使用网卡是虚拟网卡来判断
-    $hostInfo->{IS_VIRTUAL} = 0;
     my $nicInfoLines     = $self->getCmdOutLines('netstat -ni');
     my $nicInfoLineCount = scalar(@$nicInfoLines);
 
@@ -1171,8 +1173,14 @@ sub getHostHBAInfo {
 sub collectHostInfo {
     my ($self) = @_;
 
-    my $hostInfo = {};
+    my $hostInfo = { IS_VIRTUAL => 0 };
     if ( $self->{justBaseInfo} == 0 ) {
+        $self->getHostMiscInfo($hostInfo);
+        $self->getHostMemInfo($hostInfo);
+        $self->getHostHBAInfo($hostInfo);
+        $self->getHostNicInfo($hostInfo);
+    }
+    else{
         $self->getHostMiscInfo($hostInfo);
         $self->getHostMemInfo($hostInfo);
         $self->getHostHBAInfo($hostInfo);
