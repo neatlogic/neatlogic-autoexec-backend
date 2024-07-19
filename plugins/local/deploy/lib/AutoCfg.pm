@@ -28,6 +28,7 @@ sub new {
     bless( $self, $pkg );
 
     $self->{hasError} = 0;
+    $ENV{UNZIP_DISABLE_ZIPBOMB_DETECTION} = 'TRUE';
 
     #$buildEnv, $orgCfgFiles, $version, $charset, $followZip, $cleanAutoCfgFiles, $followTar, $checkOrg, $pureDir, $md5Check
     my $buildEnv = $args{buildEnv};
