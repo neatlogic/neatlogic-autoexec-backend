@@ -460,6 +460,8 @@ sub doDetailCollect {
             $appInfo->{OS_USER}        = $procInfo->{USER};
             $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
         }
+        #PORT强制转int
+        $appInfo->{PORT} = int($appInfo->{PORT});
 
         push( @$appsArray, $appInfo );
 
