@@ -453,11 +453,13 @@ sub doDetailCollect {
 
         print("INFO: Matched Object Type:$objCat/$objType.\n");
 
-        $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};
-        $appInfo->{MGMT_PORT}      = $procInfo->{MGMT_PORT};
-        $appInfo->{OS_ID}          = $procInfo->{OS_ID};
-        $appInfo->{OS_USER}        = $procInfo->{USER};
-        $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
+        if ( not defined( $appInfo->{MGMT_IP} ) or $appInfo->{MGMT_IP} eq '' ) {
+            $appInfo->{MGMT_IP}        = $procInfo->{MGMT_IP};
+            $appInfo->{MGMT_PORT}      = $procInfo->{MGMT_PORT};
+            $appInfo->{OS_ID}          = $procInfo->{OS_ID};
+            $appInfo->{OS_USER}        = $procInfo->{USER};
+            $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
+        }
 
         push( @$appsArray, $appInfo );
 
@@ -1351,7 +1353,7 @@ sub predictBizIp {
         elsif ( scalar(@implicitIpV6s) == 1 ) {
             $vip = $implicitIpV6s[0];
         }
-        elsif ( scalar(@secondaryIps) >= 1 ){
+        elsif ( scalar(@secondaryIps) >= 1 ) {
             $vip = $secondaryIps[-1];
         }
         else {
