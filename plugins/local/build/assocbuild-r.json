@@ -1,6 +1,6 @@
 {
   "opDesc": "关联buildno",
-  "opType": "runner-target",
+  "opType": "runner_target",
   "typeName": "BUILD",
   "riskName": "LOW",
   "interpreter": "perl",
