@@ -524,6 +524,11 @@
             "type": "String"
         },
         {
+            "name": "LOG_BIN_BASENAME",
+            "desc": "BinLog日志目录",
+            "type": "String"
+        },
+        {
             "name": "IS_CLUSTER",
             "desc": "是否是集群",
             "type": "Int"

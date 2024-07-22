@@ -330,7 +330,7 @@ sub collect {
                 _OBJ_CATEGORY => CollectObjCat->get('DB'),
                 _OBJ_TYPE     => 'Postgresql-DB',
                 NAME          => $dbName,
-                CLUSTER_MODE     => $postgresqlInfo->{CLUSTER_MODE},
+                CLUSTER_MODE  => $postgresqlInfo->{CLUSTER_MODE},
                 VERSION       => $postgresqlInfo->{VERSION},
                 CHARSET       => $postgresqlInfo->{CHARSET},
                 PRIMARY_IP    => $bizIp,
