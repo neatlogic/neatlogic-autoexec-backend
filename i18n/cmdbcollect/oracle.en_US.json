@@ -68,6 +68,26 @@
             "type": "String"
         },
         {
+            "name": "DB_LOG",
+            "desc": "DB Log Directory",
+            "type": "String"
+        },
+        {
+            "name": "ASM_LOG",
+            "desc": "ASM Log Directory",
+            "type": "String"
+        },
+        {
+            "name": "CRS_LOG",
+            "desc": "CRS Log Directory",
+            "type": "String"
+        },
+        {
+            "name": "OGG_INSTALLED",
+            "desc": "OGG Installed",
+            "type": "String"
+        },
+        {
             "name": "SERVICE_PORTS",
             "desc": "Service Ports",
             "type": "JsonArray",
@@ -446,6 +466,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "DBID",
+                    "desc": "DBID",
+                    "type": "String"
+                },
+                {
                     "name": "DB_NAME",
                     "desc": "DB Name",
                     "type": "String"
@@ -589,6 +614,18 @@
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
+        },
+        {
+            "name": "PATCHES",
+            "desc": "Patches List",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "RAC_CLUSTER",

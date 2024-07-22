@@ -88,6 +88,11 @@
             "type": "String"
         },
         {
+            "name": "GRID_HOME",
+            "desc": "GRID Home",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "User List",
             "type": "JsonArray",

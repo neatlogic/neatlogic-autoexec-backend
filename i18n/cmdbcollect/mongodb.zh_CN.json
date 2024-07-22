@@ -451,8 +451,68 @@
             "type": "String"
         },
         {
+            "name": "AUTH",
+            "desc": "用户认证",
+            "type": "String"
+        },
+        {
+            "name": "TLSMODE",
+            "desc": "TLS模式",
+            "type": "String"
+        },
+        {
+            "name": "OPLOGSIZE",
+            "desc": "OPLOG最大值",
+            "type": "String"
+        },
+        {
+            "name": "REPLSET",
+            "desc": "集群名称",
+            "type": "String"
+        },
+        {
+            "name": "KEYFILE",
+            "desc": "认证文件",
+            "type": "String"
+        },
+        {
             "name": "DBPATH",
-            "desc": "数据文件存储目录",
+            "desc": "数据文件目录",
+            "type": "String"
+        },
+        {
+            "name": "STORAGEENGINE",
+            "desc": "存储引擎",
+            "type": "String"
+        },
+        {
+            "name": "INMEMORYSIZEGB",
+            "desc": "最大存储引擎可分配内存",
+            "type": "String"
+        },
+        {
+            "name": "JOURNALCOMMITINTERCAL",
+            "desc": "Journal提交间隔时间",
+            "type": "String"
+        },
+        {
+            "name": "WIREDTIGERCACHESIZEGB",
+            "desc": "写缓存的最大值",
+            "type": "String"
+        },
+        {
+            "name": "MAXCONNS",
+            "desc": "最大连接数",
+            "type": "String"
+        },
+        {
+            "name": "CONFIGDB",
+            "desc": "配置数据库",
+            "type": "String"
+        },
+        {
+            "name": "SHARDSVR",
+            "desc": "角色",
             "type": "String"
         },
         {
@@ -481,7 +541,7 @@
         },
         {
             "name": "FORK",
-            "desc": "以守护进程方式启服务",
+            "desc": "是否FORK服务模型",
             "type": "String"
         },
         {
