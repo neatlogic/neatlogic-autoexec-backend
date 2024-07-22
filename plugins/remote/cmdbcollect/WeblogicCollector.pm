@@ -22,7 +22,7 @@ use CollectObjCat;
 #配置进程的filter
 sub getConfig {
     return {
-        regExps  => ['\sweblogic.Server$'],    #正则表达是匹配ps输出
+        regExps  => ['\sweblogic.Server\s*$'],    #正则表达是匹配ps输出
         psAttrs  => { COMM    => 'java' },     #ps的属性的精确匹配
         envAttrs => { WL_HOME => undef }       #环境变量的正则表达式匹配，如果环境变量对应值为undef则变量存在即可
     };

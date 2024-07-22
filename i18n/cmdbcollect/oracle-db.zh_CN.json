@@ -88,6 +88,11 @@
             "type": "String"
         },
         {
+            "name": "GRID_HOME",
+            "desc": "GRID目录",
+            "type": "String"
+        },
+        {
             "name": "USERS",
             "desc": "用户列表",
             "type": "JsonArray",
