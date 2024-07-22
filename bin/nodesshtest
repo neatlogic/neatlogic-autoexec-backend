@@ -8,6 +8,7 @@ import json
 import argparse
 import paramiko
 
+import initenv
 import VContext
 import Utils
 
