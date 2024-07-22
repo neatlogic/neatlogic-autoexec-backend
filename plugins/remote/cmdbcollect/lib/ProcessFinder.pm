@@ -460,8 +460,9 @@ sub doDetailCollect {
             $appInfo->{OS_USER}        = $procInfo->{USER};
             $appInfo->{_CONTAINERTYPE} = $procInfo->{_CONTAINERTYPE};
         }
+
         #PORT强制转int
-        $appInfo->{PORT} = int($appInfo->{PORT});
+        $appInfo->{PORT} = int( $appInfo->{PORT} );
 
         push( @$appsArray, $appInfo );
 
@@ -825,40 +826,52 @@ sub mergeMultiProcs {
                 my $objCat      = $appInfo->{_OBJ_CATEGORY};
 
                 my @servicePortsArray = ();
+                my $servicePortsMap   = {};
                 my $servicePorts      = $appInfo->{SERVICE_PORTS};
                 if ( defined($servicePorts) ) {
 
                     #如果存在服务端口，则加入SERVICE_PORTS对象
                     while ( my ( $svcName, $svcPort ) = each(%$servicePorts) ) {
-                        push(
-                            @servicePortsArray,
-                            {
+                        my $existsService = $servicePortsMap->{$svcPort};
+                        if ( defined($existsService) ) {
+                            if ( $existsService->{NAME} =~ /^\d+$/ ) {
+                                $servicePortsMap->{$svcPort} = {
+                                    _OBJ_CATEGORY => $objCat,
+                                    _OBJ_TYPE     => 'Service-Ports',
+                                    NAME          => $svcName,
+                                    PORT          => $svcPort
+                                };
+                            }
+                        }
+                        else {
+                            $servicePortsMap->{$svcPort} = {
                                 _OBJ_CATEGORY => $objCat,
                                 _OBJ_TYPE     => 'Service-Ports',
                                 NAME          => $svcName,
                                 PORT          => $svcPort
-                            }
-                        );
+                            };
+                        }
                     }
+                    @servicePortsArray = values(%$servicePortsMap);
                     $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
                 }
+
                 if ( $objCat eq $insObjCat or $objCat eq $dbInsObjCat ) {
-                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
 
                     #如果是应用实例，补充其他监听的端口（未知协议或服务名）
                     foreach my $svcPort ( keys(%$portsMap) ) {
-                        if ( not defined( $servicePorts->{$svcPort} ) ) {
-                            push(
-                                @servicePortsArray,
-                                {
-                                    _OBJ_CATEGORY => $objCat,
-                                    _OBJ_TYPE     => 'Service-Ports',
-                                    NAME          => $svcPort,
-                                    PORT          => $svcPort
-                                }
-                            );
+                        if ( not defined( $servicePortsMap->{$svcPort} ) ) {
+                            $servicePortsMap->{$svcPort} = {
+                                _OBJ_CATEGORY => $objCat,
+                                _OBJ_TYPE     => 'Service-Ports',
+                                NAME          => $svcPort,
+                                PORT          => $svcPort
+                            };
                         }
                     }
+
+                    @servicePortsArray = values(%$servicePortsMap);
+                    $appInfo->{SERVICE_PORTS} = \@servicePortsArray;
                 }
             }
 
