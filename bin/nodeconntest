@@ -10,6 +10,7 @@ import argparse
 import paramiko
 from pysnmp.hlapi import *
 
+import initenv
 import VContext
 import Utils
 import TagentClient

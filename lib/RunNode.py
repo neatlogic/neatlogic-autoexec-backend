@@ -21,6 +21,7 @@ import chardet
 import traceback
 
 import paramiko
+import paramiko.transport
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
 
@@ -35,6 +36,21 @@ import OutputStore
 
 class LogFile:
     def __init__(self, fileHandle, runNode):
+        # 因为部分server可能会不发出公钥散列算法协商
+        # 修改paramiko的pub key的优先顺序，吧ssh-sha2放到最后去，否则rsa验证会不通过
+        preferPubkeys = paramiko.transport.Transport._preferred_pubkeys
+        fixedPubkeys = []
+        notPreferPubkeys = []
+
+        for pubKey in preferPubkeys:
+            if pubKey.startswith("rsa-sha2-"):
+                notPreferPubkeys.append(pubKey)
+            else:
+                fixedPubkeys.append(pubKey)
+
+        fixedPubkeys.extend(notPreferPubkeys)
+        # 修复公钥优先顺序结束
+
         self.failIgnore = False
         self.hintKeyBytes = b"ERROR:"
         self.foreLine = b""
@@ -55,12 +71,20 @@ class LogFile:
                 try:
                     self.failPats.append(re.compile(reOpt.get("value")))
                 except Exception as ex:
-                    self.write("WARN: Log fail pattern not a regexp:{}, {}, ignore.\n".format(reOpt.get("value"), str(ex)))
+                    self.write(
+                        "WARN: Log fail pattern not a regexp:{}, {}, ignore.\n".format(
+                            reOpt.get("value"), str(ex)
+                        )
+                    )
         try:
             if exPatOpt is not None and exPatOpt != "":
                 self.failExpPat = re.compile(exPatOpt)
         except Exception as ex:
-            self.write("WARN: Log fail except pattern not a regexp:{}, {}, ignore.\n".format(exPatOpt, str(ex)))
+            self.write(
+                "WARN: Log fail except pattern not a regexp:{}, {}, ignore.\n".format(
+                    exPatOpt, str(ex)
+                )
+            )
 
     def clearFailPattern(self):
         self.failPats = []
@@ -88,7 +112,11 @@ class LogFile:
                 for pat in self.failPats[1:]:
                     pats = pats + "and " + pat
                 timeBytes = Utils.getTimeStr().encode()
-                self.fileHandle.write(timeBytes + self.hintKeyBytes + " Fail pattern {} matched for pre line.\n".format(pats).encode())
+                self.fileHandle.write(
+                    timeBytes
+                    + self.hintKeyBytes
+                    + " Fail pattern {} matched for pre line.\n".format(pats).encode()
+                )
         else:
             matched = False
             for pat in self.failPats:
@@ -97,7 +125,13 @@ class LogFile:
                         self.runNode.hasFailLog = True
                     matched = True
                     timeBytes = Utils.getTimeStr().encode()
-                    self.fileHandle.write(timeBytes + self.hintKeyBytes + " Fail pattern {} matched for pre line.\n".format(pat).encode())
+                    self.fileHandle.write(
+                        timeBytes
+                        + self.hintKeyBytes
+                        + " Fail pattern {} matched for pre line.\n".format(
+                            pat
+                        ).encode()
+                    )
                     break
 
         return matched
@@ -122,7 +156,11 @@ class LogFile:
                 if self.srcEncoding is None:
                     detectInfo = chardet.detect(text)
                     detectEnc = detectInfo.get("encoding", "ascii")
-                    if detectEnc is not None and detectEnc != "ascii" and not detectEnc.startswith("ISO-8859"):
+                    if (
+                        detectEnc is not None
+                        and detectEnc != "ascii"
+                        and not detectEnc.startswith("ISO-8859")
+                    ):
                         self.srcEncoding = detectEnc
                     else:
                         decodeLine = line.decode()
@@ -216,8 +254,12 @@ class RunNode:
             os.mkdir(self.phaseLogDir)
 
         self.logPathWithTime = None
-        self.logPath = "{}/{}-{}-{}.txt".format(self.phaseLogDir, self.host, self.port, self.resourceId)
-        self.hisLogDir = "{}/{}-{}-{}.hislog".format(self.phaseLogDir, self.host, self.port, self.resourceId)
+        self.logPath = "{}/{}-{}-{}.txt".format(
+            self.phaseLogDir, self.host, self.port, self.resourceId
+        )
+        self.hisLogDir = "{}/{}-{}-{}.hislog".format(
+            self.phaseLogDir, self.host, self.port, self.resourceId
+        )
 
         try:
             if not os.path.exists(self.hisLogDir):
@@ -236,26 +278,36 @@ class RunNode:
         if not os.path.exists(self.statusPhaseDir):
             os.mkdir(self.statusPhaseDir)
 
-        self.statusPath = "{}/{}-{}-{}.json".format(self.statusPhaseDir, self.host, self.port, self.resourceId)
+        self.statusPath = "{}/{}-{}-{}.json".format(
+            self.statusPhaseDir, self.host, self.port, self.resourceId
+        )
 
         self.outputRoot = self.runPath + "/output"
-        self.outputRelDir = "output/{}-{}-{}".format(self.host, self.port, self.resourceId)
+        self.outputRelDir = "output/{}-{}-{}".format(
+            self.host, self.port, self.resourceId
+        )
         self.outputDir = "{}/{}".format(self.runPath, self.outputRelDir)
         self.outputPath = self.outputDir + ".json"
 
         self.inputRoot = self.runPath + "/input"
-        self.inputRelDir = "input/{}-{}-{}".format(self.host, self.port, self.resourceId)
+        self.inputRelDir = "input/{}-{}-{}".format(
+            self.host, self.port, self.resourceId
+        )
         self.inputDir = "{}/{}".format(self.runPath, self.inputRelDir)
         self.inputPath = self.inputDir + ".json"
 
         self.opOutputRoot = self.runPath + "/output-op"
-        self.opOutputRelDir = "output-op/{}-{}-{}".format(self.host, self.port, self.resourceId)
+        self.opOutputRelDir = "output-op/{}-{}-{}".format(
+            self.host, self.port, self.resourceId
+        )
         self.opOutputDir = "{}/{}".format(self.runPath, self.opOutputRelDir)
         # self.opInputRelDir = 'input-op/{}-{}-{}'.format(self.host, self.port, self.resourceId)
         # self.opInputDir = '{}/{}'.format(self.runPath, self.opInputRelDir)
         self.opLocalOutputDir = "{}/output-op/local-0-0".format(self.runPath)
 
-        self.liveDataDir = "{}/livedata/{}/{}-{}-{}".format(self.runPath, phaseName, self.host, self.port, self.resourceId)
+        self.liveDataDir = "{}/livedata/{}/{}-{}-{}".format(
+            self.runPath, phaseName, self.host, self.port, self.resourceId
+        )
 
         os.makedirs(self.outputRoot, exist_ok=True)
         os.makedirs(self.opOutputDir, exist_ok=True)
@@ -305,7 +357,9 @@ class RunNode:
         else:
             print(msg)
 
-    def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
+    def updateNodeStatus(
+        self, status, op=None, interact=None, failIgnore=0, consumeTime=0
+    ):
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             if op is None or not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
@@ -338,7 +392,9 @@ class RunNode:
             self.statusFile.flush()
             self.outputStore.saveStatus(self.statuses)
         except Exception as ex:
-            raise AutoExecError("Save status file:{}, failed {}".format(self.statusPath, ex))
+            raise AutoExecError(
+                "Save status file:{}, failed {}".format(self.statusPath, ex)
+            )
 
         if op is None:
             try:
@@ -360,9 +416,15 @@ class RunNode:
                         if retObj["Return"]["hasFailNode"] == 1:
                             self.context.hasFailNodeInGlobal = True
                 else:
-                    self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj, ensure_ascii=False)))
+                    self.writeNodeLog(
+                        "INFO: Change node status to {} failed, {}\n".format(
+                            status, json.dumps(retObj, ensure_ascii=False)
+                        )
+                    )
             except Exception as ex:
-                raise AutoExecError("Push status:{} to server, failed {}".format(self.statusPath, ex))
+                raise AutoExecError(
+                    "Push status:{} to server, failed {}".format(self.statusPath, ex)
+                )
 
     def _loadNodeStatus(self):
         statuses = {}
@@ -379,7 +441,9 @@ class RunNode:
 
             self.statuses = statuses
         except Exception as ex:
-            raise AutoExecError("Load status file:{}, failed {}".format(self.statusPath, ex))
+            raise AutoExecError(
+                "Load status file:{}, failed {}".format(self.statusPath, ex)
+            )
 
     def getNodeStatus(self, op=None):
         status = NodeStatus.pending
@@ -458,7 +522,9 @@ class RunNode:
         phaseStatus = self.context.phases[self.phaseName]
         if phaseStatus.localOutput is None:
             localNode = {"resourceId": 0, "host": "local", "port": 0}
-            loalOutStore = OutputStore.OutputStore(self.context, self.phaseName, localNode)
+            loalOutStore = OutputStore.OutputStore(
+                self.context, self.phaseName, localNode
+            )
             output = loalOutStore.loadOutput()
             phaseStatus.localOutput = output
         else:
@@ -480,7 +546,9 @@ class RunNode:
                     output = json.loads(content)
                     self.output = output
             except Exception as ex:
-                raise AutoExecError("Load output file:{}, failed {}".format(self.outputPath, ex))
+                raise AutoExecError(
+                    "Load output file:{}, failed {}".format(self.outputPath, ex)
+                )
             finally:
                 if outputFile is not None:
                     fcntl.flock(outputFile, fcntl.LOCK_UN)
@@ -514,7 +582,9 @@ class RunNode:
                     input = json.loads(content)
                     self.input = input
             except Exception as ex:
-                raise AutoExecError("Load input file:{}, failed {}".format(self.inputPath, ex))
+                raise AutoExecError(
+                    "Load input file:{}, failed {}".format(self.inputPath, ex)
+                )
             finally:
                 if inputFile is not None:
                     fcntl.flock(inputFile, fcntl.LOCK_UN)
@@ -541,10 +611,16 @@ class RunNode:
                     localOutFile = open(localOutputPath, "a+")
                     fcntl.flock(localOutFile, fcntl.LOCK_EX)
                     localOutFile.truncate(0)
-                    localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
+                    localOutFile.write(
+                        json.dumps(
+                            phaseStatus.localOutput, indent=4, ensure_ascii=False
+                        )
+                    )
                     self.outputStore.saveOutputToLocal(phaseStatus.localOutput)
             except Exception as ex:
-                raise AutoExecError("Save output file:{}, failed {}".format(self.outputPath, ex))
+                raise AutoExecError(
+                    "Save output file:{}, failed {}".format(self.outputPath, ex)
+                )
             finally:
                 if localOutFile is not None:
                     fcntl.flock(localOutFile, fcntl.LOCK_UN)
@@ -579,7 +655,11 @@ class RunNode:
                     opLocalOutput.update(opOutput)
                     phaseStatus.localOutput[op.opId] = opLocalOutput
             except Exception as ex:
-                raise AutoExecError("Load operation {} output file:{}, failed {}".format(op.opId, opOutPutPath, ex))
+                raise AutoExecError(
+                    "Load operation {} output file:{}, failed {}".format(
+                        op.opId, opOutPutPath, ex
+                    )
+                )
             finally:
                 if opOutputFile:
                     fcntl.flock(opOutputFile, fcntl.LOCK_UN)
@@ -602,7 +682,11 @@ class RunNode:
                     opLocalOutput.update(opOutput)
                     phaseStatus.localOutput[op.opId] = opLocalOutput
             except Exception as ex:
-                raise AutoExecError("Save operation {} output file:{}, failed {}".format(op.opId, opOutPutPath, ex))
+                raise AutoExecError(
+                    "Save operation {} output file:{}, failed {}".format(
+                        op.opId, opOutPutPath, ex
+                    )
+                )
             finally:
                 if opOutputFile:
                     fcntl.flock(opOutputFile, fcntl.LOCK_UN)
@@ -654,7 +738,9 @@ class RunNode:
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
         except Exception as ex:
-            raise AutoExecError("Save input file:{}, failed {}".format(self.inputPath, ex))
+            raise AutoExecError(
+                "Save input file:{}, failed {}".format(self.inputPath, ex)
+            )
         finally:
             if inputFile is not None:
                 fcntl.flock(inputFile, fcntl.LOCK_UN)
@@ -684,7 +770,9 @@ class RunNode:
         timeConsume = None
         startTime = time.time()
         try:
-            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+            self.writeNodeLog(
+                "------START--[{}] {} execution start...\n".format(op.opId, op.opType)
+            )
             if op.opMemo is not None:
                 self.writeNodeLog("------{}---\n".format(op.opMemo))
 
@@ -700,11 +788,23 @@ class RunNode:
             )
 
             startTime = time.time()
-            if not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
+            if (
+                not self.context.isForce
+                and opStatus == NodeStatus.succeed
+                and self.phaseType != "sqlfile"
+            ):
                 self._loadOpOutput(op)
-                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                self.writeNodeLog(
+                    "INFO: Operation {} has been executed in status:{}, skip.\n".format(
+                        op.opId, opStatus
+                    )
+                )
                 timeConsume = time.time() - startTime
-                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+                self.writeNodeLog(
+                    "------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(
+                        op.opId, op.opType, timeConsume
+                    )
+                )
                 return
 
             self._saveOpInput(op)
@@ -727,18 +827,32 @@ class RunNode:
                                 isHidden = op.options.get("hidden", 0)
                                 envName = arg.get("value", "")
                                 if envName != "" and os.getenv(envName) is not None:
-                                    self.writeNodeLog("INFO: Execute -> native/{} {}\n".format(op.opSubName, envName))
+                                    self.writeNodeLog(
+                                        "INFO: Execute -> native/{} {}\n".format(
+                                            op.opSubName, envName
+                                        )
+                                    )
                                     self.context.exportEnv(envName, isHidden)
                         elif op.opSubName == "setenv":
                             envName = op.options["name"]
                             envValue = op.options["value"]
                             envScope = op.options["scope"]
                             isHidden = op.options.get("hidden", 0)
-                            self.writeNodeLog("INFO: Execute -> native/{} {}={} scope:{}\n".format(op.opSubName, envName, envValue, envScope))
+                            self.writeNodeLog(
+                                "INFO: Execute -> native/{} {}={} scope:{}\n".format(
+                                    op.opSubName, envName, envValue, envScope
+                                )
+                            )
                             matchObjs = re.search(r"\$\(([^\)]+)\)", envValue)
                             if matchObjs is not None:
-                                if re.search(r"\brm\b", envValue) or re.search(r"\bcp\b", envValue) or re.search(r">", envValue):
-                                    print("WARN: Shell eval string contains critical command rm|cp or redirect symbol, not permitted, evaluate aborted.\n")
+                                if (
+                                    re.search(r"\brm\b", envValue)
+                                    or re.search(r"\bcp\b", envValue)
+                                    or re.search(r">", envValue)
+                                ):
+                                    print(
+                                        "WARN: Shell eval string contains critical command rm|cp or redirect symbol, not permitted, evaluate aborted.\n"
+                                    )
                                 else:
                                     result = subprocess.run(
                                         "echo " + envValue,
@@ -749,7 +863,11 @@ class RunNode:
                             if envScope == "global":
                                 self.context.setEnv(envName, envValue, isHidden)
                                 self.context.exportEnv(envName, isHidden)
-                                self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+                                self.writeNodeLog(
+                                    "INFO: Set global envrionment:{}={}\n".format(
+                                        envName, envValue
+                                    )
+                                )
                             else:
                                 op.hasNodeEnv = True
                                 self.nodeEnv[envName] = envValue
@@ -758,13 +876,27 @@ class RunNode:
                                 if isHidden == 1:
                                     hiddenEnv = self.output["hiddenNodeEnv"]
                                     hiddenEnv[envName] = 1
-                                self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+                                self.writeNodeLog(
+                                    "INFO: Set node envrionment:{}={}\n".format(
+                                        envName, envValue
+                                    )
+                                )
                         elif op.opSubName == "updategparam":
                             varName = op.options["name"]
                             varValue = op.options["value"]
-                            self.writeNodeLog("INFO: Execute -> native/{} {}={}\n".format(op.opSubName, varName, varValue))
-                            self.context.serverAdapter.updateGlobalParam(varName, varValue)
-                            self.writeNodeLog("INFO: Update global variable:{}={}\n".format(varName, varValue))
+                            self.writeNodeLog(
+                                "INFO: Execute -> native/{} {}={}\n".format(
+                                    op.opSubName, varName, varValue
+                                )
+                            )
+                            self.context.serverAdapter.updateGlobalParam(
+                                varName, varValue
+                            )
+                            self.writeNodeLog(
+                                "INFO: Update global variable:{}={}\n".format(
+                                    varName, varValue
+                                )
+                            )
                         elif op.opSubName == "failkeys":
                             self.writeNodeLog(
                                 'INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(
@@ -803,18 +935,30 @@ class RunNode:
                         elif op.opSubName == "extractprestepstatus":
                             envName = op.options.get("envname")
                             envScope = op.options.get("scope")
-                            self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, envScope, envName))
+                            self.writeNodeLog(
+                                'INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(
+                                    op.opSubName, envScope, envName
+                                )
+                            )
                             if op.preOp is not None and op.preOp.status is not None:
                                 if envScope == "global":
                                     self.context.setEnv(envName, op.preOp.status)
                                     self.context.exportEnv(envName, isHidden)
-                                    self.writeNodeLog("INFO: Set global envariable:{}={}\n".format(envName, op.preOp.status))
+                                    self.writeNodeLog(
+                                        "INFO: Set global envariable:{}={}\n".format(
+                                            envName, op.preOp.status
+                                        )
+                                    )
                                 else:
                                     op.hasNodeEnv = True
                                     self.nodeEnv[envName] = op.preOp.status
                                     persistenceEnv = self.output["nodeEnv"]
                                     persistenceEnv[envName] = op.preOp.status
-                                    self.writeNodeLog("INFO: Set node envariable:{}={}\n".format(envName, op.preOp.status))
+                                    self.writeNodeLog(
+                                        "INFO: Set node envariable:{}={}\n".format(
+                                            envName, op.preOp.status
+                                        )
+                                    )
                         else:
                             # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
                             # native工具一般用于处理数据，不需要连接remote进行操作
@@ -827,7 +971,11 @@ class RunNode:
                                 self._loadOpOutput(op)
                     except Exception as ex:
                         ret = 1
-                        self.writeNodeLog("ERROR: Execute native plugin native/{} failed, {}\n".format(op.opSubName, str(ex)))
+                        self.writeNodeLog(
+                            "ERROR: Execute native plugin native/{} failed, {}\n".format(
+                                op.opSubName, str(ex)
+                            )
+                        )
                 elif self.host == "local":
                     if op.opType == "local":
                         # 本地执行
@@ -838,20 +986,32 @@ class RunNode:
                 else:
                     if op.opType == "localremote":
                         if self.password == "":
-                            self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                            self.writeNodeLog(
+                                "WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(
+                                    self.username, self.host, self.protocolPort
+                                )
+                            )
                         # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
                         # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                         ret = self._localRemoteExecute(op)
                     elif op.opType == "remote":
                         if self.password == "":
                             ret = 1
-                            self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                            self.writeNodeLog(
+                                "ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(
+                                    self.username, self.host, self.protocolPort
+                                )
+                            )
                         else:
                             # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
                             ret = self._remoteExecute(op)
                     else:
                         ret = 1
-                        self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
+                        self.writeNodeLog(
+                            "WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(
+                                op.opType
+                            )
+                        )
 
             timeConsume = time.time() - startTime
             if ret != 0:
@@ -862,11 +1022,15 @@ class RunNode:
                     if op.opType not in ("remote", "native"):
                         self._loadOpOutput(op)
                     self._saveOutput()
-                self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
+                self.updateNodeStatus(
+                    NodeStatus.succeed, op=op, consumeTime=timeConsume
+                )
         except:
             ret = 3
             timeConsume = time.time() - startTime
-            self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
+            self.writeNodeLog(
+                "ERROR: Error ocurred.\n{}\n".format(traceback.format_exc())
+            )
 
         hintKey = "FINE:"
         opFinalStatus = NodeStatus.succeed
@@ -880,8 +1044,16 @@ class RunNode:
 
         op.status = opFinalStatus
 
-        self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-        self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+        self.writeNodeLog(
+            "{} Execute operation {} {} {}.\n".format(
+                hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus
+            )
+        )
+        self.writeNodeLog(
+            "------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(
+                op.opId, op.opType, timeConsume
+            )
+        )
 
         return opFinalStatus
 
@@ -894,9 +1066,13 @@ class RunNode:
             interpreter = ConditionDSL.Interpreter()
             result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
         else:
-            raise AutoExecError('Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
+            raise AutoExecError(
+                'Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.'
+            )
 
-        self.writeNodeLog("INFO: IF condition [ {} ] = {}\n\n".format(condition, result))
+        self.writeNodeLog(
+            "INFO: IF condition [ {} ] = {}\n\n".format(condition, result)
+        )
 
         activeOps = None
         if result:
@@ -1032,8 +1208,12 @@ class RunNode:
                     finalStatus = NodeStatus.failed
                     hintKey = "ERROR:"
 
-            self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
-            self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
+            self.updateNodeStatus(
+                finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime
+            )
+            self.writeNodeLog(
+                "{} Node execute complete, status:{}.\n".format(hintKey, finalStatus)
+            )
             self.writeNodeLog(
                 "======[{}]{}:{} executed by {}://{}@{}:{} ended, duration:{:.2f} second ======\n".format(
                     self.id,
@@ -1049,7 +1229,9 @@ class RunNode:
 
             # 创建带时间戳的日志文件名
             finalLogPathWithTime = logPathWithTime
-            finalLogPathWithTime = finalLogPathWithTime.replace(".{}.".format(NodeStatus.running), ".{}.".format(finalStatus))
+            finalLogPathWithTime = finalLogPathWithTime.replace(
+                ".{}.".format(NodeStatus.running), ".{}.".format(finalStatus)
+            )
             if finalLogPathWithTime != logPathWithTime:
                 # if self.logHandle is not None:
                 #     self.logHandle.close()
@@ -1069,7 +1251,9 @@ class RunNode:
                 self.writeNodeLog("\n")
             except Exception as ex:
                 print(
-                    "ERROR: Can not write node log.\n{}\n{}\n".format(str(ex), traceback.format_exc()),
+                    "ERROR: Can not write node log.\n{}\n{}\n".format(
+                        str(ex), traceback.format_exc()
+                    ),
                     end="",
                 )
         finally:
@@ -1087,7 +1271,9 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True, osType="Linux")
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False, osType="Linux")
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(
+            fullPath=False, osType="Linux"
+        )
 
         cmdline = "exec {}".format(orgCmdLine)
         environment = os.environ.copy()
@@ -1098,7 +1284,9 @@ class RunNode:
         environment["AUTOEXEC_OPERATION_ID"] = op.opId
         environment["LIVEDATA_PATH"] = self._getOpLiveDataPath(op)
         environment["NODE_OUTPUT_PATH"] = self.outputPath
-        environment["PATH"] = "{}/lib:{}:{}".format(op.pluginParentPath, op.localLibPath, os.getenv("PATH"))
+        environment["PATH"] = "{}/lib:{}:{}".format(
+            op.pluginParentPath, op.localLibPath, os.getenv("PATH")
+        )
         environment["PYTHONPATH"] = "{}:{}/lib:{}:{}".format(
             op.pluginParentPath,
             op.pluginParentPath,
@@ -1113,7 +1301,9 @@ class RunNode:
         )
         environment["AUTOEXEC_PHASE_NAME"] = self.phaseName
         environment["AUTOEXEC_NODE"] = json.dumps(self.node, ensure_ascii=False)
-        environment["AUTOEXEC_NODES_PATH"] = self.context.phases[self.phaseName].nodesFilePath
+        environment["AUTOEXEC_NODES_PATH"] = self.context.phases[
+            self.phaseName
+        ].nodesFilePath
 
         opLockFile = None
         if op.isScript == 1:
@@ -1163,7 +1353,9 @@ class RunNode:
         ret = -1
         # 本地执行，则使用管道启动运行插件
         orgCmdLine = op.getCmdLine(fullPath=True, osType="Linux")
-        orgCmdLineHidePassword = op.getCmdLineHidePassword(fullPath=False, osType="Linux")
+        orgCmdLineHidePassword = op.getCmdLineHidePassword(
+            fullPath=False, osType="Linux"
+        )
 
         # cmdline = 'exec {} --node \'{}\''.format(orgCmdLine, json.dumps(self.node, ensure_ascii=False))
         cmdline = "exec {}".format(orgCmdLine)
@@ -1175,7 +1367,9 @@ class RunNode:
         environment["AUTOEXEC_OPERATION_ID"] = op.opId
         environment["LIVEDATA_PATH"] = self._getOpLiveDataPath(op)
         environment["NODE_OUTPUT_PATH"] = self.outputPath
-        environment["PATH"] = "{}/lib:{}:{}".format(op.pluginParentPath, op.localLibPath, os.getenv("PATH"))
+        environment["PATH"] = "{}/lib:{}:{}".format(
+            op.pluginParentPath, op.localLibPath, os.getenv("PATH")
+        )
         environment["PYTHONPATH"] = "{}:{}/lib:{}:{}".format(
             op.pluginParentPath,
             op.pluginParentPath,
@@ -1193,7 +1387,9 @@ class RunNode:
         environment["NODE_PORT"] = str(self.port)
         environment["NODE_NAME"] = self.name
         environment["AUTOEXEC_NODE"] = json.dumps(self.node, ensure_ascii=False)
-        environment["AUTOEXEC_NODES_PATH"] = self.context.phases[self.phaseName].nodesFilePath
+        environment["AUTOEXEC_NODES_PATH"] = self.context.phases[
+            self.phaseName
+        ].nodesFilePath
 
         opLockFile = None
         if op.isScript == 1:
@@ -1242,7 +1438,9 @@ class RunNode:
 
         remoteCmd = None
         remoteCmdHidePass = None
-        jobDir = "autoexec-{}-{}-{}".format(self.context.jobId, self.resourceId, self.phaseIndex)
+        jobDir = "autoexec-{}-{}-{}".format(
+            self.context.jobId, self.resourceId, self.phaseIndex
+        )
         self.writeNodeLog("INFO: Job directory:{}\n".format(jobDir))
 
         ret = -1
@@ -1257,7 +1455,9 @@ class RunNode:
 
                 runEnv = {
                     "AUTOEXEC_JOBID": self.context.jobId,
-                    "AUTOEXEC_NODE": json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
+                    "AUTOEXEC_NODE": json.dumps(
+                        self.nodeWithoutPassword, ensure_ascii=False
+                    ),
                     "HISTSIZE": "0",
                     "NODE_HOST": self.host,
                     "NODE_PORT": str(self.port),
@@ -1271,7 +1471,11 @@ class RunNode:
                     runEnv["INS_PATH"] = insPath
                     runEnv["INS_ID_PATH"] = insIdPath
 
-                self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+                self.killCmd = (
+                    "kill -9 `ps auxe |grep AUTOEXEC_JOBID="
+                    + self.context.jobId
+                    + "|grep -v grep|awk '{print $2}'`"
+                )
 
                 context = self.context
                 tagent = TagentClient.TagentClient(
@@ -1293,7 +1497,9 @@ class RunNode:
                 if op.isScript == 1:
                     opLockFile = open(op.lockPath, "r")
                     try:
-                        uploadRet = tagent.upload(self.username, op.remoteLibPath, remoteRoot, dirCreate=True)
+                        uploadRet = tagent.upload(
+                            self.username, op.remoteLibPath, remoteRoot, dirCreate=True
+                        )
                         if uploadRet == 0:
                             fcntl.flock(opLockFile, fcntl.LOCK_SH)
                             uploadRet = tagent.upload(
@@ -1318,12 +1524,14 @@ class RunNode:
                                         if tagent.agentOsType == "windows":
                                             uploadRet = tagent.execCmd(
                                                 self.username,
-                                                '7z.exe x "%s" -o"%s" -aoa -y -ttar' % (name, remotePath),
+                                                '7z.exe x "%s" -o"%s" -aoa -y -ttar'
+                                                % (name, remotePath),
                                             )
                                         else:
                                             uploadRet = tagent.execCmd(
                                                 self.username,
-                                                "cd %s && tar xvf %s" % (remotePath, name),
+                                                "cd %s && tar xvf %s"
+                                                % (remotePath, name),
                                             )
                                 finally:
                                     fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
@@ -1335,7 +1543,9 @@ class RunNode:
                         opLockFile = None
                 else:
                     for srcPath in [op.remoteLibPath, op.pluginParentPath]:
-                        uploadRet = tagent.upload(self.username, srcPath, remoteRoot, dirCreate=True)
+                        uploadRet = tagent.upload(
+                            self.username, srcPath, remoteRoot, dirCreate=True
+                        )
                         if uploadRet != 0:
                             break
                     if uploadRet == 0 and tagent.agentCharset not in [
@@ -1351,9 +1561,13 @@ class RunNode:
                         )
 
                 if uploadRet == 0 and op.hasFileOpt:
-                    uploadRet = tagent.upload(self.username, self.context.runPath + "/file", remotePath + "/")
+                    uploadRet = tagent.upload(
+                        self.username, self.context.runPath + "/file", remotePath + "/"
+                    )
                 if uploadRet == 0 and op.hasFilePathOpt:
-                    uploadRet = tagent.upload(self.username, self.context.runPath + "/file", remotePath + "/")
+                    uploadRet = tagent.upload(
+                        self.username, self.context.runPath + "/file", remotePath + "/"
+                    )
                     for filePath in op.filePaths:
                         uploadRet = tagent.upload(
                             self.username,
@@ -1361,7 +1575,9 @@ class RunNode:
                             remotePath + "/file/",
                         )
                 if uploadRet == 0 and op.hasOutput:
-                    uploadRet = tagent.writeFile(self.username, b"", remotePath + "/output.json")
+                    uploadRet = tagent.writeFile(
+                        self.username, b"", remotePath + "/output.json"
+                    )
 
                 if tagent.agentOsType == "windows":
                     killCmd = """
@@ -1393,12 +1609,17 @@ class RunNode:
                     """
                     killCmd = killCmd.replace('"', '\\"')
                     killCmd = re.sub(r"\\s+", " ", killCmd)
-                    self.killCmd = 'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"' % (
-                        killCmd,
-                        self.context.jobId,
+                    self.killCmd = (
+                        'powershell -command "%s killProcessByEnv AUTOEXEC_JOBID=%s"'
+                        % (
+                            killCmd,
+                            self.context.jobId,
+                        )
                     )
 
-                remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType=tagent.agentOsType)
+                remoteCmd = op.getCmdLine(
+                    fullPath=True, remotePath=remotePath, osType=tagent.agentOsType
+                )
                 remoteCmdHidePass = op.getCmdOptsHidePassword(osType=tagent.agentOsType)
 
                 if uploadRet == 0:
@@ -1447,7 +1668,9 @@ class RunNode:
 
                             for outFileKey, outFilePath in outFileMap.items():
                                 outFileName = os.path.basename(outFilePath)
-                                savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
+                                savePath = "{}/{}/{}".format(
+                                    self.runPath, opFileOutRelDir, outFileName
+                                )
                                 outputStatus = tagent.download(
                                     self.username,
                                     "{}/{}".format(remotePath, outFilePath),
@@ -1458,20 +1681,30 @@ class RunNode:
                                 if opOutput is None:
                                     break
 
-                                opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
+                                opOutput[outFileKey] = (
+                                    opFileOutRelDir + "/" + outFileName
+                                )
 
                                 if outputStatus != 0:
                                     opOutput[outFileKey] = None
-                                    self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
+                                    self.writeNodeLog(
+                                        "ERROR: Download output file:{} failed.\n".format(
+                                            outFilePath
+                                        )
+                                    )
                                     ret = 2
 
                             self._saveOpOutput(op)
                     try:
                         if ret == 0:
                             if tagent.agentOsType == "windows":
-                                tagent.execCmd(self.username, 'rd /s /q "{}"'.format(remoteRoot))
+                                tagent.execCmd(
+                                    self.username, 'rd /s /q "{}"'.format(remoteRoot)
+                                )
                             else:
-                                tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
+                                tagent.execCmd(
+                                    self.username, "rm -rf {}".format(remoteRoot)
+                                )
                         else:
                             if self.context.failReserveDir == 0:
                                 if tagent.agentOsType == "windows":
@@ -1480,13 +1713,17 @@ class RunNode:
                                         'rd /s /q "{}"'.format(remoteRoot),
                                     )
                                 else:
-                                    tagent.execCmd(self.username, "rm -rf {}".format(remoteRoot))
+                                    tagent.execCmd(
+                                        self.username, "rm -rf {}".format(remoteRoot)
+                                    )
                             else:
                                 try:
                                     if tagent.agentOsType == "windows":
                                         tagent.execCmd(
                                             self.username,
-                                            'rd /s /q "{}/output.json"'.format(remoteRoot),
+                                            'rd /s /q "{}/output.json"'.format(
+                                                remoteRoot
+                                            ),
                                         )
                                     else:
                                         tagent.execCmd(
@@ -1496,9 +1733,15 @@ class RunNode:
                                 except:
                                     pass
                     except Exception as ex:
-                        self.writeNodeLog("WARN: Remote remove directory {} failed {}\n".format(remoteRoot, ex))
+                        self.writeNodeLog(
+                            "WARN: Remote remove directory {} failed {}\n".format(
+                                remoteRoot, ex
+                            )
+                        )
             except Exception as ex:
-                self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
+                self.writeNodeLog(
+                    "ERROR: Execute operation {} failed, {}\n".format(op.opName, ex)
+                )
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -1537,9 +1780,15 @@ class RunNode:
                     remoteLibPath,
                     json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                 )
-            remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType="Unix").replace("&&", remoteEnv, 1)
+            remoteCmd = op.getCmdLine(
+                fullPath=True, remotePath=remotePath, osType="Unix"
+            ).replace("&&", remoteEnv, 1)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType="Unix")
-            self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+            self.killCmd = (
+                "kill -9 `ps auxe |grep AUTOEXEC_JOBID="
+                + self.context.jobId
+                + "|grep -v grep|awk '{print $2}'`"
+            )
             tarFiles = []
             scriptFile = None
             uploaded = False
@@ -1557,7 +1806,6 @@ class RunNode:
                     self.username,
                     self.password,
                     look_for_keys=True,
-                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
                     timeout=self.context.rexecConnTimeout,
                     banner_timeout=self.context.rexecConnTimeout,
                     auth_timeout=self.context.rexecConnTimeout,
@@ -1578,11 +1826,15 @@ class RunNode:
                         sftp.chdir(remoteRoot)
                 except SFTPError as err:
                     hasError = True
-                    self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(remoteRoot, err))
+                    self.writeNodeLog(
+                        "ERROR: SFTP mkdir {} failed: {}\n".format(remoteRoot, err)
+                    )
 
                 absRoot = op.remotePluginRootPath
                 dirStartPos = len(absRoot) + 1
-                for root, dirs, files in os.walk(op.remotePluginRootPath + "/lib", topdown=True, followlinks=True):
+                for root, dirs, files in os.walk(
+                    op.remotePluginRootPath + "/lib", topdown=True, followlinks=True
+                ):
                     root = root[dirStartPos:]
                     try:
                         curRoot = os.path.join(remoteRoot, root)
@@ -1594,7 +1846,9 @@ class RunNode:
                             sftp.chdir(curRoot)
                     except Exception as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(root, err))
+                        self.writeNodeLog(
+                            "ERROR: SFTP mkdir {} failed: {}\n".format(root, err)
+                        )
 
                     if not hasError:
                         for direntry in dirs:
@@ -1605,7 +1859,11 @@ class RunNode:
                                     sftp.mkdir(direntry)
                             except Exception as err:
                                 hasError = True
-                                self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(os.path.join(root, direntry), err))
+                                self.writeNodeLog(
+                                    "ERROR: SFTP mkdir {} failed: {}\n".format(
+                                        os.path.join(root, direntry), err
+                                    )
+                                )
 
                     if not hasError:
                         for name in files:
@@ -1616,7 +1874,11 @@ class RunNode:
                                 sftp.put(absFilePath, name)
                             except Exception as err:
                                 hasError = True
-                                self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
+                                self.writeNodeLog(
+                                    "ERROR: SFTP put file {} failed:{}\n".format(
+                                        filePath, err
+                                    )
+                                )
 
                 if op.isScript == 1:
                     try:
@@ -1628,7 +1890,9 @@ class RunNode:
                             sftp.chdir(remotePath)
                     except Exception as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(remotePath, err))
+                        self.writeNodeLog(
+                            "ERROR: SFTP mkdir {} failed: {}\n".format(remotePath, err)
+                        )
 
                     if not hasError:
                         opLockFile = open(op.lockPath, "r")
@@ -1646,7 +1910,11 @@ class RunNode:
                                         tarFiles.append(name)
                                 except Exception as err:
                                     hasError = True
-                                    self.writeNodeLog("ERROR: SFTP upload dependcy lib:{} failed:{}\n".format(name, err))
+                                    self.writeNodeLog(
+                                        "ERROR: SFTP upload dependcy lib:{} failed:{}\n".format(
+                                            name, err
+                                        )
+                                    )
                                 finally:
                                     if scriptLockFile is not None:
                                         fcntl.flock(scriptLockFile, fcntl.LOCK_UN)
@@ -1654,7 +1922,11 @@ class RunNode:
                                         scriptLockFile = None
                         except Exception as err:
                             hasError = True
-                            self.writeNodeLog("ERROR: SFTP upload operation {} failed:{}\n".format(op.pluginPath, err))
+                            self.writeNodeLog(
+                                "ERROR: SFTP upload operation {} failed:{}\n".format(
+                                    op.pluginPath, err
+                                )
+                            )
                         finally:
                             if opLockFile is not None:
                                 fcntl.flock(opLockFile, fcntl.LOCK_UN)
@@ -1679,7 +1951,9 @@ class RunNode:
                                 sftp.chdir(curRoot)
                         except Exception as err:
                             hasError = True
-                            self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(root, err))
+                            self.writeNodeLog(
+                                "ERROR: SFTP mkdir {} failed: {}\n".format(root, err)
+                            )
 
                         if not hasError:
                             for direntry in dirs:
@@ -1690,7 +1964,11 @@ class RunNode:
                                         sftp.mkdir(direntry)
                                 except Exception as err:
                                     hasError = True
-                                    self.writeNodeLog("ERROR: SFTP mkdir {} failed: {}\n".format(os.path.join(root, direntry), err))
+                                    self.writeNodeLog(
+                                        "ERROR: SFTP mkdir {} failed: {}\n".format(
+                                            os.path.join(root, direntry), err
+                                        )
+                                    )
 
                         if not hasError:
                             for name in files:
@@ -1701,7 +1979,11 @@ class RunNode:
                                     sftp.put(absFilePath, name)
                                 except Exception as err:
                                     hasError = True
-                                    self.writeNodeLog("ERROR: SFTP put file {} failed:{}\n".format(filePath, err))
+                                    self.writeNodeLog(
+                                        "ERROR: SFTP put file {} failed:{}\n".format(
+                                            filePath, err
+                                        )
+                                    )
 
                     sftp.chmod("{}/{}".format(remotePath, op.opSubName), stat.S_IRWXU)
 
@@ -1711,8 +1993,12 @@ class RunNode:
                     except Exception as err:
                         sftp.mkdir(os.path.join(remotePath, "file"))
                     try:
-                        for file in os.listdir(os.path.join(self.context.runPath, "file")):
-                            localFilePath = os.path.join(self.context.runPath, "file", file)
+                        for file in os.listdir(
+                            os.path.join(self.context.runPath, "file")
+                        ):
+                            localFilePath = os.path.join(
+                                self.context.runPath, "file", file
+                            )
                             if os.path.isfile(localFilePath):
                                 sftp.put(
                                     localFilePath,
@@ -1720,7 +2006,9 @@ class RunNode:
                                 )
                     except Exception as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))
+                        self.writeNodeLog(
+                            "ERROR: SFTP upload file params failed:{}\n".format(err)
+                        )
                 if hasError == 0 and op.hasFilePathOpt:
                     try:
                         sftp.stat(os.path.join(remotePath, "file"))
@@ -1736,7 +2024,9 @@ class RunNode:
                                 )
                     except Exception as err:
                         hasError = True
-                        self.writeNodeLog("ERROR: SFTP upload file params failed:{}\n".format(err))
+                        self.writeNodeLog(
+                            "ERROR: SFTP upload file params failed:{}\n".format(err)
+                        )
 
                 if op.hasOutput:
                     ofh = sftp.file(os.path.join(remotePath, "output.json"), "w")
@@ -1747,7 +2037,11 @@ class RunNode:
                     self.writeNodeLog("INFO: Remote operation upload success.\n")
 
             except Exception as err:
-                self.writeNodeLog("ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n".format(op.opName, remoteRoot, err))
+                self.writeNodeLog(
+                    "ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n".format(
+                        op.opName, remoteRoot, err
+                    )
+                )
                 if sftp is not None:
                     sftp.close()
             finally:
@@ -1763,7 +2057,9 @@ class RunNode:
                     for tarFile in tarFiles:
                         channel = ssh.get_transport().open_session()
                         channel.set_combine_stderr(True)
-                        channel.exec_command("cd %s && tar xf %s" % (remotePath, tarFile))
+                        channel.exec_command(
+                            "cd %s && tar xf %s" % (remotePath, tarFile)
+                        )
                         remoteOut = b""
                         while True:
                             while channel.recv_ready():
@@ -1773,7 +2069,9 @@ class RunNode:
                                 break
                             time.sleep(0.2)
                         if ret != 0:
-                            self.writeNodeLog("ERROR: Extract dependency package failed.\n")
+                            self.writeNodeLog(
+                                "ERROR: Extract dependency package failed.\n"
+                            )
                             self.writeNodeLog(remoteOut)
                     # 执行主命令
                     if ret == 0:
@@ -1801,7 +2099,9 @@ class RunNode:
                         try:
                             self._ensureOpOutputDir(op)
                             outputFilePath = self._getOpOutputPath(op)
-                            sftp.get("{}/output.json".format(remotePath), outputFilePath)
+                            sftp.get(
+                                "{}/output.json".format(remotePath), outputFilePath
+                            )
                             # 如果成功，而且工具有文件输出的output配置
                             # 则下载output文件到操作的文件输出目录，
                             # 并更新文件output对应的key的目录为相对于作业目录下的目录
@@ -1819,20 +2119,30 @@ class RunNode:
 
                                 try:
                                     outFileName = os.path.basename(outFilePath)
-                                    savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
+                                    savePath = "{}/{}/{}".format(
+                                        self.runPath, opFileOutRelDir, outFileName
+                                    )
                                     sftp.get(
                                         "{}/{}".format(remotePath, outFilePath),
                                         savePath,
                                     )
 
-                                    opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
+                                    opOutput[outFileKey] = (
+                                        opFileOutRelDir + "/" + outFileName
+                                    )
                                 except Exception as ex:
                                     opOutput[outFileKey] = None
-                                    self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                                    self.writeNodeLog(
+                                        "ERROR: Download output file:{} failed {}\n".format(
+                                            outFilePath, ex
+                                        )
+                                    )
                                     ret = 2
                             self._saveOpOutput(op)
                         except Exception as ex:
-                            self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
+                            self.writeNodeLog(
+                                "ERROR: Download output failed {}\n".format(ex)
+                            )
                             ret = 2
                     try:
                         if ret == 0:
@@ -1842,16 +2152,26 @@ class RunNode:
                                 ssh.exec_command("rm -rf {}".format(remoteRoot))
                             else:
                                 try:
-                                    ssh.exec_command("rm -rf {}/output.json".format(remoteRoot))
+                                    ssh.exec_command(
+                                        "rm -rf {}/output.json".format(remoteRoot)
+                                    )
                                 except:
                                     pass
                     except Exception as ex:
                         ret = 3
-                        self.writeNodeLog("WARN: Remove remote directory {} failed {}\n".format(remoteRoot, ex))
+                        self.writeNodeLog(
+                            "WARN: Remove remote directory {} failed {}\n".format(
+                                remoteRoot, ex
+                            )
+                        )
 
                 except Exception as err:
                     ret = 4
-                    self.writeNodeLog("ERROR: Execute remote operation {} failed, {}\n".format(op.opName, err))
+                    self.writeNodeLog(
+                        "ERROR: Execute remote operation {} failed, {}\n".format(
+                            op.opName, err
+                        )
+                    )
                 finally:
                     if sftp is not None:
                         sftp.close()
@@ -1903,12 +2223,21 @@ class RunNode:
                     readTimeout=360,
                     writeTimeout=60,
                 )
-                if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
-                    self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                if (
+                    tagent.execCmd(
+                        self.username, killCmd, isVerbose=0, callback=self.writeNodeLog
+                    )
+                    == 0
+                ):
+                    self.writeNodeLog(
+                        "INFO: Execute kill command:{} success.\n".format(killCmd)
+                    )
                     self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
                 else:
-                    self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+                    self.writeNodeLog(
+                        "ERROR: Execute kill command:{} failed\n".format(killCmd)
+                    )
             if self.tagent:
                 self.tagent.close()
                 self.writeNodeLog("INFO: Stop agent execution success.\n")
@@ -1923,7 +2252,6 @@ class RunNode:
                     self.username,
                     self.password,
                     look_for_keys=True,
-                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
                     timeout=self.context.rexecConnTimeout,
                     banner_timeout=self.context.rexecConnTimeout,
                     auth_timeout=self.context.rexecConnTimeout,
@@ -1939,13 +2267,19 @@ class RunNode:
 
                     r, w, x = select.select([channel], [], [])
                     if len(r) > 0:
-                        self.writeNodeLog(channel.recv(1024).decode(errors="ignore") + "\n")
+                        self.writeNodeLog(
+                            channel.recv(1024).decode(errors="ignore") + "\n"
+                        )
 
-                self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                self.writeNodeLog(
+                    "INFO: Execute kill command:{} success.\n".format(killCmd)
+                )
                 self.updateNodeStatus(NodeStatus.aborted)
                 self.isKilled = True
             except Exception as err:
-                self.writeNodeLog("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
+                self.writeNodeLog(
+                    "ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err)
+                )
             finally:
                 if ssh:
                     ssh.close()
