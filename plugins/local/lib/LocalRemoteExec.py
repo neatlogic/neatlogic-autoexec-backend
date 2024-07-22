@@ -33,6 +33,22 @@ class LocalRemoteExec:
         self.output = ""
         self.IS_FAIELD = False
 
+        # 因为部分server可能会不发出公钥散列算法协商
+        # 修改paramiko的pub key的优先顺序，吧ssh-sha2放到最后去，否则rsa验证会不通过
+        preferPubkeys = paramiko.transport.Transport._preferred_pubkeys
+        fixedPubkeys = []
+        notPreferPubkeys = []
+
+        for pubKey in preferPubkeys:
+            if pubKey.startswith("rsa-sha2-"):
+                notPreferPubkeys.append(pubKey)
+            else:
+                fixedPubkeys.append(pubKey)
+
+        fixedPubkeys.extend(notPreferPubkeys)
+        paramiko.transport.Transport._preferred_pubkeys = fixedPubkeys
+        # 修复公钥优先顺序结束
+
     def pingCheck(self, host, timeOut):
         second = ping(dest_addr=host, timeout=timeOut)
         second = round(second, 4)
@@ -355,16 +371,7 @@ class LocalRemoteExec:
                     ret = 0
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh.connect(
-                        host,
-                        protocolPort,
-                        username,
-                        password,
-                        banner_timeout=15,
-                        timeout=15,
-                        look_for_keys=True,
-                        disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
-                    )
+                    ssh.connect(host, protocolPort, username, password, banner_timeout=15, timeout=15, look_for_keys=True)
                     channel = ssh.get_transport().open_session()
                     channel.set_combine_stderr(True)
                     print("INFO: Try to execute script command:{}".format(scriptCmd))
@@ -457,18 +464,7 @@ class LocalRemoteExec:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 print(host, protocolPort, username, password)
-                ssh.connect(
-                    hostname=host,
-                    port=protocolPort,
-                    username=username,
-                    password=password,
-                    timeout=timeout,
-                    allow_agent=False,
-                    banner_timeout=timeout,
-                    timeout=15,
-                    look_for_keys=True,
-                    disabled_algorithms=dict(pubkeys=["rsa-sha2-512", "rsa-sha2-256"]),
-                )
+                ssh.connect(hostname=host, port=protocolPort, username=username, password=password, timeout=timeout, allow_agent=False, banner_timeout=timeout, timeout=15, look_for_keys=True)
                 time.sleep(1)  # 等待1秒，等待命令执行结果返回
                 shell = ssh.invoke_shell()
                 shell.send(remoteCmd)
