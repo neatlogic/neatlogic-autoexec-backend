@@ -1,0 +1,85 @@
+{
+    "opName": "弘积负载均衡CMDB采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "使用http采集horizon的VS、POOL、MEMBER信息",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "ip地址",
+            "help": "管理ip,默认使用节点的ip",
+            "type": "text",
+            "required": "yes",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "端口",
+            "help": "访问的端口,默认443,默认使用节点的protocol端口",
+            "type": "text",
+            "required": "yes",
+            "validate": "",
+            "defaultValue": "443"
+        },
+        {
+            "opt": "username",
+            "name": "用户",
+            "help": "访问的用户,默认使用节点的用户",
+            "type": "text",
+            "required": "yes",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "密码",
+            "help": "访问的用户密码,默认使用节点的密码",
+            "type": "password",
+            "required": "yes",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "version",
+            "name": "接口版本",
+            "help": "url中使用了",
+            "type": "text",
+            "required": "yes",
+            "validate": "",
+            "defaultValue": "v2.0"
+        },
+        {
+            "opt": "verbose",
+            "name": "回显结果数据",
+            "help": "回显采集到的数据",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "不回显",
+                        "value": "0"
+                    },
+                    {
+                        "text": "回显",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON数据",
+            "help": "采集到的数据",
+            "type": "json"
+        }
+    ]
+}

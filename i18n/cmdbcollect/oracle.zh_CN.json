@@ -63,6 +63,26 @@
             "type": "String"
         },
         {
+            "name": "DB_LOG",
+            "desc": "数据库日志路径",
+            "type": "String"
+        },
+        {
+            "name": "ASM_LOG",
+            "desc": "ASM日志路径",
+            "type": "String"
+        },
+        {
+            "name": "CRS_LOG",
+            "desc": "CRS日志路径",
+            "type": "String"
+        },
+        {
+            "name": "OGG_INSTALLED",
+            "desc": "是否安装OGG",
+            "type": "String"
+        },
+        {
             "name": "PORT",
             "desc": "端口",
             "type": "String"
@@ -446,6 +466,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "DBID",
+                    "desc": "DBID",
+                    "type": "String"
+                },
+                {
                     "name": "DB_NAME",
                     "desc": "DB名称",
                     "type": "String"
@@ -589,6 +614,18 @@
             "name": "ORACLE_SID",
             "desc": "Oralce SID",
             "type": "String"
+        },
+        {
+            "name": "PATCHES",
+            "desc": "补丁信息",
+            "type": "Array",
+            "subset": [
+                {
+                    "name": "_value",
+                    "desc": "Value",
+                    "type": "String"
+                }
+            ]
         },
         {
             "name": "RAC_CLUSTER",

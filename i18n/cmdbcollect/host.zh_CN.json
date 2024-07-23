@@ -1,5 +1,5 @@
 {
-    "label": "Host",
+    "label": "主机硬件",
     "collection": "COLLECT_HOST",
     "docroot": null,
     "collection_label": "主机硬件",
@@ -8,6 +8,11 @@
         {
             "name": "_OBJ_CATEGORY",
             "desc": "归属类型",
+            "type": "String"
+        },
+        {
+            "name": "_OBJ_TYPE",
+            "desc": "对象类型",
             "type": "String"
         },
         {

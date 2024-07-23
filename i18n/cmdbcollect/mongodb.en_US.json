@@ -451,8 +451,68 @@
             "type": "String"
         },
         {
+            "name": "AUTH",
+            "desc": "Auth Enable",
+            "type": "String"
+        },
+        {
+            "name": "TLSMODE",
+            "desc": "TLS Enables",
+            "type": "String"
+        },
+        {
+            "name": "OPLOGSIZE",
+            "desc": "Maximum Log Size",
+            "type": "String"
+        },
+        {
+            "name": "REPLSET",
+            "desc": "Replica Set",
+            "type": "String"
+        },
+        {
+            "name": "KEYFILE",
+            "desc": "Key File",
+            "type": "String"
+        },
+        {
             "name": "DBPATH",
-            "desc": "DB Storage Directory",
+            "desc": "DB File Path",
+            "type": "String"
+        },
+        {
+            "name": "STORAGEENGINE",
+            "desc": "Storage Engine",
+            "type": "String"
+        },
+        {
+            "name": "INMEMORYSIZEGB",
+            "desc": "In Memory Size",
+            "type": "String"
+        },
+        {
+            "name": "JOURNALCOMMITINTERCAL",
+            "desc": "Journal Commit Interval",
+            "type": "String"
+        },
+        {
+            "name": "WIREDTIGERCACHESIZEGB",
+            "desc": "Write Trigger Cache Size(GB)",
+            "type": "String"
+        },
+        {
+            "name": "MAXCONNS",
+            "desc": "Maximum Conntions",
+            "type": "String"
+        },
+        {
+            "name": "CONFIGDB",
+            "desc": "Config DB",
+            "type": "String"
+        },
+        {
+            "name": "SHARDSVR",
+            "desc": "Shard Server",
             "type": "String"
         },
         {

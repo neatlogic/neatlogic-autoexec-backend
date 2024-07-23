@@ -519,6 +519,11 @@
             "type": "String"
         },
         {
+            "name": "LOG_BIN_BASENAME",
+            "desc": "BinLog Dir",
+            "type": "String"
+        },
+        {
             "name": "IS_CLUSTER",
             "desc": "Is Cluster",
             "type": "Int"

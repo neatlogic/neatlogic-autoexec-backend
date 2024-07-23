@@ -448,6 +448,7 @@ sub collectIns {
         }
     }
 
+	$oraBase =~ s/^\s*|\s*$//g;
     if ( not defined($oraBase) or $oraBase eq '' ) {
         $oraBase = dirname($oraHome);
     }
@@ -456,7 +457,7 @@ sub collectIns {
     if ( not defined($oraSid) ) {
         $oraSid = $procOraSid;
     }
-
+  
     $insInfo->{_OBJ_CATEGORY} = CollectObjCat->get('DBINS');
     $insInfo->{_MULTI_PROC}   = 1;
     $insInfo->{ORACLE_HOME}   = $oraHome;
@@ -490,12 +491,31 @@ sub collectIns {
     if ( $version =~ /(\d+)/ ) {
         $insInfo->{MAJOR_VERSION} = "Oracle Databse $1";
     }
+    my $ogg = $self->getCmdOut("ps -ef|grep mgr.prm|grep -v 'grep'");
+    if ($ogg){
+        $insInfo->{OGG_INSTALLED} = 1;
+    }else{
+        $insInfo->{OGG_INSTALLED} = 0;
+    }
 
     #获取CDB（pluggable database的标记）
     my $isCdb = $self->isCDB();
     $self->{isCdb}     = $isCdb;
     $insInfo->{IS_CDB} = $isCdb;
 
+    #get patches
+    #[oracle@jrydb1 OPatch]$ opatch lspatches
+    #27886087;
+    #25139545;
+    #29774383;Database PSU 12.1.0.2.190716, Oracle JavaVM Component (JUL2019)
+    my $patchLines = $self->getCmdOutLines( "$oraHome/OPatch/opatch lspatches", $osUser );
+    my @patches;
+    foreach my $line (@$patchLines){
+    	if ($line =~ /^(\d+);/){
+            push(@patches,$1);
+        }
+    }
+    $insInfo->{PATCHES}        = \@patches;												   
     $insInfo->{USERS}          = $self->getUserInfo();
     $insInfo->{TABLE_SPACESES} = $self->getTableSpaceInfo();
 
@@ -1551,10 +1571,10 @@ sub collectRAC {
     $racInfo->{LOCAL_NODE_PUB_IP} = $localNodePubIp;
     $racInfo->{LOCAL_NODE_VIP}    = $localNodeVip;
 
-    if ( $$nodes[0]->{NAME} ne $localNode ) {
-        print("WARN: Rac node:$localNode is not primary node, no need to collect.\n");
-        return undef;
-    }
+    #if ( $$nodes[0]->{NAME} ne $localNode ) {
+    #    print("WARN: Rac node:$localNode is not primary node, no need to collect.\n");
+    #    return undef;
+    #}
 
     $self->getClusterName($racInfo);
     $self->getGridVersion($racInfo);
