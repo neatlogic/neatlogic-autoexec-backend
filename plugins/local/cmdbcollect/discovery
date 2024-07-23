@@ -490,7 +490,11 @@ if __name__ == "__main__":
     ports = args.ports
 
     isSnmpV3 = False
-    communities = json.loads(args.communities)
+    communities = ["public"]
+    try:
+        json.loads(args.communities)
+    except:
+        print('WARN: Param communities is not in json format, example:["public",{"username":"monitor","authPassword":"AuthPassword","authProtocol":"sha","privPassword":"DataEncryptPassword","privProtocol":"aes"}]')
 
     autoexecHome = os.environ.get("AUTOEXEC_HOME")
     os.environ["PATH"] = "%s:%s/tools" % (os.environ["PATH"], autoexecHome)
