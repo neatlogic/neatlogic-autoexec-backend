@@ -227,8 +227,9 @@ if __name__ == "__main__":
                 if key == "DATA":
                     collectData = value
                 else:
+                    keyName = re.sub(r"_\d+$", "", key)
                     # svcinspect巡检插件，包含补充CMDB采集数据对象的数据
-                    if not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/") and not key in toolNamesMap:
+                    if not key.startswith("cmdbcollect/") and not key.startswith("svcinspect/") and not key in toolNamesMap and not keyName in toolNamesMap:
                         continue
 
                     if key.startswith("cmdbcollect/savedata"):
