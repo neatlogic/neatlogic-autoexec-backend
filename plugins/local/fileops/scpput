@@ -8,6 +8,7 @@ use File::Spec;
 use Cwd;
 
 use ServerConf;
+use AutoExecUtils;
 use SCPExec;
 
 sub usage {
