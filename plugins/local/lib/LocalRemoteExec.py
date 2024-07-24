@@ -354,7 +354,7 @@ class LocalRemoteExec:
                 finally:
                     os.unlink(tmp.name)
 
-                sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IXUSR)
+                sftp.chmod(os.path.join(remotePath, scriptName), stat.S_IRWXU)
                 scriptCmd = self.getScriptCmd(scriptDef, "Linux", remotePath, args)
                 remoteCmd = "cd {} && AUTOEXEC_JOBID={} AUTOEXEC_NODE='{}' {}".format(remotePath, jobId, json.dumps(nodeInfo), scriptCmd)
 
@@ -372,22 +372,40 @@ class LocalRemoteExec:
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                     ssh.connect(host, protocolPort, username, password, banner_timeout=15, timeout=15, look_for_keys=True)
-                    channel = ssh.get_transport().open_session()
-                    channel.set_combine_stderr(True)
-                    print("INFO: Try to execute script command:{}".format(scriptCmd))
-                    channel.exec_command(remoteCmd)
-                    while True:
-                        r, w, x = select.select([channel], [], [], 10)
-                        while channel.recv_ready():
-                            out = channel.recv(4096).decode()
-                            print(out)
-                            self.output = self.output + out
-                            outLen = len(self.output)
-                            if outLen > 1024:
-                                self.output = self.output[outLen - 1024 :]
-                        if channel.exit_status_ready():
-                            ret = channel.recv_exit_status()
-                            break
+
+                    channel = ssh.invoke_shell(term="dumb", width=2048)
+                    # channel.settimeout(3600)
+                    cmdstdin = channel.makefile("wb")
+                    cmdstdout = channel.makefile("rb")
+                    cmdstdin.write(remoteCmd.encode() + b";exit $?\n")
+
+                    ignoreLineCount = 2
+                    cmdStartBytes = remoteCmd.encode()
+                    line = cmdstdout.readline()
+                    while line:
+                        if ignoreLineCount > 0 and line.find(cmdStartBytes) >= 0:
+                            ignoreLineCount = ignoreLineCount - 1
+                        else:
+                            print(line.decode(), end="")
+                        line = cmdstdout.readline()
+                    ret = channel.recv_exit_status()
+
+                    # channel = ssh.get_transport().open_session()
+                    # channel.set_combine_stderr(True)
+                    # print("INFO: Try to execute script command:{}".format(scriptCmd))
+                    # channel.exec_command(remoteCmd)
+                    # while True:
+                    #     r, w, x = select.select([channel], [], [], 10)
+                    #     while channel.recv_ready():
+                    #         out = channel.recv(4096).decode()
+                    #         print(out)
+                    #         self.output = self.output + out
+                    #         outLen = len(self.output)
+                    #         if outLen > 1024:
+                    #             self.output = self.output[outLen - 1024 :]
+                    #     if channel.exit_status_ready():
+                    #         ret = channel.recv_exit_status()
+                    #         break
 
                     try:
                         if ret == 0:
@@ -463,8 +481,8 @@ class LocalRemoteExec:
                 ret = 0
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                print(host, protocolPort, username, password)
-                ssh.connect(hostname=host, port=protocolPort, username=username, password=password, timeout=timeout, allow_agent=False, banner_timeout=timeout, timeout=15, look_for_keys=True)
+                # print(host, protocolPort, username, password)
+                ssh.connect(host, protocolPort, username, password, timeout=timeout, allow_agent=False, banner_timeout=timeout, look_for_keys=True)
                 time.sleep(1)  # 等待1秒，等待命令执行结果返回
                 shell = ssh.invoke_shell()
                 shell.send(remoteCmd)
@@ -520,7 +538,8 @@ class LocalRemoteExec:
         if interpreter == "cmd":
             cmd = "cmd /c {}/{} {}".format(remotePath, scriptFileName, args)
         elif interpreter in ("sh", "bash", "csh"):
-            cmd = "{} -l {}/{} {}".format(interpreter, remotePath, scriptFileName, args)
+            # cmd = "{} -l {}/{} {}".format(interpreter, remotePath, scriptFileName, args)
+            cmd = "{} {}/{} {}".format(interpreter, remotePath, scriptFileName, args)
         elif interpreter == "vbscript":
             cmd = "cscript {}/{} {}".format(remotePath, scriptFileName, args)
         elif interpreter == "javascript":
