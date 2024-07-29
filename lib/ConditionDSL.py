@@ -211,7 +211,7 @@ class Interpreter(object):
         if isinstance(val, str):
             if re.match(r"^\d+$", val):
                 val = int(val)
-            elif re.match(r"^[\d\.]+$", val):
+            elif re.match(r"^\d*\.\d+$", val):
                 val = float(val)
 
         return val
