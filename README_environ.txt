@@ -88,9 +88,9 @@ MIRROR_ROOT=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/a
 当前执行上下文的同步镜像目录（只在使用环境镜像目录时会用到，relsync2mirror工具会把制品从build发布到此目录对应的环境下，属于特殊发布）
 DIST_ROOT=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/artifact/3.0.0/env
 当前执行上下文的环境制品的父目录
-APP_DIST=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/artifact/3.0.0/env/481856650534925/app
+APP_DIST=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/artifact/3.0.0/env/SIT/app
 当前执行上下文的环境制品应用包目录
-DB_SCRIPT=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/artifact/3.0.0/env/481856650534925/db
+DB_SCRIPT=/app/systems/autoexec/data/verdata/669482179420161/669491121676288/artifact/3.0.0/env/SIT/db
 当前执行上下文的环境制品SQL脚本制品目录
 
 #远程执行可用的环境变量（remote执行）
