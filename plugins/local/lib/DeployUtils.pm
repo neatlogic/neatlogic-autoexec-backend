@@ -324,8 +324,8 @@ sub getNodeInfo {
     if ( defined($node) and $node ne '' ) {
         $nodeInfo = from_json($node);
 
-        #$nodeInfo->{nodeUniqName} = $nodeInfo->{host} . '.' . $nodeInfo->{port};
-        $nodeInfo->{nodeUniqName} = $nodeInfo->{nodeName};
+        $nodeInfo->{nodeUniqName} = $nodeInfo->{host} . '.' . $nodeInfo->{port};
+        #$nodeInfo->{nodeUniqName} = $nodeInfo->{nodeName};
         if ( not defined( $nodeInfo->{port} ) ) {
             $nodeInfo->{port} = 0;
         }
