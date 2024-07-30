@@ -17,6 +17,7 @@ import select
 import json
 import logging
 import re
+import shlex
 import chardet
 import traceback
 
@@ -905,7 +906,7 @@ class RunNode:
     def getIfBlockOps(self, ifOp):
         result = True
         opParams = ifOp.param
-        condition = opParams["condition"]
+        condition = opParams.get("condition", "1==1")
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
             interpreter = ConditionDSL.Interpreter()
@@ -925,6 +926,39 @@ class RunNode:
         opArgsRefMap = ifOp.opsParam
         retOps = []
         for operation in activeOps:
+            if "opt" in operation:
+                opArgsRefMap[operation["opId"]] = operation["opt"]
+            else:
+                opArgsRefMap[operation["opId"]] = {}
+
+            op = Operation.Operation(self.context, opArgsRefMap, operation)
+
+            # 如果有本地操作，则在context中进行标记
+            if op.opType == "local":
+                phaseStatus.hasLocal = True
+            else:
+                phaseStatus.hasRemote = True
+
+            retOps.append(op)
+
+        return retOps
+
+    def getLoopItems(self, loopOp):
+        opParams = loopOp.param
+        loopItemStr = opParams["loopItems"]
+        loopItems = shlex.split(loopItemStr)
+        return loopItems
+
+    def getLoopBlockOps(self, loopOp):
+        opParams = loopOp.param
+
+        loopOps = opParams.get("operations", [])
+
+        phaseStatus = self.context.phases[self.phaseName]
+        opArgsRefMap = loopOp.opsParam
+        retOps = []
+
+        for operation in loopOps:
             if "opt" in operation:
                 opArgsRefMap[operation["opId"]] = operation["opt"]
             else:
@@ -1011,8 +1045,39 @@ class RunNode:
                             break
                         elif opStatus == NodeStatus.ignored:
                             hasIgnoreFail = 1
+
+                        if ifOpsFail == 1:
+                            break
+
                     if ifOpsFail == 1:
                         break
+
+                elif op.opName == "native/LOOP-Block":
+                    loopOpsFail = 0
+                    loopOps = self.getLoopBlockOps(op)
+                    loopItems = self.getLoopItems(op)
+                    for loopItem in loopItems:
+                        os.environ["LOOP_ITEM"] = loopItem
+                        for loopOp in loopOps:
+                            loopOp.setNode(self)
+                            opStatus = self.execOneOperation(loopOp)
+                            if opStatus == NodeStatus.failed:
+                                isFail = 1
+                                loopOpsFail = 1
+                                hasIgnoreFail = 0
+                                break
+                            elif opStatus == NodeStatus.ignored:
+                                hasIgnoreFail = 1
+
+                            if loopOpsFail == 1:
+                                break
+
+                        if loopOpsFail == 1:
+                            break
+
+                    if loopOpsFail == 1:
+                        break
+
                 else:
                     op.setNode(self)
                     # execute on operation

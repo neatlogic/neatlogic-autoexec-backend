@@ -313,7 +313,7 @@ class JobRunner:
             else:
                 opArgsRefMap[operation["opId"]] = {}
 
-            if operation.get("opType") == "native" and operation.get("opName") == "native/IF-Block":
+            if operation.get("opType") == "native" and (operation.get("opName") == "native/IF-Block" or operation.get("opName") == "native/LOOP-Block"):
                 for ifOp in operation.get("if", []):
                     if ifOp.get("opType") in ("local", "runner", "sqlfie"):
                         phaseStatus.hasLocal = True
