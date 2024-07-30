@@ -1054,35 +1054,39 @@ class RunNode:
 
                 elif op.opName == "native/LOOP-Block":
                     opStatus = self.getNodeStatus(op)
-                    loopOpsFail = 0
-                    loopOps = self.getLoopBlockOps(op)
-                    loopItems = self.getLoopItems(op)
-                    startTime = time.time()
-                    for loopItem in loopItems:
-                        os.environ["LOOP_ITEM"] = loopItem
-                        for loopOp in loopOps:
-                            loopOp.setNode(self)
-                            opStatus = self.execOneOperation(loopOp, force=True)
-                            if opStatus == NodeStatus.failed:
-                                isFail = 1
-                                loopOpsFail = 1
-                                hasIgnoreFail = 0
-                                break
-                            elif opStatus == NodeStatus.ignored:
-                                hasIgnoreFail = 1
+                    if not self.context.isForce and opStatus == NodeStatus.succeed:
+                        self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                        self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
+                    else:
+                        loopOpsFail = 0
+                        loopOps = self.getLoopBlockOps(op)
+                        loopItems = self.getLoopItems(op)
+                        startTime = time.time()
+                        for loopItem in loopItems:
+                            os.environ["LOOP_ITEM"] = loopItem
+                            for loopOp in loopOps:
+                                loopOp.setNode(self)
+                                opStatus = self.execOneOperation(loopOp, force=True)
+                                if opStatus == NodeStatus.failed:
+                                    isFail = 1
+                                    loopOpsFail = 1
+                                    hasIgnoreFail = 0
+                                    break
+                                elif opStatus == NodeStatus.ignored:
+                                    hasIgnoreFail = 1
+
+                                if loopOpsFail == 1:
+                                    break
 
                             if loopOpsFail == 1:
                                 break
 
+                        timeConsume = time.time() - startTime
                         if loopOpsFail == 1:
+                            self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
                             break
-
-                    timeConsume = time.time() - startTime
-                    if loopOpsFail == 1:
-                        self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
-                        break
-                    else:
-                        self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
+                        else:
+                            self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
                 else:
                     op.setNode(self)
                     # execute on operation
