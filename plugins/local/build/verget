@@ -4,6 +4,7 @@ use FindBin;
 use Getopt::Long;
 use JSON;
 
+use AutoExecUtils;
 use VerGet;
 use DeployLock;
 use DeployUtils;
@@ -150,6 +151,17 @@ sub main {
     my $desc = "Get version for $namePath version:$version";
     if ( $ret eq 0 ) {
         $versionInfo->{status} = 'pending';
+        my $startRev = $versionInfo->{startRev};
+        my $endRev   = $versionInfo->{endRev};
+
+        my $out = {};
+        $out->{startRev}      = $startRev;
+        $out->{endRev}        = $endRev;
+        $out->{shortStartRev} = substr( $startRev, 0, 8 );
+        $out->{shortEndRev}   = substr( $endRev,   0, 8 );
+        AutoExecUtils::saveOutput($out);
+
+        print("INFO: Version start revision:$startRev end revision:$endRev.\n");
         print("FINE: $desc success.\n");
     }
     else {
