@@ -1080,7 +1080,7 @@ class RunNode:
 
                                 if loopOpsFail == 1:
                                     break
-                            self.writeNodeLog("______Loop__{}:[{}] end.\n".format(loopIdx, loopItem))
+                            self.writeNodeLog("______Loop__{}:[{}] end.\n\n".format(loopIdx, loopItem))
                             if loopOpsFail == 1:
                                 break
 
