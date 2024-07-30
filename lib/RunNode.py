@@ -1062,7 +1062,10 @@ class RunNode:
                         loopOps = self.getLoopBlockOps(op)
                         loopItems = self.getLoopItems(op)
                         startTime = time.time()
+                        loopIdx = 0
                         for loopItem in loopItems:
+                            loopIdx = loopIdx + 1
+                            self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
                             os.environ["LOOP_ITEM"] = loopItem
                             for loopOp in loopOps:
                                 loopOp.setNode(self)
@@ -1077,7 +1080,7 @@ class RunNode:
 
                                 if loopOpsFail == 1:
                                     break
-
+                            self.writeNodeLog("______Loop__{}:[{}] end.\n".format(loopIdx, loopItem))
                             if loopOpsFail == 1:
                                 break
 
