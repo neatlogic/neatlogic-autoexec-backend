@@ -1,0 +1,13 @@
+{
+    "opDesc": "循环处理",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "循环执行多个工具，每次执行会设置环境变量${LOOP_ITEM}",
+    "enabled": 0,
+    "loopItems": "",
+    "operations": [],
+    "option": []
+}
