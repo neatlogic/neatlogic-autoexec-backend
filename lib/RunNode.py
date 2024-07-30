@@ -697,7 +697,7 @@ class RunNode:
     def getNodeLogHandle(self):
         return self.logHandle
 
-    def execOneOperation(self, op):
+    def execOneOperation(self, op, force=False):
         ret = 0
         timeConsume = None
         startTime = time.time()
@@ -718,7 +718,7 @@ class RunNode:
             )
 
             startTime = time.time()
-            if not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
+            if not force and not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
                 self._loadOpOutput(op)
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 timeConsume = time.time() - startTime
@@ -1053,14 +1053,16 @@ class RunNode:
                         break
 
                 elif op.opName == "native/LOOP-Block":
+                    opStatus = self.getNodeStatus(op)
                     loopOpsFail = 0
                     loopOps = self.getLoopBlockOps(op)
                     loopItems = self.getLoopItems(op)
+                    startTime = time.time()
                     for loopItem in loopItems:
                         os.environ["LOOP_ITEM"] = loopItem
                         for loopOp in loopOps:
                             loopOp.setNode(self)
-                            opStatus = self.execOneOperation(loopOp)
+                            opStatus = self.execOneOperation(loopOp, force=True)
                             if opStatus == NodeStatus.failed:
                                 isFail = 1
                                 loopOpsFail = 1
@@ -1075,9 +1077,12 @@ class RunNode:
                         if loopOpsFail == 1:
                             break
 
+                    timeConsume = time.time() - startTime
                     if loopOpsFail == 1:
+                        self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
                         break
-
+                    else:
+                        self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
                 else:
                     op.setNode(self)
                     # execute on operation
