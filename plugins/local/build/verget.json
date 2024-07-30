@@ -160,5 +160,30 @@
             "defaultValue": ""
         }
     ],
-    "output": []
+    "output": [
+        {
+            "opt": "startRev",
+            "name": "版本开始Commit号",
+            "help": "当前获取代码的开始的Commit号",
+            "type": "text"
+        },
+        {
+            "opt": "endRev",
+            "name": "版本结束Commit号",
+            "help": "当前获取代码的结束的Commit号",
+            "type": "text"
+        },
+        {
+            "opt": "shortStartRev",
+            "name": "版本开始Git短Commit号",
+            "help": "当前获取代码的开始的Git短Commit号",
+            "type": "text"
+        },
+        {
+            "opt": "shortEndRev",
+            "name": "版本结束GitCommit号",
+            "help": "当前获取代码的结束的Git短Commit号",
+            "type": "text"
+        }
+    ]
 }
