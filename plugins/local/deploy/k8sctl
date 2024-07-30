@@ -1040,7 +1040,7 @@ sub tailPodsLog {
                             print("ERROR: Pod $namespace/pods/$podName not exists.\n");
                         }
                         else {
-                            print("FINEST: Pod $namespace/pods/$podName stopped.\n");
+                            print("FINE: Pod $namespace/pods/$podName stopped.\n");
                         }
                     }
                     1;
@@ -1182,7 +1182,7 @@ sub main {
             print("ERROR: Deployment $k8sDeploy->{deployment} $action failed.\n");
         }
         else {
-            print("FINEST: Deployment $k8sDeploy->{deployment} $action succeed.\n");
+            print("FINE: Deployment $k8sDeploy->{deployment} $action succeed.\n");
         }
     };
     if ($@) {
