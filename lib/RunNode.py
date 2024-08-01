@@ -697,211 +697,289 @@ class RunNode:
     def getNodeLogHandle(self):
         return self.logHandle
 
+    def hasHighRiskShell(self, commands):
+        highRisk = False
+        for command in commands:
+            for cmdItem in shlex.split(command):
+                if cmdItem in ("rm", "cp", ">"):
+                    highRisk = True
+                    self.writeNodeLog("WARN: Command let:{} has hight risk shell command:{}, permission denied.\n".format(command, cmdItem))
+                    break
+        return highRisk
+
     def execOneOperation(self, op, force=False):
-        ret = 0
-        timeConsume = None
-        startTime = time.time()
-        try:
-            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
-            if op.opMemo is not None:
-                self.writeNodeLog("------{}---\n".format(op.opMemo))
+        op.setNode(self)
+        opStatus = self.getNodeStatus(op)
+        op.parseParam(
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            resourceId=self.resourceId,
+            host=self.host,
+            port=self.port,
+            nodeEnv=self.nodeEnv,
+        )
 
-            # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
-            opStatus = self.getNodeStatus(op)
-            op.parseParam(
-                refMap=self.output,
-                localRefMap=self.localOutput,
-                resourceId=self.resourceId,
-                host=self.host,
-                port=self.port,
-                nodeEnv=self.nodeEnv,
-            )
+        # evaluate if-block
+        if op.opName == "native/IF-Block":
+            opFinalStatus = opStatus
+            ifOpsFail = 0
+            hasIgnoreFail = 0
+            ifOps = self.getIfBlockOps(op)
+            for ifOp in ifOps:
+                ifOp.setNode(self)
+                ifOpStatus = self.execOneOperation(ifOp)
+                if ifOpStatus == NodeStatus.failed:
+                    ifOpsFail = 1
+                    break
+                elif ifOpStatus == NodeStatus.ignored:
+                    hasIgnoreFail = 1
 
-            startTime = time.time()
-            if not force and not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
-                self._loadOpOutput(op)
-                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                timeConsume = time.time() - startTime
-                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
-                return
+                if ifOpsFail == 1:
+                    break
 
-            self._saveOpInput(op)
-
-            if op.opBunddleName != "native" and not os.path.exists(op.pluginPath):
-                ret = 1
-                self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
-
-            if ret == 0:
-                if op.opBunddleName == "native":
-                    try:
-                        if op.opSubName == "echo":
-                            msgLine = ""
-                            for arg in op.arguments:
-                                msg = arg.get("value", "")
-                                msgLine = msgLine + msg
-                            self.writeNodeLog(msgLine + "\n")
-                        elif op.opSubName == "export":
-                            for arg in op.arguments:
-                                isHidden = op.options.get("hidden", 0)
-                                envName = arg.get("value", "")
-                                if envName != "" and os.getenv(envName) is not None:
-                                    self.writeNodeLog("INFO: Execute -> native/{} {}\n".format(op.opSubName, envName))
-                                    self.context.exportEnv(envName, isHidden)
-                        elif op.opSubName == "setenv":
-                            envName = op.options["name"]
-                            envValue = op.options["value"]
-                            envScope = op.options["scope"]
-                            isHidden = op.options.get("hidden", 0)
-                            self.writeNodeLog("INFO: Execute -> native/{} {}={} scope:{}\n".format(op.opSubName, envName, envValue, envScope))
-                            matchObjs = re.search(r"\$\(([^\)]+)\)", envValue)
-                            if matchObjs is not None:
-                                if re.search(r"\brm\b", envValue) or re.search(r"\bcp\b", envValue) or re.search(r">", envValue):
-                                    print("WARN: Shell eval string contains critical command rm|cp or redirect symbol, not permitted, evaluate aborted.\n")
-                                else:
-                                    result = subprocess.run(
-                                        "echo " + envValue,
-                                        shell=True,
-                                        stdout=subprocess.PIPE,
-                                    )
-                                    envValue = result.stdout.decode().strip()
-                            if envScope == "global":
-                                self.context.setEnv(envName, envValue, isHidden)
-                                self.context.exportEnv(envName, isHidden)
-                                self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
-                            else:
-                                op.hasNodeEnv = True
-                                self.nodeEnv[envName] = envValue
-                                persistenceEnv = self.output["nodeEnv"]
-                                persistenceEnv[envName] = envValue
-                                if isHidden == 1:
-                                    hiddenEnv = self.output["hiddenNodeEnv"]
-                                    hiddenEnv[envName] = 1
-                                self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
-                        elif op.opSubName == "updategparam":
-                            varName = op.options["name"]
-                            varValue = op.options["value"]
-                            self.writeNodeLog("INFO: Execute -> native/{} {}={}\n".format(op.opSubName, varName, varValue))
-                            self.context.serverAdapter.updateGlobalParam(varName, varValue)
-                            self.writeNodeLog("INFO: Update global variable:{}={}\n".format(varName, varValue))
-                        elif op.opSubName == "failkeys":
-                            self.writeNodeLog(
-                                'INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(
-                                    op.opSubName,
-                                    op.options.get("operator"),
-                                    op.options.get("exclude"),
-                                    " ".join(e.get("value") for e in op.arguments),
-                                )
-                            )
-                            self.logHandle.setFailPattern(
-                                op.failIgnore,
-                                op.options.get("operator"),
-                                op.arguments,
-                                op.options.get("exclude"),
-                            )
-                        elif op.opSubName == "failjob":
-                            ret = 1
-                            msgLine = "ERROR: "
-                            for arg in op.arguments:
-                                msg = arg.get("value", "")
-                                msgLine = msgLine + msg
-                            self.writeNodeLog(msgLine + "\n")
-                        elif op.opSubName == "pausejob":
-                            msgLine = "INFO: "
-                            for arg in op.arguments:
-                                msg = arg.get("value", "")
-                                msgLine = msgLine + msg
-                            self.writeNodeLog(msgLine + "\n")
-                            jobPid = os.getenv("AUTOEXEC_PID")
-                            if jobPid is None:
-                                serverAdapter = self.context.serverAdapter
-                                serverAdapter.jobPaused()
-                                print("INFO: Job process puased.\n")
-                            else:
-                                os.kill(jobPid, signal.SIGUSR1)
-                        elif op.opSubName == "extractprestepstatus":
-                            envName = op.options.get("envname")
-                            envScope = op.options.get("scope")
-                            self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, envScope, envName))
-                            if op.preOp is not None and op.preOp.status is not None:
-                                if envScope == "global":
-                                    self.context.setEnv(envName, op.preOp.status)
-                                    self.context.exportEnv(envName, isHidden)
-                                    self.writeNodeLog("INFO: Set global envariable:{}={}\n".format(envName, op.preOp.status))
-                                else:
-                                    op.hasNodeEnv = True
-                                    self.nodeEnv[envName] = op.preOp.status
-                                    persistenceEnv = self.output["nodeEnv"]
-                                    persistenceEnv[envName] = op.preOp.status
-                                    self.writeNodeLog("INFO: Set node envariable:{}={}\n".format(envName, op.preOp.status))
-                        else:
-                            # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
-                            # native工具一般用于处理数据，不需要连接remote进行操作
-                            if self.host == "local":
-                                ret = self._localExecute(op)
-                            else:
-                                ret = self._localRemoteExecute(op)
-
-                            if op.hasOutput or op.hasNodeEnv:
-                                self._loadOpOutput(op)
-                    except Exception as ex:
-                        ret = 1
-                        self.writeNodeLog("ERROR: Execute native plugin native/{} failed, {}\n".format(op.opSubName, str(ex)))
-                elif self.host == "local":
-                    if op.opType == "local":
-                        # 本地执行
-                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                        ret = self._localExecute(op)
-                    else:
-                        return
-                else:
-                    if op.opType == "localremote":
-                        if self.password == "":
-                            self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
-                        # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
-                        # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
-                        ret = self._localRemoteExecute(op)
-                    elif op.opType == "remote":
-                        if self.password == "":
-                            ret = 1
-                            self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
-                        else:
-                            # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
-                            ret = self._remoteExecute(op)
-                    else:
-                        ret = 1
-                        self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
-
-            timeConsume = time.time() - startTime
-            if ret != 0:
-                self._removeOpOutput(op)
-                self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
-            else:
-                if op.hasOutput or op.hasNodeEnv:
-                    if op.opType not in ("remote", "native"):
-                        self._loadOpOutput(op)
-                    self._saveOutput()
-                self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
-        except:
-            ret = 3
-            timeConsume = time.time() - startTime
-            self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
-
-        hintKey = "FINE:"
-        opFinalStatus = NodeStatus.succeed
-        if ret != 0 or self.hasFailLog:
-            if op.failIgnore:
-                opFinalStatus = NodeStatus.ignored
-                hintKey = "WARN:"
+            opFinalStatus = NodeStatus.succeed
+            if ifOpsFail == 0:
+                if hasIgnoreFail == 1:
+                    opFinalStatus = NodeStatus.ignored
             else:
                 opFinalStatus = NodeStatus.failed
-                hintKey = "ERROR:"
 
-        op.status = opFinalStatus
+            return opFinalStatus
+        # evaluate loop-block
+        elif op.opName == "native/LOOP-Block":
+            opFinalStatus = opStatus
+            if not self.context.isForce and opFinalStatus == NodeStatus.succeed:
+                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
+            else:
+                loopOpsFail = 0
+                hasIgnoreFail = 0
+                loopOps = self.getLoopBlockOps(op)
+                loopItems = self.getLoopItems(op)
+                startTime = time.time()
+                loopIdx = 0
+                for loopItem in loopItems:
+                    loopIdx = loopIdx + 1
+                    self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
+                    os.environ["LOOP_ITEM"] = loopItem
+                    for loopOp in loopOps:
+                        loopOp.setNode(self)
+                        loopOpStatus = self.execOneOperation(loopOp, force=True)
+                        if loopOpStatus == NodeStatus.failed:
+                            loopOpsFail = 1
+                            break
+                        elif loopOpStatus == NodeStatus.ignored:
+                            hasIgnoreFail = 1
 
-        self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-        self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+                        if loopOpsFail == 1:
+                            break
+                    self.writeNodeLog("______Loop__{}:[{}] end.\n\n".format(loopIdx, loopItem))
+                    if loopOpsFail == 1:
+                        break
 
-        return opFinalStatus
+                timeConsume = time.time() - startTime
+                opFinalStatus = NodeStatus.succeed
+                if loopOpsFail == 1:
+                    opFinalStatus = NodeStatus.failed
+                else:
+                    if hasIgnoreFail == 1:
+                        opFinalStatus = NodeStatus.ignored
+                self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
+
+            return opFinalStatus
+        else:
+            ret = 0
+            timeConsume = None
+            startTime = time.time()
+            try:
+                self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+                if op.opMemo is not None:
+                    self.writeNodeLog("------{}---\n".format(op.opMemo))
+
+                # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
+                startTime = time.time()
+                if not force and not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
+                    self._loadOpOutput(op)
+                    self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                    timeConsume = time.time() - startTime
+                    self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+                    return
+
+                self._saveOpInput(op)
+
+                if op.opBunddleName != "native" and not os.path.exists(op.pluginPath):
+                    ret = 1
+                    self.writeNodeLog("ERROR: Plugin not exists {}\n".format(op.pluginPath))
+
+                if ret == 0:
+                    if op.opBunddleName == "native":
+                        try:
+                            if op.opSubName == "echo":
+                                msgLine = ""
+                                for arg in op.arguments:
+                                    msg = arg.get("value", "")
+                                    msgLine = msgLine + msg
+                                self.writeNodeLog(msgLine + "\n")
+                            elif op.opSubName == "export":
+                                for arg in op.arguments:
+                                    isHidden = op.options.get("hidden", 0)
+                                    envName = arg.get("value", "")
+                                    if envName != "" and os.getenv(envName) is not None:
+                                        self.writeNodeLog("INFO: Execute -> native/{} {}\n".format(op.opSubName, envName))
+                                        self.context.exportEnv(envName, isHidden)
+                            elif op.opSubName == "setenv":
+                                envName = op.options["name"]
+                                envValue = op.options["value"]
+                                envScope = op.options["scope"]
+                                isHidden = op.options.get("hidden", 0)
+                                self.writeNodeLog("INFO: Execute -> native/{} {}={} scope:{}\n".format(op.opSubName, envName, envValue, envScope))
+                                matchCmds = re.findall(r"\$\(([^\)]+)\)", envValue)
+                                if matchCmds:
+                                    if not self.hasHighRiskShell(matchCmds):
+                                        result = subprocess.run(
+                                            "echo " + envValue,
+                                            shell=True,
+                                            stdout=subprocess.PIPE,
+                                        )
+                                        envValue = result.stdout.decode().strip()
+                                if envScope == "global":
+                                    self.context.setEnv(envName, envValue, isHidden)
+                                    self.context.exportEnv(envName, isHidden)
+                                    self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+                                else:
+                                    op.hasNodeEnv = True
+                                    self.nodeEnv[envName] = envValue
+                                    persistenceEnv = self.output["nodeEnv"]
+                                    persistenceEnv[envName] = envValue
+                                    if isHidden == 1:
+                                        hiddenEnv = self.output["hiddenNodeEnv"]
+                                        hiddenEnv[envName] = 1
+                                    self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+                            elif op.opSubName == "updategparam":
+                                varName = op.options["name"]
+                                varValue = op.options["value"]
+                                self.writeNodeLog("INFO: Execute -> native/{} {}={}\n".format(op.opSubName, varName, varValue))
+                                self.context.serverAdapter.updateGlobalParam(varName, varValue)
+                                self.writeNodeLog("INFO: Update global variable:{}={}\n".format(varName, varValue))
+                            elif op.opSubName == "failkeys":
+                                self.writeNodeLog(
+                                    'INFO: Execute -> native/{} --operator "{}" --exclude "{}" {}\n'.format(
+                                        op.opSubName,
+                                        op.options.get("operator"),
+                                        op.options.get("exclude"),
+                                        " ".join(e.get("value") for e in op.arguments),
+                                    )
+                                )
+                                self.logHandle.setFailPattern(
+                                    op.failIgnore,
+                                    op.options.get("operator"),
+                                    op.arguments,
+                                    op.options.get("exclude"),
+                                )
+                            elif op.opSubName == "failjob":
+                                ret = 1
+                                msgLine = "ERROR: "
+                                for arg in op.arguments:
+                                    msg = arg.get("value", "")
+                                    msgLine = msgLine + msg
+                                self.writeNodeLog(msgLine + "\n")
+                            elif op.opSubName == "pausejob":
+                                msgLine = "INFO: "
+                                for arg in op.arguments:
+                                    msg = arg.get("value", "")
+                                    msgLine = msgLine + msg
+                                self.writeNodeLog(msgLine + "\n")
+                                jobPid = os.getenv("AUTOEXEC_PID")
+                                if jobPid is None:
+                                    serverAdapter = self.context.serverAdapter
+                                    serverAdapter.jobPaused()
+                                    print("INFO: Job process puased.\n")
+                                else:
+                                    os.kill(jobPid, signal.SIGUSR1)
+                            elif op.opSubName == "extractprestepstatus":
+                                envName = op.options.get("envname")
+                                envScope = op.options.get("scope")
+                                self.writeNodeLog('INFO: Excute -> native/{} --scope {} --envname "{}"\n'.format(op.opSubName, envScope, envName))
+                                if op.preOp is not None and op.preOp.status is not None:
+                                    if envScope == "global":
+                                        self.context.setEnv(envName, op.preOp.status)
+                                        self.context.exportEnv(envName, isHidden)
+                                        self.writeNodeLog("INFO: Set global envariable:{}={}\n".format(envName, op.preOp.status))
+                                    else:
+                                        op.hasNodeEnv = True
+                                        self.nodeEnv[envName] = op.preOp.status
+                                        persistenceEnv = self.output["nodeEnv"]
+                                        persistenceEnv[envName] = op.preOp.status
+                                        self.writeNodeLog("INFO: Set node envariable:{}={}\n".format(envName, op.preOp.status))
+                            else:
+                                # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
+                                # native工具一般用于处理数据，不需要连接remote进行操作
+                                if self.host == "local":
+                                    ret = self._localExecute(op)
+                                else:
+                                    ret = self._localRemoteExecute(op)
+
+                                if op.hasOutput or op.hasNodeEnv:
+                                    self._loadOpOutput(op)
+                        except Exception as ex:
+                            ret = 1
+                            self.writeNodeLog("ERROR: Execute native plugin native/{} failed, {}\n".format(op.opSubName, str(ex)))
+                    elif self.host == "local":
+                        if op.opType == "local":
+                            # 本地执行
+                            # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                            ret = self._localExecute(op)
+                        else:
+                            return
+                    else:
+                        if op.opType == "localremote":
+                            if self.password == "":
+                                self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                            # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
+                            # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
+                            ret = self._localRemoteExecute(op)
+                        elif op.opType == "remote":
+                            if self.password == "":
+                                ret = 1
+                                self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
+                            else:
+                                # 远程执行，则推送插件到远端并执行插件运行命令，输出保存到执行目录的output.json中
+                                ret = self._remoteExecute(op)
+                        else:
+                            ret = 1
+                            self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
+
+                timeConsume = time.time() - startTime
+                if ret != 0:
+                    self._removeOpOutput(op)
+                    self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
+                else:
+                    if op.hasOutput or op.hasNodeEnv:
+                        if op.opType not in ("remote", "native"):
+                            self._loadOpOutput(op)
+                        self._saveOutput()
+                    self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
+            except:
+                ret = 3
+                timeConsume = time.time() - startTime
+                self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
+
+            hintKey = "FINE:"
+            opFinalStatus = NodeStatus.succeed
+            if ret != 0 or self.hasFailLog:
+                if op.failIgnore:
+                    opFinalStatus = NodeStatus.ignored
+                    hintKey = "WARN:"
+                else:
+                    opFinalStatus = NodeStatus.failed
+                    hintKey = "ERROR:"
+
+            op.status = opFinalStatus
+
+            self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
+            self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+
+            return opFinalStatus
 
     def getIfBlockOps(self, ifOp):
         result = True
@@ -945,7 +1023,12 @@ class RunNode:
 
     def getLoopItems(self, loopOp):
         opParams = loopOp.param
-        loopItemStr = opParams["loopItems"]
+        loopItemStr = loopOp.resolveOptValue(
+            opParams["loopItems"],
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            nodeEnv=self.nodeEnv,
+        )
         loopItems = shlex.split(loopItemStr)
         return loopItems
 
@@ -1031,76 +1114,15 @@ class RunNode:
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
-                # evaluate if-block
-                if op.opName == "native/IF-Block":
-                    ifOpsFail = 0
-                    ifOps = self.getIfBlockOps(op)
-                    for ifOp in ifOps:
-                        ifOp.setNode(self)
-                        opStatus = self.execOneOperation(ifOp)
-                        if opStatus == NodeStatus.failed:
-                            isFail = 1
-                            ifOpsFail = 1
-                            hasIgnoreFail = 0
-                            break
-                        elif opStatus == NodeStatus.ignored:
-                            hasIgnoreFail = 1
+                # execute on operation
+                opStatus = self.execOneOperation(op)
 
-                        if ifOpsFail == 1:
-                            break
-
-                    if ifOpsFail == 1:
-                        break
-
-                elif op.opName == "native/LOOP-Block":
-                    opStatus = self.getNodeStatus(op)
-                    if not self.context.isForce and opStatus == NodeStatus.succeed:
-                        self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                        self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
-                    else:
-                        loopOpsFail = 0
-                        loopOps = self.getLoopBlockOps(op)
-                        loopItems = self.getLoopItems(op)
-                        startTime = time.time()
-                        loopIdx = 0
-                        for loopItem in loopItems:
-                            loopIdx = loopIdx + 1
-                            self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
-                            os.environ["LOOP_ITEM"] = loopItem
-                            for loopOp in loopOps:
-                                loopOp.setNode(self)
-                                opStatus = self.execOneOperation(loopOp, force=True)
-                                if opStatus == NodeStatus.failed:
-                                    isFail = 1
-                                    loopOpsFail = 1
-                                    hasIgnoreFail = 0
-                                    break
-                                elif opStatus == NodeStatus.ignored:
-                                    hasIgnoreFail = 1
-
-                                if loopOpsFail == 1:
-                                    break
-                            self.writeNodeLog("______Loop__{}:[{}] end.\n\n".format(loopIdx, loopItem))
-                            if loopOpsFail == 1:
-                                break
-
-                        timeConsume = time.time() - startTime
-                        if loopOpsFail == 1:
-                            self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
-                            break
-                        else:
-                            self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
-                else:
-                    op.setNode(self)
-                    # execute on operation
-                    opStatus = self.execOneOperation(op)
-
-                    if opStatus == NodeStatus.failed:
-                        isFail = 1
-                        hasIgnoreFail = 0
-                        break
-                    elif opStatus == NodeStatus.ignored:
-                        hasIgnoreFail = 1
+                if opStatus == NodeStatus.failed:
+                    isFail = 1
+                    hasIgnoreFail = 0
+                    break
+                elif opStatus == NodeStatus.ignored:
+                    hasIgnoreFail = 1
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime
