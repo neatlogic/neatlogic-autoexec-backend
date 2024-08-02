@@ -253,7 +253,7 @@ sub getIpAddrs {
     $osInfo->{BIZ_IP}     = $self->getBizIp( \@ipV4Addrs, \@ipV6Addrs );
     $osInfo->{IPV4_ADDRS} = \@ipV4Addrs;
     $osInfo->{IPV6_ADDRS} = \@ipV6Addrs;
-    my @ipAddrs = ( @ipv4, @ipv6 );
+    my @ipAddrs = ( @ipV4Addrs, @ipV6Addrs );
     $osInfo->{IP_ADDRS} = \@ipAddrs;
 }
 
