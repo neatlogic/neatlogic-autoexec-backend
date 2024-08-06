@@ -222,6 +222,10 @@ sub main {
             $filePattern = $filePath;
         }
 
+        if ( $filePattern eq '' or $filePattern eq '-' ){
+            next;
+        }
+        
         my $realFilePath = "$prjPath/$filePath";
 
         my @oneTargetGlobs = bsd_glob($realFilePath);
