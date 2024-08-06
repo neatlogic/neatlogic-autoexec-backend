@@ -243,7 +243,7 @@ sub lockBuild {
     my $version    = $deployEnv->{VERSION};
     my $buildNo    = $deployEnv->{BUILD_NO};
 
-    my $params = $self->_getParams();
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId";
     $params->{lockOwnerName} = "$sysName/$moduleName";
