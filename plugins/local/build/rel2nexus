@@ -261,7 +261,8 @@ sub main {
     my $statusCode = $response->code();
     if ( $statusCode == 200 or $statusCode == 204 ) {
         print("FINE: Upload $pkgPath to nexus:$baseUrl repository:$repo group:$group artifact:$artifact version:$version success.\n");
-        $serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
+        #此处不需要更新环境版本状态为成功，需要通过工具envrelease进行最后成功的更新
+        #$serverAdapter->releaseVerToEnv( $buildEnv, 'released' );
     }
     else {
         $hasError = $hasError + 1;
