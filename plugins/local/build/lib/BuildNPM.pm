@@ -62,7 +62,7 @@ sub build {
             $ret = DeployUtils->execmd($cmd);
         }
         else {
-            $cmd = "npm ci && npm $args";
+            #$cmd = "npm ci && npm $args";
             print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
