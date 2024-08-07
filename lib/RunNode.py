@@ -724,10 +724,16 @@ class RunNode:
             opFinalStatus = opStatus
             ifOpsFail = 0
             hasIgnoreFail = 0
+            startTime = time.time()
+            self.updateNodeStatus(NodeStatus.running, op=op)
+            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+            if op.opMemo:
+                self.writeNodeLog("------{}---\n".format(op.opMemo))
+
             ifOps = self.getIfBlockOps(op)
             for ifOp in ifOps:
                 ifOp.setNode(self)
-                ifOpStatus = self.execOneOperation(ifOp)
+                ifOpStatus = self.execOneOperation(ifOp, force)
                 if ifOpStatus == NodeStatus.failed:
                     ifOpsFail = 1
                     break
@@ -737,17 +743,29 @@ class RunNode:
                 if ifOpsFail == 1:
                     break
 
+            timeConsume = time.time() - startTime
+            hintKey = "FINE:"
             opFinalStatus = NodeStatus.succeed
             if ifOpsFail == 0:
                 if hasIgnoreFail == 1:
                     opFinalStatus = NodeStatus.ignored
+                    hintKey = "WARN:"
             else:
                 opFinalStatus = NodeStatus.failed
+                hintKey = "ERROR:"
+            self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
+
+            self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
+            self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
             return opFinalStatus
         # evaluate loop-block
         elif op.opName == "native/LOOP-Block":
             opFinalStatus = opStatus
+            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+            if op.opMemo:
+                self.writeNodeLog("------{}---\n".format(op.opMemo))
+
             if not self.context.isForce and opFinalStatus == NodeStatus.succeed:
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
@@ -757,6 +775,7 @@ class RunNode:
                 loopOps = self.getLoopBlockOps(op)
                 loopItems = self.getLoopItems(op)
                 startTime = time.time()
+                self.updateNodeStatus(NodeStatus.running, op=op)
                 loopIdx = 0
                 for loopItem in loopItems:
                     loopIdx = loopIdx + 1
@@ -778,13 +797,19 @@ class RunNode:
                         break
 
                 timeConsume = time.time() - startTime
+                hintKey = "FINE:"
                 opFinalStatus = NodeStatus.succeed
                 if loopOpsFail == 1:
                     opFinalStatus = NodeStatus.failed
+                    hintKey = "ERROR:"
                 else:
                     if hasIgnoreFail == 1:
                         opFinalStatus = NodeStatus.ignored
+                        hintKey = "WARN:"
+
                 self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
+                self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
+                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
             return opFinalStatus
         else:
@@ -793,7 +818,7 @@ class RunNode:
             startTime = time.time()
             try:
                 self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
-                if op.opMemo is not None:
+                if op.opMemo:
                     self.writeNodeLog("------{}---\n".format(op.opMemo))
 
                 # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
@@ -806,6 +831,7 @@ class RunNode:
                     return
 
                 self._saveOpInput(op)
+                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 if op.opBunddleName != "native" and not os.path.exists(op.pluginPath):
                     ret = 1
