@@ -181,7 +181,7 @@
         },
         {
             "opt": "shortEndRev",
-            "name": "版本结束GitCommit号",
+            "name": "版本结束短GitCommit号",
             "help": "当前获取代码的结束的Git短Commit号",
             "type": "text"
         }
