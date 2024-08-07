@@ -143,9 +143,10 @@ sub main {
             }
 
             #$insCfg->{uniqName} = $nodeName;
-            $insCfgMaps->{$nodeName}     = $insAutoCfg;
-            $insCfgMaps->{$nodeUniqName} = $insAutoCfg;
-            $insCfgMaps->{$nodeHost}     = $insAutoCfg;
+            $insCfgMaps->{$nodeName}       = $insAutoCfg;
+            $insCfgMaps->{ lc($nodeName) } = $insAutoCfg;
+            $insCfgMaps->{$nodeUniqName}   = $insAutoCfg;
+            $insCfgMaps->{$nodeHost}       = $insAutoCfg;
 
             if ( defined( $insNamesMap->{$nodeName} ) ) {
                 $insNamesMap->{$nodeName} = $insNamesMap->{$nodeName} + 1;

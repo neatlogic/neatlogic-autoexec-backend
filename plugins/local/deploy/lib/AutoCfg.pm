@@ -1403,9 +1403,9 @@ sub updateConfig {
                                 print("ERROR: Instance identifier($expectIns) that substract from $cfgFileInZip not exists.\n");
                             }
 
-                            if ( $hasInsCfg == 1 ) {
-                                last;
-                            }
+                            # if ( $hasInsCfg == 1 ) {
+                            #     last;
+                            # }
                         }
                     }
                 }
