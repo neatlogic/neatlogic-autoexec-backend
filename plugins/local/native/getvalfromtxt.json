@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "python",
     "defaultProfile": null,
-    "description": "从JSON对象中抽取需要的属性值文本",
+    "description": "从文本中抽取需要的属性值",
     "option": [{
             "opt": "txtval",
             "name": "文本内容",
