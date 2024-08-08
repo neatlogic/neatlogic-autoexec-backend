@@ -220,6 +220,7 @@ class RunNode:
         self.resourceId = node.get("resourceId", 0)
 
         self.name = node.get("nodeName", "")
+        self.nodeType = node.get("nodeType", "")
         self.type = node.get("protocol", "")
         self.host = node.get("host", "")
         self.port = node.get("port", "")
@@ -290,6 +291,7 @@ class RunNode:
         # 下面的nodeEnv是动态生成的
         self.nodeEnv["RESOURCE_ID"] = self.resourceId
         self.nodeEnv["NODE_NAME"] = self.name
+        self.nodeEnv["NODE_TYPE"] = self.nodeType
         self.nodeEnv["NODE_HOST"] = self.host
         self.nodeEnv["NODE_PORT"] = str(self.port)
         self.nodeEnv["NODE_PROTOCOL_PORT"] = self.protocolPort
@@ -1331,6 +1333,7 @@ class RunNode:
             os.getenv("PERL5LIB"),
         )
         environment["AUTOEXEC_PHASE_NAME"] = self.phaseName
+        environment["NODE_TYPE"] = self.nodeType
         environment["NODE_HOST"] = self.host
         environment["NODE_PORT"] = str(self.port)
         environment["NODE_NAME"] = self.name
@@ -1402,6 +1405,7 @@ class RunNode:
                     "AUTOEXEC_NODE": json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                     "HISTSIZE": "0",
                     "NODE_HOST": self.host,
+                    "NODE_TYPE": self.nodeType,
                     "NODE_PORT": str(self.port),
                     "NODE_NAME": self.name,
                     "PYTHONPATH": remoteLibPath,
@@ -1658,7 +1662,8 @@ class RunNode:
             insPath = os.getenv("INS_PATH")
             insIdPath = os.getenv("INS_ID_PATH")
             if insPath:
-                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                remoteEnv = "&& HISTSIZE=0 NODE_TYPE='{}' NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                    self.nodeType,
                     self.host,
                     str(self.port),
                     self.name,
@@ -1670,7 +1675,8 @@ class RunNode:
                     json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                 )
             else:
-                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                remoteEnv = "&& HISTSIZE=0 NODE_TYPE='{}' NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                    self.nodeType,
                     self.host,
                     str(self.port),
                     self.name,
