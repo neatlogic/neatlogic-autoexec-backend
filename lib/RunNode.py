@@ -52,7 +52,6 @@ class LogFile:
         fixedPubkeys.extend(notPreferPubkeys)
         paramiko.transport.Transport._preferred_pubkeys = fixedPubkeys
         # 修复公钥优先顺序结束
-
         self.failIgnore = False
         self.hintKeyBytes = b"ERROR:"
         self.foreLine = b""
@@ -775,6 +774,7 @@ class RunNode:
                 loopOpsFail = 0
                 hasIgnoreFail = 0
                 loopOps = self.getLoopBlockOps(op)
+                loopItemVar = self.getLoopItemVar(op)
                 loopItems = self.getLoopItems(op)
                 startTime = time.time()
                 self.updateNodeStatus(NodeStatus.running, op=op)
@@ -782,7 +782,7 @@ class RunNode:
                 for loopItem in loopItems:
                     loopIdx = loopIdx + 1
                     self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
-                    os.environ["LOOP_ITEM"] = loopItem
+                    os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
                         loopOp.setNode(self)
                         loopOpStatus = self.execOneOperation(loopOp, force=True)
@@ -1012,7 +1012,12 @@ class RunNode:
     def getIfBlockOps(self, ifOp):
         result = True
         opParams = ifOp.param
-        condition = opParams.get("condition", "1==1")
+        condition = ifOp.resolveOptValue(
+            opParams.get("condition", "1==1"),
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            nodeEnv=self.nodeEnv,
+        )
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
             interpreter = ConditionDSL.Interpreter()
@@ -1048,6 +1053,18 @@ class RunNode:
             retOps.append(op)
 
         return retOps
+
+    def getLoopItemVar(self, loopOp):
+        opParams = loopOp.param
+        loopItemVar = loopOp.resolveOptValue(
+            opParams["loopItemVar"],
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            nodeEnv=self.nodeEnv,
+        )
+        if not loopItemVar:
+            loopItemVar = "LOOP_ITEM"
+        return loopItemVar
 
     def getLoopItems(self, loopOp):
         opParams = loopOp.param
