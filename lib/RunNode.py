@@ -52,7 +52,6 @@ class LogFile:
         fixedPubkeys.extend(notPreferPubkeys)
         paramiko.transport.Transport._preferred_pubkeys = fixedPubkeys
         # 修复公钥优先顺序结束
-
         self.failIgnore = False
         self.hintKeyBytes = b"ERROR:"
         self.foreLine = b""
@@ -220,6 +219,7 @@ class RunNode:
         self.resourceId = node.get("resourceId", 0)
 
         self.name = node.get("nodeName", "")
+        self.nodeType = node.get("nodeType", "")
         self.type = node.get("protocol", "")
         self.host = node.get("host", "")
         self.port = node.get("port", "")
@@ -290,6 +290,7 @@ class RunNode:
         # 下面的nodeEnv是动态生成的
         self.nodeEnv["RESOURCE_ID"] = self.resourceId
         self.nodeEnv["NODE_NAME"] = self.name
+        self.nodeEnv["NODE_TYPE"] = self.nodeType
         self.nodeEnv["NODE_HOST"] = self.host
         self.nodeEnv["NODE_PORT"] = str(self.port)
         self.nodeEnv["NODE_PROTOCOL_PORT"] = self.protocolPort
@@ -773,6 +774,7 @@ class RunNode:
                 loopOpsFail = 0
                 hasIgnoreFail = 0
                 loopOps = self.getLoopBlockOps(op)
+                loopItemVar = self.getLoopItemVar(op)
                 loopItems = self.getLoopItems(op)
                 startTime = time.time()
                 self.updateNodeStatus(NodeStatus.running, op=op)
@@ -780,7 +782,7 @@ class RunNode:
                 for loopItem in loopItems:
                     loopIdx = loopIdx + 1
                     self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
-                    os.environ["LOOP_ITEM"] = loopItem
+                    os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
                         loopOp.setNode(self)
                         loopOpStatus = self.execOneOperation(loopOp, force=True)
@@ -1010,7 +1012,12 @@ class RunNode:
     def getIfBlockOps(self, ifOp):
         result = True
         opParams = ifOp.param
-        condition = opParams.get("condition", "1==1")
+        condition = ifOp.resolveOptValue(
+            opParams.get("condition", "1==1"),
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            nodeEnv=self.nodeEnv,
+        )
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
             interpreter = ConditionDSL.Interpreter()
@@ -1046,6 +1053,18 @@ class RunNode:
             retOps.append(op)
 
         return retOps
+
+    def getLoopItemVar(self, loopOp):
+        opParams = loopOp.param
+        loopItemVar = loopOp.resolveOptValue(
+            opParams["loopItemVar"],
+            refMap=self.output,
+            localRefMap=self.localOutput,
+            nodeEnv=self.nodeEnv,
+        )
+        if not loopItemVar:
+            loopItemVar = "LOOP_ITEM"
+        return loopItemVar
 
     def getLoopItems(self, loopOp):
         opParams = loopOp.param
@@ -1331,6 +1350,7 @@ class RunNode:
             os.getenv("PERL5LIB"),
         )
         environment["AUTOEXEC_PHASE_NAME"] = self.phaseName
+        environment["NODE_TYPE"] = self.nodeType
         environment["NODE_HOST"] = self.host
         environment["NODE_PORT"] = str(self.port)
         environment["NODE_NAME"] = self.name
@@ -1402,6 +1422,7 @@ class RunNode:
                     "AUTOEXEC_NODE": json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                     "HISTSIZE": "0",
                     "NODE_HOST": self.host,
+                    "NODE_TYPE": self.nodeType,
                     "NODE_PORT": str(self.port),
                     "NODE_NAME": self.name,
                     "PYTHONPATH": remoteLibPath,
@@ -1658,7 +1679,8 @@ class RunNode:
             insPath = os.getenv("INS_PATH")
             insIdPath = os.getenv("INS_ID_PATH")
             if insPath:
-                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                remoteEnv = "&& HISTSIZE=0 NODE_TYPE='{}' NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} INS_PATH='{}' INS_ID_PATH={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                    self.nodeType,
                     self.host,
                     str(self.port),
                     self.name,
@@ -1670,7 +1692,8 @@ class RunNode:
                     json.dumps(self.nodeWithoutPassword, ensure_ascii=False),
                 )
             else:
-                remoteEnv = "&& HISTSIZE=0 NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                remoteEnv = "&& HISTSIZE=0 NODE_TYPE='{}' NODE_HOST='{}' NODE_PORT={} NODE_NAME='{}' AUTOEXEC_JOBID={} PYTHONPATH='{}' PERL5LIB='{}' AUTOEXEC_NODE='{}' ".format(
+                    self.nodeType,
                     self.host,
                     str(self.port),
                     self.name,
