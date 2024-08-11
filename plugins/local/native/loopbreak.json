@@ -1,0 +1,11 @@
+{
+    "opDesc": "跳出Loop",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "跳出当前Loop循环",
+    "option": [],
+    "argument": {}
+}

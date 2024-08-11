@@ -207,6 +207,8 @@ class RunNode:
         self.isAborting = False
         self.hasFailLog = False
 
+        self.breakOut = False  # break当前stage
+
         self.tagent = None
         self.childPid = None
         self.isKilled = False
@@ -733,6 +735,9 @@ class RunNode:
 
             ifOps = self.getIfBlockOps(op)
             for ifOp in ifOps:
+                if self.breakOut:
+                    break
+
                 ifOp.setNode(self)
                 ifOpStatus = self.execOneOperation(ifOp, force)
                 if ifOpStatus == NodeStatus.failed:
@@ -784,6 +789,15 @@ class RunNode:
                     self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
                     os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
+                        if self.breakOut:
+                            break
+                        elif loopOp.subOpName == "loopcontinue":
+                            self.writeNodeLog("______Loop__continue__\n")
+                            continue
+                        elif loopOp.subOpName == "loopbreak":
+                            self.writeNodeLog("______Loop__break__\n")
+                            break
+
                         loopOp.setNode(self)
                         loopOpStatus = self.execOneOperation(loopOp, force=True)
                         if loopOpStatus == NodeStatus.failed:
@@ -939,6 +953,11 @@ class RunNode:
                                         persistenceEnv = self.output["nodeEnv"]
                                         persistenceEnv[envName] = op.preOp.status
                                         self.writeNodeLog("INFO: Set node envariable:{}={}\n".format(envName, op.preOp.status))
+                            elif op.opSubName == "breakstage":
+                                self.writeNodeLog("------Break out current stage--\n")
+                                self.breakOut = True
+                            elif op.opSubName == "loopbreak" or op.opSubName == "loopcontinue":
+                                self.writeNodeLog("WARN: Operation native/{} should  be used in loop block.\n".format(op.opSubName))
                             else:
                                 # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
                                 # native工具一般用于处理数据，不需要连接remote进行操作
@@ -1168,6 +1187,9 @@ class RunNode:
                     break
                 elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
+                elif self.breakOut:
+                    self.breakOut = False
+                    break
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime

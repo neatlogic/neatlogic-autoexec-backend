@@ -1,0 +1,11 @@
+{
+    "opDesc": "breakstage",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "跳出当前阶段",
+    "option": [],
+    "argument": {}
+}
