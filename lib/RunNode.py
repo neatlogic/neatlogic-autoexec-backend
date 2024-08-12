@@ -734,36 +734,40 @@ class RunNode:
             if op.opMemo:
                 self.writeNodeLog("------{}---\n".format(op.opMemo))
 
-            ifOps = self.getIfBlockOps(op)
-            for ifOp in ifOps:
-                if self.breakOut:
-                    break
-
-                ifOp.setNode(self)
-                ifOpStatus = self.execOneOperation(ifOp, force)
-                if ifOpStatus == NodeStatus.failed:
-                    ifOpsFail = 1
-                    break
-                elif ifOpStatus == NodeStatus.ignored:
-                    hasIgnoreFail = 1
-
-                if ifOpsFail == 1:
-                    break
-
-            timeConsume = time.time() - startTime
-            hintKey = "FINE:"
-            opFinalStatus = NodeStatus.succeed
-            if ifOpsFail == 0:
-                if hasIgnoreFail == 1:
-                    opFinalStatus = NodeStatus.ignored
-                    hintKey = "WARN:"
+            if not force and not self.context.isForce and opFinalStatus == NodeStatus.succeed:
+                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+                self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
             else:
-                opFinalStatus = NodeStatus.failed
-                hintKey = "ERROR:"
-            self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
+                ifOps = self.getIfBlockOps(op)
+                for ifOp in ifOps:
+                    if self.breakOut:
+                        break
 
-            self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-            self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+                    ifOp.setNode(self)
+                    ifOpStatus = self.execOneOperation(ifOp, force)
+                    if ifOpStatus == NodeStatus.failed:
+                        ifOpsFail = 1
+                        break
+                    elif ifOpStatus == NodeStatus.ignored:
+                        hasIgnoreFail = 1
+
+                    if ifOpsFail == 1:
+                        break
+
+                timeConsume = time.time() - startTime
+                hintKey = "FINE:"
+                opFinalStatus = NodeStatus.succeed
+                if ifOpsFail == 0:
+                    if hasIgnoreFail == 1:
+                        opFinalStatus = NodeStatus.ignored
+                        hintKey = "WARN:"
+                else:
+                    opFinalStatus = NodeStatus.failed
+                    hintKey = "ERROR:"
+                self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
+
+                self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
+                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
             return opFinalStatus
         # evaluate loop-block
@@ -774,7 +778,7 @@ class RunNode:
             if op.opMemo:
                 self.writeNodeLog("------{}---\n".format(op.opMemo))
 
-            if not self.context.isForce and opFinalStatus == NodeStatus.succeed:
+            if not force and not self.context.isForce and opFinalStatus == NodeStatus.succeed:
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
             else:
@@ -793,7 +797,7 @@ class RunNode:
                     breakLoop = False
 
                     loopIdx = loopIdx + 1
-                    self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
+                    self.writeNodeLog("______Loop__{}:[$\{{}\}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
                     os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
                         if self.breakOut:
@@ -818,7 +822,7 @@ class RunNode:
 
                         if loopOpsFail == 1:
                             break
-                    self.writeNodeLog("______Loop__{}:[{}] end.\n\n".format(loopIdx, loopItem))
+                    self.writeNodeLog("______Loop__{}:[$\{{}\}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
                     if loopOpsFail == 1:
                         break
 
