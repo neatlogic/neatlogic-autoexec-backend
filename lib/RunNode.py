@@ -207,6 +207,8 @@ class RunNode:
         self.isAborting = False
         self.hasFailLog = False
 
+        self.breakOut = False  # break当前stage
+
         self.tagent = None
         self.childPid = None
         self.isKilled = False
@@ -722,6 +724,7 @@ class RunNode:
 
         # evaluate if-block
         if op.opName == "native/IF-Block":
+            op.setNode(self)
             opFinalStatus = opStatus
             ifOpsFail = 0
             hasIgnoreFail = 0
@@ -733,6 +736,9 @@ class RunNode:
 
             ifOps = self.getIfBlockOps(op)
             for ifOp in ifOps:
+                if self.breakOut:
+                    break
+
                 ifOp.setNode(self)
                 ifOpStatus = self.execOneOperation(ifOp, force)
                 if ifOpStatus == NodeStatus.failed:
@@ -762,6 +768,7 @@ class RunNode:
             return opFinalStatus
         # evaluate loop-block
         elif op.opName == "native/LOOP-Block":
+            op.setNode(self)
             opFinalStatus = opStatus
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
             if op.opMemo:
@@ -778,12 +785,29 @@ class RunNode:
                 loopItems = self.getLoopItems(op)
                 startTime = time.time()
                 self.updateNodeStatus(NodeStatus.running, op=op)
+                breakLoop = False
                 loopIdx = 0
                 for loopItem in loopItems:
+                    if breakLoop:
+                        break
+                    breakLoop = False
+
                     loopIdx = loopIdx + 1
                     self.writeNodeLog("______Loop__{}:[{}] start...\n".format(loopIdx, loopItem))
                     os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
+                        if self.breakOut:
+                            break
+                        elif loopOp.opSubName == "loopcontinue":
+                            self.updateNodeStatus(NodeStatus.succeed, op=loopOp)
+                            self.writeNodeLog("______Loop__continue__\n")
+                            break
+                        elif loopOp.opSubName == "loopbreak":
+                            breakLoop = True
+                            self.updateNodeStatus(NodeStatus.succeed, op=loopOp)
+                            self.writeNodeLog("______Loop__break__\n")
+                            break
+
                         loopOp.setNode(self)
                         loopOpStatus = self.execOneOperation(loopOp, force=True)
                         if loopOpStatus == NodeStatus.failed:
@@ -939,6 +963,11 @@ class RunNode:
                                         persistenceEnv = self.output["nodeEnv"]
                                         persistenceEnv[envName] = op.preOp.status
                                         self.writeNodeLog("INFO: Set node envariable:{}={}\n".format(envName, op.preOp.status))
+                            elif op.opSubName == "breakstage":
+                                self.writeNodeLog("------Break out current stage--\n")
+                                self.breakOut = True
+                            elif op.opSubName == "loopbreak" or op.opSubName == "loopcontinue":
+                                self.writeNodeLog("WARN: Operation native/{} should  be used in loop block.\n".format(op.opSubName))
                             else:
                                 # 其他需要在local执行的native操作，native工具需要支持执行在local和local-remote模式下
                                 # native工具一般用于处理数据，不需要连接remote进行操作
@@ -1012,16 +1041,12 @@ class RunNode:
     def getIfBlockOps(self, ifOp):
         result = True
         opParams = ifOp.param
-        condition = ifOp.resolveOptValue(
-            opParams.get("condition", "1==1"),
-            refMap=self.output,
-            localRefMap=self.localOutput,
-            nodeEnv=self.nodeEnv,
-        )
+        condition = opParams.get("condition", "1==1")
+
         ast = ConditionDSL.Parser(condition)
         if isinstance(ast, ConditionDSL.Operation):
             interpreter = ConditionDSL.Interpreter()
-            result = interpreter.resolve(self.nodeEnv, AST=ast.asList())
+            result = interpreter.resolve(AST=ast.asList(), envMap=self.nodeEnv, callback=ifOp.resolveOptValue)
         else:
             raise AutoExecError('Condition syntax error, variable must start with "$", string must quote by single or double quote, please check the condition.')
 
@@ -1056,24 +1081,14 @@ class RunNode:
 
     def getLoopItemVar(self, loopOp):
         opParams = loopOp.param
-        loopItemVar = loopOp.resolveOptValue(
-            opParams["loopItemVar"],
-            refMap=self.output,
-            localRefMap=self.localOutput,
-            nodeEnv=self.nodeEnv,
-        )
+        loopItemVar = loopOp.resolveOptValue(opParams["loopItemVar"])
         if not loopItemVar:
             loopItemVar = "LOOP_ITEM"
         return loopItemVar
 
     def getLoopItems(self, loopOp):
         opParams = loopOp.param
-        loopItemStr = loopOp.resolveOptValue(
-            opParams["loopItems"],
-            refMap=self.output,
-            localRefMap=self.localOutput,
-            nodeEnv=self.nodeEnv,
-        )
+        loopItemStr = loopOp.resolveOptValue(opParams["loopItems"])
         loopItems = shlex.split(loopItemStr)
         return loopItems
 
@@ -1168,6 +1183,9 @@ class RunNode:
                     break
                 elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
+                elif self.breakOut:
+                    self.breakOut = False
+                    break
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
             nodeConsumeTime = time.time() - nodeStartTime

@@ -1,0 +1,11 @@
+{
+    "opDesc": "跳出当前阶段",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "当前执行节点跳出当前阶段",
+    "option": [],
+    "argument": {}
+}
