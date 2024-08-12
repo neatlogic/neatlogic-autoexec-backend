@@ -1,5 +1,5 @@
 {
-    "opDesc": "pausejob",
+    "opDesc": "暂停作业",
     "opType": "native",
     "typeName": "NATIVE",
     "riskName": "LOW",
