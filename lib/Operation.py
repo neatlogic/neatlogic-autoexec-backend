@@ -158,14 +158,10 @@ class Operation:
             self.fetchOperation()
         else:
             if self.opType == "remote":
-                self.pluginParentPath = "{}/plugins/remote/{}".format(
-                    self.context.homePath, self.opBunddleName
-                )
+                self.pluginParentPath = "{}/plugins/remote/{}".format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = "{}/{}".format(self.pluginParentPath, self.opSubName)
             else:
-                self.pluginParentPath = "{}/plugins/local/{}".format(
-                    self.context.homePath, self.opBunddleName
-                )
+                self.pluginParentPath = "{}/plugins/local/{}".format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = "{}/{}".format(self.pluginParentPath, self.opSubName)
 
     def _reinit(self):
@@ -209,11 +205,7 @@ class Operation:
         for optName, optValue in opOpts.items():
             optType = opDesc.get(optName)
             if optType is None:
-                self.writeLog(
-                    "WARN: Can not determine option {} type by params desc, it will cause none normal parameters can not be resolved.\n".format(
-                        optName
-                    )
-                )
+                self.writeLog("WARN: Can not determine option {} type by params desc, it will cause none normal parameters can not be resolved.\n".format(optName))
 
             if optType == "password":
                 try:
@@ -224,35 +216,21 @@ class Operation:
                         nodeEnv=nodeEnv,
                     )
                     if optValue[0:11] == "{ENCRYPTED}":
-                        optValue = Utils._rc4_decrypt_hex(
-                            self.context.passKey, optValue[11:]
-                        )
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[11:])
                     elif optValue[0:5] == "{RC4}":
-                        optValue = Utils._rc4_decrypt_hex(
-                            self.context.passKey, optValue[5:]
-                        )
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[5:])
                     elif optValue[0:4] == "RC4:":
-                        optValue = Utils._rc4_decrypt_hex(
-                            self.context.passKey, optValue[4:]
-                        )
+                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[4:])
                     else:
                         try:
-                            plainArgVal = Utils._rc4_decrypt_hex(
-                                self.context.passKey, argValue
-                            )
-                            encryptArgVal = Utils._rc4_encrypt_hex(
-                                self.context.passKey, plainArgVal
-                            )
+                            plainArgVal = Utils._rc4_decrypt_hex(self.context.passKey, argValue)
+                            encryptArgVal = Utils._rc4_encrypt_hex(self.context.passKey, plainArgVal)
                             if encryptArgVal == argValue:
                                 argValue = plainArgVal
                         except:
                             pass
                 except:
-                    self.writeLog(
-                        "WARN: Decrypt password option:{}->{} failed.\n".format(
-                            self.opName, optName
-                        )
-                    )
+                    self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
             elif optType == "account" and resourceId != "":
                 # format username/accountId
                 if optValue is not None and optValue != "":
@@ -267,9 +245,7 @@ class Operation:
                         username = accountDesc[0]
                         accountId = accountDesc[1]
                         protocol = accountDesc[2]
-                        accountInfo = self.context.serverAdapter.getAccount(
-                            resourceId, host, port, username, protocol, accountId
-                        )
+                        accountInfo = self.context.serverAdapter.getAccount(resourceId, host, port, username, protocol, accountId)
 
                         password = "unknown"
                         protocolPort = 0
@@ -280,25 +256,15 @@ class Operation:
                             protocolPort = accountInfo.get("protocolPort", 0)
 
                         if password[0:11] == "{ENCRYPTED}":
-                            password = Utils._rc4_decrypt_hex(
-                                self.context.passKey, password[11:]
-                            )
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
                         elif password[0:5] == "{RC4}":
-                            password = Utils._rc4_decrypt_hex(
-                                self.context.passKey, password[5:]
-                            )
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[5:])
                         elif password[0:4] == "RC4:":
-                            password = Utils._rc4_decrypt_hex(
-                                self.context.passKey, password[4:]
-                            )
+                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
                         else:
                             try:
-                                plainPwd = Utils._rc4_decrypt_hex(
-                                    self.context.passKey, password
-                                )
-                                encryptPwd = Utils._rc4_encrypt_hex(
-                                    self.context.passKey, plainPwd
-                                )
+                                plainPwd = Utils._rc4_decrypt_hex(self.context.passKey, password)
+                                encryptPwd = Utils._rc4_encrypt_hex(self.context.passKey, plainPwd)
                                 if encryptPwd == password:
                                     password = plainPwd
                             except:
@@ -319,11 +285,7 @@ class Operation:
                     try:
                         optValue = json.loads(optValueStr)
                     except Exception as err:
-                        self.writeLog(
-                            "WARN: Resolve file param {}->{} failed.\n".format(
-                                optName, optValueStr
-                            )
-                        )
+                        self.writeLog("WARN: Resolve file param {}->{} failed.\n".format(optName, optValueStr))
                         optValue = "[]"
 
                 if optValue:
@@ -333,15 +295,11 @@ class Operation:
                         fileNamesJson.append("file/" + fileName)
                     optValue = json.dumps(fileNamesJson, ensure_ascii=False)
             elif optType == "filepath":
-                optValue = self.resolveOptValue(
-                    optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv
-                )
+                optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                 self.hasFilePathOpt = True
                 self.filePaths.append(optValue)
             else:
-                optValue = self.resolveOptValue(
-                    optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv
-                )
+                optValue = self.resolveOptValue(optValue, refMap=refMap, localRefMap=localRefMap, nodeEnv=nodeEnv)
                 if optType == "textarea":
                     optValue = optValue.replace("\n", "\\n")
 
@@ -356,35 +314,21 @@ class Operation:
                 if argType == "password":
                     try:
                         if argValue[0:11] == "{ENCRYPTED}":
-                            argValue = Utils._rc4_decrypt_hex(
-                                self.context.passKey, argValue[11:]
-                            )
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[11:])
                         elif argValue[0:5] == "{RC4}":
-                            argValue = Utils._rc4_decrypt_hex(
-                                self.context.passKey, argValue[5:]
-                            )
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[5:])
                         elif argValue[0:4] == "RC4:":
-                            argValue = Utils._rc4_decrypt_hex(
-                                self.context.passKey, argValue[4:]
-                            )
+                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[4:])
                         else:
                             try:
-                                plainArgVal = Utils._rc4_decrypt_hex(
-                                    self.context.passKey, argValue
-                                )
-                                encryptArgVal = Utils._rc4_encrypt_hex(
-                                    self.context.passKey, plainArgVal
-                                )
+                                plainArgVal = Utils._rc4_decrypt_hex(self.context.passKey, argValue)
+                                encryptArgVal = Utils._rc4_encrypt_hex(self.context.passKey, plainArgVal)
                                 if encryptArgVal == argValue:
                                     argValue = plainArgVal
                             except:
                                 pass
                     except:
-                        self.writeLog(
-                            "WARN: Decrypt password argument:{} failed.\n".format(
-                                self.opName
-                            )
-                        )
+                        self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif argType == "file":
                     matchObj = re.match(r"^\s*\$\{", str(argValue))
                     if matchObj:
@@ -397,9 +341,7 @@ class Operation:
                     try:
                         argValue = json.loads(optValueStr)
                     except Exception as err:
-                        self.writeLog(
-                            "WARN: Resolve file param {} failed.\n".format(argValueStr)
-                        )
+                        self.writeLog("WARN: Resolve file param {} failed.\n".format(argValueStr))
                         argValue = "[]"
 
                     if optValue:
@@ -553,9 +495,7 @@ class Operation:
                     if libScriptId is not None and libScriptId != "":
                         self.getScriptDepends(libScriptId, 1)
             except Exception as ex:
-                raise AutoExecError.AutoExecError(
-                    "Get script dependends failed, " + str(ex)
-                )
+                raise AutoExecError.AutoExecError("Get script dependends failed, " + str(ex))
             finally:
                 if scriptLibFile is not None:
                     scriptLibFile.close()
@@ -572,6 +512,8 @@ class Operation:
             refMap = self.node.output
         if not localRefMap:
             localRefMap = self.node.localOutput
+        if not nodeEnv:
+            nodeEnv = self.node.nodeEnv
 
         matchObjs = re.findall(r"(\$\{\s*([^\{\}]+)\s*\}|\$(\w+))", optValue)
         for matchObj in matchObjs:
@@ -617,9 +559,7 @@ class Operation:
                         if newVal is not None:
                             val = newVal
                         else:
-                            raise AutoExecError.AutoExecError(
-                                "Can not resolve param " + optValue
-                            )
+                            raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
             if val is not None:
                 if not isinstance(val, str):
@@ -687,13 +627,9 @@ class Operation:
                 )
 
             if (isObject or isPassword) and osType != "windows":
-                cmd = cmd + self.getOneArgDef(
-                    argValue, desc=argDesc, hideValue=hideValue, quota="'"
-                )
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota="'")
             else:
-                cmd = cmd + self.getOneArgDef(
-                    argValue, desc=argDesc, hideValue=hideValue, quota='"'
-                )
+                cmd = cmd + self.getOneArgDef(argValue, desc=argDesc, hideValue=hideValue, quota='"')
         return cmd
 
     def getOneOptDef(self, key, val, desc=None, hideValue=False, quota='"'):
@@ -783,13 +719,9 @@ class Operation:
                 )
 
             if (isObject or isPassword) and osType != "windows":
-                cmd = cmd + self.getOneOptDef(
-                    k, v, desc=kDesc, hideValue=hideValue, quota="'"
-                )
+                cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota="'")
             else:
-                cmd = cmd + self.getOneOptDef(
-                    k, v, desc=kDesc, hideValue=hideValue, quota='"'
-                )
+                cmd = cmd + self.getOneOptDef(k, v, desc=kDesc, hideValue=hideValue, quota='"')
         return cmd
 
     def getOpNameWithExt(self, osType="linux"):
@@ -833,39 +765,27 @@ class Operation:
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
                     if self.interpreter == "cmd":
                         # cmd = 'cmd /c {}/{}'.format(remotePath, self.scriptFileName)
-                        cmd = "cd {} & cmd /c {}".format(
-                            remotePath, self.scriptFileName
-                        )
+                        cmd = "cd {} & cmd /c {}".format(remotePath, self.scriptFileName)
                     elif self.interpreter == "vbscript":
                         # cmd = 'cscript {}/{}'.format(remotePath, self.scriptFileName)
-                        cmd = "cd {} & cscript {}".format(
-                            remotePath, self.scriptFileName
-                        )
+                        cmd = "cd {} & cscript {}".format(remotePath, self.scriptFileName)
                     elif self.interpreter == "javascript":
                         cmd = "cd {} & node {}".format(remotePath, self.scriptFileName)
                     elif self.interpreter == "powershell":
                         # cmd = 'powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell {}/{}'.format(remotePath, self.scriptFileName)
-                        cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(
-                            remotePath, self.scriptFileName
-                        )
+                        cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.scriptFileName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName):
-                        cmd = "cd {} & {} {}".format(
-                            remotePath, self.interpreter, self.scriptFileName
-                        )
+                        cmd = "cd {} & {} {}".format(remotePath, self.interpreter, self.scriptFileName)
                 else:
                     if self.interpreter in ("sh", "bash", "csh"):
                         # cmd = '{} -l {}/{}'.format(self.interpreter,  remotePath, self.scriptFileName)
-                        cmd = "cd {} && {} -l {}".format(
-                            remotePath, self.interpreter, self.scriptFileName
-                        )
+                        cmd = "cd {} && {} -l {}".format(remotePath, self.interpreter, self.scriptFileName)
                     elif self.interpreter == "javascript":
                         cmd = "cd {} && node {}".format(remotePath, self.scriptFileName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.scriptFileName)
-                        cmd = "cd {} && {} {}".format(
-                            remotePath, self.interpreter, self.scriptFileName
-                        )
+                        cmd = "cd {} && {} {}".format(remotePath, self.interpreter, self.scriptFileName)
             else:
                 if fullPath:
                     cmd = "{} {}".format(self.interpreter, self.pluginPath)
@@ -884,36 +804,24 @@ class Operation:
                             cmd = "cd {} & cmd /c {}".format(remotePath, self.opSubName)
                         elif self.interpreter == "vbscript":
                             # cmd = 'cscript {}/{}'.format(remotePath, self.opSubName)
-                            cmd = "cd {} & cscript {}".format(
-                                remotePath, self.opSubName
-                            )
+                            cmd = "cd {} & cscript {}".format(remotePath, self.opSubName)
                         elif self.interpreter == "javascript":
                             cmd = "cd {} & node {}".format(remotePath, self.opSubName)
                         elif self.interpreter == "powershell":
-                            cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(
-                                remotePath, self.opSubName
-                            )
+                            cmd = 'cd {} & powershell -Command "Set-ExecutionPolicy -Force RemoteSigned" & powershell -f {}'.format(remotePath, self.opSubName)
                         else:
                             # cmd = '{} {}/{}'.format(self.interpreter, remotePath,  self.opSubName)
-                            cmd = "cd {} & {} {}".format(
-                                remotePath, self.interpreter, self.opSubName
-                            )
+                            cmd = "cd {} & {} {}".format(remotePath, self.interpreter, self.opSubName)
                     else:
                         nameWithExt = self.opSubName + extName
                         if self.interpreter == "cmd":
                             # cmd = 'cd {} & copy /y {} {}>NUL & cd \\ & cmd /c {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
-                            cmd = "cd {} & copy /y {} {} >NUL & cmd /c {}".format(
-                                remotePath, self.opSubName, nameWithExt, nameWithExt
-                            )
+                            cmd = "cd {} & copy /y {} {} >NUL & cmd /c {}".format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == "vbscript":
                             # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & cscript {}/{}'.format(remotePath, self.opSubName, nameWithExt, remotePath, nameWithExt)
-                            cmd = "cd {} & copy /y {} {} >NUL & cscript {}".format(
-                                remotePath, self.opSubName, nameWithExt, nameWithExt
-                            )
+                            cmd = "cd {} & copy /y {} {} >NUL & cscript {}".format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         elif self.interpreter == "javascript":
-                            cmd = "cd {} & copy /y {} {} >NUL & node {}".format(
-                                remotePath, self.opSubName, nameWithExt, nameWithExt
-                            )
+                            cmd = "cd {} & copy /y {} {} >NUL & node {}".format(remotePath, self.opSubName, nameWithExt, nameWithExt)
                         else:
                             # cmd = 'cd {} & copy /y {} {} >NUL & cd \\ & {} {}/{}'.format(remotePath, self.opSubName, nameWithExt, self.interpreter, remotePath, nameWithExt)
                             cmd = "cd {} & copy /y {} {} >NUL & {} {}".format(
@@ -926,16 +834,12 @@ class Operation:
                 else:
                     if self.interpreter in ("sh", "bash", "csh"):
                         # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
-                        cmd = "cd {} && {} -l {}".format(
-                            remotePath, self.interpreter, self.opSubName
-                        )
+                        cmd = "cd {} && {} -l {}".format(remotePath, self.interpreter, self.opSubName)
                     elif self.interpreter == "javascript":
                         cmd = "cd {} && node {}".format(remotePath, self.opSubName)
                     else:
                         # cmd = '{} {}/{}'.format(self.interpreter, remotePath, self.opSubName)
-                        cmd = "cd {} && {} {}".format(
-                            remotePath, self.interpreter, self.opSubName
-                        )
+                        cmd = "cd {} && {} {}".format(remotePath, self.interpreter, self.opSubName)
             else:
                 if fullPath:
                     cmd = self.pluginPath
