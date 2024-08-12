@@ -726,10 +726,7 @@ class RunNode:
         if op.opName == "native/IF-Block":
             op.setNode(self)
             opFinalStatus = opStatus
-            ifOpsFail = 0
-            hasIgnoreFail = 0
-            startTime = time.time()
-            self.updateNodeStatus(NodeStatus.running, op=op)
+
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
             if op.opMemo:
                 self.writeNodeLog("------{}---\n".format(op.opMemo))
@@ -738,6 +735,10 @@ class RunNode:
                 self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
                 self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
             else:
+                ifOpsFail = 0
+                hasIgnoreFail = 0
+                startTime = time.time()
+                self.updateNodeStatus(NodeStatus.running, op=op)
                 ifOps = self.getIfBlockOps(op)
                 for ifOp in ifOps:
                     if self.breakOut:
@@ -774,6 +775,7 @@ class RunNode:
         elif op.opName == "native/LOOP-Block":
             op.setNode(self)
             opFinalStatus = opStatus
+
             self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
             if op.opMemo:
                 self.writeNodeLog("------{}---\n".format(op.opMemo))
