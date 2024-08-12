@@ -176,49 +176,52 @@ class Interpreter(object):
 
         # 展开字串中的变量
 
-    def resolveValue(self, nodeEnv, val):
+    def resolveValue(self, val, envMap, callback):
         if not isinstance(val, str):
             return int(val)
 
-        matchObjs = re.findall(r"^\$\{(\w+)\}$|^\$(\w+)$", val)
-        if matchObjs:
-            for varName in matchObjs[0]:
-                if varName != "":
-                    varVal = self.getVarValue(nodeEnv, varName)
+        if callback is not None:
+            val = callback(val)
+        else:
+            matchObjs = re.findall(r"^\$\{(\w+)\}$|^\$(\w+)$", val)
+            if matchObjs:
+                for varName in matchObjs[0]:
+                    if varName != "":
+                        varVal = self.getVarValue(envMap, varName)
+                        if varVal is not None:
+                            val = varVal
+                        else:
+                            val = ""
+            else:
+                matchObjs1 = re.findall(r"(\$\{\s*([^\{\}]+)\s*\})", val)
+                for matchObj in matchObjs1:
+                    exp = matchObj[0]
+                    varVal = self.getVarValue(envMap, matchObj[1])
                     if varVal is not None:
-                        val = varVal
+                        val = val.replace(exp, varVal)
                     else:
                         val = ""
-        else:
-            matchObjs1 = re.findall(r"(\$\{\s*([^\{\}]+)\s*\})", val)
-            for matchObj in matchObjs1:
-                exp = matchObj[0]
-                varVal = self.getVarValue(nodeEnv, matchObj[1])
-                if varVal is not None:
-                    val = val.replace(exp, varVal)
-                else:
-                    val = ""
 
-            matchObjs2 = re.findall(r"(\$(\w+))", val)
-            for matchObj in matchObjs2:
-                exp = matchObj[0]
-                varVal = self.getVarValue(nodeEnv, matchObj[1])
-                if varVal is not None:
-                    val = val.replace(exp, varVal)
-                else:
-                    val = ""
+                matchObjs2 = re.findall(r"(\$(\w+))", val)
+                for matchObj in matchObjs2:
+                    exp = matchObj[0]
+                    varVal = self.getVarValue(envMap, matchObj[1])
+                    if varVal is not None:
+                        val = val.replace(exp, varVal)
+                    else:
+                        val = ""
 
-        if isinstance(val, str):
-            if re.match(r"^\d+$", val):
-                val = int(val)
-            elif re.match(r"^\d*\.\d+$", val):
-                val = float(val)
+            if isinstance(val, str):
+                if re.match(r"^\d+$", val):
+                    val = int(val)
+                elif re.match(r"^\d*\.\d+$", val):
+                    val = float(val)
 
         return val
 
-    def resolveExp(self, nodeEnv, AST):
+    def resolveExp(self, AST, envMap={}, callback=None):
         if not isinstance(AST, list):
-            return self.resolveValue(nodeEnv, AST)
+            return self.resolveValue(AST, envMap, callback)
 
         result = 0
         operName = AST[0]
@@ -226,19 +229,19 @@ class Interpreter(object):
 
         operandsCount = len(AST) - 1
         if operandsCount == 2:
-            operand1 = self.resolveExp(nodeEnv, AST[1])
-            operand2 = self.resolveExp(nodeEnv, AST[2])
+            operand1 = self.resolveExp(AST[1], envMap, callback)
+            operand2 = self.resolveExp(AST[2], envMap, callback)
 
             result = op(operand1, operand2)
         else:
-            operand1 = self.resolveExp(nodeEnv, AST[1])
+            operand1 = self.resolveExp(AST[1], envMap, callback)
             result = op(operand1)
 
         return result
 
     # 据根据抽象语法树从数据中抽取匹配的字段的path
-    def resolve(self, nodeEnv, AST):
-        return self.resolveExp(nodeEnv, AST)
+    def resolve(self, AST, envMap={}, callback=None):
+        return self.resolveExp(AST, envMap)
 
 
 if __name__ == "__main__":
@@ -253,7 +256,7 @@ if __name__ == "__main__":
         print(json.dumps(ast.asList(), sort_keys=True, indent=4, ensure_ascii=False))
 
         interpreter = Interpreter()
-        result = interpreter.resolve({}, AST=ast.asList())
+        result = interpreter.resolve(AST=ast.asList())
         print(result)
     else:
         print("ERROR: Parse error, syntax error at char 0\n")
