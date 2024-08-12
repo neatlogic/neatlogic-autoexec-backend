@@ -797,7 +797,7 @@ class RunNode:
                     breakLoop = False
 
                     loopIdx = loopIdx + 1
-                    self.writeNodeLog("______Loop__{}:[$\{{}\}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
+                    self.writeNodeLog("______Loop__{}:[${}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
                     os.environ[loopItemVar] = loopItem
                     for loopOp in loopOps:
                         if self.breakOut:
@@ -822,7 +822,7 @@ class RunNode:
 
                         if loopOpsFail == 1:
                             break
-                    self.writeNodeLog("______Loop__{}:[$\{{}\}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
+                    self.writeNodeLog("______Loop__{}:[${}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
                     if loopOpsFail == 1:
                         break
 
