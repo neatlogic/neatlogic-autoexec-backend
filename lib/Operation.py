@@ -558,9 +558,10 @@ class Operation:
 
                         if newVal is not None:
                             val = newVal
-                        elif paramMap is None or paramName not in paramMap:
-                            raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
-
+                        else:
+                            if paramMap is None or paramName not in paramMap:
+                                raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
+                            val = ""
             if val is not None:
                 if not isinstance(val, str):
                     val = json.dumps(val, ensure_ascii=False)
