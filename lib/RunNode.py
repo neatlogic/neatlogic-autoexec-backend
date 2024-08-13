@@ -972,6 +972,14 @@ class RunNode:
                             elif op.opSubName == "breakstage":
                                 self.writeNodeLog("------Break out current stage--\n")
                                 self.breakOut = True
+                            elif op.opSubName == "sleep":
+                                sleepSeconds = 3
+                                try:
+                                    sleepSeconds = int(op.options.get("seconds"), 0)
+                                except:
+                                    pass
+                                self.writeNodeLog("INFO: Sleep {} seconds.\n".format(sleepSeconds))
+                                time.sleep(sleepSeconds)
                             elif op.opSubName == "loopbreak" or op.opSubName == "loopcontinue":
                                 self.writeNodeLog("WARN: Operation native/{} should  be used in loop block.\n".format(op.opSubName))
                             else:
