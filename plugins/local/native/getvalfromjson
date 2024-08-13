@@ -42,7 +42,7 @@ def extractByJsonSelector(txtData, selectorTxt):
                     nextObj = curObj.get(identity)
 
                 if nextObj is None:
-                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end="")
+                    print(" = null\nWARN: There is no data key:%s\n" % fieldIdx, end="")
                 curObj = nextObj
         extractVal = curObj
 
