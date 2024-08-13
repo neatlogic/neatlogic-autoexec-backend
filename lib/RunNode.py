@@ -1042,6 +1042,10 @@ class RunNode:
             self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
             self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
+            self.nodeEnv["PRE_STEP_STATUS"] = opFinalStatus
+            persistenceEnv = self.output["nodeEnv"]
+            persistenceEnv["PRE_STEP_STATUS"] = opFinalStatus
+
             return opFinalStatus
 
     def getIfBlockOps(self, ifOp):
