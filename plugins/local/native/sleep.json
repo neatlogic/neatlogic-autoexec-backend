@@ -1,0 +1,22 @@
+{
+    "opDesc": "sleep",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "在某些特殊情形下，需要延迟一段时间",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "seconds",
+            "name": "休眠秒数",
+            "help": "sleep的时间长度，单位:秒",
+            "type": "text",
+            "required": "true",
+            "validate": ["integer_natural"],
+            "defaultValue": "3"
+        }
+    ],
+    "argument": {}
+}
