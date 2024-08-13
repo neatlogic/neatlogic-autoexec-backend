@@ -205,7 +205,7 @@
             "help": "Sonar-Scanner代码增量扫描启始时间,此处填写的是间隔天数，如：7,代表只扫描7天内提交的代码,默认为全量扫描",
             "type": "text",
             "required": "false",
-            "validate": ["number"],
+            "validate": ["integer_natural"],
             "defaultValue": "0"
         }
     ],
