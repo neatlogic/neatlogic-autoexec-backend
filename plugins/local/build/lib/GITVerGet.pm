@@ -329,8 +329,8 @@ sub checkout {
                 }
             }
             else {
-                $ret = -1;
-                print("ERROR: Branch:$branchName for $repoDesc not exists, checkout failed.\n");
+                #$ret = -1;
+                print("WARN: Branch:$branchName for $repoDesc not exists, checkout failed.\n");
             }
         }
 
