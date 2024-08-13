@@ -16,17 +16,17 @@ def extractByRegexp(txtData, regexpTxt):
     regexp = re.compile(regexpTxt, re.IGNORECASE | re.MULTILINE)
     matchObj = re.search(regexp, txtData)
     if matchObj:
-        extractVal = matchObj.group(0)
+        extractVal = matchObj.group(1)
     else:
-        print('ERROR: Data:{} not match regular expression:{}\n'.foramt(txtData, regexpTxt))
+        print("ERROR: Data:{} not match regular expression:{}\n".foramt(txtData, regexpTxt))
 
     return extractVal
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--txtval', default='', help='Text to be extract')
-    parser.add_argument('--selector', default='', help='Field selector')
+    parser.add_argument("--txtval", default="", help="Text to be extract")
+    parser.add_argument("--selector", default="", help="Field selector")
 
     exitCode = 0
 
@@ -41,13 +41,13 @@ if __name__ == "__main__":
             if extractVal is None:
                 exitCode = 2
             else:
-                print('Extrace value:{}'.format(extractVal))
+                print("Extrace value:{}".format(extractVal))
         except Exception as err:
             exitCode = 3
-            print('ERROR: Extract output value failed, {}'.format(err))
+            print("ERROR: Extract output value failed, {}".format(err))
 
     if extractVal is not None:
-        out = {'extractTxtVal': extractVal}
+        out = {"extractTxtVal": extractVal}
         AutoExecUtils.saveOutput(out)
 
     sys.exit(exitCode)
