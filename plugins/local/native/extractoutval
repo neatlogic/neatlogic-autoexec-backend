@@ -20,7 +20,7 @@ def extractByRegexp(txtData, regexpTxt):
     if matchObj:
         extractVal = matchObj.group(0)
     else:
-        print('ERROR: Data:{} not match regular expression:{}\n'.foramt(txtData, regexpTxt))
+        print("ERROR: Data:{} not match regular expression:{}\n".foramt(txtData, regexpTxt))
 
     return extractVal
 
@@ -39,18 +39,18 @@ def extractByJsonSelector(txtData, selectorTxt):
 
     curObj = jsonObj
     selectorTxt = selectorTxt.strip()
-    if selectorTxt.startswith('data['):
+    if selectorTxt.startswith("data["):
         selectorTxt = selectorTxt[5:-1]
-        selectorTxt = selectorTxt.replace(r'\]\s+\[', '][')
-        print('Extract', end='')
-        for fieldIdx in re.split(r'[\[\]]+', selectorTxt):
+        selectorTxt = selectorTxt.replace(r"\]\s+\[", "][")
+        print("Extract", end="")
+        for fieldIdx in re.split(r"[\[\]]+", selectorTxt):
             if curObj is not None:
-                print('->%s' % fieldIdx, end='')
+                print("->%s" % fieldIdx, end="")
                 identity = fieldIdx
                 if fieldIdx.startswith('"') or fieldIdx.startswith("'"):
                     identity = fieldIdx[1:-1]
                     nextObj = curObj.get(identity)
-                elif re.match('\d+', fieldIdx):
+                elif re.match("\d+", fieldIdx):
                     identity = int(fieldIdx)
                     if identity < len(curObj):
                         nextObj = curObj[identity]
@@ -58,28 +58,28 @@ def extractByJsonSelector(txtData, selectorTxt):
                     nextObj = curObj.get(identity)
 
                 if nextObj is None:
-                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end='')
+                    print(" = null\nERROR: There is no data key:%s\n" % fieldIdx, end="")
                 curObj = nextObj
         extractVal = curObj
 
         if extractVal is not None:
             if isinstance(extractVal, list):
-                extractVal = ','.join(extractVal)
+                extractVal = ",".join(extractVal)
             elif not isinstance(extractVal, str):
                 extractVal = json.dumps(extractVal)
-            print(' = %s\n' % (extractVal), end='')
+            print(" = %s\n" % (extractVal), end="")
     else:
-        print('ERROR: Json object selector syntax error: must start with key word data.')
+        print("ERROR: Json object selector syntax error: must start with key word data.")
 
     return extractVal
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--outputkey', default='', help='Output key')
-    parser.add_argument('--selectortype', default='JsonObject', help='Field selector type: RegExp|JsonObject')
-    parser.add_argument('--selector', default='', help='Field selector')
+    parser.add_argument("--node", default="", help="Execution node json")
+    parser.add_argument("--outputkey", default="", help="Output key")
+    parser.add_argument("--selectortype", default="JsonObject", help="Field selector type: RegExp|JsonObject")
+    parser.add_argument("--selector", default="", help="Field selector")
 
     exitCode = 0
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     outCollection = None
     try:
         (dbclient, db) = AutoExecUtils.getDB()
-        outCollection = db['_node_output']
+        outCollection = db["_node_output"]
     except Exception as err:
         exitCode = 2
         print("ERROR: Can not connect to database, {}".format(err))
@@ -104,25 +104,25 @@ if __name__ == "__main__":
     resourceId = 0
     nodeInfo = {}
     hasOptError = False
-    if node is None or node == '':
-        node = os.getenv('AUTOEXEC_NODE')
-    if node is not None and node != '':
+    if node is None or node == "":
+        node = os.getenv("AUTOEXEC_NODE")
+    if node is not None and node != "":
         nodeInfo = json.loads(node)
-        resourceId = int(nodeInfo.get('resourceId'))
+        resourceId = int(nodeInfo.get("resourceId"))
 
-    if outputKey == '':
+    if outputKey == "":
         hasOptError = True
         print("ERROR: Must define output key name by option --outputkey")
-    if fieldSelector == '':
+    if fieldSelector == "":
         hasOptError = True
         print("ERROR: Muslt defined field selector by option --selector")
     if hasOptError:
         sys.exit(2)
 
-    if outputKey.startswith('#{'):
-        outputKey = re.sub(r'^#\{', '', outputKey)
-        outputKey = re.sub(r'\}$', '', outputKey)
-        outputKeyInfo = outputKey.split('.')
+    if outputKey.startswith("#{"):
+        outputKey = re.sub(r"^#\{", "", outputKey)
+        outputKey = re.sub(r"\}$", "", outputKey)
+        outputKeyInfo = outputKey.split(".")
 
         if len(outputKeyInfo) != 3:
             print("ERROR: Malform output key %s." % (outputKey))
@@ -131,25 +131,21 @@ if __name__ == "__main__":
         opId = outputKeyInfo[1]
         varKey = outputKeyInfo[2]
 
-        jobId = os.getenv('AUTOEXEC_JOBID')
+        jobId = os.getenv("AUTOEXEC_JOBID")
 
         extractVal = None
 
         try:
-            queryCond = {
-                'jobId': jobId,
-                'resourceId': resourceId,
-                'data.%s' % opId: {'$ne': None}
-            }
+            queryCond = {"jobId": jobId, "resourceId": resourceId, "data.%s" % opId: {"$ne": None}}
 
             print("INFO: Try to query node output for operation id:%s output:%s." % (opId, varKey))
-            nodeOut = outCollection.find_one(queryCond, {'data.%s' % opId: 1})
+            nodeOut = outCollection.find_one(queryCond, {"data.%s" % opId: 1})
 
             if nodeOut is None:
                 exitCode = 4
                 print("ERROR: Can not find node output for operation id:%s output:%s." % (opId, varKey))
             else:
-                val = nodeOut['data'].get(opId).get(varKey)
+                val = nodeOut["data"].get(opId).get(varKey)
         except Exception as err:
             exitCode = 1
             print("ERROR: Query node output for operation id:%s output:%s, %s." % (opId, varKey, err))
@@ -157,7 +153,7 @@ if __name__ == "__main__":
             if dbclient is not None:
                 dbclient.close()
     else:
-        if selectorType == 'JsonObject':
+        if selectorType == "JsonObject":
             try:
                 val = json.loads(outputKey)
             except Exception as err:
@@ -168,20 +164,19 @@ if __name__ == "__main__":
 
     if exitCode == 0 and val is not None:
         try:
-            if selectorType == 'RegExp':
+            if selectorType == "RegExp":
                 extractVal = extractByRegexp(val, fieldSelector)
             else:
                 extractVal = extractByJsonSelector(val, fieldSelector)
 
             if extractVal is None:
-                exitCode = 2
-            else:
-                print('Extrace value:{}'.format(extractVal))
+                exitCode = 0
+            print("Extrace value:{}".format(extractVal))
         except Exception as err:
             exitCode = 3
-            print('ERROR: Extract output value for {} failed, {}'.format(outputKey, err))
+            print("ERROR: Extract output value for {} failed, {}".format(outputKey, err))
 
-    out = {'extractTxtVal': extractVal}
+    out = {"extractTxtVal": extractVal}
     AutoExecUtils.saveOutput(out)
 
     sys.exit(exitCode)
