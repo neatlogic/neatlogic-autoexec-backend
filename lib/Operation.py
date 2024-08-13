@@ -558,7 +558,7 @@ class Operation:
 
                         if newVal is not None:
                             val = newVal
-                        else:
+                        elif paramMap is None or paramName not in paramMap:
                             raise AutoExecError.AutoExecError("Can not resolve param " + optValue)
 
             if val is not None:

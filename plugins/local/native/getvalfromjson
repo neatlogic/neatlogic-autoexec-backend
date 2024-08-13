@@ -74,9 +74,8 @@ if __name__ == "__main__":
             extractVal = extractByJsonSelector(val, fieldSelector)
 
             if extractVal is None:
-                exitCode = 2
-            else:
-                print("Extrace value:{}".format(extractVal))
+                exitCode = 0
+            print("Extrace value:{}".format(extractVal))
         except Exception as err:
             exitCode = 3
             print("ERROR: Extract value failed, %s" % (err))
