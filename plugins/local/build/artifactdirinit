@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+
+use DeployUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("       create artifact directory\n");
+    print("       --envpath: env path in the data directory, example:ATM/ATMP/PRD\n");
+    print("       --version: which version to be sync\n");
+    print("       --buildno: Build number\n");
+
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo
+    );
+
+    usage() if ( defined($isHelp) );
+
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    my $hasError = $deployUtils->initDir();
+
+    return $hasError;
+}
+
+exit main();
