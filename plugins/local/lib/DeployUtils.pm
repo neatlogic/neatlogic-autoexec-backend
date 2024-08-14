@@ -187,6 +187,36 @@ sub deployInit {
     return $deployEnv;
 }
 
+sub initDir {
+    my ($self) = @_;
+
+    my $hasError = 0;
+    my $dirStruct = $self->getDataDirStruct($self);
+
+    if ( not mkpath($dirStruct->{project}) ){
+        $hasError = 1;
+        print("ERROR: Create directory $dirStruct->{project} failed, $!\n");
+    }
+    if ( not mkpath($dirStruct->{release}) ){
+        $hasError = 1;
+        print("ERROR: Create directory $dirStruct->{release} failed, $!\n");
+    }
+    if ( not mkpath($dirStruct->{appdist}) ){
+        $hasError = 1;
+        print("ERROR: Create directory $dirStruct->{appdist} failed, $!\n");
+    }
+    if ( not mkpath($dirStruct->{dbscript}) ){
+        $hasError = 1;
+        print("ERROR: Create directory $dirStruct->{dbscript} failed, $!\n");
+    }
+    if ( not mkpath($dirStruct->{envres}) ){
+        $hasError = 1;
+        print("ERROR: Create directory $dirStruct->{envres} failed, $!\n");
+    }
+
+    return $hasError;
+}
+
 sub getVerBaseEnv {
     my ( $self, $dpPath, $version, $buildNo ) = @_;
     my $serverAdapter = ServerAdapter->new();
@@ -241,6 +271,10 @@ sub getVerBaseEnv {
 
 sub getDataDirStruct {
     my ( $self, $buildEnv, $isRelative ) = @_;
+
+    if (not defined($buildEnv)){
+        $buildEnv = $self;
+    }
 
     my $dataPath = $buildEnv->{DATA_PATH};
     my $envName  = $buildEnv->{ENV_NAME};
