@@ -4,6 +4,7 @@ use FindBin;
 
 use strict;
 use Cwd;
+use File::Path;
 use File::Temp;
 use Digest::MD5 qw(md5 md5_hex);
 use JSON qw(to_json from_json);
@@ -85,6 +86,10 @@ sub main {
     }
 
     my $isFail = 0;
+
+    if ( not -e $baseDir ){
+        mkpath($baseDir);
+    }
 
     my $TMPDIR  = "$autoexecHome/tmp";
     my $fileTmp = File::Temp->new( DIR => $TMPDIR, SUFFIX => ".localscript", CLEANUP => 0 );

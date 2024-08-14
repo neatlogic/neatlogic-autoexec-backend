@@ -2,6 +2,7 @@
 use strict;
 use FindBin;
 use Cwd;
+use File::Path;
 use Getopt::Long;
 
 use DeployUtils;
@@ -74,6 +75,10 @@ sub main {
     }
     else {
         $baseDir = Cwd::realpath("$dataPath/$baseDir");
+    }
+
+    if ( not -e $baseDir ){
+        mkpath($baseDir);
     }
 
     my $isFail = 0;

@@ -1,0 +1,12 @@
+{
+    "opDesc": "制品目录初始化",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "创建空的制品目录结构",
+    "enabled": 1,
+    "option": [],
+    "output": []
+}
