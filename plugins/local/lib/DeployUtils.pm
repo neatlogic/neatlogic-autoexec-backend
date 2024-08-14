@@ -191,7 +191,7 @@ sub initDir {
     my ($self) = @_;
 
     my $hasError = 0;
-    my $dirStruct = $self->getDataDirStruct($self);
+    my $dirStruct = $self->getDataDirStruct($self, 0);
 
     if ( not mkpath($dirStruct->{project}) ){
         $hasError = 1;
