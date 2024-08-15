@@ -17,13 +17,13 @@ from urllib import request, parse, error
 from urllib.error import URLError
 from urllib.error import HTTPError
 import logging
-import select
 import paramiko
 from paramiko.sftp import SFTPError
 from paramiko.ssh_exception import SSHException
 from ping3 import ping
 
 import TagentClient
+import ServerAdapter
 import AutoExecUtils
 
 
@@ -268,10 +268,14 @@ class LocalRemoteExec:
         jobId = os.getenv("AUTOEXEC_JOBID")
         resourceId = nodeInfo["resourceId"]
         host = nodeInfo["host"]
+        port = nodeInfo.get("port", 0)
         protocol = nodeInfo["protocol"]
         protocolPort = nodeInfo["protocolPort"]
         username = nodeInfo["username"]
-        password = nodeInfo["password"]
+        password = nodeInfo.get("password", None)
+
+        if password is None or password == "":
+            password = AutoExecUtils.getNodePwd(resourceId, host, port, username, protocol)
 
         scriptName = self.getScriptFileName(scriptDef)
         scriptContent = scriptDef["script"]
