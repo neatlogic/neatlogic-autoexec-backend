@@ -1,6 +1,6 @@
 {
     "opDesc": "指定用户远程执行命令",
-    "opType": "runner-target",
+    "opType": "runner_target",
     "typeName": "BASIC",
     "riskName": "HIGH",
     "interpreter": "python",
