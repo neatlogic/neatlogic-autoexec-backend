@@ -188,10 +188,10 @@ sub deployInit {
 }
 
 sub initDir {
-    my ($self) = @_;
+    my ($self, $buildEnv) = @_;
 
     my $hasError = 0;
-    my $dirStruct = $self->getDataDirStruct($self, 0);
+    my $dirStruct = $self->getDataDirStruct($buildEnv, 0);
 
     if ( not mkpath($dirStruct->{project}) ){
         $hasError = 1;
