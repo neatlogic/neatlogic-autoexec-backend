@@ -63,7 +63,13 @@ sub build {
         }
         else {
             #$cmd = "npm ci && npm $args";
-            $cmd = "npm $args";
+            if($cmd =~ /^\s*\wnpm/ or $cmd =~ /^\s*yarn/ ){
+                $cmd = $args;
+            }
+            else{
+                $cmd = "npm $args";
+            }
+            
             print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
