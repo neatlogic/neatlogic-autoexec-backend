@@ -566,7 +566,7 @@ class Operation:
                 if not isinstance(val, str):
                     val = json.dumps(val, ensure_ascii=False)
                 if isSimpleVar:
-                    optValue = re.sub("\$%s(?=\W|$)" % (paramName), val, optValue)
+                    optValue = re.sub(r"\$%s(?=\W|$)" % (paramName), val, optValue)
                 else:
                     optValue = optValue.replace(exp, val)
 
@@ -589,7 +589,7 @@ class Operation:
                 val = val.replace("'", "'\\''")
 
         if self.interpreter == "cmd":
-            if re.search("\s", val):
+            if re.search(r"\s", val):
                 argDef = ' "%s" ' % (val)
             else:
                 argDef = " %s " % (val)
@@ -653,7 +653,7 @@ class Operation:
             if desc == "swtich":
                 if val == "true":
                     optDef = " /%s " % (key)
-            elif re.search("\s", val):
+            elif re.search(r"\s", val):
                 optDef = ' /%s:"%s" ' % (key, val)
             else:
                 optDef = " /%s:%s " % (key, val)
