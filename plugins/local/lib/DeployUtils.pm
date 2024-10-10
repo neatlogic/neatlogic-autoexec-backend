@@ -188,28 +188,28 @@ sub deployInit {
 }
 
 sub initDir {
-    my ($self, $buildEnv) = @_;
+    my ( $self, $buildEnv ) = @_;
 
-    my $hasError = 0;
-    my $dirStruct = $self->getDataDirStruct($buildEnv, 0);
+    my $hasError  = 0;
+    my $dirStruct = $self->getDataDirStruct( $buildEnv, 0 );
 
-    if ( not mkpath($dirStruct->{project}) ){
+    if ( not -e $dirStruct->{project} and not mkpath( $dirStruct->{project} ) ) {
         $hasError = 1;
         print("ERROR: Create directory $dirStruct->{project} failed, $!\n");
     }
-    if ( not mkpath($dirStruct->{release}) ){
+    if ( not -e $dirStruct->{release} and not mkpath( $dirStruct->{release} ) ) {
         $hasError = 1;
         print("ERROR: Create directory $dirStruct->{release} failed, $!\n");
     }
-    if ( not mkpath($dirStruct->{appdist}) ){
+    if ( not -e $dirStruct->{appdist} and not mkpath( $dirStruct->{appdist} ) ) {
         $hasError = 1;
         print("ERROR: Create directory $dirStruct->{appdist} failed, $!\n");
     }
-    if ( not mkpath($dirStruct->{dbscript}) ){
+    if ( not -e $dirStruct->{dbscript} and not mkpath( $dirStruct->{dbscript} ) ) {
         $hasError = 1;
         print("ERROR: Create directory $dirStruct->{dbscript} failed, $!\n");
     }
-    if ( not mkpath($dirStruct->{envres}) ){
+    if ( not -e $dirStruct->{envres} and not mkpath( $dirStruct->{envres} ) ) {
         $hasError = 1;
         print("ERROR: Create directory $dirStruct->{envres} failed, $!\n");
     }
@@ -272,7 +272,7 @@ sub getVerBaseEnv {
 sub getDataDirStruct {
     my ( $self, $buildEnv, $isRelative ) = @_;
 
-    if (not defined($buildEnv)){
+    if ( not defined($buildEnv) ) {
         $buildEnv = $self;
     }
 
@@ -359,6 +359,7 @@ sub getNodeInfo {
         $nodeInfo = from_json($node);
 
         $nodeInfo->{nodeUniqName} = $nodeInfo->{host} . '.' . $nodeInfo->{port};
+
         #$nodeInfo->{nodeUniqName} = $nodeInfo->{nodeName};
         if ( not defined( $nodeInfo->{port} ) ) {
             $nodeInfo->{port} = 0;
