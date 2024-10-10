@@ -134,7 +134,7 @@ def findJobProcesses(jobId):
         with os.scandir('/proc') as it:
             for entry in it:
                 if not entry.name.startswith('.') and entry.is_dir():
-                    if re.match('^\d+$', entry.name):
+                    if re.match(r'^\d+$', entry.name):
                         pid = int(entry.name)
                         try:
                             cf = open(entry.path + '/comm')
@@ -158,7 +158,7 @@ def findJobProcesses(jobId):
                 break
             try:
                 if line.index(b'autoexec') > 0 and line.index(jobId) > 0:
-                    lineParts = re.split('\s+', line, 2)
+                    lineParts = re.split(r'\s+', line, 2)
                     pid = int(lineParts[1])
                     if pid != mypid:
                         autoexecPids.append(pid)
