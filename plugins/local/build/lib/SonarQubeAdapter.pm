@@ -34,7 +34,7 @@ sub convCharSet {
     my $contentType     = $client->responseHeader('Content-Type');
     $contentEncoding = $1 if ( $contentType =~ /charset=(.*)$/ );
 
-    my $lang = $ENV{LANG};
+    my $lang     = $ENV{LANG};
     my $encoding = lc( substr( $lang, rindex( $lang, '.' ) + 1 ) );
     $encoding = 'utf-8' if ( $encoding eq 'utf8' );
     if ( $encoding ne $contentEncoding ) {
@@ -49,14 +49,14 @@ sub isCeFinish {
     my ( $client, $ceUrl, $baseUrl ) = @_;
 
     $client->GET($ceUrl);
-    
+
     if ( $client->responseCode() ne 200 ) {
         my $errMsg = $client->responseContent();
         die("ERROR: Get Compute Engine status failed, cause by:$ceUrl $errMsg\n");
     }
 
     my $content = convCharSet( $client, $client->responseContent() );
-    my $ceJson = from_json($content);
+    my $ceJson  = from_json($content);
 
     #print("DEBUG: Compute Engine status is $content\n");
     if ( $ceJson->{'pending'} gt 0 or $ceJson->{'inProgress'} gt 0 ) {
@@ -72,7 +72,7 @@ sub isCeFinish {
             die("ERROR: Search for tasks failed.\n");
         }
         $content = convCharSet( $client, $client->responseContent() );
-        $ceJson = from_json($content);
+        $ceJson  = from_json($content);
         my $tasks = $ceJson->{'tasks'};
         foreach my $task (@$tasks) {
             my $id = $task->{'id'};
@@ -83,7 +83,7 @@ sub isCeFinish {
                 die("ERROR: Get Compute Engine task details failed.\n");
             }
             $content = convCharSet( $client, $client->responseContent() );
-            $ceJson = from_json($content);
+            $ceJson  = from_json($content);
             my $errorMessage    = $ceJson->{'task'}->{'errorMessage'};
             my $errorStacktrace = $ceJson->{'task'}->{'errorStacktrace'};
             print("$errorMessage\n$errorStacktrace\n");
@@ -110,7 +110,7 @@ sub getMeasures {
     $client->GET($url);
     if ( $client->responseCode() eq 200 ) {
         my $content = convCharSet( $client, $client->responseContent() );
-        my $rcJson = from_json($content);
+        my $rcJson  = from_json($content);
 
         if ( $rcJson->{'errors'} ) {
             my $errMsg;
@@ -193,7 +193,6 @@ sub getMeasures {
 
     my @measureVals;
 
- 
     my @measures = keys(%$measureKeyMap);
 
     $url = "$baseUrl/api/measures/component?component=$projectKey\&metricKeys=" . join( ',', @measures );
@@ -203,7 +202,7 @@ sub getMeasures {
 
     if ( $client->responseCode() eq 200 ) {
         my $content = convCharSet( $client, $client->responseContent() );
-        my $rcJson = from_json($content);
+        my $rcJson  = from_json($content);
 
         if ( $rcJson->{'errors'} ) {
             my $errMsg;
@@ -222,7 +221,6 @@ sub getMeasures {
         my $errMsg = $client->responseContent();
         die("ERROR: Get measures failed, cause by:$errMsg\n");
     }
-    
 
     my $hasError = 0;
     my %measuresMap;
@@ -283,10 +281,10 @@ sub getMeasures {
         print("ERROR: Project status returned from sonarqube is $projectStatus\n");
     }
 
-    if ( $hasError > 0 ) {
-        die("ERROR: Get measures from sonarqube failed.\n");
-    }
-    return \%measuresMap;
+    # if ( $hasError > 0 ) {
+    #     die("ERROR: Get measures from sonarqube failed.\n");
+    # }
+    return ( $hasError, \%measuresMap );
 }
 
 #getMeasures( 'DEMOA', 'DEMOASUB', 'http://192.168.0.24:9000', 'admin', 'admin' );
