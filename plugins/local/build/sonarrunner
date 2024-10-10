@@ -179,9 +179,12 @@ sub main {
     }
     else {
         eval {
-            my $measures      = SonarQubeAdapter::getMeasures( $projectKey, $sonarUrl, $sonarLogin, $sonarPwd, $level, $threshold );
-            my $serverAdapter = ServerAdapter->new();
-            $serverAdapter->addBuildQuality( $buildEnv, $measures );
+            my ( $measuresChkError, $measures ) = SonarQubeAdapter::getMeasures( $projectKey, $sonarUrl, $sonarLogin, $sonarPwd, $level, $threshold );
+            $hasError = $hasError + $measuresChkError;
+            if ( defined($measures) ) {
+                my $serverAdapter = ServerAdapter->new();
+                $serverAdapter->addBuildQuality( $buildEnv, $measures );
+            }
         };
         if ($@) {
             $hasError = $hasError + 1;
