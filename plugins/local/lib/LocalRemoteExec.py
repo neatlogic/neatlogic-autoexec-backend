@@ -252,9 +252,9 @@ class LocalRemoteExec:
             line = line.encode()
 
         detectInfo = chardet.detect(line)
-        detectEnc = detectInfo["encoding"]
+        detectEnc = detectInfo.get("encoding", "ascii")
         if detectEnc != "ascii" and not detectEnc.startswith("ISO-8859"):
-            line = line.decode(self.srcEncoding, "ignore")
+            line = line.decode(detectEnc, "ignore")
         else:
             line = line.decode("utf-8", errors="ignore")
 
