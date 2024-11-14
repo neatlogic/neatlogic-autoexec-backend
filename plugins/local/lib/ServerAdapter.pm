@@ -1410,7 +1410,7 @@ sub getBuild {
 
         my $errMsg = $client->responseContent();
 
-        if ( defined($relStatus) and $relStatus ne '' ) {
+        if ( defined($relStatus) and $relStatus ne '' and $relStatus ne 'released') {
             if ( $relStatus eq 'null' ) {
                 die("ERROR: $namePath Version:$version\_build$buildNo not exists.\n");
             }
@@ -1418,7 +1418,7 @@ sub getBuild {
                 die("ERROR: $namePath Version:$version\_build$buildNo in error status:$relStatus.\n");
             }
         }
-        elsif ( defined($envRelStatus) and $envRelStatus ne '' ) {
+        elsif ( defined($envRelStatus) and $envRelStatus ne '' and  $envRelStatus ne 'released') {
             if ( $envRelStatus eq 'null' ) {
                 die("ERROR: $namePath ENV artifact Version:$version not exists.\n");
             }
