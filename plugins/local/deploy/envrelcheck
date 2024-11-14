@@ -93,6 +93,7 @@ sub main {
         sysName    => $srcPathSegs[0],
         moduleName => $srcPathSegs[1],
         envName    => $srcPathSegs[2],
+        version => $version,
         proxyToUrl => $proxyToUrl
     };
 
