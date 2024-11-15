@@ -166,6 +166,17 @@ sub collect {
     $nginxInfo->{PREFIX}      = $prefix;
     $nginxInfo->{CONFIG_PATH} = $configPath;
 
+    my ( $ports, $port ) = $self->getPortFromProcInfo($nginxInfo);
+
+    if ( $port == 65535 ) {
+        print("WARN: Can not determine Python listen port.\n");
+        $nginxInfo->{PORT} = 0;
+    }
+
+    if ( $port < 65535 ) {
+        $nginxInfo->{PORT} = $port;
+    }
+
     my @serverInfos     = ();
     my $httpServerInfos = $self->getHttpServers($mainBlock);
     $nginxInfo->{HTTP_SERVERS} = $httpServerInfos;
