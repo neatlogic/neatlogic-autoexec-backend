@@ -170,11 +170,13 @@ sub collect {
 
     if ( $port == 65535 ) {
         print("WARN: Can not determine Python listen port.\n");
-        $nginxInfo->{PORT} = 0;
+        $nginxInfo->{PORT}  = 0;
+        $nginxInfo->{PORTS} = [];
     }
 
     if ( $port < 65535 ) {
-        $nginxInfo->{PORT} = $port;
+        $nginxInfo->{PORT}  = $port;
+        $nginxInfo->{PORTS} = $ports;
     }
 
     my @serverInfos     = ();
