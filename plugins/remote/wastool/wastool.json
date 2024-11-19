@@ -368,5 +368,14 @@
             "defaultValue": ""
         }
     ],
+    "argument": {
+        "name": "环境变量",
+        "type": "text",
+        "defaultValue": "",
+        "help": "启动用的环境变量定义，例如：PRODUCTION_MOD=true",
+        "count": 0,
+        "validate": "",
+        "required": "false"
+    },
     "output": []
 }
