@@ -63,7 +63,7 @@ sub build {
         }
         else {
             #$cmd = "npm ci && npm $args";
-            if($cmd =~ /^\s*\wnpm/ or $cmd =~ /^\s*yarn/ ){
+            if($args =~ /^\s*\wnpm/ or $args =~ /^\s*yarn/ ){
                 $cmd = $args;
             }
             else{
