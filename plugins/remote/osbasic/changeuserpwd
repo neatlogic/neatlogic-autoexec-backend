@@ -27,7 +27,7 @@ sub main {
 
     GetOptions(
         'user:s'     => \$user,
-        'password:i' => \$password
+        'password' => \$password
     );
 
     my $hasOptErr = 0;
