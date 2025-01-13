@@ -333,14 +333,16 @@ class ServerAdapter:
         params["lastModified"] = lastModifiedTime
 
         downloadFailed = False
-        retryCount = 2
-        while retryCount > 0:
+        retryCount = 0
+        while retryCount < 2:
             try:
                 self.downloadNodes(params, nodesFilePath, phase=phase)
                 downloadFailed = False
                 break
-            except:
+            except Exception as ex:
                 downloadFailed = True
+                retryCount = retryCount + 1
+                print("INFO: {}, retry download nodes, it is the {} retry、\n".format(ex, retryCount))
                 time.sleep(1)
                 continue
         if downloadFailed:
