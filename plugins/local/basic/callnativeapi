@@ -17,16 +17,14 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--apiuri", default="", help="Native uri")
-    parser.add_argument(
-        "--params", default="{}", help="Json data to send to native api"
-    )
+    parser.add_argument("--params", default="{}", help="Json data to send to native api")
 
     args = parser.parse_args()
     apiUri = args.apiuri
     params = json.loads(args.params)
 
     returnData = AutoExecUtils.callNativeApi(
-        "/neatlogic/api/rest/cmdb/import",
+        apiUri,
         params,
     )
 
