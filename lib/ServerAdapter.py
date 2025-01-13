@@ -265,6 +265,50 @@ class ServerAdapter:
                 paramsFile.close()
 
     # 下载运行作业或作业某个阶段的运行目标节点
+    def downloadNodes(self, params, nodesFilePath, phase=None):
+        nodesFile = None
+        try:
+            response = self.httpGET(self.apiMap["getNodes"], params)
+
+            if response.status == 200:
+                nodesFile = open(nodesFilePath, "a+")
+                fcntl.flock(nodesFile, fcntl.LOCK_EX)
+                nodesFile.truncate(0)
+
+                nodesCount = 0
+                linesCount = 0
+                line = None
+                for line in response:
+                    if linesCount == 0:
+                        nodesDescObj = json.loads(line)
+                        nodesCount = int(nodesDescObj["totalCount"])
+                    nodesFile.write(str(line, encoding="utf-8"))
+                    linesCount = linesCount + 1
+
+                if not linesCount == nodesCount + 1:
+                    raise AutoExecError("Get nodes failed, expect {} but get {}, download incomplete.".format(nodesCount, linesCount - 1))
+                elif line is not None:
+                    try:
+                        json.loads(line)
+                    except:
+                        raise AutoExecError("Get nodes failed, download incomplete.")
+
+                if phase is not None:
+                    self.context.phases[phase].nodesFilePath = nodesFilePath
+
+            # elif response.status == 205:
+            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
+            #    pass
+            elif response.status == 204:
+                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
+                if phase is not None:
+                    self.context.phases[phase].nodesFilePath = nodesFilePath
+        finally:
+            if nodesFile:
+                fcntl.flock(nodesFile, fcntl.LOCK_UN)
+                nodesFile.close()
+
+    # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None, groupNo=None):
         params = {
             "jobId": self.context.jobId,
@@ -288,31 +332,21 @@ class ServerAdapter:
             lastModifiedTime = os.path.getmtime(nodesFilePath)
         params["lastModified"] = lastModifiedTime
 
-        nodesFile = None
-        try:
-            response = self.httpGET(self.apiMap["getNodes"], params)
-
-            if response.status == 200:
-                nodesFile = open(nodesFilePath, "a+")
-                fcntl.flock(nodesFile, fcntl.LOCK_EX)
-                nodesFile.truncate(0)
-                for line in response:
-                    nodesFile.write(str(line, encoding="utf-8"))
-
-                if phase is not None:
-                    self.context.phases[phase].nodesFilePath = nodesFilePath
-
-            # elif response.status == 205:
-            # 如果阶段playbook的运行节点跟pipeline一致，阶段节点使用作业节点
-            #    pass
-            elif response.status == 204:
-                # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
-                if phase is not None:
-                    self.context.phases[phase].nodesFilePath = nodesFilePath
-        finally:
-            if nodesFile:
-                fcntl.flock(nodesFile, fcntl.LOCK_UN)
-                nodesFile.close()
+        downloadFailed = False
+        retryCount = 0
+        while retryCount < 2:
+            try:
+                self.downloadNodes(params, nodesFilePath, phase=phase)
+                downloadFailed = False
+                break
+            except Exception as ex:
+                downloadFailed = True
+                retryCount = retryCount + 1
+                print("INFO: {}, retry download nodes, it is the {} retry、\n".format(ex, retryCount))
+                time.sleep(1)
+                continue
+        if downloadFailed:
+            self.downloadNodes(params, nodesFilePath, phase=phase)
 
     # 更新运行阶段某个节点的状态到服务端
     def pushNodeStatus(self, groupNo, phaseName, runNode, status, failIgnore=0, warnCount=0):
