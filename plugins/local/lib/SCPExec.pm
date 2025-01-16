@@ -85,6 +85,9 @@ sub exec {
     );
 
     my $rc = $spawn->exitstatus();
+    if ($rc > 255){
+        $rc = $rc >> 8;
+    }
 
     return $rc;
 }
