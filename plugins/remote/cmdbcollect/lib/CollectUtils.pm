@@ -165,9 +165,9 @@ sub getCmdOut {
             $hasSu = 1;
 
             if ( $self->{debug} ) {
-                print("DEBUG: Begin execute command: su - '$user' -c '$cmd'\n");
+                print("DEBUG: Begin execute command: su - '$user' -c 'LANG=en_US.UTF-8 $cmd'\n");
             }
-            $out = `su - '$user' -c '$cmd'`;
+            $out = `su - '$user' -c 'LANG=en_US.UTF-8 $cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
 
@@ -235,9 +235,9 @@ sub getCmdOutLines {
             $hasSu = 1;
 
             if ( $self->{debug} ) {
-                print("DEBUG: Begin execute command: su - '$user' -c '$cmd'\n");
+                print("DEBUG: Begin execute command: su - '$user' -c 'LANG=en_US.UTF-8 $cmd'\n");
             }
-            @out = `su - '$user' -c '$cmd'`;
+            @out = `su - '$user' -c 'LANG=en_US.UTF-8 $cmd'`;
         }
         elsif ( getpwnam($user) == $> ) {
             if ( $self->{debug} ) {
