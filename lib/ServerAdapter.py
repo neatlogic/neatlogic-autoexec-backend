@@ -1180,7 +1180,7 @@ class ServerAdapter:
                 apiUri = "/" + apiUri + "?param=file&type=%s" % (fileType)
 
             url = self.serverBaseUrl + apiUri
-            headers = self.getSignHeaders(apiUri)
+            headers = self.getSignHeaders(apiUri, '{"param":"file","type":"{}"}'.format(fileType))
             myFile = {
                 "param": (None, "file"),
                 "type": (None, fileType),
