@@ -197,7 +197,7 @@ sub main {
         }
     }
 
-    if ( $svcStatus != 0 ) {
+    if ( $svcStatus != 1 ) {
         $rc = 1;
     }
 
