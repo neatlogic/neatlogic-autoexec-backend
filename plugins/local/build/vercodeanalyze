@@ -80,7 +80,9 @@ sub main {
 
     my $serverAdapter = ServerAdapter->new();
     my $verInfo       = $serverAdapter->getVer($buildEnv);
-    $verInfo->{startPath} = $startPath;
+    if (defined($startPath) and $startPath ne ''){
+        $verInfo->{startPath} = $startPath;
+    }
 
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");
