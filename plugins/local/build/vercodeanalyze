@@ -30,7 +30,7 @@ sub usage {
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $lang, $envPath, $version, $buildNo, $startPath );
+    my ( $isHelp, $isVerbose, $lang, $repoType, $envPath, $version, $buildNo, $startPath );
     my ( $userName, $password );
 
     GetOptions(
@@ -40,6 +40,7 @@ sub main {
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
         'lang=s'      => \$lang,
+        'repotype=s'  => \$repoType,
         'startpath=s' => \$startPath,
         'user=s'      => \$userName,
         'password=s'  => \$password
@@ -83,7 +84,9 @@ sub main {
     if (defined($startPath) and $startPath ne ''){
         $verInfo->{startPath} = $startPath;
     }
-
+    if (defined($repoType) and $repoType ne ''){
+        $verInfo->{repoType} = $repoType;
+    }
     if ( not defined($verInfo) ) {
         print("ERROR: Can not find application $namePath version:$version.\n");
         return 3;

@@ -25,6 +25,27 @@
             "required": "false",
             "validate": "",
             "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "repotype",
+            "name": "代码仓库类型",
+            "help": "代码仓库的管理软件类别",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "gitlab",
+                        "value": "gitlab"
+                    },
+                    {
+                        "text": "svn",
+                        "value": "svn"
+                    }
+                ]
+            },
+            "defaultValue": "gitlab"
         }
     ],
     "output": []
