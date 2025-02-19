@@ -171,9 +171,6 @@ sub main {
                 $data->{appModuleId} = $buildEnv->{MODULE_ID};
                 $data->{repo}        = $verInfo->{repo};
                 $data->{type}        = $verInfo->{repoType};
-                if ( $data->{type} eq 'git' ) {
-                    $data->{type} = 'gitlab';
-                }
                 $data->{user}     = $userName;
                 $data->{password} = $deployUtils->encryptPwd($password);
                 $serverAdapter->saveVersionMetrics($data);
