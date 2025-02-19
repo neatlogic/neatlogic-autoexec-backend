@@ -37,6 +37,7 @@ sub main {
     my ( $sonarUrl, $sonarLogin, $sonarPwd );
     my ( $prefix,   $language,   $encode, $level, $threshold, $src, $bin, $timeout, $projectKey, $projectVersion, $projectName, $modules, $intervalDay );
     my $pname = $FindBin::Script;
+    my @otherArgs = ();
 
     GetOptions(
         'h|help'           => \$isHelp,
@@ -59,7 +60,8 @@ sub main {
         'projectName=s'    => \$projectName,
         'modules=s'        => \$modules,
         'intervalDay=i'    => \$intervalDay,
-        'verbose=i'        => \$verbose
+        'verbose=i'        => \$verbose,
+        '<>'             => sub { my $item = shift(@_); push( @otherArgs, $item ); }
     );
 
     usage() if ( defined($isHelp) );
@@ -148,10 +150,13 @@ sub main {
         . " -Dsonar.projectKey='$projectKey'"
         . " -Dsonar.projectVersion='$projectVersion'"
         . " -Dsonar.modules='$modules'";
-
     #. " -Dsonar.qualitygate.wait=true"
     #. " -Dsonar.qualitygate.timeout='$timeout'";
 
+    if (@otherArgs){
+        $cmd = $cmd . ' ' . join(@otherArgs, ' ');
+    }
+    
     #按时间增量代码扫描
     if ( defined($intervalDay) and $intervalDay > 0 ) {
         my $projectDate = `date -d "-$intervalDay days" '+%Y-%m-%d'`;
