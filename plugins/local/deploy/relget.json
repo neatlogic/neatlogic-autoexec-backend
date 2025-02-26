@@ -13,7 +13,7 @@
             "name": "制品库地址",
             "help": "制品库地址，例如：https://192.168.0.8:8443",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": "${global:build.proxytourl}"
         },
