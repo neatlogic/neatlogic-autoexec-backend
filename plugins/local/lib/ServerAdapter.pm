@@ -1287,9 +1287,10 @@ sub getBuild {
                 print("INFO: Build-Local:$buildLocal\n");
 
                 if ( $relStatus eq 'released' and $envRelStatus eq 'released' ) {
-                    if ( $buildLocal ne 'true' ) {
-                        $builded = 1;
-                    }
+                    # if ( $buildLocal ne 'true' ) {
+                    #     $builded = 1;
+                    # }
+                    $builded = 1;
 
                     $deployEnv->{BUILD_NO} = $buildNo;
                     my $buildEnv = $deployEnv;
