@@ -1480,7 +1480,7 @@ class RunNode:
                     connectTimeout=context.rexecConnTimeout,
                     readTimeout=60,
                     writeTimeout=context.rexecWriteTimeout,
-                    execTimeout=context.maxExecSecs,
+                    execTimeout=context.rexecExecTimeout,
                 )
                 self.tagent = tagent
 
@@ -1611,7 +1611,7 @@ class RunNode:
                         connectTimeout=context.rexecConnTimeout,
                         readTimeout=context.rexecReadTimeout,
                         writeTimeout=context.rexecWriteTimeout,
-                        execTimeout=context.maxExecSecs,
+                        execTimeout=context.rexecExecTimeout,
                     )
                     self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                     ret = tagent.execCmd(
