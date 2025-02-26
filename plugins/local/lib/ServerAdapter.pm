@@ -1255,6 +1255,9 @@ sub getBuild {
             $pdata->{$key} = $val;
         }
     }
+    else {
+        $srcEnvInfo = {};
+    }
 
     my $checked    = 0;
     my $builded    = 0;
@@ -1287,62 +1290,64 @@ sub getBuild {
                 print("INFO: Build-Local:$buildLocal\n");
 
                 if ( $relStatus eq 'released' and $envRelStatus eq 'released' ) {
-                    # if ( $buildLocal ne 'true' ) {
-                    #     $builded = 1;
-                    # }
-                    $builded = 1;
+                    if ( $buildLocal ne 'true' ) {
+                        $builded = 1;
+                    }
 
                     $deployEnv->{BUILD_NO} = $buildNo;
-                    my $buildEnv = $deployEnv;
 
-                    my $buildPath = $deployEnv->{BUILD_ROOT} . "/$buildNo";
-                    $buildEnv->{BUILD_PATH} = $buildPath;
+                    if ( $builded == 1 ) {
+                        my $buildEnv = $deployEnv;
 
-                    if ( not -e $buildPath ) {
-                        if ( not mkpath($buildPath) ) {
-                            die("ERROR: Can not create directory $buildPath, $!\n");
+                        my $buildPath = $deployEnv->{BUILD_ROOT} . "/$buildNo";
+                        $buildEnv->{BUILD_PATH} = $buildPath;
+
+                        if ( not -e $buildPath ) {
+                            if ( not mkpath($buildPath) ) {
+                                die("ERROR: Can not create directory $buildPath, $!\n");
+                            }
                         }
-                    }
-                    if ( defined($destDir) and $destDir ne '' ) {
-                        $buildPath = Cwd::abs_path("$buildPath/$destDir");
-                    }
-
-                    #lockBuild
-                    my $lock      = DeployLock->new($buildEnv);
-                    my $buildLock = $lock->lockBuild($DeployLock::WRITE);
-
-                    END {
-                        local $?;
-                        if ( defined($lock) ) {
-                            $lock->unlockBuild($buildLock);
+                        if ( defined($destDir) and $destDir ne '' ) {
+                            $buildPath = Cwd::abs_path("$buildPath/$destDir");
                         }
-                    }
 
-                    if ( $cleanSubDirs == 1 ) {
-                        foreach my $subDir (@$subDirs) {
-                            foreach my $dir ( glob("$buildPath/$subDir") ) {
-                                if ( -e $dir ) {
+                        #lockBuild
+                        my $lock      = DeployLock->new($buildEnv);
+                        my $buildLock = $lock->lockBuild($DeployLock::WRITE);
 
-                                    #print("INFO: Clean dir:$dir\n");
-                                    rmtree($dir) or die("ERROR: Remove $dir failed.\n");
+                        END {
+                            local $?;
+                            if ( defined($lock) ) {
+                                $lock->unlockBuild($buildLock);
+                            }
+                        }
+
+                        if ( $cleanSubDirs == 1 ) {
+                            foreach my $subDir (@$subDirs) {
+                                foreach my $dir ( glob("$buildPath/$subDir") ) {
+                                    if ( -e $dir ) {
+
+                                        #print("INFO: Clean dir:$dir\n");
+                                        rmtree($dir) or die("ERROR: Remove $dir failed.\n");
+                                    }
                                 }
                             }
                         }
-                    }
-                    else {
-                        if ( -e $buildPath ) {
-                            rmtree($buildPath) or die("ERROR: Remove $buildPath failed.\n");
-                            mkdir($buildPath);
+                        else {
+                            if ( -e $buildPath ) {
+                                rmtree($buildPath) or die("ERROR: Remove $buildPath failed.\n");
+                                mkdir($buildPath);
+                            }
                         }
-                    }
 
-                    $magicNum = substr( $chunk, 0, 2 );
-                    my $cmd = "| tar -C '$buildPath' -xf -";
-                    if ( $contentDisposition =~ /\.gz"?$/ or $magicNum eq $gzMagicNum ) {
-                        $cmd = "| tar -C '$buildPath' -xzf -";
+                        $magicNum = substr( $chunk, 0, 2 );
+                        my $cmd = "| tar -C '$buildPath' -xf -";
+                        if ( $contentDisposition =~ /\.gz"?$/ or $magicNum eq $gzMagicNum ) {
+                            $cmd = "| tar -C '$buildPath' -xzf -";
+                        }
+                        $pid = open( $writer, $cmd ) or die("ERROR: Open tar cmd failed:$!");
+                        binmode($writer);
                     }
-                    $pid = open( $writer, $cmd ) or die("ERROR: Open tar cmd failed:$!");
-                    binmode($writer);
                 }
             }
             else {
@@ -1402,6 +1407,10 @@ sub getBuild {
         }
     }
 
+    if ( $buildLocal eq 'true' and ($params->{sysName} ne $srcEnvInfo->{sysName} or $params->{moduleName} ne $srcEnvInfo->{moduleName})) {
+        die("ERROR: No need to download local build remotly, use tool:pickbuildfile please.");
+    }
+
     if ( $relStatus ne 'released' or $envRelStatus ne 'released' ) {
 
         my $namePath = $pdata->{namePath};
@@ -1411,7 +1420,7 @@ sub getBuild {
 
         my $errMsg = $client->responseContent();
 
-        if ( defined($relStatus) and $relStatus ne '' and $relStatus ne 'released') {
+        if ( defined($relStatus) and $relStatus ne '' and $relStatus ne 'released' ) {
             if ( $relStatus eq 'null' ) {
                 die("ERROR: $namePath Version:$version\_build$buildNo not exists.\n");
             }
@@ -1419,7 +1428,7 @@ sub getBuild {
                 die("ERROR: $namePath Version:$version\_build$buildNo in error status:$relStatus.\n");
             }
         }
-        elsif ( defined($envRelStatus) and $envRelStatus ne '' and  $envRelStatus ne 'released') {
+        elsif ( defined($envRelStatus) and $envRelStatus ne '' and $envRelStatus ne 'released' ) {
             if ( $envRelStatus eq 'null' ) {
                 die("ERROR: $namePath ENV artifact Version:$version not exists.\n");
             }
