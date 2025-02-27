@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "",
-    "description": "Rset掉对WorkSpace的文件修改，新增文件不影响",
+    "description": "Reset掉对WorkSpace的文件修改，新增文件不影响",
     "enabled": 1,
     "option": [
         {
