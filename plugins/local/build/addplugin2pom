@@ -6,6 +6,7 @@ use Getopt::Long;
 use XML::MyXML;
 use IO::File;
 
+use BuildUtils;
 use DeployUtils;
 use DeployLock;
 
@@ -23,30 +24,23 @@ sub usage {
     exit(1);
 }
 
-sub modify_pom{
-    my ($deployUtils, $pomFile, $pluginXml) = @_;
-    my $bakFile = $pomFile;
-    $bakFile =~ s/\.xml$/\.junit\.xml/;
-    
-    if (-f $bakFile){
-        rm($bakFile);
-    }
-    cp($pomFile, $bakFile);
+sub modify_pom {
+    my ( $deployUtils, $pomFile, $pluginXml ) = @_;
 
     my $pomXml = $deployUtils->getFileContent($pomFile);
     $pomXml =~ s/<plugins>/<plugins>\n$pluginXml\n/g;
 
     my $fh = IO::File->new(">$pomFile");
-    if(not defined($fh)){
+    if ( not defined($fh) ) {
         die("ERROR: Can not open file:$pomFile to write, $!\n");
     }
     binmode($fh);
-    $fh->write($pomFile);
+    $fh->write($pomXml);
     $fh->close();
 }
 
 sub main {
-    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo, $pluginXml);
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo, $pluginXml );
     my $startPath;
     my $pname = $FindBin::Script;
 
@@ -56,7 +50,7 @@ sub main {
         'envpath=s'   => \$envPath,
         'version=s'   => \$version,
         'buildno=s'   => \$buildNo,
-        'startpath=s'      => \$startPath,
+        'startpath=s' => \$startPath,
         'pluginxml=s' => \$pluginXml
     );
 
@@ -119,13 +113,13 @@ sub main {
     }
 
     my $buildUtils = BuildUtils->new( buildEnv => $buildEnv );
-    my @codePaths = $buildUtils->getPrjRoots($codePath);
+    my @codePaths  = $buildUtils->getPrjRoots($codePath);
 
     my $aCodePath;
     foreach $aCodePath (@codePaths) {
-        if ( -f "$aCodePath/pom.xml") {
+        if ( -f "$aCodePath/pom.xml" ) {
             print("INFO: Begin to modify $aCodePath/pom.xml\n");
-            modify_pom($deployUtils, "$aCodePath/pom.xml");
+            modify_pom( $deployUtils, "$aCodePath/pom.xml", $pluginXml );
             print("INFO: File $aCodePath/pom.xml modified.\n");
         }
     }
