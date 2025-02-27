@@ -332,4 +332,22 @@ sub compare {
 
     return $ret;
 }
+
+sub resetWorkingCopy{
+    my($self) = @_;
+
+    my $handler = $self->getHandler();
+
+    my $ret = 1;
+    if ( defined($handler) ) {
+        $ret = $handler->resetWorkingCopy();
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
 1;
