@@ -1,11 +1,11 @@
 {
-    "opDesc": "修正文件名编码",
+    "opDesc": "修改pom.xml增加plugin配置",
     "opType": "runner",
     "typeName": "BUILD",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "转换目录或文件名编码为一致的编码",
+    "description": "修改工作拷贝中的pom.xml，增加plugin配置",
     "enabled": 1,
     "option": [
         {
