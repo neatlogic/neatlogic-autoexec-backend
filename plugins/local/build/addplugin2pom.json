@@ -1,0 +1,31 @@
+{
+    "opDesc": "修改pom.xml增加plugin配置",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "修改工作拷贝中的pom.xml，增加plugin配置",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startpath",
+            "name": "起始子目录",
+            "help": "编译配置所在子目录（相对于工程根）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pluginxml",
+            "name": "plugin配置",
+            "help": "放到plugins里的plugin的XML配置",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

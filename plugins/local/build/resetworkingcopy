@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+
+use FindBin;
+
+use strict;
+use Getopt::Long;
+use File::Copy;
+use File::Path;
+use Cwd;
+
+use DeployUtils;
+use DeployLock;
+use VerGet;
+use ServerAdapter;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("usage: $pname [-v 0|1] [--envpath EnvPath] [--version VERSION] [--startpath CompileBaseDir]\n");
+    print("\n");
+    print("optional arguments:\n");
+    print("  --envpath\toptionnal, name path for application\n");
+    print("  --version\toptionnal, Version number\n");
+    print("  --buildno\ttoptionnal, Build number\n");
+    print("  --startpath:    project releative path which contains build config file: build.xml, pom.xml...\n");
+    exit(1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo, $startPath );
+    my $tagPrefix;
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'startpath=s' => \$startPath
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $namePath = $buildEnv->{NAME_PATH};
+
+    my $serverAdapter = ServerAdapter->new();
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $verInfo = $serverAdapter->getVer($buildEnv);
+    $verInfo->{startPath} = $startPath;
+
+    if ( not defined($verInfo) ) {
+        print("ERROR: Can not find application $namePath version:$version.\n");
+        return 3;
+    }
+
+    my $verGet = VerGet->new( $buildEnv, $verInfo, 1 );
+    my $ret    = $verGet->resetWorkingCopy();
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+exit main();
+
