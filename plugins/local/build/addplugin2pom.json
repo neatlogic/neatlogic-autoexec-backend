@@ -1,0 +1,31 @@
+{
+    "opDesc": "修正文件名编码",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "转换目录或文件名编码为一致的编码",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startpath",
+            "name": "起始子目录",
+            "help": "编译配置所在子目录（相对于工程根）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pluginxml",
+            "name": "plugin配置",
+            "help": "放到plugins里的plugin的XML配置",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,139 @@
+#!/usr/bin/perl
+use strict;
+
+use FindBin;
+use Getopt::Long;
+use XML::MyXML;
+use IO::File;
+
+use DeployUtils;
+use DeployLock;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--verbose 0|1] [--envpath EnvPath] [--version VERSION]\n");
+    print("              --from FromCharset --to ToCharset\n");
+    print("\n");
+    print("       --envpath:   sub system envrionment path\n");
+    print("       --version:   Version number of module version\n");
+    print("       --buildno:   Build number\n");
+    print("       --startpath: Project sub path\n");
+
+    exit(1);
+}
+
+sub modify_pom{
+    my ($deployUtils, $pomFile, $pluginXml) = @_;
+    my $bakFile = $pomFile;
+    $bakFile =~ s/\.xml$/\.junit\.xml/;
+    
+    if (-f $bakFile){
+        rm($bakFile);
+    }
+    cp($pomFile, $bakFile);
+
+    my $pomXml = $deployUtils->getFileContent($pomFile);
+    $pomXml =~ s/<plugins>/<plugins>\n$pluginXml\n/g;
+
+    my $fh = IO::File->new(">$pomFile");
+    if(not defined($fh)){
+        die("ERROR: Can not open file:$pomFile to write, $!\n");
+    }
+    binmode($fh);
+    $fh->write($pomFile);
+    $fh->close();
+}
+
+sub main {
+    my ( $isHelp, $isVerbose, $envPath, $version, $buildNo, $pluginXml);
+    my $startPath;
+    my $pname = $FindBin::Script;
+
+    GetOptions(
+        'h|help'      => \$isHelp,
+        'v|verbose=i' => \$isVerbose,
+        'envpath=s'   => \$envPath,
+        'version=s'   => \$version,
+        'buildno=s'   => \$buildNo,
+        'startpath=s'      => \$startPath,
+        'pluginxml=s' => \$pluginXml
+    );
+
+    if ( not defined($pluginXml) or $pluginXml eq '' ) {
+        print("ERROR: Must defined plugin xml by option --pluginxml\n");
+        usage();
+    }
+
+    usage() if ( defined($isHelp) );
+
+    $pluginXml =~ s/\\n/\n/sg;
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $dirInfo = $deployUtils->getDataDirStruct($buildEnv);
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::WRITE);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $hasError = 0;
+    print("INFO: Begin to modify pom.xml\n");
+    my $prjPath  = $buildEnv->{PRJ_PATH};
+    my $codePath = $prjPath;
+
+    if ( defined($startPath) and $startPath ne '' ) {
+        $codePath = "$codePath/$startPath";
+        if ( not -d $codePath ) {
+            print("ERROR: Start path:$startPath($codePath) not exists.\n");
+            exit(-1);
+        }
+    }
+
+    my $buildUtils = BuildUtils->new( buildEnv => $buildEnv );
+    my @codePaths = $buildUtils->getPrjRoots($codePath);
+
+    my $aCodePath;
+    foreach $aCodePath (@codePaths) {
+        if ( -f "$aCodePath/pom.xml") {
+            print("INFO: Begin to modify $aCodePath/pom.xml\n");
+            modify_pom($deployUtils, "$aCodePath/pom.xml");
+            print("INFO: File $aCodePath/pom.xml modified.\n");
+        }
+    }
+
+    print("INFO: Modify pom.xml complete.\n");
+
+    return $hasError;
+}
+
+exit main();
+

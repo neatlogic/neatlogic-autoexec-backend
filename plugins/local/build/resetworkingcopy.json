@@ -1,0 +1,22 @@
+{
+    "opDesc": "清除仓库WorkSpace的修改",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "",
+    "description": "Rset掉对WorkSpace的文件修改，新增文件不影响",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startpath",
+            "name": "起始子目录",
+            "help": "编译配置所在子目录（相对于工程根）",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

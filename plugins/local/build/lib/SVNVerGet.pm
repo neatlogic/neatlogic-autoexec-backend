@@ -1004,4 +1004,18 @@ sub compare {
     return $ret;
 }
 
+sub resetWorkingCopy{
+    my ( $self ) = @_;
+
+    my $prjPath   = $self->{prjPath};
+    my $silentOpt = $self->{silentOpt};
+
+    chdir($prjPath);
+
+    my $resetCmd = "cd '$prjPath' && svn revert -R .";
+    my $ret = system($resetCmd);
+
+    return $ret;
+}
+
 1;

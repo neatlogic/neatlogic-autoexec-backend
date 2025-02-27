@@ -849,5 +849,20 @@ sub compare {
 
     return $ret;
 }
+
+sub resetWorkingCopy{
+    my ( $self ) = @_;
+
+    my $prjPath   = $self->{prjPath};
+    my $silentOpt = $self->{silentOpt};
+
+    chdir($prjPath);
+
+    my $resetCmd = "cd '$prjPath' && git reset --hard";
+    my $ret = system($resetCmd);
+
+    return $ret;
+}
+
 1;
 
