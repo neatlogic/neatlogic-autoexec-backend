@@ -10,7 +10,7 @@ class Operation(object):
         return "OPERATOR:(%s)" % (",".join(str(oper) for oper in self.AST))
 
     def asList(self):
-        AST = ['OPERATOR']
+        AST = ["OPERATOR"]
         for oper in self.AST:
             asListOp = getattr(oper, "asList", None)
             if callable(asListOp):
@@ -23,7 +23,7 @@ class Operation(object):
 class UnaryOperation(Operation):
     # 一元运算
     def __init__(self, tokens):
-        self.AST_TYPE = 'OPERATOR'
+        self.AST_TYPE = "OPERATOR"
         op = tokens[0][0].lower()
         operand = tokens[0][1]
         self.AST = [op, operand]
@@ -32,7 +32,7 @@ class UnaryOperation(Operation):
 class BinaryOperation(Operation):
     # 二元运算
     def __init__(self, tokens):
-        self.AST_TYPE = 'OPERATOR'
+        self.AST_TYPE = "OPERATOR"
         op = tokens[0][1].lower()
         operands = tokens[0][0::2]
 
@@ -41,7 +41,7 @@ class BinaryOperation(Operation):
         myAST.append(operands[1])
         for operand in operands[2:]:
             operation = Operation()
-            operation.AST_TYPE = 'OPERATOR'
+            operation.AST_TYPE = "OPERATOR"
             operation.AST = myAST
             myAST = [op]
             myAST.append(operation)
@@ -52,7 +52,7 @@ class BinaryOperation(Operation):
 
 class FieldTerm(object):
     def __init__(self, tokens):
-        self.AST_TYPE = 'FIELD'
+        self.AST_TYPE = "FIELD"
         self.name = tokens[0]
         if len(tokens) > 1:
             self.AST = tokens[1]
@@ -63,7 +63,7 @@ class FieldTerm(object):
         return "FIELD:(%s,%s)" % (self.name, self.AST)
 
     def asList(self):
-        AST = ['FIELD', self.name]
+        AST = ["FIELD", self.name]
         if self.AST:
             asListOp = getattr(self.AST, "asList", None)
             if callable(asListOp):
@@ -77,14 +77,14 @@ class FieldTerm(object):
 
 class QueryTerm(object):
     def __init__(self, tokens):
-        self.AST_TYPE = 'QUERY'
+        self.AST_TYPE = "QUERY"
         self.AST = tokens
 
     def __repr__(self):
         return "QUERY:(%s)" % (",".join(str(a) for a in self.AST))
 
     def asList(self):
-        AST = ['QUERY']
+        AST = ["QUERY"]
         for a in self.AST:
             AST.append(a.asList())
         return AST
@@ -92,26 +92,26 @@ class QueryTerm(object):
 
 class FieldCalcTerm(object):
     def __init__(self, tokens):
-        self.AST_TYPE = 'FIELD_CALC'
+        self.AST_TYPE = "FIELD_CALC"
         self.AST = tokens
 
     def __repr__(self):
         return "FIELD_CALC:(%s)" % (",".join(str(a) for a in self.AST))
 
     def asList(self):
-        AST = ['FIELD_CALC']
+        AST = ["FIELD_CALC"]
         for a in self.AST:
             AST.append(a.asList())
         return AST
 
 
 def Parser(ruleTxt):
-    DOT = pp.Suppress('.')
-    LBRACK = pp.Suppress('[')
-    RBRACK = pp.Suppress(']')
-    LCURLY = pp.Suppress('{')
-    RCURLY = pp.Suppress('}')
-    CURRDOC = pp.Literal('$')
+    DOT = pp.Suppress(".")
+    LBRACK = pp.Suppress("[")
+    RBRACK = pp.Suppress("]")
+    LCURLY = pp.Suppress("{")
+    RCURLY = pp.Suppress("}")
+    CURRDOC = pp.Literal("$")
     this = pp.CaselessKeyword("$this")
 
     number = pp.pyparsing_common.integer | pp.pyparsing_common.real
@@ -119,22 +119,15 @@ def Parser(ruleTxt):
     value = number | string
     fieldName = pp.pyparsing_common.identifier | string
 
-    cmpOperator = pp.oneOf('= == != >= <= < > contains startswith')
-    calcOperator = pp.oneOf('+ - * / %')
+    cmpOperator = pp.oneOf("= == != >= <= < > contains startswith")
+    calcOperator = pp.oneOf("+ - * / %")
     AND = pp.CaselessLiteral("and")
     OR = pp.CaselessLiteral("or")
     NOT = pp.CaselessLiteral("not")
 
-    oplist = [
-        (cmpOperator, 2, pp.opAssoc.LEFT, BinaryOperation),
-        (NOT, 1, pp.opAssoc.RIGHT, UnaryOperation),
-        (AND, 2, pp.opAssoc.LEFT, BinaryOperation),
-        (OR, 2, pp.opAssoc.LEFT, BinaryOperation)
-    ]
+    oplist = [(cmpOperator, 2, pp.opAssoc.LEFT, BinaryOperation), (NOT, 1, pp.opAssoc.RIGHT, UnaryOperation), (AND, 2, pp.opAssoc.LEFT, BinaryOperation), (OR, 2, pp.opAssoc.LEFT, BinaryOperation)]
 
-    calcOpList = [
-        (calcOperator, 2, pp.opAssoc.LEFT, BinaryOperation)
-    ]
+    calcOpList = [(calcOperator, 2, pp.opAssoc.LEFT, BinaryOperation)]
 
     fieldFilter = LBRACK + pp.infixNotation(fieldName | value, oplist) + RBRACK
     emptyFilter = LBRACK + RBRACK
@@ -169,7 +162,7 @@ def Parser(ruleTxt):
     except pp.ParseSyntaxException as ex:
         print("Syntax error: " + str(ex))
         print(ex.line)
-        print(' ' * ex.loc + '^')
+        print(" " * ex.loc + "^")
 
 
 class DSLError(Exception):
@@ -181,7 +174,7 @@ def _startswith(a, b):
     return a.startswith(b)
 
 
-def _not(a):
+def _not(a, padding=None):
     return not a
 
 
@@ -205,23 +198,23 @@ class Interpreter(object):
         self.matchedFields = []
 
         self.operators = {
-            '=': operator.eq,
-            '==': operator.eq,
-            '!=': operator.ne,
-            '>=': operator.ge,
-            '<=': operator.le,
-            '<': operator.lt,
-            '>': operator.gt,
-            '+': operator.add,
-            '-': operator.sub,
-            '*': operator.mul,
-            '/': operator.truediv,
-            '%': operator.mod,
-            'contains': operator.contains,
-            'startswith': _startswith,
-            'and': _and,
-            'or': _or,
-            'not': _not
+            "=": operator.eq,
+            "==": operator.eq,
+            "!=": operator.ne,
+            ">=": operator.ge,
+            "<=": operator.le,
+            "<": operator.lt,
+            ">": operator.gt,
+            "+": operator.add,
+            "-": operator.sub,
+            "*": operator.mul,
+            "/": operator.truediv,
+            "%": operator.mod,
+            "contains": operator.contains,
+            "startswith": _startswith,
+            "and": _and,
+            "or": _or,
+            "not": _not,
         }
 
     def getOperator(self, operName):
@@ -238,7 +231,7 @@ class Interpreter(object):
 
         operandsVal = []
         for operand in operands:
-            if operand == '$this':
+            if operand == "$this":
                 operandsVal.append(fieldValue)
                 continue
 
@@ -246,9 +239,9 @@ class Interpreter(object):
                 operandsVal.append(operand)
                 continue
 
-            if operand[0] == 'QUERY':
+            if operand[0] == "QUERY":
                 operandsVal.append(self.resolveValueQuery(operand))
-            elif operand[0] == 'OPERATOR':
+            elif operand[0] == "OPERATOR":
                 # 如果是嵌套的操作，则拼装参数调用 resolveValueQueryOper
                 operand.pop(0)  # 去掉'OPERATOR'标记符
                 nextOperateStr = operand.pop(0)  # 取出操作符
@@ -270,7 +263,7 @@ class Interpreter(object):
     # 右操作数的json字段值查询
     # fields：查询的字段列表，第一个元素是"QUERY",第二个元素开始才是字段的描述
     def resolveValueQuery(self, fields):
-        return self.resolveFieldValue(self.data, '', fields, 1)
+        return self.resolveFieldValue(self.data, "", fields, 1)
 
     # 右操作数的json字段值查询
     # parentDoc：上级数据（包含当前field属性）
@@ -281,18 +274,18 @@ class Interpreter(object):
         fieldsCount = len(fields)
         field = fields[idx]
 
-        if len(field) < 3 and field[0] != 'FIELD':
+        if len(field) < 3 and field[0] != "FIELD":
             raise DSLError("Invalid field node {} in: {}".format(json.dumps(field), json.dumps(self.AST)))
 
         fieldName = field[1]
         fieldValue = None
 
-        if fieldName == '$' and jsonPath == '':
+        if fieldName == "$" and jsonPath == "":
             fieldValue = parentDoc
         elif fieldName in parentDoc:
             fieldValue = parentDoc[fieldName]
 
-        jsonPath = jsonPath + '.' + fieldName
+        jsonPath = jsonPath + "." + fieldName
 
         if idx >= fieldsCount - 1:
             # 最后一个属性字段，取出值返回
@@ -312,7 +305,7 @@ class Interpreter(object):
                     # for record in fieldValue:
                     for k in range(len(fieldValue)):
                         record = fieldValue[k]
-                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        nextJsonPath = jsonPath + "[" + str(k) + "]"
                         resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
                         if resolvedValue is not None:
                             break
@@ -324,7 +317,7 @@ class Interpreter(object):
                 if isinstance(fieldValue, list):
                     for k in range(len(fieldValue)):
                         record = fieldValue[k]
-                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        nextJsonPath = jsonPath + "[" + str(k) + "]"
                         matched = self.resolveFilter(record, fieldFilter)
                         if matched:
                             resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
@@ -352,19 +345,19 @@ class Interpreter(object):
                 operandsVal.append(operand)
                 continue
 
-            if operand[0] == 'OPERATOR':
+            if operand[0] == "OPERATOR":
                 nextOperateStr = operand[1]
-                if operand[2][0] == 'QUERY':
+                if operand[2][0] == "QUERY":
                     # 如果是查询，则拼装参数调用resolveQuery
                     fields = operand[2]
                     value = None
                     if len(operand) >= 4:
                         value = operand[3]
                     operandsVal.append(self.resolveQuery(fields, nextOperateStr, value))
-                elif operand[2][0] == 'OPERATOR':
+                elif operand[2][0] == "OPERATOR":
                     # 如果是嵌套的操作，则拼装参数调用resolveQueryOper
                     subOperands = [operand[2]]
-                    if nextOperateStr not in ('not', '!'):
+                    if nextOperateStr not in ("not", "!"):
                         subOperands.append(operand[3])
                     operandsVal.append(self.resolveQueryOper(nextOperateStr, subOperands))
                 else:
@@ -390,7 +383,7 @@ class Interpreter(object):
         op = self.getOperator(operate)
         # 解析查询返回多个数值并根value进行operate计算返回True或False
 
-        jsonPath = ''
+        jsonPath = ""
         matchedRecord = self.resolveField(self.data, jsonPath, op, value, fields, 1)
 
         if matchedRecord > 0:
@@ -412,27 +405,27 @@ class Interpreter(object):
         fieldsCount = len(fields)
         field = fields[idx]
 
-        if len(field) < 3 and field[0] != 'FIELD':
+        if len(field) < 3 and field[0] != "FIELD":
             raise DSLError("Invalid field node {} in: {}".format(json.dumps(field), json.dumps(self.AST)))
 
         fieldName = field[1]
         fieldValue = None
 
-        if fieldName == '$' and jsonPath == '':
+        if fieldName == "$" and jsonPath == "":
             fieldValue = parentDoc
         elif fieldName in parentDoc:
             fieldValue = parentDoc[fieldName]
 
-        jsonPath = jsonPath + '.' + fieldName
+        jsonPath = jsonPath + "." + fieldName
 
         if idx >= fieldsCount - 1:
             # 最后一个属性字段，取出值返回
             if fieldValue is not None:
                 resultFieldVal = fieldValue
                 fieldCalc = field[2]
-                if fieldCalc is not None and fieldCalc[0] == 'FIELD_CALC':
+                if fieldCalc is not None and fieldCalc[0] == "FIELD_CALC":
                     filedCalcAST = fieldCalc[1]
-                    if filedCalcAST[0] == 'OPERATOR':
+                    if filedCalcAST[0] == "OPERATOR":
                         operate = filedCalcAST[1]
                         # 嵌套操作符号
                         operands = [filedCalcAST[2], filedCalcAST[3]]
@@ -443,15 +436,17 @@ class Interpreter(object):
                 try:
                     if op(resultFieldVal, value):
                         matchedField = {
-                            'jsonPath': jsonPath[1:],
-                            'ruleAppId': self.ruleAppId,
-                            'ruleSeq': self.ruleSeq,
-                            'ruleName': self.ruleName,
-                            'ruleLevel': self.ruleLevel,
-                            'fieldValue': fieldValue,
+                            "jsonPath": jsonPath[1:],
+                            "ruleAppId": self.ruleAppId,
+                            "ruleSeq": self.ruleSeq,
+                            "ruleName": self.ruleName,
+                            "ruleLevel": self.ruleLevel,
+                            "fieldValue": fieldValue,
                         }
                         self.matchedFields.append(matchedField)
                         return matchedRecord + 1
+                    else:
+                        return matchedRecord
                 except Exception as ex:
                     warnings.warn(str(ex) + ", invalid field value type for " + jsonPath[1:], category=Warning)
             else:
@@ -467,7 +462,7 @@ class Interpreter(object):
                     # for record in fieldValue:
                     for k in range(len(fieldValue)):
                         record = fieldValue[k]
-                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        nextJsonPath = jsonPath + "[" + str(k) + "]"
                         matchedCount = self.resolveField(record, nextJsonPath, op, value, fields, idx + 1)
                         matchedRecord = matchedRecord + matchedCount
                 elif isinstance(fieldValue, dict):
@@ -481,7 +476,7 @@ class Interpreter(object):
                 if isinstance(fieldValue, list):
                     for k in range(len(fieldValue)):
                         record = fieldValue[k]
-                        nextJsonPath = jsonPath + '[' + str(k) + ']'
+                        nextJsonPath = jsonPath + "[" + str(k) + "]"
                         matched = self.resolveFilter(record, fieldFilter)
                         if matched:
                             matchedCount = self.resolveField(record, nextJsonPath, op, value, fields, idx + 1)
@@ -503,7 +498,7 @@ class Interpreter(object):
     # record：当前属性的当前记录
     # fieldFilter：字段过滤设置
     def resolveFilter(self, record, fieldFilter):
-        if fieldFilter[0] != 'OPERATOR':
+        if fieldFilter[0] != "OPERATOR":
             raise DSLError("Invalid AST node type {} in: {}".format(json.dumps(fieldFilter), json.dumps(self.AST)))
 
         operatorStr = fieldFilter[1]
@@ -542,7 +537,7 @@ class Interpreter(object):
     def resolveValue(self, record, nameStr):
         values = record
         try:
-            for name in nameStr.split('.'):
+            for name in nameStr.split("."):
                 values = values[name]
             return values
         except KeyError:
@@ -554,19 +549,19 @@ class Interpreter(object):
         self.matchedFields = []
 
         AST = self.AST
-        if AST[0] == 'OPERATOR':
+        if AST[0] == "OPERATOR":
             operate = AST[1]
-            if AST[2][0] == 'QUERY':
+            if AST[2][0] == "QUERY":
                 # 查询匹配规则计算
                 fields = AST[2]
                 value = None
-                if len(AST) >= 3:
+                if len(AST) > 3:
                     value = AST[3]
                 result = self.resolveQuery(fields, operate, value)
             else:
                 # 嵌套操作符号
                 operands = [AST[2]]
-                if operate not in ('not', '!'):
+                if operate not in ("not", "!"):
                     operands.append(AST[3])
                 result = self.resolveQueryOper(operate, operands)
         else:
@@ -581,25 +576,25 @@ class Interpreter(object):
 if __name__ == "__main__":
     print("Test...")
     print("----------------------------\n")
-    txt = '''$.DISKS[name == "/home" or not (name contains "/boot" and size > 100)].CAPACITY{$this/$.CPU_LOGIC_CORES} > 1000
+    txt = """$.DISKS[name == "/home" or not (name contains "/boot" and size > 100)].CAPACITY{$this/$.CPU_LOGIC_CORES} > 1000
         and ($.DISKS[name == "/home" or name contains '/boot' ].CAPACITY > 1500 and $.DISKS[name == "/home" or name contains "/boot" ].CAPACITY {$this/$.CPU_LOGIC_CORES} < 99999)
-        '''
-    #txt = '''$[IS_VERTUAL==1].DISKS[name == "/home"].CAPACITY > 1000 and $.DISKS[].CAPACITY[] > 1500 or $.DISKS[name == "/home1"].CAPACITY < 99999'''
+        """
+    # txt = '''$[IS_VERTUAL==1].DISKS[name == "/home"].CAPACITY > 1000 and $.DISKS[].CAPACITY[] > 1500 or $.DISKS[name == "/home1"].CAPACITY < 99999'''
 
-    #ast = Parser(txt)
-    #print(json.dumps(ast.asList(), sort_keys=True, indent=4))
+    # ast = Parser(txt)
+    # print(json.dumps(ast.asList(), sort_keys=True, indent=4))
     data = None
-    with open('/Users/wenhb/git/autoexec/test/sample.json', 'r') as f:
+    with open("/Users/wenhb/git/autoexec/test/sample.json", "r") as f:
         data = json.load(f)
         f.close()
 
     rule = '$.DISKS["NAME" contains "/dev/"].CAPACITY {$this/$.CPU_LOGIC_CORES} > 5 or $.MEM_AVAILABLE{$this/1000}>2'
-    rule1 = '$.MOUNT_POINTS.USED_PCT >= 80'
-    rule2 = '$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30'
+    rule1 = "$.MOUNT_POINTS.USED_PCT >= 80"
+    rule2 = "$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30"
     ast = Parser(rule1)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
-    interpreter = Interpreter(AST=ast.asList(), ruleAppId=15, ruleSeq='ABS#13', ruleName="测试", ruleLevel="L1", data=data)
+    interpreter = Interpreter(AST=ast.asList(), ruleAppId=15, ruleSeq="ABS#13", ruleName="测试", ruleLevel="L1", data=data)
     matchedFields = interpreter.resolve()
 
     print(json.dumps(matchedFields, ensure_ascii=False, sort_keys=True, indent=4))
