@@ -117,7 +117,9 @@ def Parser(ruleTxt):
     number = pp.pyparsing_common.integer | pp.pyparsing_common.real
     string = pp.QuotedString('"') | pp.QuotedString("'")
     value = number | string
-    fieldName = pp.pyparsing_common.identifier | string
+    aggCount = pp.Literal("$count")
+    aggExists = pp.Literal("$exists")
+    fieldName = aggCount | aggExists | pp.pyparsing_common.identifier | string
 
     cmpOperator = pp.oneOf("= == != >= <= < > contains startswith")
     calcOperator = pp.oneOf("+ - * / %")
@@ -270,7 +272,7 @@ class Interpreter(object):
     # jsonPath：上级数据的jsonPath，格式$.ATTR1.ATTR2[2].ATTR3
     # fields：当前Query查询的字段列表
     # idx：当前字段在字段列表中的下标
-    def resolveFieldValue(self, parentDoc, jsonPath, fields, idx):
+    def resolveFieldValue(self, parentDoc, jsonPath, fields, idx, fieldValue=None):
         fieldsCount = len(fields)
         field = fields[idx]
 
@@ -278,12 +280,12 @@ class Interpreter(object):
             raise DSLError("Invalid field node {} in: {}".format(json.dumps(field), json.dumps(self.AST)))
 
         fieldName = field[1]
-        fieldValue = None
 
-        if fieldName == "$" and jsonPath == "":
-            fieldValue = parentDoc
-        elif fieldName in parentDoc:
-            fieldValue = parentDoc[fieldName]
+        if fieldValue is None:
+            if fieldName == "$" and jsonPath == "":
+                fieldValue = parentDoc
+            else:
+                fieldValue = parentDoc.get(fieldName, None)
 
         jsonPath = jsonPath + "." + fieldName
 
@@ -297,36 +299,84 @@ class Interpreter(object):
 
         if fieldValue is not None:
             resolvedValue = None
-
+            lastFieldName = fields[idx + 1][1]
             fieldFilter = field[2]
-            if fieldFilter is None:
-                # 如果属性字段没有配置filter
-                if isinstance(fieldValue, list):
-                    # for record in fieldValue:
-                    for k in range(len(fieldValue)):
-                        record = fieldValue[k]
-                        nextJsonPath = jsonPath + "[" + str(k) + "]"
-                        resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
-                        if resolvedValue is not None:
-                            break
-                elif isinstance(fieldValue, dict):
-                    resolvedValue = self.resolveFieldValue(fieldValue, jsonPath, fields, idx + 1)
-            else:
-                # 属性存在filter设置
-                matched = False
-                if isinstance(fieldValue, list):
-                    for k in range(len(fieldValue)):
-                        record = fieldValue[k]
-                        nextJsonPath = jsonPath + "[" + str(k) + "]"
-                        matched = self.resolveFilter(record, fieldFilter)
+            if idx == fieldsCount - 2 and lastFieldName == "$count":
+                itemsCount = 0
+                nextJsonPath = jsonPath
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    if isinstance(fieldValue, list):
+                        itemsCount = len(fieldValue)
+                    elif isinstance(fieldValue, dict):
+                        itemsCount = 1
+                else:
+                    # 属性存在filter设置
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                itemsCount = itemsCount + 1
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
                         if matched:
+                            itemsCount = 1
+                resolvedValue = itemsCount
+            elif idx == fieldsCount - 2 and lastFieldName == "$exists":
+                nextJsonPath = jsonPath
+                itemExists = 0
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    if isinstance(fieldValue, list):
+                        itemExists = 1
+                    elif isinstance(fieldValue, dict):
+                        itemExists = 1
+                else:
+                    # 属性存在filter设置
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                itemExists = 1
+                                break
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
+                        if matched:
+                            itemExists = 1
+                resolvedValue = itemExists
+            else:
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    if isinstance(fieldValue, list):
+                        # for record in fieldValue:
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            nextJsonPath = jsonPath + "[" + str(k) + "]"
                             resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
                             if resolvedValue is not None:
                                 break
-                elif isinstance(fieldValue, dict):
-                    matched = self.resolveFilter(fieldValue, fieldFilter)
-                    if matched:
+                    elif isinstance(fieldValue, dict):
                         resolvedValue = self.resolveFieldValue(fieldValue, jsonPath, fields, idx + 1)
+                else:
+                    # 属性存在filter设置
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            nextJsonPath = jsonPath + "[" + str(k) + "]"
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                resolvedValue = self.resolveFieldValue(record, nextJsonPath, fields, idx + 1)
+                                if resolvedValue is not None:
+                                    break
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
+                        if matched:
+                            resolvedValue = self.resolveFieldValue(fieldValue, jsonPath, fields, idx + 1)
 
             return resolvedValue
         else:
@@ -400,7 +450,7 @@ class Interpreter(object):
     # fields：当前Query查询的字段列表
     # idx：当前字段在字段列表中的下标
 
-    def resolveField(self, parentDoc, jsonPath, op, value, fields, idx):
+    def resolveField(self, parentDoc, jsonPath, op, value, fields, idx, fieldValue=None):
         matchedRecord = 0
         fieldsCount = len(fields)
         field = fields[idx]
@@ -409,12 +459,12 @@ class Interpreter(object):
             raise DSLError("Invalid field node {} in: {}".format(json.dumps(field), json.dumps(self.AST)))
 
         fieldName = field[1]
-        fieldValue = None
 
-        if fieldName == "$" and jsonPath == "":
-            fieldValue = parentDoc
-        elif fieldName in parentDoc:
-            fieldValue = parentDoc[fieldName]
+        if fieldValue is None:
+            if fieldName == "$" and jsonPath == "":
+                fieldValue = parentDoc
+            else:
+                fieldValue = parentDoc.get(fieldName, None)
 
         jsonPath = jsonPath + "." + fieldName
 
@@ -455,39 +505,90 @@ class Interpreter(object):
 
         if fieldValue is not None:
             fieldFilter = field[2]
-
-            if fieldFilter is None:
-                # 如果属性字段没有配置filter
-                if isinstance(fieldValue, list):
-                    # for record in fieldValue:
-                    for k in range(len(fieldValue)):
-                        record = fieldValue[k]
-                        nextJsonPath = jsonPath + "[" + str(k) + "]"
-                        matchedCount = self.resolveField(record, nextJsonPath, op, value, fields, idx + 1)
-                        matchedRecord = matchedRecord + matchedCount
-                elif isinstance(fieldValue, dict):
-                    matchedCount = self.resolveField(fieldValue, jsonPath, op, value, fields, idx + 1)
-                    matchedRecord = matchedRecord + matchedCount
+            lastFieldName = fields[idx + 1][1]
+            if idx == fieldsCount - 2 and lastFieldName == "$count":
+                nextJsonPath = jsonPath
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    itemsCount = 0
+                    if isinstance(fieldValue, list):
+                        itemsCount = len(fieldValue)
+                    elif isinstance(fieldValue, dict):
+                        itemsCount = 1
+                    matchedRecord = self.resolveField(fieldValue, nextJsonPath, op, value, fields, idx + 1, fieldValue=itemsCount)
                 else:
-                    return 0
-            else:
-                # 属性存在filter设置
-                matched = False
-                if isinstance(fieldValue, list):
-                    for k in range(len(fieldValue)):
-                        record = fieldValue[k]
-                        nextJsonPath = jsonPath + "[" + str(k) + "]"
-                        matched = self.resolveFilter(record, fieldFilter)
+                    # 属性存在filter设置
+                    itemsCount = 0
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                itemsCount = itemsCount + 1
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
                         if matched:
+                            itemsCount = 1
+                    matchedRecord = self.resolveField(fieldValue, nextJsonPath, op, value, fields, idx + 1, fieldValue=itemsCount)
+            elif idx == fieldsCount - 2 and lastFieldName == "$exists":
+                nextJsonPath = jsonPath
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    itemExists = 0
+                    if isinstance(fieldValue, list):
+                        if len(fieldValue > 0):
+                            itemExists = 1
+                            nextJsonPath = jsonPath + "[0]"
+                    elif isinstance(fieldValue, dict):
+                        itemExists = 1
+                    matchedRecord = self.resolveField(fieldValue, nextJsonPath, op, value, fields, idx + 1, fieldValue=itemExists)
+                else:
+                    # 属性存在filter设置
+                    itemExists = 0
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                itemExists = 1
+                                nextJsonPath = jsonPath + "[" + str(k) + "]"
+                                break
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
+                        if matched:
+                            itemExists = 1
+                    matchedRecord = self.resolveField(fieldValue, nextJsonPath, op, value, fields, idx + 1, fieldValue=itemExists)
+            else:
+                if fieldFilter is None:
+                    # 如果属性字段没有配置filter
+                    if isinstance(fieldValue, list):
+                        # for record in fieldValue:
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            nextJsonPath = jsonPath + "[" + str(k) + "]"
                             matchedCount = self.resolveField(record, nextJsonPath, op, value, fields, idx + 1)
                             matchedRecord = matchedRecord + matchedCount
-                elif isinstance(fieldValue, dict):
-                    matched = self.resolveFilter(fieldValue, fieldFilter)
-                    if matched:
+                    elif isinstance(fieldValue, dict):
                         matchedCount = self.resolveField(fieldValue, jsonPath, op, value, fields, idx + 1)
                         matchedRecord = matchedRecord + matchedCount
                 else:
-                    return matchedRecord
+                    # 属性存在filter设置
+                    matched = False
+                    if isinstance(fieldValue, list):
+                        for k in range(len(fieldValue)):
+                            record = fieldValue[k]
+                            nextJsonPath = jsonPath + "[" + str(k) + "]"
+                            matched = self.resolveFilter(record, fieldFilter)
+                            if matched:
+                                matchedCount = self.resolveField(record, nextJsonPath, op, value, fields, idx + 1)
+                                matchedRecord = matchedRecord + matchedCount
+                    elif isinstance(fieldValue, dict):
+                        matched = self.resolveFilter(fieldValue, fieldFilter)
+                        if matched:
+                            matchedCount = self.resolveField(fieldValue, jsonPath, op, value, fields, idx + 1)
+                            matchedRecord = matchedRecord + matchedCount
 
             return matchedRecord
         else:
@@ -590,8 +691,10 @@ if __name__ == "__main__":
 
     rule = '$.DISKS["NAME" contains "/dev/"].CAPACITY {$this/$.CPU_LOGIC_CORES} > 5 or $.MEM_AVAILABLE{$this/1000}>2'
     rule1 = "$.MOUNT_POINTS.USED_PCT >= 80"
-    rule2 = "$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 30"
-    ast = Parser(rule1)
+    rule2 = "$.TOP_CPU_RPOCESSES.CPU_USAGE{$this/$.CPU_LOGIC_CORES} >= 5"
+    rule3 = '$.USERS[NAME == "root"].$exists == 1'
+    rule4 = '$.USERS[NAME == "root"].$count > 0'
+    ast = Parser(rule3)
     print(json.dumps(ast.asList(), sort_keys=True, indent=4))
 
     interpreter = Interpreter(AST=ast.asList(), ruleAppId=15, ruleSeq="ABS#13", ruleName="测试", ruleLevel="L1", data=data)
