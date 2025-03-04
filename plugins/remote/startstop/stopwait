@@ -170,14 +170,17 @@ sub main {
         }
     }
 
-    my $svcStatus = 1;
+    my $svcStatus = 1; #0:down, 1:up
     my $logTailer = LogTailer->new( $preScript, $pid );
 
     if ( defined($addr) and $addr ne '' ) {
         $svcStatus = $logTailer->checkUntilServiceDown( $addr, $eofStr, $timeout, \@serverLogInfos );
     }
     elsif ( defined($eofStr) and $eofStr ne '' ) {
-        $svcStatus = $logTailer->checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+        my $matched = $logTailer->checkEofstr( $eofStr, $timeout, \@serverLogInfos );
+        if ($matched == 1){
+            $svcStatus = 0;
+        }
     }
 
     if ( defined($postScript) and $postScript ne '' ) {
@@ -193,11 +196,14 @@ sub main {
             $svcStatus = $logTailer->checkUntilServiceDown( $addr, $eofStr, 10, \@serverLogInfos );
         }
         elsif ( defined($eofStr) and $eofStr ne '' ) {
-            $svcStatus = $logTailer->checkEofstr( $eofStr, 10, \@serverLogInfos );
+            my $matched = $logTailer->checkEofstr( $eofStr, 10, \@serverLogInfos );
+            if ($matched == 1){
+                $svcStatus = 0;
+            }
         }
     }
 
-    if ( $svcStatus != 1 ) {
+    if ( $svcStatus != 0 ) {
         $rc = 1;
     }
 
