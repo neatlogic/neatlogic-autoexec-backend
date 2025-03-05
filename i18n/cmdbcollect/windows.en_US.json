@@ -163,7 +163,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -195,7 +195,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -227,7 +227,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -235,7 +235,11 @@
                 }
             ]
         },
-
+        {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "Default Gateway",
+            "type": "String"
+        },
         {
             "name": "SYS_VENDOR",
             "desc": "Sys Vendor",

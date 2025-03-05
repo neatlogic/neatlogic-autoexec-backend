@@ -206,6 +206,85 @@
             ]
         },
         {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "默认网关",
+            "type": "String"
+        },
+        {
+            "name": "IP_RULES",
+            "desc": "路由规则",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类型",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类型",
+                    "type": "String"
+                },
+                {
+                    "name": "ID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "FROM",
+                    "desc": "from",
+                    "type": "String"
+                },
+                {
+                    "name": "ROUTE_TABLE",
+                    "desc": "路由表名",
+                    "type": "String"
+                },
+                {
+                    "name": "ROUTES",
+                    "desc": "路由条目",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "归属类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "对象类型",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEST",
+                            "desc": "目标网段",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV",
+                            "desc": "网卡",
+                            "type": "String"
+                        },
+                        {
+                            "name": "GATEWAY",
+                            "desc": "网关",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SRC_IP",
+                            "desc": "源IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "METRIC",
+                            "desc": "metric",
+                            "type": "Int"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "SYS_VENDOR",
             "desc": "厂商",
             "type": "String"
@@ -254,6 +333,21 @@
                     "name": "SHELL",
                     "desc": "SHELL",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "不允许密码登录",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "用户过期天数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "密码过期天数",
+                    "type": "Int"
                 }
             ]
         },
@@ -402,8 +496,13 @@
         },
         {
             "name": "NIC_BOND",
-            "desc": "双网卡绑定",
-            "type": "Float"
+            "desc": "双网卡Bond",
+            "type": "Int"
+        },
+        {
+            "name": "NIC_TEAM",
+            "desc": "双网卡Team",
+            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -468,6 +567,94 @@
                         {
                             "name": "PORT",
                             "desc": "端口名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NIC_BONDS",
+            "desc": "网卡bonds",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类别",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Bond名",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "工作模式",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "包含网口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "网卡名",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NIC_TEAMS",
+            "desc": "网卡Teams",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "归属类别",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "对象类别",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Team名",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "工作模式",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "状态",
+                    "type": "String"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "包含网口",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "网卡名",
                             "type": "String"
                         }
                     ]

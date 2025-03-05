@@ -366,6 +366,17 @@ sub getMaxOpenInfo {
     $osInfo->{MAX_USER_PROCESS_COUNT} = int($maxUserProcCount);
 }
 
+sub getDefaultGateway {
+    my ( $self, $osInfo ) = @_;
+    my $routeLines = $self->getCmdOutLines('netstat -nr');
+    foreach my $line (@$routeLines) {
+        if ( $line =~ /^\s*default\s+(\S+)/ ) {
+            $osInfo->{DEFAULT_GATEWAY} = $1;
+            last;
+        }
+    }
+}
+
 sub getIpAddrs {
     my ( $self, $osInfo ) = @_;
 
@@ -419,6 +430,15 @@ sub getUserInfo {
     my ( $self, $osInfo ) = @_;
 
     my @users;
+    my $shadowMap = {};
+    my $shadowLines = $self->getFileLines('/etc/shadow');
+    foreach my $line (@$shadowLines){
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line !~ /^#/ ) {
+            my @shadowInfo = split( /:/, $line );
+            $shadowMap->{$shadowInfo[0]} = \@shadowInfo;
+        }
+    }
 
     my $passwdLines = $self->getFileLines('/etc/passwd');
     foreach my $line (@$passwdLines) {
@@ -427,21 +447,47 @@ sub getUserInfo {
             my $usersMap = {};
             my @userInfo = split( /:/, $line );
 
+            my $userName = $userInfo[0];
             $usersMap->{_OBJ_CATEGORY} = 'OS';
             $usersMap->{_OBJ_TYPE}     = 'OS-USER';
-            $usersMap->{NAME}          = $userInfo[0];
+            $usersMap->{NAME}          = $userName;
             $usersMap->{UID}           = $userInfo[2];
 
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
             }
-            if ( $userInfo[0] eq 'nobody' ) {
+            if ( $userName eq 'nobody' ) {
                 next;
             }
 
             $usersMap->{GID}   = $userInfo[3];
             $usersMap->{HOME}  = $userInfo[5];
             $usersMap->{SHELL} = $userInfo[6];
+
+            my $shadowInfo = $shadowMap->{$userName};
+            if ( defined($shadowInfo) ) {
+                my $nowEpochDays = int( time() / 86400 );
+                if ( length( $$shadowInfo[1] ) < 4 ) {
+                    $usersMap->{NO_PWD} = 1;
+                    $usersMap->{PWD_EXPIRED_DAYS} = -99999;
+                }
+                else {
+                    $usersMap->{NO_PWD} = 0;
+
+                    my $pwdExpiredDays = $nowEpochDays - int( $$shadowInfo[2] ) - int( $$shadowInfo[4] );
+
+                    #密码过期天数，负数代表未过期
+                    $usersMap->{PWD_EXPIRED_DAYS} = $pwdExpiredDays;
+                }
+
+                my $expiredDays = -99999;
+                if ($$shadowInfo[7] ne ""){
+                    $expiredDays = $nowEpochDays - int( $$shadowInfo[7] );
+                }
+
+                #用户过期天数，负数代表未过期
+                $usersMap->{EXPIRED_DAYS} = $expiredDays;
+            }
 
             push( @users, $usersMap );
         }
@@ -914,6 +960,7 @@ sub collectOsInfo {
         $self->getNTPInfo($osInfo);
         $self->getMaxOpenInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
         $self->getPatchInfo($osInfo);
     }
     else {
@@ -922,6 +969,7 @@ sub collectOsInfo {
         $self->getCPUInfo($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
     }
 
     return $osInfo;
