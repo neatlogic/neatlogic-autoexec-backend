@@ -1025,6 +1025,23 @@
             "name": "_batch_tag",
             "desc": "自动采集的批量标签",
             "type": "String"
+        },
+        {
+            "name": "CUSTOM_INSPECTS",
+            "desc": "自定义巡检结果",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "检查项",
+                    "type": "String"
+                },
+                {
+                    "name": "PROBLEM",
+                    "desc": "问题",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }
