@@ -133,7 +133,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -165,7 +165,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -197,11 +197,90 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
                     "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "Default Gateway",
+            "type": "String"
+        },
+        {
+            "name": "IP_RULES",
+            "desc": "Ip Rules",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "ID",
+                    "desc": "id",
+                    "type": "String"
+                },
+                {
+                    "name": "FROM",
+                    "desc": "from",
+                    "type": "String"
+                },
+                {
+                    "name": "ROUTE_TABLE",
+                    "desc": "Route table name",
+                    "type": "String"
+                },
+                {
+                    "name": "ROUTES",
+                    "desc": "Route Entries",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "Obj Catetory",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "Obj Type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEST",
+                            "desc": "Dest",
+                            "type": "String"
+                        },
+                        {
+                            "name": "DEV",
+                            "desc": "dev",
+                            "type": "String"
+                        },
+                        {
+                            "name": "GATEWAY",
+                            "desc": "Gateway",
+                            "type": "String"
+                        },
+                        {
+                            "name": "SRC_IP",
+                            "desc": "SRC IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "METRIC",
+                            "desc": "metric",
+                            "type": "Int"
+                        }
+                    ]
                 }
             ]
         },
@@ -254,6 +333,21 @@
                     "name": "SHELL",
                     "desc": "Shell",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "No pwd login",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "User Expired Days",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "Password Expaired Days",
+                    "type": "Int"
                 }
             ]
         },
@@ -403,7 +497,12 @@
         {
             "name": "NIC_BOND",
             "desc": "NIC Bond",
-            "type": "Float"
+            "type": "Int"
+        },
+        {
+            "name": "NIC_TEAM",
+            "desc": "NIC Team",
+            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -468,6 +567,94 @@
                         {
                             "name": "PORT",
                             "desc": "Port Name",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NIC_BONDS",
+            "desc": "Nic bonds",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Bond Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "Bond Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "dev",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NIC_TEAMS",
+            "desc": "NIC Teams",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "_OBJ_CATEGORY",
+                    "desc": "Obj Category",
+                    "type": "String"
+                },
+                {
+                    "name": "_OBJ_TYPE",
+                    "desc": "Obj Type",
+                    "type": "String"
+                },
+                {
+                    "name": "NAME",
+                    "desc": "Team Name",
+                    "type": "String"
+                },
+                {
+                    "name": "MODE",
+                    "desc": "Team Mode",
+                    "type": "String"
+                },
+                {
+                    "name": "STATE",
+                    "desc": "State",
+                    "type": "String"
+                },
+                {
+                    "name": "PORTS",
+                    "desc": "Ports",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "NAME",
+                            "desc": "dev",
                             "type": "String"
                         }
                     ]

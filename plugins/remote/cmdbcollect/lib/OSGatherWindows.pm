@@ -208,6 +208,17 @@ sub getSystemInfo {
     }
 }
 
+sub getDefaultGateway {
+    my ( $self, $osInfo ) = @_;
+    my $routeLines = $self->getCmdOutLines('netstat -nr');
+    foreach my $line (@$routeLines) {
+        if ( $line =~ /^\s*0\.0\.0\.0\s+\S+\s+(\S+)/ ) {
+            $osInfo->{DEFAULT_GATEWAY} = $1;
+            last;
+        }
+    }
+}
+
 sub getIpAddrs {
     my ( $self, $osInfo ) = @_;
 
@@ -462,6 +473,7 @@ sub collectOsInfo {
         $self->getSystemInfo($osInfo);
         $self->getOsVersion($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
         $self->getCPUCores($osInfo);
         $self->getUsers($osInfo);
         $self->getMountPointInfo($osInfo);
@@ -472,6 +484,7 @@ sub collectOsInfo {
         $self->getMiscInfo($osInfo);
         $self->getSystemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
     }
 
     return $osInfo;

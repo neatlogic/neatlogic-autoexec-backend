@@ -206,6 +206,11 @@
             ]
         },
         {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "Default Gateway",
+            "type": "String"
+        },
+        {
             "name": "SYS_VENDOR",
             "desc": "厂商",
             "type": "String"
@@ -254,6 +259,21 @@
                     "name": "SHELL",
                     "desc": "SHELL",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "不允许密码登录",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "用户过期天数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "密码过期天数",
+                    "type": "Int"
                 }
             ]
         },
