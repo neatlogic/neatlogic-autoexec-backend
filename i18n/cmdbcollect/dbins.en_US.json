@@ -471,6 +471,23 @@
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
             "type": "String"
+        },
+        {
+            "name": "CUSTOM_INSPECTS",
+            "desc": "Custom Inspect Results",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Inspect Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PROBLEM",
+                    "desc": "Problem",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }
