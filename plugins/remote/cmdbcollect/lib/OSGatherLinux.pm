@@ -275,14 +275,140 @@ sub getSSHInfo {
 }
 
 sub getBondInfo {
-    my ( $self,    $osInfo )       = @_;
-    my ( $bondRet, $bondInfoLine ) = $self->getCmdOut( 'cat /proc/net/dev|grep bond', undef, { nowarn => 1 } );
-    if ( $bondRet == 0 ) {
+    my ( $self, $osInfo ) = @_;
+    my $utils = $self->{collectUtils};
+
+    # my ( $bondRet, $bondInfoLine ) = $self->getCmdOut( 'cat /proc/net/dev|grep bond', undef, { nowarn => 1 } );
+    # if ( $bondRet == 0 ) {
+    #     $osInfo->{NIC_BOND} = 1;
+    # }
+    # else {
+    #     $osInfo->{NIC_BOND} = 0;
+    # }
+
+    my @bonds = ();
+    foreach my $bondPath ( glob('/proc/net/bonding/*') ) {
+        my $bondName      = basename($bondPath);
+        my $bondConfLines = $self->getFileLines($bondPath);
+        my $bondInfo;
+        my $props = {};
+        foreach my $line (@$bondConfLines) {
+            if ( $line =~ /Slave Interface:/ ) {
+                my $bondingMode = $props->{"bonding mode"};
+                if ( $bondingMode =~ /802.3ad/ ) {
+                    $bondingMode = "lacp";
+                }
+                $bondInfo = {
+                    _OBJ_CATEGORY => 'OS',
+                    _OBJ_TYPE     => 'OS-NICBOND',
+                    NAME          => $bondName,
+                    MODE          => $bondingMode,
+                    STATE         => $props->{"mii status"},
+
+                    # TX_POLICY     => $props->{"transmit hash policy"},
+                    # UP_DELAY      => $props->{"up delay (ms)"},
+                    # DOWN_DELAY    => $props->{"down delay (ms)"}
+                };
+                last;
+            }
+
+            if ( $line =~ /^\s*(.+)?:\s*(.+)\s*$/ ) {
+                $props->{ lc($1) } = $2;
+            }
+        }
+
+        my ( @eths, $eth, $miiStatus, $speed, $duplex, $failCount, $mac );
+        foreach my $line (@$bondConfLines) {
+            if ( $line =~ /Slave Interface:\s*(.+)\s*$/i ) {
+                $eth = $1;
+            }
+            elsif ( $line =~ /MII Status:\s*(.+)\s*$/i ) {
+                $miiStatus = $1;
+            }
+            elsif ( $line =~ /Speed:\s*(.+)\s*$/i ) {
+                $speed = $1;
+            }
+            elsif ( $line =~ /Duplex:\s*(.+)\s*$/i ) {
+                $duplex = $1;
+            }
+            elsif ( $line =~ /Link Failure Count:\s*(\d+)/i ) {
+                $failCount = int($1);
+            }
+            elsif ( $line =~ /Permanent HW addr:\s*(.+)\s*$/i ) {
+                $mac = $1;
+                if ( defined($eth) ) {
+                    my $unit;
+                    if ( defined($speed) and $speed ne '' ) {
+                        ( $unit, $speed ) = $utils->getNicSpeedFromStr($speed);
+                    }
+                    push(
+                        @eths,
+                        {
+                            NAME => $eth,
+                            MAC  => $mac,
+
+                            #STATE => $miiStatus,
+                            #SPEED => $speed,
+                            #UNIT => $unit,
+                            #DUPLEX => $duplex,
+                            #LINK_FAILURE_COUNT => $failCount
+                        }
+                    );
+
+                    undef($eth);
+                }
+            }
+        }
+        if ($bondInfo) {
+            $bondInfo->{PORTS} = \@eths;
+            push( @bonds, $bondInfo );
+        }
+    }
+    if (@bonds) {
         $osInfo->{NIC_BOND} = 1;
     }
-    else {
-        $osInfo->{NIC_BOND} = 0;
+    $osInfo->{NIC_BONDS} = \@bonds;
+
+    my @teams      = ();
+    my $teamdLines = $self->getCmdOutLines('teamdctl');
+    my @teamStates = ();
+    my ( $teamName, $state );
+    foreach my $line (@$teamdLines) {
+        if ( $line =~ /^\s*(\S+):\s*$/ ) {
+            $teamName = $1;
+        }
+        elsif ( $line =~ /^\s*state:\s*(\w+)/ ) {
+            $state = $1;
+            if ( defined($teamName) ) {
+                push( @teamStates, [ $teamName, $state ] );
+                undef($teamName);
+            }
+        }
     }
+    foreach my $teamState (@teamStates) {
+        my $name  = $$teamState[0];
+        my $state = $$teamState[1];
+
+        my $confJsonTxt = $utils->getCmdOut("teamdctl $name config dump actual");
+        my $confJson    = from_json($confJsonTxt);
+        my $teamInfo    = {
+            _OBJ_CATEGORY => 'OS',
+            _OBJ_TYPE     => 'OS-NICTEAM',
+            NAME          => $name,
+            STATE         => $state,
+            MODE          => $confJson->{runner}->{name}
+        };
+        my @ports = ();
+        while ( my ( $ethName, $ethConf ) = each( %{ $confJson->{ports} } ) ) {
+            push( @ports, $ethName );
+        }
+        $teamInfo->{PORTS} = \@ports;
+        push( @teams, $teamInfo );
+    }
+    if (@teams) {
+        $osInfo->{NIC_TEAM} = 1;
+    }
+    $osInfo->{NIC_TEAMS} = \@teams;
 }
 
 sub getMemInfo {
@@ -408,6 +534,84 @@ sub getServiceInfo {
     }
 }
 
+sub getDefaultGateway {
+    my ( $self, $osInfo ) = @_;
+    my $ipInfoLines = $self->getCmdOutLines('ip route');
+    foreach my $line (@$ipInfoLines) {
+        if ( $line =~ /^\s*default\s+via\s+(\S+)/ ) {
+            $osInfo->{DEFAULT_GATEWAY} = $1;
+            last;
+        }
+    }
+}
+
+sub getIPRules {
+    my ( $self, $osInfo ) = @_;
+    my @ipRules = ();
+
+    my $ipInfoLines = $self->getCmdOutLines('ip rule show');
+    foreach my $line (@$ipInfoLines) {
+        if ( $line =~ /^\s*(\d+):\s*from\s+(\S+)\s+lookup\s+(\S+)/ ) {
+            my $ipRuleInfo = {
+                _OBJ_CATEGORY => 'OS',
+                _OBJ_TYPE     => 'OS-IPRULE',
+                ID            => $1,
+                FROM          => $2,
+                ROUTE_TABLE   => $3,
+                ROUTES        => []
+            };
+            push( @ipRules, $ipRuleInfo );
+        }
+    }
+
+    foreach my $ipRuleInfo (@ipRules) {
+        my $tableName   = $ipRuleInfo->{ROUTE_TABLE};
+        my $ipInfoLines = $self->getCmdOutLines("ip route show table $tableName");
+        my $routes      = $ipRuleInfo->{ROUTES};
+        foreach my $line (@$ipInfoLines) {
+            my ( $dest, $via, $dev, $srcIp, $metric );
+
+            if ( $line =~ /^\s*default\s+via\s+(\S+)\s+dev\s+(\S+)/ ) {
+                $dest = "0.0.0.0";
+                $via  = $1;
+                $dev  = $3;
+            }
+            elsif ( $line =~ /(\S+)\s+via\s+(\S+)\s+dev\s+(\S+)/ ) {
+                $dest = $1;
+                $via  = $2;
+                $dev  = $3;
+            }
+            elsif ( $line =~ /(\S+)\s+dev\s+(\S+)/ ) {
+                $dest = $1;
+                $dev  = $2;
+            }
+
+            if ( $line =~ /\ssrc\s+(\S+)/ ) {
+                $srcIp = $1;
+            }
+            if ( $line =~ /\smetric\s+(\d+)/ ) {
+                $metric = $1;
+            }
+
+            if ( defined($dest) and defined($dev) ) {
+                push(
+                    @$routes,
+                    {
+                        _OBJ_CATEGORY => 'OS',
+                        _OBJ_TYPE     => 'OS-ROUTE',
+                        DEST          => $dest,
+                        DEV           => $dev,
+                        GATEWAY       => $via,
+                        SRC_IP        => $srcIp,
+                        METRIC        => $metric
+                    }
+                );
+            }
+        }
+    }
+    $osInfo->{IP_RULES} = \@ipRules;
+}
+
 sub getIpAddrs {
     my ( $self, $osInfo ) = @_;
     my $objCat = CollectObjCat->get('OS');
@@ -480,6 +684,16 @@ sub getUserInfo {
 
     my @users;
 
+    my $shadowMap   = {};
+    my $shadowLines = $self->getFileLines('/etc/shadow');
+    foreach my $line (@$shadowLines) {
+        $line =~ s/^\s*|\s*$//g;
+        if ( $line !~ /^#/ ) {
+            my @shadowInfo = split( /:/, $line );
+            $shadowMap->{ $shadowInfo[0] } = \@shadowInfo;
+        }
+    }
+
     my $passwdLines = $self->getFileLines('/etc/passwd');
     foreach my $line (@$passwdLines) {
         $line =~ s/^\s*|\s*$//g;
@@ -487,21 +701,47 @@ sub getUserInfo {
             my $usersMap = {};
             my @userInfo = split( /:/, $line );
 
+            my $userName = $userInfo[0];
             $usersMap->{_OBJ_CATEGORY} = 'OS';
             $usersMap->{_OBJ_TYPE}     = 'OS-USER';
-            $usersMap->{NAME}          = $userInfo[0];
+            $usersMap->{NAME}          = $userName;
             $usersMap->{UID}           = $userInfo[2];
 
             if ( $usersMap->{UID} < 500 and $usersMap->{UID} != 0 ) {
                 next;
             }
-            if ( $userInfo[0] eq 'nobody' ) {
+            if ( $userName eq 'nobody' ) {
                 next;
             }
 
             $usersMap->{GID}   = $userInfo[3];
             $usersMap->{HOME}  = $userInfo[5];
             $usersMap->{SHELL} = $userInfo[6];
+
+            my $shadowInfo = $shadowMap->{$userName};
+            if ( defined($shadowInfo) ) {
+                my $nowEpochDays = int( time() / 86400 );
+                if ( length( $$shadowInfo[1] ) < 4 ) {
+                    $usersMap->{NO_PWD} = 1;
+                    $usersMap->{PWD_EXPIRED_DAYS} = -99999;
+                }
+                else {
+                    $usersMap->{NO_PWD} = 0;
+
+                    my $pwdExpiredDays = $nowEpochDays - int( $$shadowInfo[2] ) - int( $$shadowInfo[4] );
+
+                    #密码过期天数，负数代表未过期
+                    $usersMap->{PWD_EXPIRED_DAYS} = $pwdExpiredDays;
+                }
+
+                my $expiredDays = -99999;
+                if ($$shadowInfo[7] ne ""){
+                    $expiredDays = $nowEpochDays - int( $$shadowInfo[7] );
+                }
+
+                #用户过期天数，负数代表未过期
+                $usersMap->{EXPIRED_DAYS} = $expiredDays;
+            }
 
             push( @users, $usersMap );
         }
@@ -988,13 +1228,16 @@ sub collectOsInfo {
 
         $self->getServiceInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
         $self->getUserInfo($osInfo);
+        $self->getIPRules($osInfo);
     }
     else {
         $self->getOsVersion($osInfo);
         $self->getUpTime($osInfo);
         $self->getMemInfo($osInfo);
         $self->getIpAddrs($osInfo);
+        $self->getDefaultGateway($osInfo);
         $self->getOsServices($osInfo);
         $self->getVendorInfo($osInfo);
     }
@@ -1101,7 +1344,8 @@ sub getMainBoardInfo {
         if ( $sn eq '' or $sn eq 'None' ) {
             undef($sn);
         }
-        $hostInfo->{BOARD_SERIAL}   = $sn;
+        $hostInfo->{BOARD_SERIAL} = $sn;
+
         #$hostInfo->{CHASSIS_SERIAL} = undef;
 
         my $productName = $self->getFileContent('/sys/class/dmi/id/product_name');
@@ -1594,7 +1838,7 @@ sub collectHostInfo {
         $self->getKVMGuestOSUUIDs($hostInfo);
         $self->getKVMAllocateInfo($hostInfo);
     }
-    else{
+    else {
         $self->getMainBoardInfo($hostInfo);
         $self->getCPUInfo($hostInfo);
     }

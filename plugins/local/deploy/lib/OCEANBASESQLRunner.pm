@@ -96,7 +96,7 @@ sub new {
 
     $ENV{MYSQL_HISTFILE} = '/dev/null';
 
-    print(qq{INFO: Obclient -vs -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
+    print(qq{INFO: obclient -vs -h$host -P$port -u"$user" -p"******" -A -D"$dbName"\n});
 
     my $spawn = Expect->spawn(qq{obclient -vs -h$host -P$port -u"$user" -p"$pass" -A -D"$dbName"});
 
