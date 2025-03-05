@@ -133,7 +133,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -165,7 +165,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -197,7 +197,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -205,7 +205,11 @@
                 }
             ]
         },
-
+        {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "默认网关",
+            "type": "String"
+        },
         {
             "name": "SYS_VENDOR",
             "desc": "System Vendor",
@@ -255,6 +259,21 @@
                     "name": "SHELL",
                     "desc": "Shell",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "No pwd login",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "User Expired Days",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "Password Expaired Days",
+                    "type": "Int"
                 }
             ]
         },
