@@ -13,6 +13,7 @@ use Fcntl qw(:flock O_RDWR O_CREAT O_SYNC);
 use Digest::SHA qw(hmac_sha256_hex);
 use MIME::Base64;
 use File::Path;
+use String::Escape qw(unbackslash);
 
 use WebCtl;
 use ServerConf;
@@ -573,6 +574,11 @@ sub getAutoCfgConf {
             }
             if ( $hasEnvVar == 1 ) {
                 $autoCfg->{$key} = $newVal;
+            }
+            if($newVal =~ /^\\/){
+                #如果设置值是反斜杠开头，则去掉此反斜杠，并对整个文本去转义
+                $newVal =~ s/^\\//;
+                $newVal = unbackslash($newVal);
             }
         }
     }
