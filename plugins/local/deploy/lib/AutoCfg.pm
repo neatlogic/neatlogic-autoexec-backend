@@ -13,6 +13,8 @@ use File::Copy;
 use File::Glob qw(bsd_glob);
 use Cwd;
 use Encode;
+use YAML::Tiny;
+use XML::MyXML qw(xml_to_object);
 use Data::Dumper;
 
 use DeployUtils;
@@ -652,6 +654,31 @@ sub replacePlaceHolder {
         if ( not File::Copy::cp( $fileName, $orgFileName ) ) {
             $self->{hasError} = $self->{hasError} + 1;
             print("ERROR: Copy file $fileName to $orgFileName failed:$!\n");
+        }
+        else{
+            #校验文件格式，包括yaml、xml
+            if($orgFileName =~ /\.yaml$/){
+                eval{
+                    my $yaml = YAML::Tiny->read($orgFileName);
+                };
+                if($@){
+                    $self->{hasError} = $self->{hasError} + 1;
+                    my $errMsg = $@;
+                    $errMsg =~ s/\sat\s.*$//;
+                    print("ERROR: Invalid format yaml file:$orgFileName.\n$errMsg\n");
+                }
+            }
+            elsif($orgFileName =~ /\.xml$/){
+                eval{
+                    my $xmlObj = xml_to_object( $orgFileName, { file => 1 } )
+                };
+                if($@){
+                    $self->{hasError} = $self->{hasError} + 1;
+                    my $errMsg = $@;
+                    $errMsg =~ s/\sat\s.*$//;
+                    print("ERROR: Invalid format xml file:$orgFileName.\n$errMsg\n");
+                }
+            }
         }
 
         if ( $self->{hasError} == 0 and $recfgAgain == 1 and $recfgAgainAdded == 1 ) {
