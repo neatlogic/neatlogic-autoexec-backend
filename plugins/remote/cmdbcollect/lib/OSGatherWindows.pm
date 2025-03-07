@@ -630,6 +630,13 @@ sub collect {
 
     $osInfo->{ETH_INTERFACES} = $hostInfo->{ETH_INTERFACES};
 
+    my $cpuModel = $hostInfo->{CPU_MODEL};
+    if (defined($cpuModel)){
+        if($cpuModel =~ /\WQEMU\W/i or $cpuModel =~ /\WVirtual\W/i){
+            $osInfo->{IS_VIRTUAL} = 1;
+        }
+    }
+
     $self->collectOsPerfInfo($osInfo);
 
     if ( $osInfo->{IS_VIRTUAL} == 1 ) {

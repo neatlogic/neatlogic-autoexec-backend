@@ -1863,6 +1863,13 @@ sub collect {
     $osInfo->{CPU_FREQUENCY}   = $hostInfo->{CPU_FREQUENCY};
     $osInfo->{IS_VIRTUAL}      = $hostInfo->{IS_VIRTUAL};
 
+    my $cpuModel = $hostInfo->{CPU_MODEL};
+    if (defined($cpuModel)){
+        if($cpuModel =~ /\WQEMU\W/i or $cpuModel =~ /\WVirtual\W/i){
+            $osInfo->{IS_VIRTUAL} = 1;
+        }
+    }
+    
     my @os_eths;
     foreach my $item ( @{ $hostInfo->{ETH_INTERFACES} } ) {
         my %tmp = %$item;
