@@ -68,12 +68,12 @@ sub main {
         print("ERROR: Action must to be enabled or disabled.\n");
     }
 
-    if ( $action ne 'disable' ) {
-        if ( defined $waitDisConnected ) {
-            $optionError = 1;
-            print("ERROR: When --action defined disable, should be define --waitdisconnected. \n");
-        }
-    }
+    # if ( $action ne 'disable' ) {
+    #     if ( defined ($waitDisConnected) ) {
+    #         $optionError = 1;
+    #         print("ERROR: When --action defined disable, should be define --waitdisconnected. \n");
+    #     }
+    # }
 
     if ( not defined($timeOut) ) {
         $timeOut = 30;
@@ -130,7 +130,7 @@ sub main {
         print("$msg\n");
     }
 
-    if ( defined($waitDisConnected) ) {
+    if ( defined($waitDisConnected) and $action eq 'disable' ) {
         my $nodeDisconnected = {};
         my $startTime        = time();
         my $isTimeOut        = 0;
