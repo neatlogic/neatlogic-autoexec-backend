@@ -30,6 +30,27 @@
             "defaultValue": "1"
         },
         {
+            "opt": "lang",
+            "name": "语言",
+            "help": "配置文件的语言和编码",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
             "opt": "puredir",
             "name": "目录型制品",
             "help": "目录型制品，配置文件就在目录中，不需要对任何压缩包进行处理",
