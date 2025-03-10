@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 
 import os
@@ -32,6 +32,7 @@ class PhaseWorker(threading.Thread):
             try:
                 node = self._queue.get(timeout=self.context.maxExecSecs)
             except Exception as ex:
+                self.context.goToStop = True
                 print("WARN: Task last for 24 hours, it's too long, exit.\n", end="")
                 break
 

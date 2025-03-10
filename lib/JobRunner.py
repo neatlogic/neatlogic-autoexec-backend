@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 import os
 import socket
@@ -597,10 +597,13 @@ class JobRunner:
                     hasInformed = False
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
-                        if not hasInformed:
-                            hasInformed = True
-                            print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")
-                        self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
+                        try:
+                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
+                            if not hasInformed:
+                                hasInformed = True
+                                print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")
+                        except Exception as ex:
+                            print("WARN: Inform server round:{}/{}/{} ended failed, {}.\n".format(groupNo, roundNo, phaseName, ex), end="")
 
                         if phaseStatus.waitGlobalRoundFin(10):
                             print("INFO: Group:%d round:%d phase:%s is completed.\n" % (groupNo, roundNo, phaseName), end="")
