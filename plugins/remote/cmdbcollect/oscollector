@@ -157,7 +157,8 @@ sub collectHostOSInfo {
                 ];
             }
             else {
-                $osInfo->{HOST_ON} = [];
+                #$osInfo->{HOST_ON} = [];
+                delete( $osInfo->{HOST_ON} );
             }
         }
         else {
