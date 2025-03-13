@@ -218,6 +218,7 @@ if __name__ == "__main__":
 
     execUser = os.getenv("AUTOEXEC_USER")
     try:
+        allCollectData = []
         outputData = AutoExecUtils.loadNodeOutput()
         if outputData is None:
             print("WARN: Node output data is empty.")
@@ -236,15 +237,17 @@ if __name__ == "__main__":
                         continue
 
                     collectData = value.get("DATA")
-                    if collectData is None:
+                    if collectData:
+                        allCollectData.extend(collectData)
+                    else:
                         print("WARN: Plugin {} did not return collect data.".format(key))
                         continue
 
-            if collectData is None:
+            if not allCollectData:
                 print("ERROR: Can not find any cmdb collect data.")
                 exit(-1)
 
-            for data in collectData:
+            for data in allCollectData:
                 # 检查数据，必须包含PK、_OBJ_CATEGORY
                 objCat = data.get("_OBJ_CATEGORY")
                 objType = data.get("_OBJ_TYPE")
