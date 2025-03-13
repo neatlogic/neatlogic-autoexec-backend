@@ -4,7 +4,7 @@
     "docroot": null,
     "collection_label": "应用实例",
     "filter": {
-        "_OBJ_TYPE": "NACOS"
+        "_OBJ_TYPE": "Nacos"
     },
     "fields": [
         {
