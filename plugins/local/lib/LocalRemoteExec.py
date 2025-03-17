@@ -328,16 +328,20 @@ class LocalRemoteExec:
             remoteCmd = "cd {} && HISTSIZE=0 AUTOEXEC_JOBID={} {}".format(remotePath, jobId, scriptName)
             uploaded = False
             hasError = False
-            scp = None
+            ssh = paramiko.SSHClient()
+            # scp = None
             sftp = None
             try:
                 print("INFO: Begin to upload remote script...")
                 # 建立连接
-                scp = paramiko.Transport((host, protocolPort))
-                scp.connect(username=username, password=password)
+                # scp = paramiko.Transport((host, protocolPort))
+                # scp.connect(username=username, password=password)
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(host, protocolPort, username, password, banner_timeout=15, timeout=15, look_for_keys=True)
+                sftp = ssh.open_sftp()
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
-                sftp = paramiko.SFTPClient.from_transport(scp)
+                # sftp = paramiko.SFTPClient.from_transport(scp)
                 # Copy a local file (localpath) to the SFTP server as remotepath
                 try:
                     try:
@@ -370,12 +374,12 @@ class LocalRemoteExec:
                 # print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
             if uploaded:
                 print("INFO: Upload script success, begin to execute remote operation...")
-                ssh = None
+                # ssh = None
                 try:
                     ret = 0
-                    ssh = paramiko.SSHClient()
-                    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh.connect(host, protocolPort, username, password, banner_timeout=15, timeout=15, look_for_keys=True)
+                    # ssh = paramiko.SSHClient()
+                    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    # ssh.connect(host, protocolPort, username, password, banner_timeout=15, timeout=15, look_for_keys=True)
 
                     channel = ssh.invoke_shell(term="dumb", width=2048)
                     # channel.settimeout(3600)
@@ -426,8 +430,8 @@ class LocalRemoteExec:
                     if ssh:
                         ssh.close()
 
-                if scp:
-                    scp.close()
+                # if scp:
+                #     scp.close()
 
             if ret == 0 and self.IS_FAIELD == False:
                 print("INFO: Execute remote script by ssh succeed:{}".format(scriptCmd))
