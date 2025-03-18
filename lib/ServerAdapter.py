@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 from ast import Return
 import os
@@ -274,7 +274,7 @@ class ServerAdapter:
                 nodesFile = open(nodesFilePath, "a+")
                 fcntl.flock(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
-
+                nodesSeqDesc = {}
                 nodesCount = 0
                 linesCount = 0
                 line = None
@@ -282,6 +282,10 @@ class ServerAdapter:
                     if linesCount == 0:
                         nodesDescObj = json.loads(line)
                         nodesCount = int(nodesDescObj["totalCount"])
+                    else:
+                        nodeObj = json.loads(line)
+                        seqNo = nodeObj.get("seqNo", 1)
+                        nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
 
@@ -292,6 +296,18 @@ class ServerAdapter:
                         json.loads(line)
                     except:
                         raise AutoExecError("Get nodes failed, download incomplete.")
+
+                seqDescFilePath = nodesFilePath + ".desc"
+                with open(seqDescFilePath, "w") as descFile:
+                    maxParallel = 0
+                    roundDef = []
+                    for key, value in sorted(nodesSeqDesc):
+                        if maxParallel < value:
+                            maxParallel = value
+                        roundDef.append([key, value])
+
+                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}), ensure_ascii=False)
+                    descFile.close()
 
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
