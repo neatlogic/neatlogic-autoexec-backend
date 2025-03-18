@@ -93,6 +93,11 @@ sub main {
 
     my $hasError = 0;
 
+    $hasError = $deployUtils->initDir($deployEnv);
+    if ($hasError > 0){
+        return $hasError;
+    }
+
     $srcEnvPath =~ s/^\s*\/|\/\s*$//g;
     my @srcPathSegs = split( '\/', $srcEnvPath );
     my $srcEnvInfo  = {
