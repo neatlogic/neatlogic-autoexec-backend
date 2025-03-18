@@ -1443,7 +1443,7 @@ sub getBuild {
             }
         }
         else {
-            die("ERROR: Get resources failed: $errMsg\n");
+            die("ERROR: Get resources failed, destination version status and env version status is empty, check config or version status: $errMsg\n");
         }
     }
 
