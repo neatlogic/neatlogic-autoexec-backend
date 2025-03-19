@@ -64,7 +64,7 @@ sub main {
     $envPath = $deployEnv->{NAME_PATH};
     $version = $deployEnv->{VERSION};
 
-    #$buildNo = $deployEnv->{BUILD_NO};
+    my $currentBuildNo = $deployEnv->{BUILD_NO};
 
     my $optionError = 0;
     if ( not defined($envPath) or $envPath eq '' ) {
@@ -94,7 +94,7 @@ sub main {
     my $hasError = 0;
 
     $hasError = $deployUtils->initDir($deployEnv);
-    if ($hasError > 0){
+    if ( $hasError > 0 ) {
         return $hasError;
     }
 
@@ -123,7 +123,19 @@ sub main {
         print( "INFO: Begin to download remote appbuild resource ", join( ' ', @subDirs ) . "...\n" );
 
         my $isMirror = 0;
-        eval { ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, undef, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 ); };
+        eval {
+            ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, undef, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 );
+            if ($buildNo ne $currentBuildNo){
+                print("INFO: Remote build is:$buildNo, reset current build:$currentBuildNo to $buildNo.\n");
+                AutoExecUtils::callNativeApi(
+                    "/neatlogic/api/rest/deployappbuild/buildNo/replace",
+                    {
+                        "jobId"   => $deployEnv->{JOB_ID},
+                        "buildNo" => $buildNo
+                    },
+                );
+            }
+        };
         if ($@) {
             $hasError = $hasError + 1;
             print($@);
