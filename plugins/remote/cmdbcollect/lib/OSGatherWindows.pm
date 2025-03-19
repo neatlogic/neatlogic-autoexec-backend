@@ -312,7 +312,7 @@ sub getUsers {
     my ( $self, $osInfo ) = @_;
 
     my @users         = ();
-    my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where disabled=false get name', 'Administrator', { charset => $self->{codepage} } );
+    my $userInfoLines = $self->getCmdOutLines( 'wmic useraccount where (LocalAccount=True AND Disabled=False) get name', 'Administrator', { charset => $self->{codepage} } );
     for ( my $i = 1 ; $i < scalar(@$userInfoLines) ; $i++ ) {
         my $userInfo = {};
         my $userName = $$userInfoLines[$i];
