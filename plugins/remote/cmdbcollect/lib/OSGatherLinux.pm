@@ -1731,7 +1731,7 @@ sub getKVMAllocateInfo {
                         my $jsonTxt     = $self->getCmdOut(qq{qemu-img info --output=json '$imgFile'});
                         my $imgFileJson = from_json($jsonTxt);
                         $format      = $imgFileJson->{'format'};
-                        $virtualSize = springf( '%.2f', $imgFileJson->{'virtual-size'} / 1024 / 1024 / 1024 );
+                        $virtualSize = sprintf( '%.2f', $imgFileJson->{'virtual-size'} / 1024 / 1024 / 1024 );
                         $actualSize  = sprintf( '%.2f', $imgFileJson->{'actual-size'} / 1024 / 1024 / 1024 );
 
                         $diskAllocatedSize = $diskAllocatedSize + $virtualSize;
