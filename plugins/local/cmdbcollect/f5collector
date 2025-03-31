@@ -100,8 +100,8 @@ sub main {
     $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'F5';
     $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = nodeInfo->{resourceId};
-    $data->{MGMT_IP}       = nodeInfo->{host};
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
+    $data->{MGMT_IP}       = $nodeInfo->{host};
 
     #my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
     my $upTime = int( $data->{UPTIME} );
@@ -122,8 +122,8 @@ sub main {
                 '_OBJ_TYPE'     => 'F5',
                 'DEV_NAME'      => $data->{DEV_NAME},
                 'SN'            => $data->{SN},
-                'MGMT_IP'       => nodeInfo->{host},
-                'RESOURCE_ID'   => nodeInfo->{resourceId}
+                'MGMT_IP'       => $nodeInfo->{host},
+                'RESOURCE_ID'   => $nodeInfo->{resourceId}
             }
         };
         my $bind = $vsInfo->{IP} . ':' . $vsInfo->{PORT};
