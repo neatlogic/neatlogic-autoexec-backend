@@ -90,7 +90,7 @@ sub main {
         $usmData->{community} = $community;
     }
 
-    my $collector = A10Snmp->new( hostname => $node->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
+    my $collector = A10Snmp->new( hostname => $nodeInfo->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
     my $data      = $collector->collect();
     my $objCat    = CollectObjCat->get('LOADBALANCER');
     $data->{_OBJ_CATEGORY} = $objCat;
