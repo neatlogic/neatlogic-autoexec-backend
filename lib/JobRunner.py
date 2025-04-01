@@ -67,7 +67,7 @@ class ListenWorkThread(threading.Thread):
                         print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end="")
                     elif actionData["action"] == "setEnv":
                         onlyInProcess = actionData.get("onlyInProcess")
-                        for name, value in actionData("items").items():
+                        for name, value in actionData["items"].items():
                             if onlyInProcess:
                                 os.environ[name] = value
                             else:
