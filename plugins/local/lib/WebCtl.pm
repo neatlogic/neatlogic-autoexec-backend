@@ -311,10 +311,13 @@ sub upload {
     my ( $self, $url, $fileField, $filePath, $formData, $headers ) = @_;
 
     my $client = $self->{restClient};
-    $self->setHeaders($headers);
+    #$self->setHeaders($headers);
 
     #upload file
     my $ua = $client->getUseragent();
+    while(my ($key, $val) = each(%$headers)){
+        $ua->default_header($key => $val);
+    }
 
     #my $deployData = [ appId => $appId, deployType => $deployType, deployTo => $deployTo, publishCount => $publishCount, app_package => [ $appPackage, $pkgName, Content_Type => 'application/octet-stream' ] ];
     my $fileName = basename($filePath);
