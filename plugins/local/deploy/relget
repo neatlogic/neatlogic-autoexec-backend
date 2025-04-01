@@ -125,16 +125,6 @@ sub main {
         my $isMirror = 0;
         eval {
             ( $isMirror, $buildNo ) = $serverAdapter->getBuild( $deployUtils, $deployEnv, undef, $proxyToUrl, $srcEnvInfo, $destDir, \@subDirs, 1 );
-            if ($buildNo ne $currentBuildNo){
-                print("INFO: Remote build is:$buildNo, reset current build:$currentBuildNo to $buildNo.\n");
-                AutoExecUtils::callNativeApi(
-                    "/neatlogic/api/rest/deployappbuild/buildNo/replace",
-                    {
-                        "jobId"   => $deployEnv->{JOB_ID},
-                        "buildNo" => $buildNo
-                    },
-                );
-            }
         };
         if ($@) {
             $hasError = $hasError + 1;
@@ -218,10 +208,10 @@ sub main {
     }
 
     if ( $hasError == 0 ) {
-        print("FINE: $pname $envPath $version success.\n");
+        print("FINE: $pname $version from $srcEnvPath/$buildNo success.\n");
     }
     else {
-        print("ERROR: $pname $envPath $version failed.\n");
+        print("ERROR: $pname $version from $srcEnvPath failed.\n");
     }
 
     if ( defined( $deployEnv->{BUILD_ROOT} ) and $deployEnv->{BUILD_ROOT} ne '' ) {
