@@ -190,20 +190,15 @@ sub main {
     $deployEnv->{BUILD_NO} = $buildNo;
 
     if ( $hasError == 0 ) {
-        my $envName = $deployEnv->{ENV_NAME};
-        print("INFO: Try to release(sync) $version build:$buildNo to $envName...\n");
-        $serverAdapter->releaseVerToEnv( $deployEnv, 'releasing' );
-
         eval {
-            my $buildUtils = BuildUtils->new();
-            $buildUtils->release( $deployEnv, $version, $buildNo );
-            $serverAdapter->releaseVerToEnv( $deployEnv, 'released' );
-            print("INFO: Release(sync) $version build:$buildNo to $envName success.\n");
+            my $buildUtils = BuildUtils->new(); 
+            $hasError = $buildUtils->release( $deployEnv, $version, $buildNo ); 
         };
         if ($@) {
-            $hasError = 1;
             print("ERROR: $@\n");
-            $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
+        }
+        else {
+            print("FINE: Release $envPath version:$version with build($buildNo) success.\n");
         }
     }
 
