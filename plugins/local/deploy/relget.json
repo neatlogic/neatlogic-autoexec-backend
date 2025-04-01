@@ -5,7 +5,7 @@
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": null,
-    "description": "用户跨多套环境获取制品，例如: 生产从测试下载版本制品，必须在调用工具artifactdirinit初始化制品目录后才能使用",
+    "description": "用户跨多套环境获取制品，例如: 生产从测试某环境查询build并下载对应build的版本制品",
     "enabled": 1,
     "option": [
         {
