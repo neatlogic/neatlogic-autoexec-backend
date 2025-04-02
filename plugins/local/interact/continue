@@ -114,6 +114,10 @@ sub main {
     $out->{interactOut} = $enter;
     AutoExecUtils::saveOutput($out);
 
+    if ($enter eq 'No'){
+        $rc = 1;
+    }
+    
     return $rc;
 }
 
