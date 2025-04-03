@@ -16,6 +16,7 @@ sys.path.append(homePath + "/plugins/local/lib")
 def usage():
     pname = os.path.basename(__file__)
     print(pname + " --lang <lang> eg : zh_CN or en_US ,default value zh_CN.\n")
+    print("         --tenant <tenant>\n")
     print("         --mode <mode> eg : truncate or append ,default value truncate.\n")
     print(" --action [beautify|remove|append|savetodb|dropcollection｜clearcollection] \n")
     print("Examples:")
@@ -26,8 +27,8 @@ def usage():
     print("dicttool --lang zh_CN --action beautify")
     print("dicttool --lang en_US --action savetodb")
     print("dicttool --lang zh_CN --action savetodb")
-    print("dicttool--action dropcollection")
-    print("dicttool--action clearcollection")
+    print("dicttool --action dropcollection")
+    print("dicttool --action clearcollection")
     exit(1)
 
 
@@ -330,6 +331,7 @@ def checkThresholdExist(threshold, dbThresholds):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--lang", default="zh_CN", help="Language")
+    parser.add_argument("--tenant", required=True, help="Tenant name")
     parser.add_argument(
         "--action",
         default="savetodb",
@@ -340,8 +342,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     lang = args.lang
+    tenant = args.tenant
     action = args.action
 
+    os.environ["AUTOEXEC_TENANT"] = tenant
     binPaths = os.path.split(os.path.realpath(__file__))
     dictPath = os.path.abspath(binPaths[0])
 
