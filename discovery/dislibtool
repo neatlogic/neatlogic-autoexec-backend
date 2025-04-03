@@ -23,7 +23,7 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--action", default="savetodb", help="Actions:[savetodb|exportfile]")
-    parser.add_argument("--tenant", help="Tenant name")
+    parser.add_argument("--tenant", required=True, help="Tenant name")
     parser.add_argument("--savepath", default="", help="export save file path")
 
     args = parser.parse_args()
