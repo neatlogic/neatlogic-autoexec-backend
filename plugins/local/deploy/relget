@@ -58,6 +58,7 @@ sub main {
 
     usage() if ( defined($isHelp) );
 
+    my $oldBuildNo = $buildNo;
     my $deployUtils = DeployUtils->new();
     my $deployEnv   = $deployUtils->deployInit( $envPath, $version, $buildNo );
 
@@ -209,11 +210,13 @@ sub main {
         print("ERROR: $pname $version from $srcEnvPath failed.\n");
     }
 
-    if ( defined( $deployEnv->{BUILD_ROOT} ) and $deployEnv->{BUILD_ROOT} ne '' ) {
-        AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo", BUILD_PATH => "$ENV{BUILD_ROOT}/$buildNo" } );
-    }
-    else {
-        AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo" } );
+    if ($buildNo ne $oldBuildNo){
+        if ( defined( $deployEnv->{BUILD_ROOT} ) and $deployEnv->{BUILD_ROOT} ne '' ) {
+            AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo", BUILD_PATH => "$ENV{BUILD_ROOT}/$buildNo" } );
+        }
+        else {
+            AutoExecUtils::setJobEnv( 1, { BUILD_NO => "$buildNo" } );
+        }
     }
 
     return $hasError;
