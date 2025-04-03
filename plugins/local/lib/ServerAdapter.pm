@@ -1286,8 +1286,9 @@ sub getBuild {
     my $builded    = 0;
     my $buildLocal = 'false';
 
-    my $namePath = $deployEnv->{DEPLOY_PATH};
-    my $version  = $deployEnv->{VERSION};
+    my $namePath   = $deployEnv->{DEPLOY_PATH};
+    my $version    = $deployEnv->{VERSION};
+    my $oldBuildNo = $deployEnv->{BUILD_NO};
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
@@ -1305,8 +1306,10 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
 
                 if ( defined($buildNo) and $buildNo ne '' ) {
-                    $self->replaceBuildNo($deployEnv, $buildNo);
-                    print("INFO: Remote build is:$buildNo, reset current build to $buildNo.\n");
+                    if ( $buildNo ne $oldBuildNo ){
+                        $self->replaceBuildNo($deployEnv, $buildNo);
+                        print("INFO: Remote build is:$buildNo, reset current build:$oldBuildNo to $buildNo.\n");
+                    }
                     $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'releasing' } );
                 }
 

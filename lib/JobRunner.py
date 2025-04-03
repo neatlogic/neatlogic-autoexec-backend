@@ -72,6 +72,17 @@ class ListenWorkThread(threading.Thread):
                                 os.environ[name] = value
                             else:
                                 self.context.setEnv(name, value)
+                            if name == "BUILD_NO":
+                                paramsFilePath = self.context.paramsFilePath
+                                stat_info = os.stat(paramsFilePath)
+                                with open(paramsFilePath, "r", encoding="utf-8") as file:
+                                    data = json.load(file)
+                                    data["environment"]["BUILD_NO"] = value
+                                    file.close()
+                                    with open(paramsFilePath, "w", encoding="utf-8") as file:
+                                        json.dump(data, file, ensure_ascii=False, indent=4)
+                                        file.close()
+                                os.utime(paramsFilePath, (stat_info.st_atime, stat_info.st_mtime - 600))
                             print("INFO: Set ENV variable({}) event recieved, processed.\n".format(name), end="")
                     elif actionData["action"] == "globalLock":
                         lockParams = actionData["lockParams"]
