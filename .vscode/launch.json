@@ -1465,6 +1465,36 @@
             "reloadModules": true,
             "stopOnEntry": false,
             "console": "integratedTerminal"
+        },
+        {
+            "name": "continue",
+            "type": "perl",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/interact/continue",
+            "inc": [
+                "${workspaceFolder}/plugins/local/lib",
+                "${workspaceFolder}/plugins/local/pllib/lib/perl5"
+            ],
+            "env": {
+                "DEV_MODE": "1",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "0",
+                "AUTOEXEC_PHASE_NAME": "collect",
+                "AUTOEXEC_WORK_PATH": "/Users/wenhb/git/autoexec/data/job/0",
+                "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+                "OUTPUT_PATH": "/tmp/output.json",
+                "LIVEDATA_PATH": "/tmp/livedata.json",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"snmp\",\"password\":\"Tpublic\",\"resourceId\":0,\"host\":\"192.168.0.1\",\"nodeType\":\"Switch\",\"nodeId\":0,\"protocolPort\":161,\"username\":\"root\",\"authData\":{\"username\":\"monitor\",\"authPassword\":\"Techsure\",\"authProtocol\":\"sha\",\"privPassword\":\"Techsure123\",\"privProtocol\":\"aes\"}}",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"snmp\",\"password\":\"Tpublic\",\"resourceId\":0,\"host\":\"192.168.0.1\",\"nodeType\":\"Switch\",\"nodeId\":0,\"protocolPort\":161,\"username\":\"root\"}"
+            },
+            "args": [
+                "--message",
+                "yes or no?"
+            ],
+            "reloadModules": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal"
         }
     ]
 }
