@@ -102,9 +102,9 @@ class PhaseWorker(threading.Thread):
         currentNode = self.currentNode
         if currentNode is not None and currentNode.resourceId == resourceId:
             if clean is None or clean == 0:
-                currentNode.updateNodeStatus("waitInput", interact=interact)
+                currentNode.updateNodeStatus(NodeStatus.waitInput, interact=interact)
             elif clean == 1:
-                currentNode.updateNodeStatus("running", interact=None)
+                currentNode.updateNodeStatus(NodeStatus.running, interact=None)
             return True
         else:
             return False
