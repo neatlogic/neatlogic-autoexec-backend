@@ -97,7 +97,7 @@ sub syncMvnInstall {
         if ($@) {
             print("ERROR: $@\n");
         }
-        else {
+        if($hasError == 0) {
             print("FINE: Sync mvn repo $repoPath to group members success.\n");
         }
     }
@@ -156,7 +156,7 @@ sub build {
     my $ret = 0;
     my $cmd;
     my $hasInstall = 1;
-    my $m2LocalRepo = $ENV{HOME} . '/.m2';
+    my $m2LocalRepo = $ENV{HOME} . '/.m2/repository';
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "mvn $silentOpt -U clean install";
@@ -178,12 +178,16 @@ sub build {
         if($args =~/\Winstall\W/ ){
             $hasInstall = 1;
         }
+        else{
+            $hasInstall = 0;
+        }
+        
         if($args =~ /\-Dmaven\.repo\.local=(\S+)/ or $args =~ /\-Dmaven\.repo\.local='(.+)'/ or $args =~ /\-Dmaven\.repo\.local="(.+)"/){
             $m2LocalRepo = $1;
         }
     }
 
-    if ($ret eq 0){
+    if ($ret eq 0 and $hasInstall == 1){
         $ret = syncMvnInstall($prjPath, $m2LocalRepo);
     }
 
