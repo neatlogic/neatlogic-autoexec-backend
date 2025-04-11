@@ -13,6 +13,95 @@ sub new {
     return $self;
 }
 
+sub syncMvnInstall {
+    my ($prjPath) = @_;
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit();
+    my $runnerGroup = $buildEnv->{RUNNER_GROUP};
+    my @runnerIds = keys(%$runnerGroup);
+    if (scalar(@runnerIds) <= 1){
+        return 0;
+    }
+
+    my $hasError = 0;
+    print("INFO: Begin sync mvn artifact to runner group.\n");
+    my $pomFilePath = "$prjPath/pom.xml";
+    if( not -f $pomFilePath){
+        $hasError = 1;
+        print("ERROR: Pom file: $pomFilePath not exists.\n");
+    }
+
+     my $xmlObj;
+    eval{
+        $xmlObj = xml_to_object( $pomFilePath, { file => 1 } );
+    };
+    if($@){
+        $hasError = 1;
+        my $errMsg = $@;
+        $errMsg =~ s/\sat\s.*$//;
+        print("ERROR: Invalid format xml file:$pomFilePath.\n$errMsg\n");
+    }
+
+    my ($groupId, $artifactId, $jarVersion);
+    my $groupIdItem = $xmlObj->path('groupId');
+    if ( defined($groupIdItem) ) {
+        $groupId = $groupIdItem->value();
+    }
+    else{
+        #如果groupId在Parent里
+        my $parentItem = $xmlObj->path('parent');
+        if(defined($parentItem)){
+            $groupIdItem = $parentItem->path('groupId');
+            if(defined($groupIdItem)){
+                $groupId = $groupIdItem->value();
+            }
+        }
+    }
+    my $artifactIdItem = $xmlObj->path('artifactId');
+    if ( defined($artifactIdItem)) {
+        $artifactId = $artifactIdItem->value();
+    }
+    my $versionItem = $xmlObj->path('version');
+    if ( defined($versionItem)) {
+        $jarVersion = $versionItem->value();
+    }
+
+    my $repoPath = $groupId;
+    $repoPath =~ s/\./\//g;
+    $repoPath = "$repoPath/$artifactId/$jarVersion";
+
+    if (not defined($groupId) or $groupId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find groupId in pom file:$pomFilePath\n");
+    }
+    if (not defined($artifactId) or $artifactId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find artifactId in pom file:$pomFilePath\n");
+    }
+    if (not defined($jarVersion) or $jarVersion eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find version in pom file:$pomFilePath\n");
+    }
+    
+    if ( not -d $repoPath){
+        $hasError = 1;
+        print("ERROR: Maven artifact dir:$repoPath not exists.\n");
+    }
+    else{
+        my $buildUtils = BuildUtils->new();
+        eval { $hasError = $buildUtils->syncDirToGroup( $buildEnv, $repoPath ); };
+        if ($@) {
+            print("ERROR: $@\n");
+        }
+        else {
+            print("FINE: Sync mvn repo $repoPath to group members success.\n");
+        }
+    }
+
+    return $hasError;
+}
+
 sub build {
     my ( $self, %opt ) = @_;
 
@@ -63,6 +152,7 @@ sub build {
 
     my $ret = 0;
     my $cmd;
+    my $hasInstall = 1;
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "mvn $silentOpt -U clean install";
@@ -81,6 +171,13 @@ sub build {
             print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
+        if($args =~/\Winstall\W/ ){
+            $hasInstall = 1;
+        }
+    }
+
+    if ($ret eq 0){
+        $ret = syncMvnInstall($prjPath);
     }
 
     if ( $ret > 255 ) {
