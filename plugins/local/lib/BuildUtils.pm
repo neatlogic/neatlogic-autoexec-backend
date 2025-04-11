@@ -319,7 +319,6 @@ sub syncDirToGroup {
             my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dir' && rsync" . $runnerIp:'$dir/'};
             $ret = system($syncCmd);
             if ( $ret != 0 ) {
-                print("DEBUG: $syncCmd\n");
                 print("ERROR: Sync '$dir/' to $runnerIp:'$dir/' failed.\n");
                 last;
             }
