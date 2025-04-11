@@ -3,7 +3,9 @@ use strict;
 
 package BuildMAVEN;
 use FindBin;
+use XML::MyXML qw(xml_to_object);
 use DeployUtils;
+
 
 sub new {
     my ( $pkg, %args ) = @_;
