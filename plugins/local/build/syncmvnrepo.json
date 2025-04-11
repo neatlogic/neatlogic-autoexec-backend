@@ -1,0 +1,31 @@
+{
+    "opDesc": "同步本地Maven的仓库的artifact到runner group",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "syncmvnrepo-args",
+    "description": "工程编译mvn install后，同步到runner group的其他成员",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "repo",
+            "name": "Maven本地仓库",
+            "help": "Maven本地仓库目录",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${HOME}/.m2"
+        },
+        {
+            "opt": "pomfile",
+            "name": "pom文件",
+            "help": "相对于工程目录的pom.xml的路径",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "pom.xml"
+        }
+    ],
+    "output": []
+}
