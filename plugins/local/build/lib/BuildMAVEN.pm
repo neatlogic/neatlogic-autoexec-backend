@@ -16,7 +16,7 @@ sub new {
 }
 
 sub syncMvnInstall {
-    my ($prjPath) = @_;
+    my ($prjPath,$m2LocalRepo) = @_;
 
     my $deployUtils = DeployUtils->new();
     my $buildEnv    = $deployUtils->deployInit();
@@ -69,9 +69,10 @@ sub syncMvnInstall {
         $jarVersion = $versionItem->value();
     }
 
+    my $homePath = $ENV{HOME};
     my $repoPath = $groupId;
     $repoPath =~ s/\./\//g;
-    $repoPath = "$repoPath/$artifactId/$jarVersion";
+    $repoPath = "$m2LocalRepo/$repoPath/$artifactId/$jarVersion";
 
     if (not defined($groupId) or $groupId eq ''){
         $hasError = 1;
@@ -155,6 +156,7 @@ sub build {
     my $ret = 0;
     my $cmd;
     my $hasInstall = 1;
+    my $m2LocalRepo = $ENV{HOME} . '/.m2';
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "mvn $silentOpt -U clean install";
@@ -176,10 +178,13 @@ sub build {
         if($args =~/\Winstall\W/ ){
             $hasInstall = 1;
         }
+        if($args =~ /\-Dmaven\.repo\.local=(\S+)/ or $args =~ /\-Dmaven\.repo\.local='(.+)'/ or $args =~ /\-Dmaven\.repo\.local="(.+)"/){
+            $m2LocalRepo = $1;
+        }
     }
 
     if ($ret eq 0){
-        $ret = syncMvnInstall($prjPath);
+        $ret = syncMvnInstall($prjPath, $m2LocalRepo);
     }
 
     if ( $ret > 255 ) {
