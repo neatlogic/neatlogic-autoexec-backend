@@ -96,6 +96,7 @@ sub main {
     my $pomFilePath = "$prjPath/$pom";
     if( not -f $pomFilePath){
         $hasError = 1;
+        print("ERROR: Pom file: $pomFilePath not exists.\n");
     }
 
      my $xmlObj;
@@ -111,8 +112,18 @@ sub main {
 
     my ($groupId, $artifactId, $jarVersion);
     my $groupIdItem = $xmlObj->path('groupId');
-    if ( defined($groupIdItem)) {
+    if ( defined($groupIdItem) ) {
         $groupId = $groupIdItem->value();
+    }
+    else{
+        #如果groupId在Parent里
+        my $parentItem = $xmlObj->path('parent');
+        if(defined($parentItem)){
+            $groupIdItem = $parentItem->path('groupId');
+            if(defined($groupIdItem)){
+                $groupId = $groupIdItem->value();
+            }
+        }
     }
     my $artifactIdItem = $xmlObj->path('artifactId');
     if ( defined($artifactIdItem)) {
@@ -126,6 +137,20 @@ sub main {
     my $repoPath = $groupId;
     $repoPath =~ s/\./\//g;
     $repoPath = "$repoPath/$artifactId/$jarVersion";
+
+    if (not defined($groupId) or $groupId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find groupId in pom file:$pomFilePath\n");
+    }
+    if (not defined($artifactId) or $artifactId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find artifactId in pom file:$pomFilePath\n");
+    }
+    if (not defined($jarVersion) or $jarVersion eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find version in pom file:$pomFilePath\n");
+    }
+    
     if ( not -d $repoPath){
         $hasError = 1;
         print("ERROR: Maven artifact dir:$repoPath not exists.\n");

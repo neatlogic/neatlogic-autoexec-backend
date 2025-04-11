@@ -301,8 +301,6 @@ sub release2Env {
 sub syncDirToGroup {
     my ( $self, $buildEnv, $dir ) = @_;
 
-    my $envName  = $buildEnv->{ENV_NAME};
-
     my $myRunnerId  = $buildEnv->{RUNNER_ID};
     my $runnerGroup = $buildEnv->{RUNNER_GROUP};
 
@@ -318,14 +316,17 @@ sub syncDirToGroup {
 
         if( -d $dir){
             print("INFO: Sync '$dir/' to $runnerIp:'$dir/'.\n");
-            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dir' && rsync" '$dir/' $runnerIp:'$dir/'};
+            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dir' && rsync" . $runnerIp:'$dir/'};
             $ret = system($syncCmd);
             if ( $ret != 0 ) {
+                print("DEBUG: $syncCmd\n");
                 print("ERROR: Sync '$dir/' to $runnerIp:'$dir/' failed.\n");
                 last;
             }
         }
     }
+
+    chdir($cwd);
 
     if ( $ret > 255 ) {
         $ret = $ret >> 8;
