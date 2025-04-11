@@ -298,6 +298,42 @@ sub release2Env {
     return $ret;
 }
 
+sub syncDirToGroup {
+    my ( $self, $buildEnv, $dir ) = @_;
+
+    my $envName  = $buildEnv->{ENV_NAME};
+
+    my $myRunnerId  = $buildEnv->{RUNNER_ID};
+    my $runnerGroup = $buildEnv->{RUNNER_GROUP};
+
+    my $cwd = getcwd();
+    chdir($dir);
+
+    my $ret = 0;
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
+    while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
+        if ( $runnerId eq $myRunnerId ) {
+            next;
+        }
+
+        if( -d $dir){
+            print("INFO: Sync '$dir/' to $runnerIp:'$dir/'.\n");
+            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dir' && rsync" '$dir/' $runnerIp:'$dir/'};
+            $ret = system($syncCmd);
+            if ( $ret != 0 ) {
+                print("ERROR: Sync '$dir/' to $runnerIp:'$dir/' failed.\n");
+                last;
+            }
+        }
+    }
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
 sub cleanExpiredBuild {
     my ( $self, $buildEnv, $maxBuildCount ) = @_;
 
