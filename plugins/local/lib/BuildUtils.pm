@@ -301,8 +301,6 @@ sub release2Env {
 sub syncDirToGroup {
     my ( $self, $buildEnv, $dir ) = @_;
 
-    my $envName  = $buildEnv->{ENV_NAME};
-
     my $myRunnerId  = $buildEnv->{RUNNER_ID};
     my $runnerGroup = $buildEnv->{RUNNER_GROUP};
 
