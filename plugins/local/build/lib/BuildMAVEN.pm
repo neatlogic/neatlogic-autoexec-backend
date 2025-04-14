@@ -187,9 +187,9 @@ sub build {
         }
     }
 
-    if ($ret eq 0 and $hasInstall == 1){
-        $ret = syncMvnInstall($prjPath, $m2LocalRepo);
-    }
+    # if ($ret eq 0 and $hasInstall == 1){
+    #     $ret = syncMvnInstall($prjPath, $m2LocalRepo);
+    # }
 
     if ( $ret > 255 ) {
         $ret = $ret >> 8;
