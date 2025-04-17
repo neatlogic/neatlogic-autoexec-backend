@@ -25,6 +25,12 @@ def print_placeholder_map(placeholder_map):
     打印占位符映射
     :param placeholder_map: 占位符映射字典
     """
+    max_len = 0
+    for placeholder, value in placeholder_map.items():
+        key_len = len(placeholder) - 4
+        if key_len > max_len:
+            max_len = key_len
+
     for placeholder, value in placeholder_map.items():
         key_name = placeholder[2:-2]
         is_password = False
@@ -38,7 +44,7 @@ def print_placeholder_map(placeholder_map):
         if len(value.split("\n")) > 1:
             is_multi_line = True
 
-        key_name = key_name.ljust(25)
+        key_name = key_name.ljust(max_len)
         if is_password:
             print(f"password: {key_name} = {value}")
         elif is_multi_line:
