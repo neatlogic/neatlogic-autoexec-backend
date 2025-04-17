@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+use strict;
+use FindBin;
+use Getopt::Long;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname --name ContanerName\n");
+    print("\n");
+    print("       --name:    ContainerName\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $name, $timeout );
+    $timeout = 10;
+    GetOptions(
+        'name:s'    => \$name,
+        'timeout:d' => \$timeout
+    );
+
+    if ( not defined($name) )
+    {
+        usage();
+    }
+
+    my $isRoot = 0;
+    if ( $< == 0 ) {
+        $isRoot = 1;
+    }
+   
+    my $cmd = qq{docker stop -t $timeout "$name"};
+    if ( $isRoot == 1 ) {
+        $cmd = "sudo " . $cmd;
+    }
+
+    print("INFO: Execute->$cmd\n");
+    my $ret = system($cmd );
+
+    if ( $ret eq 0 ) {
+        print("INFO: Docker stop success.\n");
+    }
+    else {
+        print("ERROR: Docker stop failed, container:$name not exists.\n");
+    }
+
+    return ($ret);
+}
+
+exit main();
