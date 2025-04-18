@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 import os
 import time
@@ -19,7 +19,7 @@ class JobPurger:
 
     def purgeEmptyJobDir(self, jobPath):
         startPath = Path(jobPath).parent
-        while startPath.name != 'job':
+        while startPath.name != "job":
             try:
                 os.rmdir(startPath)
             except:
@@ -32,14 +32,14 @@ class JobPurger:
                 if item.is_dir():
                     self.purgeJob(item)
                 else:
-                    if item.name == 'params.json':
+                    if item.name == "params.json":
                         paramFile = item.path
                         jobIdPath = paramFile[0:-12]
                         jobMtime = os.stat(paramFile).st_mtime
                         if self.nowTime - jobMtime > self.reserveSeconds:
                             shutil.rmtree(jobIdPath)
                             self.purgeEmptyJobDir(jobIdPath)
-                            print("INFO: Remove job dictory:" + jobIdPath + "\n", end='')
+                            print("INFO: Remove job dictory:" + jobIdPath + "\n", end="")
 
     def delExpiredLog(self, hislogRoot):
         for item in os.scandir(hislogRoot):
@@ -47,18 +47,18 @@ class JobPurger:
                 fileMtime = os.stat(item.path).st_mtime
                 if self.nowTime - fileMtime > self.reserveSeconds:
                     os.unlink(item.path)
-                    print("INFO: Remove expired history log:" + item.path + "\n", end='')
+                    print("INFO: Remove expired history log:" + item.path + "\n", end="")
 
     def purgeHisLog(self, absRoot):
         for item in os.scandir(absRoot):
             if item.is_dir():
-                if item.name.endswith('.hislog'):
+                if item.name.endswith(".hislog"):
                     self.delExpiredLog(item.path)
                 else:
                     self.purgeHisLog(item)
 
     def purge(self):
-        jobPath = self.context.dataPath + '/job'
+        jobPath = self.context.dataPath + "/job"
         self.jobDirIdx = len(jobPath) + 1
         self.purgeJob(jobPath)
         self.purgeHisLog(jobPath)

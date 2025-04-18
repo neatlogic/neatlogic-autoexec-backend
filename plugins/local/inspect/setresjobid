@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import argparse
@@ -9,8 +9,8 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--outputfile', default='', help='Output json file path for node')
-    parser.add_argument('--node', default='', help='Execution node json')
+    parser.add_argument("--outputfile", default="", help="Output json file path for node")
+    parser.add_argument("--node", default="", help="Execution node json")
     args = parser.parse_args()
     outputPath = args.outputfile
     node = args.node
@@ -18,9 +18,9 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None or node == '':
-            node = os.getenv('AUTOEXEC_NODE')
-        if node is None or node == '':
+        if node is None or node == "":
+            node = os.getenv("AUTOEXEC_NODE")
+        if node is None or node == "":
             print("ERROR: Can not find node definition.\n")
             hasOptError = True
         else:
@@ -29,12 +29,12 @@ if __name__ == "__main__":
         if hasOptError:
             exit(1)
 
-        resourceId = nodeInfo['resourceId']
-        jobId = os.getenv('AUTOEXEC_JOBID')
+        resourceId = nodeInfo["resourceId"]
+        jobId = os.getenv("AUTOEXEC_JOBID")
         if jobId is None:
             print("ERROR: Can not find jobid in environment AUTOEXEC_JOBID.")
             exit(1)
-        phaseName = os.getenv('AUTOEXEC_PHASE_NAME')
+        phaseName = os.getenv("AUTOEXEC_PHASE_NAME")
         if phaseName is None:
             print("ERROR: Can not find phase name in environment AUTOEXEC_PHASE_NAME.")
             exit(1)
@@ -42,5 +42,5 @@ if __name__ == "__main__":
         AutoExecUtils.setResourceInspectJobId(int(resourceId), int(jobId), phaseName)
         print("INFO: Set current node({}) job({}) success.".format(resourceId, jobId, phaseName))
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
         exit(-1)

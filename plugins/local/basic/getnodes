@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import sys
@@ -7,12 +7,12 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--phasename', default='', help='Phase name')
+    parser.add_argument("--phasename", default="", help="Phase name")
     args = parser.parse_args()
     phaseName = args.phasename
 
     hasOptError = False
-    if phaseName == '':
+    if phaseName == "":
         hasOptError = True
         print("ERROR: Must define phase name by option --phasename")
 
@@ -20,6 +20,6 @@ if __name__ == "__main__":
         sys.exit(2)
 
     out = {}
-    out['nodes'] = AutoExecUtils.getNodesArray(phaseName=phaseName)
+    out["nodes"] = AutoExecUtils.getNodesArray(phaseName=phaseName)
 
     AutoExecUtils.saveOutput(out)

@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
- 提供读取节点文件，遍历节点，更新节点运行状态功能
+Copyright © 2017 NeatLogic
+提供读取节点文件，遍历节点，更新节点运行状态功能
 """
 import os
 import json
@@ -38,10 +38,10 @@ class RunNodeFactory:
         self.jobRunnerCount = 0
         try:
             nodesDescObj = json.loads(line)
-            self.nodesCount = int(nodesDescObj['totalCount'])
+            self.nodesCount = int(nodesDescObj["totalCount"])
             self.totalNodesCount = self.nodesCount
-            self.localRunnerId = nodesDescObj['localRunnerId']
-            self.jobRunnerIds = nodesDescObj['jobRunnerIds']
+            self.localRunnerId = nodesDescObj["localRunnerId"]
+            self.jobRunnerIds = nodesDescObj["jobRunnerIds"]
             self.jobRunnerCount = len(self.jobRunnerIds)
         except:
             pass
@@ -86,58 +86,58 @@ class RunNodeFactory:
             line = self.nodesFile.readline()
             if not line:
                 break
-            if line.strip() != '':
+            if line.strip() != "":
                 if runnerId is None:
                     nodeObj = json.loads(line)
                     if self.context.nodesToRun is not None:
-                        if nodeObj.get('resourceId') in self.context.nodesToRun:
+                        if nodeObj.get("resourceId") in self.context.nodesToRun:
                             break
                     else:
                         break
                 else:
                     nodeObj = json.loads(line)
-                    if nodeObj['runnerId'] == runnerId:
+                    if nodeObj["runnerId"] == runnerId:
                         if self.context.nodesToRun is not None:
-                            if nodeObj.get('resourceId') in self.context.nodesToRun:
+                            if nodeObj.get("resourceId") in self.context.nodesToRun:
                                 break
                         else:
                             break
 
         if line:
-            if 'password' in nodeObj:
-                password = nodeObj['password']
-                if password[0:11] == '{ENCRYPTED}':
+            if "password" in nodeObj:
+                password = nodeObj["password"]
+                if password[0:11] == "{ENCRYPTED}":
                     password = Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
-                elif password[0:5] == '{RC4}':
+                elif password[0:5] == "{RC4}":
                     password = Utils._rc4_decrypt_hex(self.context.passKey, password[5:])
-                elif password[0:4] == 'RC4:':
+                elif password[0:4] == "RC4:":
                     password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
-                nodeObj['password'] = password
+                nodeObj["password"] = password
             else:
-                nodeObj['password'] = ''
+                nodeObj["password"] = ""
 
-            if 'username' not in nodeObj:
-                nodeObj['username'] = 'none'
+            if "username" not in nodeObj:
+                nodeObj["username"] = "none"
 
-            protocol = nodeObj.get('protocol')
-            protocolPort = nodeObj.get('protocolPort')
-            servicePorts = nodeObj.get('servicePorts')
+            protocol = nodeObj.get("protocol")
+            protocolPort = nodeObj.get("protocolPort")
+            servicePorts = nodeObj.get("servicePorts")
 
             if servicePorts is not None:
                 servicePort = servicePorts.get(protocol)
-                if servicePort is not None and servicePort != '':
+                if servicePort is not None and servicePort != "":
                     protocolPort = servicePort
 
-            if protocol.startswith('tagent.'):
-                nodeObj['protocol'] = 'tagent'
+            if protocol.startswith("tagent."):
+                nodeObj["protocol"] = "tagent"
                 protocolPortTxt = protocol[7:]
-                if protocolPortTxt != '':
+                if protocolPortTxt != "":
                     protocolPort = int(protocolPortTxt)
 
-            if protocolPort is None or protocolPort == '':
-                protocolPort = nodeObj.get('port', 0)
+            if protocolPort is None or protocolPort == "":
+                protocolPort = nodeObj.get("port", 0)
 
-            nodeObj['protocolPort'] = protocolPort
+            nodeObj["protocolPort"] = protocolPort
         else:
             self.cleared = True
             nodeObj = None

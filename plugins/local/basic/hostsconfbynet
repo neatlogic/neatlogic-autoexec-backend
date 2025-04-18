@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env python3 -u
 # -*- coding: utf-8 -*-
 
 import os
@@ -21,17 +21,17 @@ if __name__ == "__main__":
     # 参数处理
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--nameprefix', default='', help='Cluster node host name prefix')
-    parser.add_argument('--net', default='', help='Config which ip in net with this hostname, example: 10.10.10.0/24')
-    parser.add_argument('--nodesipinfo', default='{}', help='All nodes ip information')
+    parser.add_argument("--nameprefix", default="", help="Cluster node host name prefix")
+    parser.add_argument("--net", default="", help="Config which ip in net with this hostname, example: 10.10.10.0/24")
+    parser.add_argument("--nodesipinfo", default="{}", help="All nodes ip information")
 
     args = parser.parse_args()
 
     hasOptError = 0
-    if args.nameprefix == '':
+    if args.nameprefix == "":
         print("ERROR: Must defined host name preifx by option --nameprefix")
         hasOptError = 1
-    if args.net == '':
+    if args.net == "":
         print("ERROR: Must defined net by option --net, example: --net 10.10.10.0/24\n")
         hasOptError = 1
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     hasError = 0
 
-    hostConfTxt = ''
+    hostConfTxt = ""
 
     pubNicName = None
     privNicName = None
@@ -64,11 +64,11 @@ if __name__ == "__main__":
     for nodeIp in nodeIps:
         matchedIp = None
         for nodeIpInfo in nodesIpInfo.get(nodeIp):
-            nicName = nodeIpInfo.get('nic')
-            ip = nodeIpInfo.get('ip')
-            prefixLen = nodeIpInfo.get('netmask')
+            nicName = nodeIpInfo.get("nic")
+            ip = nodeIpInfo.get("ip")
+            prefixLen = nodeIpInfo.get("netmask")
 
-            thisNet = ipaddress.ip_network('%s/%s' % (ip, prefixLen), strict=False)
+            thisNet = ipaddress.ip_network("%s/%s" % (ip, prefixLen), strict=False)
 
             if ipaddress.ip_address(ip) in net:
                 if matchedIp is None:
@@ -78,18 +78,17 @@ if __name__ == "__main__":
             hasError = 1
             print("ERROR: Node:%s does not config network:%s ip" % (nodeIp, netTxt))
         else:
-            matchedIpConf.append('%s\t%s%s' % (matchedIp, hostNamePrefix, idx))
-            hostNameMap[matchedIp] = '%s%s' % (hostNamePrefix, idx)
+            matchedIpConf.append("%s\t%s%s" % (matchedIp, hostNamePrefix, idx))
+            hostNameMap[matchedIp] = "%s%s" % (hostNamePrefix, idx)
         idx = idx + 1
-
 
     hostConfTxt = "\n".join(matchedIpConf) + "\n"
     hostConfTxt = "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6\n" + hostConfTxt
     hostConfTxt = "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n" + hostConfTxt
 
     out = {}
-    out['hostNames'] = hostNameMap
-    out['hostsConfTxt'] = hostConfTxt
+    out["hostNames"] = hostNameMap
+    out["hostsConfTxt"] = hostConfTxt
 
     AutoExecUtils.saveOutput(out)
 

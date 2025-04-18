@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import os
@@ -28,28 +28,24 @@ class VplexCollector:
 
         self.initiatorsMap = {}
 
-        self.headers = {'user-agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
-                        'Content-type': 'application/json; charset=utf-8',
-                        'Accept': 'application/json;format=0;prettyprint=1',
-                        'username': userName,
-                        'password': password}
+        self.headers = {"user-agent": "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)", "Content-type": "application/json; charset=utf-8", "Accept": "application/json;format=0;prettyprint=1", "username": userName, "password": password}
 
     def wwnAddColon(self, wwn):
-        pattern = re.compile('.{2}')
-        return ':'.join(pattern.findall(wwn))
+        pattern = re.compile(".{2}")
+        return ":".join(pattern.findall(wwn))
 
     def parseTableHeader(self, headerLines, fieldLenArray):
         head = []
         for fieldLen in fieldLenArray:
-            head.append('')
+            head.append("")
 
         for line in headerLines:
-            if line == '':
+            if line == "":
                 continue
             pos = 0
             for k in range(0, len(fieldLenArray)):
                 fieldLen = fieldLenArray[k]
-                head[k] = head[k] + line[pos:pos+fieldLen].strip() + ' '
+                head[k] = head[k] + line[pos : pos + fieldLen].strip() + " "
                 pos = pos + fieldLen
 
         for k in range(0, len(head)):
@@ -60,14 +56,14 @@ class VplexCollector:
     def parseTableBody(self, bodyLines, fieldLenArray):
         body = []
         for line in bodyLines:
-            if line == '':
+            if line == "":
                 continue
 
             record = []
             pos = 0
             for k in range(0, len(fieldLenArray)):
                 fieldLen = fieldLenArray[k]
-                record.append(line[pos:pos+fieldLen].strip())
+                record.append(line[pos : pos + fieldLen].strip())
                 pos = pos + fieldLen
 
             body.append(record)
@@ -83,19 +79,19 @@ class VplexCollector:
         for idx in range(0, lineCount):
             line = lines[idx]
             headerLines.append(line)
-            if re.match(r'^[- ]+$', line):
-                for placeholder in line.split('  '):
+            if re.match(r"^[- ]+$", line):
+                for placeholder in line.split("  "):
                     fieldLenArray.append(len(placeholder) + 2)
                 headerLines.pop()
                 break
 
         head = self.parseTableHeader(headerLines, fieldLenArray)
-        body = self.parseTableBody(lines[idx+1:], fieldLenArray)
+        body = self.parseTableBody(lines[idx + 1 :], fieldLenArray)
 
         return (head, body)
 
     def getContext(self, contextDir):
-        url = self.baseUrl + '/' + contextDir
+        url = self.baseUrl + "/" + contextDir
         try:
             response = requests.get(url, verify=False, headers=self.headers, cookies=self.cookieJar)
             resObj = response.json()
@@ -105,13 +101,13 @@ class VplexCollector:
             print("ERROR: ", errorMsg)
 
     def execCommand(self, command, args):
-        tmp = urllib.parse.urlencode({'x': command})
-        url = self.baseUrl + '/' + tmp[2:]
+        tmp = urllib.parse.urlencode({"x": command})
+        url = self.baseUrl + "/" + tmp[2:]
         resObj = {}
         try:
             response = requests.post(url, verify=False, data=json.dumps(args), headers=self.headers, cookies=self.cookieJar)
             if response.status_code == 202:
-                resultUrl = response.headers['Location']
+                resultUrl = response.headers["Location"]
                 statusCode = 517
                 while statusCode == 517:
                     res = requests.get(resultUrl, verify=False, headers=self.headers, cookies=self.cookieJar)
@@ -135,32 +131,32 @@ class VplexCollector:
     # Cluster Witness Server Software  D35.55.0.3      Built against GeoSynchrony
     #                                                 version - D35.55.0.3
     def getVersion(self):
-        versionRes = self.execCommand('version', {})
-        verTxt = versionRes['response']['custom-data']
-        verLines = verTxt.split('\n')
+        versionRes = self.execCommand("version", {})
+        verTxt = versionRes["response"]["custom-data"]
+        verLines = verTxt.split("\n")
         for line in verLines:
-            matchObj = re.match(r'Product Version\s+([\d\.]+)', line)
+            matchObj = re.match(r"Product Version\s+([\d\.]+)", line)
             if matchObj:
                 version = matchObj.group(1)
-                self.data['VERSION'] = version
+                self.data["VERSION"] = version
 
     def getEnginesInfo(self):
-        enginsObj = self.getContext('/engines')
-        engins = enginsObj['response']['context'][0]['children']
+        enginsObj = self.getContext("/engines")
+        engins = enginsObj["response"]["context"][0]["children"]
 
         serialNumbers = {}
         enginsArray = []
         for aEngine in engins:
-            if aEngine['type'] != 'engine':
+            if aEngine["type"] != "engine":
                 continue
 
-            enginCtx = self.getContext('/engines/' + aEngine['name'])
-            enginAttrs = enginCtx['response']['context'][0]['attributes']
+            enginCtx = self.getContext("/engines/" + aEngine["name"])
+            enginAttrs = enginCtx["response"]["context"][0]["attributes"]
 
             enginInfo = {}
             for enginAttr in enginAttrs:
-                enginInfo[enginAttr['name']] = enginAttr['value']
-            serialNumbers[enginInfo['top-level-assembly']] = 1
+                enginInfo[enginAttr["name"]] = enginAttr["value"]
+            serialNumbers[enginInfo["top-level-assembly"]] = 1
             enginsArray.append(enginInfo)
 
         serialNumberList = []
@@ -168,47 +164,47 @@ class VplexCollector:
             serialNumberList.append(serialNumber)
 
         serialNumberList.sort()
-        self.data['SN'] = ','.join(serialNumberList)
-        self.data['ENGINS'] = enginsArray
+        self.data["SN"] = ",".join(serialNumberList)
+        self.data["ENGINS"] = enginsArray
 
     def getClusterNames(self):
-        resObj = self.getContext('clusters')
-        clusters = resObj['response']['context'][0]['children']
+        resObj = self.getContext("clusters")
+        clusters = resObj["response"]["context"][0]["children"]
         clusterNames = []
         for cluster in clusters:
-            clusterNames.append(cluster['name'])
+            clusterNames.append(cluster["name"])
         return clusterNames
 
     def getInitiators(self, clusterNames):
         initiatorsMap = {}
         for clusterName in clusterNames:
-            initiatorsObj = self.getContext('clusters/' + clusterName + '/exports/initiator-ports')
-            initiators = initiatorsObj['response']['context'][0]['children']
+            initiatorsObj = self.getContext("clusters/" + clusterName + "/exports/initiator-ports")
+            initiators = initiatorsObj["response"]["context"][0]["children"]
 
             initiatorAttrs = []
             for initiator in initiators:
-                initiatorName = initiator['name']
-                initiatorObj = self.getContext('clusters/' + clusterName + '/exports/initiator-ports/' + initiatorName)
-                initiatorAttrs = initiatorObj['response']['context'][0]['attributes']
+                initiatorName = initiator["name"]
+                initiatorObj = self.getContext("clusters/" + clusterName + "/exports/initiator-ports/" + initiatorName)
+                initiatorAttrs = initiatorObj["response"]["context"][0]["attributes"]
 
                 initiatorInfo = {}
                 for attr in initiatorAttrs:
-                    initiatorInfo[attr['name']] = attr['value']
-                initiatorsMap[initiatorInfo['name']] = initiatorInfo
+                    initiatorInfo[attr["name"]] = attr["value"]
+                initiatorsMap[initiatorInfo["name"]] = initiatorInfo
 
         return initiatorsMap
 
     def parseSizeStr(self, sizeStr):
         size = sizeStr
-        matchObj = re.match(r'(\d+)([MGTP]?)', sizeStr, re.IGNORECASE)
+        matchObj = re.match(r"(\d+)([MGTP]?)", sizeStr, re.IGNORECASE)
         if matchObj:
             size = float(matchObj.group(1))
             unit = matchObj.group(2).upper()
-            if unit == 'M':
+            if unit == "M":
                 size = round(size / 1000, 2)
-            elif unit == 'T':
+            elif unit == "T":
                 size = size * 1000
-            elif unit == 'P':
+            elif unit == "P":
                 size = size * 1000 * 1000
         return size
 
@@ -217,56 +213,42 @@ class VplexCollector:
 
         volsMap = {}
         for clusterName in clusterNames:
-            viewsObj = self.getContext('clusters/' + clusterName + '/exports/storage-views')
-            views = viewsObj['response']['context'][0]['children']
+            viewsObj = self.getContext("clusters/" + clusterName + "/exports/storage-views")
+            views = viewsObj["response"]["context"][0]["children"]
 
             viewAttrs = []
             for view in views:
-                viewName = view['name']
-                viewObj = self.getContext('clusters/' + clusterName + '/exports/storage-views/' + viewName)
-                viewAttrs = viewObj['response']['context'][0]['attributes']
+                viewName = view["name"]
+                viewObj = self.getContext("clusters/" + clusterName + "/exports/storage-views/" + viewName)
+                viewAttrs = viewObj["response"]["context"][0]["attributes"]
 
             viewInfo = {}
             for attr in viewAttrs:
-                viewInfo[attr['name']] = attr['value']
+                viewInfo[attr["name"]] = attr["value"]
 
-            #volsMap[viewInfo['name']] = viewInfo
-            for volsLine in viewInfo.get('virtual-volumes'):
+            # volsMap[viewInfo['name']] = viewInfo
+            for volsLine in viewInfo.get("virtual-volumes"):
                 volInfo = {}
-                volAttrs = volsLine[1:-1].split(',')
+                volAttrs = volsLine[1:-1].split(",")
                 volName = volAttrs[1]
                 volInfo = volsMap.get(volName)
                 volSize = self.parseSizeStr(volAttrs[3])
 
                 if volInfo is None:
-                    volInfo = {
-                        'NAME': volName,
-                        'ID': volAttrs[0],
-                        'WWN': volAttrs[2],
-                        'CAPACITY': volSize,
-                        'VISABLE_GROUPS': [],
-                        'VISABLE_INITIATORS': []
-                    }
+                    volInfo = {"NAME": volName, "ID": volAttrs[0], "WWN": volAttrs[2], "CAPACITY": volSize, "VISABLE_GROUPS": [], "VISABLE_INITIATORS": []}
                     volsMap[volName] = volInfo
 
-                volInfo['VISABLE_GROUPS'].append(viewInfo['name'])
+                volInfo["VISABLE_GROUPS"].append(viewInfo["name"])
 
-                for visInitiator in viewInfo.get('initiators'):
+                for visInitiator in viewInfo.get("initiators"):
                     hbaInfo = initiatorsMap.get(visInitiator)
                     if hbaInfo:
-                        volInfo['VISABLE_INITIATORS'].append(
-                            {
-                                'NAME': hbaInfo['name'],
-                                'WWNN': self.wwnAddColon(hbaInfo['node-wwn'][2:]),
-                                'WWPN': self.wwnAddColon(hbaInfo['port-wwn'][2:]),
-                                'TYPE': hbaInfo['type']
-                            }
-                        )
+                        volInfo["VISABLE_INITIATORS"].append({"NAME": hbaInfo["name"], "WWNN": self.wwnAddColon(hbaInfo["node-wwn"][2:]), "WWPN": self.wwnAddColon(hbaInfo["port-wwn"][2:]), "TYPE": hbaInfo["type"]})
 
             luns = []
             for k, v in volsMap.items():
                 luns.append(v)
-            self.data['LUNS'] = luns
+            self.data["LUNS"] = luns
 
         return volsMap
 
@@ -275,76 +257,76 @@ class VplexCollector:
         summarys = []
 
         for clusterName in clusterNames:
-            storVolSummaryRes = self.execCommand('storage-volume summary', {'args': '--clusters ' + clusterName})
-            cmdOut = storVolSummaryRes['response']['custom-data']
-            outLines = cmdOut.split('\n')
+            storVolSummaryRes = self.execCommand("storage-volume summary", {"args": "--clusters " + clusterName})
+            cmdOut = storVolSummaryRes["response"]["custom-data"]
+            outLines = cmdOut.split("\n")
             idx = 0
             for idx in range(0, len(outLines)):
                 line = outLines[idx]
-                if re.match(r'Storage-Volume Summary', line):
+                if re.match(r"Storage-Volume Summary", line):
                     break
             if idx > 0:
                 (head, body) = self.parseTable(outLines[0:idx])
                 for record in body:
                     unhealthVolInfo = {}
                     for k in range(0, len(head)):
-                        if head[k] == 'StorageVolume Name':
-                            unhealthVolInfo['NAME'] = record[k]
-                        elif head[k] == 'IO Status':
-                            unhealthVolInfo['IO_STATUS'] = record[k]
-                        elif head[k] == 'Operational Status':
-                            unhealthVolInfo['OPER_STATUS'] = record[k]
-                        elif head[k] == 'Health State':
-                            unhealthVolInfo['HEALTH_STATE'] = record[k]
+                        if head[k] == "StorageVolume Name":
+                            unhealthVolInfo["NAME"] = record[k]
+                        elif head[k] == "IO Status":
+                            unhealthVolInfo["IO_STATUS"] = record[k]
+                        elif head[k] == "Operational Status":
+                            unhealthVolInfo["OPER_STATUS"] = record[k]
+                        elif head[k] == "Health State":
+                            unhealthVolInfo["HEALTH_STATE"] = record[k]
                     unhealthVols.append(unhealthVolInfo)
 
             (head, body) = self.parseTable(outLines[idx:])
             summaryInfo = {}
-            summaryInfo['CLUSTER_NAME'] = clusterName
+            summaryInfo["CLUSTER_NAME"] = clusterName
             vendorInfos = []
-            summaryInfo['VENDOR'] = vendorInfos
+            summaryInfo["VENDOR"] = vendorInfos
             preFType = None
             for record in body:
                 fType = record[0]
-                subSegs = re.split('\s+', record[1])
-                if fType == '':
+                subSegs = re.split("\s+", record[1])
+                if fType == "":
                     fType = preFType
-                if fType == 'Vendor':
-                    vendorInfos.append({'NAME': subSegs[0], 'VOLUME_COUNT': int(subSegs[1])})
-                elif fType == 'Capacity':
-                    summaryInfo['CAPACITY'] = subSegs[1]
+                if fType == "Vendor":
+                    vendorInfos.append({"NAME": subSegs[0], "VOLUME_COUNT": int(subSegs[1])})
+                elif fType == "Capacity":
+                    summaryInfo["CAPACITY"] = subSegs[1]
                 else:
                     summaryInfo[subSegs[0].upper()] = int(subSegs[1])
 
             summarys.append(summaryInfo)
 
-        self.data['STORAGE_VOLUMES_UNHEALTH'] = unhealthVols
-        self.data['STORAGE_VOLUME_SUMMARY'] = summarys
+        self.data["STORAGE_VOLUMES_UNHEALTH"] = unhealthVols
+        self.data["STORAGE_VOLUME_SUMMARY"] = summarys
 
     def getStorageArrays(self, clusterNames):
         storArrayInfos = []
         for clusterName in clusterNames:
-            storArraysObj = self.getContext('clusters/' + clusterName + '/storage-elements/storage-arrays')
-            storArrays = storArraysObj['response']['context'][0]['children']
+            storArraysObj = self.getContext("clusters/" + clusterName + "/storage-elements/storage-arrays")
+            storArrays = storArraysObj["response"]["context"][0]["children"]
 
             storArrayAttrs = []
             for storArray in storArrays:
-                storArrayName = storArray['name']
-                storArrayObj = self.getContext('clusters/' + clusterName + '/storage-elements/storage-arrays/' + storArrayName)
-                storArrayAttrs = storArrayObj['response']['context'][0]['attributes']
+                storArrayName = storArray["name"]
+                storArrayObj = self.getContext("clusters/" + clusterName + "/storage-elements/storage-arrays/" + storArrayName)
+                storArrayAttrs = storArrayObj["response"]["context"][0]["attributes"]
 
             storArrayInfo = {}
             for attr in storArrayAttrs:
-                storArrayInfo[attr['name'].upper()] = attr['value']
+                storArrayInfo[attr["name"].upper()] = attr["value"]
             storArrayInfos.append(storArrayInfo)
 
-        self.data['STORAGE_ARRAYS'] = storArrayInfos
+        self.data["STORAGE_ARRAYS"] = storArrayInfos
 
         return storArrayInfos
 
     def healthCheck(self):
-        healthRes = self.execCommand('health-check', {'args': '--highlevel'})
-        self.data['HEALTH_CHECK'] = healthRes['response']['custom-data']
+        healthRes = self.execCommand("health-check", {"args": "--highlevel"})
+        self.data["HEALTH_CHECK"] = healthRes["response"]["custom-data"]
 
     def collect(self):
         # self.getVersion()
@@ -367,13 +349,13 @@ class VplexCollector:
             print("INFO: Try to do health check.\n")
             self.healthCheck()
 
-        self.data['_OBJ_CATEGORY'] = 'STORAGE'
-        self.data['_OBJ_TYPE'] = 'Virtual_Storage'
-        self.data['BRAND'] = 'EMC'
-        self.data['VENDOR'] = 'EMC'
-        self.data['MODEL'] = 'VPLEX'
-        self.data['APP_TYPE'] = 'VPLEX'
-        self.data['PK'] = ['MGMT_IP']
+        self.data["_OBJ_CATEGORY"] = "STORAGE"
+        self.data["_OBJ_TYPE"] = "Virtual_Storage"
+        self.data["BRAND"] = "EMC"
+        self.data["VENDOR"] = "EMC"
+        self.data["MODEL"] = "VPLEX"
+        self.data["APP_TYPE"] = "VPLEX"
+        self.data["PK"] = ["MGMT_IP"]
 
         print("INFO: Information collcted.\n")
         return self.data
@@ -385,11 +367,11 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--verbose', default=0, help='Verbose')
-    parser.add_argument('--timeout', default=10, help='Timeout seconds')
-    parser.add_argument('--inspect', default=0, help='Health check')
-    parser.add_argument('otherthings', nargs=argparse.REMAINDER)
+    parser.add_argument("--node", default="", help="Execution node json")
+    parser.add_argument("--verbose", default=0, help="Verbose")
+    parser.add_argument("--timeout", default=10, help="Timeout seconds")
+    parser.add_argument("--inspect", default=0, help="Health check")
+    parser.add_argument("otherthings", nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
 
@@ -405,9 +387,9 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None or node == '':
-            node = os.getenv('AUTOEXEC_NODE')
-        if node is None or node == '':
+        if node is None or node == "":
+            node = os.getenv("AUTOEXEC_NODE")
+        if node is None or node == "":
             print("ERROR: Can not find node definition.")
             hasOptError = True
         else:
@@ -418,17 +400,17 @@ if __name__ == "__main__":
 
         hasError = False
 
-        ip = nodeInfo['host']
-        #port = nodeInfo['protocolPort']
-        username = nodeInfo['username']
-        password = nodeInfo['password']
+        ip = nodeInfo["host"]
+        # port = nodeInfo['protocolPort']
+        username = nodeInfo["username"]
+        password = nodeInfo["password"]
 
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        vplexCollector = VplexCollector('https://' + ip + '/vplex', username, password, timeOut, inspect)
+        vplexCollector = VplexCollector("https://" + ip + "/vplex", username, password, timeOut, inspect)
         data = vplexCollector.collect()
-        data['RESOURCE_ID'] = nodeInfo.get('resourceId')
-        data['MGMT_IP'] = nodeInfo.get('host')
-        out = {'DATA': [data]}
+        data["RESOURCE_ID"] = nodeInfo.get("resourceId")
+        data["MGMT_IP"] = nodeInfo.get("host")
+        out = {"DATA": [data]}
         AutoExecUtils.saveOutput(out)
         if verbose == 1:
             print(json.dumps(data, ensure_ascii=True, indent=4))

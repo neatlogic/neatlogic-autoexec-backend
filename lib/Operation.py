@@ -1,10 +1,10 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
- 对操作插件参数进行处理，依据插件的参数描述信息进行相关处理：
- 文件参数转换为对当前file子目录下文件路径名
- 密码参数进行解密
+Copyright © 2017 NeatLogic
+对操作插件参数进行处理，依据插件的参数描述信息进行相关处理：
+文件参数转换为对当前file子目录下文件路径名
+密码参数进行解密
 """
 from email.errors import HeaderMissingRequiredValue
 import os

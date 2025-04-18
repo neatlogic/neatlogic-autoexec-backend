@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from docx import Document
@@ -92,21 +92,9 @@ class wordManager:
             docroot = data["docroot"]
             if docroot is None or docroot == "NULL":
                 docroot = ""
-            text = (
-                "逻辑集合:"
-                + data["collection"]
-                + "\t逻辑集合根目录:"
-                + docroot
-                + "\n详细指标:"
-            )
+            text = "逻辑集合:" + data["collection"] + "\t逻辑集合根目录:" + docroot + "\n详细指标:"
             if self.lang != "zh_CN":
-                text = (
-                    "Logicalset:"
-                    + data["collection"]
-                    + "\tLogicalset Root:"
-                    + docroot
-                    + "\nDetail Attribute:"
-                )
+                text = "Logicalset:" + data["collection"] + "\tLogicalset Root:" + docroot + "\nDetail Attribute:"
         else:
             if self.lang != "zh_CN":
                 text = text + "Detail Attribute:"
@@ -243,9 +231,7 @@ if __name__ == "__main__":
         data_list = data_map[value]
         for data in data_list:
             # 具体类型
-            second_title = (
-                str(typecount) + "." + str(tcount) + data["label"].replace(" ", "")
-            )
+            second_title = str(typecount) + "." + str(tcount) + data["label"].replace(" ", "")
             if isVerbose == 1:
                 print("INFO:: Add chapter to word", data["label"])
             word.add_titile(doc, second_title, 2)

@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 import os
 import sys
@@ -24,7 +24,7 @@ def _rc4(key, data):
         y = (y + box[x]) % 256
         box[x], box[y] = box[y], box[x]
         out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
-    return ''.join(out)
+    return "".join(out)
 
 
 def _rc4_encrypt_hex(key, data):
@@ -53,11 +53,11 @@ def checkPidExists(pid):
 
 def getDateTimeStr():
     nowTime = time.localtime(time.time())
-    timeStr = '{}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}'.format(nowTime.tm_year, nowTime.tm_mon, nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec)
+    timeStr = "{}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(nowTime.tm_year, nowTime.tm_mon, nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec)
     return timeStr
 
 
 def getTimeStr():
     nowTime = time.localtime(time.time())
-    timeStr = '{:0>2d}:{:0>2d}:{:0>2d} '.format(nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec)
+    timeStr = "{:0>2d}:{:0>2d}:{:0>2d} ".format(nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec)
     return timeStr
