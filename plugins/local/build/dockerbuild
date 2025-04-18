@@ -19,7 +19,7 @@ sub usage {
     print("       --image:   Image name\n");
     print("       --tagname: Tag name.\n");
     print("       --project: Project\n");
-    print("       --architecture: docker run os architecture,includes: linux/amd64、linux/arm64")
+    print("       --architecture: docker run os architecture,includes: linux/amd64、linux/arm64");
 
     exit(-1);
 }
