@@ -1495,6 +1495,25 @@
             "reloadModules": true,
             "stopOnEntry": false,
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "setoutputdesc",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/plugins/local/inspect/setoutputdesc",
+            "env": {
+                "PYTHONPATH": "/Users/wenhb/git/autoexec/lib:$/Users/wenhb/git/autoexec/plib:/Users/wenhb/git/autoexec/plugins/local/lib",
+                "RUNNER_ID": "1",
+                "AUTOEXEC_TENANT": "develop",
+                "AUTOEXEC_JOBID": "736961878614016",
+                "AUTOEXEC_NODE": "{\"nodeName\":\"switch\",\"protocol\":\"ssh\",\"password\":\"TsSWpwd1207\",\"resourceId\":733926947348487,\"host\":\"192.168.0.1\",\"runnerId\":1,\"nodeType\":\"Router\",\"protocolPort\":22,\"username\":\"inspect\"}",
+                "AUTOEXEC_USER": "fccf704231734072a1bf80d90b2d1de2",
+                "HISTSIZE": "0",
+            },
+            "args": [
+                "#{RemoteExectarget3.demo-remote.py_1402156716400663.outtext}"
+            ],
+            "console": "integratedTerminal"
+        },
     ]
 }
