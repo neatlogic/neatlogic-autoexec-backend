@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 package FileUtils;
 use strict;
 use FindBin;

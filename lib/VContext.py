@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
- virtual context for serveradapter
+Copyright © 2017 NeatLogic
+virtual context for serveradapter
 """
 import os
 from filelock import FileLock

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 
 package SyncLocal2Remote;
@@ -202,7 +202,7 @@ sub allRemoteFiles {
         my $pmFileName = ".$inIP\_$instanceName\_update_$nowdate.pm";
         my $fh         = new IO::File("> /tmp/$pmFileName");
         die("ERROR: Create update script file:$pmFileName failed.\n") if ( not defined($fh) );
-        $cmd = "#!/usr/bin/perl
+        $cmd = "#!/usr/bin/env perl
       use FindBin;\nuse strict;\nuse warnings;\n" . $cmd;
         print $fh ($cmd);
         $fh->close();

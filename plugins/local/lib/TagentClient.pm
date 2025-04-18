@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";

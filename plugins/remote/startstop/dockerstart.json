@@ -1,0 +1,22 @@
+{
+    "opDesc": "启动Docker容器",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "在远程OS上启动已存在的Docker容器",
+    "enabled": 1,
+    "option": [{
+            "opt": "name",
+            "name": "容器名",
+            "help": "容器名称",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
+        }
+    ],
+    "argument": {},
+    "output": []
+}
