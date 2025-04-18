@@ -31,7 +31,7 @@ class RunNodeFactory:
         seqDescFilePath = nodesFilePath + ".desc"
         if os.path.isfile(seqDescFilePath):
             with open(seqDescFilePath) as seqDescFile:
-                self.seqDesc = json.load(seqDescFile.read())
+                self.seqDesc = json.load(seqDescFile)
                 seqDescFile.close()
         else:
             self.seqDesc = None
