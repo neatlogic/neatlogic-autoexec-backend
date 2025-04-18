@@ -31,7 +31,10 @@ class RunNodeFactory:
         seqDescFilePath = nodesFilePath + ".desc"
         if os.path.isfile(seqDescFilePath):
             with open(seqDescFilePath) as seqDescFile:
-                self.seqDesc = json.load(seqDescFile)
+                descContent = seqDescFile.read()
+                if descContent is None or descContent == "":
+                    descContent = '{"maxParallel": 1, "roundDef": []}'
+                self.seqDesc = json.loads(descContent)
                 seqDescFile.close()
         else:
             self.seqDesc = None
