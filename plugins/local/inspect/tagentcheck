@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import argparse
@@ -18,8 +18,8 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--timeout', default='', help='Output json file path for node')
+    parser.add_argument("--node", default="", help="Execution node json")
+    parser.add_argument("--timeout", default="", help="Output json file path for node")
 
     args = parser.parse_args()
     timeout = args.timeout
@@ -28,9 +28,9 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None or node == '':
-            node = os.getenv('AUTOEXEC_NODE')
-        if node is None or node == '':
+        if node is None or node == "":
+            node = os.getenv("AUTOEXEC_NODE")
+        if node is None or node == "":
             print("ERROR: Can not find node definition.\n")
             hasOptError = True
         else:
@@ -40,43 +40,39 @@ if __name__ == "__main__":
             usage()
             exit(1)
 
-        if timeout == '':
+        if timeout == "":
             timeout = 10
         else:
             timeout = int(timeout)
 
         errMsg = None
-        print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo['host'], nodeInfo['protocolPort']))
+        print("INFO: Try to connect to Tagent {}:{}.\n".format(nodeInfo["host"], nodeInfo["protocolPort"]))
         startTime = time.time()
-        tagent = TagentClient.TagentClient(nodeInfo['host'], nodeInfo['protocolPort'], nodeInfo['password'], connectTimeout=timeout, readTimeout=timeout, writeTimeout=timeout)
+        tagent = TagentClient.TagentClient(nodeInfo["host"], nodeInfo["protocolPort"], nodeInfo["password"], connectTimeout=timeout, readTimeout=timeout, writeTimeout=timeout)
 
-        port = nodeInfo.get('port')
+        port = nodeInfo.get("port")
         if port is not None:
             port = int(port)
 
-        data = {'MGMT_IP': nodeInfo.get('host'),
-                'PORT': port,
-                'RESOURCE_ID': nodeInfo.get('resourceId'),
-                'AVAILABILITY': 0
-                }
+        data = {"MGMT_IP": nodeInfo.get("host"), "PORT": port, "RESOURCE_ID": nodeInfo.get("resourceId"), "AVAILABILITY": 0}
 
         try:
             tagent.echo(None, "Agent logon success.\n", 1)
             timeConsume = round(time.time() - startTime, 4)
-            data['AVAILABILITY'] = 1
-            data['ERROR_MESSAGE'] = ''
-            data['RESPONSE_TIME'] = timeConsume
+            data["AVAILABILITY"] = 1
+            data["ERROR_MESSAGE"] = ""
+            data["RESPONSE_TIME"] = timeConsume
             print("FINE: Tagent logon succeed.\n")
         except Exception as ex:
             timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
-            data['AVAILABILITY'] = 0
-            data['ERROR_MESSAGE'] = errMsg
-            data['RESPONSE_TIME'] = timeConsume
+            data["AVAILABILITY"] = 0
+            data["ERROR_MESSAGE"] = errMsg
+            data["RESPONSE_TIME"] = timeConsume
             print("WARN: Tagent logon failed.\n")
 
-        out = {'DATA': data}
+        out = {"DATA": data}
         AutoExecUtils.saveOutput(out)
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
         exit(-1)

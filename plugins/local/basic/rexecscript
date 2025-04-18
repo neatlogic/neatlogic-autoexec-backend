@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import LocalRemoteExec
@@ -16,14 +16,14 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--protocol', default='ssh', help='Protocol')
-    parser.add_argument('--ip', default='', help='connect remote ip')
-    parser.add_argument('--port', default=22, help='connect remote port')
-    parser.add_argument('--username', default='', help='connect remote ip username')
-    parser.add_argument('--password', default='', help='connect remote ip password')
-    parser.add_argument('--interpreter', default='', help='custom script interpreter')
-    parser.add_argument('--script', default='', help='custom script')
-    parser.add_argument('param', nargs=argparse.REMAINDER, help="custom scrip dynamic param")
+    parser.add_argument("--protocol", default="ssh", help="Protocol")
+    parser.add_argument("--ip", default="", help="connect remote ip")
+    parser.add_argument("--port", default=22, help="connect remote port")
+    parser.add_argument("--username", default="", help="connect remote ip username")
+    parser.add_argument("--password", default="", help="connect remote ip password")
+    parser.add_argument("--interpreter", default="", help="custom script interpreter")
+    parser.add_argument("--script", default="", help="custom script")
+    parser.add_argument("param", nargs=argparse.REMAINDER, help="custom scrip dynamic param")
 
     args = parser.parse_args()
     ip = args.ip
@@ -34,11 +34,11 @@ if __name__ == "__main__":
     interpreter = args.interpreter
     param = args.param
 
-    if(ip is None or username is None or password is None):
+    if ip is None or username is None or password is None:
         print("ERROR:: Must defined remote ip 、username、password.")
         usage()
 
-    if(script is None):
+    if script is None:
         print("ERROR:: Must defined script or scriptid.")
         usage()
 
@@ -47,27 +47,27 @@ if __name__ == "__main__":
 
     exec = LocalRemoteExec.LocalRemoteExec()
     scriptDef = {}
-    scriptDef['script'] = script.replace('\\n', '\n')
-    scriptDef['config'] = {'parser': interpreter, 'scriptName': scriptName}
+    scriptDef["script"] = script.replace("\\n", "\n")
+    scriptDef["config"] = {"parser": interpreter, "scriptName": scriptName}
 
     nodeInfo = {}
-    nodeInfo['resourceId'] = '0000'
-    nodeInfo['host'] = ip
-    nodeInfo['protocol'] = args.protocol
-    nodeInfo['protocolPort'] = int(port)
-    nodeInfo['username'] = username
-    nodeInfo['password'] = password
+    nodeInfo["resourceId"] = "0000"
+    nodeInfo["host"] = ip
+    nodeInfo["protocol"] = args.protocol
+    nodeInfo["protocolPort"] = int(port)
+    nodeInfo["username"] = username
+    nodeInfo["password"] = password
 
-    params = ''
-    if (len(param) > 0):
-        for p in (param):
+    params = ""
+    if len(param) > 0:
+        for p in param:
             params = params + ' "' + p + '"'
 
     ret = False
-    errorMsg = ''
+    errorMsg = ""
     (ret, errorMsg) = exec._remoteExecute(nodeInfo, scriptDef, params)
     if ret:
-        print('INFO: Exec remote script success.')
+        print("INFO: Exec remote script success.")
     else:
-        print('ERROR: Exec remote script failed.')
+        print("ERROR: Exec remote script failed.")
         exit(1)

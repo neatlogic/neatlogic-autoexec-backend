@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
 import argparse
@@ -32,12 +32,12 @@ class IpmiManager:
             if not line:
                 break
 
-            if (skipLine > 0):
+            if skipLine > 0:
                 skipLine = skipLine - 1
                 continue
 
             line = line.strip()
-            line = line.decode('utf-8')
+            line = line.decode("utf-8")
             if result is None:
                 result = line
             else:
@@ -54,19 +54,19 @@ class IpmiManager:
                 break
 
             line = line.strip()
-            line = line.decode('utf-8')
+            line = line.decode("utf-8")
             if result is None:
                 result = line
             elif count == 0:
                 result = result + line
             else:
                 result = result + "\n" + line
-            count = count+1
+            count = count + 1
 
-        if (self.isVerbose == 1):
+        if self.isVerbose == 1:
             print("INFO::", result)
-        
-        if(result is not None and 'Unable to establish IPMI' in result ) :
+
+        if result is not None and "Unable to establish IPMI" in result:
             print("ERROR:: Not allow exec command , Maybe user account and password wrong or account permission denied.")
             exit(1)
         return result
@@ -74,7 +74,7 @@ class IpmiManager:
     # 传感器列表
     def getSdrList(self):
         result = self.runCmd("sdr type list", 1)
-        '''
+        """
         Sensor Types:
             Temperature               (0x01)   Voltage                   (0x02)
             Current                   (0x03)   Fan                       (0x04)
@@ -98,47 +98,36 @@ class IpmiManager:
             LAN                       (0x27)   Management Subsys Health  (0x28)
             Battery                   (0x29)   Session Audit             (0x2a)
             Version Change            (0x2b)   FRU State                 (0x2c)
-        '''
-        sdrMap = {
-            'Temperature': '0x01',
-            'Voltage': '0x02',
-            'Current': '0x03',
-            'Fan': '0x04',
-            'Processor': '0x07',
-            'Power Supply': '0x08',
-            'Power Unit': '0x09',
-            'Memory': '0x0c',
-            'Drive Slot / Bay': '0x0d',
-            'Cable / Interconnect': '0x1b'
-        }
+        """
+        sdrMap = {"Temperature": "0x01", "Voltage": "0x02", "Current": "0x03", "Fan": "0x04", "Processor": "0x07", "Power Supply": "0x08", "Power Unit": "0x09", "Memory": "0x0c", "Drive Slot / Bay": "0x0d", "Cable / Interconnect": "0x1b"}
 
         if len(result) == 0:
             return None
 
         rsMap = {}
-        rs = result.split('\n')
+        rs = result.split("\n")
         for line in rs:
-            if line == '':
+            if line == "":
                 continue
-            info = re.split(r'\s\s+', line)
-            rsMap[info[0].strip()] = (info[1].strip()).replace('(', '').replace(')', '')
-            if (len(info) > 2):
-                rsMap[info[2].strip()] = (info[3].strip()).replace('(', '').replace(')', '')
+            info = re.split(r"\s\s+", line)
+            rsMap[info[0].strip()] = (info[1].strip()).replace("(", "").replace(")", "")
+            if len(info) > 2:
+                rsMap[info[2].strip()] = (info[3].strip()).replace("(", "").replace(")", "")
 
         for key in sdrMap:
             rsVal = rsMap[key]
             if rsVal is not None and sdrMap[key] != rsVal:
                 rsMap[key] = rsVal
 
-        #处理key 
+        # 处理key
         newSdrMap = {}
         for key in sdrMap:
             value = sdrMap[key]
-            if ('/' in key ):
-                slen = key.index('/')
+            if "/" in key:
+                slen = key.index("/")
                 key = key[0:slen].strip()
-            if (' ' in key ) : 
-                key = key.strip().replace(' ', '_')
+            if " " in key:
+                key = key.strip().replace(" ", "_")
             newSdrMap[key] = value
         return newSdrMap
 
@@ -156,8 +145,8 @@ class IpmiManager:
         rs = self.split_blank_lines(result.strip())
         for block in rs:
             ins = {}
-            for line in block.split('\n'):
-                info = line.split(':')
+            for line in block.split("\n"):
+                info = line.split(":")
                 if len(info) > 1:
                     ins[info[0].strip()] = info[1].strip()
             sdrList.append(ins)
@@ -170,23 +159,23 @@ class IpmiManager:
         if result is None:
             return sdrList
 
-        rs = result.split('\n')
+        rs = result.split("\n")
         for line in rs:
             ins = {}
-            info = line.split('|')
+            info = line.split("|")
             if len(info) > 1:
-                ins['SENSOR_ID'] = info[0].strip()
-                ins['ENTITY_ID'] = info[3].strip()
-                if (type == "Temperature"):
-                    value = info[4].strip().replace('degrees C', '').replace('unspecified' , '')
+                ins["SENSOR_ID"] = info[0].strip()
+                ins["ENTITY_ID"] = info[3].strip()
+                if type == "Temperature":
+                    value = info[4].strip().replace("degrees C", "").replace("unspecified", "")
                     try:
                         value = int(value)
                     except Exception as ex:
                         value = 0
-                    ins['SENSOR_READING'] = value
+                    ins["SENSOR_READING"] = value
                 else:
-                    ins['SENSOR_READING'] = info[4].strip()
-                ins['STATUS'] = info[2].strip()
+                    ins["SENSOR_READING"] = info[4].strip()
+                ins["STATUS"] = info[2].strip()
                 sdrList.append(ins)
         return sdrList
 
@@ -199,90 +188,85 @@ class IpmiManager:
 
         rs = self.split_blank_lines(result.strip())
         for block in rs:
-            if ('Unknown FRU header' in block or 'Device not present' in block):
+            if "Unknown FRU header" in block or "Device not present" in block:
                 print("WARN::", block)
                 continue
 
             ins = {}
-            for line in block.split('\n'):
-                info = line.split(':')
+            for line in block.split("\n"):
+                info = line.split(":")
                 if len(info) < 1:
                     continue
 
                 key = info[0].strip()
                 value = info[1].strip()
 
-                if('FRU Device Description' in key):
-                    ins['FRU_DEVICE'] = value
+                if "FRU Device Description" in key:
+                    ins["FRU_DEVICE"] = value
 
-                elif('Board Mfg' in key):
-                    ins['BOARD_MFG'] = value
-                elif('Board Product' in key):
-                    ins['BOARD_PRODUCT'] = value
-                elif('Board Serial' in key):
-                    ins['BOARD_SERIAL'] = value
-                elif('Board Part Number' in key):
-                    ins['BOARD_NUMBER'] = value
+                elif "Board Mfg" in key:
+                    ins["BOARD_MFG"] = value
+                elif "Board Product" in key:
+                    ins["BOARD_PRODUCT"] = value
+                elif "Board Serial" in key:
+                    ins["BOARD_SERIAL"] = value
+                elif "Board Part Number" in key:
+                    ins["BOARD_NUMBER"] = value
 
-            if 'BOARD_NUMBER' not in ins:
-                ins['BOARD_NUMBER'] = ''
-            if 'BOARD_SERIAL' not in ins:
-                ins['BOARD_SERIAL'] = ''
-            if 'BOARD_PRODUCT' not in ins:
-                ins['BOARD_PRODUCT'] = ''
-            if 'BOARD_MFG' not in ins:
-                ins['BOARD_MFG'] = ''
+            if "BOARD_NUMBER" not in ins:
+                ins["BOARD_NUMBER"] = ""
+            if "BOARD_SERIAL" not in ins:
+                ins["BOARD_SERIAL"] = ""
+            if "BOARD_PRODUCT" not in ins:
+                ins["BOARD_PRODUCT"] = ""
+            if "BOARD_MFG" not in ins:
+                ins["BOARD_MFG"] = ""
             fruList.append(ins)
 
             # 主板
-            if '(ID 0)' in ins['FRU_DEVICE']:
-                data['BOARD_PRODUCT'] = ins['BOARD_PRODUCT']
-                data['BOARD_NUMBER'] = ins['BOARD_NUMBER']
-                data['BOARD_SERIAL'] = ins['BOARD_SERIAL']
-                data['MANUFACTURER'] = ins['BOARD_MFG']
+            if "(ID 0)" in ins["FRU_DEVICE"]:
+                data["BOARD_PRODUCT"] = ins["BOARD_PRODUCT"]
+                data["BOARD_NUMBER"] = ins["BOARD_NUMBER"]
+                data["BOARD_SERIAL"] = ins["BOARD_SERIAL"]
+                data["MANUFACTURER"] = ins["BOARD_MFG"]
 
         return fruList
 
     # 主板状态
     def getChassisStatus(self, ins):
-        result = self.runCmd('chassis status')
-        rs = result.split('\n')
+        result = self.runCmd("chassis status")
+        rs = result.split("\n")
         for line in rs:
-            info = line.split(':')
+            info = line.split(":")
             key = info[0].strip()
-            if ( 'System Power' in key ) :
-                ins['STATE'] = info[1].strip()
+            if "System Power" in key:
+                ins["STATE"] = info[1].strip()
         return ins
 
     # 基础信息
     def getBaseInfo(self):
         ins = {}
-        result = self.runCmd('lan print')
-        rs = result.split('\n')
+        result = self.runCmd("lan print")
+        rs = result.split("\n")
         for line in rs:
             info = line.split(":")
-            if ( len(info) > 1
-            and 'IP Address' in line
-            or 'Subnet Mask' in line
-            or 'Default Gateway IP' in line
-            or 'MAC Address' in line
-            ) :
+            if len(info) > 1 and "IP Address" in line or "Subnet Mask" in line or "Default Gateway IP" in line or "MAC Address" in line:
                 slen = line.index(":")
-                key = line[0:slen].strip().replace(' ', '_').upper()
-                value = line[slen+1:].strip()
+                key = line[0:slen].strip().replace(" ", "_").upper()
+                value = line[slen + 1 :].strip()
                 ins[key] = value
 
-        result = self.runCmd('mc info')
-        rs = result.split('\n')
+        result = self.runCmd("mc info")
+        rs = result.split("\n")
         for line in rs:
-            info = line.split(':')
+            info = line.split(":")
             key = info[0].strip()
-            key2 = key.replace(' ', '_').upper()
-            if ('Firmware Revision' in key):
+            key2 = key.replace(" ", "_").upper()
+            if "Firmware Revision" in key:
                 ins[key2] = info[1].strip()
         return ins
 
-    def transDate(self, str ,parsefrm , outfrm ) :
+    def transDate(self, str, parsefrm, outfrm):
         strDate = datetime.strptime(str, parsefrm).date()
         fmtstr = datetime.strftime(strDate, outfrm)
         return fmtstr
@@ -293,46 +277,46 @@ class IpmiManager:
         result = self.runCmd("sel info")
         if result is None:
             return None
-        rs = result.split('\n')
+        rs = result.split("\n")
         for line in rs:
             info = line.split(":")
-            if len(info) > 1 :
+            if len(info) > 1:
                 slen = line.index(":")
-                key = line[0:slen].strip().replace(' ', '_').upper()
-                value = line[slen+1:].strip()
-                if ( 'Last Add Time' in line or 'Last Del Time' in line ) :
-                    value = self.transDate(value , "%m/%d/%Y %H:%M:%S" , "%Y-%m-%d %H:%M:%S")
-                elif( 'Percent Used' in line ) :
-                    value = int(value.replace('%' , ''))
+                key = line[0:slen].strip().replace(" ", "_").upper()
+                value = line[slen + 1 :].strip()
+                if "Last Add Time" in line or "Last Del Time" in line:
+                    value = self.transDate(value, "%m/%d/%Y %H:%M:%S", "%Y-%m-%d %H:%M:%S")
+                elif "Percent Used" in line:
+                    value = int(value.replace("%", ""))
                 selIns[key] = value
         return selIns
-    
+
     def getSelDetail(self):
         selList = []
         rslist = self.runCmd("sel list")
         if rslist is None:
             return selList
-        rs = rslist.split('\n')
+        rs = rslist.split("\n")
         total = len(rs)
         num = 0
         for line in rs:
             num = num + 1
             # 只保留最后的20行数据
-            if (total > 20 and total - num > 20):
+            if total > 20 and total - num > 20:
                 continue
             ins = {}
-            info = line.split('|')
+            info = line.split("|")
             if len(info) > 1:
                 date = info[1].strip()
                 time = info[2].strip()
                 event = info[3].strip()
                 message = info[4].strip()
                 type = info[5].strip()
-                ins['DATE'] = self.transDate(date , "%m/%d/%Y" , "%Y-%m-%d")
-                ins['TIME'] = time
-                ins['EVENT'] = event
-                ins['MESSAGE'] = message
-                ins['TYPE'] = type
+                ins["DATE"] = self.transDate(date, "%m/%d/%Y", "%Y-%m-%d")
+                ins["TIME"] = time
+                ins["EVENT"] = event
+                ins["MESSAGE"] = message
+                ins["TYPE"] = type
                 selList.append(ins)
         return selList
 
@@ -345,48 +329,48 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--user', default='', help='default user ')
-    parser.add_argument('--password', default='', help='default user password')
-    parser.add_argument('--verbose', default='0', help='verbose output')
+    parser.add_argument("--user", default="", help="default user ")
+    parser.add_argument("--password", default="", help="default user password")
+    parser.add_argument("--verbose", default="0", help="verbose output")
 
     args = parser.parse_args()
     isVerbose = int(args.verbose)
-    node = os.getenv('AUTOEXEC_NODE')
-    if node != None and node != '':
+    node = os.getenv("AUTOEXEC_NODE")
+    if node != None and node != "":
         node = json.loads(node)
 
-    host = ''
-    user = ''
-    password = ''
+    host = ""
+    user = ""
+    password = ""
     port = 623
-    if (node != None):
-        host = node['host']
-        if 'port' in node:
-            port = node['port']
+    if node != None:
+        host = node["host"]
+        if "port" in node:
+            port = node["port"]
 
-        if 'username' in node:
-            user = node['username']
+        if "username" in node:
+            user = node["username"]
         else:
             user = args.user
 
-        if 'password' in node:
-            password = node['password']
+        if "password" in node:
+            password = node["password"]
         else:
             password = args.password
 
-    if (host == '' or user == '' or password == ''):
+    if host == "" or user == "" or password == "":
         usage()
 
-    autoexecHome = os.environ.get('AUTOEXEC_HOME')
-    os.environ['PATH'] = '%s:%s/tools' % (os.environ['PATH'], autoexecHome)
+    autoexecHome = os.environ.get("AUTOEXEC_HOME")
+    os.environ["PATH"] = "%s:%s/tools" % (os.environ["PATH"], autoexecHome)
 
     ipmi = IpmiManager(host, user, password, isVerbose)
     data = ipmi.getBaseInfo()
-    data['MGMT_IP'] = host
-    data['_OBJ_CATEGORY'] = 'SERVERDEV'
-    data['_OBJ_TYPE'] = 'SERVERDEV'
-    data['MGMT_PORT'] = port
-    data['PK'] = ["MGMT_IP"]
+    data["MGMT_IP"] = host
+    data["_OBJ_CATEGORY"] = "SERVERDEV"
+    data["_OBJ_TYPE"] = "SERVERDEV"
+    data["MGMT_PORT"] = port
+    data["PK"] = ["MGMT_IP"]
 
     ipmi.getChassisStatus(data)
     sdrMap = ipmi.getSdrList()
@@ -395,18 +379,18 @@ if __name__ == "__main__":
 
         data[key.upper()] = rlist
     fru = ipmi.getFru(data)
-    data['FRU'] = fru
+    data["FRU"] = fru
     sel = ipmi.getSel()
-    data['SEL'] = sel
+    data["SEL"] = sel
     selDetail = ipmi.getSelDetail()
-    data['SEL_LIST'] = selDetail
+    data["SEL_LIST"] = selDetail
 
     slist = []
     slist.append(data)
 
-    if(isVerbose == 1):
+    if isVerbose == 1:
         print(slist)
 
     out = {}
-    out['DATA'] = slist
+    out["DATA"] = slist
     AutoExecUtils.saveOutput(out)
