@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 import os
 import sys
@@ -80,48 +80,48 @@ def threadDump(signum, frame):
 def _getLogSubPath(jobId):
     jobIdStr = str(jobId)
     jobIdLen = len(jobIdStr)
-    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
-    return '/'.join(subPath)
+    subPath = [jobIdStr[i : i + 3] for i in range(0, jobIdLen, 3)]
+    return "/".join(subPath)
 
 
 def registerTools(serverAdapter, pluginsPath, opType, importTime):
     result = True
-    os.chdir(pluginsPath + '/' + opType)
+    os.chdir(pluginsPath + "/" + opType)
     with os.scandir() as iterator:
         for entry in iterator:
             if entry.is_dir():
-                for descPath in glob.glob(entry.name + '/' + '*.json'):
+                for descPath in glob.glob(entry.name + "/" + "*.json"):
                     toolSubName = os.path.basename(descPath)[:-5]
-                    opName = entry.name + '/' + toolSubName
-                    if entry.name == 'native' or toolSubName.startswith(entry.name) or os.path.isfile(opName):
+                    opName = entry.name + "/" + toolSubName
+                    if entry.name == "native" or toolSubName.startswith(entry.name) or os.path.isfile(opName):
                         print("INFO: Begin to register tool:{} {}...\n".format(opType, opName))
-                        descFile = open(descPath, 'r')
+                        descFile = open(descPath, "r")
                         pluginObj = json.loads(descFile.read())
-                        if 'enabled' in pluginObj and pluginObj['enabled'] == 0:
+                        if "enabled" in pluginObj and pluginObj["enabled"] == 0:
                             # 如果工具没有enabled，则略过注册
                             continue
-                        pluginObj['opName'] = opName
-                        pluginObj['importTime'] = importTime
+                        pluginObj["opName"] = opName
+                        pluginObj["importTime"] = importTime
                         # 后台的配置可能会使用local、localremote、remote的类型标记，转换为后台使用的类别名称runner、runner_target、target
-                        if opType == 'local':
-                            if 'opType' in pluginObj:
-                                if pluginObj['opType'] == 'localremote':
-                                    pluginObj['opType'] = 'runner_target'
-                                elif pluginObj['opType'] == 'local':
-                                    pluginObj['opType'] = 'runner'
+                        if opType == "local":
+                            if "opType" in pluginObj:
+                                if pluginObj["opType"] == "localremote":
+                                    pluginObj["opType"] = "runner_target"
+                                elif pluginObj["opType"] == "local":
+                                    pluginObj["opType"] = "runner"
                             else:
-                                pluginObj['opType'] = 'runner'
+                                pluginObj["opType"] = "runner"
 
-                        if opType == 'remote':
-                            pluginObj['opType'] = 'target'
+                        if opType == "remote":
+                            pluginObj["opType"] = "target"
 
                         try:
                             retObj = serverAdapter.registerTool(pluginObj)
-                            if 'Status' in retObj and retObj['Status'] == 'OK':
+                            if "Status" in retObj and retObj["Status"] == "OK":
                                 print("INFO: Register tool:{} {} success.\n".format(opType, opName))
                             else:
                                 result = False
-                                print("ERROR: Register tool:{} {} failed {}.\n".format(opType, opName, retObj['Message']))
+                                print("ERROR: Register tool:{} {} failed {}.\n".format(opType, opName, retObj["Message"]))
                         except Exception as ex:
                             result = False
                             print("ERROR: Register tool:{} {} failed, {}\n".format(opType, opName, ex))
@@ -130,18 +130,18 @@ def registerTools(serverAdapter, pluginsPath, opType, importTime):
 def findJobProcesses(jobId):
     mypid = os.getpid()
     autoexecPids = []
-    if os.path.exists('/proc'):
-        with os.scandir('/proc') as it:
+    if os.path.exists("/proc"):
+        with os.scandir("/proc") as it:
             for entry in it:
-                if not entry.name.startswith('.') and entry.is_dir():
-                    if re.match(r'^\d+$', entry.name):
+                if not entry.name.startswith(".") and entry.is_dir():
+                    if re.match(r"^\d+$", entry.name):
                         pid = int(entry.name)
                         try:
-                            cf = open(entry.path + '/comm')
+                            cf = open(entry.path + "/comm")
                             comm = cf.read()
                             comm = comm.strip()
-                            if comm == 'autoexec':
-                                f = open(entry.path + '/cmdline')
+                            if comm == "autoexec":
+                                f = open(entry.path + "/cmdline")
                                 content = f.read()
                                 if content.index(jobId) > 0 and pid != mypid:
                                     autoexecPids.append(pid)
@@ -149,16 +149,16 @@ def findJobProcesses(jobId):
                             pass
     else:
         # 为了便于在MacOS上测试
-        jobId = jobId.encode('UTF-8')
-        result = subprocess.Popen('ps auxww',  shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        jobId = jobId.encode("UTF-8")
+        result = subprocess.Popen("ps auxww", shell=True, close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
             line = result.stdout.readline(4096)
             if not line:
                 break
             try:
-                if line.index(b'autoexec') > 0 and line.index(jobId) > 0:
-                    lineParts = re.split(r'\s+', line, 2)
+                if line.index(b"autoexec") > 0 and line.index(jobId) > 0:
+                    lineParts = re.split(r"\s+", line, 2)
                     pid = int(lineParts[1])
                     if pid != mypid:
                         autoexecPids.append(pid)
@@ -181,63 +181,63 @@ def killProcesses(pids, sig):
 def _getSubPath(jobId):
     jobIdStr = str(jobId)
     jobIdLen = len(jobIdStr)
-    subPath = [jobIdStr[i:i+3] for i in range(0, jobIdLen, 3)]
-    return '/'.join(subPath)
+    subPath = [jobIdStr[i : i + 3] for i in range(0, jobIdLen, 3)]
+    return "/".join(subPath)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action='store_true', default=False, help="Automation Runner")
-    parser.add_argument('--jobid', '-j', default='0', help='Job id for this execution')
-    parser.add_argument('--execid', '-e', default='0', help='Execution id for this execution')
-    parser.add_argument('--execuser', '-u', default='anonymous',  help='Operator')
-    parser.add_argument('--paramsfile', '-p', default='', help='Params file path for this execution')
-    parser.add_argument('--nodesfile', '-n', default='', help='Nodes file path for this execution')
-    parser.add_argument('--force', '-f', default=False, action='store_true', help='Force to run all nodes regardless the node status')
-    parser.add_argument('--firstfire', '-i', default=False, action='store_true', help='the first phase fired, create new log file')
-    parser.add_argument('--reuseconslog', default=False, action='store_true', help='the first phase fired, create new log file')
-    parser.add_argument('--abort', '-k', default=False, action='store_true', help='abort the job')
-    parser.add_argument('--pause', '-s', default=False, action='store_true', help='puase the job')
-    parser.add_argument('--register', '-r', default='', help='register all tools to tenent')
-    parser.add_argument('--cleanstatus', '-c', default=False, action='store_true', help='clean all stats of job')
-    parser.add_argument('--purgejobdata', default='0', help='Job reserve days')
-    parser.add_argument('--devmode', '-d', default=False, action='store_true', help='develope test in command line')
-    parser.add_argument('--nofirenext', default=False, action='store_true', help='do not fire next job phase')
-    parser.add_argument('--passthroughenv', default='{}', help='Additinal json parameter while callback to console')
-    parser.add_argument('--phasegroups', default='', help='Just execute specify group')
-    parser.add_argument('--phases', default='', help='Just execute defined phases, Example:phase1,phase2')
-    parser.add_argument('--nodes', default='', help='Just execute defined node ids, Example:463104705880067,463104705880068')
-    parser.add_argument('--sqlfiles', default='', help='Just execute defined sql files, Example:[{"sqlFile":"mydb.myuser/1.test.sql","nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"},...]')
+    parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Automation Runner")
+    parser.add_argument("--jobid", "-j", default="0", help="Job id for this execution")
+    parser.add_argument("--execid", "-e", default="0", help="Execution id for this execution")
+    parser.add_argument("--execuser", "-u", default="anonymous", help="Operator")
+    parser.add_argument("--paramsfile", "-p", default="", help="Params file path for this execution")
+    parser.add_argument("--nodesfile", "-n", default="", help="Nodes file path for this execution")
+    parser.add_argument("--force", "-f", default=False, action="store_true", help="Force to run all nodes regardless the node status")
+    parser.add_argument("--firstfire", "-i", default=False, action="store_true", help="the first phase fired, create new log file")
+    parser.add_argument("--reuseconslog", default=False, action="store_true", help="the first phase fired, create new log file")
+    parser.add_argument("--abort", "-k", default=False, action="store_true", help="abort the job")
+    parser.add_argument("--pause", "-s", default=False, action="store_true", help="puase the job")
+    parser.add_argument("--register", "-r", default="", help="register all tools to tenent")
+    parser.add_argument("--cleanstatus", "-c", default=False, action="store_true", help="clean all stats of job")
+    parser.add_argument("--purgejobdata", default="0", help="Job reserve days")
+    parser.add_argument("--devmode", "-d", default=False, action="store_true", help="develope test in command line")
+    parser.add_argument("--nofirenext", default=False, action="store_true", help="do not fire next job phase")
+    parser.add_argument("--passthroughenv", default="{}", help="Additinal json parameter while callback to console")
+    parser.add_argument("--phasegroups", default="", help="Just execute specify group")
+    parser.add_argument("--phases", default="", help="Just execute defined phases, Example:phase1,phase2")
+    parser.add_argument("--nodes", default="", help="Just execute defined node ids, Example:463104705880067,463104705880068")
+    parser.add_argument("--sqlfiles", default="", help='Just execute defined sql files, Example:[{"sqlFile":"mydb.myuser/1.test.sql","nodeName":"myNode", "nodeType":"MySQL", "resourceId":1343434, "host":"xx.yy.zz.uu", "port":22, "accessEndpoint":null,"username":"dbuser"},...]')
 
-    os.environ['TERM'] = 'dumb'
+    os.environ["TERM"] = "dumb"
     args = parser.parse_args()
     execUser = args.execuser
-    os.environ['AUTOEXEC_PID'] = str(os.getpid())
-    os.environ['AUTOEXEC_USER'] = execUser
+    os.environ["AUTOEXEC_PID"] = str(os.getpid())
+    os.environ["AUTOEXEC_USER"] = execUser
 
     binPaths = os.path.split(os.path.realpath(__file__))
-    homePath = os.path.realpath(binPaths[0]+'/..')
-    os.environ['AUTOEXEC_HOME'] = homePath
+    homePath = os.path.realpath(binPaths[0] + "/..")
+    os.environ["AUTOEXEC_HOME"] = homePath
 
     if args.devmode:
-        os.environ['AUTOEXEC_DEV_MODE'] = '1'
+        os.environ["AUTOEXEC_DEV_MODE"] = "1"
 
     passThroughEnv = {}
-    if args.passthroughenv != '{}':
-        os.environ['PASSTHROUGH_ENV'] = args.passthroughenv
+    if args.passthroughenv != "{}":
+        os.environ["PASSTHROUGH_ENV"] = args.passthroughenv
         passThroughEnv = json.loads(args.passthroughenv)
     else:
-        passThroughEnvJson = os.getenv('PASSTHROUGH_ENV')
+        passThroughEnvJson = os.getenv("PASSTHROUGH_ENV")
         if passThroughEnvJson:
             passThroughEnv = json.loads(passThroughEnvJson)
 
     progName = binPaths[1]
 
-    logFilePath = '{}/logs/{}.log'.format(homePath, progName)
-    logHandler = RotatingFileHandler(logFilePath, maxBytes=10*1024*1024, backupCount=5)
-    logger = logging.getLogger('')
+    logFilePath = "{}/logs/{}.log".format(homePath, progName)
+    logHandler = RotatingFileHandler(logFilePath, maxBytes=10 * 1024 * 1024, backupCount=5)
+    logger = logging.getLogger("")
     logger.setLevel(logging.ERROR)
-    formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s')
+    formatter = logging.Formatter("%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)-8s %(message)s")
     logHandler.setFormatter(formatter)
     logger.addHandler(logHandler)
 
@@ -251,7 +251,7 @@ if __name__ == "__main__":
             outputStore = OutputStore.OutputStore(vContext, None, None)
             outputStore.removeJobStatus()
 
-            statusPath = '{}/status'.format(vContext.runPath)
+            statusPath = "{}/status".format(vContext.runPath)
             if os.path.exists(statusPath):
                 shutil.rmtree(statusPath)
             if os.path.exists(statusPath):
@@ -260,7 +260,7 @@ if __name__ == "__main__":
             logger.error("Unknow error occurred while clean job status.\n" + traceback.format_exc())
 
     elif args.register:
-        pluginsPath = homePath + '/plugins'
+        pluginsPath = homePath + "/plugins"
 
         # 因为serverAdapter是从context中获取tenant，所以需要构造虚拟的context
         vContext = VContext.VContext(0, execUser=execUser, passThroughEnv=passThroughEnv)
@@ -268,26 +268,26 @@ if __name__ == "__main__":
         importTime = int(time.time())
         tenant = args.register
         if tenant is None:
-            tenant = vContext.config['server']['tenant']
+            tenant = vContext.config["server"]["tenant"]
         if tenant is None:
-            tenant = 'none'
+            tenant = "none"
 
         vContext.tenant = tenant
         serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
         hasError = 0
-        if (not registerTools(serverAdapter, pluginsPath, 'local', importTime)):
+        if not registerTools(serverAdapter, pluginsPath, "local", importTime):
             hasError = 1
-        if (not registerTools(serverAdapter, pluginsPath, 'remote', importTime)):
+        if not registerTools(serverAdapter, pluginsPath, "remote", importTime):
             hasError = 1
 
         try:
             retObj = serverAdapter.cleanNativeTools(importTime)
-            if 'Status' in retObj and retObj['Status'] == 'OK':
+            if "Status" in retObj and retObj["Status"] == "OK":
                 print("INFO: Clean discarded tools success.\n")
             else:
                 hasError = 1
-                print("ERROR: Clean discarded tools failed {}.\n" % (retObj['Message']))
+                print("ERROR: Clean discarded tools failed {}.\n" % (retObj["Message"]))
         except Exception as ex:
             hasError = 1
             print("ERROR: Clean discarded tools failed, {}\n".format(ex))
@@ -305,7 +305,7 @@ if __name__ == "__main__":
             autoexecPids = findJobProcesses(args.jobid)
 
             if len(autoexecPids) > 0:
-                pidsStr = ','.join([str(x) for x in autoexecPids])
+                pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
                 killProcesses(autoexecPids, signal.SIGUSR1)
 
@@ -338,7 +338,7 @@ if __name__ == "__main__":
             autoexecIsKilled = False
             autoexecPids = findJobProcesses(args.jobid)
             if len(autoexecPids) > 0:
-                pidsStr = ','.join([str(x) for x in autoexecPids])
+                pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
                 killProcesses(autoexecPids, signal.SIGTERM)
                 for i in range(15):
@@ -365,7 +365,7 @@ if __name__ == "__main__":
             sys.exit(ret)
         except Exception as ex:
             logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
-    elif args.purgejobdata != '0':
+    elif args.purgejobdata != "0":
         # purge expired job
         try:
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
@@ -375,18 +375,18 @@ if __name__ == "__main__":
             logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
     else:
         # 初始化运行context
-        dataPath = homePath + '/data'
-        runPath = dataPath + '/job/' + _getSubPath(args.jobid)
+        dataPath = homePath + "/data"
+        runPath = dataPath + "/job/" + _getSubPath(args.jobid)
 
         # 初始化console日志文件
-        logDir = runPath + '/log'
+        logDir = runPath + "/log"
         if not os.path.exists(logDir):
             os.makedirs(logDir, exist_ok=True)
 
-        consoleLogPath = logDir + '/console.txt'
+        consoleLogPath = logDir + "/console.txt"
         consoleLogFile = None
 
-        fileDir = runPath + '/file'
+        fileDir = runPath + "/file"
         if not os.path.exists(fileDir):
             os.mkdir(fileDir)
 
@@ -395,33 +395,47 @@ if __name__ == "__main__":
             if not args.reuseconslog and os.path.exists(consoleLogPath):
                 os.unlink(consoleLogPath)
 
-            consoleLogFile = open(consoleLogPath, 'w').detach()
+            consoleLogFile = open(consoleLogPath, "w").detach()
 
-            consoleHisLogDir = logDir + '/console.hislog'
+            consoleHisLogDir = logDir + "/console.hislog"
             if not os.path.isdir(consoleHisLogDir):
                 os.mkdir(consoleHisLogDir)
-            consoleHisLogPath = '{}/{}.{}.txt'.format(consoleHisLogDir, time.strftime('%Y%m%d-%H%M%S'), args.execuser)
+            consoleHisLogPath = "{}/{}.{}.txt".format(consoleHisLogDir, time.strftime("%Y%m%d-%H%M%S"), args.execuser)
             os.link(consoleLogPath, consoleHisLogPath)
         else:
             # 后续阶段执行，不需要新建文件，在原来的console文件中追加日志
-            consoleLogFile = open(consoleLogPath, 'a').detach()
+            consoleLogFile = open(consoleLogPath, "a").detach()
 
         # console输出重定向到console log文件
         sys.stdout = ConsoleLog(consoleLogFile)
         sys.stderr = ConsoleLog(consoleLogFile)
 
         sqlFilesJson = args.sqlfiles
-        if sqlFilesJson is not None and sqlFilesJson != '':
-            os.environ['_SQL_FILES'] = sqlFilesJson
+        if sqlFilesJson is not None and sqlFilesJson != "":
+            os.environ["_SQL_FILES"] = sqlFilesJson
 
-        context = Context.Context(args.jobid, execId=args.execid, execUser=execUser, paramsFile=args.paramsfile, firstFire=args.firstfire, phaseGroups=args.phasegroups, phases=args.phases,
-                                  nodes=args.nodes, isForce=args.force, devMode=args.devmode, dataPath=dataPath, runPath=runPath, noFireNext=args.nofirenext, passThroughEnv=passThroughEnv)
-        os.environ['AUTOEXEC_JOBID'] = context.jobId
-        os.environ['AUTOEXEC_EXECID'] = context.execId
-        os.environ['AUTOEXEC_WORK_PATH'] = context.runPath
-        os.environ['AUTOEXEC_TENANT'] = context.tenant
-        jobSock = '{}/job{}.sock'.format(context.runPath, context.execId)
-        os.environ['AUTOEXEC_JOB_SOCK'] = jobSock
+        context = Context.Context(
+            args.jobid,
+            execId=args.execid,
+            execUser=execUser,
+            paramsFile=args.paramsfile,
+            firstFire=args.firstfire,
+            phaseGroups=args.phasegroups,
+            phases=args.phases,
+            nodes=args.nodes,
+            isForce=args.force,
+            devMode=args.devmode,
+            dataPath=dataPath,
+            runPath=runPath,
+            noFireNext=args.nofirenext,
+            passThroughEnv=passThroughEnv,
+        )
+        os.environ["AUTOEXEC_JOBID"] = context.jobId
+        os.environ["AUTOEXEC_EXECID"] = context.execId
+        os.environ["AUTOEXEC_WORK_PATH"] = context.runPath
+        os.environ["AUTOEXEC_TENANT"] = context.tenant
+        jobSock = "{}/job{}.sock".format(context.runPath, context.execId)
+        os.environ["AUTOEXEC_JOB_SOCK"] = jobSock
 
         def removeJobSock(sockPath):
             try:
@@ -429,6 +443,7 @@ if __name__ == "__main__":
                     os.unlink(sockPath)
             except:
                 pass
+
         atexit.register(removeJobSock, jobSock)
 
         # 初始化单例的GlobalLocks
@@ -455,7 +470,7 @@ if __name__ == "__main__":
         signal.signal(signal.SIGTERM, killHandler)
         signal.signal(signal.SIGINT, killHandler)
 
-        if platform.system() != 'Windows':
+        if platform.system() != "Windows":
             signal.signal(signal.SIGHUP, killHandler)
             signal.signal(signal.SIGUSR1, pauseHandler)
 

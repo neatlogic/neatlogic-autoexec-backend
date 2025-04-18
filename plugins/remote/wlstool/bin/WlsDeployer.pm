@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 package WlsDeployer;
 use strict;
 use XML::MyXML qw(:all);
