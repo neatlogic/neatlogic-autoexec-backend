@@ -28,6 +28,14 @@ class RunNodeFactory:
             nodesFilePath = context.getNodesFilePath()
         self.nodesFile = open(nodesFilePath)
 
+        seqDescFilePath = nodesFilePath + ".desc"
+        if os.path.isfile(seqDescFilePath):
+            with open(seqDescFilePath) as seqDescFile:
+                self.seqDesc = json.load(seqDescFile.read())
+                seqDescFile.close()
+        else:
+            self.seqDesc = None
+
         # 第一行是节点运行描述信息，包括节点总数，local运行节点ID等信息
         line = self.nodesFile.readline()
         # self.nodesFile.seek(0)
@@ -78,7 +86,40 @@ class RunNodeFactory:
         self.cleared = True
         return localNode
 
-    def nextNode(self, runnerId=None):
+    def getSeqParallelCount(self):
+        if self.seqDesc is None:
+            return 1
+        return self.seqDesc.get("maxParallel", 1)
+
+    def getSeqRoundCount(self):
+        if self.seqDesc is None:
+            return None
+        roundsDef = self.seqDesc.get("roundDef", [])
+        return len(roundsDef)
+
+    def getRoundSeqNo(self, roundNo):
+        if self.seqDesc is None:
+            return 1
+        roundsDef = self.seqDesc.get("roundDef", [])
+        if roundNo <= len(roundsDef):
+            return roundsDef[roundNo - 1][0]
+        else:
+            return 1
+
+    def getRoundSeqCount(self, roundNo):
+        if self.seqDesc is None:
+            return 1
+        roundsDef = self.seqDesc.get("roundDef", [])
+        if roundNo <= len(roundsDef):
+            return roundsDef[roundNo - 1][1]
+        else:
+            return 1
+
+    def goFirstLine(self):
+        self.nodesFile.seek(0, os.SEEK_SET)
+        self.nodesFile.readline()
+
+    def nextNode(self, runnerId=None, seqNo=None):
         nodeObj = None
         line = None
         # 略掉空行
@@ -87,21 +128,16 @@ class RunNodeFactory:
             if not line:
                 break
             if line.strip() != "":
-                if runnerId is None:
-                    nodeObj = json.loads(line)
-                    if self.context.nodesToRun is not None:
-                        if nodeObj.get("resourceId") in self.context.nodesToRun:
-                            break
-                    else:
+                nodeObj = json.loads(line)
+                if self.context.nodesToRun is not None:
+                    if nodeObj.get("resourceId") in self.context.nodesToRun:
                         break
-                else:
-                    nodeObj = json.loads(line)
-                    if nodeObj["runnerId"] == runnerId:
-                        if self.context.nodesToRun is not None:
-                            if nodeObj.get("resourceId") in self.context.nodesToRun:
-                                break
-                        else:
-                            break
+
+                if seqNo is not None and nodeObj.get("seqNo", None) != seqNo:
+                    continue
+
+                if runnerId is None or nodeObj.get("runnerId", None) == runnerId:
+                    break
 
         if line:
             if "password" in nodeObj:
@@ -118,6 +154,9 @@ class RunNodeFactory:
 
             if "username" not in nodeObj:
                 nodeObj["username"] = "none"
+
+            if "roundSeqno" not in nodeObj:
+                nodeObj["roundSeqno"] = 1
 
             protocol = nodeObj.get("protocol")
             protocolPort = nodeObj.get("protocolPort")

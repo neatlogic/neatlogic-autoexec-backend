@@ -458,14 +458,20 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
 
         realGroupRoundCount = groupRoundCount
-        if realGroupRoundCount <= 0:
+        if groupRoundCount == 0:
             realGroupRoundCount = nodesFactory.nodesCount
+        elif groupRoundCount < 0:
+            realGroupRoundCount = nodesFactory.getSeqRoundCount()
 
         if realGroupRoundCount == 0:
             realGroupRoundCount = 1
 
         # 获取分组运行的最大的并行线程数
-        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
+        parallelCount = 1
+        if groupRoundCount >= 0:
+            parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
+        else:
+            parallelCount = nodesFactory.getSeqParallelCount()
 
         threads = []
         for phaseConfig in phaseGroup["phases"]:
@@ -499,8 +505,8 @@ class JobRunner:
             threads.append(thread)
 
         maxRoundNo = realGroupRoundCount
-        if nodesFactory.nodesCount < maxRoundNo:
-            maxRoundNo = nodesFactory.nodesCount
+        # if nodesFactory.nodesCount < maxRoundNo:
+        #     maxRoundNo = nodesFactory.nodesCount
         if maxRoundNo <= 0:
             maxRoundNo = 1
 
@@ -518,12 +524,21 @@ class JobRunner:
                 lastRound = True
 
             oneRoundNodes = []
-            curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
-            for k in range(1, curRoundNodes + 1):
-                node = nodesFactory.nextNode()
-                if node is None:
-                    break
-                if node["runnerId"] == self.context.runnerId:
+            if groupRoundCount >= 0:
+                curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
+                for k in range(1, curRoundNodes + 1):
+                    node = nodesFactory.nextNode()
+                    if node is None:
+                        break
+                    if node["runnerId"] == self.context.runnerId:
+                        oneRoundNodes.append(node)
+            else:
+                seqNo = nodesFactory.getRoundSeqNo(roundNo)
+                nodesFactory.goFirstLine()
+                while True:
+                    node = nodesFactory.nextNode(runnerId=self.context.runnerId, seqNo=seqNo)
+                    if node is None:
+                        break
                     oneRoundNodes.append(node)
 
             lastPhase = None
