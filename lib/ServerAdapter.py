@@ -301,7 +301,8 @@ class ServerAdapter:
                 with open(seqDescFilePath, "w") as descFile:
                     maxParallel = 0
                     roundDef = []
-                    for key, value in sorted(nodesSeqDesc):
+                    for key in sorted(nodesSeqDesc):
+                        value = nodesSeqDesc[key]
                         if maxParallel < value:
                             maxParallel = value
                         roundDef.append([key, value])
