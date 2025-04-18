@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import json
 import os
 import re
@@ -12,10 +12,7 @@ from requests.auth import HTTPDigestAuth
 
 def usage():
     pname = os.path.basename(__file__)
-    print(
-        pname
-        + " --ip <usphere management ip> --port <usphere management port> --user <user> --password <password> "
-    )
+    print(pname + " --ip <usphere management ip> --port <usphere management port> --user <user> --password <password> ")
     exit(1)
 
 
@@ -41,9 +38,7 @@ class UsphereDataCollector:
 
         # 采集虚拟化版本信息
         url = "/cas/casrs/version"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             usphere["VERSION"] = resJson["casVersion"]
@@ -53,9 +48,7 @@ class UsphereDataCollector:
         # 采集hostPool(DataCenter)
         dcs = []
         url = "/cas/casrs/hostpool/hpList"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             if isinstance(resJson["hostPool"], list):
@@ -66,10 +59,7 @@ class UsphereDataCollector:
                     dc["NAME"] = hostPool["name"]
                     dc["MOID"] = "datacenter-" + hostPool["id"]
                     cluster_list = self.getCluster(hostPool["id"])
-                    cluster_list = [
-                        {"DC_NAME": hostPool["name"], **json_obj}
-                        for json_obj in cluster_list
-                    ]
+                    cluster_list = [{"DC_NAME": hostPool["name"], **json_obj} for json_obj in cluster_list]
                     dc["CLUSTER"] = cluster_list
                     dcs.append(dc)
             elif isinstance(resJson["hostPool"], dict):
@@ -79,10 +69,7 @@ class UsphereDataCollector:
                 dc["NAME"] = resJson["hostPool"]["name"]
                 dc["MOID"] = "datacenter-" + resJson["hostPool"]["id"]
                 cluster_list = self.getCluster(resJson["hostPool"]["id"])
-                cluster_list = [
-                    {"DC_NAME": resJson["hostPool"]["name"], **json_obj}
-                    for json_obj in cluster_list
-                ]
+                cluster_list = [{"DC_NAME": resJson["hostPool"]["name"], **json_obj} for json_obj in cluster_list]
                 dc["CLUSTER"] = cluster_list
                 dcs.append(dc)
             usphere["DATACENTER"] = dcs
@@ -93,9 +80,7 @@ class UsphereDataCollector:
 
     def getCluster(self, dcId):
         url = "/cas/casrs/cluster/" + dcId + "/cluster/info"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         cluster_list = []
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -140,9 +125,7 @@ class UsphereDataCollector:
     def getVM(self, cluster_ins, host_list):
         SYSTEM_TYPE_DICT = {"0": "Windows", "1": "Linux", "2": "BSD"}
         url = "/cas/casrs/vm/cpu/info"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         vm_cpu_info_dict = {}
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -155,9 +138,7 @@ class UsphereDataCollector:
             print("WARN: get vm cpu info failed", response.status_code)
 
         url = "/cas/casrs/vm/disk/info"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         vm_disk_info_dict = {}
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -185,9 +166,7 @@ class UsphereDataCollector:
         tmp_clt_ins["MOID"] = cluster_ins["MOID"]
         tmp_clt_ins["MGMT_IP"] = self.ip
 
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         vm_list = []
         if response.status_code == 200 and response.json() is not None:
             host_dict = {}
@@ -195,9 +174,7 @@ class UsphereDataCollector:
                 host_dict[item["id"]] = item
             resJson = response.json()
             for vm in resJson["domain"]:
-                if ("ipv4Attribute" in vm) and (
-                    str(vm["clusterId"]) == str(tmp_clt_ins["ID"])
-                ):  # 没有ipv4Attribute可能是虚拟机模板？
+                if ("ipv4Attribute" in vm) and (str(vm["clusterId"]) == str(tmp_clt_ins["ID"])):  # 没有ipv4Attribute可能是虚拟机模板？
                     vm_ins = {}
                     vm_ins["_OBJ_CATEGORY"] = "OS"
                     vm_ins["_OBJ_TYPE"] = SYSTEM_TYPE_DICT[vm["system"]]
@@ -236,12 +213,8 @@ class UsphereDataCollector:
                         elif isinstance(vm["ipv4Attribute"]["ipv4"], dict):
                             ipAddr = vm["ipv4Attribute"]["ipv4"]["ipAddress"]
                             ips.append(ipAddr)
-                    class_a_ips = [
-                        i for i in ips if self.is_class_a(i)
-                    ]  # 多IP时筛选出A类IP
-                    maxIp = max(
-                        map(ipaddress.IPv4Address, class_a_ips)
-                    )  # 最大的ip作为虚机管理ip？
+                    class_a_ips = [i for i in ips if self.is_class_a(i)]  # 多IP时筛选出A类IP
+                    maxIp = max(map(ipaddress.IPv4Address, class_a_ips))  # 最大的ip作为虚机管理ip？
                     vm_ins["MGMT_IP"] = str(maxIp)
                     vm_ins["VM_ID"] = "vm-" + vm["id"]
                     vm_ins["UUID"] = vm["uuid"]
@@ -258,9 +231,7 @@ class UsphereDataCollector:
 
     def getDatastoreUUID(self, datastoreId):
         url = "/cas/casrs/storage/shareFile/" + str(datastoreId)
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             uuid = resJson["rsFsLunInfo"]["naa"]
@@ -268,9 +239,7 @@ class UsphereDataCollector:
 
     def getDatastore(self, clusterId):
         url = "/cas/casrs/cluster/storageRes?clusterIds=" + str(clusterId)
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         datastore_list = []
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -313,9 +282,7 @@ class UsphereDataCollector:
     def getNetwork(self, clusterId):
         MODE_TYPE_DICT = {"0": "veb", "1": "vepa", "2": "多通道", "3": "分布式"}
         url = "/cas/casrs/cluster/netRes?clusterIds=" + str(clusterId)
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         network_list = []
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -339,9 +306,7 @@ class UsphereDataCollector:
 
     def getHost(self, clusterId):
         url = "/cas/casrs/cluster/hostNodes?cluster=" + str(clusterId)
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         host_list = []
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -399,14 +364,8 @@ class UsphereDataCollector:
         return host_list
 
     def getHostDetail(self, hostId):
-        url = (
-            "/cas/casrs/host/"
-            + str(hostId)
-            + "/hardwareInfo?isShowAll=true&type=SYSTEM"
-        )
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        url = "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=SYSTEM"
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         detail = {}
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -416,12 +375,8 @@ class UsphereDataCollector:
         else:
             print("WARN: get hostSN failed", response.status_code)
 
-        url = (
-            "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=BIOS"
-        )
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        url = "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=BIOS"
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             detail["vendor"] = resJson["hardwareInfo"]["vendor"]
@@ -429,14 +384,8 @@ class UsphereDataCollector:
         else:
             print("WARN: get host bios failed", response.status_code)
 
-        url = (
-            "/cas/casrs/host/"
-            + str(hostId)
-            + "/hardwareInfo?isShowAll=true&type=PROCESSOR"
-        )
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        url = "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=PROCESSOR"
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             if isinstance(resJson["hardwareInfo"], list):
@@ -455,14 +404,8 @@ class UsphereDataCollector:
         else:
             print("WARN: get host processor failed", response.status_code)
 
-        url = (
-            "/cas/casrs/host/"
-            + str(hostId)
-            + "/hardwareInfo?isShowAll=true&type=MEMORYSUMMARY"
-        )
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        url = "/cas/casrs/host/" + str(hostId) + "/hardwareInfo?isShowAll=true&type=MEMORYSUMMARY"
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
             if isinstance(resJson["hardwareInfo"], list):
@@ -487,9 +430,7 @@ class UsphereDataCollector:
             print("WARN: get host memory failed", response.status_code)
 
         url = "/cas/casrs/host/" + str(hostId) + "/phyNet"
-        response = requests.get(
-            self.serviceAddr + url, headers=self.headers, auth=self.auth
-        )
+        response = requests.get(self.serviceAddr + url, headers=self.headers, auth=self.auth)
         interf_list = []
         if response.status_code == 200 and response.json() is not None:
             resJson = response.json()
@@ -518,9 +459,7 @@ if __name__ == "__main__":
     parser.add_argument("--ip", default="", help="usphere管理服务IP")
     parser.add_argument("--port", default="80", help="usphere管理服务端口")
     parser.add_argument("--user", default="", help="usphere console login user")
-    parser.add_argument(
-        "--password", default="", help="usphere console login user password"
-    )
+    parser.add_argument("--password", default="", help="usphere console login user password")
     parser.add_argument("--verbose", default="0", help="verbose output")
     args = parser.parse_args()
 
@@ -535,24 +474,10 @@ if __name__ == "__main__":
         node = json.loads(node)
         print(node)
 
-    if (
-        ip == None
-        or ip == ""
-        or user == None
-        or user == ""
-        or password == None
-        or password == ""
-    ) and (node == None or node == ""):
+    if (ip == None or ip == "" or user == None or user == "" or password == None or password == "") and (node == None or node == ""):
         usage()
 
-    if (
-        ip == None
-        or ip == ""
-        or user == None
-        or user == ""
-        or password == ""
-        or password == None
-    ) and node != None:
+    if (ip == None or ip == "" or user == None or user == "" or password == "" or password == None) and node != None:
         ip = node["host"]
         # port = node["port"]
         # if port is None or port == "":

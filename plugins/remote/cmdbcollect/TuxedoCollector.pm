@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #TODO: Tuxedo只是按照老的逻辑重写了一把，需要真实环境进行测试验证
 use FindBin;
 use lib "$FindBin::Bin/lib";

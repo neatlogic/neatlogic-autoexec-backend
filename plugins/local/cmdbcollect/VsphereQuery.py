@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 from pyVim import connect
 from pyVim.connect import SmartConnect, Disconnect, SmartConnection
@@ -19,15 +19,9 @@ class VsphereQuery:
         try:
             if port == None:
                 port = 443
-            service_instance = connect.SmartConnect(
-                host=ip, user=user, pwd=passwd, port=port
-            )
+            service_instance = connect.SmartConnect(host=ip, user=user, pwd=passwd, port=port)
         except IOError as e:
-            print(
-                "ERROR: Connection failed ,operat is  ocurred.\n{}\n".format(
-                    traceback.format_exc()
-                )
-            )
+            print("ERROR: Connection failed ,operat is  ocurred.\n{}\n".format(traceback.format_exc()))
 
         if not service_instance:
             raise SystemExit("Unable to connect to host with supplied info.")
@@ -50,14 +44,14 @@ class VsphereQuery:
                 name = dst.name
                 moid = dst._moId
                 summary = dst.summary
-                ins['_OBJ_CATEGORY'] = "VIRTUALIZED"
-                ins['_OBJ_TYPE'] = "VIRTUALIZED-DATASTORE"
+                ins["_OBJ_CATEGORY"] = "VIRTUALIZED"
+                ins["_OBJ_TYPE"] = "VIRTUALIZED-DATASTORE"
                 ins["NAME"] = name
                 ins["MOID"] = moid
                 available = round(summary.freeSpace / 1024 / 1204 / 1024, 2)
                 capacity = round(summary.capacity / 1024 / 1024 / 1024, 2)
                 used = capacity - available
-                #used_pct = round((used / capacity) * 100)
+                # used_pct = round((used / capacity) * 100)
                 used_pct = round((used / capacity) * 100) if capacity > 0 else 0
                 uuid = summary.url.replace("ds:///vmfs/volumes/", "").replace("/", "").replace("-", "")
                 ins["AVAILABLE"] = available
@@ -249,23 +243,8 @@ class VsphereQuery:
             serialNumber = ""
         ins["MACHINE_UUID"] = host_uuid
         ins["MACHINE_SN"] = serialNumber
-        ins["HOST_ON"] = [
-            {
-                "_OBJ_CATEGORY": "HOST",
-                "_OBJ_TYPE": "HOST",
-                "BOARD_SERIAL": serialNumber,
-                "HOST_IP": host.name,
-                "UUID": host_uuid
-            }
-        ]
-        ins["CLUSTERED_ON"] = [
-            {
-                "_OBJ_CATEGORY": "VIRTUALIZED",
-                "_OBJ_TYPE": "VIRTUALIZED-CLUSTER",
-                "MOID": cluster._moId,
-                "MGMT_IP": self.ip
-            }
-        ]
+        ins["HOST_ON"] = [{"_OBJ_CATEGORY": "HOST", "_OBJ_TYPE": "HOST", "BOARD_SERIAL": serialNumber, "HOST_IP": host.name, "UUID": host_uuid}]
+        ins["CLUSTERED_ON"] = [{"_OBJ_CATEGORY": "VIRTUALIZED", "_OBJ_TYPE": "VIRTUALIZED-CLUSTER", "MOID": cluster._moId, "MGMT_IP": self.ip}]
         return ins
 
     def get_vmlist(self, cluster):

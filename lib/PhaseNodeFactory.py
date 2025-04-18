@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
- 提供读取节点文件，遍历节点，更新节点运行状态功能
+Copyright © 2017 NeatLogic
+提供读取节点文件，遍历节点，更新节点运行状态功能
 """
 import queue
 
