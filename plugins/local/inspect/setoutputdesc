@@ -56,7 +56,7 @@ if __name__ == "__main__":
     jobId = os.getenv("AUTOEXEC_JOBID")
 
     # 参数数据格式
-    # {test.test_699960005763109.outpassword},#{test.test_699960005763109.outfile}
+    # {test.tes.py_699960005763109.outpassword},#{test.test.py_699960005763109.outfile}
 
     try:
         paramMap = {}
@@ -64,10 +64,10 @@ if __name__ == "__main__":
             if param != "":
                 param = param[2:]
                 param = param[0 : len(param) - 1]
-                paramArray = param.split(".", 2)
+                paramArray = param.split(".")
                 phase = paramArray[0]
-                pluginId = paramArray[1]
-                paramName = paramArray[2]
+                pluginId = ".".join(paramArray[1:-1])
+                paramName = paramArray[-1]
 
                 paramList = []
                 key = phase + "\b" + pluginId
