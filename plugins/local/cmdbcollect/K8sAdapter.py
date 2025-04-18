@@ -166,9 +166,9 @@ class K8sAdapter:
                 node["ANNOTATIONS"] = annotations
 
                 spec = obj["spec"]
-                node["PODCIDR"] = spec["podCIDR"]
+                node["PODCIDR"] = spec.get("podCIDR", None)
                 podCIDRs = []
-                podCIDRObj = spec["podCIDRs"]
+                podCIDRObj = spec.get("podCIDRs", [])
                 for podci in podCIDRObj:
                     podCIDRs.append({"NAME": podci})
                 node["PODCIDRS"] = podCIDRs
