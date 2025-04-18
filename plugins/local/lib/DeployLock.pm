@@ -7,8 +7,6 @@ use JSON;
 
 our $READ  = 'read';
 our $WRITE = 'write';
-our $PROCESS = 'process';
-our $PHASE   = 'phase';
 
 #调用autoexec的ListenThread，进行作业层次的Lock和unlock
 #参数，jobId，lockTarget
@@ -289,7 +287,7 @@ sub unlockEnvApp {
 }
 
 sub lockEnvSql {
-    my ( $self, $lockMode, $lockScope ) = @_;
+    my ( $self, $lockMode ) = @_;
 
     my $deployEnv  = $self->{deployEnv};
     my $sysId      = $deployEnv->{SYS_ID};
@@ -301,10 +299,7 @@ sub lockEnvSql {
     my $version    = $deployEnv->{VERSION};
     my $buildNo    = $deployEnv->{BUILD_NO};
 
-    if (not defined($lockScope)) {
-        $lockScope = 'phase';
-    }
-    my $params = $self->_getParams($lockScope);
+    my $params = $self->_getParams('phase');
 
     $params->{lockOwner}     = "$sysId/$moduleId/$envId";
     $params->{lockOwnerName} = "$sysName/$moduleName/$envName";
