@@ -307,7 +307,7 @@ class ServerAdapter:
                             maxParallel = value
                         roundDef.append([key, value])
 
-                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}), ensure_ascii=False)
+                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}, ensure_ascii=False))
                     descFile.close()
 
                 if phase is not None:
