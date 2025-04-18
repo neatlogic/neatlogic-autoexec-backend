@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 use FindBin;
 use Getopt::Long;
@@ -37,8 +37,16 @@ sub main {
     $image   = lc($image);
     $tagname = lc($tagname);
 
-    #TODO:这里的docker命令是在远程OS上运行，需要确认是否需要sudo docker
-    my $cmd = "sudo docker rm -vf $name";
+    my $isRoot = 0;
+    if ( $< == 0 ) {
+        $isRoot = 1;
+    }
+
+    my $cmd = "docker rm -vf $name";
+    if( $isRoot == 1 ) {
+        $cmd = "sudo " . $cmd;
+    }
+
     print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
 
@@ -49,7 +57,11 @@ sub main {
         print("INFO: Container $name is not running.\n");
     }
 
-    my $cmd = "sudo docker run -d --name=$name";
+    $cmd = "docker run -d --name=$name";
+    if( $isRoot == 1 ) {
+        $cmd = "sudo " . $cmd;
+    }
+
     if( defined($ports) and  $ports ne '' ){
         my @portList = split( /,/, $ports );
         foreach my $port (@portList){

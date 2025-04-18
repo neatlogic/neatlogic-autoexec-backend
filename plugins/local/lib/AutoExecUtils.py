@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 
 import os
@@ -68,7 +68,13 @@ def getAutoexecContext():
             autoexecDBPass = _rc4_decrypt_hex(passKey, autoexecDBPass[11:])
             config["autoexec"]["db.password"] = autoexecDBPass
 
-        AUTOEXEC_CONTEXT = Context(config, os.getenv("AUTOEXEC_TENANT"))
+        tenant = os.getenv("AUTOEXEC_TENANT")
+        if tenant is None or tenant == "":
+            tenant = config["server"].get("tenant")
+        if tenant is None:
+            tenant = "none"
+
+        AUTOEXEC_CONTEXT = Context(config, tenant)
     return AUTOEXEC_CONTEXT
 
 

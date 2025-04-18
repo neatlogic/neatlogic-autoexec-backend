@@ -1,0 +1,172 @@
+#!/usr/bin/env perl
+use strict;
+use FindBin;
+
+use Cwd;
+use IO::File;
+use File::Temp;
+use MIME::Base64;
+use File::Basename;
+use Data::Dumper;
+use LWP::UserAgent;
+use Getopt::Long;
+use XML::MyXML qw(xml_to_object);
+
+use DeployUtils;
+use BuildUtils;
+
+sub usage {
+    my $pname = $FindBin::Script;
+
+    print("Usage: $pname [--envpath EnvPath] [--version VERSION]\n");
+    print("              --repo Repository\n");
+    print("              --pomfile PomFilePath\n");
+    print("\n");
+    print("       --envpath: Env path in the data directory, example:ATM/ATMP/PRD/ATMP-1\n");
+    print("       --version: version number of module\n");
+    print("       --buildno: Build number\n");
+    print("       --repo:    Nexus repository, example:\${HOME}/.m2\n");
+    print("       --pomfile: pom.xml file path relative to project.\n");
+
+    exit(-1);
+}
+
+sub main {
+    my ( $isHelp, $envPath, $version, $buildNo );
+    my ( $baseUrl, $user, $pass, $repo, $group, $artifact, $artifactVer, $pkgPath, $pom );
+
+    GetOptions(
+        'h|help'     => \$isHelp,
+        'envpath:s'  => \$envPath,
+        'version=s'  => \$version,
+        'buildno=s'  => \$buildNo,
+        'repo=s'     => \$repo,
+        'pomfile:s'  => \$pom,
+
+    );
+
+    usage() if ( defined($isHelp) );
+
+    my $deployUtils = DeployUtils->new();
+    my $buildEnv    = $deployUtils->deployInit( $envPath, $version, $buildNo );
+
+    $envPath = $buildEnv->{NAME_PATH};
+    $version = $buildEnv->{VERSION};
+    $buildNo = $buildEnv->{BUILD_NO};
+
+    my $optionError = 0;
+    if ( not defined($envPath) or $envPath eq '' ) {
+        $optionError = 1;
+        print("ERROR: EnvPath not defined by option --envpath or Environment:NAME_PATH\n");
+    }
+    if ( not defined($version) or $version eq '' ) {
+        $optionError = 1;
+        print("ERROR: Version not defined by option --version or Environment:VERSION\n");
+    }
+    if ( not defined($buildNo) or $buildNo eq '' ) {
+        $optionError = 1;
+        print("ERROR: Build number not defined by option --buildno or Environment:BUILD_NO\n");
+    }
+    if ( not defined($repo) or $repo eq '' ) {
+        print("ERROR: Must defind repository id\n");
+        $optionError = 1;
+    }
+
+    if ( $optionError == 1 ) {
+        usage();
+    }
+
+    my $lock        = DeployLock->new($buildEnv);
+    my $spaceLockId = $lock->lockWorkspace($DeployLock::READ);
+
+    END {
+        local $?;
+        if ( defined($lock) ) {
+            $lock->unlockWorkspace($spaceLockId);
+        }
+    }
+
+    my $namePath      = $buildEnv->{NAME_PATH};
+
+    my $hasError = 0;
+
+    my $prjPath = $buildEnv->{PRJ_PATH};
+    my $autoexecHome = $buildEnv->{AUTOEXEC_HOME};
+
+    my $pomFilePath = "$prjPath/$pom";
+    if( not -f $pomFilePath){
+        $hasError = 1;
+        print("ERROR: Pom file: $pomFilePath not exists.\n");
+    }
+
+     my $xmlObj;
+    eval{
+        $xmlObj = xml_to_object( $pomFilePath, { file => 1 } );
+    };
+    if($@){
+        $hasError = 1;
+        my $errMsg = $@;
+        $errMsg =~ s/\sat\s.*$//;
+        print("ERROR: Invalid format xml file:$pomFilePath.\n$errMsg\n");
+    }
+
+    my ($groupId, $artifactId, $jarVersion);
+    my $groupIdItem = $xmlObj->path('groupId');
+    if ( defined($groupIdItem) ) {
+        $groupId = $groupIdItem->value();
+    }
+    else{
+        #如果groupId在Parent里
+        my $parentItem = $xmlObj->path('parent');
+        if(defined($parentItem)){
+            $groupIdItem = $parentItem->path('groupId');
+            if(defined($groupIdItem)){
+                $groupId = $groupIdItem->value();
+            }
+        }
+    }
+    my $artifactIdItem = $xmlObj->path('artifactId');
+    if ( defined($artifactIdItem)) {
+        $artifactId = $artifactIdItem->value();
+    }
+    my $versionItem = $xmlObj->path('version');
+    if ( defined($versionItem)) {
+        $jarVersion = $versionItem->value();
+    }
+
+    my $repoPath = $groupId;
+    $repoPath =~ s/\./\//g;
+    $repoPath = "$repoPath/$artifactId/$jarVersion";
+
+    if (not defined($groupId) or $groupId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find groupId in pom file:$pomFilePath\n");
+    }
+    if (not defined($artifactId) or $artifactId eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find artifactId in pom file:$pomFilePath\n");
+    }
+    if (not defined($jarVersion) or $jarVersion eq ''){
+        $hasError = 1;
+        print("ERROR: Can not find version in pom file:$pomFilePath\n");
+    }
+    
+    if ( not -d $repoPath){
+        $hasError = 1;
+        print("ERROR: Maven artifact dir:$repoPath not exists.\n");
+    }
+    else{
+        my $buildUtils = BuildUtils->new();
+        eval { $hasError = $buildUtils->syncDirToGroup( $buildEnv, $repoPath ); };
+        if ($@) {
+            print("ERROR: $@\n");
+        }
+        else {
+            print("FINE: Sync $repoPath to group members success.\n");
+        }
+    }
+
+    return $hasError;
+}
+
+exit main();

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 
 package ApolloCtl;
@@ -49,7 +49,10 @@ sub getAllItems {
     my $url     = $self->{baseUri} . uri_escape($namespace) . '/releases/latest';
     my $webCtl  = $self->{webCtl};
     my $content = $webCtl->doRest( 'GET', $url );
-
+    if ($content eq ''){
+        $content = '{}';
+    }
+    
     my $rc    = from_json($content);
     my $items = $rc->{configurations};
     if ( not defined($items) ) {

@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
+Copyright © 2017 NeatLogic
 """
 
 import os
@@ -22,7 +22,7 @@ class JmxUtils:
         self.isVerbose = isVerbose
 
         jmxConnection = None
-        if (jmxUsername is not None and jmxUsername != '' and jmxPassword is not None and jmxPassword != ''):
+        if jmxUsername is not None and jmxUsername != "" and jmxPassword is not None and jmxPassword != "":
             jmxConnection = JMXConnection(self.jmxUrl)
         else:
             jmxConnection = JMXConnection(self.jmxUrl, jmxUsername, jmxPassword)
@@ -33,10 +33,10 @@ class JmxUtils:
         try:
             metrics = self.connection.query(jmxQuery)
             for metric in metrics:
-                if (self.isVerbose == 1):
+                if self.isVerbose == 1:
                     metric_name = metric.metric_name
-                    metric_name = metric_name.replace('{name}_', '')
-                    metric_name = metric_name.replace('_{attributeKey}', '')
+                    metric_name = metric_name.replace("{name}_", "")
+                    metric_name = metric_name.replace("_{attributeKey}", "")
                     print("INFO:: Attribute {} ,Value {} .".format(metric_name, metric.value))
 
                 data = {}
@@ -66,15 +66,10 @@ class JmxUtils:
 
     def queryCheck(self, beanName, attribute):
         ret = 0
-        errMsg = ''
+        errMsg = ""
         try:
             self.queryBeanByNameAndAtrribute(beanName, attribute)
-            jmxQuery = [
-                JMXQuery(
-                    mBeanName=beanName,
-                    attribute=attribute
-                )
-            ]
+            jmxQuery = [JMXQuery(mBeanName=beanName, attribute=attribute)]
             self.connection.query(jmxQuery)
             ret = 1
         except Exception as ex:
@@ -87,24 +82,13 @@ class JmxUtils:
 
     def queryBeanByNameAndAtrribute(self, beanName, atrributeName, metricName=None):
         metricNameStr = "{name}_{attribute}_{attributeKey}"
-        if metricName is not None and metricName != '':
+        if metricName is not None and metricName != "":
             metricNameStr = metricName
 
-        jmxQuery = [
-            JMXQuery(
-                mBeanName=beanName,
-                metric_name=metricNameStr
-            )
-        ]
+        jmxQuery = [JMXQuery(mBeanName=beanName, metric_name=metricNameStr)]
 
-        if atrributeName is not None and atrributeName != '':
-            jmxQuery = [
-                JMXQuery(
-                    mBeanName=beanName,
-                    attribute=atrributeName,
-                    metric_name=metricNameStr
-                )
-            ]
+        if atrributeName is not None and atrributeName != "":
+            jmxQuery = [JMXQuery(mBeanName=beanName, attribute=atrributeName, metric_name=metricNameStr)]
             data = self.handQueryData(jmxQuery, metricName)
         return data
 

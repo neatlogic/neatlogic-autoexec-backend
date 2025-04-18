@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 
 package BuildUtils;
@@ -284,6 +284,42 @@ sub release2Env {
             $ret = system($syncCmd);
             if ( $ret != 0 ) {
                 print("ERROR: Sync '$envBuildRoot/' to $runnerIp:'$envBuildRoot/' failed.\n");
+                last;
+            }
+        }
+    }
+
+    chdir($cwd);
+
+    if ( $ret > 255 ) {
+        $ret = $ret >> 8;
+    }
+
+    return $ret;
+}
+
+sub syncDirToGroup {
+    my ( $self, $buildEnv, $dir ) = @_;
+
+    my $myRunnerId  = $buildEnv->{RUNNER_ID};
+    my $runnerGroup = $buildEnv->{RUNNER_GROUP};
+
+    my $cwd = getcwd();
+    chdir($dir);
+
+    my $ret = 0;
+    $ENV{RSYNC_RSH} = 'ssh -T -c aes128-ctr -o Compression=no -x';
+    while ( my ( $runnerId, $runnerIp ) = each(%$runnerGroup) ) {
+        if ( $runnerId eq $myRunnerId ) {
+            next;
+        }
+
+        if( -d $dir){
+            print("INFO: Sync '$dir/' to $runnerIp:'$dir/'.\n");
+            my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$dir' && rsync" . $runnerIp:'$dir/'};
+            $ret = system($syncCmd);
+            if ( $ret != 0 ) {
+                print("ERROR: Sync '$dir/' to $runnerIp:'$dir/' failed.\n");
                 last;
             }
         }

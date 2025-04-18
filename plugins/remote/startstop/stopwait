@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use lib "$FindBin::Bin/pllib/lib/perl5";
@@ -143,7 +143,7 @@ sub main {
         $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
             $SIG{CHLD} = 'IGNORE';
-            if ( not exec($preScript) != 0 ) {
+            if ( not exec($preScript) ) {
                 exit(2);
             }
         }

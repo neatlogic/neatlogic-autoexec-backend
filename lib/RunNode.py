@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- Copyright © 2017 NeatLogic
- 运行节点类
+Copyright © 2017 NeatLogic
+运行节点类
 """
 import os
 from pathlib import Path

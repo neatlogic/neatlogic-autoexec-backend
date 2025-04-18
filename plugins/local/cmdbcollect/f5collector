@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use FindBin;
 use lib $FindBin::Bin;
 use lib "$FindBin::Bin/lib";
@@ -94,14 +94,14 @@ sub main {
         $usmData->{community} = $community;
     }
 
-    my $collector = F5Snmp->new( hostname => $node->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
+    my $collector = F5Snmp->new( hostname => $nodeInfo->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
     my $data      = $collector->collect();
     my $objCat    = CollectObjCat->get('LOADBALANCER');
     $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'F5';
     $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = $node->{resourceId};
-    $data->{MGMT_IP}       = $node->{host};
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
+    $data->{MGMT_IP}       = $nodeInfo->{host};
 
     #my $upTime = int( $data->{UPTIME} / 86400 + 0.5 ) / 100;
     my $upTime = int( $data->{UPTIME} );
@@ -122,8 +122,8 @@ sub main {
                 '_OBJ_TYPE'     => 'F5',
                 'DEV_NAME'      => $data->{DEV_NAME},
                 'SN'            => $data->{SN},
-                'MGMT_IP'       => $node->{host},
-                'RESOURCE_ID'   => $node->{resourceId}
+                'MGMT_IP'       => $nodeInfo->{host},
+                'RESOURCE_ID'   => $nodeInfo->{resourceId}
             }
         };
         my $bind = $vsInfo->{IP} . ':' . $vsInfo->{PORT};

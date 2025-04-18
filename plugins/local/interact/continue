@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../pllib/lib/perl5";
 
 use strict;
+use File::Basename;
 use Getopt::Long;
 use JSON;
 
@@ -114,6 +115,10 @@ sub main {
     $out->{interactOut} = $enter;
     AutoExecUtils::saveOutput($out);
 
+    if ($enter ne 'Yes'){
+        $rc = 1;
+    }
+    
     return $rc;
 }
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use FindBin;
 
 use strict;
@@ -90,14 +90,14 @@ sub main {
         $usmData->{community} = $community;
     }
 
-    my $collector = A10Snmp->new( hostname => $node->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
+    my $collector = A10Snmp->new( hostname => $nodeInfo->{host}, port => $protocolPort, timeout => $timeout, %$usmData );
     my $data      = $collector->collect();
     my $objCat    = CollectObjCat->get('LOADBALANCER');
     $data->{_OBJ_CATEGORY} = $objCat;
     $data->{_OBJ_TYPE}     = 'A10';
     $data->{PK}            = ['MGMT_IP'];
-    $data->{RESOURCE_ID}   = $node->{resourceId};
-    $data->{MGMT_IP}       = $node->{host};
+    $data->{RESOURCE_ID}   = $nodeInfo->{resourceId};
+    $data->{MGMT_IP}       = $nodeInfo->{host};
 
     my $upTime = int( $data->{UPTIME} );
     $data->{UPTIME} = $upTime;
@@ -117,8 +117,8 @@ sub main {
                 '_OBJ_TYPE'     => 'A10',
                 'DEV_NAME'      => $data->{DEV_NAME},
                 'SN'            => $data->{SN},
-                'MGMT_IP'       => $node->{host},
-                'RESOURCE_ID'   => $node->{resourceId}
+                'MGMT_IP'       => $nodeInfo->{host},
+                'RESOURCE_ID'   => $nodeInfo->{resourceId}
             }
         };
         my $bind = $vsInfo->{IP} . ':' . $vsInfo->{PORT};

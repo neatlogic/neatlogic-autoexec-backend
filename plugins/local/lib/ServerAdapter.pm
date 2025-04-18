@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 
 package ServerAdapter;
@@ -43,6 +43,7 @@ sub new {
             'getVer'             => '/neatlogic/api/rest/deploy/version/info/get/forautoexec',
             'addVer'             => '/neatlogic/api/rest/deploy/version/save/forautoexec',
             'updateVer'          => '/neatlogic/api/rest/deploy/version/info/update/forautoexec',
+            'replaceBuildno'     => '/neatlogic/api/rest/deploy/appbuild/buildNo/replace',
             'delBuild'           => '/neatlogic/api/rest/deploy/version/buildNo/delete',
             'delVer'             => '/neatlogic/api/rest/deploy/version/delete',
             'releaseVerToEnv'    => '/neatlogic/api/rest/deploy/version/env/update/forautoexec',
@@ -318,6 +319,22 @@ sub addVer {
     my $rcObj   = $self->_getReturn($content);
 
     #TODO: 测试通过接口更新版本信息
+
+    return;
+}
+
+sub replaceBuildNo {
+    my ( $self, $buildEnv, $buildNo ) = @_;
+
+    my $params = {
+        jobId   => $buildEnv->{JOB_ID},
+        buildNo => $buildNo
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('replaceBuildno');
+    my $content = $webCtl->postJson( $url, $params, undef );
+    my $rcObj   = $self->_getReturn($content);
 
     return;
 }
@@ -1269,8 +1286,9 @@ sub getBuild {
     my $builded    = 0;
     my $buildLocal = 'false';
 
-    my $namePath = $deployEnv->{DEPLOY_PATH};
-    my $version  = $deployEnv->{VERSION};
+    my $namePath   = $deployEnv->{DEPLOY_PATH};
+    my $version    = $deployEnv->{VERSION};
+    my $oldBuildNo = $deployEnv->{BUILD_NO};
 
     my $gzMagicNum  = "\x1f\x8b";
     my $tarMagicNum = "\x75\x73";
@@ -1288,6 +1306,10 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
 
                 if ( defined($buildNo) and $buildNo ne '' ) {
+                    if ( $buildNo ne $oldBuildNo ){
+                        $self->replaceBuildNo($deployEnv, $buildNo);
+                        print("INFO: Remote build is:$buildNo, reset current build:$oldBuildNo to $buildNo.\n");
+                    }
                     $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'releasing' } );
                 }
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Copyright © 2017 NeatLogic
@@ -67,11 +67,22 @@ class ListenWorkThread(threading.Thread):
                         print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end="")
                     elif actionData["action"] == "setEnv":
                         onlyInProcess = actionData.get("onlyInProcess")
-                        for name, value in actionData("items").items():
+                        for name, value in actionData["items"].items():
                             if onlyInProcess:
                                 os.environ[name] = value
                             else:
                                 self.context.setEnv(name, value)
+                            if name == "BUILD_NO":
+                                paramsFilePath = self.context.paramsFilePath
+                                stat_info = os.stat(paramsFilePath)
+                                with open(paramsFilePath, "r", encoding="utf-8") as file:
+                                    data = json.load(file)
+                                    data["environment"]["BUILD_NO"] = value
+                                    file.close()
+                                    with open(paramsFilePath, "w", encoding="utf-8") as file:
+                                        json.dump(data, file, ensure_ascii=False, indent=4)
+                                        file.close()
+                                os.utime(paramsFilePath, (stat_info.st_atime, stat_info.st_mtime - 600))
                             print("INFO: Set ENV variable({}) event recieved, processed.\n".format(name), end="")
                     elif actionData["action"] == "globalLock":
                         lockParams = actionData["lockParams"]
