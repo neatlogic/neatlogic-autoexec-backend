@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import argparse
@@ -20,7 +20,7 @@ def pingCheck(host, timeOut):
     second = ping(dest_addr=host, timeout=timeOut)
     if second:
         second = round(second, 4)
-        print('INFO: {} is reachable, took {} second'.format(host, second))
+        print("INFO: {} is reachable, took {} second".format(host, second))
         return (True, None)
     else:
         loopCount = 2
@@ -29,22 +29,22 @@ def pingCheck(host, timeOut):
             loopCount = loopCount - 1
         if second:
             second = round(second, 4)
-            print('INFO: {} is reachable, took {} second'.format(host, second))
+            print("INFO: {} is reachable, took {} second".format(host, second))
             return (True, None)
         else:
-            errorMsg = 'ERROR: {} is unreachable.'.format(host)
+            errorMsg = "ERROR: {} is unreachable.".format(host)
             print(errorMsg)
             return (False, errorMsg)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='', help='Execution node json')
-    parser.add_argument('--timeout', default=10, help='Output json file path for node')
+    parser.add_argument("--node", default="", help="Execution node json")
+    parser.add_argument("--timeout", default=10, help="Output json file path for node")
 
     args = parser.parse_args()
 
-    if args.timeout == '':
+    if args.timeout == "":
         timeout = 10
     else:
         timeout = int(args.timeout)
@@ -54,9 +54,9 @@ if __name__ == "__main__":
     try:
         nodeInfo = {}
         hasOptError = False
-        if node is None or node == '':
-            node = os.getenv('AUTOEXEC_NODE')
-        if node is None or node == '':
+        if node is None or node == "":
+            node = os.getenv("AUTOEXEC_NODE")
+        if node is None or node == "":
             print("ERROR: Can not find node definition.\n")
             hasOptError = True
         else:
@@ -67,42 +67,38 @@ if __name__ == "__main__":
             exit(1)
 
         errMsg = None
-        print("INFO: Try to ping {}...".format(nodeInfo['host']))
+        print("INFO: Try to ping {}...".format(nodeInfo["host"]))
         startTime = time.time()
 
-        port = nodeInfo.get('port')
+        port = nodeInfo.get("port")
         if port is not None:
             port = int(port)
 
-        data = {'MGMT_IP': nodeInfo.get('host'),
-                'PORT': port,
-                'RESOURCE_ID': nodeInfo.get('resourceId'),
-                'AVAILABILITY': 0
-                }
+        data = {"MGMT_IP": nodeInfo.get("host"), "PORT": port, "RESOURCE_ID": nodeInfo.get("resourceId"), "AVAILABILITY": 0}
 
         try:
-            (ret, errMsg) = pingCheck(nodeInfo.get('host'), timeout)
+            (ret, errMsg) = pingCheck(nodeInfo.get("host"), timeout)
             timeConsume = round(time.time() - startTime, 4)
-            data['RESPONSE_TIME'] = timeConsume
+            data["RESPONSE_TIME"] = timeConsume
             if ret:
-                data['AVAILABILITY'] = 1
-                data['ERROR_MESSAGE'] = ''
+                data["AVAILABILITY"] = 1
+                data["ERROR_MESSAGE"] = ""
                 print("FINE: Ping success.\n")
             else:
-                data['AVAILABILITY'] = 0
-                data['ERROR_MESSAGE'] = errMsg
+                data["AVAILABILITY"] = 0
+                data["ERROR_MESSAGE"] = errMsg
                 print("WARN: Ping failed.\n")
         except Exception as ex:
             timeConsume = round(time.time() - startTime, 4)
             errMsg = str(ex)
-            data['AVAILABILITY'] = 0
-            data['ERROR_MESSAGE'] = errMsg
-            data['RESPONSE_TIME'] = timeConsume
+            data["AVAILABILITY"] = 0
+            data["ERROR_MESSAGE"] = errMsg
+            data["RESPONSE_TIME"] = timeConsume
             print("WARN: Ping failed.\n")
             exit(2)
 
-        out = {'DATA': data}
+        out = {"DATA": data}
         AutoExecUtils.saveOutput(out)
     except Exception as ex:
-        print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+        print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
         exit(2)

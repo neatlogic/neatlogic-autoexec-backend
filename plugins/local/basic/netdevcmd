@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import LocalRemoteExec
@@ -17,24 +17,24 @@ def usage():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--node', default='', help='connect remote ip password')
-    parser.add_argument('--timeout', default=15, help='timeout')
-    parser.add_argument('--command', default='', help='custom command')
+    parser.add_argument("--node", default="", help="connect remote ip password")
+    parser.add_argument("--timeout", default=15, help="timeout")
+    parser.add_argument("--command", default="", help="custom command")
 
     args = parser.parse_args()
     node = args.node
     timeout = args.timeout
     command = args.command
 
-    if(command is None):
+    if command is None:
         print("ERROR:: Must defined command.")
         hasOptError = True
 
     nodeInfo = {}
     hasOptError = False
-    if node is None or node == '':
-        node = os.getenv('AUTOEXEC_NODE')
-    if node is None or node == '':
+    if node is None or node == "":
+        node = os.getenv("AUTOEXEC_NODE")
+    if node is None or node == "":
         print("ERROR: Can not find node definition.\n")
         hasOptError = True
     else:
@@ -45,13 +45,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     exec = LocalRemoteExec.LocalRemoteExec()
-    command = command.replace('\\n', '\n')
+    command = command.replace("\\n", "\n")
 
     ret = False
-    errorMsg = ''
+    errorMsg = ""
     (ret, errorMsg) = exec._remoteExecCmd(nodeInfo, command, timeout)
     if ret:
-        print('INFO: Exec remote command success.')
+        print("INFO: Exec remote command success.")
     else:
-        print('ERROR: Exec remote command failed.')
+        print("ERROR: Exec remote command failed.")
         sys.exit(1)

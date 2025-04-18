@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import AutoExecUtils
@@ -18,20 +18,16 @@ def usage():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--starttime", default="", help="Data minimum renew time")
-    parser.add_argument(
-        "--batchtag", default="", help="Json document tag for this batch"
-    )
-    parser.add_argument(
-        "--collectionObjs", default="{}", help="Collections map to trigger cmdb import"
-    )
+    parser.add_argument("--batchtag", default="", help="Json document tag for this batch")
+    parser.add_argument("--collectionObjs", default="{}", help="Collections map to trigger cmdb import")
 
     args = parser.parse_args()
     startTime = args.starttime
     batchTag = args.batchtag
     collectionsMap = json.loads(args.collectionObjs)
     collectionObjs = []
-    for key in collectionsMap :
-        keys = key.split('/')
+    for key in collectionsMap:
+        keys = key.split("/")
         collectionObjs.append({"category": "{}".format(keys[0]), "type": keys[1]})
 
     if startTime is None or startTime == "":
@@ -40,11 +36,7 @@ if __name__ == "__main__":
     try:
         AutoExecUtils.callNativeApi(
             "/neatlogic/api/rest/cmdb/sync/cicollection/launch",
-            {
-                "startTime": int(1000 * float(startTime)),
-                "batchTag": batchTag,
-                "collectionObjList": collectionObjs
-            },
+            {"startTime": int(1000 * float(startTime)), "batchTag": batchTag, "collectionObjList": collectionObjs},
         )
     except Exception as err:
         print("ERROR: Trigger cmdb import failed, {}".format(err))

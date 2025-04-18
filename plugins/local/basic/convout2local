@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import os
@@ -14,7 +14,7 @@ import AutoExecUtils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('rest', nargs=argparse.REMAINDER, help="Output key")
+    parser.add_argument("rest", nargs=argparse.REMAINDER, help="Output key")
     args = parser.parse_args()
 
     outputKeys = args.rest
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     outCollection = None
     try:
         (dbclient, db) = AutoExecUtils.getDB()
-        outCollection = db['_node_output']
+        outCollection = db["_node_output"]
     except Exception as err:
         exitCode = 2
         print("ERROR: Can not connect to database, {}".format(err))
@@ -33,16 +33,16 @@ if __name__ == "__main__":
     dataConverted = {}
     for outputKey in outputKeys:
         hasOptError = False
-        if outputKey == '':
+        if outputKey == "":
             hasOptError = True
             print("ERROR: Must define output key name by option --outputkey")
 
         if hasOptError:
             sys.exit(2)
 
-        outputKey = re.sub(r'^#\{', '', outputKey)
-        outputKey = re.sub(r'\}$', '', outputKey)
-        outputKeyInfo = outputKey.split('.')
+        outputKey = re.sub(r"^#\{", "", outputKey)
+        outputKey = re.sub(r"\}$", "", outputKey)
+        outputKeyInfo = outputKey.split(".")
 
         if len(outputKeyInfo) != 3:
             print("ERROR: Malform output key %s." % (outputKey))
@@ -51,25 +51,17 @@ if __name__ == "__main__":
         opId = outputKeyInfo[1]
         varKey = outputKeyInfo[2]
 
-        jobId = os.getenv('AUTOEXEC_JOBID')
+        jobId = os.getenv("AUTOEXEC_JOBID")
 
         aggDatas = []
 
         try:
-            queryCond = {
-                'jobId': jobId,
-                'resourceId': {'$ne': 0},
-                'data.%s' % opId: {'$ne': None}
-            }
+            queryCond = {"jobId": jobId, "resourceId": {"$ne": 0}, "data.%s" % opId: {"$ne": None}}
 
             print("INFO: Try to query output for operation id:%s output:%s." % (opId, varKey))
-            for nodeOut in outCollection.find(
-                    queryCond,
-                    {
-                        'data.%s' % opId: 1
-                    }).limit(2):
+            for nodeOut in outCollection.find(queryCond, {"data.%s" % opId: 1}).limit(2):
 
-                val = nodeOut['data'].get(opId).get(varKey)
+                val = nodeOut["data"].get(opId).get(varKey)
                 aggDatas.append(val)
 
             if len(aggDatas) == 0:
@@ -84,9 +76,9 @@ if __name__ == "__main__":
                 print("INFO: Output for operation id:%s output:%s convert to local success." % (opId, varKey))
         except Exception as err:
             exitCode = 1
-            print('ERROR: Convert output for {} to local failed, {}'.format(outputKey, err))
+            print("ERROR: Convert output for {} to local failed, {}".format(outputKey, err))
 
-    out = {'dataConverted': dataConverted}
+    out = {"dataConverted": dataConverted}
     AutoExecUtils.saveOutput(out)
 
     if dbclient is not None:
