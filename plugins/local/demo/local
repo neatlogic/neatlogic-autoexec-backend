@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env python3 -u
 # -*- coding: utf-8 -*-
 
 import AutoExecUtils
@@ -8,7 +8,7 @@ import time
 import argparse
 
 binPaths = os.path.split(os.path.realpath(__file__))
-libPath = os.path.realpath(binPaths[0]+'/../lib')
+libPath = os.path.realpath(binPaths[0] + "/../lib")
 sys.path.append(libPath)
 
 
@@ -21,16 +21,16 @@ def usage():
 if __name__ == "__main__":
     # 参数处理
     parser = argparse.ArgumentParser()
-    parser.add_argument('--tinput', default='', help='XXXXXX')
-    parser.add_argument('--tjson', default='', help='XXXXXXX')
-    parser.add_argument('--tselect', default='', help='XXXXXXX')
-    parser.add_argument('--tmultiselect', default='', help='XXXXXXX')
-    parser.add_argument('--tpassword', default='', help='XXXXXXX')
-    parser.add_argument('--tfile', default='', help='XXXXXXX')
-    parser.add_argument('--tnode', default='', help='XXXXXXX')
-    parser.add_argument('--tdate', default='', help='XXXXXXX')
-    parser.add_argument('--ttime', default='', help='XXXXXXX')
-    parser.add_argument('--tdatetime', default='', help='XXXXXXX')
+    parser.add_argument("--tinput", default="", help="XXXXXX")
+    parser.add_argument("--tjson", default="", help="XXXXXXX")
+    parser.add_argument("--tselect", default="", help="XXXXXXX")
+    parser.add_argument("--tmultiselect", default="", help="XXXXXXX")
+    parser.add_argument("--tpassword", default="", help="XXXXXXX")
+    parser.add_argument("--tfile", default="", help="XXXXXXX")
+    parser.add_argument("--tnode", default="", help="XXXXXXX")
+    parser.add_argument("--tdate", default="", help="XXXXXXX")
+    parser.add_argument("--ttime", default="", help="XXXXXXX")
+    parser.add_argument("--tdatetime", default="", help="XXXXXXX")
 
     args = parser.parse_args()
 
@@ -58,35 +58,11 @@ if __name__ == "__main__":
     # 保存输出到json文件
     print("Save output to file\n")
     out = {}
-    out['outtext'] = "this is the text out value"
-    out['outpassword'] = "{RC4}xxxxxxxxxx"
-    out['outfile'] = "testfile.txt"
-    out['outjsonlist'] = [
-        {
-            "key1": "value1",
-            "key2": "value2",
-            "key3": {"key11": "value11", "key22": "value22"}
-        },
-        {
-            "key1": "value1",
-            "key2": "value2",
-            "key3": {"key11": "value11", "key22": "value22"}
-        }
-    ]
-    
-    out['outjsonobj'] = {
-        "mydata": [
-            {
-                "key1": "value1",
-                "key2": "value2",
-                "key3": {"key11": "value11", "key22": "value22"}
-            },
-            {
-                "key1": "value1",
-                "key2": "value2",
-                "key3": {"key11": "value11", "key22": "value22"}
-            }
-        ]
-    }
-    out['outcsv'] = '"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"}'
+    out["outtext"] = "this is the text out value"
+    out["outpassword"] = "{RC4}xxxxxxxxxx"
+    out["outfile"] = "testfile.txt"
+    out["outjsonlist"] = [{"key1": "value1", "key2": "value2", "key3": {"key11": "value11", "key22": "value22"}}, {"key1": "value1", "key2": "value2", "key3": {"key11": "value11", "key22": "value22"}}]
+
+    out["outjsonobj"] = {"mydata": [{"key1": "value1", "key2": "value2", "key3": {"key11": "value11", "key22": "value22"}}, {"key1": "value1", "key2": "value2", "key3": {"key11": "value11", "key22": "value22"}}]}
+    out["outcsv"] = '"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"}'
     AutoExecUtils.saveOutput(out)

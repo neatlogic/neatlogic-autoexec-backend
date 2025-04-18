@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding:UTF-8 -*-
 
 import argparse
@@ -19,7 +19,7 @@ def pingCheck(host, timeOut):
     second = ping(dest_addr=host, timeout=timeOut)
     if second:
         second = round(second, 4)
-        print('INFO: {} is reachable, took {} second'.format(host, second))
+        print("INFO: {} is reachable, took {} second".format(host, second))
         return (True, None)
     else:
         loopCount = 2
@@ -28,33 +28,33 @@ def pingCheck(host, timeOut):
             loopCount = loopCount - 1
         if second:
             second = round(second, 4)
-            print('INFO: {} is reachable, took {} second'.format(host, second))
+            print("INFO: {} is reachable, took {} second".format(host, second))
             return (True, None)
         else:
-            errorMsg = 'WARN: {} is unreachable.'.format(host, second)
+            errorMsg = "WARN: {} is unreachable.".format(host, second)
             print(errorMsg)
             return (False, errorMsg)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--targetstatus', default='up', help='Wait target status')
-    parser.add_argument('--host', default='127.0.0.1', help='Execution host')
-    parser.add_argument('--retrycount', default='1', help='Execution retry count')
-    parser.add_argument('--timeout', default=10, help='Output json file path for node')
+    parser.add_argument("--targetstatus", default="up", help="Wait target status")
+    parser.add_argument("--host", default="127.0.0.1", help="Execution host")
+    parser.add_argument("--retrycount", default="1", help="Execution retry count")
+    parser.add_argument("--timeout", default=10, help="Output json file path for node")
 
     args = parser.parse_args()
 
     targetStatus = args.targetstatus
     host = args.host
-    if args.timeout == '':
+    if args.timeout == "":
         timeout = 10
     else:
         timeout = int(args.timeout)
 
     retryCount = int(args.retrycount)
 
-    if targetStatus == 'up':
+    if targetStatus == "up":
         try:
             isFailed = 1
             for loop in range(0, retryCount):
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                         break
                 except Exception as ex:
                     errMsg = str(ex)
-                    print('WARN: ' + errMsg)
+                    print("WARN: " + errMsg)
                 finally:
                     sys.stdout.flush()
             if isFailed:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                 print("FINE: Wait %s up succeed." % (host))
             sys.exit(isFailed)
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
             sys.exit(2)
     else:
         try:
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                     print("INFO: Try to ping {}...".format(host))
                     (ret, errMsg) = pingCheck(host, timeout)
                     if ret:
-                        leftTime = timeout - (time.time()-startTime)
+                        leftTime = timeout - (time.time() - startTime)
                         if leftTime > 0:
                             time.sleep(leftTime)
                     else:
@@ -94,7 +94,7 @@ if __name__ == "__main__":
                         break
                 except Exception as ex:
                     errMsg = str(ex)
-                    print('WARN: ' + errMsg)
+                    print("WARN: " + errMsg)
                     break
                 finally:
                     sys.stdout.flush()
@@ -104,5 +104,5 @@ if __name__ == "__main__":
                 print("FINE: Wait %s down success." % (host))
             sys.exit(isFailed)
         except Exception as ex:
-            print('ERROR: Unknow Error, {}'.format(traceback.format_exc()))
+            print("ERROR: Unknow Error, {}".format(traceback.format_exc()))
             sys.exit(2)
