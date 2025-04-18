@@ -135,6 +135,8 @@ class RunNodeFactory:
                 if self.context.nodesToRun is not None:
                     if nodeObj.get("resourceId") in self.context.nodesToRun:
                         break
+                    else:
+                        continue
 
                 if seqNo is not None and nodeObj.get("seqNo", None) != seqNo:
                     continue
