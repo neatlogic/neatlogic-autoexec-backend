@@ -210,16 +210,16 @@ sub main {
     $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
 
     if(@$sqlFiles){
-        print("INFO: Check sql files...\n");
+        print("INFO: Check in sql files...\n");
         $ret      = $sqlFileRunner->checkSqlFiles();
         $hasError = $hasError + $ret;
-        print("INFO: Check sql files complete.\n");
+        print("INFO: Check in sql files complete.\n");
     }
     if(@$rollbackSqlFiles){
-        print("INFO: Check rollback sql files...\n");
+        print("INFO: Check in rollback sql files...\n");
         $ret      = $rbSqlFileRunner->checkSqlFiles();
         $hasError = $hasError + $ret;
-        print("INFO: Check rollback sql files complete.\n");
+        print("INFO: Check in rollback sql files complete.\n");
     }
 
     #创建sqlfiles软链接
