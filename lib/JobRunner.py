@@ -523,6 +523,8 @@ class JobRunner:
             if roundNo == maxRoundNo:
                 lastRound = True
 
+            oneRoundNodeCount = 0
+            oneRoundRunners = {}
             oneRoundNodes = []
             if groupRoundCount >= 0:
                 curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
@@ -530,16 +532,23 @@ class JobRunner:
                     node = nodesFactory.nextNode()
                     if node is None:
                         break
-                    if node["runnerId"] == self.context.runnerId:
+                    runnerId = node["runnerId"]
+                    oneRoundRunners[runnerId] = True
+                    oneRoundNodeCount = oneRoundNodeCount + 1
+                    if runnerId == self.context.runnerId:
                         oneRoundNodes.append(node)
             else:
                 seqNo = nodesFactory.getRoundSeqNo(roundNo)
                 nodesFactory.goFirstLine()
                 while True:
-                    node = nodesFactory.nextNode(runnerId=self.context.runnerId, seqNo=seqNo)
+                    node = nodesFactory.nextNode(seqNo=seqNo)
                     if node is None:
                         break
-                    oneRoundNodes.append(node)
+                    runnerId = node["runnerId"]
+                    oneRoundRunners[runnerId] = True
+                    oneRoundNodeCount = oneRoundNodeCount + 1
+                    if runnerId == self.context.runnerId:
+                        oneRoundNodes.append(node)
 
             lastPhase = None
             phaseIndex = 0
@@ -624,7 +633,7 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
+                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundRunners.keys(), oneRoundNodeCount)
                             if not hasInformed:
                                 hasInformed = True
                                 print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")

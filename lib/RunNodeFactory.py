@@ -138,7 +138,7 @@ class RunNodeFactory:
                     else:
                         continue
 
-                if seqNo is not None and nodeObj.get("seqNo", None) != seqNo:
+                if seqNo is not None and nodeObj.get("seqNo", 1) != seqNo:
                     continue
 
                 if runnerId is None or nodeObj.get("runnerId", None) == runnerId:
