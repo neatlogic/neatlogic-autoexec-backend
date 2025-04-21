@@ -307,10 +307,11 @@ class ServerAdapter:
                         value = nodesSeqDesc[key]
                         if value == 0:
                             continue
-                        if key == 0:
-                            zeroSeqDesc = [key, value]
                         if maxParallel < value:
                             maxParallel = value
+                        if key == 0:
+                            zeroSeqDesc = [key, value]
+                            continue
                         roundDef.append([key, value])
                     if zeroSeqDesc is not None:
                         roundDef.append(zeroSeqDesc)
