@@ -209,11 +209,18 @@ sub main {
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
     $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
 
-    $ret      = $sqlFileRunner->checkSqlFiles();
-    $hasError = $hasError + $ret;
-
-    $ret      = $rbSqlFileRunner->checkSqlFiles();
-    $hasError = $hasError + $ret;
+    if(@$sqlFiles){
+        print("INFO: Check sql files...\n");
+        $ret      = $sqlFileRunner->checkSqlFiles();
+        $hasError = $hasError + $ret;
+        print("INFO: Check sql files complete.\n");
+    }
+    if(@$rollbackSqlFiles){
+        print("INFO: Check rollback sql files...\n");
+        $ret      = $rbSqlFileRunner->checkSqlFiles();
+        $hasError = $hasError + $ret;
+        print("INFO: Check rollback sql files complete.\n");
+    }
 
     #创建sqlfiles软链接
     if ( -d $sqlFileDir ) {
