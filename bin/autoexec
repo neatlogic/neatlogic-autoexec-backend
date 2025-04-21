@@ -136,13 +136,10 @@ def findJobProcesses(jobId):
                 if not entry.name.startswith(".") and entry.is_dir():
                     if re.match(r"^\d+$", entry.name):
                         pid = int(entry.name)
-                        try:
-                            f = open(entry.path + "/cmdline")
+                        with open(entry.path + "/cmdline") as f:
                             content = f.read()
                             if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
                                 autoexecPids.append(pid)
-                        except:
-                            pass
     else:
         # 为了便于在MacOS上测试
         jobId = jobId.encode("UTF-8")
