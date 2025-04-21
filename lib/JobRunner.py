@@ -524,7 +524,6 @@ class JobRunner:
                 lastRound = True
 
             oneRoundNodeCount = 0
-            oneRoundRunners = {}
             oneRoundNodes = []
             if groupRoundCount >= 0:
                 curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
@@ -533,7 +532,6 @@ class JobRunner:
                     if node is None:
                         break
                     runnerId = node["runnerId"]
-                    oneRoundRunners[runnerId] = True
                     oneRoundNodeCount = oneRoundNodeCount + 1
                     if runnerId == self.context.runnerId:
                         oneRoundNodes.append(node)
@@ -545,7 +543,6 @@ class JobRunner:
                     if node is None:
                         break
                     runnerId = node["runnerId"]
-                    oneRoundRunners[runnerId] = True
                     oneRoundNodeCount = oneRoundNodeCount + 1
                     if runnerId == self.context.runnerId:
                         oneRoundNodes.append(node)

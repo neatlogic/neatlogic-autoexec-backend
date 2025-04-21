@@ -483,7 +483,7 @@ class ServerAdapter:
             raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
-    def informRoundEnded(self, groupNo, phaseName, roundNo, seqNo, runners, roundNodeCount):
+    def informRoundEnded(self, groupNo, phaseName, roundNo, seqNo, roundNodeCount):
         if self.context.devMode:
             return {}
 
@@ -494,7 +494,6 @@ class ServerAdapter:
             "phase": phaseName,
             "roundNo": roundNo,
             "seqNo": seqNo,
-            "runners": runners,
             "roundNodeCount": roundNodeCount,
             "time": time.time(),
             "execId": self.context.execId,
