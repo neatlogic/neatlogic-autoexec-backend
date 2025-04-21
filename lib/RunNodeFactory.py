@@ -182,11 +182,11 @@ class RunNodeFactory:
                 protocolPort = nodeObj.get("port", 0)
 
             nodeObj["protocolPort"] = protocolPort
-        else:
-            self.cleared = True
-            nodeObj = None
-            if self.nodesFile is not None:
-                self.nodesFile.close()
-            self.nodesFile = None
+        # else:
+        #     self.cleared = True
+        #     nodeObj = None
+        #     if self.nodesFile is not None:
+        #         self.nodesFile.close()
+        #     self.nodesFile = None
 
         return nodeObj
