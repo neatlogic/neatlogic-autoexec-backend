@@ -148,7 +148,7 @@ sub main {
 
     my $pid;
     if ( defined($preScript) and $preScript ne '' ) {
-        print("INFO: Execte script:$preScript\n");
+        print("INFO: Execte script: $preScript\n");
         $pid = fork();
         if ( defined($pid) and $pid == 0 ) {
 

@@ -227,17 +227,18 @@ sub _checkService {
     foreach my $addr (@addrs) {
         $addrStatusMap->{$addr} = $upOrDown ^ 1;
     }
-
+    my $logMatched = 1;
     my $svcStatus = $upOrDown ^ 1;
     my $step      = 3;
     my $stepCount = $timeout / $step;
 
     my $callback;
     if ( defined($eofStr) and $eofStr ne '' ) {
+        $logMatched = 0;
         $callback = sub {
             my ($line) = @_;
             if ( $line =~ /$eofStr/ ) {
-                $svcStatus = $upOrDown;
+                $logMatched = 1;
             }
         };
     }
@@ -262,8 +263,19 @@ sub _checkService {
     my $timeConsume = 0;
     my $startTime   = time();
     for ( my $i = 0 ; $i <= $stepCount ; $i++ ) {
-
         $svcStatus = $upOrDown;
+
+        my $procPid = $self->{procPid};
+        if ( defined($procPid) ) {
+            my $rc = waitpid( $procPid, 1 );
+            if ( $rc > 0 ) {
+                my $chldExitCode = $?;
+                if ( $chldExitCode != 0 ) {
+                    print("WARN: Execute command failed: $self->{preScript}\n");
+                }
+            }
+        }
+
         foreach my $addr (@addrs) {
             if ( $addrStatusMap->{$addr} == $upOrDown ) {
                 next;
@@ -293,26 +305,15 @@ sub _checkService {
 
         $self->_tailLogs( $logInfos, $callback );
 
-        if ( $svcStatus == $upOrDown ) {
+        if ( $svcStatus == $upOrDown and $logMatched == 1 ) {
             last;
         }
 
         $timeConsume = time() - $startTime;
         if ( $timeConsume >= $timeout ) {
-            undef($svcStatus);
+            #undef($svcStatus);
             print("WARN: Check timeout($timeout)\n");
             last;
-        }
-
-        my $procPid = $self->{procPid};
-        if ( defined($procPid) ) {
-            my $rc = waitpid( $procPid, 1 );
-            if ( $rc > 0 ) {
-                my $chldExitCode = $?;
-                if ( $chldExitCode != 0 ) {
-                    print("WARN: Execute command failed:$self->{preScript}\n");
-                }
-            }
         }
 
         sleep($step);
@@ -332,6 +333,16 @@ sub _checkService {
         }
         else {
             print("WARN: Service $addrDef is up.\n");
+        }
+    }
+
+    if(defined($eofStr) and $eofStr ne ''){
+        if ( $logMatched == 0){
+            $svcStatus = $upOrDown ^ 1;
+            print("WARN: Wait to get eof string: '$eofStr' timeout($timeout seconds).\n");
+        }
+        else{
+            print("INFO: Eof string: '$eofStr' matched.\n");
         }
     }
 
@@ -370,6 +381,17 @@ sub checkEofstr {
     my $timeConsume = 0;
     my $startTime   = time();
     for ( my $i = 0 ; $i <= $stepCount ; $i++ ) {
+        my $procPid = $self->{procPid};
+        if ( defined($procPid) ) {
+            my $rc = waitpid( $procPid, 1 );
+            if ( $rc > 0 ) {
+                my $chldExitCode = $?;
+                if ( $chldExitCode != 0 ) {
+                    print("WARN: Execute command failed: $self->{preScript}\n");
+                }
+            }
+        }
+
         if ( $i % 10 == 0 ) {
             print("INFO: Waiting for '$eofStr'....\n");
         }
@@ -390,10 +412,10 @@ sub checkEofstr {
     }
 
     if ( $isSuccess == 0 ) {
-        print("WARN: Wait to get eof string:$eofStr timeout($timeout seconds).\n");
+        print("WARN: Wait to get eof string: '$eofStr' timeout($timeout seconds).\n");
     }
     else {
-        print("INFO: '$eofStr' matched.\n");
+        print("INFO: Eof string: '$eofStr' matched.\n");
     }
 
     return $isSuccess;
