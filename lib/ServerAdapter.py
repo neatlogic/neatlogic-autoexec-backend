@@ -284,7 +284,7 @@ class ServerAdapter:
                         nodesCount = int(nodesDescObj["totalCount"])
                     else:
                         nodeObj = json.loads(line)
-                        seqNo = nodeObj.get("seqNo", 1)
+                        seqNo = nodeObj.get("seqNo", 0)
                         nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
@@ -300,12 +300,20 @@ class ServerAdapter:
                 seqDescFilePath = nodesFilePath + ".desc"
                 with open(seqDescFilePath, "w") as descFile:
                     maxParallel = 0
+                    zeroSeqDesc = None
                     roundDef = []
-                    for key in sorted(nodesSeqDesc):
+                    sortedNodesSeqDesc = sorted(nodesSeqDesc)
+                    for key in sortedNodesSeqDesc:
                         value = nodesSeqDesc[key]
+                        if value == 0:
+                            continue
+                        if key == 0:
+                            zeroSeqDesc = [key, value]
                         if maxParallel < value:
                             maxParallel = value
                         roundDef.append([key, value])
+                    if zeroSeqDesc is not None:
+                        roundDef.append(zeroSeqDesc)
 
                     descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}, ensure_ascii=False))
                     descFile.close()
