@@ -137,14 +137,10 @@ def findJobProcesses(jobId):
                     if re.match(r"^\d+$", entry.name):
                         pid = int(entry.name)
                         try:
-                            cf = open(entry.path + "/comm")
-                            comm = cf.read()
-                            comm = comm.strip()
-                            if comm == "autoexec":
-                                f = open(entry.path + "/cmdline")
-                                content = f.read()
-                                if content.index(jobId) > 0 and pid != mypid:
-                                    autoexecPids.append(pid)
+                            f = open(entry.path + "/cmdline")
+                            content = f.read()
+                            if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
+                                autoexecPids.append(pid)
                         except:
                             pass
     else:
