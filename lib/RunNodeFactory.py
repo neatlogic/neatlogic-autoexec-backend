@@ -107,7 +107,7 @@ class RunNodeFactory:
         if roundNo <= len(roundsDef):
             return roundsDef[roundNo - 1][0]
         else:
-            return 1
+            return 0
 
     def getRoundSeqCount(self, roundNo):
         if self.seqDesc is None:
@@ -138,7 +138,7 @@ class RunNodeFactory:
                     else:
                         continue
 
-                if seqNo is not None and nodeObj.get("seqNo", 1) != seqNo:
+                if seqNo is not None and nodeObj.get("seqNo", 0) != seqNo:
                     continue
 
                 if runnerId is None or nodeObj.get("runnerId", None) == runnerId:

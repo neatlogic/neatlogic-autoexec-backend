@@ -630,7 +630,7 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundRunners.keys(), oneRoundNodeCount)
+                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                             if not hasInformed:
                                 hasInformed = True
                                 print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")
