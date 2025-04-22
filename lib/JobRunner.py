@@ -634,12 +634,12 @@ class JobRunner:
                             self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                             if not hasInformed:
                                 hasInformed = True
-                                print("INFO: Inform server group:%d round:%d seq:%d, phase:%s ended, wait other runner...\n" % (groupNo, roundNo, seqNo, phaseName), end="")
+                                print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
-                            print("WARN: Inform server group:%d round:%d seq:%d, phase:%s ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
+                            print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
 
                         if phaseStatus.waitGlobalRoundFin(10):
-                            print("INFO: Group:%d round:%d seq:%d, phase:%s is completed.\n" % (groupNo, roundNo, seqNo, phaseName), end="")
+                            print("INFO: Group:{} round:{} seq:{}, phase:{} is completed.\n".format(groupNo, roundNo, seqNo, phaseName), end="")
                             break
 
                     if loopCount <= 0:
