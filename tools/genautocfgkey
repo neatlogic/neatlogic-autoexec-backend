@@ -1,0 +1,179 @@
+#!/usr/bin/python3
+import sys
+import argparse
+import difflib
+import re
+from collections import defaultdict
+
+
+def fill_place_holders(orig_line, placeholders):
+    """
+    用占位符填充原始行
+    :param orig_line: 原始行
+    :param placeholders: 占位符映射字典
+    :return: 填充后的行
+    """
+
+    for placeholder, value in placeholders.items():
+        orig_line = orig_line.replace(placeholder, value)
+
+    return orig_line
+
+
+def print_placeholder_map(placeholder_map):
+    """
+    打印占位符映射
+    :param placeholder_map: 占位符映射字典
+    """
+    max_len = 0
+    for placeholder, value in placeholder_map.items():
+        key_len = len(placeholder) - 4
+        if key_len > max_len:
+            max_len = key_len
+
+    for placeholder, value in placeholder_map.items():
+        key_name = placeholder[2:-2]
+        is_password = False
+        is_multi_line = False
+        try:
+            if key_name.index("pass") != -1:
+                is_password = True
+        except:
+            pass
+
+        if len(value.split("\n")) > 1:
+            is_multi_line = True
+
+        key_name = key_name.ljust(max_len)
+        if is_password:
+            print(f"password: {key_name} = {value}")
+        elif is_multi_line:
+            value = value.replace("\n", "\\n")
+            print(f"textarea: {key_name} = {value}")
+        else:
+            print(f"text:     {key_name} = {value}")
+
+
+def find_val_not_found_placeholders(repl_file, found_mappings, invalid_mappings):
+    """
+    找到未找到的占位符
+    :param original_file: 原始文件路径
+    :param found_mappings: 已找到的占位符映射
+    :param invalid_mappings: 无效的占位符映射
+    :return: 未找到的占位符列表
+    """
+    with open(repl_file, "r") as f:
+        original_lines = f.readlines()
+
+    placeholder_pattern = re.compile(r"\{\{.+?\}\}")
+
+    not_found_placeholders = {}
+    for line in original_lines:
+        placeholders = placeholder_pattern.findall(line)
+        for placeholder in placeholders:
+            if placeholder not in found_mappings and placeholder not in invalid_mappings:
+                not_found_placeholders[placeholder] = ""
+
+    return not_found_placeholders
+
+
+def find_placeholder_mappings(original_file, replaced_file):
+    # 读取文件内容
+    with open(original_file, "r") as f:
+        original_lines = f.readlines()
+        if not original_lines[-1].endswith("\n"):
+            original_lines[-1] += "\n"
+
+    with open(replaced_file, "r") as f:
+        replaced_lines = f.readlines()
+        if not replaced_lines[-1].endswith("\n"):
+            replaced_lines[-1] += "\n"
+
+    # 使用difflib比较文件
+    differ = difflib.SequenceMatcher(a=original_lines, b=replaced_lines, autojunk=False)
+
+    invalid_placeholder_map = defaultdict(str)
+    placeholder_map = defaultdict(str)
+    placeholder_pattern = re.compile(r"\{\{.+?\}\}")
+
+    for tag, i1, i2, j1, j2 in differ.get_opcodes():
+        if tag == "replace":
+            current_placeholders_map = defaultdict(str)
+            # 比较被替换的部分
+            for orig_line, repl_line in zip(original_lines[i1:i2], replaced_lines[j1:j2]):
+                # 找出原始行中的所有占位符
+                placeholders = placeholder_pattern.findall(repl_line)
+                if not placeholders:
+                    continue
+
+                repl_line_new = placeholder_pattern.sub("\b", repl_line)
+                # 使用SequenceMatcher比较单个行
+                line_matcher = difflib.SequenceMatcher(a=orig_line, b=repl_line_new, autojunk=False)
+
+                idx = 0
+                for op, o1, o2, r1, r2 in line_matcher.get_opcodes():
+                    if op == "replace":
+                        repl_part = repl_line_new[r1:r2]
+                        if not repl_part == "\b":
+                            continue
+
+                        orig_part = orig_line[o1:o2]
+                        placeholder = placeholders[idx]
+                        current_placeholders_map[placeholder] = orig_part
+                        idx = idx + 1
+
+            fill_line = fill_place_holders(repl_line, current_placeholders_map)
+            if fill_line == orig_line:
+                placeholder_map.update(current_placeholders_map)
+            else:
+                invalid_placeholder_map.update(current_placeholders_map)
+
+    return (placeholder_map, invalid_placeholder_map)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--autocfg", default="config.properties.autocfg", help="Autocfg template file")
+    parser.add_argument("--org", default="config.properties", help="Config file with values")
+
+    args = parser.parse_args()
+    replaced_file = args.autocfg
+    original_file = args.org
+
+    # original_file = "test/config.properties"
+    # replaced_file = "test/config.properties.autocfg"
+
+    # 检查文件是否存在
+    try:
+        with open(replaced_file, "r", encoding="utf-8") as f:
+            pass
+    except FileNotFoundError:
+        print(f"ERROR: File {replaced_file} not exists.")
+        return 1
+    try:
+        with open(original_file, "r", encoding="utf-8") as f:
+            pass
+    except FileNotFoundError:
+        print(f"ERROR: File {original_file} not exists.")
+        return 1
+
+    (mappings, invalid_mappings) = find_placeholder_mappings(original_file, replaced_file)
+    notfound_mappings = find_val_not_found_placeholders(replaced_file, mappings, invalid_mappings)
+
+    print("Found placeholder mappings:")
+    print("===========================================")
+    print_placeholder_map(mappings)
+
+    if invalid_mappings:
+        print("\n-------------------------------------------------")
+        print("Found confuse placeholder mappings:")
+        print_placeholder_map(invalid_mappings)
+
+    if notfound_mappings:
+        print("\n-------------------------------------------------")
+        print("Not found placeholder mappings:")
+        print_placeholder_map(notfound_mappings)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

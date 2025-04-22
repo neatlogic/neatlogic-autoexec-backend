@@ -131,7 +131,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -163,7 +163,7 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
@@ -195,13 +195,18 @@
                     "name": "NETMASK",
                     "desc": "Net Mask",
                     "type": "String"
-                }
+                },
                 {
                     "name": "TYPE",
                     "desc": "IP Type",
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "Default Gateway",
+            "type": "String"
         },
         {
             "name": "SYS_VENDOR",
@@ -262,6 +267,21 @@
                     "name": "SHELL",
                     "desc": "Shell",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "No pwd login",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "User Expired Days",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "Password Expaired Days",
+                    "type": "Int"
                 }
             ]
         },
@@ -447,8 +467,13 @@
         },
         {
             "name": "NIC_BOND",
-            "desc": "NIC Bond",
-            "type": "Float"
+            "desc": "Nic Bond",
+            "type": "Int"
+        },
+        {
+            "name": "NIC_TEAM",
+            "desc": "Nic Team",
+            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -911,6 +936,23 @@
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
             "type": "String"
+        },
+        {
+            "name": "CUSTOM_INSPECTS",
+            "desc": "Custom Inspect Results",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Inspect Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PROBLEM",
+                    "desc": "Problem",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

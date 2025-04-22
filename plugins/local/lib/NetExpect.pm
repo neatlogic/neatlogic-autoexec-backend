@@ -14,6 +14,10 @@ sub new {
     if ( defined( $attr{prompt} ) and $attr{prompt} ne '' ) {
         $self->{prompt} = $attr{prompt};
     }
+    $self->{maxMatchSize} = 0;
+    if ( defined( $attr{maxMatchSize} ) and $attr{maxMatchSize} ne '' ) {
+        $self->{maxMatchSize} = $attr{maxMatchSize}
+    }
 
     $self->{host}     = $attr{host};
     $self->{port}     = $attr{port};
@@ -51,6 +55,7 @@ sub login {
     my $protocol = $self->{protocol};
     my $verbose  = $self->{verbose};
     my $timeout  = $self->{timeout};
+    my $maxMatchSize = $self->{maxMatchSize};
 
     my $spawn = Expect->new();
     if ( $verbose == 1 ) {
@@ -64,6 +69,7 @@ sub login {
     $spawn->restart_timeout_upon_receive(1);
     $spawn->max_accum(512);
     $spawn->timeout($timeout);
+    $spawn->match_max($maxMatchSize);
 
     my $cmd;
     if ( $protocol eq 'ssh' ) {

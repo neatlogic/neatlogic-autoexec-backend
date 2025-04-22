@@ -19,13 +19,14 @@ sub usage {
     print("       --image:   Image name\n");
     print("       --tagname: Tag name.\n");
     print("       --project: Project\n");
+    print("       --architecture: docker run os architecture,includes: linux/amd64、linux/arm64");
 
     exit(-1);
 }
 
 sub main {
     my ( $envPath, $version, $buildNo,  $isHelp );
-    my ( $image,   $tagname, $registry, $project, $buildFile );
+    my ( $image,   $tagname, $registry, $project, $buildFile,$architecture );
 
     GetOptions(
         'h|help'     => \$isHelp,
@@ -36,7 +37,8 @@ sub main {
         'project=s'  => \$project,
         'image=s'    => \$image,
         'tagname=s'  => \$tagname,
-        'buildfile=s' => \$buildFile
+        'buildfile=s' => \$buildFile,
+        'architecture=s'=>\$architecture
     );
 
     usage() if ( defined($isHelp) );
@@ -96,6 +98,9 @@ sub main {
     my $cmd        = "sudo docker build -t '$image_name' '$distDir/app'";
     if(defined($buildFile) and $buildFile ne ''){
         $cmd        = "sudo docker build -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
+    }
+    if(defined($architecture) and $architecture ne '' ){
+        $cmd        = "sudo docker build  --platform $architecture -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
     }
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);

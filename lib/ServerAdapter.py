@@ -274,7 +274,7 @@ class ServerAdapter:
                 nodesFile = open(nodesFilePath, "a+")
                 fcntl.flock(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
-
+                nodesSeqDesc = {}
                 nodesCount = 0
                 linesCount = 0
                 line = None
@@ -282,6 +282,10 @@ class ServerAdapter:
                     if linesCount == 0:
                         nodesDescObj = json.loads(line)
                         nodesCount = int(nodesDescObj["totalCount"])
+                    else:
+                        nodeObj = json.loads(line)
+                        seqNo = nodeObj.get("seqNo", 0)
+                        nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
 
@@ -292,6 +296,28 @@ class ServerAdapter:
                         json.loads(line)
                     except:
                         raise AutoExecError("Get nodes failed, download incomplete.")
+
+                seqDescFilePath = nodesFilePath + ".desc"
+                with open(seqDescFilePath, "w") as descFile:
+                    maxParallel = 0
+                    zeroSeqDesc = None
+                    roundDef = []
+                    sortedNodesSeqDesc = sorted(nodesSeqDesc)
+                    for key in sortedNodesSeqDesc:
+                        value = nodesSeqDesc[key]
+                        if value == 0:
+                            continue
+                        if maxParallel < value:
+                            maxParallel = value
+                        if key == 0:
+                            zeroSeqDesc = [key, value]
+                            continue
+                        roundDef.append([key, value])
+                    if zeroSeqDesc is not None:
+                        roundDef.append(zeroSeqDesc)
+
+                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}, ensure_ascii=False))
+                    descFile.close()
 
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
@@ -466,7 +492,7 @@ class ServerAdapter:
             raise
 
     # 通知后端进行下一个阶段的调度，后端根据当前phase的全局节点运行状态判断是否调度下一个阶段
-    def informRoundEnded(self, groupNo, phaseName, roundNo):
+    def informRoundEnded(self, groupNo, phaseName, roundNo, seqNo, roundNodeCount):
         if self.context.devMode:
             return {}
 
@@ -476,6 +502,8 @@ class ServerAdapter:
             "groupNo": groupNo,
             "phase": phaseName,
             "roundNo": roundNo,
+            "seqNo": seqNo,
+            "roundNodeCount": roundNodeCount,
             "time": time.time(),
             "execId": self.context.execId,
             "pid": self.context.execId,

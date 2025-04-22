@@ -155,7 +155,7 @@ sub main {
         print("INFO: Has defined class $storageClass, try to load it.\n");
         eval {
             require "$storageClass.pm";
-            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo );
+            $storageIns = $storageClass->new( hostname => $hostname, community => $community, timeout => $timeout, node => $nodeInfo, inspect => $inspect, sshAccount => $sshAccountInfo , verbose=>$isVerbose );
         };
         if ($@) {
             $isFailed = 1;

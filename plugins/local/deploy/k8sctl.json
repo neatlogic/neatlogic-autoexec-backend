@@ -141,7 +141,6 @@
             "defaultValue": "deployment.yaml"
         },
         {
-
             "opt": "namespace",
             "name": "命名空间",
             "help": "应用所在的K8S命名空间",

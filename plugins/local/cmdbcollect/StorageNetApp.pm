@@ -29,6 +29,7 @@ sub new {
     $self->{timeout} = $timeout;
     my $utils = CollectUtils->new();
     $self->{collectUtils} = $utils;
+    $self->{verbose} = $args{verbose}
 
     my $ssh = NetExpect->new(
         host     => $node->{host},
@@ -36,7 +37,9 @@ sub new {
         protocol => 'ssh',
         username => $node->{username},
         password => $node->{password},
-        timeout  => $timeout
+        timeout  => $timeout,
+        prompt   => '([\]\$\>\#]\s*$|.*::>\s*$)',
+        verbose  => $self->{verbose}
     );
     $ssh->login();
 

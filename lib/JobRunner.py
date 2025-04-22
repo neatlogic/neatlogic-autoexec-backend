@@ -458,14 +458,20 @@ class JobRunner:
         nodesFactory = RunNodeFactory.RunNodeFactory(self.context, groupNo=groupNo)
 
         realGroupRoundCount = groupRoundCount
-        if realGroupRoundCount <= 0:
+        if groupRoundCount == 0:
             realGroupRoundCount = nodesFactory.nodesCount
+        elif groupRoundCount < 0:
+            realGroupRoundCount = nodesFactory.getSeqRoundCount()
 
         if realGroupRoundCount == 0:
             realGroupRoundCount = 1
 
         # 获取分组运行的最大的并行线程数
-        parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
+        parallelCount = 1
+        if groupRoundCount >= 0:
+            parallelCount = self.getRoundParallelCount(1, nodesFactory.nodesCount, realGroupRoundCount)
+        else:
+            parallelCount = nodesFactory.getSeqParallelCount()
 
         threads = []
         for phaseConfig in phaseGroup["phases"]:
@@ -499,14 +505,15 @@ class JobRunner:
             threads.append(thread)
 
         maxRoundNo = realGroupRoundCount
-        if nodesFactory.nodesCount < maxRoundNo:
-            maxRoundNo = nodesFactory.nodesCount
+        # if nodesFactory.nodesCount < maxRoundNo:
+        #     maxRoundNo = nodesFactory.nodesCount
         if maxRoundNo <= 0:
             maxRoundNo = 1
 
         firstRound = True
         midRound = False
         lastRound = False
+        seqNo = None
 
         for roundNo in range(1, maxRoundNo + 1):
             if self.context.goToStop:
@@ -517,14 +524,29 @@ class JobRunner:
             if roundNo == maxRoundNo:
                 lastRound = True
 
+            oneRoundNodeCount = 0
             oneRoundNodes = []
-            curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
-            for k in range(1, curRoundNodes + 1):
-                node = nodesFactory.nextNode()
-                if node is None:
-                    break
-                if node["runnerId"] == self.context.runnerId:
-                    oneRoundNodes.append(node)
+            if groupRoundCount >= 0:
+                curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
+                for k in range(1, curRoundNodes + 1):
+                    node = nodesFactory.nextNode()
+                    if node is None:
+                        break
+                    runnerId = node["runnerId"]
+                    oneRoundNodeCount = oneRoundNodeCount + 1
+                    if runnerId == self.context.runnerId:
+                        oneRoundNodes.append(node)
+            else:
+                seqNo = nodesFactory.getRoundSeqNo(roundNo)
+                nodesFactory.goFirstLine()
+                while True:
+                    node = nodesFactory.nextNode(seqNo=seqNo)
+                    if node is None:
+                        break
+                    runnerId = node["runnerId"]
+                    oneRoundNodeCount = oneRoundNodeCount + 1
+                    if runnerId == self.context.runnerId:
+                        oneRoundNodes.append(node)
 
             lastPhase = None
             phaseIndex = 0
@@ -569,7 +591,7 @@ class JobRunner:
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
                     else:
-                        print("INFO: Local phase:{} is no need to execute in current round:{}.\n".format(phaseName, roundNo), end="")
+                        print("INFO: Local phase:{} is no need to execute in current round:{}, seq:{}.\n".format(phaseName, roundNo, seqNo), end="")
                         continue
                 elif phaseStatus.hasRemote:
                     for node in oneRoundNodes:
@@ -609,15 +631,15 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo)
+                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                             if not hasInformed:
                                 hasInformed = True
-                                print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")
+                                print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
-                            print("WARN: Inform server round:{}/{}/{} ended failed, {}.\n".format(groupNo, roundNo, phaseName, ex), end="")
+                            print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
 
                         if phaseStatus.waitGlobalRoundFin(10):
-                            print("INFO: Group:%d round:%d phase:%s is completed.\n" % (groupNo, roundNo, phaseName), end="")
+                            print("INFO: Group:{} round:{} seq:{}, phase:{} is completed.\n".format(groupNo, roundNo, seqNo, phaseName), end="")
                             break
 
                     if loopCount <= 0:

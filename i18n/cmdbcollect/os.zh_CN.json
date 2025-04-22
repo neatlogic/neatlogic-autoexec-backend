@@ -204,6 +204,11 @@
             ]
         },
         {
+            "name": "DEFAULT_GATEWAY",
+            "desc": "默认网关",
+            "type": "String"
+        },
+        {
             "name": "SYS_VENDOR",
             "desc": "厂商",
             "type": "String"
@@ -262,6 +267,21 @@
                     "name": "SHELL",
                     "desc": "SHELL",
                     "type": "String"
+                },
+                {
+                    "name": "NO_PWD",
+                    "desc": "不允许密码登录",
+                    "type": "Int"
+                },
+                {
+                    "name": "EXPIRED_DAYS",
+                    "desc": "用户过期天数",
+                    "type": "Int"
+                },
+                {
+                    "name": "PWD_EXPIRED_DAYS",
+                    "desc": "密码过期天数",
+                    "type": "Int"
                 }
             ]
         },
@@ -447,8 +467,13 @@
         },
         {
             "name": "NIC_BOND",
-            "desc": "双网卡绑定",
-            "type": "Float"
+            "desc": "双网卡Bond",
+            "type": "Int"
+        },
+        {
+            "name": "NIC_TEAM",
+            "desc": "双网卡Team",
+            "type": "Int"
         },
         {
             "name": "ETH_INTERFACES",
@@ -901,6 +926,23 @@
             "name": "_batch_tag",
             "desc": "自动采集的批量标签",
             "type": "String"
+        },
+        {
+            "name": "CUSTOM_INSPECTS",
+            "desc": "自定义巡检结果",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "检查项",
+                    "type": "String"
+                },
+                {
+                    "name": "PROBLEM",
+                    "desc": "问题",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

@@ -133,13 +133,17 @@ def findJobProcesses(jobId):
     if os.path.exists("/proc"):
         with os.scandir("/proc") as it:
             for entry in it:
-                if not entry.name.startswith(".") and entry.is_dir():
-                    if re.match(r"^\d+$", entry.name):
-                        pid = int(entry.name)
-                        with open(entry.path + "/cmdline") as f:
-                            content = f.read()
-                            if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
-                                autoexecPids.append(pid)
+                try:
+                    if not entry.name.startswith(".") and entry.is_dir():
+                        if re.match(r"^\d+$", entry.name):
+                            pid = int(entry.name)
+                            with open(entry.path + "/cmdline") as f:
+                                content = f.read()
+                                if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
+                                    autoexecPids.append(pid)
+                                f.close()
+                except Exception as ex:
+                    print("ERROR: Find job: {} procsses failed, {}\n".format(args.jobid, ex))
     else:
         # 为了便于在MacOS上测试
         jobId = jobId.encode("UTF-8")
@@ -251,6 +255,7 @@ if __name__ == "__main__":
             if os.path.exists(statusPath):
                 sys.exit(1)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while clean job status.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while clean job status.\n" + traceback.format_exc())
 
     elif args.register:
@@ -291,13 +296,22 @@ if __name__ == "__main__":
 
     elif args.pause:
         try:
+            print("INFO: Try to pause job:{}\n".format(args.jobid))
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
             ret = 0
-            print("INFO: try to pause job:{}\n".format(args.jobid))
             autoexecIsPaused = False
-            autoexecPids = findJobProcesses(args.jobid)
+
+            autoexecPids = []
+            for i in range(3):
+                autoexecPids = findJobProcesses(args.jobid)
+                if autoexecPids:
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    break
+                else:
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    time.sleep(2)
 
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
@@ -322,16 +336,27 @@ if __name__ == "__main__":
                 print("INFO: Can not find job {} process.\n".format(args.jobid))
             sys.exit(ret)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while pause job.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
     elif args.abort:
         try:
+            print("INFO: Try to kill job:{}...\n".format(args.jobid))
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
             ret = 0
-            print("INFO: try to kill job:{}...\n".format(args.jobid))
             autoexecIsKilled = False
-            autoexecPids = findJobProcesses(args.jobid)
+
+            autoexecPids = []
+            for i in range(3):
+                autoexecPids = findJobProcesses(args.jobid)
+                if autoexecPids:
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    break
+                else:
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    time.sleep(1)
+
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
@@ -359,6 +384,7 @@ if __name__ == "__main__":
                 print("INFO: Can not find job {} process.\n".format(args.jobid))
             sys.exit(ret)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while abort job.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
     elif args.purgejobdata != "0":
         # purge expired job
@@ -367,6 +393,7 @@ if __name__ == "__main__":
             purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
             purger.purge()
         except Exception as ex:
+            print("ERROR: Unknow error occurred while pure expired job data.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
     else:
         # 初始化运行context

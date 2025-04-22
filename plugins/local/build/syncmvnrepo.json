@@ -6,7 +6,7 @@
     "interpreter": "perl",
     "defaultProfile": "syncmvnrepo-args",
     "description": "工程编译mvn install后，同步到runner group的其他成员",
-    "enabled": 1,
+    "enabled": 0,
     "option": [
         {
             "opt": "repo",

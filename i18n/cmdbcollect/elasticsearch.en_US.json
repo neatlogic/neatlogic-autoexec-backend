@@ -546,75 +546,74 @@
                     "type": "String"
                 },
                 {
-	            "name": "CONNECTIONS",
-        	    "desc": "access entrance",
-          	    "type": "JsonArray",
-          	    "subset": [
-                	{
-                    	    "name": "_OBJ_CATEGORY",
-                    	    "desc": "belong cluster",
-                    	    "type": "String"
-                	},
-                	{
-                    	    "name": "_OBJ_TYPE",
-                    	    "desc": "belong type",
-                    	    "type": "String"
-                	},
-                	{
-                    	    "name": "SERVICE_NAME",
-                    	    "desc": "service name",
-                    	    "type": "String"
-                	},
-                	{
-                    	    "name": "PORT",
-                    	    "desc": "port",
-                    	    "type": "Int"
-                	},
-                	{
-                    	    "name": "USER",
-                    	    "desc": "user",
-                    	    "type": "String"
-                	},
-                	{
-                    	    "name": "IP",
-                    	    "desc": "ip",
-                    	    "type": "String"
-                	}
-            	    ]
-        	},
-                {
-            	    "name": "INSTANCE",
-            	    "desc": "instance",
-            	    "type": "JsonArray",
-            	    "subset": [
-                	{
+                    "name": "CONNECTIONS",
+                    "desc": "access entrance",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
                             "name": "_OBJ_CATEGORY",
-                            "desc": "belong category",
+                            "desc": "belong cluster",
                             "type": "String"
-			},
-                	{
+                        },
+                        {
                             "name": "_OBJ_TYPE",
                             "desc": "belong type",
                             "type": "String"
-			},
-                	{
-                            "name": "MGMT_IP",
-                            "desc": "MGMT IP",
+                        },
+                        {
+                            "name": "SERVICE_NAME",
+                            "desc": "service name",
                             "type": "String"
-			},
-                	{
+                        },
+                        {
                             "name": "PORT",
                             "desc": "port",
                             "type": "Int"
-			},
-                	{
+                        },
+                        {
+                            "name": "USER",
+                            "desc": "user",
+                            "type": "String"
+                        },
+                        {
+                            "name": "IP",
+                            "desc": "ip",
+                            "type": "String"
+                        }
+                    ]
+                },
+                {
+                    "name": "INSTANCE",
+                    "desc": "instance",
+                    "type": "JsonArray",
+                    "subset": [
+                        {
+                            "name": "_OBJ_CATEGORY",
+                            "desc": "belong category",
+                            "type": "String"
+                        },
+                        {
+                            "name": "_OBJ_TYPE",
+                            "desc": "belong type",
+                            "type": "String"
+                        },
+                        {
+                            "name": "MGMT_IP",
+                            "desc": "MGMT IP",
+                            "type": "String"
+                        },
+                        {
+                            "name": "PORT",
+                            "desc": "port",
+                            "type": "Int"
+                        },
+                        {
                             "name": "INSTANCE_NAME",
                             "desc": "instance name",
                             "type": "String"
-			}
-		    ]
+                        }
+                    ]
                 }
-		
             ]
         },
         {
@@ -648,6 +647,23 @@
             "name": "_batch_tag",
             "desc": "Batch tag for auto collect",
             "type": "String"
+        },
+        {
+            "name": "CUSTOM_INSPECTS",
+            "desc": "Custom Inspect Results",
+            "type": "JsonArray",
+            "subset": [
+                {
+                    "name": "NAME",
+                    "desc": "Inspect Name",
+                    "type": "String"
+                },
+                {
+                    "name": "PROBLEM",
+                    "desc": "Problem",
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

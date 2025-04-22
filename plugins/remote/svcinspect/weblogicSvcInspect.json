@@ -55,9 +55,7 @@
             "defaultValue": "0"
         }
     ],
-    "argument": {
-
-    },
+    "argument": null,
     "output": [
         {
             "opt": "DATA",
