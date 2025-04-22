@@ -297,7 +297,16 @@ if __name__ == "__main__":
             ret = 0
             print("INFO: try to pause job:{}\n".format(args.jobid))
             autoexecIsPaused = False
-            autoexecPids = findJobProcesses(args.jobid)
+
+            autoexecPids = []
+            for i in range(3):
+                autoexecPids = findJobProcesses(args.jobid)
+                if autoexecPids:
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    break
+                else:
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    time.sleep(2)
 
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
@@ -331,7 +340,17 @@ if __name__ == "__main__":
             ret = 0
             print("INFO: try to kill job:{}...\n".format(args.jobid))
             autoexecIsKilled = False
-            autoexecPids = findJobProcesses(args.jobid)
+
+            autoexecPids = []
+            for i in range(3):
+                autoexecPids = findJobProcesses(args.jobid)
+                if autoexecPids:
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    break
+                else:
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    time.sleep(1)
+
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
