@@ -513,6 +513,7 @@ class JobRunner:
         firstRound = True
         midRound = False
         lastRound = False
+        seqNo = None
 
         for roundNo in range(1, maxRoundNo + 1):
             if self.context.goToStop:
@@ -590,7 +591,7 @@ class JobRunner:
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
                     else:
-                        print("INFO: Local phase:{} is no need to execute in current round:{}.\n".format(phaseName, roundNo), end="")
+                        print("INFO: Local phase:{} is no need to execute in current round:{}, seq:{}.\n".format(phaseName, roundNo, seqNo), end="")
                         continue
                 elif phaseStatus.hasRemote:
                     for node in oneRoundNodes:
@@ -633,12 +634,12 @@ class JobRunner:
                             self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                             if not hasInformed:
                                 hasInformed = True
-                                print("INFO: Inform server group:%d round:%d phase:%s ended, wait other runner...\n" % (groupNo, roundNo, phaseName), end="")
+                                print("INFO: Inform server group:%d round:%d seq:%d, phase:%s ended, wait other runner...\n" % (groupNo, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
-                            print("WARN: Inform server round:{}/{}/{} ended failed, {}.\n".format(groupNo, roundNo, phaseName, ex), end="")
+                            print("WARN: Inform server group:%d round:%d seq:%d, phase:%s ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
 
                         if phaseStatus.waitGlobalRoundFin(10):
-                            print("INFO: Group:%d round:%d phase:%s is completed.\n" % (groupNo, roundNo, phaseName), end="")
+                            print("INFO: Group:%d round:%d seq:%d, phase:%s is completed.\n" % (groupNo, roundNo, seqNo, phaseName), end="")
                             break
 
                     if loopCount <= 0:
