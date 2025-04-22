@@ -291,11 +291,11 @@ if __name__ == "__main__":
 
     elif args.pause:
         try:
+            print("INFO: Try to pause job:{}\n".format(args.jobid))
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
             ret = 0
-            print("INFO: try to pause job:{}\n".format(args.jobid))
             autoexecIsPaused = False
 
             autoexecPids = []
@@ -333,12 +333,12 @@ if __name__ == "__main__":
         except Exception as ex:
             logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
     elif args.abort:
-        try:
+        try:.
+            print("INFO: Try to kill job:{}...\n".format(args.jobid))
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
             ret = 0
-            print("INFO: try to kill job:{}...\n".format(args.jobid))
             autoexecIsKilled = False
 
             autoexecPids = []
