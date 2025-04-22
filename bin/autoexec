@@ -251,6 +251,7 @@ if __name__ == "__main__":
             if os.path.exists(statusPath):
                 sys.exit(1)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while clean job status.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while clean job status.\n" + traceback.format_exc())
 
     elif args.register:
@@ -331,6 +332,7 @@ if __name__ == "__main__":
                 print("INFO: Can not find job {} process.\n".format(args.jobid))
             sys.exit(ret)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while pause job.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
     elif args.abort:
         try:
@@ -378,6 +380,7 @@ if __name__ == "__main__":
                 print("INFO: Can not find job {} process.\n".format(args.jobid))
             sys.exit(ret)
         except Exception as ex:
+            print("ERROR: Unknow error occurred while abort job.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
     elif args.purgejobdata != "0":
         # purge expired job
@@ -386,6 +389,7 @@ if __name__ == "__main__":
             purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
             purger.purge()
         except Exception as ex:
+            print("ERROR: Unknow error occurred while pure expired job data.\n" + traceback.format_exc() + "\n")
             logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
     else:
         # 初始化运行context
