@@ -133,13 +133,17 @@ def findJobProcesses(jobId):
     if os.path.exists("/proc"):
         with os.scandir("/proc") as it:
             for entry in it:
-                if not entry.name.startswith(".") and entry.is_dir():
-                    if re.match(r"^\d+$", entry.name):
-                        pid = int(entry.name)
-                        with open(entry.path + "/cmdline") as f:
-                            content = f.read()
-                            if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
-                                autoexecPids.append(pid)
+                try:
+                    if not entry.name.startswith(".") and entry.is_dir():
+                        if re.match(r"^\d+$", entry.name):
+                            pid = int(entry.name)
+                            with open(entry.path + "/cmdline") as f:
+                                content = f.read()
+                                if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
+                                    autoexecPids.append(pid)
+                                f.close()
+                except Exception as ex:
+                    print("ERROR: Find job: {} procsses failed, {}\n".format(args.jobid, ex))
     else:
         # 为了便于在MacOS上测试
         jobId = jobId.encode("UTF-8")
