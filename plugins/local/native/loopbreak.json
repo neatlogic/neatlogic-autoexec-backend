@@ -7,5 +7,5 @@
     "defaultProfile": null,
     "description": "跳出当前Loop循环",
     "option": [],
-    "argument": {}
+    "argument": null
 }

@@ -106,7 +106,7 @@
         },
         {
             "opt": "protocol",
-            "name": "执行目标，指定执行协议",
+            "name": "执行协议",
             "help": "执行目标，指定执行协议",
             "type": "text",
             "required": "false",

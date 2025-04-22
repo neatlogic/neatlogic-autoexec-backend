@@ -23,8 +23,7 @@
         "validate": "",
         "defaultValue": "{}"
     }],
-    "argument": {
-    },
+    "argument": null,
     "output": [
         {
             "opt": "returnData",
