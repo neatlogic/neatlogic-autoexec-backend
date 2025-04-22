@@ -142,8 +142,8 @@ def findJobProcesses(jobId):
                                 if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
                                     autoexecPids.append(pid)
                                 f.close()
-                except:
-                    pass
+                except Exception as ex:
+                    print("ERROR: Find job: {} procsses failed, {}\n".format(args.jobid, ex))
     else:
         # 为了便于在MacOS上测试
         jobId = jobId.encode("UTF-8")
@@ -304,7 +304,7 @@ if __name__ == "__main__":
             autoexecIsPaused = False
 
             autoexecPids = []
-            for i in range(0, 3):
+            for i in range(3):
                 autoexecPids = findJobProcesses(args.jobid)
                 if autoexecPids:
                     print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
