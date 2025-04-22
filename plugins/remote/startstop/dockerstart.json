@@ -17,6 +17,6 @@
             "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
         }
     ],
-    "argument": {},
+    "argument": null,
     "output": []
 }
