@@ -4,7 +4,7 @@
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "interact-args",
     "description": "执行过程中确认是否继续，不继续则中止运行",
     "option": [
         {
@@ -14,7 +14,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "是否继续执行？"
         }
     ],
     "output": []

@@ -4,7 +4,7 @@
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
-    "defaultProfile": null,
+    "defaultProfile": "interact-args",
     "description": "执行过程中获取用户输入",
     "option": [
         {
@@ -43,7 +43,7 @@
             "type": "json",
             "required": "true",
             "validate": "",
-            "defaultValue": "[]"
+            "defaultValue": "[\"Yes\",\"No\"]"
         },
         {
             "opt": "role",
@@ -61,7 +61,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "Please Select"
+            "defaultValue": "请选择"
         },
         {
             "opt": "message",
@@ -70,7 +70,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": ""
+            "defaultValue": "是否继续执行？"
         }
     ],
     "output": [
