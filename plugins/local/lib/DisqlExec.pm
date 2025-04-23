@@ -66,10 +66,16 @@ sub new {
         }
     }
 
+    my $envStr = $self->getEnvStr();
     my $disqlCmd = 'disql -S -L / as sysdba';
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $disqlCmd = qq{su -m $osUser -c "$disqlCmd"};
+        if ($osType eq 'Linux') {
+            $disqlCmd = qq{su -m $osUser -c "$disqlCmd"};
+        }
+        else {
+            $disqlCmd = qq{su - $osUser -c "$envStr $disqlCmd"};
+        }
     }
 
     if (    defined( $args{username} )
@@ -97,7 +103,12 @@ sub new {
             else {
                 $disqlCmd = qq(disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}/$args{dbname});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@/$args{host}:$args{port}/$args{dbname}");
+                    if($osType eq 'Linux') {
+                        $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@/$args{host}:$args{port}/$args{dbname}");
+                    }
+                    else {
+                        $disqlCmd = qq(su - $osUser -c "$envStr disql -S -L '$args{username}/\\"$args{password}\\"'\@/$args{host}:$args{port}/$args{dbname}");
+                    }
                 }
             }
         }
@@ -108,8 +119,13 @@ sub new {
             else {
                 $disqlCmd = qq(disql -S -L '$args{username}/"$args{password}"'@//$args{host}:$args{port});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    #$disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}");
-                    $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}");
+                    if($osType eq 'Linux') {
+                        #$disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}");
+                        $disqlCmd = qq(su -m $osUser -c "disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}");
+                    }
+                    else {
+                        $disqlCmd = qq(su - $osUser -c "$envStr disql -S -L '$args{username}/\\"$args{password}\\"'\@$args{host}:$args{port}");
+                    }
                 }
             }
         }
@@ -163,6 +179,18 @@ sub getUserEnv {
     }
 
     return $userEnv;
+}
+
+sub getEnvStr {
+    my ($self) = @_;
+    my $envStr = '';
+    for my $envName ( 'LANG', 'DM_HOME', 'PATH', 'LD_LIBRARY_PATH' ) {
+        my $envVal = $ENV{$envName};
+        if ( defined($envVal) and $envVal ne '' ) {
+            $envStr .= qq{$envName='$envVal' };
+        }
+    }
+    return $envStr;
 }
 
 sub evalProfile {

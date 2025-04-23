@@ -248,6 +248,19 @@ sub getDB2Env {
     return $db2Env;
 }
 
+sub getEnvStr {
+    my ( $self ) = @_;
+    my $envStr = '';
+    for my $envName ( 'LANG', 'DB2CODEPAGE', 'DB2OPTIONS', 'DB2_HOME', 'DB2LIB', 'IBM_DB_LIB', 'IBM_DB_HOME', 'IBM_DB_DIR', 'IBM_DB_INCLUDE', 'DB2INSTANCE', 'PATH', 'LD_LIBRARY_PATH' ) {
+        my $envVal = $ENV{$envName};
+        if ( defined($envVal) and $envVal ne '' ) {
+            $envStr = $envStr . qq{export $envName="$envVal"\n};
+        }
+    }
+
+    return $envStr;
+}
+
 sub _checkError {
     my ( $self, $output, $isVerbose ) = @_;
     my $hasError = 0;
@@ -537,13 +550,27 @@ sub _execSql {
     }
     else {
         my $osUser = $self->{osUser};
-        my $cmd    = qq{su -m $osUser << "EOF"
-               $db2ConnCmd
-               db2 -mf '$fname'
-               db2 terminate
-               exit
-               EOF
-              };
+        my $cmd;
+        if ($self->{osType} eq 'Linux') {
+            $cmd    = qq{su -m $osUser << "EOF"
+                $db2ConnCmd
+                db2 -mf '$fname'
+                db2 terminate
+                exit
+                EOF
+                };
+        }
+        else {
+            my $envStr = $self->getEnvStr();
+            $cmd    = qq{su -m $osUser << "EOF"
+                $envStr
+                $db2ConnCmd
+                db2 -mf '$fname'
+                db2 terminate
+                exit
+                EOF
+                };
+        }
         $cmd =~ s/^\s*//mg;
         $output = `$cmd`;
     }

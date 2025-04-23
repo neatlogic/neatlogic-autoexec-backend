@@ -90,7 +90,13 @@ sub new {
     }
 
     if ( $isRoot and defined($osUser) and $osUser ne 'root' and $osType ne 'Windows' ) {
-        $sqlplusCmd = qq{su -m $osUser -c "$sqlplusCmd"};
+        if ($self->{osType} eq 'Linux') {
+            $sqlplusCmd = qq{su -m $osUser -c "$sqlplusCmd"};
+        }
+        else {
+            my $envStr = $self->getEnvStr();
+            $sqlplusCmd = qq{su - $osUser -c "$envStr $sqlplusCmd"};
+        }
     }
 
     if (    defined( $args{username} )
@@ -118,7 +124,13 @@ sub new {
             else {
                 $sqlplusCmd = qq(sqlplus -s -R 1 -L '$args{username}/"$args{password}"'@//$args{host}:$args{port}/$args{dbname});
                 if ( $isRoot and defined( $args{osUser} and $osUser ne 'root' and $osType ne 'Windows' ) ) {
-                    $sqlplusCmd = qq(su -m $osUser -c "sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                    if ($self->{osType} eq 'Linux') {
+                        $sqlplusCmd = qq(su -m $osUser -c "sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                    }
+                    else {
+                        my $envStr = $self->getEnvStr();
+                        $sqlplusCmd = qq(su - $osUser -c "$envStr sqlplus -s -R 1 -L '$args{username}/\"$args{password}\"'@//$args{host}:$args{port}/$args{dbname}");
+                    }
                 }
             }
         }
@@ -172,6 +184,18 @@ sub getOraEnv {
     }
 
     return $oraEnv;
+}
+
+sub getEnvStr {
+    my ($self) = @_;
+    my $envStr = '';
+    for my $envName ( 'LANG', 'NLS_LANG', 'ORACLE_BASE', 'ORACLE_HOME', 'ORACLE_SID', 'PATH', 'LD_LIBRARY_PATH' ) {
+        my $envVal = $ENV{$envName};
+        if ( defined($envVal) and $envVal ne '' ) {
+            $envStr .= qq{$envName='$envVal' };
+        }
+    }
+    return $envStr;
 }
 
 sub evalProfile {
