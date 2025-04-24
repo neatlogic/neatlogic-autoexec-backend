@@ -1351,14 +1351,20 @@ sub getBuild {
                         }
 
                         if ( $cleanSubDirs == 1 ) {
-                            foreach my $subDir (@$subDirs) {
-                                foreach my $dir ( glob("$buildPath/$subDir") ) {
-                                    if ( -e $dir ) {
+                            if(@$subDirs) {
+                                foreach my $subDir (@$subDirs) {
+                                    foreach my $dir ( glob("$buildPath/$subDir") ) {
+                                        if ( -e $dir ) {
 
-                                        #print("INFO: Clean dir:$dir\n");
-                                        rmtree($dir) or die("ERROR: Remove $dir failed.\n");
+                                            #print("INFO: Clean dir:$dir\n");
+                                            rmtree($dir) or die("ERROR: Remove $dir failed.\n");
+                                        }
                                     }
                                 }
+                            }
+                            else {
+                                rmtree($buildPath) or die("ERROR: Remove $buildPath failed.\n");
+                                mkdir($buildPath);
                             }
                         }
                         else {
