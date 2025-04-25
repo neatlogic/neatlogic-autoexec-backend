@@ -465,6 +465,8 @@ class JobRunner:
 
         if realGroupRoundCount == 0:
             realGroupRoundCount = 1
+        elif realGroupRoundCount > nodesFactory.nodesCount:
+            realGroupRoundCount = nodesFactory.nodesCount
 
         # 获取分组运行的最大的并行线程数
         parallelCount = 1
@@ -625,7 +627,7 @@ class JobRunner:
                     self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
-                if not nodesFactory.jobRunnerCount == 1:
+                if oneRoundNodeCount > 1 and not nodesFactory.jobRunnerCount == 1:
                     loopCount = self.context.maxExecSecs / 10
                     hasInformed = False
                     while loopCount > 0 and not self.context.goToStop:
