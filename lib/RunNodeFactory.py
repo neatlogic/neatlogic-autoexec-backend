@@ -127,6 +127,7 @@ class RunNodeFactory:
         line = None
         # 略掉空行
         while self.nodesFile is not None:
+            nodeObj = None
             line = self.nodesFile.readline()
             if not line:
                 break
