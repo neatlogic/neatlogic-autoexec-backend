@@ -90,9 +90,6 @@
             "help": "本地执行的命令",
             "type": "textarea",
             "required": "true",
-            "validate": [
-                "highriskcode"
-            ],
             "defaultValue": ""
         }
     ],
