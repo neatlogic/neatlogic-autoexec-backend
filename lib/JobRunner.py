@@ -425,7 +425,7 @@ class JobRunner:
                     parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
 
                     lastPhase = phaseName
-                    serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+                    # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
                     thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
                     thread.name = "PhaseExecutor-" + phaseName
                     threads.append(thread)
@@ -631,10 +631,17 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
-                            if not hasInformed:
-                                hasInformed = True
-                                print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
+                            if phaseStatus.hasRemote:
+                                self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
+                                if not hasInformed:
+                                    hasInformed = True
+                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
+                            if self.context.runnerId == nodesFactory.localRunnerId:
+                                # 如果是本地操作的runner，则通知服务端当前的round已经结束
+                                self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
+                                if not hasInformed:
+                                    hasInformed = True
+                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait for other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
                             print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
 

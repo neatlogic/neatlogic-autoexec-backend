@@ -422,6 +422,7 @@ class ServerAdapter:
         }
 
         try:
+            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
             response = self.httpJSON(self.apiMap["updatePhaseStatus"], params)
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
