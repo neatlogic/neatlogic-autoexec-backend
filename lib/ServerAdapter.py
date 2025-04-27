@@ -22,6 +22,7 @@ from hashlib import sha256
 import hmac
 import base64
 import tarfile
+import socket
 
 from AutoExecError import AutoExecError
 
@@ -83,6 +84,8 @@ class ServerAdapter:
 
         self.serverUserName = context.config["server"]["server.username"]
         self.serverPassword = context.config["server"]["server.password"]
+        self.apiCallRetryCount = int(context.config["server"].get("api.call.retry.count", 3))
+        self.apiCallRetryInterval = int(context.config["server"].get("api.call.retry.interval", 1))
 
         # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
@@ -124,29 +127,52 @@ class ServerAdapter:
         if apiUri[0] != "/":
             apiUri = "/" + apiUri
 
+        retryCount = self.apiCallRetryCount
+        interval = self.apiCallRetryInterval
+
         url = self.serverBaseUrl + apiUri
         headers = {"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}
 
         postBody = json.dumps(params, ensure_ascii=False)
         req = urllib.request.Request(url, postBody.encode("utf-8"))
         self.addHeaders(req, headers)
-        try:
-            self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
-            response = urllib.request.urlopen(req)
-        except HTTPError as ex:
-            errMsg = ex.code
-            if ex.code > 500:
-                content = ex.read()
-                errObj = json.loads(content)
-                errMsg = errObj.get("Message", "")
-            raise AutoExecError("Request failed, {}\n".format(errMsg))
-        except URLError as ex:
-            raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
+        self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
+
+        response = None
+        while retryCount > 0:
+            try:
+                response = urllib.request.urlopen(req)
+                break
+            except HTTPError as ex:
+                errMsg = ex.code
+                if ex.code > 500:
+                    content = ex.read()
+                    errObj = json.loads(content)
+                    errMsg = errObj.get("Message", "")
+                if retryCount > 1:
+                    print("WARN: Request failed, {}, retry request, it is the {} retry.\n".format(errMsg, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request failed, {}".format(errMsg))
+            except URLError as ex:
+                raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
+            except socket.timeout as ex:
+                if retryCount > 1:
+                    print("WARN: Request url:{} socket timeout, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request url:{} socket timeout, {}\n".format(url, ex.strerror))
+
         return response
 
     def httpGET(self, apiUri, params=None):
         if apiUri[0] != "/":
             apiUri = "/" + apiUri
+
+        retryCount = self.apiCallRetryCount
+        interval = self.apiCallRetryInterval
 
         if params:
             data = urllib.parse.urlencode(params)
@@ -154,19 +180,34 @@ class ServerAdapter:
 
         url = self.serverBaseUrl + apiUri
         req = urllib.request.Request(url)
+        self.signRequest(req, apiUri)
 
-        try:
-            self.signRequest(req, apiUri)
-            response = urllib.request.urlopen(req)
-        except HTTPError as ex:
-            errMsg = ex.code
-            if ex.code > 500:
-                content = ex.read()
-                errObj = json.loads(content)
-                errMsg = errObj["Message"]
-            raise AutoExecError("Request failed, {}".format(errMsg))
-        except URLError as ex:
-            raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
+        response = None
+        while retryCount > 0:
+            try:
+                response = urllib.request.urlopen(req)
+                break
+            except HTTPError as ex:
+                errMsg = ex.code
+                if ex.code > 500:
+                    content = ex.read()
+                    errObj = json.loads(content)
+                    errMsg = errObj["Message"]
+                if retryCount > 1:
+                    print("WARN: Request failed, {}, retry request, it is the {} retry.\n".format(errMsg, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request failed, {}".format(errMsg))
+            except URLError as ex:
+                raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
+            except socket.timeout as ex:
+                if retryCount > 1:
+                    print("WARN: Request url:{} socket timeout, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request url:{} socket timeout, {}".format(url, ex.strerror))
 
         return response
 
@@ -174,24 +215,43 @@ class ServerAdapter:
         if apiUri[0] != "/":
             apiUri = "/" + apiUri
 
+        retryCount = self.apiCallRetryCount
+        interval = self.apiCallRetryInterval
+
         url = self.serverBaseUrl + apiUri
         headers = {"Content-Type": "application/json; charset=utf-8"}
 
         postBody = json.dumps(params, ensure_ascii=False)
         req = urllib.request.Request(url, postBody.encode("utf-8"))
         self.addHeaders(req, headers)
-        try:
-            self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
-            response = urllib.request.urlopen(req)
-        except HTTPError as ex:
-            errMsg = ex.code
-            if ex.code > 500:
-                content = ex.read()
-                errObj = json.loads(content)
-                errMsg = errObj.get("Message", "")
-            raise AutoExecError("Request failed, {}".format(errMsg))
-        except URLError as ex:
-            raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
+        self.signRequest(req, apiUri, postBody, currentUsername, currentPassword)
+
+        response = None
+        while retryCount > 0:
+            try:
+                response = urllib.request.urlopen(req)
+                break
+            except HTTPError as ex:
+                errMsg = ex.code
+                if ex.code > 500:
+                    content = ex.read()
+                    errObj = json.loads(content)
+                    errMsg = errObj.get("Message", "")
+                if retryCount > 1:
+                    print("WARN: Request failed, {}, retry request, it is the {} retry.\n".format(errMsg, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request failed, {}".format(errMsg))
+            except URLError as ex:
+                raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
+            except socket.timeout as ex:
+                if retryCount > 1:
+                    print("WARN: Request url:{} socket timeout, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                    retryCount = retryCount - 1
+                    time.sleep(interval)
+                    continue
+                raise AutoExecError("Request url:{} socket timeout, {}".format(url, ex.strerror))
 
         return response
 
@@ -530,6 +590,7 @@ class ServerAdapter:
             "status": "paused",
             "passThroughEnv": self.context.passThroughEnv,
         }
+        print("INFO: Try to pause job {}.\n".format(self.context.jobId), end="")
         response = self.httpJSON(self.apiMap["updateJobStatus"], params)
 
         try:
@@ -550,6 +611,7 @@ class ServerAdapter:
             "status": "aborted",
             "passThroughEnv": self.context.passThroughEnv,
         }
+        print("INFO: Try to kill job {}.\n".format(self.context.jobId), end="")
         response = self.httpJSON(self.apiMap["updateJobStatus"], params)
 
         try:

@@ -49,10 +49,10 @@ class RunNodeFactory:
         self.jobRunnerCount = 0
         try:
             nodesDescObj = json.loads(line)
-            self.nodesCount = int(nodesDescObj["totalCount"])
+            self.nodesCount = int(nodesDescObj.get("totalCount", 0))
             self.totalNodesCount = self.nodesCount
-            self.localRunnerId = nodesDescObj["localRunnerId"]
-            self.jobRunnerIds = nodesDescObj["jobRunnerIds"]
+            self.localRunnerId = nodesDescObj.get("localRunnerId", 0)
+            self.jobRunnerIds = nodesDescObj.get("jobRunnerIds", [])
             self.jobRunnerCount = len(self.jobRunnerIds)
         except:
             pass

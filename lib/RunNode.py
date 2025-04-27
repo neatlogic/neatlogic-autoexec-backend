@@ -2065,6 +2065,10 @@ class RunNode:
         self.writeNodeLog("INFO: Try to puase node.\n")
 
     def kill(self):
+        nodeStatus = self.getNodeStatus()
+        if nodeStatus != NodeStatus.running:
+            return
+
         self.isAborting = True
         if self.childPid is not None:
             pid = self.childPid
@@ -2087,7 +2091,7 @@ class RunNode:
             except OSError:
                 # 子进程不存在，已经退出了
                 self.isKilled = True
-                self.updateNodeStatus(NodeStatus.aborted)
+                # self.updateNodeStatus(NodeStatus.aborted)
                 self.writeNodeLog("INFO: Worker killed, pid:{}.\n".format(pid))
 
         killCmd = self.killCmd
@@ -2103,7 +2107,7 @@ class RunNode:
                 )
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                    self.updateNodeStatus(NodeStatus.aborted)
+                    # self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
                 else:
                     self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
@@ -2138,9 +2142,10 @@ class RunNode:
                     if len(r) > 0:
                         self.writeNodeLog(channel.recv(1024).decode(errors="ignore") + "\n")
 
-                self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                self.updateNodeStatus(NodeStatus.aborted)
-                self.isKilled = True
+                if ret == 0:
+                    self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
+                    # self.updateNodeStatus(NodeStatus.aborted)
+                    self.isKilled = True
             except Exception as err:
                 self.writeNodeLog("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:
