@@ -628,7 +628,7 @@ class JobRunner:
                     self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
-                if nodesCount > 1 and not nodesFactory.jobRunnerCount == 1:
+                if nodesCount > 1 and nodesFactory.jobRunnerCount > 1:
                     loopCount = self.context.maxExecSecs / 10
                     hasInformed = False
                     while loopCount > 0 and not self.context.goToStop:
