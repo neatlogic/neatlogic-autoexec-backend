@@ -506,6 +506,7 @@ class JobRunner:
             thread.name = "PhaseExecutor-" + phaseName
             threads.append(thread)
 
+        nodesCount = nodesFactory.nodesCount
         maxRoundNo = realGroupRoundCount
         # if nodesFactory.nodesCount < maxRoundNo:
         #     maxRoundNo = nodesFactory.nodesCount
@@ -529,7 +530,7 @@ class JobRunner:
             oneRoundNodeCount = 0
             oneRoundNodes = []
             if groupRoundCount >= 0:
-                curRoundNodes = self.getRoundParallelCount(roundNo, nodesFactory.nodesCount, maxRoundNo)
+                curRoundNodes = self.getRoundParallelCount(roundNo, nodesCount, maxRoundNo)
                 for k in range(1, curRoundNodes + 1):
                     node = nodesFactory.nextNode()
                     if node is None:
@@ -627,7 +628,7 @@ class JobRunner:
                     self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
-                if oneRoundNodeCount > 1 and not nodesFactory.jobRunnerCount == 1:
+                if nodesCount > 1 and not nodesFactory.jobRunnerCount == 1:
                     loopCount = self.context.maxExecSecs / 10
                     hasInformed = False
                     while loopCount > 0 and not self.context.goToStop:
