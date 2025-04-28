@@ -651,7 +651,7 @@ class ServerAdapter:
             resHeaders = response.info()
             contentDisposition = resHeaders["Content-Disposition"]
             if contentDisposition is not None:
-                fileNameIdx = contentDisposition.index('filename="')
+                fileNameIdx = contentDisposition.find('filename="')
                 if fileNameIdx > 0:
                     fileName = contentDisposition[fileNameIdx + 10 : -1]
 
@@ -721,7 +721,7 @@ class ServerAdapter:
                     scriptFilePath = os.readlink(scriptIdFilePath)
                     lastModifiedTime = os.path.getmtime(scriptIdFilePath)
                     scriptFilename = os.path.basename(scriptFilePath)
-                    usedScriptVerId = scriptFilename[0 : scriptFilename.index(".")]
+                    usedScriptVerId = scriptFilename[0 : scriptFilename.find(".")]
                     params["scriptVersionId"] = int(usedScriptVerId)
                 except:
                     # link has been removed

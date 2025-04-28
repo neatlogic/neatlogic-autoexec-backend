@@ -139,7 +139,7 @@ def findJobProcesses(jobId):
                             pid = int(entry.name)
                             with open(entry.path + "/cmdline") as f:
                                 content = f.read()
-                                if content.index(jobId) > 0 and pid != mypid and content.index("autoexec") > 0:
+                                if content.find(jobId) > 0 and pid != mypid and content.find("autoexec") > 0:
                                     autoexecPids.append(pid)
                                 f.close()
                 except Exception as ex:
@@ -154,7 +154,7 @@ def findJobProcesses(jobId):
             if not line:
                 break
             try:
-                if line.index(b"autoexec") > 0 and line.index(jobId) > 0:
+                if line.find(b"autoexec") > 0 and line.find(jobId) > 0:
                     lineParts = re.split(r"\s+", line, 2)
                     pid = int(lineParts[1])
                     if pid != mypid:
@@ -173,7 +173,7 @@ def killProcesses(pids, sig):
             os.kill(pid, sig)
             leftPids.append(pid)
         except ProcessLookupError:
-            print("INFO: Process {} killed.\n".format(pid))
+            print("INFO: Process {} killed.\n".format(pid), end="")
     return leftPids
 
 
@@ -182,6 +182,36 @@ def _getSubPath(jobId):
     jobIdLen = len(jobIdStr)
     subPath = [jobIdStr[i : i + 3] for i in range(0, jobIdLen, 3)]
     return "/".join(subPath)
+
+
+def initConsoleLog(runPath, firstFire, reuseConsoleLog):
+    # 初始化console日志文件
+    logDir = runPath + "/log"
+    if not os.path.exists(logDir):
+        os.makedirs(logDir, exist_ok=True)
+
+    consoleLogPath = logDir + "/console.txt"
+    consoleLogFile = None
+
+    if firstFire:
+        # 没有声明重用console日志文件，而且是作业的第一个阶段执行，需要创建新的console 日志文件
+        if not reuseConsoleLog and os.path.exists(consoleLogPath):
+            os.unlink(consoleLogPath)
+
+        consoleLogFile = open(consoleLogPath, "w").detach()
+
+        consoleHisLogDir = logDir + "/console.hislog"
+        if not os.path.isdir(consoleHisLogDir):
+            os.mkdir(consoleHisLogDir)
+        consoleHisLogPath = "{}/{}.{}.txt".format(consoleHisLogDir, time.strftime("%Y%m%d-%H%M%S"), args.execuser)
+        os.link(consoleLogPath, consoleHisLogPath)
+    else:
+        # 后续阶段执行，不需要新建文件，在原来的console文件中追加日志
+        consoleLogFile = open(consoleLogPath, "a").detach()
+
+    # console输出重定向到console log文件
+    sys.stdout = ConsoleLog(consoleLogFile)
+    sys.stderr = ConsoleLog(consoleLogFile)
 
 
 if __name__ == "__main__":
@@ -298,7 +328,11 @@ if __name__ == "__main__":
 
     elif args.pause:
         try:
-            print("INFO: Try to pause job:{}\n".format(args.jobid))
+            dataPath = homePath + "/data"
+            runPath = dataPath + "/job/" + _getSubPath(args.jobid)
+            initConsoleLog(runPath, False, True)
+
+            print("INFO: Try to pause job:{}\n".format(args.jobid), end="")
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
@@ -309,15 +343,15 @@ if __name__ == "__main__":
             for i in range(3):
                 autoexecPids = findJobProcesses(args.jobid)
                 if autoexecPids:
-                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids), end="")
                     break
                 else:
-                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid), end="")
                     time.sleep(1)
 
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
-                print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
+                print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr), end="")
 
                 autoexecPids = killProcesses(autoexecPids, signal.SIGUSR1)
                 for i in range(3600):
@@ -328,21 +362,25 @@ if __name__ == "__main__":
 
                 if len(autoexecPids) == 0:
                     serverAdapter.jobPaused()
-                    print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
+                    print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr), end="")
                 else:
                     ret = 1
-                    print("WARN: Puase job {} process {} failed, wait job exit timeout(3600 seconds).\n".format(args.jobid, pidsStr))
+                    print("WARN: Puase job {} process {} failed, wait job exit timeout(3600 seconds).\n".format(args.jobid, pidsStr), end="")
             else:
                 ret = 2
                 serverAdapter.jobPaused()
-                print("INFO: Can not find job {} process.\n".format(args.jobid))
+                print("INFO: Can not find job {} process.\n".format(args.jobid), end="")
             sys.exit(ret)
         except Exception as ex:
-            print("ERROR: Unknow error occurred while pause job.\n" + traceback.format_exc() + "\n")
+            print("ERROR: Unknow error occurred while pause job.\n" + traceback.format_exc() + "\n", end="")
             logger.error("Unknow error occurred while pause job.\n" + traceback.format_exc())
     elif args.abort:
         try:
-            print("INFO: Try to kill job:{}...\n".format(args.jobid))
+            dataPath = homePath + "/data"
+            runPath = dataPath + "/job/" + _getSubPath(args.jobid)
+            initConsoleLog(runPath, False, True)
+
+            print("INFO: Try to kill job:{}...\n".format(args.jobid), end="")
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
@@ -352,15 +390,15 @@ if __name__ == "__main__":
             for i in range(3):
                 autoexecPids = findJobProcesses(args.jobid)
                 if autoexecPids:
-                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids))
+                    print("INFO: Find job {} process {}...\n".format(args.jobid, autoexecPids), end="")
                     break
                 else:
-                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
+                    print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid), end="")
                     time.sleep(1)
 
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
-                print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
+                print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr), end="")
                 autoexecPids = killProcesses(autoexecPids, signal.SIGTERM)
                 for i in range(15):
                     autoexecPids = killProcesses(autoexecPids, 0)
@@ -377,18 +415,18 @@ if __name__ == "__main__":
 
                 if len(autoexecPids) == 0:
                     serverAdapter.jobKilled()
-                    print("INFO: Job {} killed.\n".format(args.jobid))
+                    print("INFO: Job {} killed.\n".format(args.jobid), end="")
                 else:
                     ret = 1
-                    print("WARN: Kill job {} process {} failed, wait job exit timeout(15 seconds).\n".format(args.jobid, pidsStr))
+                    print("WARN: Kill job {} process {} failed, wait job exit timeout(15 seconds).\n".format(args.jobid, pidsStr), end="")
             else:
                 ret = 2
                 serverAdapter.jobKilled()
-                print("INFO: Job {} killed.\n".format(args.jobid))
-                print("INFO: Can not find job {} process.\n".format(args.jobid))
+                print("INFO: Job {} killed.\n".format(args.jobid), end="")
+                print("INFO: Can not find job {} process.\n".format(args.jobid), end="")
             sys.exit(ret)
         except Exception as ex:
-            print("ERROR: Unknow error occurred while abort job.\n" + traceback.format_exc() + "\n")
+            print("ERROR: Unknow error occurred while abort job.\n" + traceback.format_exc() + "\n", end="")
             logger.error("Unknow error occurred while abort job.\n" + traceback.format_exc())
     elif args.purgejobdata != "0":
         # purge expired job
@@ -397,44 +435,16 @@ if __name__ == "__main__":
             purger = JobPurger.JobPurger(vContext, int(args.purgejobdata))
             purger.purge()
         except Exception as ex:
-            print("ERROR: Unknow error occurred while pure expired job data.\n" + traceback.format_exc() + "\n")
+            print("ERROR: Unknow error occurred while pure expired job data.\n" + traceback.format_exc() + "\n", end="")
             logger.error("Unknow error occurred while pure expired job data.\n" + traceback.format_exc())
     else:
-        # 初始化运行context
         dataPath = homePath + "/data"
         runPath = dataPath + "/job/" + _getSubPath(args.jobid)
-
-        # 初始化console日志文件
-        logDir = runPath + "/log"
-        if not os.path.exists(logDir):
-            os.makedirs(logDir, exist_ok=True)
-
-        consoleLogPath = logDir + "/console.txt"
-        consoleLogFile = None
-
         fileDir = runPath + "/file"
         if not os.path.exists(fileDir):
             os.mkdir(fileDir)
 
-        if args.firstfire:
-            # 没有声明重用console日志文件，而且是作业的第一个阶段执行，需要创建新的console 日志文件
-            if not args.reuseconslog and os.path.exists(consoleLogPath):
-                os.unlink(consoleLogPath)
-
-            consoleLogFile = open(consoleLogPath, "w").detach()
-
-            consoleHisLogDir = logDir + "/console.hislog"
-            if not os.path.isdir(consoleHisLogDir):
-                os.mkdir(consoleHisLogDir)
-            consoleHisLogPath = "{}/{}.{}.txt".format(consoleHisLogDir, time.strftime("%Y%m%d-%H%M%S"), args.execuser)
-            os.link(consoleLogPath, consoleHisLogPath)
-        else:
-            # 后续阶段执行，不需要新建文件，在原来的console文件中追加日志
-            consoleLogFile = open(consoleLogPath, "a").detach()
-
-        # console输出重定向到console log文件
-        sys.stdout = ConsoleLog(consoleLogFile)
-        sys.stderr = ConsoleLog(consoleLogFile)
+        initConsoleLog(runPath, args.firstfire, args.reuseconslog)
 
         sqlFilesJson = args.sqlfiles
         if sqlFilesJson is not None and sqlFilesJson != "":
@@ -481,7 +491,7 @@ if __name__ == "__main__":
 
         # 开始运行作业
         if args.firstfire:
-            print("INFO: JobId:{} start...\n".format(args.jobid))
+            print("INFO: JobId:{} start...\n".format(args.jobid), end="")
         runner = JobRunner.JobRunner(context, nodesFile=args.nodesfile)
 
         # 信号处理函数，pause runner

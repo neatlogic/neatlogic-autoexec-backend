@@ -124,7 +124,7 @@ class IpmiManager:
         for key in sdrMap:
             value = sdrMap[key]
             if "/" in key:
-                slen = key.index("/")
+                slen = key.find("/")
                 key = key[0:slen].strip()
             if " " in key:
                 key = key.strip().replace(" ", "_")
@@ -251,7 +251,7 @@ class IpmiManager:
         for line in rs:
             info = line.split(":")
             if len(info) > 1 and "IP Address" in line or "Subnet Mask" in line or "Default Gateway IP" in line or "MAC Address" in line:
-                slen = line.index(":")
+                slen = line.find(":")
                 key = line[0:slen].strip().replace(" ", "_").upper()
                 value = line[slen + 1 :].strip()
                 ins[key] = value
@@ -281,7 +281,7 @@ class IpmiManager:
         for line in rs:
             info = line.split(":")
             if len(info) > 1:
-                slen = line.index(":")
+                slen = line.find(":")
                 key = line[0:slen].strip().replace(" ", "_").upper()
                 value = line[slen + 1 :].strip()
                 if "Last Add Time" in line or "Last Del Time" in line:
