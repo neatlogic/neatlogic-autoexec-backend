@@ -84,8 +84,8 @@ class ServerAdapter:
 
         self.serverUserName = context.config["server"]["server.username"]
         self.serverPassword = context.config["server"]["server.password"]
-        self.apiCallRetryCount = int(context.config["server"].get("api.call.retry.count", 3))
-        self.apiCallRetryInterval = int(context.config["server"].get("api.call.retry.interval", 1))
+        self.apiCallRetryCount = int(context.config["server"].get("api.call.retry.count", 60))
+        self.apiCallRetryInterval = int(context.config["server"].get("api.call.retry.interval", 5))
 
         # self.authToken = 'Basic ' + str(base64.b64encode(bytes(self.serverUserName + ':' + self.serverPassword, 'utf-8')).decode('ascii', errors='ignore'))
 
