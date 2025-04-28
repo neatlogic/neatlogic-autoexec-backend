@@ -28,6 +28,7 @@ class PhaseStatus:
         self.warnCountLock = threading.Lock()
         self.roundNo = 0
         self.execNodeCount = 0
+        self.actualExecNodeCount = 0
         self.leftNodeCount = 0
         self.failNodeCount = 0
         self.ignoreFailNodeCount = 0
@@ -39,6 +40,10 @@ class PhaseStatus:
         # 用于记录phase的Executor
         self.executor = None
         self.nodesFilePath = None
+
+    def getActualExecNodeCount(self):
+        with self.couterLock:
+            return self.actualExecNodeCount
 
     def incRoundCounter(self, taskCount):
         with self.couterLock:
@@ -78,24 +83,28 @@ class PhaseStatus:
     def incFailNodeCount(self):
         with self.couterLock:
             self.failNodeCount += 1
+            self.actualExecNodeCount += 1
             self.produceEvent()
             return self.failNodeCount
 
     def incIgnoreFailNodeCount(self):
         with self.couterLock:
             self.ignoreFailNodeCount += 1
+            self.actualExecNodeCount += 1
             self.produceEvent()
             return self.ignoreFailNodeCount
 
     def incPauseNodeCount(self):
         with self.couterLock:
             self.pauseNodeCount += 1
+            self.actualExecNodeCount += 1
             self.produceEvent()
             return self.pauseNodeCount
 
     def incSucNodeCount(self):
         with self.couterLock:
             self.sucNodeCount += 1
+            self.actualExecNodeCount += 1
             self.produceEvent()
             return self.sucNodeCount
 

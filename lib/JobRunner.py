@@ -358,21 +358,24 @@ class JobRunner:
         try:
             # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount)
-            if failCount == 0:
-                endStatus = NodeStatus.succeed
-                if phaseStatus.isAborting:
-                    endStatus = NodeStatus.aborted
-                elif self.context.hasFailNodeInGlobal:
-                    endStatus = NodeStatus.failed
-                elif self.context.goToStop:
-                    endStatus = NodeStatus.paused
-                elif phaseStatus.ignoreFailNodeCount > 0:
-                    endStatus = NodeStatus.completed
-            else:
+            if failCount > 0:
                 self.context.hasFailNodeInGlobal = True
                 endStatus = NodeStatus.failed
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
+            else:
+                if self.context.hasFailNodeInGlobal:
+                    if phaseStatus.isAborting:
+                        endStatus = NodeStatus.aborted
+                    else:
+                        endStatus = NodeStatus.failed
+                else:
+                    endStatus = NodeStatus.succeed
+                if not (nodesFactory.cleared and nodesFactory.lastRound):
+                    if phaseStatus.isAborting:
+                        endStatus = NodeStatus.aborted
+                    elif self.context.goToStop:
+                        endStatus = NodeStatus.paused
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end="")
@@ -381,8 +384,11 @@ class JobRunner:
         finally:
             self.sendPhaseEndEvent(phaseName)
             phaseStatus.isComplete = 1
-            if phaseStatus.execNodeCount > 0:
+            actualExecNodeCount = phaseStatus.getActualExecNodeCount()
+            if actualExecNodeCount > 0:
                 print("INFO: Execute phase:{} complete, status:{}.\n".format(phaseName, endStatus), end="")
+            else:
+                print("INFO: All node skiped in phase:{}.\n".format(phaseName), end="")
             serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
 
     def execOneShotGroup(self, phaseGroup, groupRoundCount, opArgsRefMap):
@@ -425,7 +431,6 @@ class JobRunner:
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
                 if nodesFactory.totalNodesCount > 0:
                     parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
-
                     lastPhase = phaseName
                     # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
                     thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
@@ -573,6 +578,8 @@ class JobRunner:
                     execRound = phaseConfig["execRound"]
 
                 phaseNodeFactory = phaseNodeFactorys[phaseName]
+                if lastRound:
+                    phaseNodeFactory.setLastRound()
 
                 if phaseStatus.hasLocal:
                     needExecute = False

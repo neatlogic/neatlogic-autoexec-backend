@@ -20,6 +20,7 @@ class RunNodeFactory:
         self.phaseType = phaseType
         self.nodesFile = None
         self.cleared = False
+        self.lastRound = True
 
         nodesFilePath = context.getNodesFilePath(phaseName=phaseName, groupNo=groupNo)
         if not os.path.isfile(nodesFilePath):
@@ -63,6 +64,9 @@ class RunNodeFactory:
     def __del__(self):
         if self.nodesFile is not None:
             self.nodesFile.close()
+
+    def setLastRound(self):
+        self.lastRound = True
 
     def localRunNode(self):
         localRunNode = None
