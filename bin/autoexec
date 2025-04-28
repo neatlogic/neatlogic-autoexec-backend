@@ -320,7 +320,7 @@ if __name__ == "__main__":
                 print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
 
                 autoexecPids = killProcesses(autoexecPids, signal.SIGUSR1)
-                for i in range(30):
+                for i in range(3600):
                     autoexecPids = killProcesses(autoexecPids, 0)
                     if len(autoexecPids) == 0:
                         break
@@ -331,7 +331,7 @@ if __name__ == "__main__":
                     print("INFO: Job {} process {} puased.\n".format(args.jobid, pidsStr))
                 else:
                     ret = 1
-                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
+                    print("WARN: Puase job {} process {} failed, wait job exit timeout(3600 seconds).\n".format(args.jobid, pidsStr))
             else:
                 ret = 2
                 serverAdapter.jobPaused()
@@ -380,7 +380,7 @@ if __name__ == "__main__":
                     print("INFO: Job {} killed.\n".format(args.jobid))
                 else:
                     ret = 1
-                    print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
+                    print("WARN: Kill job {} process {} failed, wait job exit timeout(15 seconds).\n".format(args.jobid, pidsStr))
             else:
                 ret = 2
                 serverAdapter.jobKilled()
