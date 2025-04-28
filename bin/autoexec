@@ -422,7 +422,7 @@ if __name__ == "__main__":
             else:
                 ret = 2
                 serverAdapter.jobKilled()
-                print("INFO: Job {} killed.\n".format(args.jobid))
+                print("INFO: Job {} killed.\n".format(args.jobid), end="")
                 print("INFO: Can not find job {} process.\n".format(args.jobid), end="")
             sys.exit(ret)
         except Exception as ex:
