@@ -318,4 +318,4 @@ class PhaseExecutor:
             t.join()
 
         # self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.aborted)
-        print("INFO: Try to kill phase:{} complete.\n".format(self.phaseName), end="")
+        print("INFO: Kill phase:{} complete.\n".format(self.phaseName), end="")

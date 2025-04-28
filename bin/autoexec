@@ -167,12 +167,14 @@ def findJobProcesses(jobId):
 
 
 def killProcesses(pids, sig):
+    leftPids = []
     for pid in pids:
         try:
             os.kill(pid, sig)
-        except:
-            pids.remove(pid)
+            leftPids.append(pid)
+        except ProcessLookupError:
             print("INFO: Process {} killed.\n".format(pid))
+    return leftPids
 
 
 def _getSubPath(jobId):
@@ -311,18 +313,15 @@ if __name__ == "__main__":
                     break
                 else:
                     print("WARN: Can not find job {} process, Try again later.\n".format(args.jobid))
-                    time.sleep(2)
+                    time.sleep(1)
 
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to pause job {} process {}...\n".format(args.jobid, pidsStr))
-                killProcesses(autoexecPids, signal.SIGUSR1)
 
-                # for i in range(1800):
+                autoexecPids = killProcesses(autoexecPids, signal.SIGUSR1)
                 while len(autoexecPids) > 0:
-                    killProcesses(autoexecPids, 0)
-                    time.sleep(3)
-                    killProcesses(autoexecPids, signal.SIGUSR1)
+                    autoexecPids = killProcesses(autoexecPids, 0)
 
                 if len(autoexecPids) == 0:
                     serverAdapter.jobPaused()
@@ -345,7 +344,6 @@ if __name__ == "__main__":
             serverAdapter = ServerAdapter.ServerAdapter(vContext)
 
             ret = 0
-            autoexecIsKilled = False
 
             autoexecPids = []
             for i in range(3):
@@ -360,27 +358,30 @@ if __name__ == "__main__":
             if len(autoexecPids) > 0:
                 pidsStr = ",".join([str(x) for x in autoexecPids])
                 print("INFO: Try to stop job {} process {}...\n".format(args.jobid, pidsStr))
-                killProcesses(autoexecPids, signal.SIGTERM)
+                autoexecPids = killProcesses(autoexecPids, signal.SIGTERM)
                 for i in range(15):
+                    autoexecPids = killProcesses(autoexecPids, 0)
                     if len(autoexecPids) == 0:
                         break
                     time.sleep(1)
 
                 if len(autoexecPids) > 0:
-                    killProcesses(autoexecPids, signal.SIGKILL)
+                    autoexecPids = killProcesses(autoexecPids, signal.SIGKILL)
 
-                if len(autoexecPids) > 0:
+                while len(autoexecPids) > 0:
+                    autoexecPids = killProcesses(autoexecPids, 0)
                     time.sleep(1)
-                    killProcesses(autoexecPids, 0)
 
                 if len(autoexecPids) == 0:
                     serverAdapter.jobKilled()
+                    print("INFO: Job {} killed.\n".format(args.jobid))
                 else:
                     ret = 1
                     print("WARN: Kill job {} process {} failed.\n".format(args.jobid, pidsStr))
             else:
                 ret = 2
                 serverAdapter.jobKilled()
+                print("INFO: Job {} killed.\n".format(args.jobid))
                 print("INFO: Can not find job {} process.\n".format(args.jobid))
             sys.exit(ret)
         except Exception as ex:

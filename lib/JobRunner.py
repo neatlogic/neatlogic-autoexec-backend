@@ -362,7 +362,9 @@ class JobRunner:
                 endStatus = NodeStatus.succeed
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
-                elif self.context.goToStop or self.context.hasFailNodeInGlobal:
+                elif self.context.hasFailNodeInGlobal:
+                    endStatus = NodeStatus.failed
+                elif self.context.goToStop:
                     endStatus = NodeStatus.paused
                 elif phaseStatus.ignoreFailNodeCount > 0:
                     endStatus = NodeStatus.completed
@@ -617,17 +619,15 @@ class JobRunner:
                     self.context.hasFailNodeInGlobal = True
                     print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
                     break
-                elif lastRound:
-                    print("INFO: Execute phase:{} in current runner finished, wait other runner...\n".format(phaseName), end="")
 
                 if self.context.hasFailNodeInGlobal:
                     nodeStatus = NodeStatus.failed
-                    if phaseStatus.isAborting:
-                        nodeStatus = NodeStatus.aborted
+                    # if phaseStatus.isAborting:
+                    #     nodeStatus = NodeStatus.aborted
                     self.context.serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, nodeStatus)
                     break
 
-                if oneRoundNodeCount > 1 and not nodesFactory.jobRunnerCount == 1:
+                if nodesFactory.nodesCount > 1 and nodesFactory.jobRunnerCount > 1:
                     loopCount = self.context.maxExecSecs / 10
                     hasInformed = False
                     while loopCount > 0 and not self.context.goToStop:
@@ -719,7 +719,13 @@ class JobRunner:
 
                 groupLastPhase = None
                 if self.context.phasesToRun is not None and len(self.context.phasesToRun) == 1:
-                    groupLastPhase = self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
+                    if self.context.nodesToRun is None:
+                        if "execStrategy" in phaseGroup and phaseGroup["execStrategy"] == "grayScale":
+                            groupLastPhase = self.execGrayscaleGroup(phaseGroup, groupRoundCount, opArgsRefMap)
+                        else:
+                            groupLastPhase = self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
+                    else:
+                        groupLastPhase = self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                 elif "execStrategy" in phaseGroup and phaseGroup["execStrategy"] == "grayScale":
                     groupLastPhase = self.execGrayscaleGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                 else:
@@ -771,8 +777,8 @@ class JobRunner:
             if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
                 print("INFO: Try to kill phase:{}...\n".format(phaseStatus.phaseName), end="")
                 phaseStatus.executor.kill()
-        self.context.serverAdapter.jobKilled()
-        print("INFO: Job killed.\n", end="")
+        # self.context.serverAdapter.jobKilled()
+        # print("INFO: Job killed.\n", end="")
 
     def pause(self):
         self.context.goToStop = True
@@ -785,5 +791,5 @@ class JobRunner:
             if phaseStatus.isComplete == 0 and phaseStatus.executor is not None:
                 print("INFO: Try to pause phase:{}...\n".format(phaseStatus.phaseName), end="")
                 phaseStatus.executor.pause()
-        self.context.serverAdapter.jobPaused()
-        print("INFO: Job paused.\n", end="")
+        # self.context.serverAdapter.jobPaused()
+        # print("INFO: Job paused.\n", end="")
