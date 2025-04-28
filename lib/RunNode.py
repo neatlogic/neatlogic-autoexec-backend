@@ -131,9 +131,9 @@ class LogFile:
         self.foreLine = b""
 
         start = 0
-        try:
-            while True:
-                end = text.find(b"\n", start)
+        while True:
+            end = text.find(b"\n", start)
+            if end > -1:
                 line = text[start : end + 1]
                 decodeLine = None
                 if self.srcEncoding is None:
@@ -154,10 +154,10 @@ class LogFile:
                 start = end + 1
 
                 self.checkFailLog(decodeLine)
-
-        except ValueError:
-            if start >= 0:
-                self.foreLine = text[start:]
+            else:
+                if start >= 0:
+                    self.foreLine = text[start:]
+                break
 
     def close(self):
         if self.foreLine != b"":
