@@ -287,13 +287,10 @@ class NmapScan:
             pattern = matchItem.get("pattern")
 
             if key is not None:
-                try:
-                    OSDesc.index(key)
+                if OSDesc.find(key) > -1:
                     objInfo["_OBJ_CATEGORY"] = matchItem["_OBJ_CATEGORY"]
                     objInfo["_OBJ_TYPE"] = matchItem["_OBJ_TYPE"]
                     break
-                except ValueError:
-                    pass
             elif pattern is not None:
                 if re.search(pattern, OSDesc):
                     objInfo["_OBJ_CATEGORY"] = matchItem["_OBJ_CATEGORY"]

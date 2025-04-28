@@ -308,7 +308,7 @@ def checkThresholdExist(threshold, dbThresholds):
     localRule = threshold["rule"]
     localKey = ""
     if "[" in localRule:
-        localKey = localRule[2 : localRule.index("[")]
+        localKey = localRule[2 : localRule.find("[")]
     else:
         localKey = localRule.split(".")
         localKey = localKey[1]
@@ -317,7 +317,7 @@ def checkThresholdExist(threshold, dbThresholds):
         dbRule = dbThreshold["rule"]
         dbKey = ""
         if "[" in dbRule:
-            dbKey = dbRule[2 : dbRule.index("[")]
+            dbKey = dbRule[2 : dbRule.find("[")]
         else:
             dbKey = dbRule.split(".")
             dbKey = dbKey[1]

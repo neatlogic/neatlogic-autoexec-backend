@@ -210,11 +210,8 @@ if __name__ == "__main__":
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
     for collection in db.list_collection_names():
-        try:
-            collection.index("COLLECT_")
+        if collection.find("COLLECT_") > -1:
             existsCollections[collection] = 1
-        except:
-            pass
 
     execUser = os.getenv("AUTOEXEC_USER")
     try:

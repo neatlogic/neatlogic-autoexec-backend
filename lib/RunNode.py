@@ -133,7 +133,7 @@ class LogFile:
         start = 0
         try:
             while True:
-                end = text.index(b"\n", start)
+                end = text.find(b"\n", start)
                 line = text[start : end + 1]
                 decodeLine = None
                 if self.srcEncoding is None:

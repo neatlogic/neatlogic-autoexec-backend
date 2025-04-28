@@ -479,7 +479,7 @@ class Operation:
                     scriptLockPath = scriptIdPath + ".lock"
                     libFile = os.readlink(scriptIdPath)
                     libName = os.path.basename(libFile)
-                    libName = libName[libName.index(".") + 1 :]
+                    libName = libName[libName.find(".") + 1 :]
                     self.depends.append(
                         {
                             "id": scriptId,
