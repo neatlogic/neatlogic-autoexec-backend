@@ -1470,7 +1470,8 @@ class RunNode:
                     runEnv["INS_PATH"] = insPath
                     runEnv["INS_ID_PATH"] = insIdPath
 
-                self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+                # self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+                self.killCmd = "PIDS=`ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{print $2}\'`; [ -n "$PIDS" ] && kill -9 $PIDS && echo "WARN: Process $PIDS killed"; [ -z "$PIDS" ] && echo "WARN: No process found"'
 
                 context = self.context
                 tagent = TagentClient.TagentClient(
@@ -1740,7 +1741,8 @@ class RunNode:
                 )
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType="Unix").replace("&&", remoteEnv, 1)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType="Unix")
-            self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+            # self.killCmd = "kill -9 `ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
+            self.killCmd = "PIDS=`ps auxe |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{print $2}\'`; [ -n "$PIDS" ] && kill -9 $PIDS && echo "WARN: Process $PIDS killed"; [ -z "$PIDS" ] && echo "WARN: No process found"'
             tarFiles = []
             scriptFile = None
             uploaded = False
