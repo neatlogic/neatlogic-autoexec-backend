@@ -105,9 +105,11 @@ sub main {
         if ( lc($architecture) eq 'x86' ) {
             $architecture = 'linux/amd64';
         }
-        elsif ( lc( $architecture eq 'arm64' ) or lc($architecture) eq 'arm' ) {
+        elsif ( lc($architecture) eq 'arm64' or lc($architecture) eq 'arm' ) {
             $architecture = 'linux/arm64';
         }
+
+
         $cmd = "sudo docker build  --platform $architecture -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
     }
 
