@@ -13,8 +13,12 @@ class PhaseNodeFactory:
         self.context = context
         self.parallelCount = parallelCount
         self.cleared = False
+        self.lastRound = False
         self.nodeQueue = queue.Queue(parallelCount + 1)
         self.localNodeQueue = queue.Queue(5)
+
+    def setLastRound(self):
+        self.lastRound = True
 
     def putRunNode(self, runNode):
         self.nodeQueue.put(runNode)

@@ -25,20 +25,20 @@ sub usage {
 }
 
 sub main {
-    my ( $envPath, $version, $buildNo,  $isHelp );
-    my ( $image,   $tagname, $registry, $project, $buildFile,$architecture );
+    my ( $envPath, $version, $buildNo, $isHelp );
+    my ( $image, $tagname, $registry, $project, $buildFile, $architecture );
 
     GetOptions(
-        'h|help'     => \$isHelp,
-        'envpath=s'  => \$envPath,
-        'version=s'  => \$version,
-        'buildno=s'  => \$buildNo,
-        'registry=s' => \$registry,
-        'project=s'  => \$project,
-        'image=s'    => \$image,
-        'tagname=s'  => \$tagname,
-        'buildfile=s' => \$buildFile,
-        'architecture=s'=>\$architecture
+        'h|help'         => \$isHelp,
+        'envpath=s'      => \$envPath,
+        'version=s'      => \$version,
+        'buildno=s'      => \$buildNo,
+        'registry=s'     => \$registry,
+        'project=s'      => \$project,
+        'image=s'        => \$image,
+        'tagname=s'      => \$tagname,
+        'buildfile=s'    => \$buildFile,
+        'architecture=s' => \$architecture
     );
 
     usage() if ( defined($isHelp) );
@@ -96,12 +96,21 @@ sub main {
     $registry4Tag =~ s/^http.*?:\/\///;
     my $image_name = "$registry4Tag/$project/$image:$tagname";
     my $cmd        = "sudo docker build -t '$image_name' '$distDir/app'";
-    if(defined($buildFile) and $buildFile ne ''){
-        $cmd        = "sudo docker build -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
+    if ( defined($buildFile) and $buildFile ne '' ) {
+        $cmd = "sudo docker build -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
     }
-    if(defined($architecture) and $architecture ne '' ){
-        $cmd        = "sudo docker build  --platform $architecture -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
+    if ( defined($architecture) and $architecture ne '' ) {
+
+        #校正历史的值
+        if ( lc($architecture) eq 'x86' ) {
+            $architecture = 'linux/amd64';
+        }
+        elsif ( lc( $architecture eq 'arm64' ) or lc($architecture) eq 'arm' ) {
+            $architecture = 'linux/arm64';
+        }
+        $cmd = "sudo docker build  --platform $architecture -t '$image_name' -f '$distDir/app/$buildFile' '$distDir/app'";
     }
+
     print("INFO: Execute->$cmd\n");
     my $ret = $deployUtils->execmd($cmd);
 
