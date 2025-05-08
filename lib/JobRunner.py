@@ -431,7 +431,7 @@ class JobRunner:
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
                 if nodesFactory.totalNodesCount > 0:
                     parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
-                    print("INFO: Execute phase:{} stragecy:oneShot, round:{}, parallel:{}.\n".format(phaseName, phaseRoundCount, parallelCount), end="")
+                    print("INFO: Execute phase:{} strategy:oneShot, round:{}, parallel:{}.\n".format(phaseName, phaseRoundCount, parallelCount), end="")
                     lastPhase = phaseName
                     # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
                     thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
@@ -507,7 +507,7 @@ class JobRunner:
                     else:
                         phaseStatus.hasRemote = True
 
-            print("INFO: Execute phase:{} stragecy:grayScale, round:{}, parallel:{}.\n".format(phaseName, groupRoundCount, parallelCount), end="")
+            print("INFO: Execute phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(phaseName, groupRoundCount, parallelCount), end="")
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
             thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
