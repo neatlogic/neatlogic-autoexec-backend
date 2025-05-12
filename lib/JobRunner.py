@@ -430,7 +430,8 @@ class JobRunner:
                 # Inner Loop 模式基于节点文件的nodesFactory，每个phase都一口气完成对所有RunNode的执行
                 nodesFactory = RunNodeFactory.RunNodeFactory(self.context, phaseIndex=phaseIndex, phaseName=phaseName, phaseType=phaseType, groupNo=groupNo)
                 if nodesFactory.totalNodesCount > 0:
-                    parallelCount = self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)
+                    parallelCount = float(self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)) / nodesFactory.jobRunnerCount
+                    parallelCount = int(parallelCount) + (parallelCount != int(parallelCount))
                     print("INFO: Execute phase:{} strategy:oneShot, round:{}, parallel:{}.\n".format(phaseName, phaseRoundCount, parallelCount), end="")
                     lastPhase = phaseName
                     # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
