@@ -1271,7 +1271,7 @@ class ServerAdapter:
                 apiUri = "/" + apiUri + "?param=file&type=%s" % (fileType)
 
             url = self.serverBaseUrl + apiUri
-            postBody = json.dumps({"param":"file","type":fileType}, ensure_ascii=False,separators=(',', ':'))
+            postBody = json.dumps({"param": "file", "type": fileType}, ensure_ascii=False, separators=(",", ":"))
             headers = self.getSignHeaders(apiUri, postBody)
             myFile = {
                 "param": (None, "file"),
