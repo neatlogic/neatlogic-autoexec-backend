@@ -222,7 +222,8 @@ sub updateStatus {
             sqlFile     => $self->{sqlFile},
             status      => $newStatus,
             md5         => $selfStatus->{md5},
-            interact    => $selfStatus->{interact}
+            interact    => $selfStatus->{interact},
+            isModified  => $selfStatus->{isModified},
         };
 
         $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );

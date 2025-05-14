@@ -176,7 +176,7 @@ sub main {
         }
     }
 
-    if ( not defined($sqlFiles) ) {
+    if ( not @$sqlFiles ) {
         print("ERROR: Get sql files failed.\n");
         return 3;
     }

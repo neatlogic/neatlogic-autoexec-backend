@@ -215,10 +215,12 @@ sub main {
         $hasError = $hasError + $ret;
         print("INFO: Check in sql files complete.\n");
     }
-    if(@$rollbackSqlFiles){
+    if($isRollback == 1){
         print("INFO: Check in rollback sql files...\n");
-        $ret      = $rbSqlFileRunner->checkSqlFiles();
-        $hasError = $hasError + $ret;
+        if (@$rollbackSqlFiles){
+            $ret      = $rbSqlFileRunner->checkSqlFiles();
+            $hasError = $hasError + $ret;
+        }
         print("INFO: Check in rollback sql files complete.\n");
     }
 
@@ -243,8 +245,10 @@ sub main {
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
     $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
 
-    my $rbSqlFileInfos = $sqlFileRunner->{sqlFileInfos};
-    $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
+    if ($isRollback == 1){
+        my $rbSqlFileInfos = $rbSqlFileRunner->{sqlFileInfos};
+        $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
+    }
 
     $lock->unlockEnvSql($sqlLockId);
     undef($lock);
