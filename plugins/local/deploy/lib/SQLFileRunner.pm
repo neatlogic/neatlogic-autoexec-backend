@@ -759,21 +759,34 @@ sub checkOneSqlFile {
     my $sqlStatus;
     my $preMd5Sum = $sqlFileStatus->getStatusValue('md5');
     my $preIsModified = $sqlFileStatus->getStatusValue('isModified');
+    if (not defined($preIsModified)){
+        $preIsModified = 0;
+    }
+
     my $isModified = $preIsModified;
     my $md5Sum     = $preMd5Sum;
     if ( $preIsModified == 0 ) {
         $md5Sum     = $self->_getFileMd5Sum($sqlFilePath);
         if ( $md5Sum ne $preMd5Sum ) {
-            $isModified = 1;
             $sqlStatus = 'pending';
-            $sqlFileStatus->_setStatus( status => 'pending', isModified => 1 );
-            print("INFO: Sql file:$sqlFile is modified.\n");
+            if ($preMd5Sum ne '') {
+                $isModified = 1;
+                print("INFO: Sql file:$sqlFile md5:$md5Sum is modified.\n");
+            }
+            else{
+                $isModified = 0;
+                print("INFO: Sql file:$sqlFile md5:$md5Sum is new.\n");
+            }
+            $sqlFileStatus->_setStatus( status => $sqlStatus, isModified => $isModified );
+        }
+        else{
+            print("INFO: Sql file:$sqlFile md5:$md5Sum is not modified.\n");
         }
     }
     else{
         $sqlStatus = 'pending';
-        $sqlFileStatus->_setStatus( status => 'pending', isModified => 1 );
-        print("INFO: Sql file:$sqlFile is modified.\n");
+        $sqlFileStatus->_setStatus( status => $sqlStatus, isModified => 1 );
+        print("INFO: Sql file:$sqlFile md5:$md5Sum has been modified.\n");
     }
     
     my $sqlInfo = {
