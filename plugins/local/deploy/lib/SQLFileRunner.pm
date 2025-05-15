@@ -797,8 +797,8 @@ sub checkOneSqlFile {
         }
     }
     else{
-        $sqlStatus = 'pending';
-        $sqlFileStatus->_setStatus( status => $sqlStatus, isModified => 1 );
+        #$sqlStatus = 'pending';
+        #$sqlFileStatus->_setStatus( status => $sqlStatus, isModified => 1 );
         print("INFO: Sql file:$sqlFile md5:$md5Sum has been modified.\n");
     }
     
