@@ -48,27 +48,6 @@
             "defaultValue": "回退SQL"
         },
         {
-            "opt": "rollback",
-            "name": "回退",
-            "help": "检入回退用的SQL脚本",
-            "type": "select",
-            "required": "true",
-            "validate": "",
-            "dataSource": {
-                "dataList": [
-                    {
-                        "text": "是",
-                        "value": "1"
-                    },
-                    {
-                        "text": "否",
-                        "value": "0"
-                    }
-                ]
-            },
-            "defaultValue": "0"
-        },
-        {
             "opt": "extnames",
             "name": "SQL扩展名",
             "help": "SQL文件的扩展名, 默认: sql,exp,imp,prc,pck,pkg,pkgh,pkgb",

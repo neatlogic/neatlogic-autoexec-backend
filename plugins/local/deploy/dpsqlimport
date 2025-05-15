@@ -209,20 +209,19 @@ sub main {
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
     $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
 
-    if(@$sqlFiles){
+    if (@$sqlFiles) {
         print("INFO: Check in sql files...\n");
         $ret      = $sqlFileRunner->checkSqlFiles();
         $hasError = $hasError + $ret;
         print("INFO: Check in sql files complete.\n");
     }
-    if($isRollback == 1){
-        print("INFO: Check in rollback sql files...\n");
-        if (@$rollbackSqlFiles){
-            $ret      = $rbSqlFileRunner->checkSqlFiles();
-            $hasError = $hasError + $ret;
-        }
-        print("INFO: Check in rollback sql files complete.\n");
+
+    print("INFO: Check in rollback sql files...\n");
+    if (@$rollbackSqlFiles) {
+        $ret      = $rbSqlFileRunner->checkSqlFiles();
+        $hasError = $hasError + $ret;
     }
+    print("INFO: Check in rollback sql files complete.\n");
 
     #创建sqlfiles软链接
     if ( -d $sqlFileDir ) {
@@ -245,10 +244,8 @@ sub main {
     my $sqlFileInfos = $sqlFileRunner->{sqlFileInfos};
     $serverAdapter->checkInSqlFiles( $jobId, $targetPhase, $sqlFileInfos, $deployEnv );
 
-    if ($isRollback == 1){
-        my $rbSqlFileInfos = $rbSqlFileRunner->{sqlFileInfos};
-        $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
-    }
+    my $rbSqlFileInfos = $rbSqlFileRunner->{sqlFileInfos};
+    $serverAdapter->checkInSqlFiles( $jobId, $rbTargetPhase, $rbSqlFileInfos, $deployEnv );
 
     $lock->unlockEnvSql($sqlLockId);
     undef($lock);
