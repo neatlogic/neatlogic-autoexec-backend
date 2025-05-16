@@ -153,44 +153,26 @@ class VContext:
 
     def decryptPassword(self, password):
         if password[0:11] == "{ENCRYPTED}":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[11:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                password = plainTxt
+            password = Utils._rc4_decrypt_hex(self.passKey, password[11:])
         elif password[0:5] == "{RC4}":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[5:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                password = plainTxt
+            password = Utils._rc4_decrypt_hex(self.passKey, password[5:])
         elif password[0:4] == "RC4:":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[4:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                password = plainTxt
+            password = Utils._rc4_decrypt_hex(self.passKey, password[4:])
 
         return password
 
     def decryptValue(self, value):
         if value[0:11] == "{ENCRYPTED}":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[11:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                value = plainTxt
+            value = Utils._rc4_decrypt_hex(self.passKey, value[11:])
         elif value[0:5] == "{RC4}":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[5:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                value = plainTxt
+            value = Utils._rc4_decrypt_hex(self.passKey, value[5:])
         elif value[0:4] == "RC4:":
-            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[4:])
-            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-            if plainTxt == encryptTxt:
-                value = plainTxt
+            value = Utils._rc4_decrypt_hex(self.passKey, value[4:])
         else:
             try:
                 plainTxt = Utils._rc4_decrypt_hex(self.passKey, value)
                 encryptTxt = Utils._rc4_encrypt_hex(self.passKey, value)
-                if encryptTxt == plainTxt:
+                if encryptTxt == plainTxt.encode("utf-8"):
                     value = plainTxt
             except:
                 pass
