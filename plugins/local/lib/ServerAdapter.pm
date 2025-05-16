@@ -48,6 +48,7 @@ sub new {
             'delVer'             => '/neatlogic/api/rest/deploy/version/delete',
             'releaseVerToEnv'    => '/neatlogic/api/rest/deploy/version/env/update/forautoexec',
             'getEnvVer'          => '/neatlogic/api/rest/deploy/version/env/get/forautoexec',
+            'getDeployEnvAttrs'  => '/neatlogic/api/rest/deploy/app/config/env/attr/list',
             'getOtherSiteEnvVer' => '/neatlogic/api/rest/deploy/version/env/get/forautoexec',
 
             #autocfg和DB配置自动生成
@@ -447,6 +448,38 @@ sub getEnvVer {
     return $rcObj;
 }
 
+sub getDeployEnvAttrs {
+    my ( $self, $idPath ) = @_;
+
+    $idPath =~ s/^\/+|\/+$//g;
+    my @dpIds = split( '/', $idPath );
+    if ( scalar(@dpIds) < 3 ) {
+        return [];
+    }
+
+    my $param = {};
+    $param->{appSystemId} = $dpIds[0];
+    $param->{appModuleId} = $dpIds[1];
+    $param->{envId}       = $dpIds[2];
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('getDeployEnvAttrs');
+    my $content = $webCtl->postJson( $url, $param );
+    my $rcObj   = $self->_getReturn($content);
+
+    my $serverConf = $self->{serverConf};
+    for my $attr (@$rcObj) {
+        my $attrType = $attr->{type};
+        my $attrVal  = $attr->{value};
+        if ( $attrType eq 'password' ) {
+            my $decrypted = $serverConf->decryptPwd($attrVal);
+            $attr->{value} = $decrypted;
+        }
+    }
+
+    return $rcObj;
+}
+
 sub getOtherSiteEnvVer {
     my ( $self, $proxyToUrl, $buildEnv, $version ) = @_;
 
@@ -592,7 +625,8 @@ sub getAutoCfgConf {
             if ( $hasEnvVar == 1 ) {
                 $autoCfg->{$key} = $newVal;
             }
-            if($newVal =~ /^\\/){
+            if ( $newVal =~ /^\\/ ) {
+
                 #如果设置值是反斜杠开头，则去掉此反斜杠，并对整个文本去转义
                 $newVal =~ s/^\\//;
                 $newVal = unbackslash($newVal);
@@ -1306,8 +1340,8 @@ sub getBuild {
                 $contentDisposition = $res->header('Content-Disposition');
 
                 if ( defined($buildNo) and $buildNo ne '' ) {
-                    if ( $buildNo ne $oldBuildNo ){
-                        $self->replaceBuildNo($deployEnv, $buildNo);
+                    if ( $buildNo ne $oldBuildNo ) {
+                        $self->replaceBuildNo( $deployEnv, $buildNo );
                         print("INFO: Remote build is:$buildNo, reset current build:$oldBuildNo to $buildNo.\n");
                     }
                     $self->updateVer( $deployEnv, { version => $version, buildNo => $buildNo, status => 'releasing' } );
@@ -1351,7 +1385,7 @@ sub getBuild {
                         }
 
                         if ( $cleanSubDirs == 1 ) {
-                            if(@$subDirs) {
+                            if (@$subDirs) {
                                 foreach my $subDir (@$subDirs) {
                                     foreach my $dir ( glob("$buildPath/$subDir") ) {
                                         if ( -e $dir ) {
@@ -1441,7 +1475,7 @@ sub getBuild {
         }
     }
 
-    if ( $buildLocal eq 'true' and ($params->{sysName} ne $srcEnvInfo->{sysName} or $params->{moduleName} ne $srcEnvInfo->{moduleName})) {
+    if ( $buildLocal eq 'true' and ( $params->{sysName} ne $srcEnvInfo->{sysName} or $params->{moduleName} ne $srcEnvInfo->{moduleName} ) ) {
         die("ERROR: No need to download local build remotly, use tool:pickbuildfile please.");
     }
 

@@ -68,6 +68,7 @@ class Context(VContext.VContext):
         params = self.params
 
         self.jobId = str(params.get("jobId", "0"))
+        self.nodeName2EnvMap = {}
 
         if self.execUser is None:
             execUser = params.get("execUser", "anonymouse")
@@ -85,11 +86,7 @@ class Context(VContext.VContext):
             v = self.resolveJobOpt(v)
             jobOpt[k] = v
             if isinstance(v, str):
-                if v[0:5] == "{RC4}":
-                    plainTxt = Utils._rc4_decrypt_hex(self.passKey, v[5:])
-                    encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
-                    if v[5:] == encryptTxt:
-                        jobOpt[k] = plainTxt
+                jobOpt[k] = self.decryptPassword(v)
                 os.environ[k] = v
             else:
                 os.environ[k] = json.dumps(v, ensure_ascii=False)
@@ -143,6 +140,24 @@ class Context(VContext.VContext):
             os.environ["MODULE_ID"] = moduleId
             if envId is not None:
                 os.environ["ENV_ID"] = envId
+
+            for dpEnvAttr in serverAdapter.getDeployEnvAttrs(sysId, moduleId, envId):
+                dpEnvName = dpEnvAttr.get("key")
+                dpEnvVal = dpEnvAttr.get("value")
+                if dpEnvName is not None and dpEnvVal is not None:
+                    dpEnvName = dpEnvName.strip()
+                    dotPos = dpEnvName.find(".")
+                    if dotPos >= 0:
+                        envNodeName = dpEnvName[0:dotPos].lower()
+                        envNodeAttr = dpEnvName[dotPos + 1 :]
+                        nodeEnvs = self.nodeName2EnvMap.get(envNodeName, None)
+                        if nodeEnvs is None:
+                            nodeEnvs = {envNodeAttr: dpEnvVal}
+                            self.nodeName2EnvMap[envNodeName] = nodeEnvs
+                        else:
+                            nodeEnvs[envNodeAttr] = dpEnvVal
+                    else:
+                        os.environ[dpEnvName] = dpEnvVal
 
             if os.getenv("DEPLOY_RUNNERGROUP") is None:
                 runnerGroup = serverAdapter.getDeployRunnerGroup(sysId, moduleId, envId)

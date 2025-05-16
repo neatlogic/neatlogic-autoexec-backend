@@ -288,7 +288,9 @@ class RunNode:
         self._loadOutput()
         self._loadInput()
 
-        self.nodeEnv = self.output.get("nodeEnv", {}).copy()
+        self.nodeEnv = self.context.nodeName2EnvMap.get(self.name.lower(), {}).copy()
+        self.nodeEnv.update(self.output.get("nodeEnv", {}))
+
         # 下面的nodeEnv是动态生成的
         self.nodeEnv["RESOURCE_ID"] = self.resourceId
         self.nodeEnv["NODE_NAME"] = self.name

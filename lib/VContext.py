@@ -151,6 +151,52 @@ class VContext:
         self.paramsFilePath = self.runPath + "/params.json"
         os.environ["JOB_PARAMS_PATH"] = self.paramsFilePath
 
+    def decryptPassword(self, password):
+        if password[0:11] == "{ENCRYPTED}":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[11:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                password = plainTxt
+        elif password[0:5] == "{RC4}":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[5:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                password = plainTxt
+        elif password[0:4] == "RC4:":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, password[4:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                password = plainTxt
+
+        return password
+
+    def decryptValue(self, value):
+        if value[0:11] == "{ENCRYPTED}":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[11:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                value = plainTxt
+        elif value[0:5] == "{RC4}":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[5:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                value = plainTxt
+        elif value[0:4] == "RC4:":
+            plainTxt = Utils._rc4_decrypt_hex(self.passKey, value[4:])
+            encryptTxt = Utils._rc4_encrypt_hex(self.passKey, plainTxt)
+            if plainTxt == encryptTxt:
+                value = plainTxt
+        else:
+            try:
+                plainTxt = Utils._rc4_decrypt_hex(self.passKey, value)
+                encryptTxt = Utils._rc4_encrypt_hex(self.passKey, value)
+                if encryptTxt == plainTxt:
+                    value = plainTxt
+            except:
+                pass
+
+        return value
+
     def __del__(self):
         if self.dbclient is not None:
             self.dbclient.close()

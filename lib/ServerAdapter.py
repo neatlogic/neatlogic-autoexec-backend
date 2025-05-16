@@ -60,6 +60,7 @@ class ServerAdapter:
             "globalLock": "/neatlogic/api/rest/global/lock",
             "getDeployIdPath": "/neatlogic/api/rest/resourcecenter/resource/appidmoduleidenvid/get",
             "getDeployRunnerGroup": "/neatlogic/api/rest/deploy/runner/group/get/forautoexec",
+            "getDeployEnvAttrs": "/neatlogic/api/rest/deploy/app/config/env/attr/list",
             "getCITxtFilePathList": "/neatlogic/api/rest/inspect/configfile/resource/path/list",
             "uploadFile": "/neatlogic/api/binary/file/upload",
             "removeUploadedFile": "/neatlogic/api/rest/file/delete",
@@ -1228,6 +1229,34 @@ class ServerAdapter:
                 raise AutoExecError("Get deploy id path for {} failed, status code:{} {}".format(namePath, response.status, content))
         except Exception as ex:
             raise AutoExecError("Get deploy id path for {} failed, {}".format(namePath, ex))
+
+    def getDeployEnvAttrs(self, sysId, moduleId, envId=None):
+        if envId is None:
+            return []
+
+        namePath = os.environ.get("DEPLOY_PATH")
+        params = {"appSystemId": sysId, "appModuleId": moduleId, "envId": envId}
+        params["tenant"] = self.context.tenant
+        try:
+            response = self.httpJSON(self.apiMap["getDeployEnvAttrs"], params)
+            charset = response.info().get_content_charset()
+            content = response.read().decode(charset, errors="ignore")
+            retObj = json.loads(content)
+            if response.status == 200:
+                if retObj.get("Status") == "OK":
+                    envAttrs = retObj["Return"]
+                    for oneAttr in envAttrs:
+                        attrVal = oneAttr.get("value")
+                        attrType = oneAttr.get("attrType")
+                        if attrType == "password":
+                            oneAttr["value"] = self.context.decryptPassword(attrVal)
+                    return envAttrs
+                else:
+                    raise AutoExecError("Get deploy env attrs for {} failed, {}".format(namePath, retObj["Message"]))
+            else:
+                raise AutoExecError("Get deploy env attrs for {} failed, status code:{} {}".format(namePath, response.status, content))
+        except Exception as ex:
+            raise AutoExecError("Get deploy env attrs for {} failed, {}".format(namePath, ex))
 
     def getDeployRunnerGroup(self, sysId, moduleId, envId):
         idPath = "%s/%s/%s" % (sysId, moduleId, envId)
