@@ -215,20 +215,7 @@ class Operation:
                         localRefMap=localRefMap,
                         nodeEnv=nodeEnv,
                     )
-                    if optValue[0:11] == "{ENCRYPTED}":
-                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[11:])
-                    elif optValue[0:5] == "{RC4}":
-                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[5:])
-                    elif optValue[0:4] == "RC4:":
-                        optValue = Utils._rc4_decrypt_hex(self.context.passKey, optValue[4:])
-                    else:
-                        try:
-                            plainArgVal = Utils._rc4_decrypt_hex(self.context.passKey, argValue)
-                            encryptArgVal = Utils._rc4_encrypt_hex(self.context.passKey, plainArgVal)
-                            if encryptArgVal == argValue:
-                                argValue = plainArgVal
-                        except:
-                            pass
+                    optValue = self.context.decryptValue(optValue)
                 except:
                     self.writeLog("WARN: Decrypt password option:{}->{} failed.\n".format(self.opName, optName))
             elif optType == "account" and resourceId != "":
@@ -255,20 +242,7 @@ class Operation:
                             password = accountInfo.get("passwordCipher")
                             protocolPort = accountInfo.get("protocolPort", 0)
 
-                        if password[0:11] == "{ENCRYPTED}":
-                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[11:])
-                        elif password[0:5] == "{RC4}":
-                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[5:])
-                        elif password[0:4] == "RC4:":
-                            password = Utils._rc4_decrypt_hex(self.context.passKey, password[4:])
-                        else:
-                            try:
-                                plainPwd = Utils._rc4_decrypt_hex(self.context.passKey, password)
-                                encryptPwd = Utils._rc4_encrypt_hex(self.context.passKey, plainPwd)
-                                if encryptPwd == password:
-                                    password = plainPwd
-                            except:
-                                pass
+                        password = self.context.decryptValue(password)
                         optValue = str(protocolPort) + ":" + username + "/" + password
                     except Exception as err:
                         self.writeLog("WARN: {}\n".format(str(err)))
@@ -313,20 +287,7 @@ class Operation:
                 argValue = opArg.get("value")
                 if argType == "password":
                     try:
-                        if argValue[0:11] == "{ENCRYPTED}":
-                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[11:])
-                        elif argValue[0:5] == "{RC4}":
-                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[5:])
-                        elif argValue[0:4] == "RC4:":
-                            argValue = Utils._rc4_decrypt_hex(self.context.passKey, argValue[4:])
-                        else:
-                            try:
-                                plainArgVal = Utils._rc4_decrypt_hex(self.context.passKey, argValue)
-                                encryptArgVal = Utils._rc4_encrypt_hex(self.context.passKey, plainArgVal)
-                                if encryptArgVal == argValue:
-                                    argValue = plainArgVal
-                            except:
-                                pass
+                        argValue = self.context.decryptValue(argValue)
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
                 elif argType == "file":
