@@ -364,14 +364,16 @@ class JobRunner:
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
             else:
-                if self.context.hasFailNodeInGlobal:
-                    if phaseStatus.isAborting:
-                        endStatus = NodeStatus.aborted
-                    else:
-                        endStatus = NodeStatus.failed
-                else:
+                # if self.context.hasFailNodeInGlobal:
+                #     if phaseStatus.isAborting:
+                #         endStatus = NodeStatus.aborted
+                #     else:
+                #         endStatus = NodeStatus.failed
+                # else:
+                #     endStatus = NodeStatus.succeed
+                if nodesFactory.cleared and nodesFactory.lastRound:
                     endStatus = NodeStatus.succeed
-                if not (nodesFactory.cleared and nodesFactory.lastRound):
+                else:
                     if phaseStatus.isAborting:
                         endStatus = NodeStatus.aborted
                     elif self.context.goToStop:
