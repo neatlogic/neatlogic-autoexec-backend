@@ -282,9 +282,9 @@ class Context(VContext.VContext):
             nodesFilePath = "{}/nodes.json".format(self.runPath)
         return nodesFilePath
 
-    def addPhase(self, phaseName):
+    def addPhase(self, phaseName, phaseType="runner"):
         if self.phasesToRun is None or phaseName in self.phasesToRun:
-            phase = PhaseStatus.PhaseStatus(phaseName)
+            phase = PhaseStatus.PhaseStatus(phaseName, phaseType)
             phase.nodesFilePath = self.getNodesFilePath()
             self.phases[phaseName] = phase
 

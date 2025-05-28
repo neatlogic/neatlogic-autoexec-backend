@@ -8,14 +8,13 @@ import threading
 
 
 class PhaseStatus:
-    def __init__(self, phaseName):
+    def __init__(self, phaseName, phaseType="runner"):
         # super().__init__()
         self.phaseName = phaseName
         self.localOutput = None
         # 用于标记当前phase是否有local或remote的工具
-        self.execLocal = True
-        self.hasLocal = False
-        self.hasRemote = False
+        # self.hasLocal = False
+        # self.hasRemote = False
         # 某个节点执行完毕的Event
         self.roundFinEvent = threading.Event()
         self.globalRoundFinEvent = threading.Event()
@@ -36,6 +35,11 @@ class PhaseStatus:
         self.pauseNodeCount = 0
         self.skipNodeCount = 0
         self.warnCount = 0
+
+        if phaseType in ("target", "runner_target"):
+            self.execMode = "target"
+        else:
+            self.execMode = "runner"
 
         # 用于记录phase的Executor
         self.executor = None

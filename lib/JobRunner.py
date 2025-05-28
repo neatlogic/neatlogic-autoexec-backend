@@ -324,25 +324,25 @@ class JobRunner:
             else:
                 opArgsRefMap[operation["opId"]] = {}
 
-            if operation.get("opType") == "native" and (operation.get("opName") == "native/IF-Block" or operation.get("opName") == "native/LOOP-Block"):
-                for ifOp in operation.get("if", []):
-                    if ifOp.get("opType") in ("local", "runner", "sqlfie"):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
-                for ifOp in operation.get("else", []):
-                    if ifOp.get("opType") in ("local", "runner", "sqlfile"):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
+            # if operation.get("opType") == "native" and (operation.get("opName") == "native/IF-Block" or operation.get("opName") == "native/LOOP-Block"):
+            #     for ifOp in operation.get("if", []):
+            #         if ifOp.get("opType") in ("runner", "sqlfie"):
+            #             phaseStatus.hasLocal = True
+            #         else:
+            #             phaseStatus.hasRemote = True
+            #     for ifOp in operation.get("else", []):
+            #         if ifOp.get("opType") in ("runner", "sqlfile"):
+            #             phaseStatus.hasLocal = True
+            #         else:
+            #             phaseStatus.hasRemote = True
 
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
-            # 如果有本地操作，则在context中进行标记
-            if op.opType in ("local", "runner", "sqlfile"):
-                phaseStatus.hasLocal = True
-            else:
-                phaseStatus.hasRemote = True
+            # # 如果有本地操作，则在context中进行标记
+            # if op.opType in ("local", "runner", "sqlfile"):
+            #     phaseStatus.hasLocal = True
+            # else:
+            #     phaseStatus.hasRemote = True
 
             operations.append(op)
 
@@ -371,13 +371,16 @@ class JobRunner:
                 #         endStatus = NodeStatus.failed
                 # else:
                 #     endStatus = NodeStatus.succeed
-                if nodesFactory.cleared and nodesFactory.lastRound:
-                    endStatus = NodeStatus.succeed
+                if phaseStatus.execMode == "target":
+                    if nodesFactory.cleared and nodesFactory.lastRound:
+                        endStatus = NodeStatus.succeed
+                    else:
+                        if phaseStatus.isAborting:
+                            endStatus = NodeStatus.aborted
+                        elif self.context.goToStop:
+                            endStatus = NodeStatus.paused
                 else:
-                    if phaseStatus.isAborting:
-                        endStatus = NodeStatus.aborted
-                    elif self.context.goToStop:
-                        endStatus = NodeStatus.paused
+                    endStatus = NodeStatus.succeed
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end="")
@@ -417,13 +420,12 @@ class JobRunner:
 
             if not self.context.hasFailNodeInGlobal:
                 # 初始化phase的节点信息
-                self.context.addPhase(phaseName)
+                self.context.addPhase(phaseName, phaseType)
                 phaseStatus = self.context.phases[phaseName]
-
-                if phaseType in ("local", "runner", "sqlfile"):
-                    phaseStatus.hasLocal = True
-                else:
-                    phaseStatus.hasRemote = True
+                # if phaseType in ("runner", "sqlfile"):
+                #     phaseStatus.hasLocal = True
+                # else:
+                #     phaseStatus.hasRemote = True
 
                 serverAdapter = self.context.serverAdapter
                 if not self.localDefinedNodes:
@@ -493,22 +495,23 @@ class JobRunner:
                 continue
 
             # 初始化phase的节点信息
-            self.context.addPhase(phaseName)
+            phaseType = phaseConfig.get("phaseType", None)
+            self.context.addPhase(phaseName, phaseType)
 
             phaseStatus = self.context.phases[phaseName]
-            if "phaseType" in phaseConfig:
-                if phaseConfig["phaseType"] in ("local", "runner", "sqlfile"):
-                    phaseStatus.hasLocal = True
-                else:
-                    phaseStatus.hasRemote = True
-            else:
-                for operation in phaseConfig["operations"]:
-                    # 如果有本地操作，则在context中进行标记
-                    opType = operation["opType"]
-                    if opType in ("local", "runner", "sqlfile"):
-                        phaseStatus.hasLocal = True
-                    else:
-                        phaseStatus.hasRemote = True
+            # if phaseType is not None:
+            #     if phaseType in ("runner", "sqlfile"):
+            #         phaseStatus.hasLocal = True
+            #     else:
+            #         phaseStatus.hasRemote = True
+            # else:
+            #     for operation in phaseConfig["operations"]:
+            #         # 如果有本地操作，则在context中进行标记
+            #         opType = operation["opType"]
+            #         if opType in ("local", "runner", "sqlfile"):
+            #             phaseStatus.hasLocal = True
+            #         else:
+            #             phaseStatus.hasRemote = True
 
             print("INFO: Execute phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(phaseName, groupRoundCount, parallelCount), end="")
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
@@ -586,7 +589,7 @@ class JobRunner:
                 if lastRound:
                     phaseNodeFactory.setLastRound()
 
-                if phaseStatus.hasLocal:
+                if phaseStatus.execMode == "runner":
                     needExecute = False
                     if firstRound and execRound == "first":
                         needExecute = True
@@ -609,7 +612,7 @@ class JobRunner:
                     else:
                         print("INFO: Local phase:{} is no need to execute in current round:{}, seq:{}.\n".format(phaseName, roundNo, seqNo), end="")
                         continue
-                elif phaseStatus.hasRemote:
+                else:
                     for node in oneRoundNodes:
                         if self.context.goToStop == True:
                             phaseNodeFactory.putRunNode(None)
@@ -645,12 +648,12 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            if phaseStatus.hasRemote:
+                            if phaseStatus.execMode == "target":
                                 self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                                 if not hasInformed:
                                     hasInformed = True
                                     print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
-                            if self.context.runnerId == nodesFactory.localRunnerId:
+                            elif self.context.runnerId == nodesFactory.localRunnerId:
                                 # 如果是本地操作的runner，则通知服务端当前的round已经结束
                                 self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                                 if not hasInformed:

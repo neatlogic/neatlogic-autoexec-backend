@@ -62,15 +62,11 @@ class Operation:
         self.opBunddleName = opBunddleName
 
         # opType有三种
-        # remote：推送到远程主机上运行，每个目标节点调用一次
-        # localremote：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
-        # local：在本地运行，与运行节点无关，只会运行一次
+        # target：推送到远程主机上运行，每个目标节点调用一次
+        # runner_target：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
+        # runner：在本地运行，与运行节点无关，只会运行一次
         self.opType = param["opType"]
-        self.opTypeDesc = {
-            "local": "on runner",
-            "remote": "on remote OS",
-            "localremote": "on runner to target",
-        }
+        self.opTypeDesc = {"runner": "on runner", "target": "on remote OS", "runner_target": "on runner to target", "sqlfile": "on ruuner to execute sql files"}
 
         self.extNameMap = {
             "package": ".tar",
@@ -103,15 +99,17 @@ class Operation:
         }
 
         # 把runner、target、runner_target、sqlfile转换为local、remote、localremote
-        if self.opType == "runner":
-            self.opType = "local"
-        elif self.opType == "target":
-            self.opType = "remote"
-        elif self.opType == "runner_target":
-            self.opType = "localremote"
-        elif self.opType == "sqlfile":
-            self.opType = "local"
+        # if self.opType == "runner":
+        #     self.opType = "local"
+        # elif self.opType == "target":
+        #     self.opType = "remote"
+        # elif self.opType == "runner_target":
+        #     self.opType = "localremote"
+        # elif self.opType == "sqlfile":
+        #     self.opType = "local"
         ##############
+        if self.opType == "sqlfile":
+            self.opType = "runner"
 
         self.isScript = param.get("isScript")
         if self.isScript is not None:
@@ -157,7 +155,7 @@ class Operation:
         if self.isScript == 1:
             self.fetchOperation()
         else:
-            if self.opType == "remote":
+            if self.opType == "target":
                 self.pluginParentPath = "{}/plugins/remote/{}".format(self.context.homePath, self.opBunddleName)
                 self.pluginPath = "{}/{}".format(self.pluginParentPath, self.opSubName)
             else:
@@ -576,7 +574,7 @@ class Operation:
 
             argValue = arg.get("value")
 
-            if argDesc == "filepath" and self.opType == "remote":
+            if argDesc == "filepath" and self.opType == "target":
                 argValue = "file/" + os.path.basename(argValue)
 
             if noPassword and argDesc == "textarea":
@@ -668,7 +666,7 @@ class Operation:
             if noPassword and isPassword:
                 hideValue = True
 
-            if kDesc == "filepath" and self.opType == "remote":
+            if kDesc == "filepath" and self.opType == "target":
                 v = "file/" + os.path.basename(v)
 
             if noPassword and kDesc == "textarea":
@@ -689,12 +687,12 @@ class Operation:
     def getOpNameWithExt(self, osType="linux"):
         nameWithExt = None
         if self.isScript:
-            if self.opType == "remote":
+            if self.opType == "target":
                 nameWithExt = self.scriptFileName
             else:
                 nameWithExt = self.opName
         else:
-            if self.opType == "remote":
+            if self.opType == "target":
                 extName = self.extNameMap[self.interpreter]
                 if self.opSubName.endswith(extName):
                     nameWithExt = self.opSubName
@@ -721,7 +719,7 @@ class Operation:
             remotePath = "."
 
         if self.isScript:
-            if self.opType == "remote":
+            if self.opType == "target":
                 # 如果自定义脚本远程执行，为了避免中文名称带来的问题，使用opId来作为脚本文件的名称
                 if osType == "windows":
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名,自定义脚本下载时会自动加上扩展名
@@ -755,7 +753,7 @@ class Operation:
                     cmd = "{} {}".format(self.interpreter, self.opName)
         else:
             # 如果是内置的插件，则不会使用中文命名，同时如果是windows使用的工具会默认加上扩展名
-            if self.opType == "remote":
+            if self.opType == "target":
                 if osType == "windows":
                     # 如果是windows，windows的脚本执行必须要脚本具备扩展名
                     extName = self.extNameMap[self.interpreter]

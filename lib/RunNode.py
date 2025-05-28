@@ -998,20 +998,20 @@ class RunNode:
                             ret = 1
                             self.writeNodeLog("ERROR: Execute native plugin native/{} failed, {}\n".format(op.opSubName, str(ex)))
                     elif self.host == "local":
-                        if op.opType == "local":
+                        if op.opType == "runner":
                             # 本地执行
                             # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                             ret = self._localExecute(op)
                         else:
                             return
                     else:
-                        if op.opType == "localremote":
+                        if op.opType == "runner_target":
                             if self.password == "":
                                 self.writeNodeLog("WARN: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
                             # 本地执行，逐个node循环本地调用插件，通过-node参数把node的json传送给插件，插件自行处理node相关的信息和操作
                             # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                             ret = self._localRemoteExecute(op)
-                        elif op.opType == "remote":
+                        elif op.opType == "target":
                             if self.password == "":
                                 ret = 1
                                 self.writeNodeLog("ERROR: Can not find password for {}@{}:{}, Please check if the node is exists in resource center or check if password is configed for the user account.\n".format(self.username, self.host, self.protocolPort))
@@ -1028,7 +1028,7 @@ class RunNode:
                     self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
                 else:
                     if op.hasOutput or op.hasNodeEnv:
-                        if op.opType not in ("remote", "native"):
+                        if op.opType not in ("target", "native"):
                             self._loadOpOutput(op)
                         self._saveOutput()
                     self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
@@ -1078,7 +1078,7 @@ class RunNode:
         else:
             activeOps = opParams.get("else", [])
 
-        phaseStatus = self.context.phases[self.phaseName]
+        # phaseStatus = self.context.phases[self.phaseName]
         opArgsRefMap = ifOp.opsParam
         retOps = []
         for operation in activeOps:
@@ -1090,10 +1090,10 @@ class RunNode:
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
             # 如果有本地操作，则在context中进行标记
-            if op.opType == "local":
-                phaseStatus.hasLocal = True
-            else:
-                phaseStatus.hasRemote = True
+            # if op.opType == "runner":
+            #     phaseStatus.hasLocal = True
+            # else:
+            #     phaseStatus.hasRemote = True
 
             retOps.append(op)
 
@@ -1117,7 +1117,7 @@ class RunNode:
 
         loopOps = opParams.get("operations", [])
 
-        phaseStatus = self.context.phases[self.phaseName]
+        # phaseStatus = self.context.phases[self.phaseName]
         opArgsRefMap = loopOp.opsParam
         retOps = []
 
@@ -1129,11 +1129,11 @@ class RunNode:
 
             op = Operation.Operation(self.context, opArgsRefMap, operation)
 
-            # 如果有本地操作，则在context中进行标记
-            if op.opType == "local":
-                phaseStatus.hasLocal = True
-            else:
-                phaseStatus.hasRemote = True
+            # # 如果有本地操作，则在context中进行标记
+            # if op.opType == "runner":
+            #     phaseStatus.hasLocal = True
+            # else:
+            #     phaseStatus.hasRemote = True
 
             retOps.append(op)
 
@@ -2103,7 +2103,7 @@ class RunNode:
             if killCmd is not None:
                 tagent = TagentClient.TagentClient(
                     self.host,
-                    self.port,
+                    self.protocolPort,
                     self.password,
                     connectTimeout=60,
                     readTimeout=360,

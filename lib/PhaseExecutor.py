@@ -166,7 +166,7 @@ class PhaseExecutor:
 
             nodesFactory = self.nodesFactory
 
-            if not phaseStatus.hasRemote:
+            if phaseStatus.execMode == "runner":
                 self.parallelCount = 1
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
@@ -176,7 +176,7 @@ class PhaseExecutor:
             worker_threads = self._buildWorkerPool(execQueue)
 
             # 如果有本地执行的插件（不是每个节点调用一次的插件）则虚构一个local的节点，直接执行
-            if phaseStatus.hasLocal and phaseStatus.execLocal:
+            if phaseStatus.execMode == "runner":
                 node = None
                 try:
                     # 如果有local的操作，则往队列中压入local node，构造一个特殊的node
@@ -206,8 +206,7 @@ class PhaseExecutor:
                             execQueue.get_nowait()
                     except Exception as ex:
                         pass
-
-            elif phaseStatus.hasRemote:
+            else:
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
                 while self.context.goToStop == False:
                     node = None
