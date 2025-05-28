@@ -90,7 +90,6 @@ class RunNodeFactory:
         if self.context.runnerId == self.localRunnerId:
             # 如果当前runner是指定运行local阶段的runner
             localNode = {"resourceId": 0, "protocol": "local", "host": "local", "port": 0, "username": "", "password": ""}
-        self.cleared = True
         return localNode
 
     def getSeqParallelCount(self):

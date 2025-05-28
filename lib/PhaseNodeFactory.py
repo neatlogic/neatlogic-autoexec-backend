@@ -43,8 +43,9 @@ class PhaseNodeFactory:
         while self.context.goToStop == False:
             try:
                 node = self.localNodeQueue.get(timeout=5)
+                self.cleared = True
+                self.lastRound = True
                 return node
             except Exception as ex:
                 pass
-        self.cleared = True
         return node
