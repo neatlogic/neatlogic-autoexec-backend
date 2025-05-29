@@ -1,12 +1,11 @@
 {
     "opDesc": "执行交互工具",
-    "opType": "runner",
+    "opType": "native",
     "typeName": "BASIC",
     "riskName": "LOW",
     "interpreter": "perl",
     "defaultProfile": "interact-args",
     "description": "执行过程中获取用户输入",
-    "enable": 0,
     "option": [
         {
             "opt": "optype",
