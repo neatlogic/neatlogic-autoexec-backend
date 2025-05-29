@@ -586,8 +586,7 @@ class ServerAdapter:
         except:
             raise
 
-    # 通知后端当前job已经暂停完成
-    def jobPaused(self):
+    def pushJobStatus(self, jobStatus):
         if self.context.devMode:
             return {}
 
@@ -595,11 +594,11 @@ class ServerAdapter:
             "jobId": self.context.jobId,
             "execId": self.context.execId,
             "time": time.time(),
-            "status": "paused",
+            "status": jobStatus,
             "passThroughEnv": self.context.passThroughEnv,
         }
-        print("INFO: Try to pause job {}.\n".format(self.context.jobId), end="")
         response = self.httpJSON(self.apiMap["updateJobStatus"], params)
+        print("INFO: Update job:{} to status:{}.\n".format(self.context.jobId, jobStatus), end="")
 
         try:
             charset = response.info().get_content_charset()
@@ -607,28 +606,14 @@ class ServerAdapter:
             return json.loads(content)
         except:
             raise
+
+    # 通知后端当前job已经暂停完成
+    def jobPaused(self):
+        return self.pushJobStatus("paused")
 
     # 通知后端当前job已经Kill完成
     def jobKilled(self):
-        if self.context.devMode:
-            return {}
-
-        params = {
-            "jobId": self.context.jobId,
-            "execId": self.context.execId,
-            "time": time.time(),
-            "status": "aborted",
-            "passThroughEnv": self.context.passThroughEnv,
-        }
-        print("INFO: Try to kill job {}.\n".format(self.context.jobId), end="")
-        response = self.httpJSON(self.apiMap["updateJobStatus"], params)
-
-        try:
-            charset = response.info().get_content_charset()
-            content = response.read().decode(charset, errors="ignore")
-            return json.loads(content)
-        except:
-            raise
+        return self.pushJobStatus("aborted")
 
     # 下载操作运行参数的文件参数对应的文件，下载到cache目录
     def fetchFile(self, savePath, fileId):

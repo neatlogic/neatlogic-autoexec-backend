@@ -266,6 +266,7 @@ class JobRunner:
         self.listenThread = None
         self.localDefinedNodes = False
         self.globalLock = GlobalLock.GlobalLock(context)
+        self.isAborting = 0
 
         # 切换到任务的执行路径
         os.chdir(context.runPath)
@@ -770,6 +771,10 @@ class JobRunner:
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
+            if self.isAborting:
+                self.serverAdapter.pushJobStatus("aborted")
+            else:
+                self.serverAdapter.pushJobStatus("failed")
         elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             if not self.context.noFireNext and lastPhase is not None:
@@ -795,6 +800,7 @@ class JobRunner:
 
     def kill(self):
         self.context.goToStop = True
+        self.isAborting = 1
         print("INFO: Try to kill job...\n", end="")
         self.stopListen()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
