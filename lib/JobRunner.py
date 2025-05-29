@@ -772,9 +772,9 @@ class JobRunner:
         if self.context.hasFailNodeInGlobal:
             status = 1
             if self.isAborting:
-                self.serverAdapter.pushJobStatus("aborted")
+                self.context.serverAdapter.pushJobStatus("aborted")
             else:
-                self.serverAdapter.pushJobStatus("failed")
+                self.context.serverAdapter.pushJobStatus("failed")
         elif not self.context.goToStop:
             # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
             if not self.context.noFireNext and lastPhase is not None:
