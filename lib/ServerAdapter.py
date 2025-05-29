@@ -291,7 +291,7 @@ class ServerAdapter:
 
     # 获取作业的运行参数文件params.json
     def getParams(self):
-        params = {"jobId": self.context.jobId}
+        params = {"jobId": self.context.jobId, "execId": self.context.execId}
 
         lastModifiedTime = 0
         paramsFilePath = self.context.paramsFilePath
@@ -399,6 +399,7 @@ class ServerAdapter:
     def getNodes(self, phase=None, groupNo=None):
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "runnerId": self.context.runnerId,
             "passThroughEnv": self.context.passThroughEnv,
             "phase": "",
@@ -442,6 +443,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "groupNo": groupNo,
             "phase": phaseName,
             "resourceId": runNode.resourceId,
@@ -470,6 +472,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "groupNo": groupNo,
             "phase": phaseName,
             "status": status,
@@ -518,6 +521,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "runnerId": self.context.runnerId,
             "groupNo": groupNo,
             "time": time.time(),
@@ -539,6 +543,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "runnerId": self.context.runnerId,
             "lastPhase": lastPhase,
             "time": time.time(),
@@ -560,6 +565,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "runnerId": self.context.runnerId,
             "groupNo": groupNo,
             "phase": phaseName,
@@ -587,6 +593,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "time": time.time(),
             "status": "paused",
             "passThroughEnv": self.context.passThroughEnv,
@@ -608,6 +615,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "time": time.time(),
             "status": "aborted",
             "passThroughEnv": self.context.passThroughEnv,
@@ -654,7 +662,7 @@ class ServerAdapter:
             if contentDisposition is not None:
                 fileNameIdx = contentDisposition.find('filename="')
                 if fileNameIdx > 0:
-                    fileName = contentDisposition[fileNameIdx + 10 : -1]
+                    fileName = urllib.parse.unquote(contentDisposition[fileNameIdx + 10 : -1])
 
             if response.status == 200:
                 cachedFilePathTmp = cachedFilePath + ".tmp"
@@ -692,6 +700,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "operationId": opId,
             "scriptId": scriptId,
         }
@@ -947,6 +956,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "envName": name,
             "envValue": value,
             "isHidden": isHidden,
@@ -963,6 +973,7 @@ class ServerAdapter:
             return {}
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "key": name,
             "defaultValue": value,
             "time": time.time(),
@@ -979,6 +990,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "resourceId": resourceId,
             "host": host,
             "port": port,
@@ -1011,6 +1023,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "resourceId": resourceId,
             "host": host,
             "port": port,
@@ -1042,6 +1055,7 @@ class ServerAdapter:
         params = {
             "tenent": self.context.tenent,
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "ciType": ciType,
             "resourceId": resourceId,
             "time": time.time(),
@@ -1068,6 +1082,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "ciType": ciType,
             "ciEntityId": resourceId,
             "inspectStatus": status,
@@ -1096,6 +1111,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "ciType": ciType,
             "ciEntityId": resourceId,
             "monitorStatus": status,
@@ -1125,6 +1141,7 @@ class ServerAdapter:
         params = {
             "resourceId": resourceId,
             "jobId": jobId,
+            "execId": self.context.execId,
             "phaseName": phaseName,
             "inspectTime": int(time.time() * 1000),
         }
@@ -1150,6 +1167,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "ciEntityId": resourceId,
             "attrList": attrList,
         }
@@ -1187,6 +1205,7 @@ class ServerAdapter:
 
         params = {
             "jobId": self.context.jobId,
+            "execId": self.context.execId,
             "tenant": self.context.tenant,
             "resourceId": resourceId,
         }

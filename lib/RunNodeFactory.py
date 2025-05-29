@@ -43,6 +43,7 @@ class RunNodeFactory:
         # 第一行是节点运行描述信息，包括节点总数，local运行节点ID等信息
         line = self.nodesFile.readline()
         # self.nodesFile.seek(0)
+        self.nodeSeq = 0
         self.nodesCount = 0
         self.totalNodesCount = 1
         self.localRunnerId = 1
@@ -73,6 +74,7 @@ class RunNodeFactory:
         localNode = self.localNode()
         if localNode is not None:
             localRunNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, localNode)
+            localRunNode.isLastNode = True
         self.cleared = True
         return localRunNode
 
@@ -81,6 +83,8 @@ class RunNodeFactory:
         nodeObj = self.nextNode(self.context.runnerId)
         if nodeObj is not None:
             runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount)
+            if self.nodeSeq == self.totalNodesCount:
+                runNode.isLastNode = True
         else:
             self.cleared = True
         return runNode
@@ -136,6 +140,7 @@ class RunNodeFactory:
                 break
             if line.strip() != "":
                 nodeObj = json.loads(line)
+                self.nodeSeq = self.nodeSeq + 1
                 if self.context.nodesToRun is not None:
                     if nodeObj.get("resourceId") in self.context.nodesToRun:
                         break

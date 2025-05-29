@@ -133,6 +133,7 @@ sub _getParams {
         runnerId    => $ENV{RUNNER_ID},
         runnerGroup => $buildEnv->{RUNNER_GROUP},
         jobId       => $ENV{AUTOEXEC_JOBID},
+        execId         => $ENV{AUTOEXEC_EXECID},
         phaseName   => $ENV{AUTOEXEC_PHASE_NAME},
         sysId       => $buildEnv->{SYS_ID},
         moduleId    => $buildEnv->{MODULE_ID},
@@ -329,6 +330,7 @@ sub replaceBuildNo {
 
     my $params = {
         jobId   => $buildEnv->{JOB_ID},
+        execId         => $ENV{AUTOEXEC_EXECID},
         buildNo => $buildNo
     };
 
@@ -757,6 +759,7 @@ sub getAccountPwd {
 
     my $params = {
         jobId      => $args{jobId},
+        execId     => $ENV{AUTOEXEC_EXECID},
         resourceId => $args{resourceId},
         nodeName   => $args{nodeName},
         nodeType   => $args{nodeType},
@@ -868,6 +871,7 @@ sub getSqlFileStatuses {
     else {
         #获取某个作业的所有的SQL状态List
         $params->{jobId}     = $jobId;
+        $params->{execId}    = $ENV{AUTOEXEC_EXECID};
         $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
@@ -933,6 +937,7 @@ sub checkInSqlFiles {
     }
     else {
         $params->{jobId}     = $jobId;
+        $params->{execId}    = $ENV{AUTOEXEC_EXECID};
         $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
@@ -982,6 +987,7 @@ sub pushSqlStatus {
     }
     else {
         $params->{jobId}     = $jobId;
+        $params->{execId}    = $ENV{AUTOEXEC_EXECID};
         $params->{runnerId}  = $ENV{RUNNER_ID};
         $params->{phaseName} = $ENV{AUTOEXEC_PHASE_NAME};
         $params->{operType}  = 'auto';
@@ -1021,6 +1027,7 @@ sub updatePhaseStatus {
 
     my $params = {
         jobId          => $jobId,
+        execId         => $ENV{AUTOEXEC_EXECID},
         groupNo        => $ENV{AUTOEXEC_GROUP_NO},
         phase          => $ENV{AUTOEXEC_PHASE_NAME},
         status         => $phaseStatus,
@@ -1153,6 +1160,7 @@ sub getJobStatus {
 
     my $params = {
         jobId      => $jobId,
+        execId     => $ENV{AUTOEXEC_EXECID},
         proxyToUrl => $args{proxyToUrl}
     };
 
