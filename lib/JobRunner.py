@@ -65,6 +65,14 @@ class ListenWorkThread(threading.Thread):
                         if phaseStatus is not None:
                             phaseStatus.setGlobalRoundFinEvent(roundNo)
                         print("INFO: Group execute round continue event recieved({}:{}), processed.\n".format(phaseName, roundNo), end="")
+                    elif actionData["action"] == "informGlobalFail":
+                        self.context.hasFailNodeInGlobal = True
+                        phaseName = actionData.get("phaseName")
+                        phaseStatus = self.context.phases.get(phaseName)
+                        if phaseStatus is not None:
+                            phaseExecutor = phaseStatus.executor
+                            if phaseExecutor is not None and os.path.exists(phaseExecutor.waitInputFlagFilePath):
+                                phaseExecutor.kill()
                     elif actionData["action"] == "setEnv":
                         onlyInProcess = actionData.get("onlyInProcess")
                         for name, value in actionData["items"].items():

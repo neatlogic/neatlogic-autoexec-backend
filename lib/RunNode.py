@@ -382,6 +382,7 @@ class RunNode:
                     if "Return" in retObj and "hasFailNode" in retObj["Return"]:
                         if retObj["Return"]["hasFailNode"] == 1:
                             self.context.hasFailNodeInGlobal = True
+                            self.writeNodeLog("INFO: There is fail node in any runner.\n")
                 else:
                     self.writeNodeLog("INFO: Change node status to {} failed, {}\n".format(status, json.dumps(retObj, ensure_ascii=False)))
             except Exception as ex:
