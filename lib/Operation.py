@@ -26,6 +26,7 @@ class Operation:
         self.jobId = context.jobId
         self.status = "pending"
         self.preOp = None
+        self.isLastOp = False
         self.hasNodeEnv = False
         self.opsParam = opsParam
         self.isScript = 0

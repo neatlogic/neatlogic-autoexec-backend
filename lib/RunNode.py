@@ -203,6 +203,8 @@ class RunNode:
         self.runPath = context.runPath
         self.node = node
         self.totalNodesCount = totalNodesCount
+        self.isLastNode = False
+        self.execLastOp = False
         self.warnCount = 0
         self.isAborting = False
         self.hasFailLog = False
@@ -849,6 +851,7 @@ class RunNode:
             return opFinalStatus
         else:
             ret = 0
+            self.execLastOp = op.isLastOp
             timeConsume = None
             startTime = time.time()
             try:

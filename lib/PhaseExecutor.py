@@ -49,7 +49,7 @@ class PhaseWorker(threading.Thread):
             elif (nodeStatus == NodeStatus.succeed or nodeStatus == NodeStatus.ignored) and not self.context.isForce:
                 # 如果是成功状态，回写服务端，防止状态不一致
                 phaseStatus.incSkipNodeCount()
-                print("INFO: Node({}) status:{} {}:{} had been executed, skip.\n".format(node.resourceId, nodeStatus, node.host, node.port), end="")
+                print("INFO: Phase:{} node:{} status:{} {}:{} had been executed, skip.\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
                 try:
                     self.context.serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, node, nodeStatus)
                 except Exception as ex:
@@ -57,13 +57,13 @@ class PhaseWorker(threading.Thread):
                 continue
             elif nodeStatus == NodeStatus.running and not self.context.isForce:
                 if node.ensureNodeIsRunning():
-                    print("ERROR: Node({}) status:{} {}:{} is running, please check the status.\n".format(node.resourceId, nodeStatus, node.host, node.port), end="")
+                    print("ERROR: Phase:{} node:{} status:{} {}:{} is running, please check the status.\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
                     self.context.goToStop = True
                     continue
                 elif self.context.goToStop == False:
-                    print("INFO: Node({}) status:{} {}:{} try to execute again...\n".format(node.resourceId, nodeStatus, node.host, node.port), end="")
+                    print("INFO: Phase:{} node:{} status:{} {}:{} try to execute again...\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
             elif self.context.goToStop == False:
-                print("INFO: Node({}) status:{} {}:{} execute begin...\n".format(node.resourceId, nodeStatus, node.host, node.port), end="")
+                print("INFO: Phase:{} node:{} status:{} {}:{} execute begin...\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
 
             # 运行完所有操作
             preOp = None
@@ -74,6 +74,11 @@ class PhaseWorker(threading.Thread):
                 localOp.preOp = preOp
                 localOps.append(localOp)
                 preOp = localOp
+
+            # 标记phase的最后一个operation
+            lastOp = preOp
+            if lastOp is not None:
+                lastOp.isLastOp = True
 
             opsStatus = None
             try:
@@ -87,16 +92,16 @@ class PhaseWorker(threading.Thread):
 
             if opsStatus == NodeStatus.ignored:
                 phaseStatus.incIgnoreFailNodeCount()
-                print("WARN: Node({}) {}:{} execute failed, ignore.\n".format(node.resourceId, node.host, node.port), end="")
+                print("WARN: Phase:{} node:{} {}:{} execute failed, ignore.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             elif opsStatus == NodeStatus.succeed:
                 phaseStatus.incSucNodeCount()
-                print("INFO: Node({}) {}:{} execute succeed.\n".format(node.resourceId, node.host, node.port), end="")
+                print("INFO: Phase:{} node:{} {}:{} execute succeed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             elif opsStatus == NodeStatus.paused:
                 phaseStatus.incPauseNodeCount()
-                print("WARN: Node({}) {}:{} execute paused.\n".format(node.resourceId, node.host, node.port), end="")
+                print("WARN: Phase:{} node:{} {}:{} execute paused.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             else:
                 phaseStatus.incFailNodeCount()
-                print("ERROR: Node({}) {}:{} execute failed.\n".format(node.resourceId, node.host, node.port), end="")
+                print("ERROR: Phase:{} node:{} {}:{} execute failed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
 
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         currentNode = self.currentNode
@@ -104,7 +109,8 @@ class PhaseWorker(threading.Thread):
             if clean is None or clean == 0:
                 currentNode.updateNodeStatus(NodeStatus.waitInput, interact=interact)
             elif clean == 1:
-                currentNode.updateNodeStatus(NodeStatus.running, interact=None)
+                if not currentNode.execLastOp:
+                    currentNode.updateNodeStatus(NodeStatus.running, interact=None)
             return True
         else:
             return False
@@ -254,13 +260,21 @@ class PhaseExecutor:
 
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         hasInformed = False
+        isLastNode = False
+        execLastOp = False
         for worker in self.workers:
+            currentNode = worker.currentNode
             if worker.informNodeWaitInput(resourceId, interact=interact, clean=clean):
+                if currentNode.isLastNode:
+                    isLastNode = True
+                    execLastOp = currentNode.execLastOp
                 hasInformed = True
+                break
         if hasInformed:
             if clean == 1:
-                self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
-                print("INFO: Update runner node status to running succeed.\n", end="")
+                if not (isLastNode and execLastOp):
+                    self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
+                    print("INFO: Update runner node status to running succeed.\n", end="")
             else:
                 self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
                 print("INFO: Update runner node status to waitInput succeed.\n", end="")

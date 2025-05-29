@@ -57,7 +57,7 @@ class ListenWorkThread(threading.Thread):
                         phaseStatus = self.context.phases.get(phaseName)
                         if phaseStatus is not None and phaseStatus.executor is not None:
                             phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData.get("interact"), clean=clean)
-                            print("INFO: Node interact event recieved, processed.\n", end="")
+                            print("INFO: Node interact event recieved, phase({}) resourceid({}) processed.\n".format(phaseName, resourceId), end="")
                     elif actionData["action"] == "informRoundContinue":
                         phaseName = actionData["phaseName"]
                         roundNo = actionData["roundNo"]
@@ -70,6 +70,7 @@ class ListenWorkThread(threading.Thread):
                         phaseName = actionData.get("phaseName")
                         phaseStatus = self.context.phases.get(phaseName)
                         if phaseStatus is not None:
+                            print("INFO: Node fail in phase({}) global event recieved..\n".format(phaseName), end="")
                             phaseExecutor = phaseStatus.executor
                             if phaseExecutor is not None and os.path.exists(phaseExecutor.waitInputFlagFilePath):
                                 phaseExecutor.kill()
@@ -444,7 +445,7 @@ class JobRunner:
                 if nodesFactory.totalNodesCount > 0:
                     parallelCount = float(self.getParallelCount(nodesFactory.nodesCount, phaseRoundCount)) / nodesFactory.jobRunnerCount
                     parallelCount = int(parallelCount) + (parallelCount != int(parallelCount))
-                    print("INFO: Execute phase:{} strategy:oneShot, round:{}, parallel:{}.\n".format(phaseName, phaseRoundCount, parallelCount), end="")
+                    print("INFO: Execute group:{} phase:{} strategy:oneShot, round:{}, parallel:{}.\n".format(groupNo + 1, phaseName, phaseRoundCount, parallelCount), end="")
                     lastPhase = phaseName
                     # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
                     thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap))
@@ -462,7 +463,7 @@ class JobRunner:
 
             phaseStatus = self.context.phases.get(phaseName)
             if phaseStatus is not None:
-                print("INFO: Execute phase:{} finish, suceessCount:{}, failCount:{}, ignoreCount:{}, pauseCount:{}, skipCount:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
+                print("INFO: Execute phase:{} finish, suceess:{}, fail:{}, ignore:{}, pause:{}, skip:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
                 print("--------------------------------------------------------------\n\n", end="")
 
         return lastPhase
@@ -521,7 +522,7 @@ class JobRunner:
             #         else:
             #             phaseStatus.hasRemote = True
 
-            print("INFO: Execute phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(phaseName, groupRoundCount, parallelCount), end="")
+            print("INFO: Execute group:{}, phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(groupNo + 1, phaseName, groupRoundCount, parallelCount), end="")
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
             thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
@@ -614,6 +615,7 @@ class JobRunner:
                         if self.context.runnerId == nodesFactory.localRunnerId:
                             localNode = nodesFactory.localNode()
                             localRunNode = RunNode.RunNode(self.context, groupNo, phaseIndex, phaseName, phaseType, localNode)
+                            localRunNode.isLastNode = True
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putLocalRunNode(localRunNode)
                         phaseNodeFactory.putLocalRunNode(None)
@@ -621,6 +623,7 @@ class JobRunner:
                         print("INFO: Local phase:{} is no need to execute in current round:{}, seq:{}.\n".format(phaseName, roundNo, seqNo), end="")
                         continue
                 else:
+                    runNode = None
                     for node in oneRoundNodes:
                         if self.context.goToStop == True:
                             phaseNodeFactory.putRunNode(None)
@@ -630,6 +633,8 @@ class JobRunner:
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putRunNode(runNode)
                     if lastRound:
+                        if runNode is not None:
+                            runNode.isLastNode = True
                         phaseNodeFactory.putRunNode(None)
 
                 loopCount = self.context.maxExecSecs / 3
@@ -660,18 +665,18 @@ class JobRunner:
                                 self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                                 if not hasInformed:
                                     hasInformed = True
-                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
+                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
                             elif self.context.runnerId == nodesFactory.localRunnerId:
                                 # 如果是本地操作的runner，则通知服务端当前的round已经结束
                                 self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
                                 if not hasInformed:
                                     hasInformed = True
-                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait for other runner...\n".format(groupNo, roundNo, seqNo, phaseName), end="")
+                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait for other runner...\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
-                            print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo, roundNo, seqNo, phaseName, ex), end="")
+                            print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo + 1, roundNo, seqNo, phaseName, ex), end="")
 
                         if phaseStatus.waitGlobalRoundFin(10):
-                            print("INFO: Group:{} round:{} seq:{}, phase:{} is completed.\n".format(groupNo, roundNo, seqNo, phaseName), end="")
+                            print("INFO: Group:{} round:{} seq:{}, phase:{} is completed.\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
                             break
 
                     if loopCount <= 0:
