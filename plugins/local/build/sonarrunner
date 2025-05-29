@@ -177,22 +177,22 @@ sub main {
 
     my $hasError = 0;
     my $ret      = system($cmd);
-    $hasError = $hasError + $ret;
 
     if ( $ret ne 0 ) {
+        $hasError = 1;
         print "ERROR: Sonar-scanner failed, return code:$ret.\n";
     }
     else {
         eval {
             my ( $measuresChkError, $measures ) = SonarQubeAdapter::getMeasures( $projectKey, $sonarUrl, $sonarLogin, $sonarPwd, $level, $threshold );
-            $hasError = $hasError + $measuresChkError;
+            $hasError = 2;
             if ( defined($measures) ) {
                 my $serverAdapter = ServerAdapter->new();
                 $serverAdapter->addBuildQuality( $buildEnv, $measures );
             }
         };
         if ($@) {
-            $hasError = $hasError + 1;
+            $hasError = 3;
             print("ERROR: $@");
         }
         else {
