@@ -165,9 +165,7 @@ sub main {
     }
     my $cmd      = getScriptCmd( $scriptFilePath, $interpreter, $args );
     my $exitCode = system($cmd);
-    if ( $exitCode > 255 ) {
-        $exitCode = $exitCode >> 8;
-    }
+    $exitCode = $exitCode >> 8;
 
     if ( $exitCode == 0 ) {
         print("FINE: Exec script success.\n");

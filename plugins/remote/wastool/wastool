@@ -144,7 +144,7 @@ sub main {
 
     $hasError = execAction( $insName, 'was', $iniContent, $action, \@ARGV, $isVerbose );
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub execAction {
@@ -171,7 +171,7 @@ sub execAction {
         exec("perl bin/$runtimeBaseName-$action.pl app $insName $envParams");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

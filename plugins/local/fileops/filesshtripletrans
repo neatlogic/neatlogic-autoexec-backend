@@ -118,7 +118,7 @@ qq{ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$srcPort ${
 
     waitpid( $pid, 0 );
 
-    my $errorCode = $?;
+    my $errorCode = $? >> 8;
 
     return $errorCode;
 }

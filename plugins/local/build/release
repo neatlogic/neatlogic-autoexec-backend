@@ -440,7 +440,7 @@ sub main {
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
     if ( $hasError > 255 ) {
-        $hasError = $hasError >> 8;
+        $hasError = 1;
     }
 
     return $hasError;
@@ -575,7 +575,7 @@ sub copyTarget {
         chdir($cwd);
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

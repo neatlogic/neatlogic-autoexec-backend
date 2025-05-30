@@ -214,7 +214,7 @@ sub initDir {
         print("ERROR: Create directory $dirStruct->{envres} failed, $!\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub getVerBaseEnv {
@@ -470,11 +470,7 @@ sub execmd {
         }
 
         waitpid( $pid, 0 );
-        $exitCode = $?;
-
-        if ( $exitCode > 255 ) {
-            $exitCode = $exitCode >> 8;
-        }
+        $exitCode = $? >> 8;
 
         close($chldIn);
         close($chldOut);
@@ -501,13 +497,9 @@ sub getPipeOut {
             push( @outArray, $line );
         }
         waitpid( $pid, 0 );
-        $exitCode = $?;
+        $exitCode = $? >> 8;
         close($chldIn);
         close($chldOut);
-    }
-
-    if ( $exitCode > 255 ) {
-        $exitCode = $exitCode >> 8;
     }
 
     if ( not defined($pid) or $exitCode != 0 and $isVerbose == 1 ) {
@@ -566,14 +558,10 @@ sub handlePipeOut {
             }
         }
         waitpid( $pid, 0 );
-        $exitCode = $?;
+        $exitCode = $? >> 8;
 
         close($chldIn);
         close($chldOut);
-    }
-
-    if ( $exitCode > 255 ) {
-        $exitCode = $exitCode >> 8;
     }
 
     if ( not defined($pid) or $exitCode != 0 ) {

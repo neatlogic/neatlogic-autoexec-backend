@@ -166,7 +166,7 @@ sub main {
         $tagent->execCmd( $user, $delCmd, 0 );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

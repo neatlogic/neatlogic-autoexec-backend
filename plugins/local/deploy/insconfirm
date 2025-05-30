@@ -37,8 +37,8 @@ sub _initDir {
         }
     }
 
-    if ( $hasError > 0 ) {
-        exit($hasError);
+    if ( $hasError != 0 ) {
+        exit(1);
     }
 
     return ( $jobPath, $phaseName );

@@ -117,7 +117,7 @@ sub main {
         print("INFO: $srcEnvPath version $version(build$buildNo) status is $verStatus.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

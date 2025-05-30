@@ -294,7 +294,7 @@ sub main {
         print("FINE: Release(sync) $namePath $version build:$buildNo to $envName success.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

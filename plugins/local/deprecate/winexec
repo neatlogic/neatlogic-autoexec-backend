@@ -90,7 +90,7 @@ sub main {
         print("ERROR: Execute command: $cmd failed.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

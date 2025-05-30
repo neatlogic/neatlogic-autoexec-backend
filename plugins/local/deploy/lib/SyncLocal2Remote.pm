@@ -187,7 +187,7 @@ sub allRemoteFiles {
             }
             closedir(DH);
         }
-        return $hasError;
+        return $hasError == 0 ? 0 : 1;
     }
   };
 

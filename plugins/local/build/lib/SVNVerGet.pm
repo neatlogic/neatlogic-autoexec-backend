@@ -490,7 +490,7 @@ sub checkBaseLineMerged {
 
     my $ret = DeployUtils->execmd("cd '$prjPath' && svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username $svnUser --password $svnPass revert -R .");
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub mergeToBaseLine {
@@ -1014,6 +1014,7 @@ sub resetWorkingCopy{
 
     my $resetCmd = "cd '$prjPath' && svn revert -R .";
     my $ret = system($resetCmd);
+    $ret = $ret >> 8;
 
     return $ret;
 }

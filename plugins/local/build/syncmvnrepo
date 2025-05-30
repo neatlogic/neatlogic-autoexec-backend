@@ -166,7 +166,7 @@ sub main {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

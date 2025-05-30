@@ -151,7 +151,7 @@ sub _errCheck {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 #get simple oid value

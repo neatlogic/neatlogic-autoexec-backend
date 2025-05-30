@@ -134,7 +134,7 @@ sub main {
     $out->{outcsv} = q{"name","sex","age"\n"张三“,"男“,"30"\n"李四","女“,"35"};
     AutoExecUtils::saveOutput($out);
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

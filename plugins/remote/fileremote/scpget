@@ -127,8 +127,8 @@ sub main {
 
     waitpid( $pid, 0 );
 
-    my $errorCode = $?;
-    if ( $errorCode > 0 ) {
+    my $errorCode = $? >> 8;
+    if ( $errorCode != 0 ) {
         undef($saveTargetPath);
         print("ERROR: Download $scpPath to $localDir failed.\n");
     }

@@ -159,7 +159,7 @@ sub main {
         $hasError = $hasError + 1;
         my $errMsg = $client->responseContent();
         print("ERROR: Search artifact by URL:$url failed, cause by:\n$errMsg\n");
-        return $hasError;
+        return 1;
     }
 
     my $content = $client->responseContent();
@@ -168,7 +168,7 @@ sub main {
     if ( scalar(@$items) <= 0 ) {
         $hasError = $hasError + 1;
         print("ERROR: Can not find artifact by URL:$url.\n");
-        return $hasError;
+        return 1;
     }
     else {
         print("INFO: Search by by URL:$url finished.\n");
@@ -259,7 +259,7 @@ sub main {
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

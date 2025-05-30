@@ -103,7 +103,7 @@ sub start {
         print("INFO: Standby db is not in role 'PHYSICAL STANDBY'.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub main {
@@ -118,7 +118,7 @@ sub main {
     );
 
     my $hasError = start($opts);
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit( main() );

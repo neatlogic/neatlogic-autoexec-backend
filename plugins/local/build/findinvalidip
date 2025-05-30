@@ -192,7 +192,7 @@ sub main {
         print("FINENEST: There is no any invalid ip in files.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

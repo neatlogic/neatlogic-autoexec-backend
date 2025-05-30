@@ -226,7 +226,7 @@ sub execOneSqlFile {
     }
 
     if ( $hasError == 1 ) {
-        return $hasError;
+        return 1;
     }
 
     pipe( my $fromParent, my $toChild );
@@ -279,16 +279,11 @@ sub execOneSqlFile {
 
         close($fromChild);
         waitpid( $pid, 0 );
-        my $rc = $?;
+        my $rc = $? >> 8;
 
         my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
 
-        if ( $rc > 255 ) {
-            $hasError = 1;
-            $rc       = $rc >> 8;
-        }
-
-        if ( $rc > 0 ) {
+        if ( $rc != 0 ) {
             $hasError = 1;
             if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
                 $sqlStatus = 'aborted';
@@ -654,7 +649,7 @@ sub execSqlFiles {
             my $rc        = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
             if ( $rc != 0 ) {
-                $hasError = $hasError + $rc;
+                $hasError = 1;
                 print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
@@ -722,20 +717,17 @@ sub execSqlFileSets {
                 }
                 else {
                     print("ERROR: Can not fork process to execute sql file:$sqlFile\n");
-                    $hasError = $hasError + 1;
+                    $hasError = 1;
                 }
             }
         }
 
         my $pid = 0;
         while ( ( $pid = waitpid( -1, 0 ) ) > 0 ) {
-            my $rc = $?;
-            if ( $rc > 255 ) {
-                $rc = $rc >> 8;
-            }
+            my $rc = $? >> 8;
 
             if ( $rc ne 0 ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
 
             my $sqlInfoArray  = $runnerPidsMap->{$pid};
@@ -850,7 +842,7 @@ sub checkSqlFiles {
             my $dbInfo = $dbSchemasMap->{$dbSchema};
 
             if ( not defined($dbInfo) ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
                 if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
                     $schemasNotDefined->{$dbSchema} = 1;
                     print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
@@ -888,7 +880,7 @@ sub checkSqlFiles {
             print("INFO: Sql file:$sqlFile checked in.\n");
         }
         else {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             print("ERROR: Sql file '$sqlFileDir/$sqlFile' not exists.\n");
         }
     }
@@ -931,7 +923,7 @@ sub checkDBSchemas {
     foreach my $dbSchema ( keys(%$usedSchemas) ) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         if ( not defined($dbInfo) ) {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
                 $schemasNotDefined->{$dbSchema} = 1;
                 print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
@@ -958,11 +950,11 @@ sub checkDBSchemas {
             );
             my $hasLogon = $handler->test();
             if ( $hasLogon != 1 ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
         };
         if ($@) {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             print("ERROR: $@");
         }
     }

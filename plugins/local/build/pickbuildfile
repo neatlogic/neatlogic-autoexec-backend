@@ -143,6 +143,8 @@ sub main {
         }
         foreach my $filePath (@subFiles) {
             my $ret = system(qq{cp -rf "$filePath" "$destPath/"});
+            $ret = $ret >> 8;
+            
             if ( $ret != 0 ) {
                 $hasError = 1;
                 print(qq{ERROR: Copy "$filePath" to "$destPath/" failed.\n});
@@ -185,7 +187,7 @@ sub main {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

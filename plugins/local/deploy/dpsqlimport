@@ -264,7 +264,7 @@ sub main {
     if ( $hasError != 0 ) {
         $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
     }
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

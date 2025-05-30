@@ -92,7 +92,7 @@ sub main {
     );
 
     my $hasError = afterSwitchCheck($opts);
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit( main() );

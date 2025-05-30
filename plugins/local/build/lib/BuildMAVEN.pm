@@ -102,7 +102,7 @@ sub syncMvnInstall {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub build {
@@ -192,7 +192,7 @@ sub build {
     # }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

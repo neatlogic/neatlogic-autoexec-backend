@@ -180,6 +180,7 @@ sub main {
     $cmd2Print =~ s/$pass/******/g;
     print("$cmd2Print\n");
     my $hasError = system($cmd);
+    $hasError = $hasError >> 8;
 
     if ( $hasError == 0 ) {
         $versionInfo->{status} = 'compiled';
@@ -192,7 +193,7 @@ sub main {
         $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 #TODO: 没有经过验证，需要Jenkins进行测试

@@ -860,6 +860,7 @@ sub resetWorkingCopy{
 
     my $resetCmd = "cd '$prjPath' && git reset --hard";
     my $ret = system($resetCmd);
+    $ret = $ret >> 8;
 
     return $ret;
 }

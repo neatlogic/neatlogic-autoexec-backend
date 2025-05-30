@@ -186,6 +186,7 @@ sub main {
     if ( defined($postScript) and $postScript ne '' ) {
         print("INFO: Execte post script:$postScript\n");
         my $ret = system($postScript);
+        $ret = $ret >> 8;
         if ( $ret ne 0 ) {
             print("WARN: Execute post script:$postScript failed.\n");
         }

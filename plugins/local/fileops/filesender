@@ -76,7 +76,7 @@ if ( $transType eq "dir" ) {
                 syswrite( $socket, $buf, $len );
             }
             waitpid( $pid, 0 );
-            my $exitStatus = $?;
+            my $exitStatus = $? >> 8;
             if ( $exitStatus ne 0 ) {
                 $exitCode = $exitStatus;
                 print("ERROR: Tar directory $destDir failed.\n");

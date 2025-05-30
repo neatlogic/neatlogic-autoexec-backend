@@ -37,6 +37,7 @@ sub main {
 
     print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
+    $ret = $ret >> 8;
 
     if ( $ret eq 0 ) {
         print("INFO: Docker start success.\n");

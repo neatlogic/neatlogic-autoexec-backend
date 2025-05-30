@@ -245,7 +245,7 @@ sub main {
     }
 
     if ( $hasError > 0 ) {
-        return $hasError;
+        return 1;
     }
 
     my $sqlUploadDir = "$jobPath/file";
@@ -300,7 +300,7 @@ sub main {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

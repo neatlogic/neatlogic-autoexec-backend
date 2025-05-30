@@ -379,7 +379,7 @@ sub backup {
     }
 
     if ($status > 255){
-        $status = $status >> 8;
+        $status = 1;
     }
     
     return $status;
@@ -658,7 +658,7 @@ sub deploy {
     }
 
     if ($status > 255){
-        $status = $status >> 8;
+        $status = 1;
     }
 
     return $status;
@@ -831,7 +831,7 @@ sub rollback {
     }
 
     if ($status > 255){
-        $status = $status >> 8;
+        $status = 1;
     }
 
     return $status;

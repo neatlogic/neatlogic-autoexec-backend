@@ -1192,7 +1192,7 @@ sub main {
         print($msg);
     }
 
-    return $k8sDeploy->{hasError};
+    return $k8sDeploy->{hasError} == 0 ? 0 : 1;
 }
 
 exit main();

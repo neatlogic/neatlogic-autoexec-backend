@@ -133,8 +133,8 @@ sub main {
     #wait child process exit
     waitpid( $pid, 0 );
 
-    my $errorCode = $?;
-    if ( $errorCode ne 0 ) {
+    my $errorCode = $? >> 8;
+    if ( $errorCode != 0 ) {
         undef($saveTargetPath);
         print("ERROR: Upload $localDir to $scpPath failed.\n");
     }

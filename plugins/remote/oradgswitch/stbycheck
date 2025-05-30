@@ -177,7 +177,7 @@ sub standbyCheck {
         print("INFO: Log mode is valid.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub main {

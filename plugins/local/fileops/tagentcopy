@@ -111,7 +111,7 @@ sub main {
         $port = 3939;
     }
 
-    my $isSuccess = 0;
+    my $hasError = 0;
     my @src_dirs  = split( /,/, $src );
     my $tagent    = new TagentClient( $host, $port, $pass );
 
@@ -119,12 +119,12 @@ sub main {
         foreach my $targetPat (@src_dirs) {
             foreach my $target ( glob($targetPat) ) {
                 if ( ! -e $target ) {
-                    $isSuccess = 1;
+                    $hasError = 1;
                     print("ERROR: Src path $target not exists .\n");
                     last;
                 }
-                $isSuccess = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
-                if ( $isSuccess ne 0 ) {
+                $hasError = $tagent->upload( $user, $target, $dest, $isVerbose, 0, $followLinks );
+                if ( $hasError ne 0 ) {
                     last;
                 }
             }
@@ -132,26 +132,26 @@ sub main {
     }
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
-            $isSuccess = 1;
+            $hasError = 1;
             print("ERROR: Dest path $dest not exists .\n");
         }
         else {
             foreach my $target (@src_dirs) {
-                $isSuccess = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
-                if ( $isSuccess ne 0 ) {
+                $hasError = $tagent->download( $user, $target, $dest, $isVerbose, $followLinks );
+                if ( $hasError ne 0 ) {
                     last;
                 }
             }
         }
     }
 
-    if ( $isSuccess ne 0 ) {
+    if ( $hasError ne 0 ) {
         print("ERROR: $pname --$direction $src $dest failed.\n");
     }
     else {
         print("INFO: $pname --$direction $src $dest success.\n");
     }
-    return $isSuccess;
+    return $hasError;
 }
 
 exit( main() );

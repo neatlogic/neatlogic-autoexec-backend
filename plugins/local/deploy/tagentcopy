@@ -237,7 +237,7 @@ sub main {
         print( "ERROR: $pname --$direction " . join( ',', @dirs ) . " $dest failed.\n" );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

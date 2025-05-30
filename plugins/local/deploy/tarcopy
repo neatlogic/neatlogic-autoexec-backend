@@ -241,7 +241,7 @@ sub main {
             if ( $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ or $dir =~ /\/\.\.\// ) {
                 $hasError = $hasError + 1;
                 print("ERROR: File name can not has '..':$dir.\n");
-                exit($hasError);
+                exit(1);
             }
             my $tarScpExec = new TarSCPExec(
                 host        => $host,
@@ -272,7 +272,7 @@ sub main {
         print( "ERROR: $pname --$direction " . join( ' ', @dirs ) . " failed.\n" );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

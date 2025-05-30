@@ -100,7 +100,7 @@ sub main {
     }
 
     if ( $hasError > 0 ) {
-        return $hasError;
+        return $hasError == 0 ? 0 : 1;
     }
 
     my $lock        = DeployLock->new($buildEnv);
@@ -167,7 +167,7 @@ sub main {
         print("ERROR: Release $namePath $version build:$buildNo to $envName failed.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

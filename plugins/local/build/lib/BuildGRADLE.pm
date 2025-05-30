@@ -63,7 +63,7 @@ sub build {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
