@@ -37,7 +37,7 @@ class JobPurger:
                         jobIdPath = paramFile[0:-12]
                         jobMtime = os.stat(paramFile).st_mtime
                         if self.nowTime - jobMtime > self.reserveSeconds:
-                            shutil.rmtree(jobIdPath)
+                            shutil.rmtree(jobIdPath, ignore_errors=True)
                             self.purgeEmptyJobDir(jobIdPath)
                             print("INFO: Remove job dictory:" + jobIdPath + "\n", end="")
 
