@@ -662,17 +662,11 @@ class JobRunner:
                     while loopCount > 0 and not self.context.goToStop:
                         loopCount = loopCount - 1
                         try:
-                            if phaseStatus.execMode == "target":
-                                self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
-                                if not hasInformed:
-                                    hasInformed = True
-                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
-                            elif self.context.runnerId == nodesFactory.localRunnerId:
-                                # 如果是本地操作的runner，则通知服务端当前的round已经结束
-                                self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
-                                if not hasInformed:
-                                    hasInformed = True
-                                    print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait for other runner...\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
+                            # if phaseStatus.execMode == "target":
+                            self.context.serverAdapter.informRoundEnded(groupNo, phaseName, roundNo, seqNo, oneRoundNodeCount)
+                            if not hasInformed:
+                                hasInformed = True
+                                print("INFO: Inform server group:{} round:{} seq:{}, phase:{} ended, wait other runner...\n".format(groupNo + 1, roundNo, seqNo, phaseName), end="")
                         except Exception as ex:
                             print("WARN: Inform server group:{} round:{} seq:{}, phase:{} ended failed, {}.\n".format(groupNo + 1, roundNo, seqNo, phaseName, ex), end="")
 
