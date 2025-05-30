@@ -99,7 +99,7 @@ sub main {
         }
     }
 
-    if ( $hasError == 1 ) {
+    if ( $hasError != 0 ) {
         exit(-1);
     }
 

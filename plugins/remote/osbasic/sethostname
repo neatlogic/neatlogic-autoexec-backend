@@ -87,7 +87,7 @@ sub main {
         else {
             $hasError = 1;
             print("ERROR: Can not write to file $filePath.\n");
-            return $hasError == 0 ? 0 : 1;
+            return $hasError;
         }
     }
 

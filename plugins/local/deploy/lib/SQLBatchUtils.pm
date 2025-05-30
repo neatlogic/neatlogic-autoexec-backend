@@ -45,7 +45,7 @@ sub getAllSchema {
     my $schemaName;
     foreach my $schema (@allSchemaDirs) {
         $schemaName = basename($schema);
-        if ( -d $schema and $schemaName =~ /^\w+\.\w+$/ ) {
+        if ( -d $schema and $schemaName =~ /^[\w+-]\.[\w-]+$/ ) {
             push( @schemas, $schemaName );
         }
     }

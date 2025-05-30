@@ -268,7 +268,7 @@ sub main {
         }
     }
 
-    if ( $hasError > 0 ) {
+    if ( $hasError != 0 ) {
         print( "ERROR: $pname --$direction " . join( ' ', @dirs ) . " failed.\n" );
     }
 
