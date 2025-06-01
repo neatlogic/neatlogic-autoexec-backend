@@ -313,6 +313,7 @@ class ServerAdapter:
                     params = retObj["Return"]
                     paramsFile.truncate(0)
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
+                    paramsFile.flush()
                     return params
                 else:
                     raise "Get parameters for job {} failed, {}".format(self.context.jobId, retObj["Message"])
@@ -349,6 +350,7 @@ class ServerAdapter:
                         nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
+                nodesFile.flush()
 
                 if not linesCount == nodesCount + 1:
                     raise AutoExecError("Get nodes failed, expect {} but get {}, download incomplete.".format(nodesCount, linesCount - 1))

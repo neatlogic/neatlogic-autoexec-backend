@@ -19,13 +19,14 @@ class PhaseStatus:
         self.roundFinEvent = threading.Event()
         self.globalRoundFinEvent = threading.Event()
         # 用于标记当前phase是否在pause或者abort状态中
-        self.isAborting = 0
-        self.isPausing = 0
-        self.isComplete = 0
+        self.isAborting = False
+        self.isPausing = False
+        self.isComplete = False
         # 用于标记当前runner的node的失败数量
         self.couterLock = threading.Lock()
         self.warnCountLock = threading.Lock()
         self.roundNo = 0
+        self.globalFailed = False
         self.execNodeCount = 0
         self.actualExecNodeCount = 0
         self.leftNodeCount = 0

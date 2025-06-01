@@ -189,6 +189,7 @@ class RunNode:
         phaseType,
         node,
         totalNodesCount=0,
+        seqNo=None,
     ):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
@@ -203,6 +204,7 @@ class RunNode:
         self.runPath = context.runPath
         self.node = node
         self.totalNodesCount = totalNodesCount
+        self.seqNo = seqNo
         self.isLastNode = False
         self.execLastOp = False
         self.warnCount = 0
@@ -334,6 +336,8 @@ class RunNode:
         if status == NodeStatus.aborted or status == NodeStatus.failed:
             if op is None or not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
+                phaseStatus = self.context.phases.get(self.phaseName)
+                phaseStatus.globalFailed = True
             if self.isAborting:
                 status = NodeStatus.aborted
         elif status == NodeStatus.ignored:
@@ -559,6 +563,7 @@ class RunNode:
                 fcntl.flock(outputFile, fcntl.LOCK_EX)
                 outputFile.truncate(0)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
+                outputFile.flush()
                 self.outputStore.saveOutput(self.output)
 
                 if self.resourceId != 0 and self.totalNodesCount == 1:
@@ -568,6 +573,7 @@ class RunNode:
                     fcntl.flock(localOutFile, fcntl.LOCK_EX)
                     localOutFile.truncate(0)
                     localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
+                    localOutFile.flush()
                     self.outputStore.saveOutputToLocal(phaseStatus.localOutput)
             except Exception as ex:
                 raise AutoExecError("Save output file:{}, failed {}".format(self.outputPath, ex))
@@ -622,6 +628,7 @@ class RunNode:
                 fcntl.flock(opOutputFile, fcntl.LOCK_EX)
                 opOutputFile.truncate(0)
                 opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
+                opOutputFile.flush()
                 if self.resourceId != 0 and self.totalNodesCount == 1:
                     phaseStatus = self.context.phases[self.phaseName]
                     opLocalOutput = phaseStatus.localOutput.get(op.opId, {})
@@ -679,6 +686,7 @@ class RunNode:
             inputFile.truncate(0)
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
+            inputFile.flush()
         except Exception as ex:
             raise AutoExecError("Save input file:{}, failed {}".format(self.inputPath, ex))
         finally:
@@ -2073,11 +2081,12 @@ class RunNode:
         self.writeNodeLog("INFO: Try to puase node.\n")
 
     def kill(self):
+        self.isAborting = True
+
         nodeStatus = self.getNodeStatus()
         if nodeStatus != NodeStatus.running:
             return
 
-        self.isAborting = True
         if self.childPid is not None:
             pid = self.childPid
 
