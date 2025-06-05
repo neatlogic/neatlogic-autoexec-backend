@@ -11,6 +11,7 @@ class PhaseStatus:
     def __init__(self, phaseName, phaseType="runner"):
         # super().__init__()
         self.phaseName = phaseName
+        self.status = "pending"
         self.localOutput = None
         # 用于标记当前phase是否有local或remote的工具
         # self.hasLocal = False
@@ -27,6 +28,7 @@ class PhaseStatus:
         self.warnCountLock = threading.Lock()
         self.roundNo = 0
         self.globalFailed = False
+        self.totalNodeCount = 0
         self.execNodeCount = 0
         self.actualExecNodeCount = 0
         self.leftNodeCount = 0

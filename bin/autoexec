@@ -77,11 +77,11 @@ def threadDump(signum, frame):
     print("\n==Thread dump begin=====\n" + "".join(code) + "\n==Thread dump end=====\n")
 
 
-def _getLogSubPath(jobId):
-    jobIdStr = str(jobId)
-    jobIdLen = len(jobIdStr)
-    subPath = [jobIdStr[i : i + 3] for i in range(0, jobIdLen, 3)]
-    return "/".join(subPath)
+# def _getLogSubPath(jobId):
+#     jobIdStr = str(jobId)
+#     jobIdLen = len(jobIdStr)
+#     subPath = [jobIdStr[i : i + 3] for i in range(0, jobIdLen, 3)]
+#     return "/".join(subPath)
 
 
 def registerTools(serverAdapter, pluginsPath, opType, importTime):
@@ -331,6 +331,9 @@ if __name__ == "__main__":
             dataPath = homePath + "/data"
             runPath = dataPath + "/job/" + _getSubPath(args.jobid)
             initConsoleLog(runPath, False, True)
+            pauseFlagFile = runPath + "/log/pause"
+            with open(pauseFlagFile, "w"):
+                pass
 
             print("INFO: Try to pause job:{}\n".format(args.jobid), end="")
             vContext = VContext.VContext(args.jobid, execUser=execUser, passThroughEnv=passThroughEnv)
@@ -425,7 +428,7 @@ if __name__ == "__main__":
             else:
                 ret = 2
                 serverAdapter.jobKilled()
-                print("INFO: Job {} killed.\n".format(args.jobid), end="")
+                # print("INFO: Job {} killed.\n".format(args.jobid), end="")
                 print("INFO: Can not find job {} process.\n".format(args.jobid), end="")
             sys.exit(ret)
         except Exception as ex:
@@ -446,8 +449,35 @@ if __name__ == "__main__":
         fileDir = runPath + "/file"
         if not os.path.exists(fileDir):
             os.mkdir(fileDir)
+        firstGroupPath = runPath + "/firstgroup"
 
-        initConsoleLog(runPath, args.firstfire, args.reuseconslog)
+        # 记录runner的第一个group，用于切换日志记录
+        switchConsLog = False
+        if args.phasegroups:
+            # 指定phase group，则根据当前runner运行的第一个group来判断切换，记录首次执行后的第一个group的id
+            firstGroup = args.phasegroups.split(",")[0]
+            if os.path.exists(firstGroupPath):
+                with open(firstGroupPath, "r") as f:
+                    firstGroupRec = f.read()
+                    if firstGroupRec == firstGroup and not args.nofirenext:
+                        # 批量自动调度的而且当前fire的group是第一个group
+                        switchConsLog = True
+                    f.close()
+            else:
+                switchConsLog = True
+                with open(firstGroupPath, "w") as f:
+                    f.write(firstGroup)
+                    f.close()
+        elif args.firstfire:
+            # 没指定phase group，则根据firstfire来判断
+            switchConsLog = True
+
+        initConsoleLog(runPath, switchConsLog, args.reuseconslog)
+        pauseFlagFile = runPath + "/log/pause"
+        try:
+            os.remove(pauseFlagFile)
+        except:
+            pass
 
         sqlFilesJson = args.sqlfiles
         if sqlFilesJson is not None and sqlFilesJson != "":

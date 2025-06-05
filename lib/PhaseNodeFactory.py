@@ -49,3 +49,15 @@ class PhaseNodeFactory:
             except Exception as ex:
                 pass
         return node
+
+    def purgeNodeQueue(self):
+        try:
+            while True:
+                self.localNodeQueue.get_nowait()
+        except Exception as ex:
+            pass
+        try:
+            while True:
+                self.nodeQueue.get_nowait()
+        except Exception as ex:
+            pass

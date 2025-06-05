@@ -31,6 +31,7 @@ sub new {
         toolsDir     => $args{toolsDir},
         tmpDir       => $args{tmpDir},
         jobPath      => $args{jobPath},
+        pauseFlag    => $args{jobPaht} . '/log/pause',
         phaseName    => $args{phaseName},
         dbSchemasMap => $args{dbSchemasMap},
         dbInfo       => $args{dbInfo},
@@ -148,6 +149,16 @@ sub _getHandlerName {
 
     print("INFO: Try to use SQLRunner $handlerName.\n");
     return $handlerName;
+}
+
+sub isPausing {
+    my ($self) = @_;
+    if ( -e $self->{pauseFlag} ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
 sub execOneSqlFile {
@@ -541,17 +552,17 @@ sub needExecute {
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
 
     my $statusInfo = $sqlFileStatus->{status};
-    my $preStatus = $statusInfo->{status};
+    my $preStatus  = $statusInfo->{status};
     my $isModified = $statusInfo->{isModified};
     my $md5Sum     = $statusInfo->{md5};
 
-    if (not defined($preStatus) or $preStatus eq ''){
+    if ( not defined($preStatus) or $preStatus eq '' ) {
         $preStatus = 'pending';
     }
-    if (not defined($isModified) or $isModified eq ''){
+    if ( not defined($isModified) or $isModified eq '' ) {
         $isModified = 0;
     }
-    
+
     #my $md5Sum    = $self->_getFileMd5Sum($sqlFilePath);
     #my $preMd5Sum = $statusInfo->{md5};
     # my $serverAdapter = $self->{serverAdapter};
@@ -576,11 +587,11 @@ sub needExecute {
         elsif ( $preStatus eq 'running' ) {
             print("INFO: Sql file:$sqlFile md5:$md5Sum is running, ignore.\n");
         }
-        elsif ( $preStatus eq 'pending') {
+        elsif ( $preStatus eq 'pending' ) {
             $ret = 1;
             print("INFO: Sql file:$sqlFile md5:$md5Sum is pending, try to execute.\n");
         }
-        else{
+        else {
             $ret = 1;
             print("INFO: Sql file:$sqlFile md5:$md5Sum has been executed $preStatus, try to execute again.\n");
         }
@@ -591,7 +602,7 @@ sub needExecute {
     }
 
     if ( $ret == 1 ) {
-        $sqlFileStatus->updateStatus( status => 'running', md5=>$md5Sum, interact => undef, startTime => time(), endTime => undef, isModified => 0 );
+        $sqlFileStatus->updateStatus( status => 'running', md5 => $md5Sum, interact => undef, startTime => time(), endTime => undef, isModified => 0 );
     }
 
     return $ret;
@@ -632,6 +643,10 @@ sub execSqlFiles {
     my $hasError = 0;
 
     foreach my $sqlFile (@$sqlFiles) {
+        if ( $self->isPausing() ) {
+            last;
+        }
+
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
             saveToServer => 1,
@@ -678,6 +693,10 @@ sub execSqlFileSets {
         };
 
         foreach my $sqlFile (@$sqlFiles) {
+            if ( $self->isPausing() ) {
+                last;
+            }
+
             my $dbInfo        = $self->_getSqlDbInfo($sqlFile);
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
@@ -762,38 +781,38 @@ sub checkOneSqlFile {
     $self->_checkAndDelBom($sqlFilePath);
 
     my $sqlStatus;
-    my $preMd5Sum = $sqlFileStatus->getStatusValue('md5');
+    my $preMd5Sum     = $sqlFileStatus->getStatusValue('md5');
     my $preIsModified = $sqlFileStatus->getStatusValue('isModified');
-    if (not defined($preIsModified)){
+    if ( not defined($preIsModified) ) {
         $preIsModified = 0;
     }
 
     my $isModified = $preIsModified;
     my $md5Sum     = $preMd5Sum;
     if ( $preIsModified == 0 ) {
-        $md5Sum     = $self->_getFileMd5Sum($sqlFilePath);
+        $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
         if ( $md5Sum ne $preMd5Sum ) {
             $sqlStatus = 'pending';
-            if ($preMd5Sum ne '') {
+            if ( $preMd5Sum ne '' ) {
                 $isModified = 1;
                 print("INFO: Sql file:$sqlFile md5:$md5Sum is modified.\n");
             }
-            else{
+            else {
                 $isModified = 0;
                 print("INFO: Sql file:$sqlFile md5:$md5Sum is new.\n");
             }
             $sqlFileStatus->_setStatus( status => $sqlStatus, isModified => $isModified );
         }
-        else{
+        else {
             print("INFO: Sql file:$sqlFile md5:$md5Sum is not modified.\n");
         }
     }
-    else{
+    else {
         #$sqlStatus = 'pending';
         #$sqlFileStatus->_setStatus( status => $sqlStatus, isModified => 1 );
         print("INFO: Sql file:$sqlFile md5:$md5Sum has been modified.\n");
     }
-    
+
     my $sqlInfo = {
         jobId       => $self->{jobId},
         resourceId  => $nodeInfo->{resourceId},
@@ -807,7 +826,7 @@ sub checkOneSqlFile {
         isModified  => $isModified,
         md5         => $md5Sum
     };
-    if(defined($sqlStatus)){
+    if ( defined($sqlStatus) ) {
         $sqlInfo->{status} = $sqlStatus;
     }
 
@@ -893,11 +912,11 @@ sub restoreSqlStatuses {
 
     my $sqlFileDir = $self->{sqlFileDir};
     foreach my $sqlInfo (@$sqlInfoList) {
-        my $sqlFile       = $sqlInfo->{sqlFile};
-        my $status        = $sqlInfo->{status};
-        my $md5           = $sqlInfo->{md5};
-        my $isModified    = $sqlInfo->{isModified};
-        if (not defined($isModified)){
+        my $sqlFile    = $sqlInfo->{sqlFile};
+        my $status     = $sqlInfo->{status};
+        my $md5        = $sqlInfo->{md5};
+        my $isModified = $sqlInfo->{isModified};
+        if ( not defined($isModified) ) {
             $isModified = 0;
         }
         my $sqlFileStatus = SQLFileStatus->new(

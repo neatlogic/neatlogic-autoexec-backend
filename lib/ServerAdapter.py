@@ -337,6 +337,7 @@ class ServerAdapter:
                 fcntl.flock(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
                 nodesSeqDesc = {}
+                runnerNodeCount = {}
                 nodesCount = 0
                 linesCount = 0
                 line = None
@@ -347,7 +348,9 @@ class ServerAdapter:
                     else:
                         nodeObj = json.loads(line)
                         seqNo = nodeObj.get("seqNo", 0)
+                        runnerId = nodeObj.get("runnerId", 0)
                         nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
+                        runnerNodeCount[runnerId] = runnerNodeCount.get(runnerId, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
                 nodesFile.flush()
@@ -379,7 +382,7 @@ class ServerAdapter:
                     if zeroSeqDesc is not None:
                         roundDef.append(zeroSeqDesc)
 
-                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}, ensure_ascii=False))
+                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef, "runnerNodeCount": runnerNodeCount}, ensure_ascii=False))
                     descFile.close()
 
                 if phase is not None:
@@ -469,6 +472,7 @@ class ServerAdapter:
 
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, groupNo, phaseName, phaseStatus, status):
+        phaseStatus.status = status
         if self.context.devMode:
             return {}
 

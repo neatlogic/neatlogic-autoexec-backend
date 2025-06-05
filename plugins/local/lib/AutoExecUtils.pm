@@ -237,6 +237,10 @@ sub doInteract {
     $pipe = IO::File->new("+<$pipeFile");
 
     if ( defined($pipe) ) {
+        $SIG{TERM} = $SIG{INT} = $SIG{HUP} = $SIG{ABRT} = sub {
+            print $pipe ("force-exit\n");
+        };
+
         my $hasGetInput = 0;
         while ( $hasGetInput == 0 ) {
             print("[Wait Interact]$message\n");
@@ -252,7 +256,7 @@ sub doInteract {
                     $pipe->close();
                 }
                 unlink($pipeFile);
-                die("ERROR: Read from input aborted.");
+                last;
             }
 
             foreach my $inputHandle (@inputHandles) {
@@ -307,6 +311,7 @@ sub doInteract {
 
     if ( $enter eq 'force-exit' ) {
         undef($enter);
+        exit(2);
     }
 
     return ( $userId, $enter );

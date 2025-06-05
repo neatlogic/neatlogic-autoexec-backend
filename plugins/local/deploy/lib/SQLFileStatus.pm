@@ -229,6 +229,7 @@ sub updateStatus {
         $serverAdapter->pushSqlStatus( $self->{jobId}, $sqlInfo, $self->{deployEnv} );
         if ( $preStatus eq 'waitInput' or $newStatus eq 'waitInput' ) {
             $serverAdapter->updatePhaseStatus( $self->{jobId}, $newStatus );
+            $serverAdapter->updateJobStatus( $self->{jobId}, $newStatus );
         }
     }
     return $preStatus;
