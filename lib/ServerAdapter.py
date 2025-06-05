@@ -492,8 +492,8 @@ class ServerAdapter:
         }
 
         try:
-            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
             response = self.httpJSON(self.apiMap["updatePhaseStatus"], params)
+            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             return json.loads(content)
