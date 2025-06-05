@@ -257,7 +257,8 @@ class PhaseExecutor:
                         if self.context.goToStop == False and phaseStatus.globalFailed == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
-
+                        else:
+                            break
                     except Exception as ex:
                         phaseStatus.incFailNodeCount()
                         if node is not None:
@@ -265,13 +266,12 @@ class PhaseExecutor:
                         else:
                             print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()), end="")
 
-                    if self.context.goToStop or phaseStatus.failNodeCount > 0 or phaseStatus.globalFailed == True:
-                        try:
-                            while True:
-                                execQueue.get_nowait()
-                        except Exception as ex:
-                            pass
-                        break
+                if self.context.goToStop or phaseStatus.failNodeCount > 0 or phaseStatus.globalFailed == True:
+                    try:
+                        while True:
+                            execQueue.get_nowait()
+                    except Exception as ex:
+                        pass
         finally:
             workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象
@@ -284,6 +284,7 @@ class PhaseExecutor:
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
+            print("INFO: Phase:{} works exist.\n".format(self.phaseName), end="")
             phaseStatus.setRoundFinEvent()
 
         return phaseStatus.failNodeCount
@@ -304,9 +305,11 @@ class PhaseExecutor:
             if clean == 1:
                 if not (isLastNode and execLastOp):
                     self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
+                    self.context.serverAdapter.pushJobStatus(NodeStatus.running)
                     print("INFO: Update runner node status to running succeed.\n", end="")
             else:
                 self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+                self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
                 print("INFO: Update runner node status to waitInput succeed.\n", end="")
 
     def pause(self):

@@ -22,6 +22,7 @@ class RunNodeFactory:
         self.cleared = False
         self.lastRound = True
         self.roundDef = []
+        self._runnerNodeCount = {}
         self.customeSeq = False
         self._roundDefIdx = 0
         self._currentSeq = 0
@@ -42,6 +43,7 @@ class RunNodeFactory:
                 self.seqDesc = json.loads(descContent)
                 self.roundDef = self.seqDesc.get("roundDef", [])
                 self._currentSeq = self.roundDef[0][0]
+                self._runnerNodeCount = self.seqDesc.get("runnerNodeCount", {})
                 seqDescFile.close()
         else:
             self.seqDesc = None
@@ -74,6 +76,9 @@ class RunNodeFactory:
 
     def setLastRound(self):
         self.lastRound = True
+
+    def getRunnerNodeCount(self, runnerId):
+        return self._runnerNodeCount.get(str(runnerId), 0)
 
     def localRunNode(self):
         localRunNode = None
