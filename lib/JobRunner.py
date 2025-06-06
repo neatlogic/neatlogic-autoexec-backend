@@ -794,7 +794,7 @@ class JobRunner:
 
             if self.context.phasesToRun is not None and len(self.context.phasesToRun) == 1:
                 groupIdx = idx
-                if self.context.nodesToRun is None and os.environ.get("_SQL_FILES") is not None:
+                if self.context.nodesToRun is None and os.environ.get("_SQL_FILES") is None:
                     if phaseGroup.get("execStrategy", None) == "grayScale":
                         self.execGrayscaleGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                     else:
