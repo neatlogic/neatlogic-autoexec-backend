@@ -658,8 +658,7 @@ class JobRunner:
                             localRunNode.isLastNode = True
                             phaseStatus.incRoundCounter(1)
                             phaseNodeFactory.putLocalRunNode(localRunNode)
-                        if lastRound:
-                            phaseNodeFactory.putLocalRunNode(None)
+                        phaseNodeFactory.putLocalRunNode(None)
                     else:
                         print("INFO: Local phase:{} is no need to execute in current round:{}, seq:{}.\n".format(phaseName, roundNo, seqNo), end="")
                         continue
