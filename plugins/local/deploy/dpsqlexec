@@ -35,16 +35,16 @@ sub usage {
 sub ifAllComplete {
     my ( $jobId, $deployEnv, $serverAdapter ) = @_;
 
-    my $isNotComplete   = 0;
+    my $isComplete   = 1;
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
 
     foreach my $sqlInfo (@$sqlInfoInServer) {
         if ( $sqlInfo->{status} eq "failed" or $sqlInfo->{status} eq "aborted" or $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" ) {
-            $isNotComplete = 1;
+            $isComplete = 0;
             last;
         }
     }
-    return $isNotComplete;
+    return $isComplete;
 }
 
 sub main {
