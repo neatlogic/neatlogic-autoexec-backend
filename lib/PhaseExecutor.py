@@ -193,7 +193,7 @@ class PhaseExecutor:
             nodesFactory = self.nodesFactory
 
             if phaseStatus.execMode == "runner":
-                self.parallelCount = 1
+                self.parallelCount = 2
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
             execQueue = queue.Queue(self.parallelCount * 2)
