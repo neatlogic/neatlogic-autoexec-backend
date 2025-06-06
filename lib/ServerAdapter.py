@@ -482,6 +482,7 @@ class ServerAdapter:
             "groupNo": groupNo,
             "phase": phaseName,
             "status": status,
+            "needInform": phaseStatus.needInform,
             "failNodeCount": phaseStatus.failNodeCount,
             "sucNodeCount": phaseStatus.sucNodeCount,
             "skipNodeCount": phaseStatus.skipNodeCount,

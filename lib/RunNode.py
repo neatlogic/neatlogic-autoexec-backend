@@ -210,6 +210,7 @@ class RunNode:
         self.isAborting = False
         self.isPausing = False
         self.isPaused = False
+        self.uploadFailed = False
         self.hasFailLog = False
 
         self.breakOut = False  # break当前stage
@@ -752,10 +753,10 @@ class RunNode:
             self.writeNodeLog("------{}---\n".format(op.opMemo))
 
         # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
-        if not force and not self.context.isForce and opStatus == NodeStatus.succeed:
+        if not force and not self.context.isForce and (opStatus == NodeStatus.succeed or opStatus == NodeStatus.ignored):
             self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
             self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
-            return NodeStatus.succeed
+            return opStatus
 
         timeConsume = None
         startTime = time.time()
@@ -959,6 +960,9 @@ class RunNode:
                             # 本地执行
                             # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                             ret = self._localExecute(op)
+                            # 如果sql执行返回码是2，是暂停
+                            if ret == 2 and op.orgOpType == "sqlfile":
+                                self.isPaused = True
                         else:
                             return
                     else:
@@ -1117,6 +1121,7 @@ class RunNode:
 
     def execute(self, ops):
         if self.context.goToStop:
+            self.isPaused = True
             self.writeNodeLog("WARN: Node execute paused, not execute.\n")
             return 2
 
@@ -1187,7 +1192,10 @@ class RunNode:
 
             hintKey = "FINE:"
             if isFail == 0:
-                if hasIgnoreFail == 1:
+                if self.isPaused:
+                    finalStatus = NodeStatus.paused
+                    hintKey = "WARN:"
+                elif hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                     self.hasIgnoreFail = 1
                     finalStatus = NodeStatus.ignored
@@ -1196,8 +1204,11 @@ class RunNode:
                     finalStatus = NodeStatus.succeed
                     hintKey = "FINE:"
             else:
-                if self.isPaused and (self.isPausing or self.isAborting):
-                    finalStatus = NodeStatus.paused
+                if self.isPaused:
+                    if self.uploadFailed:
+                        finalStatus = NodeStatus.failed
+                    else:
+                        finalStatus = NodeStatus.paused
                     hintKey = "WARN:"
                 elif self.isAborting:
                     finalStatus = NodeStatus.aborted
@@ -1448,7 +1459,7 @@ class RunNode:
                     runEnv["INS_ID_PATH"] = insIdPath
 
                 # self.killCmd = "kill -9 `ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
-                self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" ";print $2}\'; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS'
+                self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" ";print $2}\'; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; exit 0;'
 
                 context = self.context
                 tagent = TagentClient.TagentClient(
@@ -1678,8 +1689,9 @@ class RunNode:
                     self.isPaused = True
                     self.writeNodeLog("WARN: Not execute because of aborting or pausing.\n")
                 else:
-                    self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
                     self.isPaused = True
+                    self.uploadFailed = True
+                    self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
 
             except Exception as ex:
                 ret = 4
@@ -1727,7 +1739,7 @@ class RunNode:
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType="Unix").replace("&&", remoteEnv, 1)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType="Unix")
             # self.killCmd = "kill -9 `ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
-            self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" "; print $2}\'`; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS'
+            self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" "; print $2}\'`; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; exit 0;'
             tarFiles = []
             scriptFile = None
             uploaded = False
@@ -2049,8 +2061,9 @@ class RunNode:
                 self.isPaused = True
                 self.writeNodeLog("WARN: Not execute because of aborting or pausing.\n")
             else:
-                self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
                 self.isPaused = True
+                self.uploadFailed = True
+                self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
 
             # if ssh is not None:
             #     ssh.close()
@@ -2104,10 +2117,9 @@ class RunNode:
                 )
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                    # self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
                 else:
-                    self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+                    self.writeNodeLog("WARN: Execute kill command:{} failed\n".format(killCmd))
             if self.tagent:
                 self.tagent.close()
                 self.writeNodeLog("INFO: Stop agent execution success.\n")
@@ -2141,8 +2153,9 @@ class RunNode:
 
                 if ret == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                    # self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
+                else:
+                    self.writeNodeLog("WARN: Execute kill command:{} failed.\n".format(killCmd))
             except Exception as err:
                 self.writeNodeLog("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:

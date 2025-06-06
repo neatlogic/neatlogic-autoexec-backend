@@ -67,6 +67,7 @@ class Operation:
         # runner_target：在本地连接远程节点运行（插件通过-node参数接受单个当前运行node的参数），每个目标节点调用一次
         # runner：在本地运行，与运行节点无关，只会运行一次
         self.opType = param["opType"]
+        self.orgOpType = self.opType
         self.opTypeDesc = {"runner": "on runner", "target": "on remote OS", "runner_target": "on runner to target", "sqlfile": "on ruuner to execute sql files"}
 
         self.extNameMap = {

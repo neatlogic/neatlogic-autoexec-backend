@@ -28,6 +28,7 @@ class PhaseStatus:
         self.warnCountLock = threading.Lock()
         self.roundNo = 0
         self.globalFailed = False
+        self.needInform = 1
         self.totalNodeCount = 0
         self.execNodeCount = 0
         self.actualExecNodeCount = 0

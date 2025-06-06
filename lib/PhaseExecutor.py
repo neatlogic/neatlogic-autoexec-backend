@@ -105,12 +105,15 @@ class PhaseWorker(threading.Thread):
                 print("INFO: Phase:{} node:{} {}:{} execute succeed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             elif opsStatus == NodeStatus.paused:
                 phaseStatus.incPauseNodeCount()
+                self.context.goToStop = True
                 print("WARN: Phase:{} node:{} {}:{} execute paused.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             else:
                 phaseStatus.incFailNodeCount()
+                self.context.goToStop = True
                 print("ERROR: Phase:{} node:{} {}:{} execute failed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
 
             self._queue.task_done()
+
         try:
             while True:
                 node = self.execQueue.get_nowait()

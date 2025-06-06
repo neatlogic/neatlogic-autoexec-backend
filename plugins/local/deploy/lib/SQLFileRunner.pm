@@ -31,7 +31,7 @@ sub new {
         toolsDir     => $args{toolsDir},
         tmpDir       => $args{tmpDir},
         jobPath      => $args{jobPath},
-        pauseFlag    => $args{jobPaht} . '/log/pause',
+        pauseFlag    => $args{jobPath} . '/pause',
         phaseName    => $args{phaseName},
         dbSchemasMap => $args{dbSchemasMap},
         dbInfo       => $args{dbInfo},
@@ -72,7 +72,8 @@ sub new {
     if ( not defined($jobPath) or $jobPath eq '' ) {
         $jobPath = getcwd();
     }
-    $self->{jobPath} = $jobPath;
+    $self->{jobPath}   = $jobPath;
+    $self->{pauseFlag} = $jobPath . '/pause';
 
     my $phaseName = $args{phaseName};
     if ( not defined($phaseName) or $phaseName eq '' ) {
@@ -153,6 +154,7 @@ sub _getHandlerName {
 
 sub isPausing {
     my ($self) = @_;
+    
     if ( -e $self->{pauseFlag} ) {
         return 1;
     }
@@ -644,6 +646,7 @@ sub execSqlFiles {
 
     foreach my $sqlFile (@$sqlFiles) {
         if ( $self->isPausing() ) {
+            $hasError = 2;
             last;
         }
 
@@ -694,6 +697,7 @@ sub execSqlFileSets {
 
         foreach my $sqlFile (@$sqlFiles) {
             if ( $self->isPausing() ) {
+                $hasError = 2;
                 last;
             }
 

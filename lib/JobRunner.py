@@ -68,13 +68,20 @@ class ListenWorkThread(threading.Thread):
                     elif actionData["action"] == "informGlobalFail":
                         self.context.hasFailNodeInGlobal = True
                         phaseName = actionData.get("phaseName")
+                        status = actionData.get("phaseStatus")
                         phaseStatus = self.context.phases.get(phaseName)
                         if phaseStatus is not None:
-                            phaseStatus.globalFailed = True
-                            print("WARN: Node fail in phase({}) global event recieved..\n".format(phaseName), end="")
-                            phaseExecutor = phaseStatus.executor
-                            if phaseExecutor is not None and os.path.exists(phaseExecutor.waitInputFlagFilePath):
-                                phaseExecutor.kill()
+                            phaseStatus.needInform = 0
+                            print("WARN: Phase:{} {} global event recieved..\n".format(phaseName, status), end="")
+                            if status == NodeStatus.paused:
+                                phaseExecutor = phaseStatus.executor
+                                if phaseExecutor is not None:
+                                    phaseExecutor.pause()
+                            else:
+                                phaseStatus.globalFailed = True
+                                phaseExecutor = phaseStatus.executor
+                                if phaseExecutor is not None and os.path.exists(phaseExecutor.waitInputFlagFilePath):
+                                    phaseExecutor.kill()
                     elif actionData["action"] == "setEnv":
                         onlyInProcess = actionData.get("onlyInProcess")
                         for name, value in actionData["items"].items():
@@ -269,6 +276,7 @@ class JobRunner:
         self.globalLock = GlobalLock.GlobalLock(context)
         self.isAborting = False
         self.isRunning = False
+        self.isPausing = False
 
         # 切换到任务的执行路径
         os.chdir(context.runPath)
@@ -383,7 +391,9 @@ class JobRunner:
                     if execNodeCount == 0:
                         endStatus = None
                     elif nodesCount > 0:
-                        if nodesCount == execNodeCount:
+                        if phaseStatus.pauseNodeCount > 0:
+                            endStatus = NodeStatus.paused
+                        elif nodesCount == execNodeCount:
                             endStatus = NodeStatus.completed
                         else:
                             endStatus = NodeStatus.paused
@@ -394,7 +404,12 @@ class JobRunner:
                         else:
                             endStatus = NodeStatus.completed
                 else:
-                    endStatus = NodeStatus.completed
+                    if phaseStatus.execNodeCount == 0:
+                        endStatus = None
+                    elif phaseStatus.pauseNodeCount > 0:
+                        endStatus = NodeStatus.paused
+                    else:
+                        endStatus = NodeStatus.completed
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end="")
@@ -414,6 +429,8 @@ class JobRunner:
 
             if endStatus is not None:
                 serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
+                if not self.isPausing and endStatus == NodeStatus.paused:
+                    self.pause()
 
     def execOneShotGroup(self, phaseGroup, groupRoundCount, opArgsRefMap):
         isCustomSeq = False
@@ -443,10 +460,6 @@ class JobRunner:
             # 初始化phase的节点信息
             self.context.addPhase(phaseName, phaseType)
             phaseStatus = self.context.phases[phaseName]
-            # if phaseType in ("runner", "sqlfile"):
-            #     phaseStatus.hasLocal = True
-            # else:
-            #     phaseStatus.hasRemote = True
 
             serverAdapter = self.context.serverAdapter
             if not self.localDefinedNodes:
@@ -548,20 +561,6 @@ class JobRunner:
             phaseStatus = self.context.phases[phaseName]
             phaseStatus.totalNodeCount = nodesFactory.getRunnerNodeCount(self.context.runnerId)
 
-            # if phaseType is not None:
-            #     if phaseType in ("runner", "sqlfile"):
-            #         phaseStatus.hasLocal = True
-            #     else:
-            #         phaseStatus.hasRemote = True
-            # else:
-            #     for operation in phaseConfig["operations"]:
-            #         # 如果有本地操作，则在context中进行标记
-            #         opType = operation["opType"]
-            #         if opType in ("local", "runner", "sqlfile"):
-            #             phaseStatus.hasLocal = True
-            #         else:
-            #             phaseStatus.hasRemote = True
-
             print("INFO: Execute group:{}, phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(groupNo + 1, phaseName, groupRoundCount, parallelCount), end="")
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
@@ -571,8 +570,7 @@ class JobRunner:
             threads.append(thread)
 
         maxRoundNo = realGroupRoundCount
-        # if nodesFactory.nodesCount < maxRoundNo:
-        #     maxRoundNo = nodesFactory.nodesCount
+
         if maxRoundNo <= 0:
             maxRoundNo = 1
 
@@ -688,13 +686,9 @@ class JobRunner:
                             break
 
                     if loopCount <= 0:
-                        # self.context.hasFailNodeInGlobal = True
                         phaseStatus.globalFailed = True
                         print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
                         break
-
-                # if phaseStatus.globalFailed or self.context.hasFailNodeInGlobal:
-                #     break
 
                 if nodesFactory.nodesCount > 1 and nodesFactory.jobRunnerCount > 1:
                     loopCount = int(self.context.maxExecSecs / 3)
@@ -718,7 +712,6 @@ class JobRunner:
                             break
 
                     if loopNo >= loopCount:
-                        # self.context.hasFailNodeInGlobal = True
                         phaseStatus.globalFailed = True
                         print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
                         break
@@ -905,7 +898,6 @@ class JobRunner:
         self.context.goToStop = True
         self.isAborting = True
         print("INFO: Try to kill job...\n", end="")
-        self.stopListen()
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         killWorkers = []
         for phaseStatus in self.context.phases.values():
@@ -921,9 +913,11 @@ class JobRunner:
                 killWorkers.append(t)
         for t in killWorkers:
             t.join()
+        self.stopListen()
 
     def pause(self):
         self.context.goToStop = True
+        self.isPausing = True
         print("INFO: Try to pause job...\n", end="")
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():

@@ -817,7 +817,7 @@ sub doInteract {
 }
 
 sub decideOption {
-    my ( $self, $msg, $pipeFile, $role ) = @_;
+    my ( $self, $msg, $pipeFile, $role, $defaultOption ) = @_;
 
     my @opts;
     if ( $msg =~ /\(([\w\|]+)\)$/ ) {
@@ -827,11 +827,12 @@ sub decideOption {
 
     my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
-        message => $msg,
-        title   => 'Choose the action',
-        opType  => 'button',
-        role    => $role,
-        options => \@opts
+        message       => $msg,
+        title         => 'Choose the action',
+        opType        => 'button',
+        role          => $role,
+        options       => \@opts,
+        defaultOption => $defaultOption,
     );
 
     return ( $userId, $enter );
@@ -842,11 +843,12 @@ sub decideContinue {
 
     my ( $userId, $enter ) = $self->doInteract(
         $pipeFile,
-        message => $msg,
-        title   => '',
-        opType  => 'button',
-        role    => $role,
-        options => [ 'Yes', 'No' ]
+        message       => $msg,
+        title         => '',
+        opType        => 'button',
+        role          => $role,
+        options       => [ 'Yes', 'No' ],
+        defaultOption => 'No'
     );
 
     my $isYes = 0;

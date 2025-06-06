@@ -331,7 +331,7 @@ if __name__ == "__main__":
             dataPath = homePath + "/data"
             runPath = dataPath + "/job/" + _getSubPath(args.jobid)
             initConsoleLog(runPath, False, True)
-            pauseFlagFile = runPath + "/log/pause"
+            pauseFlagFile = runPath + "/pause"
             with open(pauseFlagFile, "w"):
                 pass
 
@@ -473,7 +473,7 @@ if __name__ == "__main__":
             switchConsLog = True
 
         initConsoleLog(runPath, switchConsLog, args.reuseconslog)
-        pauseFlagFile = runPath + "/log/pause"
+        pauseFlagFile = runPath + "/pause"
         try:
             os.remove(pauseFlagFile)
         except:

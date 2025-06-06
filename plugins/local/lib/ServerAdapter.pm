@@ -1006,7 +1006,7 @@ sub pushSqlStatus {
 }
 
 sub updatePhaseStatus {
-    my ( $self, $jobId, $phaseStatus ) = @_;
+    my ( $self, $jobId, $phaseStatus, $needInform ) = @_;
 
     #$jobId: 324234
     # params = {
@@ -1021,6 +1021,10 @@ sub updatePhaseStatus {
         return;
     }
 
+    if (not defined($needInform)){
+        $needInform = 0;
+    }
+
     my $passThroughEnv = {};
     if ( $ENV{PASSTHROUGH_ENV} ) {
         $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
@@ -1031,6 +1035,7 @@ sub updatePhaseStatus {
         jobId          => $jobId,
         execId         => $ENV{AUTOEXEC_EXECID},
         groupNo        => $ENV{AUTOEXEC_GROUP_NO},
+        needInform     => $needInform,
         phase          => $phaseName,
         status         => $phaseStatus,
         passThroughEnv => $passThroughEnv

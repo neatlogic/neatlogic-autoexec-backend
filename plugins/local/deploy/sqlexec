@@ -238,7 +238,7 @@ sub main {
                 my $errMsg = $@;
                 $errMsg =~ s/ at .*$//;
                 print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
             $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
         }
@@ -291,8 +291,13 @@ sub main {
         }
 
         if ( $rc != 0 ) {
-            $hasError = $hasError + 1;
-            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
+            $hasError = $rc;
+            if ($rc == 1){
+                print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
+            }
+            else{
+                print("WARN: Execute sql files -> $userName\@$host:$port paused.\n\n");
+            }
             last;
         }
         else {
@@ -300,7 +305,7 @@ sub main {
         }
     }
 
-    return $hasError == 0 ? 0 : 1;
+    return $hasError;
 }
 
 exit main();
