@@ -29,6 +29,21 @@ sub usage {
     exit(1);
 }
 
+sub ifAllComplete {
+    my ( $jobId, $serverAdapter ) = @_;
+
+    my $isNotComplete   = 0;
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+
+    foreach my $sqlInfo (@$sqlInfoInServer) {
+        if ( $sqlInfo->{status} eq "failed" or $sqlInfo->{status} eq "aborted" or $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" ) {
+            $isNotComplete = 1;
+            last;
+        }
+    }
+    return $isNotComplete;
+}
+
 sub main {
     my $isforce = 0;
 
@@ -291,6 +306,12 @@ sub main {
 
         if ( $rc == 0 ) {
             $rc = $sqlFileRunner->execSqlFiles();
+        }
+
+        if ( $rc == 2 and defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
+            if ( ifAllComplete( $jobId, $serverAdapter ) ) {
+                $rc = 0;
+            }
         }
 
         if ( $rc != 0 ) {

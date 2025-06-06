@@ -682,7 +682,7 @@ sub execSqlFiles {
     }
 
     if ($hasError == 0 and $self->{singleExec} == 1){
-        $hasError = 0;
+        $hasError = 2;
     }
 
     return $hasError;
@@ -778,7 +778,7 @@ sub execSqlFileSets {
     }
 
     if ($hasError == 0 and $self->{singleExec} == 1){
-        $hasError = 0;
+        $hasError = 2;
     }
     
     return $hasError;
