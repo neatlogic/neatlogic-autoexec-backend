@@ -153,6 +153,7 @@ sub main {
         dirInfo     => $dirInfo
     );
 
+    my $singleExec   = 0;
     my $sqlFilesJson = $deployEnv->{SQL_FILES};
 
     my $sqlFiles = [];
@@ -165,7 +166,8 @@ sub main {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
         my @sqlFilesArray = keys(%$sqlFilesMap);
-        $sqlFiles = \@sqlFilesArray;
+        $singleExec = 1;
+        $sqlFiles   = \@sqlFilesArray;
     }
     else {
         if ( defined($index) and $index ne '' ) {
@@ -209,7 +211,8 @@ sub main {
             isDryRun     => $isDryRun,
             autocommit   => $isAutoCommit,
             istty        => 0,
-            isInteract   => 1
+            isInteract   => 1,
+            singleExec   => $singleExec
         );
 
         my $sqlInfoInServer;

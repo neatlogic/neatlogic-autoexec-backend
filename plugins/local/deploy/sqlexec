@@ -92,6 +92,7 @@ sub main {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
+    my $singleExec       = 0;
     my $sqlFiles         = [];
     my $sqlFileArrayJson = $ENV{_SQL_FILES};
     my $sqlInfosInArg;
@@ -102,7 +103,8 @@ sub main {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
         my @sqlFilesArray = keys(%$sqlFilesMap);
-        $sqlFiles = \@sqlFilesArray;
+        $sqlFiles   = \@sqlFilesArray;
+        $singleExec = 1;
     }
     elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
         my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
@@ -281,7 +283,8 @@ sub main {
             isForce      => $isForce,
             isDryRun     => $isDryRun,
             istty        => 0,
-            isInteract   => 1
+            isInteract   => 1,
+            singleExec   => $singleExec
         );
         my $rc = 0;
         $rc = $sqlFileRunner->checkSqlFiles();
@@ -292,10 +295,10 @@ sub main {
 
         if ( $rc != 0 ) {
             $hasError = $rc;
-            if ($rc == 1){
+            if ( $rc == 1 ) {
                 print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
             }
-            else{
+            else {
                 print("WARN: Execute sql files -> $userName\@$host:$port paused.\n\n");
             }
             last;

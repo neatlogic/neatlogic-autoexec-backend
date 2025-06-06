@@ -46,7 +46,8 @@ sub new {
         isForce    => $args{isForce},
         isDryRun   => $args{isDryRun},
         istty      => $args{istty},
-        isInteract => $args{isInteract}
+        isInteract => $args{isInteract},
+        singleExec => $args{singleExec}
     };
 
     #$dbInfo包含节点信息以外，还包含以下DB的扩展属性
@@ -680,6 +681,10 @@ sub execSqlFiles {
         }
     }
 
+    if ($hasError == 0 and $self->{singleExec} == 1){
+        $hasError = 0;
+    }
+
     return $hasError;
 }
 
@@ -772,6 +777,10 @@ sub execSqlFileSets {
         }
     }
 
+    if ($hasError == 0 and $self->{singleExec} == 1){
+        $hasError = 0;
+    }
+    
     return $hasError;
 }
 
