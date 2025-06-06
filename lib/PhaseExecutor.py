@@ -112,6 +112,9 @@ class PhaseWorker(threading.Thread):
                 self.context.goToStop = True
                 print("ERROR: Phase:{} node:{} {}:{} execute failed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
 
+            if phaseStatus.execMode == "runner":
+                phaseStatus.setRoundFinEvent()
+
             self._queue.task_done()
 
         try:

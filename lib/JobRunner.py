@@ -677,17 +677,16 @@ class JobRunner:
                             runNode.isLastNode = True
                         phaseNodeFactory.putRunNode(None)
 
-                if phaseStatus.execMode == "target":
-                    loopCount = self.context.maxExecSecs / 3
-                    while not self.context.goToStop:
-                        loopCount = loopCount - 1
-                        if phaseStatus.waitRoundFin(3):
-                            break
-
-                    if loopCount <= 0:
-                        phaseStatus.globalFailed = True
-                        print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
+                loopCount = self.context.maxExecSecs / 3
+                while not self.context.goToStop:
+                    loopCount = loopCount - 1
+                    if phaseStatus.waitRoundFin(3):
                         break
+
+                if loopCount <= 0:
+                    phaseStatus.globalFailed = True
+                    print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
+                    break
 
                 if nodesFactory.nodesCount > 1 and nodesFactory.jobRunnerCount > 1:
                     loopCount = int(self.context.maxExecSecs / 3)
