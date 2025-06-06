@@ -753,7 +753,7 @@ class RunNode:
             self.writeNodeLog("------{}---\n".format(op.opMemo))
 
         # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
-        if not force and not self.context.isForce and (opStatus == NodeStatus.succeed or opStatus == NodeStatus.ignored):
+        if not force and not self.context.isForce and op.orgOpType != "sqlfile" and (opStatus == NodeStatus.succeed or opStatus == NodeStatus.ignored):
             self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
             self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
             return opStatus
