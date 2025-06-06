@@ -794,7 +794,7 @@ class JobRunner:
 
             if self.context.phasesToRun is not None and len(self.context.phasesToRun) == 1:
                 groupIdx = idx
-                if self.context.nodesToRun is None:
+                if self.context.nodesToRun is None and os.environ.get("_SQL_FILES") is not None:
                     if phaseGroup.get("execStrategy", None) == "grayScale":
                         self.execGrayscaleGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                     else:
@@ -824,10 +824,11 @@ class JobRunner:
             else:
                 self.context.serverAdapter.pushJobStatus(NodeStatus.failed)
         else:
-            if not self.context.noFireNext and groupIdx < phaseGroupsCount - 1 and not self.context.goToStop:
-                # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
-                print("INFO: Fire group:{}.\n".format(lastGroupNo + 2), end="")
-                self.context.serverAdapter.fireNextGroup(lastGroupNo)
+            if not self.context.noFireNext and groupIdx < phaseGroupsCount - 1:
+                if not self.context.goToStop:
+                    # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
+                    print("INFO: Fire group:{}.\n".format(lastGroupNo + 2), end="")
+                    self.context.serverAdapter.fireNextGroup(lastGroupNo)
             else:
                 # myJobStatus = self.getMyJobStatus()
                 self.context.serverAdapter.pushJobStatus(NodeStatus.completed)
