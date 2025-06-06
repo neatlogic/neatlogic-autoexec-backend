@@ -389,7 +389,10 @@ class JobRunner:
                     nodesCount = phaseStatus.totalNodeCount
                     execNodeCount = phaseStatus.execNodeCount
                     if execNodeCount == 0:
-                        endStatus = NodeStatus.paused
+                        if phaseStatus.globalFailed:
+                            endStatus = NodeStatus.paused
+                        else:
+                            endStatus = None
                     elif nodesCount > 0:
                         if phaseStatus.pauseNodeCount > 0:
                             endStatus = NodeStatus.paused
@@ -405,7 +408,10 @@ class JobRunner:
                             endStatus = NodeStatus.completed
                 else:
                     if phaseStatus.execNodeCount == 0:
-                        endStatus = NodeStatus.paused
+                        if phaseStatus.globalFailed:
+                            endStatus = NodeStatus.paused
+                        else:
+                            endStatus = None
                     elif phaseStatus.pauseNodeCount > 0:
                         endStatus = NodeStatus.paused
                     else:

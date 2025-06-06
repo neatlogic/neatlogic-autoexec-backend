@@ -33,13 +33,13 @@ sub usage {
 }
 
 sub ifAllComplete {
-    my ( $jobId, $deployEnv, $serverAdapter) = @_;
+    my ( $jobId, $deployEnv, $serverAdapter ) = @_;
 
-    my $isNotComplete = 0;
+    my $isNotComplete   = 0;
     my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
 
-    foreach my $sqlInfo (@$sqlInfoInServer){
-        if ($sqlInfo->{status} eq "failed" or $sqlInfo->{status} eq "aborted" or $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput"){
+    foreach my $sqlInfo (@$sqlInfoInServer) {
+        if ( $sqlInfo->{status} eq "failed" or $sqlInfo->{status} eq "aborted" or $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" ) {
             $isNotComplete = 1;
             last;
         }
@@ -257,8 +257,8 @@ sub main {
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
 
-    if ($rc == 2 and  defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
-        if ( ifAllComplete($jobId, $deployEnv, $serverAdapter) ){
+    if ( $rc == 2 and defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
+        if ( ifAllComplete( $jobId, $deployEnv, $serverAdapter ) ) {
             $rc = 0;
         }
     }
