@@ -29,19 +29,34 @@ sub usage {
     exit(1);
 }
 
-sub ifAllComplete {
+sub getGlobalExitCode {
     my ( $jobId, $serverAdapter ) = @_;
 
-    my $isComplete   = 1;
-    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+    my $exitCode   = 0;
+    
+    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId );
 
+    my $isFail = 0;
+    my $notCompleteCount = 0;
     foreach my $sqlInfo (@$sqlInfoInServer) {
-        if ( $sqlInfo->{status} eq "failed" or $sqlInfo->{status} eq "aborted" or $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" ) {
-            $isComplete = 0;
+        if ( $sqlInfo->{status} eq "failed"  or $sqlInfo->{status} eq "aborted" ) {
+            #存在失败
+            $isFail = 1;
             last;
         }
+        elsif ( $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" or $sqlInfo->{status} eq "pending" ) {
+            $notCompleteCount = $notCompleteCount + 1;
+        }
     }
-    return $isComplete;
+
+    if ($isFail != 0){
+        $exitCode = 1;
+    }
+    elsif( $notCompleteCount > 0){
+        $exitCode = 2;
+    }
+
+    return $exitCode;
 }
 
 sub main {
@@ -309,9 +324,8 @@ sub main {
         }
 
         if ( $rc == 2 and defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
-            if ( ifAllComplete( $jobId, $serverAdapter ) ) {
-                $rc = 0;
-            }
+            #单跑SQL， 根据全局SQL状态纠正退出码
+            $rc = getGlobalExitCode( $jobId, $serverAdapter );
         }
 
         if ( $rc != 0 ) {

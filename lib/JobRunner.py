@@ -373,6 +373,7 @@ class JobRunner:
 
     def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap, isCustomSeq=False):
         serverAdapter = self.context.serverAdapter
+        singleExec = self.context.singleExec
         endStatus = NodeStatus.aborted
         phaseStatus = self.context.phases[phaseName]
         try:
@@ -380,7 +381,6 @@ class JobRunner:
             failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount, isCustomSeq)
             if failCount > 0:
                 phaseStatus.globalFailed = True
-                # self.context.hasFailNodeInGlobal = True
                 endStatus = NodeStatus.failed
                 if phaseStatus.isAborting:
                     endStatus = NodeStatus.aborted
@@ -388,24 +388,21 @@ class JobRunner:
                 if phaseStatus.execMode == "target":
                     nodesCount = phaseStatus.totalNodeCount
                     execNodeCount = phaseStatus.execNodeCount
-                    if execNodeCount == 0:
-                        if phaseStatus.globalFailed:
-                            endStatus = NodeStatus.paused
+                    if nodesCount > 0:
+                        if execNodeCount > 0:
+                            if phaseStatus.pauseNodeCount > 0:
+                                endStatus = NodeStatus.paused
+                            elif nodesCount == execNodeCount:
+                                endStatus = NodeStatus.completed
+                            else:
+                                endStatus = NodeStatus.paused
                         else:
-                            endStatus = None
-                    elif nodesCount > 0:
-                        if phaseStatus.pauseNodeCount > 0:
-                            endStatus = NodeStatus.paused
-                        elif nodesCount == execNodeCount:
-                            endStatus = NodeStatus.completed
-                        else:
-                            endStatus = NodeStatus.paused
+                            if phaseStatus.globalFailed:
+                                endStatus = NodeStatus.paused
+                            else:
+                                endStatus = None
                     else:
-                        # 为了兼容已经创建的作业缺少了runner涉及的节点计算，nodesCount是0
-                        if phaseStatus.isPausing:
-                            endStatus = NodeStatus.paused
-                        else:
-                            endStatus = NodeStatus.completed
+                        endStatus = NodeStatus.completed
                 else:
                     if phaseStatus.execNodeCount == 0:
                         if phaseStatus.globalFailed:
@@ -806,6 +803,7 @@ class JobRunner:
                     else:
                         self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
                 else:
+                    self.context.singleExec = True
                     self.execOneShotGroup(phaseGroup, groupRoundCount, opArgsRefMap)
             elif phaseGroup.get("execStrategy", None) == "grayScale":
                 groupIdx = idx
