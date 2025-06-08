@@ -412,7 +412,8 @@ class JobRunner:
             else:
                 if execNodeCount == 0:
                     if isPausing or globalFailed or goToStop:
-                        endStatus = NodeStatus.paused
+                        # endStatus = NodeStatus.paused
+                        endStatus = NodeStatus.pending
                     else:
                         endStatus = None
                 elif pauseNodeCount > 0:
