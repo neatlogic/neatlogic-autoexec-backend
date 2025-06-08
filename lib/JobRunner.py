@@ -74,11 +74,10 @@ class ListenWorkThread(threading.Thread):
                             phaseStatus.needInform = 0
                             print("WARN: Phase:{} {} global event recieved..\n".format(phaseName, status), end="")
                             if status == NodeStatus.paused:
-                                phaseExecutor = phaseStatus.executor
-                                if phaseExecutor is not None:
-                                    phaseExecutor.pause()
+                                self.jobRunner.pause()
                             else:
                                 phaseStatus.globalFailed = True
+                                self.jobRunner.pause()
                                 phaseExecutor = phaseStatus.executor
                                 if phaseExecutor is not None and os.path.exists(phaseExecutor.waitInputFlagFilePath):
                                     phaseExecutor.kill()
@@ -274,9 +273,7 @@ class JobRunner:
         self.listenThread = None
         self.localDefinedNodes = False
         self.globalLock = GlobalLock.GlobalLock(context)
-        self.isAborting = False
         self.isRunning = False
-        self.isPausing = False
 
         # 切换到任务的执行路径
         os.chdir(context.runPath)
@@ -371,48 +368,67 @@ class JobRunner:
         phaseStatus.executor = executor
         return executor.execute()
 
-    def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap, isCustomSeq=False):
-        serverAdapter = self.context.serverAdapter
-        singleExec = self.context.singleExec
+    def _deducePhaseStatus(self, phaseStatus):
         endStatus = NodeStatus.aborted
-        phaseStatus = self.context.phases[phaseName]
-        try:
-            # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
-            failCount = self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount, isCustomSeq)
-            if failCount > 0:
-                phaseStatus.globalFailed = True
-                endStatus = NodeStatus.failed
-                if phaseStatus.isAborting:
-                    endStatus = NodeStatus.aborted
-            else:
-                if phaseStatus.execMode == "target":
-                    nodesCount = phaseStatus.totalNodeCount
-                    execNodeCount = phaseStatus.execNodeCount
-                    if nodesCount > 0:
-                        if execNodeCount > 0:
-                            if phaseStatus.pauseNodeCount > 0:
-                                endStatus = NodeStatus.paused
-                            elif nodesCount == execNodeCount:
-                                endStatus = NodeStatus.completed
-                            else:
-                                endStatus = NodeStatus.paused
-                        else:
-                            if phaseStatus.globalFailed:
-                                endStatus = NodeStatus.paused
-                            else:
-                                endStatus = None
-                    else:
-                        endStatus = NodeStatus.completed
-                else:
-                    if phaseStatus.execNodeCount == 0:
-                        if phaseStatus.globalFailed:
+
+        globalFailed = phaseStatus.globalFailed
+        singleExec = self.context.singleExec
+        nodesCount = phaseStatus.totalNodeCount
+
+        goToStop = self.context.goToStop
+        isPausing = self.context.isPausing
+        failNodeCount = phaseStatus.failNodeCount
+        execNodeCount = phaseStatus.execNodeCount
+        skipNodeCount = phaseStatus.skipNodeCount
+        pauseNodeCount = phaseStatus.pauseNodeCount
+
+        if failNodeCount > 0:
+            phaseStatus.globalFailed = True
+            endStatus = NodeStatus.failed
+            if phaseStatus.isAborting:
+                endStatus = NodeStatus.aborted
+        else:
+            if phaseStatus.execMode == "target":
+                if nodesCount > 0:
+                    if execNodeCount > 0:
+                        if pauseNodeCount > 0:
+                            endStatus = NodeStatus.paused
+                        elif nodesCount == execNodeCount:
+                            endStatus = NodeStatus.completed
+                        elif singleExec or isPausing or globalFailed or goToStop:
                             endStatus = NodeStatus.paused
                         else:
                             endStatus = None
-                    elif phaseStatus.pauseNodeCount > 0:
+                    else:
+                        if nodesCount == skipNodeCount:
+                            endStatus = NodeStatus.completed
+                        elif singleExec or isPausing or globalFailed or goToStop:
+                            # endStatus = NodeStatus.paused
+                            endStatus = NodeStatus.pending
+                        else:
+                            endStatus = None
+                else:
+                    endStatus = NodeStatus.completed
+            else:
+                if execNodeCount == 0:
+                    if isPausing or globalFailed or goToStop:
                         endStatus = NodeStatus.paused
                     else:
-                        endStatus = NodeStatus.completed
+                        endStatus = None
+                elif pauseNodeCount > 0:
+                    endStatus = NodeStatus.paused
+                else:
+                    endStatus = NodeStatus.completed
+
+        return endStatus
+
+    def execPhase(self, groupNo, phaseName, phaseConfig, nodesFactory, parallelCount, opArgsRefMap, isCustomSeq=False):
+        serverAdapter = self.context.serverAdapter
+        phaseStatus = self.context.phases[phaseName]
+        try:
+            # serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, NodeStatus.running)
+            self.execOperations(groupNo, phaseName, phaseConfig, opArgsRefMap, nodesFactory, parallelCount, isCustomSeq)
+            endStatus = self._deducePhaseStatus(phaseStatus)
         except:
             endStatus = NodeStatus.aborted
             print("ERROR: Execute phase:{} with unexpected exception.\n".format(phaseName), end="")
@@ -424,15 +440,25 @@ class JobRunner:
             actualExecNodeCount = phaseStatus.getActualExecNodeCount()
             if actualExecNodeCount > 0:
                 if phaseStatus.failNodeCount > 0:
-                    print("WARN: Execute phase:{} complete, status:{}, nodes count:{} execute count:{}.\n".format(phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount), end="")
+                    print(
+                        "ERROR: Execute phase:{} complete, status:{}, nodes count:{} execute count:{} suc count:{} pause count:{} fail count:{} fail ingore:{}.\n".format(
+                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount
+                        ),
+                        end="",
+                    )
                 else:
-                    print("INFO: Execute phase:{} complete, status:{}, nodes count:{} execute count:{}.\n".format(phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount), end="")
+                    print(
+                        "INFO: Execute phase:{} complete, status:{}, nodes count:{} execute count:{} suc count:{} pause count:{} fail count:{} fail ingore:{}.\n".format(
+                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount
+                        ),
+                        end="",
+                    )
             else:
                 print("INFO: All node skiped in phase:{}, nodes count:{} execute count:{}.\n".format(phaseName, phaseStatus.totalNodeCount, phaseStatus.execNodeCount), end="")
 
             if endStatus is not None:
                 serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
-                if not self.isPausing and endStatus == NodeStatus.paused:
+                if not self.context.isPausing and endStatus in [NodeStatus.failed, NodeStatus.paused, NodeStatus.aborted]:
                     self.pause()
 
     def execOneShotGroup(self, phaseGroup, groupRoundCount, opArgsRefMap):
@@ -823,7 +849,7 @@ class JobRunner:
         status = 0
         if self.context.hasFailNodeInGlobal:
             status = 1
-            if self.isAborting:
+            if self.context.isAborting:
                 self.context.serverAdapter.pushJobStatus(NodeStatus.aborted)
             else:
                 self.context.serverAdapter.pushJobStatus(NodeStatus.failed)
@@ -898,8 +924,8 @@ class JobRunner:
             workQueue.put([datagram, addr])
 
     def kill(self):
+        self.context.isAborting = True
         self.context.goToStop = True
-        self.isAborting = True
         print("INFO: Try to kill job...\n", end="")
         # 找出所有的正在之心的phase关联的PhaseExecutor执行kill
         killWorkers = []
@@ -919,8 +945,8 @@ class JobRunner:
         self.stopListen()
 
     def pause(self):
+        self.context.isPausing = True
         self.context.goToStop = True
-        self.isPausing = True
         print("INFO: Try to pause job...\n", end="")
         # 找出所有的正在之心的phase关联的PhaseExecutor执行pause
         for phaseStatus in self.context.phases.values():

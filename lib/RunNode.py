@@ -207,8 +207,6 @@ class RunNode:
         self.isLastNode = False
         self.execLastOp = False
         self.warnCount = 0
-        self.isAborting = False
-        self.isPausing = False
         self.isPaused = False
         self.uploadFailed = False
         self.hasFailLog = False
@@ -339,7 +337,7 @@ class RunNode:
         if status == NodeStatus.failed or status == NodeStatus.aborted:
             # if self.isPaused:
             #     status = NodeStatus.paused
-            # elif self.isAborting:
+            # elif self.context.isAborting:
             #     status = NodeStatus.aborted
 
             if op is None or not op.failIgnore:
@@ -773,11 +771,12 @@ class RunNode:
 
                 ifOp.setNode(self)
                 ifOpStatus = self.execOneOperation(ifOp, force)
-                if ifOpStatus == NodeStatus.failed:
+                if ifOpStatus == NodeStatus.ignored:
+                    hasFailIgnore = True
+                elif ifOpStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
                     isFailed = True
                     break
-                elif ifOpStatus == NodeStatus.ignored:
-                    hasFailIgnore = True
+
         # evaluate loop-block
         elif op.opName == "native/LOOP-Block":
             op.setNode(self)
@@ -808,11 +807,11 @@ class RunNode:
 
                     loopOp.setNode(self)
                     loopOpStatus = self.execOneOperation(loopOp, force=True)
-                    if loopOpStatus == NodeStatus.failed:
+                    if loopOpStatus == NodeStatus.ignored:
+                        hasFailIgnore = True
+                    if loopOpStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
                         isFailed = True
                         break
-                    elif loopOpStatus == NodeStatus.ignored:
-                        hasFailIgnore = True
 
                 self.writeNodeLog("______Loop__{}:[${}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
                 if isFailed == 1:
@@ -1002,28 +1001,32 @@ class RunNode:
 
         hintKey = "FINE:"
         opFinalStatus = NodeStatus.succeed
-        returnStatus = NodeStatus.succeed
         if isFailed:
-            if op.failIgnore:
-                opFinalStatus = NodeStatus.ignored
-                returnStatus = NodeStatus.ignored
-                hintKey = "WARN:"
-            elif self.isPaused:
-                # 这里不设置paused，因为这个状态返回到外部调用函数会进行相应处理
-                opFinalStatus = NodeStatus.paused
-                returnStatus = NodeStatus.failed
-                hintKey = "WARN:"
-            elif self.isAborting:
+            if self.isPaused:
+                # 操作还没有真正执行，可以重入
+                if self.context.isPausing:
+                    # 存在触发暂停而发生的操作暂停
+                    opFinalStatus = NodeStatus.paused
+                    hintKey = "WARN:"
+                elif op.failIgnore:
+                    # 没有主动触发的暂停，操作失败忽略，继续执行
+                    opFinalStatus = NodeStatus.ignored
+                    hintKey = "WARN:"
+                else:
+                    opFinalStatus = NodeStatus.paused
+                    hintKey = "WARN:"
+            elif self.context.isAborting:
                 opFinalStatus = NodeStatus.aborted
-                returnStatus = NodeStatus.aborted
                 hintKey = "ERROR:"
+            elif op.failIgnore:
+                # 没有主动触发的暂停，操作失败忽略，继续执行
+                opFinalStatus = NodeStatus.ignored
+                hintKey = "WARN:"
             else:
                 opFinalStatus = NodeStatus.failed
-                returnStatus = NodeStatus.failed
                 hintKey = "ERROR:"
         elif hasFailIgnore:
             opFinalStatus = NodeStatus.ignored
-            returnStatus = NodeStatus.ignored
             hintKey = "WARN:"
 
         op.status = opFinalStatus
@@ -1036,7 +1039,7 @@ class RunNode:
         persistenceEnv = self.output["nodeEnv"]
         persistenceEnv["PRE_STEP_STATUS"] = opFinalStatus
 
-        return returnStatus
+        return opFinalStatus
 
     def getIfBlockOps(self, ifOp):
         result = True
@@ -1174,17 +1177,17 @@ class RunNode:
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
+                self.isPaused = False
                 # execute on operation
                 opStatus = self.execOneOperation(op)
 
-                if opStatus == NodeStatus.failed or opStatus == NodeStatus.aborted:
-                    isFail = 1
-                    hasIgnoreFail = 0
+                if self.breakOut:
+                    self.breakOut = False
                     break
                 elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
-                elif self.breakOut:
-                    self.breakOut = False
+                elif opStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
+                    isFail = 1
                     break
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1197,7 +1200,6 @@ class RunNode:
                     hintKey = "WARN:"
                 elif hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
-                    self.hasIgnoreFail = 1
                     finalStatus = NodeStatus.ignored
                     hintKey = "WARN:"
                 else:
@@ -1210,7 +1212,7 @@ class RunNode:
                     else:
                         finalStatus = NodeStatus.paused
                     hintKey = "WARN:"
-                elif self.isAborting:
+                elif self.context.isAborting:
                     finalStatus = NodeStatus.aborted
                     hintKey = "ERROR:"
                 else:
@@ -2071,12 +2073,9 @@ class RunNode:
         return ret
 
     def pause(self):
-        self.isPausing = True
         self.writeNodeLog("INFO: Try to puase node.\n")
 
     def kill(self):
-        self.isAborting = True
-
         nodeStatus = self.getNodeStatus()
         if nodeStatus != NodeStatus.running and nodeStatus != NodeStatus.waitInput:
             return

@@ -196,10 +196,10 @@ class PhaseExecutor:
             nodesFactory = self.nodesFactory
 
             if phaseStatus.execMode == "runner":
-                self.parallelCount = 2
+                self.parallelCount = 1
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
-            execQueue = queue.Queue(self.parallelCount * 2)
+            execQueue = queue.Queue(self.parallelCount * 3)
             self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
@@ -236,8 +236,6 @@ class PhaseExecutor:
                     except Exception as ex:
                         pass
             else:
-                preSeqNo = None
-                seqNo = None
                 # 然后逐个节点node调用remote或者localremote插件执行把执行节点放到线程池的待处理队列中
                 while self.context.goToStop == False:
                     node = None
@@ -323,24 +321,26 @@ class PhaseExecutor:
         try:
             while True:
                 self.execQueue.get_nowait()
-            self.execQueue.put(None)
         except Exception as ex:
             pass
+        finally:
+            for i in range(1, self.parallelCount + 1):
+                self.execQueue.put(None)
 
-        i = 1
-        pauseWorkers = []
-        for worker in self.workers:
-            try:
-                t = Thread(target=worker.pause, args=())
-                t.setName("Pauser-{}".format(i))
-                t.start()
-                pauseWorkers.append(t)
-                i = i + 1
-            except:
-                print("ERROR: Unable to start thread to pause woker.\n", end="")
+        # i = 1
+        # pauseWorkers = []
+        # for worker in self.workers:
+        #     try:
+        #         t = Thread(target=worker.pause, args=())
+        #         t.setName("Pauser-{}".format(i))
+        #         t.start()
+        #         pauseWorkers.append(t)
+        #         i = i + 1
+        #     except:
+        #         print("ERROR: Unable to start thread to pause woker.\n", end="")
 
-        for t in pauseWorkers:
-            t.join()
+        # for t in pauseWorkers:
+        #     t.join()
 
         # self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.paused)
         print("INFO: Try to pause job complete.\n", end="")
@@ -350,9 +350,11 @@ class PhaseExecutor:
         try:
             while True:
                 self.execQueue.get_nowait()
-            self.execQueue.put(None)
         except Exception as ex:
             pass
+        # finally:
+        #     for i in range(1, self.parallelCount + 1):
+        #         self.execQueue.put(None)
 
         i = 1
         killWorkers = []
