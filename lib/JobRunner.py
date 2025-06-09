@@ -442,20 +442,20 @@ class JobRunner:
             if actualExecNodeCount > 0:
                 if phaseStatus.failNodeCount > 0:
                     print(
-                        "ERROR: Execute phase:{} complete, status:{}, nodes count:{} execute count:{} suc count:{} pause count:{} fail count:{} fail ingore:{}.\n".format(
-                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount
+                        "ERROR: Execute phase:{} complete, status:{}, nodes:{} execute:{} suc:{} pause:{} fail:{} ignore:{} skip:{}.\n".format(
+                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount
                         ),
                         end="",
                     )
                 else:
                     print(
-                        "INFO: Execute phase:{} complete, status:{}, nodes count:{} execute count:{} suc count:{} pause count:{} fail count:{} fail ingore:{}.\n".format(
-                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount
+                        "INFO: Execute phase:{} complete, status:{}, nodes:{} execute:{} suc:{} pause:{} fail:{} ignore:{} skip:{}.\n".format(
+                            phaseName, endStatus, phaseStatus.totalNodeCount, phaseStatus.execNodeCount, phaseStatus.sucNodeCount, phaseStatus.pauseNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.skipNodeCount
                         ),
                         end="",
                     )
             else:
-                print("INFO: All node skiped in phase:{}, nodes count:{} execute count:{}.\n".format(phaseName, phaseStatus.totalNodeCount, phaseStatus.execNodeCount), end="")
+                print("INFO: All node skiped in phase:{}, nodes:{} execute count:{}.\n".format(phaseName, phaseStatus.totalNodeCount, phaseStatus.execNodeCount), end="")
 
             if endStatus is not None:
                 serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
@@ -614,7 +614,7 @@ class JobRunner:
             if self.context.goToStop:
                 break
 
-            if roundNo >= maxRoundNo / 2:
+            if roundNo == int(maxRoundNo + 1 / 2):
                 midRound = True
             if roundNo == maxRoundNo:
                 lastRound = True
@@ -744,12 +744,12 @@ class JobRunner:
                         print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
                         break
 
-                if lastRound:
-                    if phaseStatus.failNodeCount > 0:
-                        print("WARN: Execute phase:{} finish, suceess:{}, fail:{}, ignore:{}, pause:{}, skip:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
-                    else:
-                        print("INFO: Execute phase:{} finish, suceess:{}, fail:{}, ignore:{}, pause:{}, skip:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
-                    print("--------------------------------------------------------------\n\n")
+                # if lastRound:
+                #     if phaseStatus.failNodeCount > 0:
+                #         print("WARN: Execute phase:{} finish, suceess:{}, fail:{}, ignore:{}, pause:{}, skip:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
+                #     else:
+                #         print("INFO: Execute phase:{} finish, suceess:{}, fail:{}, ignore:{}, pause:{}, skip:{}\n".format(phaseName, phaseStatus.sucNodeCount, phaseStatus.failNodeCount, phaseStatus.ignoreFailNodeCount, phaseStatus.pauseNodeCount, phaseStatus.skipNodeCount), end="")
+                #     print("--------------------------------------------------------------\n\n")
 
                 if self.context.goToStop or phaseStatus.globalFailed:
                     break
@@ -774,6 +774,7 @@ class JobRunner:
         for thread in threads:
             thread.join()
         print("INFO: Phase executors exit.\n", end="")
+        print("--------------------------------------------------------------\n\n")
 
         # if not self.context.hasFailNodeInGlobal:
         if not execFailed:
