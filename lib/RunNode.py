@@ -1015,9 +1015,13 @@ class RunNode:
                 opFinalStatus = NodeStatus.ignored
                 hintKey = "WARN:"
             elif self.isPaused:
-                # 否则就是在操作间隙的暂停是因为主动暂停导致的，设置为pause
-                opFinalStatus = NodeStatus.paused
-                hintKey = "WARN:"
+                if self.uploadFailed:
+                    opFinalStatus = NodeStatus.failed
+                    hintKey = "ERROR:"
+                else:
+                    # 否则就是在操作间隙的暂停是因为主动暂停导致的，设置为pause
+                    opFinalStatus = NodeStatus.paused
+                    hintKey = "WARN:"
             elif self.context.isAborting:
                 opFinalStatus = NodeStatus.aborted
                 hintKey = "ERROR:"
