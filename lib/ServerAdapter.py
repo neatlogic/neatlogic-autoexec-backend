@@ -597,6 +597,8 @@ class ServerAdapter:
         if self.context.devMode:
             return {}
 
+        jobId = self.context.jobId
+        execId = self.context.execId
         params = {
             "jobId": self.context.jobId,
             "execId": self.context.execId,
@@ -605,7 +607,7 @@ class ServerAdapter:
             "passThroughEnv": self.context.passThroughEnv,
         }
         response = self.httpJSON(self.apiMap["updateJobStatus"], params)
-        print("INFO: Update job:{} to status:{}.\n".format(self.context.jobId, jobStatus), end="")
+        print("INFO: Update job:{} execId:{} to status:{}.\n".format(jobId, execId, jobStatus), end="")
 
         try:
             charset = response.info().get_content_charset()
