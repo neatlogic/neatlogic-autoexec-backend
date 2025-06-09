@@ -1014,9 +1014,9 @@ class RunNode:
                 # 只有远程节点才会有uploadFailed，local节点的pause都是被动的
                 opFinalStatus = NodeStatus.ignored
                 hintKey = "WARN:"
-            elif self.context.isPausing:
-                opFinalStatus = NodeStatus.paused
-                hintKey = "WARN:"
+            # elif self.context.isPausing:
+            #     opFinalStatus = NodeStatus.paused
+            #     hintKey = "WARN:"
             elif self.isPaused:
                 if self.uploadFailed:
                     opFinalStatus = NodeStatus.failed
