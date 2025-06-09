@@ -37,9 +37,11 @@ class PhaseWorker(threading.Thread):
                 break
 
             phaseStatus = self.context.phases[self.phaseName]
+
             if node is None:
-                # phaseStatus.setRoundFinEvent()
                 self._queue.task_done()
+                if phaseStatus.execMode == "runner":
+                    phaseStatus.setRoundFinEvent()
                 break
 
             if phaseStatus.globalFailed == True or self.context.goToStop == True:

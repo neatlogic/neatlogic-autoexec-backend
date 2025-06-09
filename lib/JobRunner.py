@@ -563,11 +563,8 @@ class JobRunner:
             realGroupRoundCount = nodesFactory.nodesCount
         elif groupRoundCount < 0:
             realGroupRoundCount = nodesFactory.getSeqRoundCount()
-
-        # if realGroupRoundCount == 0:
-        #     realGroupRoundCount = 1
-        # elif realGroupRoundCount > nodesFactory.nodesCount:
-        #     realGroupRoundCount = nodesFactory.nodesCount
+        elif realGroupRoundCount > nodesFactory.nodesCount:
+            realGroupRoundCount = nodesFactory.nodesCount
 
         # 获取分组运行的最大的并行线程数
         parallelCount = 1
@@ -592,7 +589,7 @@ class JobRunner:
             phaseStatus = self.context.phases[phaseName]
             phaseStatus.totalNodeCount = nodesFactory.getRunnerNodeCount(self.context.runnerId)
 
-            print("INFO: Execute group:{}, phase:{} strategy:grayScale, round:{}, parallel:{}.\n".format(groupNo + 1, phaseName, groupRoundCount, parallelCount), end="")
+            print("INFO: Execute group:{}, phase:{} strategy:grayScale, round count:{}, parallel:{}.\n".format(groupNo + 1, phaseName, realGroupRoundCount, parallelCount), end="")
             phaseNodeFactory = PhaseNodeFactory.PhaseNodeFactory(self.context, parallelCount)
             phaseNodeFactorys[phaseName] = phaseNodeFactory
             thread = threading.Thread(target=self.execPhase, args=(groupNo, phaseName, phaseConfig, phaseNodeFactory, parallelCount, opArgsRefMap))
