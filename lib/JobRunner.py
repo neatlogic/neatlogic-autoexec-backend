@@ -11,6 +11,7 @@ from tokenize import group
 import traceback
 import json
 import shutil
+import math
 
 import RunNode
 import RunNodeFactory
@@ -604,6 +605,7 @@ class JobRunner:
         if maxRoundNo <= 0:
             maxRoundNo = 1
 
+        midRoundNo = math.ceil(maxRoundNo / 2)
         execFailed = False
         firstRound = True
         midRound = False
@@ -614,7 +616,7 @@ class JobRunner:
             if self.context.goToStop:
                 break
 
-            if roundNo == int(maxRoundNo + 1 / 2):
+            if roundNo == midRoundNo:
                 midRound = True
             if roundNo == maxRoundNo:
                 lastRound = True
