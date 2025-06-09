@@ -691,6 +691,12 @@ class RunNode:
         try:
             inputFile = open(self.inputPath, "a+")
             fcntl.flock(inputFile, fcntl.LOCK_EX)
+            inputFile.seek(0, 0)
+            content = inputFile.read()
+            if content:
+                input = json.loads(content)
+                self.input.update(input)
+
             inputFile.truncate(0)
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
@@ -1002,15 +1008,16 @@ class RunNode:
         hintKey = "FINE:"
         opFinalStatus = NodeStatus.succeed
         if isFailed:
-            if self.isPaused:
-                # 操作还没有真正执行，可以重入
-                if op.failIgnore and self.uploadFailed:
-                    # 如果是上传失败导致的暂停设置为ignore
-                    opFinalStatus = NodeStatus.ignored
-                    hintKey = "WARN:"
-                else:
-                    opFinalStatus = NodeStatus.paused
-                    hintKey = "WARN:"
+            if op.failIgnore and self.uploadFailed:
+                # 如果是上传失败导致的暂停设置为ignore
+                # uploadFailed发生在连接目标失败或者权限问题，如果ignore faile就设置为ignore
+                # 只有远程节点才会有uploadFailed，local节点的pause都是被动的
+                opFinalStatus = NodeStatus.ignored
+                hintKey = "WARN:"
+            elif self.isPaused:
+                # 否则就是在操作间隙的暂停是因为主动暂停导致的，设置为pause
+                opFinalStatus = NodeStatus.paused
+                hintKey = "WARN:"
             elif self.context.isAborting:
                 opFinalStatus = NodeStatus.aborted
                 hintKey = "ERROR:"
@@ -1969,6 +1976,7 @@ class RunNode:
                     # 执行主命令
                     if ret == 0:
                         channel = ssh.invoke_shell(term="dumb", width=2048)
+                        self.writeNodeLog("INFO: Invoke shell to evaluate profile success.\n")
                         channel.settimeout(self.context.rexecReadTimeout)
                         cmdstdin = channel.makefile("wb")
                         cmdstdout = channel.makefile("rb")

@@ -26,6 +26,7 @@ class PhaseWorker(threading.Thread):
         self.currentNode = None
 
     def run(self):
+        jobFinished = False
         while self.context.goToStop == False:
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
             node = None
@@ -39,6 +40,7 @@ class PhaseWorker(threading.Thread):
             phaseStatus = self.context.phases[self.phaseName]
 
             if node is None:
+                jobFinished = True
                 self._queue.task_done()
                 if phaseStatus.execMode == "runner":
                     phaseStatus.setRoundFinEvent()
@@ -119,13 +121,17 @@ class PhaseWorker(threading.Thread):
 
             self._queue.task_done()
 
-        try:
-            while True:
-                node = self.execQueue.get_nowait()
-                if node is not None:
-                    self._queue.task_done()
-        except Exception as ex:
-            pass
+        if not jobFinished:
+            # 非正常结束，清掉待处理队列，直到遇到none节点
+            try:
+                while True:
+                    node = self._queue.get_nowait()
+                    if node is not None:
+                        self._queue.task_done()
+                    else:
+                        break
+            except Exception as ex:
+                pass
 
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         currentNode = self.currentNode
@@ -140,7 +146,7 @@ class PhaseWorker(threading.Thread):
             return False
 
     def pause(self):
-        self._queue.put(None)
+        # self._queue.put(None)
         if self.currentNode is not None:
             self.currentNode.pause()
 
@@ -197,11 +203,13 @@ class PhaseExecutor:
 
             nodesFactory = self.nodesFactory
 
+            queueLen = self.parallelCount
             if phaseStatus.execMode == "runner":
                 self.parallelCount = 1
+                queueLen = 3
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
-            execQueue = queue.Queue(self.parallelCount * 3)
+            execQueue = queue.Queue(queueLen)
             self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
@@ -281,8 +289,11 @@ class PhaseExecutor:
         finally:
             workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象
-            for idx in range(1, workerCount * 2):
-                execQueue.put(None)
+            for idx in range(1, workerCount + 1):
+                try:
+                    execQueue.put(None)
+                except:
+                    pass
 
             # 等待所有worker线程退出
             while len(worker_threads) > 0:
