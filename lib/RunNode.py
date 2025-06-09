@@ -1004,12 +1004,8 @@ class RunNode:
         if isFailed:
             if self.isPaused:
                 # 操作还没有真正执行，可以重入
-                if self.context.isPausing:
-                    # 存在触发暂停而发生的操作暂停
-                    opFinalStatus = NodeStatus.paused
-                    hintKey = "WARN:"
-                elif op.failIgnore:
-                    # 没有主动触发的暂停，操作失败忽略，继续执行
+                if op.failIgnore and self.uploadFailed:
+                    # 如果是上传失败导致的暂停设置为ignore
                     opFinalStatus = NodeStatus.ignored
                     hintKey = "WARN:"
                 else:
@@ -1171,6 +1167,7 @@ class RunNode:
 
             self.logHandle.clearFailPattern()
 
+            lastOpSatus = None
             for op in ops:
                 if self.context.goToStop:
                     self.isPaused = True
@@ -1178,9 +1175,10 @@ class RunNode:
                     break
 
                 self.isPaused = False
+                self.uploadFailed = False
                 # execute on operation
                 opStatus = self.execOneOperation(op)
-
+                lastOpSatus = opStatus
                 if self.breakOut:
                     self.breakOut = False
                     break
@@ -1195,10 +1193,7 @@ class RunNode:
 
             hintKey = "FINE:"
             if isFail == 0:
-                if self.isPaused:
-                    finalStatus = NodeStatus.paused
-                    hintKey = "WARN:"
-                elif hasIgnoreFail == 1:
+                if hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
                     finalStatus = NodeStatus.ignored
                     hintKey = "WARN:"
@@ -1206,18 +1201,11 @@ class RunNode:
                     finalStatus = NodeStatus.succeed
                     hintKey = "FINE:"
             else:
-                if self.isPaused:
-                    if self.uploadFailed:
-                        finalStatus = NodeStatus.failed
-                    else:
-                        finalStatus = NodeStatus.paused
-                    hintKey = "WARN:"
-                elif self.context.isAborting:
-                    finalStatus = NodeStatus.aborted
+                finalStatus = lastOpSatus
+                if lastOpSatus in [NodeStatus.failed, NodeStatus.aborted]:
                     hintKey = "ERROR:"
                 else:
-                    finalStatus = NodeStatus.failed
-                    hintKey = "ERROR:"
+                    hintKey = "WARN:"
 
             self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
             self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
