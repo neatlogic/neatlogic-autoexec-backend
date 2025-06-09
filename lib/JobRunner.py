@@ -605,7 +605,7 @@ class JobRunner:
         if maxRoundNo <= 0:
             maxRoundNo = 1
 
-        midRoundNo = math.ceil(maxRoundNo / 2)
+        midRoundNo = int(maxRoundNo / 2) + 1
         execFailed = False
         firstRound = True
         midRound = False
