@@ -371,6 +371,13 @@ class JobRunner:
         phaseStatus.executor = executor
         return executor.execute()
 
+    def _clearRoundPhasesEvent(self, phaseGroup):
+        for phaseConfig in phaseGroup["phases"]:
+            phaseName = phaseConfig["phaseName"]
+            phaseStatus = self.context.phases[phaseName]
+            phaseStatus.clearRoundFinEvent()
+            phaseStatus.clearGlobalRoundFinEvent()
+
     def _deducePhaseStatus(self, phaseStatus):
         endStatus = NodeStatus.aborted
 
@@ -612,6 +619,8 @@ class JobRunner:
         seqNo = None
 
         for roundNo in range(1, maxRoundNo + 1):
+            self._clearRoundPhasesEvent(phaseGroup)
+
             if self.context.goToStop:
                 break
 
@@ -658,8 +667,8 @@ class JobRunner:
 
                 phaseIndex = phaseIndex + 1
                 phaseStatus = self.context.phases[phaseName]
-                phaseStatus.clearRoundFinEvent()
-                phaseStatus.clearGlobalRoundFinEvent()
+                # phaseStatus.clearRoundFinEvent()
+                # phaseStatus.clearGlobalRoundFinEvent()
                 phaseStatus.roundNo = roundNo
                 execRound = "first"
                 if "execRound" in phaseConfig:
