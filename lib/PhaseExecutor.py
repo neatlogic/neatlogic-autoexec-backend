@@ -33,6 +33,7 @@ class PhaseWorker(threading.Thread):
             try:
                 node = self._queue.get(timeout=self.context.maxExecSecs)
             except Exception as ex:
+                self.context.isPausing = True
                 self.context.goToStop = True
                 print("WARN: Task last for 24 hours, it's too long, exit.\n", end="")
                 break
@@ -68,6 +69,7 @@ class PhaseWorker(threading.Thread):
             elif nodeStatus == NodeStatus.running and not self.context.isForce:
                 if node.ensureNodeIsRunning():
                     print("ERROR: Phase:{} node:{} status:{} {}:{} is running, please check the status.\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
+                    self.context.isAborting = True
                     self.context.goToStop = True
                     self._queue.task_done()
                     continue
@@ -126,10 +128,10 @@ class PhaseWorker(threading.Thread):
             try:
                 while True:
                     node = self._queue.get_nowait()
-                    if node is not None:
-                        self._queue.task_done()
-                    else:
+                    if node is None:
                         break
+                    else:
+                        self._queue.task_done()
             except Exception as ex:
                 pass
 
@@ -330,6 +332,7 @@ class PhaseExecutor:
                 print("INFO: Update runner node status to waitInput succeed.\n", end="")
 
     def pause(self):
+        self.context.isPausing = True
         self.context.goToStop = True
         try:
             while True:
@@ -359,6 +362,7 @@ class PhaseExecutor:
         print("INFO: Try to pause job complete.\n", end="")
 
     def kill(self):
+        self.context.isAborting = True
         self.context.goToStop = True
         try:
             while True:
