@@ -32,7 +32,7 @@ class JobPurger:
                 if item.is_dir():
                     self.purgeJob(item)
                 else:
-                    if item.name == "params.json":
+                    if item.name == "firstgroup" or item.name == "params.json":
                         paramFile = item.path
                         jobIdPath = paramFile[0:-12]
                         jobMtime = os.stat(paramFile).st_mtime
