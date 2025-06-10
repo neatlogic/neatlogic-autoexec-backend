@@ -374,10 +374,11 @@ class JobRunner:
     def _clearRoundPhasesEvent(self, phaseGroup):
         for phaseConfig in phaseGroup["phases"]:
             phaseName = phaseConfig["phaseName"]
-            phaseStatus = self.context.phases[phaseName]
-            phaseStatus.clearRoundFinEvent()
-            phaseStatus.clearGlobalRoundFinEvent()
-            print("INFO: Clear phase:{} round event.\n".format(phaseName), end="")
+            phaseStatus = self.context.phases.get(phaseName)
+            if phaseStatus is not None:
+                phaseStatus.clearRoundFinEvent()
+                phaseStatus.clearGlobalRoundFinEvent()
+                print("INFO: Clear phase:{} round event.\n".format(phaseName), end="")
 
     def _deducePhaseStatus(self, phaseStatus):
         endStatus = NodeStatus.aborted

@@ -30,15 +30,18 @@ sub usage {
 }
 
 sub getGlobalExitCode {
-    my ( $jobId, $serverAdapter ) = @_;
+    my ( $sqlFileRunner, $sqlFiles ) = @_;
 
     my $exitCode   = 0;
-    
-    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId );
+
+    my $sqlFileCount = scalar(@$sqlFiles);
+    my $sqlStatus = $sqlFileRunner->loadLocalSqlFileStatuses($sqlFiles);
+    my $sqlStatusCount = scalar(@$sqlStatus);
 
     my $isFail = 0;
     my $notCompleteCount = 0;
-    foreach my $sqlInfo (@$sqlInfoInServer) {
+
+    foreach my $sqlInfo (@$sqlStatus) {
         if ( $sqlInfo->{status} eq "failed"  or $sqlInfo->{status} eq "aborted" ) {
             #存在失败
             $isFail = 1;
@@ -53,6 +56,9 @@ sub getGlobalExitCode {
         $exitCode = 1;
     }
     elsif( $notCompleteCount > 0){
+        $exitCode = 2;
+    }
+    elsif( $sqlFileCount != $sqlStatusCount ){
         $exitCode = 2;
     }
 
@@ -228,12 +234,13 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     my $sqlNodesMap   = {};
 
+    my $allSqlFiles = $serverAdapter->getSqlFileStatuses($jobId);
     my $sqlInfoInServer;
     if ( defined($sqlInfosInArg) ) {
         $sqlInfoInServer = $sqlInfosInArg;
     }
     else {
-        $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+        $sqlInfoInServer = $allSqlFiles;
     }
 
     foreach my $sqlInfo (@$sqlInfoInServer) {
@@ -325,7 +332,7 @@ sub main {
 
         if ( $rc == 2 and defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
             #单跑SQL， 根据全局SQL状态纠正退出码
-            $rc = getGlobalExitCode( $jobId, $serverAdapter );
+            $rc = getGlobalExitCode( $sqlFileRunner, $allSqlFiles );
         }
 
         if ( $rc != 0 ) {

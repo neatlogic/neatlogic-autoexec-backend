@@ -920,6 +920,26 @@ sub checkSqlFiles {
     return $hasError;
 }
 
+sub loadLocalSqlFileStatuses {
+    my ($self, $sqlFiles) = @_;
+
+    my $sqlStatusDir = $self->{sqlStatusDir};
+    my @statusArrray = ();
+    foreach my $sqlFile (@$sqlFiles){
+        my $statusDir = "$sqlStatusDir/$sqlFile.txt";
+        if (-f $statusDir){
+            my $jsonStr = DeployUtils->getFileContent( $statusDir );
+            my $status = {};
+            if ( defined($jsonStr) and $jsonStr ne '' ) {
+                $status = from_json($jsonStr);
+                push(@statusArrray, $status);
+            }
+        }
+    }
+
+    return \@statusArrray;
+}
+
 sub restoreSqlStatuses {
     my ( $self, $sqlInfoList ) = @_;
 

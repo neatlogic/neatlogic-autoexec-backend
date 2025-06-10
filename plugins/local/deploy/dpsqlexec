@@ -33,15 +33,18 @@ sub usage {
 }
 
 sub getGlobalExitCode {
-    my ( $jobId, $deployEnv, $serverAdapter ) = @_;
+    my ( $sqlFileRunner, $sqlFiles ) = @_;
 
     my $exitCode   = 0;
 
-    my $sqlInfoInServer = $serverAdapter->getSqlFileStatuses( $jobId, $deployEnv );
+    my $sqlFileCount = scalar(@$sqlFiles);
+    my $sqlStatus = $sqlFileRunner->loadLocalSqlFileStatuses($sqlFiles);
+    my $sqlStatusCount = scalar(@$sqlStatus);
 
     my $isFail = 0;
     my $notCompleteCount = 0;
-    foreach my $sqlInfo (@$sqlInfoInServer) {
+
+    foreach my $sqlInfo (@$sqlStatus) {
         if ( $sqlInfo->{status} eq "failed"  or $sqlInfo->{status} eq "aborted" ) {
             #存在失败
             $isFail = 1;
@@ -56,6 +59,9 @@ sub getGlobalExitCode {
         $exitCode = 1;
     }
     elsif( $notCompleteCount > 0){
+        $exitCode = 2;
+    }
+    elsif( $sqlFileCount != $sqlStatusCount ){
         $exitCode = 2;
     }
 
@@ -186,6 +192,14 @@ sub main {
     my $singleExec   = 0;
     my $sqlFilesJson = $deployEnv->{SQL_FILES};
 
+    my $allSqlFiles = [];
+    if ( defined($index) and $index ne '' ) {
+        $allSqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+    }
+    else {
+        $allSqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+    }
+
     my $sqlFiles = [];
     my $sqlInfosInArg;
     if ( defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
@@ -200,12 +214,7 @@ sub main {
         $sqlFiles   = \@sqlFilesArray;
     }
     else {
-        if ( defined($index) and $index ne '' ) {
-            $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
-        }
-        else {
-            $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
-        }
+        $sqlFiles = $allSqlFiles;
     }
 
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
@@ -223,8 +232,9 @@ sub main {
     }
 
     my $rc = 0;
+    my $sqlFileRunner;
     if ( scalar(@$sqlFileSets) > 0 ) {
-        my $sqlFileRunner = SQLFileRunner->new(
+        $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
             jobPath      => $jobPath,
             phaseName    => $phaseName,
@@ -266,7 +276,7 @@ sub main {
             }
         }
 
-        if ( not defined($sqlInfosInArg) ) {
+        if ( defined($sqlInfosInArg) ) {
             $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
         }
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
@@ -274,7 +284,7 @@ sub main {
 
     if ( $rc == 2 and defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
         #单跑SQL， 根据全局SQL状态纠正退出码
-        $rc = getGlobalExitCode( $jobId, $deployEnv, $serverAdapter );
+        $rc = getGlobalExitCode( $sqlFileRunner, $allSqlFiles );
     }
 
     return $rc;
