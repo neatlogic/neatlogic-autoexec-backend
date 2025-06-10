@@ -281,7 +281,7 @@ sub getMeasures {
         print("ERROR: Project status returned from sonarqube is $projectStatus\n");
     }
 
-    # if ( $hasError > 0 ) {
+    # if ( $hasError != 0 ) {
     #     die("ERROR: Get measures from sonarqube failed.\n");
     # }
     return ( $hasError, \%measuresMap );

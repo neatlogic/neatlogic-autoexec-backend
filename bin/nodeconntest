@@ -166,7 +166,7 @@ if __name__ == "__main__":
         exitCode = 2
 
     if exitCode > 255:
-        exitCode = exitCode >> 8
+        exitCode = 1
 
     if exitCode == 0:
         print("INFO: Connect to {}://{}@{}:{} success.".format(protocol, username, host, protocolPort))

@@ -515,10 +515,7 @@ sub run {
                 else {
                     $ret = system("db2 -mf '$sqlFileName'");
                 }
-
-                if ( $ret > 255 ) {
-                    $ret = $ret >> 8;
-                }
+                $ret = $ret >> 8;
 
                 $catalogFH->flush();
 
@@ -679,9 +676,7 @@ sub run {
                 }
             }
             my $exitCode = $?;
-            if ( $exitCode > 255 ) {
-                $exitCode = $exitCode >> 8;
-            }
+            $exitCode = $exitCode >> 8;
 
             &$getLines();
 

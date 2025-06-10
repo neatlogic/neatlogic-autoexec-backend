@@ -163,7 +163,7 @@ sub main {
         print("ERROR: SSH remote exec has error.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

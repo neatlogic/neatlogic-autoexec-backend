@@ -121,7 +121,7 @@ sub _doLockByJob {
         }
     }
     else {
-        print("WARN: $lockAction $namePath $lockTarget($lockMode) failed:socket file $sockPath not exist.\n");
+        $lockRetObj->{message} = "socket file $sockPath not exist, job already exit";
     }
 
     return $lockRetObj;

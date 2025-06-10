@@ -217,7 +217,7 @@ sub main {
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 #TODO: 没有经过验证，需要Jfrog进行测试

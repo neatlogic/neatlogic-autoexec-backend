@@ -250,7 +250,7 @@ sub release {
     chdir($cwd);
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -292,7 +292,7 @@ sub release2Env {
     chdir($cwd);
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -328,7 +328,7 @@ sub syncDirToGroup {
     chdir($cwd);
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

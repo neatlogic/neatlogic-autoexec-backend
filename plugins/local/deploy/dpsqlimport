@@ -6,6 +6,7 @@ use lib "$FindBin::Bin/../pllib/lib/perl5";
 
 use strict;
 use Cwd;
+use File::Path;
 use Digest::MD5;
 use Getopt::Long;
 use JSON;
@@ -237,7 +238,25 @@ sub main {
         my $jobRbSqlFileDir = "$jobPath/sqlfile/$rbTargetPhase";
 
         if ( not -e $jobRbSqlFileDir ) {
-            symlink( $sqlFileDir, $jobRbSqlFileDir );
+            symlink( $jobRbSqlFileDir, $sqlFileDir );
+        }
+
+        my $targetRealLogDir = "$distPath/db.log/$targetPhase";
+        my $targetLogFileDir   = "$jobPath/log/$targetPhase";
+        if ( not -e $targetRealLogDir){
+            mkpath($targetRealLogDir);
+        }
+        if ( not -e $targetLogFileDir){
+            symlink( $targetRealLogDir, $targetLogFileDir);
+        }
+
+        my $rbRealLogDir = "$distPath/db.log/$rbTargetPhase";
+        my $rbLogFileDir   = "$jobPath/log/$rbTargetPhase";
+        if ( not -e $rbRealLogDir){
+            mkpath($rbRealLogDir);
+        }
+        if ( not -e $rbLogFileDir){
+            symlink( $rbRealLogDir, $rbLogFileDir);
         }
     }
 
@@ -264,7 +283,7 @@ sub main {
     if ( $hasError != 0 ) {
         $serverAdapter->releaseVerToEnv( $deployEnv, 'release-failed' );
     }
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

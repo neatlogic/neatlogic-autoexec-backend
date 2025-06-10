@@ -67,7 +67,7 @@ sub copyTimeStamp($$) {
         closedir(DH);
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub main {
@@ -148,7 +148,7 @@ sub main {
         print("ERROR: Destination directory:$destPath not exists.\n");
     }
     if ( $hasError != 0 ) {
-        return $hasError;
+        return $hasError == 0 ? 0 : 1;
     }
 
     $hasError = copyTimeStamp( $srcPath, $destPath );
@@ -160,7 +160,7 @@ sub main {
         print("INFO: Sync $namePath $src time stamp to $dest success.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

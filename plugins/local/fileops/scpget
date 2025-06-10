@@ -93,6 +93,11 @@ sub main {
     else {
         print("INFO: Download $scpPath to $localDir success.\n");
     }
+
+    if( $errorCode > 255 ){
+        $errorCode = 1;
+    }
+
     return $errorCode;
 }
 

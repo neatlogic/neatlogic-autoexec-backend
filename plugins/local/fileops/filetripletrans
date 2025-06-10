@@ -123,6 +123,7 @@ if __name__ == "__main__":
             args.destdir,
         )
         exitCode = os.system(cmd)
+        exitCode = exitCode >> 8
     else:
         exitCode = -1
         print("ERROR: Protocol {} not supported.".format(protocol))

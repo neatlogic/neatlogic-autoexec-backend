@@ -321,7 +321,7 @@ sub main {
             else {
                 $hasError = $hasError + 1;
                 print("ERROR: Permission deny for directory:$transPath.\n");
-                exit($hasError);
+                exit(1);
             }
         }
     }
@@ -330,7 +330,7 @@ sub main {
             if ( $dir =~ /^\.\.\// or $dir =~ /\/\.\.$/ or $dir =~ /\/\.\.\// ) {
                 $hasError = $hasError + 1;
                 print("ERROR: FileTrans name can not has '..':$dir.\n");
-                exit($hasError);
+                exit(1);
             }
 
             #$dir = "$verPath/$dir";
@@ -347,7 +347,7 @@ sub main {
                 if ( symlink( $dir, $transPath ) eq 0 ) {
                     print("ERROR: Path:create link $transPath permission deny.\n");
                     $hasError = $hasError + 1;
-                    exit($hasError);
+                    exit(1);
                 }
             }
             elsif ( -d $dir ) {
@@ -366,7 +366,7 @@ sub main {
             if ( not -e $transPath ) {
                 print("ERROR: $dir does not exists or permission deny.\n");
                 $hasError = $hasError + 1;
-                exit($hasError);
+                exit(1);
             }
 
             my $cmd    = getCopyCmd( 'push', $serverPath, $transName, $dest, $isPack );
@@ -389,7 +389,7 @@ sub main {
         print( "ERROR: $pname --$direction " . join( ' ', @dirs ) . " failed.\n" );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

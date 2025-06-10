@@ -531,6 +531,8 @@ sub _execSql {
     my $output = '';
     if ( $isSu == 0 ) {
         my $connStatus = system($db2ConnCmd);
+        $connStatus = $connStatus >> 8;
+        
         if ( $connStatus != 0 ) {
             print("ERROR: Connect to db failed.\n");
             return ( undef, undef, $connStatus );

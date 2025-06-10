@@ -69,6 +69,7 @@ sub new {
             'checkInSqlFiles'       => '/neatlogic/api/rest/autoexec/job/sql/checkin',
             'pushSqlStatus'         => '/neatlogic/api/rest/autoexec/job/sql/update',
             'updatePhaseStatus'     => '/neatlogic/api/rest/autoexec/job/phase/status/update',
+            'updateJobStatus'       => '/neatlogic/api/rest/autoexec/job/status/update',
             'createJob'             => '/neatlogic/api/rest/deploy/job/create',
             'getJobStatus'          => '/neatlogic/api/rest/autoexec/job/status/get',
             'saveVersionDependency' => '/neatlogic/api/rest/deploy/versoin/dependency/save/forautoexec',
@@ -1005,7 +1006,7 @@ sub pushSqlStatus {
 }
 
 sub updatePhaseStatus {
-    my ( $self, $jobId, $phaseStatus ) = @_;
+    my ( $self, $jobId, $phaseStatus, $needInform ) = @_;
 
     #$jobId: 324234
     # params = {
@@ -1020,6 +1021,50 @@ sub updatePhaseStatus {
         return;
     }
 
+    if (not defined($needInform)){
+        $needInform = 0;
+    }
+
+    my $passThroughEnv = {};
+    if ( $ENV{PASSTHROUGH_ENV} ) {
+        $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
+    }
+
+    my $phaseName = $ENV{AUTOEXEC_PHASE_NAME};
+    my $params = {
+        jobId          => $jobId,
+        execId         => $ENV{AUTOEXEC_EXECID},
+        groupNo        => $ENV{AUTOEXEC_GROUP_NO},
+        needInform     => $needInform,
+        phase          => $phaseName,
+        status         => $phaseStatus,
+        passThroughEnv => $passThroughEnv
+    };
+
+    my $webCtl  = $self->{webCtl};
+    my $url     = $self->_getApiUrl('updatePhaseStatus');
+    my $content = $webCtl->postJson( $url, $params );
+    #print("INFO: Update phase:$phaseName status to $phaseStatus.\n");
+    my $rcObj   = $self->_getReturn($content);
+
+    return;
+}
+
+sub updateJobStatus {
+    my ( $self, $jobId, $jobStatus ) = @_;
+
+    #$jobId: 324234
+    # params = {
+    #     'jobId': self.context.jobId,
+    #     'execId': execId,
+    #     'status': jobStatus,
+    #     'passThroughEnv': self.context.passThroughEnv
+    # }
+
+    if ( not $jobStatus ) {
+        return;
+    }
+
     my $passThroughEnv = {};
     if ( $ENV{PASSTHROUGH_ENV} ) {
         $passThroughEnv = from_json( $ENV{PASSTHROUGH_ENV} );
@@ -1028,15 +1073,14 @@ sub updatePhaseStatus {
     my $params = {
         jobId          => $jobId,
         execId         => $ENV{AUTOEXEC_EXECID},
-        groupNo        => $ENV{AUTOEXEC_GROUP_NO},
-        phase          => $ENV{AUTOEXEC_PHASE_NAME},
-        status         => $phaseStatus,
+        status         => $jobStatus,
         passThroughEnv => $passThroughEnv
     };
 
     my $webCtl  = $self->{webCtl};
-    my $url     = $self->_getApiUrl('updatePhaseStatus');
+    my $url     = $self->_getApiUrl('updateJobStatus');
     my $content = $webCtl->postJson( $url, $params );
+    #print("INFO: Update job:$jobId to status:$jobStatus.\n");
     my $rcObj   = $self->_getReturn($content);
 
     return;

@@ -161,7 +161,7 @@ sub checkout {
         print("INFO: Checkout $checkoutRepo, it will take a few minutes, pleas wait...\n");
         rmtree($prjPath);
 
-        print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
+        #print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
         $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username $svnUser --password $svnPass co '$checkoutRepo' '$prjPath'");
     }
     elsif ( $checkoutRepo ne $localSvnInfo->{URL} ) {
@@ -447,7 +447,6 @@ sub checkBaseLineMerged {
         return $ret;
     }
 
-    my $hasError = 0;
     my $summary  = 0;
 
     my $checkSub = sub {
@@ -480,7 +479,7 @@ sub checkBaseLineMerged {
         print("ERROR: Merge trunk to check if base line merged failed:$@\n");
     }
 
-    if ( $hasError == 1 ) {
+    if ( $hasError != 0 ) {
         print("ERROR: Version $version has not merged trunk modifications.\n");
         print("ERROR: 未从trunk合并最新代码，请合并至版本$version后再重新提交!\n");
     }
@@ -1014,6 +1013,7 @@ sub resetWorkingCopy{
 
     my $resetCmd = "cd '$prjPath' && svn revert -R .";
     my $ret = system($resetCmd);
+    $ret = $ret >> 8;
 
     return $ret;
 }

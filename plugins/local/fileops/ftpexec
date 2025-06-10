@@ -90,7 +90,7 @@ sub main {
         $port = 21;
     }
 
-    my $isSuccess = 0;
+    my $hasError = 0;
     my $ftp       = Net::FTP::Recursive->new( $host, Port => $port, Debug => 0, Timeout => 30 ) or die "ERROR: :connect ftp $host $port failed.\n";
     if ( defined($user) and $user ne '' ) {
         $ftp->login( $user, $pass ) or die "ERROR: $user login failed.\n";
@@ -103,7 +103,7 @@ sub main {
         foreach my $target (@src_dirs) {
             my $isFile = 0;
             if ( !-d $target and !-e $target ) {
-                $isSuccess = 1;
+                $hasError = 1;
                 print("ERROR: Local directory $target not exists.\n");
                 last;
             }
@@ -132,7 +132,7 @@ sub main {
     }
     elsif ( $direction eq 'pull' ) {
         if ( !-d $dest ) {
-            $isSuccess = 1;
+            $hasError = 1;
             print("ERROR: Local directory $dest not exists.\n");
         }
         else {
@@ -163,7 +163,7 @@ sub main {
     }
     $ftp->quit;
 
-    return $isSuccess;
+    return $hasError;
 }
 
 exit( main() );

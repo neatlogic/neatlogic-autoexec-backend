@@ -26,22 +26,32 @@ class PhaseWorker(threading.Thread):
         self.currentNode = None
 
     def run(self):
+        jobFinished = False
         while self.context.goToStop == False:
             # 获取节点，如果节点是NoneType，则所有节点已经完成运行
             node = None
             try:
                 node = self._queue.get(timeout=self.context.maxExecSecs)
             except Exception as ex:
+                self.context.isPausing = True
                 self.context.goToStop = True
                 print("WARN: Task last for 24 hours, it's too long, exit.\n", end="")
                 break
 
             phaseStatus = self.context.phases[self.phaseName]
-            if node is None:
-                phaseStatus.setRoundFinEvent()
-                break
-            self.currentNode = node
 
+            if node is None:
+                jobFinished = True
+                self._queue.task_done()
+                if phaseStatus.execMode == "runner":
+                    phaseStatus.setRoundFinEvent()
+                break
+
+            if phaseStatus.globalFailed == True or self.context.goToStop == True:
+                self._queue.task_done()
+                break
+
+            self.currentNode = node
             nodeStatus = node.getNodeStatus()
 
             if self.context.goToStop == False and self.phaseType == "sqlfile":
@@ -54,11 +64,14 @@ class PhaseWorker(threading.Thread):
                     self.context.serverAdapter.pushNodeStatus(self.groupNo, self.phaseName, node, nodeStatus)
                 except Exception as ex:
                     logging.error("RePush node status to server failed, {}\n".format(ex))
+                self._queue.task_done()
                 continue
             elif nodeStatus == NodeStatus.running and not self.context.isForce:
                 if node.ensureNodeIsRunning():
                     print("ERROR: Phase:{} node:{} status:{} {}:{} is running, please check the status.\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
+                    self.context.isAborting = True
                     self.context.goToStop = True
+                    self._queue.task_done()
                     continue
                 elif self.context.goToStop == False:
                     print("INFO: Phase:{} node:{} status:{} {}:{} try to execute again...\n".format(self.phaseName, node.resourceId, nodeStatus, node.host, node.port), end="")
@@ -98,10 +111,29 @@ class PhaseWorker(threading.Thread):
                 print("INFO: Phase:{} node:{} {}:{} execute succeed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             elif opsStatus == NodeStatus.paused:
                 phaseStatus.incPauseNodeCount()
+                self.context.goToStop = True
                 print("WARN: Phase:{} node:{} {}:{} execute paused.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
             else:
                 phaseStatus.incFailNodeCount()
+                self.context.goToStop = True
                 print("ERROR: Phase:{} node:{} {}:{} execute failed.\n".format(self.phaseName, node.resourceId, node.host, node.port), end="")
+
+            if phaseStatus.execMode == "runner":
+                phaseStatus.setRoundFinEvent()
+
+            self._queue.task_done()
+
+        if not jobFinished:
+            # 非正常结束，清掉待处理队列，直到遇到none节点
+            try:
+                while True:
+                    node = self._queue.get_nowait()
+                    if node is None:
+                        break
+                    else:
+                        self._queue.task_done()
+            except Exception as ex:
+                pass
 
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
         currentNode = self.currentNode
@@ -116,7 +148,7 @@ class PhaseWorker(threading.Thread):
             return False
 
     def pause(self):
-        self._queue.put(None)
+        # self._queue.put(None)
         if self.currentNode is not None:
             self.currentNode.pause()
 
@@ -127,10 +159,11 @@ class PhaseWorker(threading.Thread):
 
 
 class PhaseExecutor:
-    def __init__(self, context, groupNo, phaseName, phaseType, operations, nodesFactory, parallelCount=25):
+    def __init__(self, context, groupNo, phaseName, phaseType, operations, nodesFactory, parallelCount=25, isCustomSeq=False):
         self.groupNo = groupNo
         self.phaseName = phaseName
         self.phaseType = phaseType
+        self.isCustomSeq = isCustomSeq
         self.phaseStatus = context.phases[self.phaseName]
         self.context = context
         self.operations = operations
@@ -172,11 +205,13 @@ class PhaseExecutor:
 
             nodesFactory = self.nodesFactory
 
+            queueLen = self.parallelCount
             if phaseStatus.execMode == "runner":
                 self.parallelCount = 1
+                queueLen = 3
 
             # 初始化队列，设置最大容量为节点运行并行度的两倍，避免太多节点数据占用内存
-            execQueue = queue.Queue(self.parallelCount * 2)
+            execQueue = queue.Queue(queueLen)
             self.execQueue = execQueue
             # 创建线程池
             worker_threads = self._buildWorkerPool(execQueue)
@@ -206,7 +241,7 @@ class PhaseExecutor:
                     else:
                         print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()), end="")
 
-                if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
+                if self.context.goToStop or phaseStatus.failNodeCount > 0 or phaseStatus.globalFailed == True:
                     try:
                         while True:
                             execQueue.get_nowait()
@@ -221,14 +256,25 @@ class PhaseExecutor:
                         if node is None:
                             break
 
-                        if self.context.goToStop == False:
-                            if not self.isRunning:
-                                self.isRunning = True
-                                self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, phaseStatus, NodeStatus.running)
-                                print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end="")
+                        # if self.isCustomSeq:
+                        #     seqNo = node.seqNo
+                        #     if seqNo != preSeqNo:
+                        #         if preSeqNo is not None:
+                        #             print("INFO: Wait phase:{} nodes in round:{} execute complete.".format(self.phaseName, preSeqNo))
+                        #             execQueue.join()
+                        #             print("INFO: Phase:{} nodes in round:{} execute complete.".format(self.phaseName, preSeqNo))
+                        #         preSeqNo = seqNo
 
+                        if not self.isRunning:
+                            self.isRunning = True
+                            self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, phaseStatus, NodeStatus.running)
+                            print("INFO: Begin to execute phase:{} operations...\n".format(self.phaseName), end="")
+
+                        if self.context.goToStop == False and phaseStatus.globalFailed == False:
                             # 需要执行的节点实例加入等待执行队列
                             execQueue.put(node)
+                        else:
+                            break
                     except Exception as ex:
                         phaseStatus.incFailNodeCount()
                         if node is not None:
@@ -236,18 +282,20 @@ class PhaseExecutor:
                         else:
                             print("ERROR: Unknown error occurred\n{}\n".format(traceback.format_exc()), end="")
 
-                    if self.context.goToStop or phaseStatus.failNodeCount > 0 or self.context.hasFailNodeInGlobal == True:
-                        try:
-                            while True:
-                                execQueue.get_nowait()
-                        except Exception as ex:
-                            pass
-                        break
+                if self.context.goToStop or phaseStatus.failNodeCount > 0 or phaseStatus.globalFailed == True:
+                    try:
+                        while True:
+                            execQueue.get_nowait()
+                    except Exception as ex:
+                        pass
         finally:
             workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象
-            for idx in range(1, workerCount * 2):
-                execQueue.put(None)
+            for idx in range(1, workerCount + 1):
+                try:
+                    execQueue.put(None)
+                except:
+                    pass
 
             # 等待所有worker线程退出
             while len(worker_threads) > 0:
@@ -255,6 +303,8 @@ class PhaseExecutor:
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
+            print("INFO: Phase:{} works exist.\n".format(self.phaseName), end="")
+            phaseStatus.setRoundFinEvent()
 
         return phaseStatus.failNodeCount
 
@@ -274,46 +324,54 @@ class PhaseExecutor:
             if clean == 1:
                 if not (isLastNode and execLastOp):
                     self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
+                    self.context.serverAdapter.pushJobStatus(NodeStatus.running)
                     print("INFO: Update runner node status to running succeed.\n", end="")
             else:
                 self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+                self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
                 print("INFO: Update runner node status to waitInput succeed.\n", end="")
 
     def pause(self):
+        self.context.isPausing = True
         self.context.goToStop = True
         try:
             while True:
                 self.execQueue.get_nowait()
-            self.execQueue.put(None)
         except Exception as ex:
             pass
+        finally:
+            for i in range(1, self.parallelCount + 1):
+                self.execQueue.put(None)
 
-        i = 1
-        pauseWorkers = []
-        for worker in self.workers:
-            try:
-                t = Thread(target=worker.pause, args=())
-                t.setName("Pauser-{}".format(i))
-                t.start()
-                pauseWorkers.append(t)
-                i = i + 1
-            except:
-                print("ERROR: Unable to start thread to pause woker.\n", end="")
+        # i = 1
+        # pauseWorkers = []
+        # for worker in self.workers:
+        #     try:
+        #         t = Thread(target=worker.pause, args=())
+        #         t.setName("Pauser-{}".format(i))
+        #         t.start()
+        #         pauseWorkers.append(t)
+        #         i = i + 1
+        #     except:
+        #         print("ERROR: Unable to start thread to pause woker.\n", end="")
 
-        for t in pauseWorkers:
-            t.join()
+        # for t in pauseWorkers:
+        #     t.join()
 
         # self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.paused)
         print("INFO: Try to pause job complete.\n", end="")
 
     def kill(self):
+        self.context.isAborting = True
         self.context.goToStop = True
         try:
             while True:
                 self.execQueue.get_nowait()
-            self.execQueue.put(None)
         except Exception as ex:
             pass
+        # finally:
+        #     for i in range(1, self.parallelCount + 1):
+        #         self.execQueue.put(None)
 
         i = 1
         killWorkers = []

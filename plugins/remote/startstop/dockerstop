@@ -21,8 +21,7 @@ sub main {
         'timeout:d' => \$timeout
     );
 
-    if ( not defined($name) )
-    {
+    if ( not defined($name) ) {
         usage();
     }
 
@@ -30,7 +29,7 @@ sub main {
     if ( $< == 0 ) {
         $isRoot = 1;
     }
-   
+
     my $cmd = qq{docker stop -t $timeout "$name"};
     if ( $isRoot == 1 ) {
         $cmd = "sudo " . $cmd;
@@ -38,6 +37,7 @@ sub main {
 
     print("INFO: Execute->$cmd\n");
     my $ret = system($cmd );
+    $ret = $ret >> 8;
 
     if ( $ret eq 0 ) {
         print("INFO: Docker stop success.\n");

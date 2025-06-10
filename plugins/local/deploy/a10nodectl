@@ -110,7 +110,7 @@ sub main {
         print("ERROR: Login $a10Url failed.\n");
         print($resp);
         $hasError = $hasError + 1;
-        return $hasError;
+        return $hasError == 0 ? 0 : 1;
     }
 
     #curl -k https://20.16.185.1/axapi/v3/slb/service-group/OA_8080_pool/member/OA_01+8080 -H 'Authorization: A10 618a942a22dd0506c03b987f914071' -H 'Content-Type: application/json' -X POST -d '{"member":{"member-state":"enable"}}'
@@ -128,7 +128,7 @@ sub main {
         $hasError = $hasError + 1;
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

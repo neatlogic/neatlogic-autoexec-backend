@@ -29,6 +29,42 @@ sub usage {
     exit(1);
 }
 
+sub getGlobalExitCode {
+    my ( $sqlFileRunner, $sqlFiles ) = @_;
+
+    my $exitCode   = 0;
+
+    my $sqlFileCount = scalar(@$sqlFiles);
+    my $sqlStatus = $sqlFileRunner->loadLocalSqlFileStatuses($sqlFiles);
+    my $sqlStatusCount = scalar(@$sqlStatus);
+
+    my $isFail = 0;
+    my $notCompleteCount = 0;
+
+    foreach my $sqlInfo (@$sqlStatus) {
+        if ( $sqlInfo->{status} eq "failed"  or $sqlInfo->{status} eq "aborted" ) {
+            #存在失败
+            $isFail = 1;
+            last;
+        }
+        elsif ( $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" or $sqlInfo->{status} eq "pending" ) {
+            $notCompleteCount = $notCompleteCount + 1;
+        }
+    }
+
+    if ($isFail != 0){
+        $exitCode = 1;
+    }
+    elsif( $notCompleteCount > 0){
+        $exitCode = 2;
+    }
+    elsif( $sqlFileCount != $sqlStatusCount ){
+        $exitCode = 2;
+    }
+
+    return $exitCode;
+}
+
 sub main {
     my $isforce = 0;
 
@@ -92,6 +128,7 @@ sub main {
         $ENV{AUTOEXEC_USER} = 'anonymous';
     }
 
+    my $singleExec       = 0;
     my $sqlFiles         = [];
     my $sqlFileArrayJson = $ENV{_SQL_FILES};
     my $sqlInfosInArg;
@@ -102,7 +139,8 @@ sub main {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
         my @sqlFilesArray = keys(%$sqlFilesMap);
-        $sqlFiles = \@sqlFilesArray;
+        $sqlFiles   = \@sqlFilesArray;
+        $singleExec = 1;
     }
     elsif ( defined($sqlFileJson) and $sqlFileJson ne '' ) {
         my @sqlFileArray = split( /\s*,\s*/, $sqlFileJson );
@@ -196,12 +234,13 @@ sub main {
     my $serverAdapter = ServerAdapter->new();
     my $sqlNodesMap   = {};
 
+    my $allSqlFiles = $serverAdapter->getSqlFileStatuses($jobId);
     my $sqlInfoInServer;
     if ( defined($sqlInfosInArg) ) {
         $sqlInfoInServer = $sqlInfosInArg;
     }
     else {
-        $sqlInfoInServer = $serverAdapter->getSqlFileStatuses($jobId);
+        $sqlInfoInServer = $allSqlFiles;
     }
 
     foreach my $sqlInfo (@$sqlInfoInServer) {
@@ -238,14 +277,14 @@ sub main {
                 my $errMsg = $@;
                 $errMsg =~ s/ at .*$//;
                 print("ERROR: Can not find password for $userName\@$host:$port.\n$errMsg\n");
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
             $sqlNodesMap->{$resourceId} = $sqlNodeInfo;
         }
     }
 
-    if ( $hasError > 0 ) {
-        return $hasError;
+    if ( $hasError != 0 ) {
+        return 1;
     }
 
     my $sqlUploadDir = "$jobPath/file";
@@ -281,7 +320,8 @@ sub main {
             isForce      => $isForce,
             isDryRun     => $isDryRun,
             istty        => 0,
-            isInteract   => 1
+            isInteract   => 1,
+            singleExec   => $singleExec
         );
         my $rc = 0;
         $rc = $sqlFileRunner->checkSqlFiles();
@@ -290,9 +330,19 @@ sub main {
             $rc = $sqlFileRunner->execSqlFiles();
         }
 
+        if ( $rc == 2 and defined($sqlFileArrayJson) and $sqlFileArrayJson ne '' ) {
+            #单跑SQL， 根据全局SQL状态纠正退出码
+            $rc = getGlobalExitCode( $sqlFileRunner, $allSqlFiles );
+        }
+
         if ( $rc != 0 ) {
-            $hasError = $hasError + 1;
-            print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
+            $hasError = $rc;
+            if ( $rc == 1 ) {
+                print("ERROR: Execute sql files -> $userName\@$host:$port failed.\n\n");
+            }
+            else {
+                print("WARN: Execute sql files -> $userName\@$host:$port paused.\n\n");
+            }
             last;
         }
         else {

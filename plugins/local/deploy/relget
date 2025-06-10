@@ -95,8 +95,8 @@ sub main {
     my $hasError = 0;
 
     $hasError = $deployUtils->initDir($deployEnv);
-    if ( $hasError > 0 ) {
-        return $hasError;
+    if ( $hasError != 0 ) {
+        return 1;
     }
 
     $srcEnvPath =~ s/^\s*\/|\/\s*$//g;
@@ -219,7 +219,7 @@ sub main {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

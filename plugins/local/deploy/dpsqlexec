@@ -2,6 +2,7 @@
 use strict;
 use FindBin;
 use Cwd;
+use File::Path;
 use Digest::MD5;
 use Getopt::Long;
 use Expect;
@@ -30,6 +31,42 @@ sub usage {
     print("       --rollback:    execute sql files in sub directory:rollback\n");
 
     exit(1);
+}
+
+sub getGlobalExitCode {
+    my ( $sqlFileRunner, $sqlFiles ) = @_;
+
+    my $exitCode   = 0;
+
+    my $sqlFileCount = scalar(@$sqlFiles);
+    my $sqlStatus = $sqlFileRunner->loadLocalSqlFileStatuses($sqlFiles);
+    my $sqlStatusCount = scalar(@$sqlStatus);
+
+    my $isFail = 0;
+    my $notCompleteCount = 0;
+
+    foreach my $sqlInfo (@$sqlStatus) {
+        if ( $sqlInfo->{status} eq "failed"  or $sqlInfo->{status} eq "aborted" ) {
+            #存在失败
+            $isFail = 1;
+            last;
+        }
+        elsif ( $sqlInfo->{status} eq "running" or $sqlInfo->{status} eq "waitInput" or $sqlInfo->{status} eq "pending" ) {
+            $notCompleteCount = $notCompleteCount + 1;
+        }
+    }
+
+    if ($isFail != 0){
+        $exitCode = 1;
+    }
+    elsif( $notCompleteCount > 0){
+        $exitCode = 2;
+    }
+    elsif( $sqlFileCount != $sqlStatusCount ){
+        $exitCode = 2;
+    }
+
+    return $exitCode;
 }
 
 sub main {
@@ -125,6 +162,7 @@ sub main {
     my $distPath     = $dirInfo->{distribute};
     my $sqlFileDir   = "$distPath/db";
     my $logFileDir   = "$jobPath/log/$phaseName";
+    my $sqlFileRealLogDir = "$distPath/db.log";
     my $sqlStatusDir = "$distPath/db.status";
 
     if ( -d $sqlFileDir ) {
@@ -134,6 +172,13 @@ sub main {
         my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
         if ( not -e $jobSqlFileDir ) {
             symlink( $sqlFileDir, $jobSqlFileDir );
+        }
+
+        if ( not -e $sqlFileRealLogDir){
+            mkpath($sqlFileRealLogDir);
+        }
+        if ( not -e $logFileDir){
+            symlink( $sqlFileRealLogDir, $logFileDir);
         }
     }
 
@@ -153,7 +198,16 @@ sub main {
         dirInfo     => $dirInfo
     );
 
+    my $singleExec   = 0;
     my $sqlFilesJson = $deployEnv->{SQL_FILES};
+
+    my $allSqlFiles = [];
+    if ( defined($index) and $index ne '' ) {
+        $allSqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
+    }
+    else {
+        $allSqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
+    }
 
     my $sqlFiles = [];
     my $sqlInfosInArg;
@@ -165,15 +219,11 @@ sub main {
             $sqlFilesMap->{ $sqlInfo->{sqlFile} } = 1;
         }
         my @sqlFilesArray = keys(%$sqlFilesMap);
-        $sqlFiles = \@sqlFilesArray;
+        $singleExec = 1;
+        $sqlFiles   = \@sqlFilesArray;
     }
     else {
-        if ( defined($index) and $index ne '' ) {
-            $sqlFiles = $batchUtils->getSqlFilePathByIdx( $index, $filter, $isRollback );
-        }
-        else {
-            $sqlFiles = $batchUtils->getSqlFilePath( $filter, $isRollback );
-        }
+        $sqlFiles = $allSqlFiles;
     }
 
     my $sqlFileSets = $batchUtils->getRunRoundSets( $sqlFiles, $maxParallelCount );
@@ -191,8 +241,9 @@ sub main {
     }
 
     my $rc = 0;
+    my $sqlFileRunner;
     if ( scalar(@$sqlFileSets) > 0 ) {
-        my $sqlFileRunner = SQLFileRunner->new(
+        $sqlFileRunner = SQLFileRunner->new(
             jobId        => $jobId,
             jobPath      => $jobPath,
             phaseName    => $phaseName,
@@ -209,7 +260,8 @@ sub main {
             isDryRun     => $isDryRun,
             autocommit   => $isAutoCommit,
             istty        => 0,
-            isInteract   => 1
+            isInteract   => 1,
+            singleExec   => $singleExec
         );
 
         my $sqlInfoInServer;
@@ -233,10 +285,14 @@ sub main {
             }
         }
 
-        if ( not defined($sqlInfosInArg) ) {
-            $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
-        }
+        $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
+    }
+
+    if ( $rc == 2 and defined($sqlFilesJson) and $sqlFilesJson ne '' ) {
+        #单跑SQL， 根据全局SQL状态纠正退出码
+        $rc = getGlobalExitCode( $sqlFileRunner, $allSqlFiles );
     }
 
     return $rc;

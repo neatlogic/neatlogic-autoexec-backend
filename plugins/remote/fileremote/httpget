@@ -107,7 +107,7 @@ sub main {
             $saveTargetPath = File::Spec->canonpath($localFile);
         }
         else {
-            $errorCode = $errorCode + 1;
+            $errorCode = 2;
             my $content = $response->{content};
             print("ERROR: Download $addr to $localFile failed.\n$content.\n");
         }

@@ -23,7 +23,7 @@ sub backup {
     my ($filePath)  = @_;
     my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
     my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
-    return $exitCode;
+    return $exitCode >> 8;
 }
 
 sub parseInIContent {

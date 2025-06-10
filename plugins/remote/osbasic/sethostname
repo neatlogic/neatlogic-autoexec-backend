@@ -21,7 +21,7 @@ sub backup {
     my ($filePath)  = @_;
     my $dateTimeStr = strftime( "%Y%m%d-%H%M%S", localtime() );
     my $exitCode    = system(qq{cp "$filePath" "$filePath.$dateTimeStr"});
-    return $exitCode;
+    return $exitCode >> 8;
 }
 
 sub main {
@@ -108,7 +108,7 @@ sub main {
     }
 
     if ( $hasError != 0 ) {
-        return $hasError;
+        return 1;
     }
 
     if ( -f "/etc/hostname" ) {
@@ -196,7 +196,7 @@ sub main {
         }
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

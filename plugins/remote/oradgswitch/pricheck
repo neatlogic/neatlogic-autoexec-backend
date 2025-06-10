@@ -229,7 +229,7 @@ sub primaryCheck {
         );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub main {

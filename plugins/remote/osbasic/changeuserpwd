@@ -53,7 +53,7 @@ sub main {
     else {
         print {$pipe} ("$user:$password\n");
         close($pipe);
-        $exitCode = $?;
+        $exitCode = $? >> 8;
     }
 
     return $exitCode;

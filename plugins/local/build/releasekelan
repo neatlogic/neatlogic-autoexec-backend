@@ -170,6 +170,8 @@ sub main {
 
             print("INFO: $cmd\n");
             my $ret = system($cmd);
+            $ret = $ret >> 8;
+            
             $hasError = $hasError + $ret;
         }
     }
@@ -182,7 +184,7 @@ sub main {
     }
     $serverAdapter->updateVer( $buildEnv, $versionInfo );
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

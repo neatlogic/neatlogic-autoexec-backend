@@ -90,7 +90,7 @@ sub main {
             $uploadResponse = $content;
         };
         if ($@) {
-            $errorCode = $errorCode + 1;
+            $errorCode = 2;
             my $errMsg = $@;
             $errMsg =~ s/ at\s*.*$//;
             print("ERROR: $errMsg\n");

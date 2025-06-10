@@ -89,7 +89,7 @@ sub main {
     my $ret    = $verGet->resetWorkingCopy();
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

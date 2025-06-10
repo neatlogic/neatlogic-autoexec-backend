@@ -120,8 +120,8 @@ sub main {
         }
     }
 
-    if ( $hasError > 0 ) {
-        return $hasError;
+    if ( $hasError != 0 ) {
+        return 1;
     }
 
     my $stdinPwdNotSupported = 0;
@@ -149,8 +149,8 @@ sub main {
         print("ERROR: Docker login failed!\n");
     }
 
-    if ( $hasError > 0 ) {
-        return $hasError;
+    if ( $hasError != 0 ) {
+        return 1;
     }
 
     my $deployEnv = $deployUtils->deployInit( $envPath, $version );
@@ -196,7 +196,7 @@ sub main {
     $out->{image_name} = $image_name;
     AutoExecUtils::saveOutput($out);
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

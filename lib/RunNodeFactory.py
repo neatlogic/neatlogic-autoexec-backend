@@ -21,6 +21,11 @@ class RunNodeFactory:
         self.nodesFile = None
         self.cleared = False
         self.lastRound = True
+        self.roundDef = []
+        self._runnerNodeCount = {}
+        self.customeSeq = False
+        self._roundDefIdx = 0
+        self._currentSeq = 0
 
         nodesFilePath = context.getNodesFilePath(phaseName=phaseName, groupNo=groupNo)
         if not os.path.isfile(nodesFilePath):
@@ -36,6 +41,9 @@ class RunNodeFactory:
                 if descContent is None or descContent == "":
                     descContent = '{"maxParallel": 1, "roundDef": []}'
                 self.seqDesc = json.loads(descContent)
+                self.roundDef = self.seqDesc.get("roundDef", [])
+                self._currentSeq = self.roundDef[0][0]
+                self._runnerNodeCount = self.seqDesc.get("runnerNodeCount", {})
                 seqDescFile.close()
         else:
             self.seqDesc = None
@@ -69,6 +77,9 @@ class RunNodeFactory:
     def setLastRound(self):
         self.lastRound = True
 
+    def getRunnerNodeCount(self, runnerId):
+        return self._runnerNodeCount.get(str(runnerId), 0)
+
     def localRunNode(self):
         localRunNode = None
         localNode = self.localNode()
@@ -80,13 +91,30 @@ class RunNodeFactory:
 
     def nextRunNode(self):
         runNode = None
-        nodeObj = self.nextNode(self.context.runnerId)
-        if nodeObj is not None:
-            runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount)
-            if self.nodeSeq == self.totalNodesCount:
-                runNode.isLastNode = True
+        if not self.customeSeq:
+            nodeObj = self.nextNode(self.context.runnerId)
+            if nodeObj is not None:
+                runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount)
+                if self.nodeSeq == self.totalNodesCount:
+                    runNode.isLastNode = True
+            else:
+                self.cleared = True
         else:
-            self.cleared = True
+            nodeObj = self.nextNode(self.context.runnerId, self._currentSeq)
+            if nodeObj is not None:
+                runNode = RunNode.RunNode(self.context, self.groupNo, self.phaseIndex, self.phaseName, self.phaseType, nodeObj, self.totalNodesCount, seqNo=self._currentSeq)
+                if self.nodeSeq == self.totalNodesCount:
+                    self.lastRound = True
+                    runNode.isLastNode = True
+            else:
+                self._roundDefIdx = self._roundDefIdx + 1
+                if self._roundDefIdx < len(self.roundDef):
+                    self._currentSeq = self.roundDef[self._roundDefIdx][0]
+                    self.goFirstLine()
+                    runNode = self.nextRunNode()
+            if runNode is None:
+                self.cleared = True
+
         return runNode
 
     def localNode(self):
@@ -104,24 +132,23 @@ class RunNodeFactory:
     def getSeqRoundCount(self):
         if self.seqDesc is None:
             return None
-        roundsDef = self.seqDesc.get("roundDef", [])
-        return len(roundsDef)
+        return len(self.roundDef)
 
     def getRoundSeqNo(self, roundNo):
         if self.seqDesc is None:
             return 1
-        roundsDef = self.seqDesc.get("roundDef", [])
-        if roundNo <= len(roundsDef):
-            return roundsDef[roundNo - 1][0]
+        roundDef = self.roundDef
+        if roundNo <= len(roundDef):
+            return roundDef[roundNo - 1][0]
         else:
             return 0
 
     def getRoundSeqCount(self, roundNo):
         if self.seqDesc is None:
             return 1
-        roundsDef = self.seqDesc.get("roundDef", [])
-        if roundNo <= len(roundsDef):
-            return roundsDef[roundNo - 1][1]
+        roundDef = self.roundDef
+        if roundNo <= len(roundDef):
+            return roundDef[roundNo - 1][1]
         else:
             return 1
 
@@ -140,9 +167,9 @@ class RunNodeFactory:
                 break
             if line.strip() != "":
                 nodeObj = json.loads(line)
-                self.nodeSeq = self.nodeSeq + 1
                 if self.context.nodesToRun is not None:
                     if nodeObj.get("resourceId") in self.context.nodesToRun:
+                        self.nodeSeq = self.nodeSeq + 1
                         break
                     else:
                         continue
@@ -151,6 +178,7 @@ class RunNodeFactory:
                     continue
 
                 if runnerId is None or nodeObj.get("runnerId", None) == runnerId:
+                    self.nodeSeq = self.nodeSeq + 1
                     break
 
         if line:

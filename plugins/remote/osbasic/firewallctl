@@ -46,6 +46,7 @@ sub main {
         usage();
     }
 
+    my $hasError = 0;
     my $exitCode = 0;
     my @uname    = POSIX::uname();
     my $ostype   = $uname[0];
@@ -68,6 +69,8 @@ sub main {
                     $runCmd = "netsh firewall delete portopening protocol=$protocol port=$port";
                 }
                 $exitCode = system($runCmd);
+                $exitCode = $exitCode >> 8;
+                $hasError = $hasError + $exitCode;
                 if ( $exitCode == 0 ) {
                     print("INFO:: Firewall $operat input $protocol port $port success.\n");
                 }
@@ -84,6 +87,8 @@ sub main {
                     $runCmd = "netsh firewall delete portopening protocol=$protocol port=$port";
                 }
                 $exitCode = system($runCmd);
+                $exitCode = $exitCode >> 8;
+                $hasError = $hasError + $exitCode;
                 if ( $exitCode == 0 ) {
                     print("INFO:: Firewall $operat input $protocol port $port success.\n");
                 }
@@ -105,6 +110,8 @@ sub main {
                     $runCmd = "netsh advfirewall firewall delete rule name=\"NetBIOS Port $port\"";
                 }
                 $exitCode = system($runCmd);
+                $exitCode = $exitCode >> 8;
+                $hasError = $hasError + $exitCode;
                 if ( $exitCode == 0 ) {
                     print("INFO:: Firewall $operat input $protocol port $port success.\n");
                 }
@@ -121,6 +128,8 @@ sub main {
                     $runCmd = "netsh advfirewall firewall delete rule name=\"NetBIOS Port $port\"";
                 }
                 $exitCode = system($runCmd);
+                $exitCode = $exitCode >> 8;
+                $hasError = $hasError + $exitCode;
                 if ( $exitCode == 0 ) {
                     print("INFO:: Firewall $operat output $protocol port $port success.\n");
                 }
@@ -160,6 +169,8 @@ sub main {
             my @inputPorts = split( /,/, $input );
             foreach my $port (@inputPorts) {
                 $exitCode = system("firewall-cmd --permanent --$inputOpt=$port/$protocol");
+                $exitCode = $exitCode >> 8;
+                $hasError = $hasError + $exitCode;
                 if ( $exitCode == 0 ) {
                     print("INFO:: Firewall $inputOpt input $protocol port $port success.\n");
                 }
@@ -169,6 +180,8 @@ sub main {
             }
 
             $exitCode = system("firewall-cmd --permanent --direct --$outputOpt ipv4 filter OUTPUT 0 -p $protocol -m multiport --dport $output -j ACCEPT");
+            $exitCode = $exitCode >> 8;
+            $hasError = $hasError + $exitCode;
             if ( $exitCode == 0 ) {
                 print("INFO:: Firewall $outputOpt output $protocol port $output success.\n");
             }
@@ -176,7 +189,9 @@ sub main {
                 print("WARN:: Firewall $outputOpt output $protocol port $output failed. $@\n");
             }
 
-            system("firewall-cmd --reload");
+            $exitCode = system("firewall-cmd --reload");
+            $exitCode = $exitCode >> 8;
+            $hasError = $hasError + $exitCode;
         }
         else {    #<=redhat6
             ###==========demo===============#########
@@ -200,6 +215,8 @@ sub main {
             }
 
             $exitCode = system("iptables -$inputOpt INPUT -p $protocol -m multiport --dports $input -j ACCEPT");
+            $exitCode = $exitCode >> 8;
+            $hasError = $hasError + $exitCode;
             if ( $exitCode == 0 ) {
                 print("INFO:: Iptables $operat input $protocol port $input success.\n");
             }
@@ -208,6 +225,8 @@ sub main {
             }
 
             $exitCode = system("iptables -$outputOpt OUTPUT -p $protocol -m multiport --dports $output -j ACCEPT");
+            $exitCode = $exitCode >> 8;
+            $hasError = $hasError + $exitCode;
             if ( $exitCode == 0 ) {
                 print("INFO:: Iptables $operat output $protocol port $output success.\n");
             }
@@ -215,10 +234,13 @@ sub main {
                 print("WARN:: Iptables $operat output $protocol port $output failed. $@\n");
             }
 
-            system("service iptables save");
+            $exitCode = system("service iptables save");
+            $exitCode = $exitCode >> 8;
+            $hasError = $hasError + $exitCode;
         }
     }
-    return 0;
+
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit( main() );

@@ -5,7 +5,7 @@ package BuildMAVEN;
 use FindBin;
 use XML::MyXML qw(xml_to_object);
 use DeployUtils;
-
+use File::Spec;
 
 sub new {
     my ( $pkg, %args ) = @_;
@@ -15,106 +15,79 @@ sub new {
     return $self;
 }
 
-sub syncMvnInstall {
-    my ($prjPath,$m2LocalRepo) = @_;
+sub syncMvnDependency {
+    my ( $prjPath, $m2LocalRepo, $settingXml, $profiles, $isVerbose ) = @_;
 
     my $deployUtils = DeployUtils->new();
     my $buildEnv    = $deployUtils->deployInit();
     my $runnerGroup = $buildEnv->{RUNNER_GROUP};
-    my @runnerIds = keys(%$runnerGroup);
-    if (scalar(@runnerIds) <= 1){
+    my @runnerIds   = keys(%$runnerGroup);
+    if ( scalar(@runnerIds) <= 1 ) {
         return 0;
     }
 
     my $hasError = 0;
-    print("INFO: Begin sync mvn artifact to runner group.\n");
+    print("INFO: Begin sync mvn dependency to runner group.\n");
     my $pomFilePath = "$prjPath/pom.xml";
-    if( not -f $pomFilePath){
+    if ( not -f $pomFilePath ) {
         $hasError = 1;
         print("ERROR: Pom file: $pomFilePath not exists.\n");
     }
 
-     my $xmlObj;
-    eval{
-        $xmlObj = xml_to_object( $pomFilePath, { file => 1 } );
-    };
-    if($@){
-        $hasError = 1;
-        my $errMsg = $@;
-        $errMsg =~ s/\sat\s.*$//;
-        print("ERROR: Invalid format xml file:$pomFilePath.\n$errMsg\n");
+    my $cmd = "mvn dependency:tree -s $settingXml";
+    if ( defined($profiles) and $profiles ne '' ) {
+        $cmd = "$cmd -P$profiles";
     }
+    print("INFO: Execute->$cmd\n");
+    my $result     = DeployUtils->getPipeOut( $cmd, $isVerbose );
+    my $buildUtils = BuildUtils->new();
+    foreach my $line (@$result) {
+        chomp($line);
+        if ( $line !~ /^\[INFO\]\s+(.*)$/ ) {
+            next;
+        }
+        my $depLine = $1;
 
-    my ($groupId, $artifactId, $jarVersion);
-    my $groupIdItem = $xmlObj->path('groupId');
-    if ( defined($groupIdItem) ) {
-        $groupId = $groupIdItem->value();
-    }
-    else{
-        #如果groupId在Parent里
-        my $parentItem = $xmlObj->path('parent');
-        if(defined($parentItem)){
-            $groupIdItem = $parentItem->path('groupId');
-            if(defined($groupIdItem)){
-                $groupId = $groupIdItem->value();
+        # 过滤掉非依赖行
+        if ( $depLine !~ /:/ ) {
+            next;
+        }
+        $depLine =~ s/^[|\\+\-\s]+//;
+
+        # 拆分 groupId:artifactId:type:version[:scope]
+        my ( $groupId, $artifactId, $type, $version, $scope ) = split( /:/, $depLine );
+
+        #只处理jar和pom
+        if ( not defined($type) or $type eq '' or ( $type ne 'jar' and $type ne 'pom' ) ) {
+            next;
+        }
+
+        # 构建文件路径
+        my $depPath = File::Spec->catfile( $m2LocalRepo, split( /\./, $groupId ), $artifactId, $version );
+
+        if ( -e $depPath ) {
+            eval { $hasError = $buildUtils->syncDirToGroup( $buildEnv, $depPath ); };
+            if ($@) {
+                print("ERROR: $@\n");
             }
         }
     }
-    my $artifactIdItem = $xmlObj->path('artifactId');
-    if ( defined($artifactIdItem)) {
-        $artifactId = $artifactIdItem->value();
-    }
-    my $versionItem = $xmlObj->path('version');
-    if ( defined($versionItem)) {
-        $jarVersion = $versionItem->value();
-    }
 
-    my $homePath = $ENV{HOME};
-    my $repoPath = $groupId;
-    $repoPath =~ s/\./\//g;
-    $repoPath = "$m2LocalRepo/$repoPath/$artifactId/$jarVersion";
-
-    if (not defined($groupId) or $groupId eq ''){
-        $hasError = 1;
-        print("ERROR: Can not find groupId in pom file:$pomFilePath\n");
-    }
-    if (not defined($artifactId) or $artifactId eq ''){
-        $hasError = 1;
-        print("ERROR: Can not find artifactId in pom file:$pomFilePath\n");
-    }
-    if (not defined($jarVersion) or $jarVersion eq ''){
-        $hasError = 1;
-        print("ERROR: Can not find version in pom file:$pomFilePath\n");
-    }
-    
-    if ( not -d $repoPath){
-        $hasError = 1;
-        print("ERROR: Maven artifact dir:$repoPath not exists.\n");
-    }
-    else{
-        my $buildUtils = BuildUtils->new();
-        eval { $hasError = $buildUtils->syncDirToGroup( $buildEnv, $repoPath ); };
-        if ($@) {
-            print("ERROR: $@\n");
-        }
-        if($hasError == 0) {
-            print("FINE: Sync mvn repo $repoPath to group members success.\n");
-        }
-    }
-
+    print("FINE: Sync mvn dependency to runner group members success.\n");
     return $hasError;
 }
 
 sub build {
     my ( $self, %opt ) = @_;
 
-    my $prjPath     = $opt{prjPath};
-    my $toolsPath   = $opt{toolsPath};
-    my $version     = $opt{version};
-    my $jdk         = $opt{jdk};
-    my $args        = $opt{args};
-    my $isVerbose   = $opt{isVerbose};
-    my $makeToolVer = $opt{makeToolVer};
+    my $prjPath          = $opt{prjPath};
+    my $toolsPath        = $opt{toolsPath};
+    my $version          = $opt{version};
+    my $jdk              = $opt{jdk};
+    my $args             = $opt{args};
+    my $isVerbose        = $opt{isVerbose};
+    my $makeToolVer      = $opt{makeToolVer};
+    my $isSyncDependency = $opt{isSyncDependency};
 
     chdir($prjPath);
 
@@ -156,7 +129,6 @@ sub build {
     my $ret = 0;
     my $cmd;
     my $hasInstall = 1;
-    my $m2LocalRepo = $ENV{HOME} . '/.m2/repository';
 
     if ( not defined($args) or $args eq '' ) {
         $cmd = "mvn $silentOpt -U clean install";
@@ -175,24 +147,43 @@ sub build {
             print("INFO: Execute->$cmd\n");
             $ret = DeployUtils->execmd($cmd);
         }
-        if($args =~/\Winstall\W/ ){
+
+        if ( $cmd =~ /\Winstall\W/ ) {
             $hasInstall = 1;
         }
-        else{
+        else {
             $hasInstall = 0;
-        }
-        
-        if($args =~ /\-Dmaven\.repo\.local=(\S+)/ or $args =~ /\-Dmaven\.repo\.local='(.+)'/ or $args =~ /\-Dmaven\.repo\.local="(.+)"/){
-            $m2LocalRepo = $1;
         }
     }
 
-    # if ($ret eq 0 and $hasInstall == 1){
-    #     $ret = syncMvnInstall($prjPath, $m2LocalRepo);
-    # }
+    if ( $ret eq 0 and $hasInstall == 1 and $isSyncDependency == 1 ) {
+        my $m2LocalRepo = $ENV{HOME} . '/.m2/repository';
+        my $settingXml  = $ENV{HOME} . '/.m2/settings.xml';
+        my $profiles    = '';
+        if ( $args =~ /\-Dmaven\.repo\.local=(\S+)/ or $args =~ /\-Dmaven\.repo\.local='(.+)'/ or $args =~ /\-Dmaven\.repo\.local="(.+)"/ ) {
+            $m2LocalRepo = $1;
+        }
+
+        if ( $args =~ /-s\s+(\S+)/ ) {
+            $settingXml = $1;
+            if ( defined($settingXml) and $settingXml ne '' ) {
+                my $xmlObj              = xml_to_object( $1, { file => 1 } );
+                my $localRepositoryItem = $xmlObj->path('localRepository');
+                if ( defined($localRepositoryItem) ) {
+                    $$m2LocalRepo = $localRepositoryItem->value();
+                }
+            }
+        }
+
+        if ( $cmd =~ /(?:^|\s)-P\s*([^\s]+)/ ) {
+            $profiles = $1;
+        }
+
+        $ret = syncMvnDependency( $prjPath, $m2LocalRepo, $settingXml, $profiles, $isVerbose );
+    }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

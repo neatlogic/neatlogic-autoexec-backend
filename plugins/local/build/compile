@@ -136,7 +136,7 @@ sub main {
         $serverAdapter->updateVer( $buildEnv, $versionInfo );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

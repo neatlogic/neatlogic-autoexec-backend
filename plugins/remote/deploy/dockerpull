@@ -63,7 +63,7 @@ sub main {
     else {
         $hasError = $hasError + 1;
         print("ERROR: Docker login failed!\n");
-        return $hasError;
+        return 1;
     }
 
     my $registry4Tag = $registry;
@@ -90,7 +90,7 @@ sub main {
     else {
         $hasError = $hasError + 1;
         print("ERROR: Pull image $image_name failed.\n");
-        return $hasError;
+        return 1;
     }
 
     #my $cmd = "docker --tlsverify --tlscacert=/app/ezdeploy/certs/ca.pem --tlscert=/app/ezdeploy/certs/cert.pem --tlskey=/app/ezdeploy/certs/key.pem -H$host:$h_port tag $registry/library/$image:$env-$version $image:$env-$version";
@@ -106,7 +106,7 @@ sub main {
         print("ERROR: Tag image $image_name to $image:$tagname failed.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

@@ -51,6 +51,7 @@ sub main {
     }
     $cmd = "$cmd $mountPoint";
     my $exitCode = system($cmd);
+    $exitCode = $exitCode >> 8;
 
     if ( $exitCode == 0 ) {
         print("FINE: Umount $mountPoint success.\n");

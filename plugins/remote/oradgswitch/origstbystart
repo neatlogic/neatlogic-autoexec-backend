@@ -100,7 +100,7 @@ sub start {
         print("INFO: Primary db is not in role 'PRIMARY'.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 sub main {
@@ -116,7 +116,7 @@ sub main {
     );
 
     my $hasError = start($opts);
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit( main() );

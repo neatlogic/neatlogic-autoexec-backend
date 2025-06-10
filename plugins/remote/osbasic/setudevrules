@@ -55,18 +55,24 @@ sub main {
     if ( -e '/sbin/udevadm' ) {
         my $exitCode;
         $exitCode = system('/sbin/udevadm trigger --type=devices --action=change');
+        $exitCode = $exitCode >> 8;
+
         $hasError = $exitCode;
         $exitCode = system('/sbin/udevadm control --reload');
+        $exitCode = $exitCode >> 8;
+
         if ( $exitCode != 0 ){
             $hasError = $exitCode;
         }
     }
     elsif ( -e '/sbin/start_udev' ) {
         my $exitCode = system('/sbin/start_udev');
+        $exitCode = $exitCode >> 8;
+        
         $hasError = $exitCode;
     }
     
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

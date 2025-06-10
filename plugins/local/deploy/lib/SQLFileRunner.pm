@@ -31,6 +31,7 @@ sub new {
         toolsDir     => $args{toolsDir},
         tmpDir       => $args{tmpDir},
         jobPath      => $args{jobPath},
+        pauseFlag    => $args{jobPath} . '/pause',
         phaseName    => $args{phaseName},
         dbSchemasMap => $args{dbSchemasMap},
         dbInfo       => $args{dbInfo},
@@ -45,7 +46,8 @@ sub new {
         isForce    => $args{isForce},
         isDryRun   => $args{isDryRun},
         istty      => $args{istty},
-        isInteract => $args{isInteract}
+        isInteract => $args{isInteract},
+        singleExec => $args{singleExec}
     };
 
     #$dbInfo包含节点信息以外，还包含以下DB的扩展属性
@@ -71,7 +73,8 @@ sub new {
     if ( not defined($jobPath) or $jobPath eq '' ) {
         $jobPath = getcwd();
     }
-    $self->{jobPath} = $jobPath;
+    $self->{jobPath}   = $jobPath;
+    $self->{pauseFlag} = $jobPath . '/pause';
 
     my $phaseName = $args{phaseName};
     if ( not defined($phaseName) or $phaseName eq '' ) {
@@ -150,6 +153,17 @@ sub _getHandlerName {
     return $handlerName;
 }
 
+sub isPausing {
+    my ($self) = @_;
+    
+    if ( -e $self->{pauseFlag} ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 sub execOneSqlFile {
     my ( $self, $sqlFile, $sqlFileStatus ) = @_;
 
@@ -226,7 +240,7 @@ sub execOneSqlFile {
     }
 
     if ( $hasError == 1 ) {
-        return $hasError;
+        return 1;
     }
 
     pipe( my $fromParent, my $toChild );
@@ -279,16 +293,11 @@ sub execOneSqlFile {
 
         close($fromChild);
         waitpid( $pid, 0 );
-        my $rc = $?;
+        my $rc = $? >> 8;
 
         my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
 
-        if ( $rc > 255 ) {
-            $hasError = 1;
-            $rc       = $rc >> 8;
-        }
-
-        if ( $rc > 0 ) {
+        if ( $rc != 0 ) {
             $hasError = 1;
             if ( defined($sqlStatus) and $sqlStatus ne 'failed' ) {
                 $sqlStatus = 'aborted';
@@ -546,17 +555,17 @@ sub needExecute {
     my $sqlFilePath = "$self->{sqlFileDir}/$sqlFile";
 
     my $statusInfo = $sqlFileStatus->{status};
-    my $preStatus = $statusInfo->{status};
+    my $preStatus  = $statusInfo->{status};
     my $isModified = $statusInfo->{isModified};
     my $md5Sum     = $statusInfo->{md5};
 
-    if (not defined($preStatus) or $preStatus eq ''){
+    if ( not defined($preStatus) or $preStatus eq '' ) {
         $preStatus = 'pending';
     }
-    if (not defined($isModified) or $isModified eq ''){
+    if ( not defined($isModified) or $isModified eq '' ) {
         $isModified = 0;
     }
-    
+
     #my $md5Sum    = $self->_getFileMd5Sum($sqlFilePath);
     #my $preMd5Sum = $statusInfo->{md5};
     # my $serverAdapter = $self->{serverAdapter};
@@ -581,11 +590,11 @@ sub needExecute {
         elsif ( $preStatus eq 'running' ) {
             print("INFO: Sql file:$sqlFile md5:$md5Sum is running, ignore.\n");
         }
-        elsif ( $preStatus eq 'pending') {
+        elsif ( $preStatus eq 'pending' ) {
             $ret = 1;
             print("INFO: Sql file:$sqlFile md5:$md5Sum is pending, try to execute.\n");
         }
-        else{
+        else {
             $ret = 1;
             print("INFO: Sql file:$sqlFile md5:$md5Sum has been executed $preStatus, try to execute again.\n");
         }
@@ -596,7 +605,7 @@ sub needExecute {
     }
 
     if ( $ret == 1 ) {
-        $sqlFileStatus->updateStatus( status => 'running', md5=>$md5Sum, interact => undef, startTime => time(), endTime => undef, isModified => 0 );
+        $sqlFileStatus->updateStatus( status => 'running', md5 => $md5Sum, interact => undef, startTime => time(), endTime => undef, isModified => 0 );
     }
 
     return $ret;
@@ -637,6 +646,11 @@ sub execSqlFiles {
     my $hasError = 0;
 
     foreach my $sqlFile (@$sqlFiles) {
+        if ( $self->isPausing() ) {
+            $hasError = 2;
+            last;
+        }
+
         my $sqlFileStatus = SQLFileStatus->new(
             $sqlFile,
             saveToServer => 1,
@@ -654,7 +668,7 @@ sub execSqlFiles {
             my $rc        = $self->execOneSqlFile( $sqlFile, $sqlFileStatus );
             my $sqlStatus = $sqlFileStatus->loadAndGetStatusValue('status');
             if ( $rc != 0 ) {
-                $hasError = $hasError + $rc;
+                $hasError = 1;
                 print("ERROR: Execute $sqlFile return status:$sqlStatus.\n\n");
             }
             else {
@@ -665,6 +679,10 @@ sub execSqlFiles {
         if ( $hasError != 0 ) {
             last;
         }
+    }
+
+    if ($hasError == 0 and $self->{singleExec} == 1){
+        $hasError = 2;
     }
 
     return $hasError;
@@ -683,6 +701,11 @@ sub execSqlFileSets {
         };
 
         foreach my $sqlFile (@$sqlFiles) {
+            if ( $self->isPausing() ) {
+                $hasError = 2;
+                last;
+            }
+
             my $dbInfo        = $self->_getSqlDbInfo($sqlFile);
             my $sqlFileStatus = SQLFileStatus->new(
                 $sqlFile,
@@ -722,20 +745,17 @@ sub execSqlFileSets {
                 }
                 else {
                     print("ERROR: Can not fork process to execute sql file:$sqlFile\n");
-                    $hasError = $hasError + 1;
+                    $hasError = 1;
                 }
             }
         }
 
         my $pid = 0;
         while ( ( $pid = waitpid( -1, 0 ) ) > 0 ) {
-            my $rc = $?;
-            if ( $rc > 255 ) {
-                $rc = $rc >> 8;
-            }
+            my $rc = $? >> 8;
 
             if ( $rc ne 0 ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
 
             my $sqlInfoArray  = $runnerPidsMap->{$pid};
@@ -757,6 +777,10 @@ sub execSqlFileSets {
         }
     }
 
+    if ($hasError == 0 and $self->{singleExec} == 1){
+        $hasError = 2;
+    }
+    
     return $hasError;
 }
 
@@ -770,38 +794,38 @@ sub checkOneSqlFile {
     $self->_checkAndDelBom($sqlFilePath);
 
     my $sqlStatus;
-    my $preMd5Sum = $sqlFileStatus->getStatusValue('md5');
+    my $preMd5Sum     = $sqlFileStatus->getStatusValue('md5');
     my $preIsModified = $sqlFileStatus->getStatusValue('isModified');
-    if (not defined($preIsModified)){
+    if ( not defined($preIsModified) ) {
         $preIsModified = 0;
     }
 
     my $isModified = $preIsModified;
     my $md5Sum     = $preMd5Sum;
     if ( $preIsModified == 0 ) {
-        $md5Sum     = $self->_getFileMd5Sum($sqlFilePath);
+        $md5Sum = $self->_getFileMd5Sum($sqlFilePath);
         if ( $md5Sum ne $preMd5Sum ) {
             $sqlStatus = 'pending';
-            if ($preMd5Sum ne '') {
+            if ( $preMd5Sum ne '' ) {
                 $isModified = 1;
                 print("INFO: Sql file:$sqlFile md5:$md5Sum is modified.\n");
             }
-            else{
+            else {
                 $isModified = 0;
                 print("INFO: Sql file:$sqlFile md5:$md5Sum is new.\n");
             }
             $sqlFileStatus->_setStatus( status => $sqlStatus, isModified => $isModified );
         }
-        else{
+        else {
             print("INFO: Sql file:$sqlFile md5:$md5Sum is not modified.\n");
         }
     }
-    else{
+    else {
         #$sqlStatus = 'pending';
         #$sqlFileStatus->_setStatus( status => $sqlStatus, isModified => 1 );
         print("INFO: Sql file:$sqlFile md5:$md5Sum has been modified.\n");
     }
-    
+
     my $sqlInfo = {
         jobId       => $self->{jobId},
         resourceId  => $nodeInfo->{resourceId},
@@ -815,7 +839,7 @@ sub checkOneSqlFile {
         isModified  => $isModified,
         md5         => $md5Sum
     };
-    if(defined($sqlStatus)){
+    if ( defined($sqlStatus) ) {
         $sqlInfo->{status} = $sqlStatus;
     }
 
@@ -850,7 +874,7 @@ sub checkSqlFiles {
             my $dbInfo = $dbSchemasMap->{$dbSchema};
 
             if ( not defined($dbInfo) ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
                 if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
                     $schemasNotDefined->{$dbSchema} = 1;
                     print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
@@ -888,7 +912,7 @@ sub checkSqlFiles {
             print("INFO: Sql file:$sqlFile checked in.\n");
         }
         else {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             print("ERROR: Sql file '$sqlFileDir/$sqlFile' not exists.\n");
         }
     }
@@ -896,16 +920,36 @@ sub checkSqlFiles {
     return $hasError;
 }
 
+sub loadLocalSqlFileStatuses {
+    my ($self, $sqlFiles) = @_;
+
+    my $sqlStatusDir = $self->{sqlStatusDir};
+    my @statusArrray = ();
+    foreach my $sqlFile (@$sqlFiles){
+        my $statusDir = "$sqlStatusDir/$sqlFile.txt";
+        if (-f $statusDir){
+            my $jsonStr = DeployUtils->getFileContent( $statusDir );
+            my $status = {};
+            if ( defined($jsonStr) and $jsonStr ne '' ) {
+                $status = from_json($jsonStr);
+                push(@statusArrray, $status);
+            }
+        }
+    }
+
+    return \@statusArrray;
+}
+
 sub restoreSqlStatuses {
     my ( $self, $sqlInfoList ) = @_;
 
     my $sqlFileDir = $self->{sqlFileDir};
     foreach my $sqlInfo (@$sqlInfoList) {
-        my $sqlFile       = $sqlInfo->{sqlFile};
-        my $status        = $sqlInfo->{status};
-        my $md5           = $sqlInfo->{md5};
-        my $isModified    = $sqlInfo->{isModified};
-        if (not defined($isModified)){
+        my $sqlFile    = $sqlInfo->{sqlFile};
+        my $status     = $sqlInfo->{status};
+        my $md5        = $sqlInfo->{md5};
+        my $isModified = $sqlInfo->{isModified};
+        if ( not defined($isModified) ) {
             $isModified = 0;
         }
         my $sqlFileStatus = SQLFileStatus->new(
@@ -931,7 +975,7 @@ sub checkDBSchemas {
     foreach my $dbSchema ( keys(%$usedSchemas) ) {
         my $dbInfo = $dbSchemasMap->{$dbSchema};
         if ( not defined($dbInfo) ) {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             if ( not defined( $schemasNotDefined->{$dbSchema} ) ) {
                 $schemasNotDefined->{$dbSchema} = 1;
                 print("ERROR: DB schema $dbSchema not defined in deploy config.\n");
@@ -958,11 +1002,11 @@ sub checkDBSchemas {
             );
             my $hasLogon = $handler->test();
             if ( $hasLogon != 1 ) {
-                $hasError = $hasError + 1;
+                $hasError = 1;
             }
         };
         if ($@) {
-            $hasError = $hasError + 1;
+            $hasError = 1;
             print("ERROR: $@");
         }
     }

@@ -98,7 +98,7 @@ sub main {
         print("ERROR: Only support action patch.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

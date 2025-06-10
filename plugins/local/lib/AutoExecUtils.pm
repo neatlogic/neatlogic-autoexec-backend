@@ -29,6 +29,17 @@ sub setEnv {
     hidePwdInCmdLine();
 }
 
+sub sigHandler {
+    my $subref = pop(@_);
+    foreach my $sig (@_) {
+        my $original = $SIG{$sig} || sub { };
+        $SIG{$sig} = sub {
+            $subref->();
+            $original->();
+        };
+    }
+}
+
 sub hidePwdInCmdLine {
     my @args = ($0);
     my $arg;
@@ -192,12 +203,13 @@ sub getOpPreOutput {
 sub doInteract {
     my (%args) = @_;
 
-    my $pipeFile = $args{pipeFile};    # 管道文件的全路径
-    my $message  = $args{message};     # 交互操作文案
-    my $opType   = $args{opType};      # 类型：button|input|select|mselect
-    my $title    = $args{title};       # 交互操作标题
-    my $opts     = $args{options};     # 操作列表json数组，譬如：["commit","rollback"]
-    my $role     = $args{role};        # 可以操作此操作的角色，如果空代表不控制
+    my $pipeFile      = $args{pipeFile};         # 管道文件的全路径
+    my $message       = $args{message};          # 交互操作文案
+    my $opType        = $args{opType};           # 类型：button|input|select|mselect
+    my $title         = $args{title};            # 交互操作标题
+    my $opts          = $args{options};          # 操作列表json数组，譬如：["commit","rollback"]
+    my $role          = $args{role};             # 可以操作此操作的角色，如果空代表不控制
+    my $defaultOption = $args{defaultOption};    #默认的选项
 
     $args{pipeFile} = $pipeFile;
 
@@ -237,6 +249,14 @@ sub doInteract {
     $pipe = IO::File->new("+<$pipeFile");
 
     if ( defined($pipe) ) {
+
+        sigHandler(
+            'TERM', 'INT', 'ABRT',
+            sub {
+                print $pipe ("force-exit\n");
+            }
+        );
+
         my $hasGetInput = 0;
         while ( $hasGetInput == 0 ) {
             print("[Wait Interact]$message\n");
@@ -252,7 +272,7 @@ sub doInteract {
                     $pipe->close();
                 }
                 unlink($pipeFile);
-                die("ERROR: Read from input aborted.");
+                last;
             }
 
             foreach my $inputHandle (@inputHandles) {
@@ -307,6 +327,7 @@ sub doInteract {
 
     if ( $enter eq 'force-exit' ) {
         undef($enter);
+        exit(2);
     }
 
     return ( $userId, $enter );

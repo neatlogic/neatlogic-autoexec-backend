@@ -95,7 +95,7 @@ sub main {
     if ( $ret != 0 ) {
         $hasError = $hasError + $ret;
         print("ERROR: Can not connect to tagent.\n");
-        return $hasError;
+        return 1;
     }
 
     my $agentOsType = $tagent->{agentOsType};
@@ -132,7 +132,7 @@ sub main {
         print("ERROR: Tagent remote exec has error.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

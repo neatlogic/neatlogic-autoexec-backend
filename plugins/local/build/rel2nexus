@@ -190,17 +190,18 @@ sub main {
         else {
             $hasError = $hasError + 1;
             print("ERROR: Can not write to file $tmpPomPath, $!\n");
-            return $hasError;
+            return 1;
         }
     }
     else {
         my $pomInZip = "META-INF/maven/$group/$artifact/pom.xml";
 
         my $unzipRet = system("unzip -jod '$tmpDir' '$pkgRealPath' '$pomInZip'");
+        
         if ( $unzipRet != 0 ) {
             $hasError = $hasError + 1;
             print("ERROR: Unzip $pomInZip from $pkgRealPath failed.\n");
-            return $hasError;
+            return 1;
         }
 
         my $content = $deployUtils->getFileContent($tmpPomPath);
@@ -214,7 +215,7 @@ sub main {
         else {
             $hasError = $hasError + 1;
             print("ERROR: Can not write to file $tmpPomPath, $!\n");
-            return $hasError;
+            return 1;
         }
     }
 
@@ -271,7 +272,7 @@ sub main {
         $serverAdapter->releaseVerToEnv( $buildEnv, 'release-failed' );
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

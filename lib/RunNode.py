@@ -19,7 +19,6 @@ import logging
 import re
 import shlex
 import chardet
-import traceback
 
 import paramiko
 import paramiko.transport
@@ -189,6 +188,7 @@ class RunNode:
         phaseType,
         node,
         totalNodesCount=0,
+        seqNo=None,
     ):
         self.context = context
         # 如果节点运行时所有operation运行完，但是存在failIgnore则此属性会被设置为1
@@ -203,10 +203,12 @@ class RunNode:
         self.runPath = context.runPath
         self.node = node
         self.totalNodesCount = totalNodesCount
+        self.seqNo = seqNo
         self.isLastNode = False
         self.execLastOp = False
         self.warnCount = 0
-        self.isAborting = False
+        self.isPaused = False
+        self.uploadFailed = False
         self.hasFailLog = False
 
         self.breakOut = False  # break当前stage
@@ -221,6 +223,7 @@ class RunNode:
         self.nodeWithoutPassword["password"] = ""
 
         self.resourceId = node.get("resourceId", 0)
+        self.nodeId = node.get("id", 0)
 
         self.name = node.get("nodeName", "")
         self.nodeType = node.get("nodeType", "")
@@ -331,14 +334,16 @@ class RunNode:
             print(msg)
 
     def updateNodeStatus(self, status, op=None, interact=None, failIgnore=0, consumeTime=0):
-        if status == NodeStatus.aborted or status == NodeStatus.failed:
+        if status == NodeStatus.failed or status == NodeStatus.aborted:
+            # if self.isPaused:
+            #     status = NodeStatus.paused
+            # elif self.context.isAborting:
+            #     status = NodeStatus.aborted
+
             if op is None or not op.failIgnore:
                 self.context.hasFailNodeInGlobal = True
-            if self.isAborting:
-                status = NodeStatus.aborted
-        elif status == NodeStatus.ignored:
-            if self.isAborting:
-                status = NodeStatus.aborted
+                phaseStatus = self.context.phases.get(self.phaseName)
+                phaseStatus.globalFailed = True
 
         self.statuses["pid"] = self.context.pid
         self.statuses["interact"] = interact
@@ -557,8 +562,16 @@ class RunNode:
 
                 outputFile = open(self.outputPath, "a+")
                 fcntl.flock(outputFile, fcntl.LOCK_EX)
+                # load current output json content and update it
+                outputFile.seek(0, 0)
+                content = outputFile.read()
+                if content:
+                    output = json.loads(content)
+                    self.output.update(output)
+
                 outputFile.truncate(0)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
+                outputFile.flush()
                 self.outputStore.saveOutput(self.output)
 
                 if self.resourceId != 0 and self.totalNodesCount == 1:
@@ -568,6 +581,7 @@ class RunNode:
                     fcntl.flock(localOutFile, fcntl.LOCK_EX)
                     localOutFile.truncate(0)
                     localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
+                    localOutFile.flush()
                     self.outputStore.saveOutputToLocal(phaseStatus.localOutput)
             except Exception as ex:
                 raise AutoExecError("Save output file:{}, failed {}".format(self.outputPath, ex))
@@ -622,6 +636,7 @@ class RunNode:
                 fcntl.flock(opOutputFile, fcntl.LOCK_EX)
                 opOutputFile.truncate(0)
                 opOutputFile.write(json.dumps(opOutput, indent=4, ensure_ascii=False))
+                opOutputFile.flush()
                 if self.resourceId != 0 and self.totalNodesCount == 1:
                     phaseStatus = self.context.phases[self.phaseName]
                     opLocalOutput = phaseStatus.localOutput.get(op.opId, {})
@@ -676,9 +691,16 @@ class RunNode:
         try:
             inputFile = open(self.inputPath, "a+")
             fcntl.flock(inputFile, fcntl.LOCK_EX)
+            inputFile.seek(0, 0)
+            content = inputFile.read()
+            if content:
+                input = json.loads(content)
+                self.input.update(input)
+
             inputFile.truncate(0)
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
             inputFile.write(json.dumps(self.input, indent=4, ensure_ascii=False))
+            inputFile.flush()
         except Exception as ex:
             raise AutoExecError("Save input file:{}, failed {}".format(self.inputPath, ex))
         finally:
@@ -726,150 +748,87 @@ class RunNode:
             port=self.port,
             nodeEnv=self.nodeEnv,
         )
+        opFinalStatus = opStatus
+        isFailed = False
+        hasFailIgnore = False
+
+        self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
+        if op.opMemo:
+            self.writeNodeLog("------{}---\n".format(op.opMemo))
+
+        # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
+        if not force and not self.context.isForce and op.orgOpType != "sqlfile" and (opStatus == NodeStatus.succeed or opStatus == NodeStatus.ignored):
+            self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
+            self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
+            return opStatus
+
+        timeConsume = None
+        startTime = time.time()
+        self.updateNodeStatus(NodeStatus.running, op=op)
 
         # evaluate if-block
         if op.opName == "native/IF-Block":
             op.setNode(self)
-            opFinalStatus = opStatus
 
-            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
-            if op.opMemo:
-                self.writeNodeLog("------{}---\n".format(op.opMemo))
+            ifOps = self.getIfBlockOps(op)
+            for ifOp in ifOps:
+                if self.breakOut:
+                    break
 
-            if not force and not self.context.isForce and opFinalStatus == NodeStatus.succeed:
-                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
-            else:
-                ifOpsFail = 0
-                hasIgnoreFail = 0
-                startTime = time.time()
-                self.updateNodeStatus(NodeStatus.running, op=op)
-                ifOps = self.getIfBlockOps(op)
-                for ifOp in ifOps:
-                    if self.breakOut:
-                        break
+                ifOp.setNode(self)
+                ifOpStatus = self.execOneOperation(ifOp, force)
+                if ifOpStatus == NodeStatus.ignored:
+                    hasFailIgnore = True
+                elif ifOpStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
+                    isFailed = True
+                    break
 
-                    ifOp.setNode(self)
-                    ifOpStatus = self.execOneOperation(ifOp, force)
-                    if ifOpStatus == NodeStatus.failed:
-                        ifOpsFail = 1
-                        break
-                    elif ifOpStatus == NodeStatus.ignored:
-                        hasIgnoreFail = 1
-
-                    if ifOpsFail == 1:
-                        break
-
-                timeConsume = time.time() - startTime
-                hintKey = "FINE:"
-                opFinalStatus = NodeStatus.succeed
-                if ifOpsFail == 0:
-                    if hasIgnoreFail == 1:
-                        opFinalStatus = NodeStatus.ignored
-                        hintKey = "WARN:"
-                else:
-                    opFinalStatus = NodeStatus.failed
-                    hintKey = "ERROR:"
-                self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
-
-                self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
-
-            return opFinalStatus
         # evaluate loop-block
         elif op.opName == "native/LOOP-Block":
             op.setNode(self)
-            opFinalStatus = opStatus
 
-            self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
-            if op.opMemo:
-                self.writeNodeLog("------{}---\n".format(op.opMemo))
-
-            if not force and not self.context.isForce and opFinalStatus == NodeStatus.succeed:
-                self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                self.writeNodeLog("------END--[{}] {} execution complete --\n\n".format(op.opId, op.opType))
-            else:
-                loopOpsFail = 0
-                hasIgnoreFail = 0
-                loopOps = self.getLoopBlockOps(op)
-                loopItemVar = self.getLoopItemVar(op)
-                loopItems = self.getLoopItems(op)
-                startTime = time.time()
-                self.updateNodeStatus(NodeStatus.running, op=op)
+            loopOps = self.getLoopBlockOps(op)
+            loopItemVar = self.getLoopItemVar(op)
+            loopItems = self.getLoopItems(op)
+            breakLoop = False
+            loopIdx = 0
+            for loopItem in loopItems:
+                if breakLoop:
+                    break
                 breakLoop = False
-                loopIdx = 0
-                for loopItem in loopItems:
-                    if breakLoop:
+
+                loopIdx = loopIdx + 1
+                self.writeNodeLog("______Loop__{}:[${}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
+                os.environ[loopItemVar] = loopItem
+                for loopOp in loopOps:
+                    if self.breakOut:
                         break
-                    breakLoop = False
-
-                    loopIdx = loopIdx + 1
-                    self.writeNodeLog("______Loop__{}:[${}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
-                    os.environ[loopItemVar] = loopItem
-                    for loopOp in loopOps:
-                        if self.breakOut:
-                            break
-                        elif loopOp.opSubName == "loopcontinue":
-                            self.updateNodeStatus(NodeStatus.succeed, op=loopOp)
-                            self.writeNodeLog("______Loop__continue__\n")
-                            break
-                        elif loopOp.opSubName == "loopbreak":
-                            breakLoop = True
-                            self.updateNodeStatus(NodeStatus.succeed, op=loopOp)
-                            self.writeNodeLog("______Loop__break__\n")
-                            break
-
-                        loopOp.setNode(self)
-                        loopOpStatus = self.execOneOperation(loopOp, force=True)
-                        if loopOpStatus == NodeStatus.failed:
-                            loopOpsFail = 1
-                            break
-                        elif loopOpStatus == NodeStatus.ignored:
-                            hasIgnoreFail = 1
-
-                        if loopOpsFail == 1:
-                            break
-                    self.writeNodeLog("______Loop__{}:[${}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
-                    if loopOpsFail == 1:
+                    elif loopOp.opSubName == "loopcontinue":
+                        self.writeNodeLog("______Loop__continue__\n")
+                        break
+                    elif loopOp.opSubName == "loopbreak":
+                        breakLoop = True
+                        self.writeNodeLog("______Loop__break__\n")
                         break
 
-                timeConsume = time.time() - startTime
-                hintKey = "FINE:"
-                opFinalStatus = NodeStatus.succeed
-                if loopOpsFail == 1:
-                    opFinalStatus = NodeStatus.failed
-                    hintKey = "ERROR:"
-                else:
-                    if hasIgnoreFail == 1:
-                        opFinalStatus = NodeStatus.ignored
-                        hintKey = "WARN:"
+                    loopOp.setNode(self)
+                    loopOpStatus = self.execOneOperation(loopOp, force=True)
+                    if loopOpStatus == NodeStatus.ignored:
+                        hasFailIgnore = True
+                    if loopOpStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
+                        isFailed = True
+                        break
 
-                self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
-                self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-                self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
-
-            return opFinalStatus
+                self.writeNodeLog("______Loop__{}:[${}={}] end.\n\n".format(loopIdx, loopItemVar, loopItem))
+                if isFailed == 1:
+                    break
         else:
             ret = 0
             self.execLastOp = op.isLastOp
-            timeConsume = None
-            startTime = time.time()
+
             try:
-                self.writeNodeLog("------START--[{}] {} execution start...\n".format(op.opId, op.opType))
-                if op.opMemo:
-                    self.writeNodeLog("------{}---\n".format(op.opMemo))
-
-                # 如果当前节点某个操作已经成功执行过则略过这个操作，除非设置了isForce
-                startTime = time.time()
-                if not force and not self.context.isForce and opStatus == NodeStatus.succeed and self.phaseType != "sqlfile":
-                    self._loadOpOutput(op)
-                    self.writeNodeLog("INFO: Operation {} has been executed in status:{}, skip.\n".format(op.opId, opStatus))
-                    timeConsume = time.time() - startTime
-                    self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
-                    return
-
+                self._loadOpOutput(op)
                 self._saveOpInput(op)
-                self.updateNodeStatus(NodeStatus.running, op=op)
 
                 if op.opBunddleName != "native" and not os.path.exists(op.pluginPath):
                     ret = 1
@@ -1006,6 +965,9 @@ class RunNode:
                             # 本地执行
                             # 输出保存到环境变量 $OUTPUT_PATH指向的文件里
                             ret = self._localExecute(op)
+                            # 如果sql执行返回码是2，是暂停
+                            if ret == 2 and op.orgOpType == "sqlfile":
+                                self.isPaused = True
                         else:
                             return
                     else:
@@ -1026,41 +988,68 @@ class RunNode:
                             ret = 1
                             self.writeNodeLog("WARN: Operation type:{} not supported, only support(local|remote|local-remote), ignore.\n".format(op.opType))
 
-                timeConsume = time.time() - startTime
                 if ret != 0:
                     self._removeOpOutput(op)
-                    self.updateNodeStatus(NodeStatus.failed, op=op, consumeTime=timeConsume)
                 else:
                     if op.hasOutput or op.hasNodeEnv:
                         if op.opType not in ("target", "native"):
                             self._loadOpOutput(op)
                         self._saveOutput()
-                    self.updateNodeStatus(NodeStatus.succeed, op=op, consumeTime=timeConsume)
             except:
                 ret = 3
-                timeConsume = time.time() - startTime
+                self._removeOpOutput(op)
                 self.writeNodeLog("ERROR: Error ocurred.\n{}\n".format(traceback.format_exc()))
 
-            hintKey = "FINE:"
-            opFinalStatus = NodeStatus.succeed
             if ret != 0 or self.hasFailLog:
-                if op.failIgnore:
-                    opFinalStatus = NodeStatus.ignored
-                    hintKey = "WARN:"
-                else:
+                isFailed = True
+
+        timeConsume = time.time() - startTime
+
+        hintKey = "FINE:"
+        opFinalStatus = NodeStatus.succeed
+        if isFailed:
+            if op.failIgnore and self.uploadFailed:
+                # 如果是上传失败导致的暂停设置为ignore
+                # uploadFailed发生在连接目标失败或者权限问题，如果ignore faile就设置为ignore
+                # 只有远程节点才会有uploadFailed，local节点的pause都是被动的
+                opFinalStatus = NodeStatus.ignored
+                hintKey = "WARN:"
+            # elif self.context.isPausing:
+            #     opFinalStatus = NodeStatus.paused
+            #     hintKey = "WARN:"
+            elif self.isPaused:
+                if self.uploadFailed:
                     opFinalStatus = NodeStatus.failed
                     hintKey = "ERROR:"
+                else:
+                    # 否则就是在操作间隙的暂停是因为主动暂停导致的，设置为pause
+                    opFinalStatus = NodeStatus.paused
+                    hintKey = "WARN:"
+            elif self.context.isAborting:
+                opFinalStatus = NodeStatus.aborted
+                hintKey = "ERROR:"
+            elif op.failIgnore:
+                # 没有主动触发的暂停，操作失败忽略，继续执行
+                opFinalStatus = NodeStatus.ignored
+                hintKey = "WARN:"
+            else:
+                opFinalStatus = NodeStatus.failed
+                hintKey = "ERROR:"
+        elif hasFailIgnore:
+            opFinalStatus = NodeStatus.ignored
+            hintKey = "WARN:"
 
-            op.status = opFinalStatus
+        op.status = opFinalStatus
+        self.updateNodeStatus(opFinalStatus, op=op, consumeTime=timeConsume)
 
-            self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
-            self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
+        self.writeNodeLog("{} Execute operation {} {} {}.\n".format(hintKey, op.opName, op.opTypeDesc.get(op.opType, ""), opFinalStatus))
+        self.writeNodeLog("------END--[{}] {} execution complete -- duration: {:.2f} second.\n\n".format(op.opId, op.opType, timeConsume))
 
-            self.nodeEnv["PRE_STEP_STATUS"] = opFinalStatus
-            persistenceEnv = self.output["nodeEnv"]
-            persistenceEnv["PRE_STEP_STATUS"] = opFinalStatus
+        self.nodeEnv["PRE_STEP_STATUS"] = opFinalStatus
+        persistenceEnv = self.output["nodeEnv"]
+        persistenceEnv["PRE_STEP_STATUS"] = opFinalStatus
 
-            return opFinalStatus
+        return opFinalStatus
 
     def getIfBlockOps(self, ifOp):
         result = True
@@ -1145,6 +1134,8 @@ class RunNode:
 
     def execute(self, ops):
         if self.context.goToStop:
+            self.isPaused = True
+            self.writeNodeLog("WARN: Node execute paused, not execute.\n")
             return 2
 
         # 初始化日志
@@ -1190,25 +1181,25 @@ class RunNode:
 
             self.logHandle.clearFailPattern()
 
-            isPaused = False
+            lastOpSatus = None
             for op in ops:
                 if self.context.goToStop:
-                    isPaused = True
-                    self.updateNodeStatus(NodeStatus.paused)
+                    self.isPaused = True
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
+                self.isPaused = False
+                self.uploadFailed = False
                 # execute on operation
                 opStatus = self.execOneOperation(op)
-
-                if opStatus == NodeStatus.failed:
-                    isFail = 1
-                    hasIgnoreFail = 0
+                lastOpSatus = opStatus
+                if self.breakOut:
+                    self.breakOut = False
                     break
                 elif opStatus == NodeStatus.ignored:
                     hasIgnoreFail = 1
-                elif self.breakOut:
-                    self.breakOut = False
+                elif opStatus in [NodeStatus.failed, NodeStatus.aborted, NodeStatus.paused]:
+                    isFail = 1
                     break
 
             # nodeEndDateTime = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -1216,24 +1207,19 @@ class RunNode:
 
             hintKey = "FINE:"
             if isFail == 0:
-                if isPaused:
-                    finalStatus = NodeStatus.paused
-                    hintKey = "WARN:"
-                elif hasIgnoreFail == 1:
+                if hasIgnoreFail == 1:
                     # 虽然全部操作执行完，但是中间存在fail但是ignore的operation，则设置节点状态为已忽略，主动忽略节点
-                    self.hasIgnoreFail = 1
                     finalStatus = NodeStatus.ignored
                     hintKey = "WARN:"
                 else:
                     finalStatus = NodeStatus.succeed
                     hintKey = "FINE:"
             else:
-                if self.isKilled:
-                    finalStatus = NodeStatus.aborted
+                finalStatus = lastOpSatus
+                if lastOpSatus in [NodeStatus.failed, NodeStatus.aborted]:
                     hintKey = "ERROR:"
                 else:
-                    finalStatus = NodeStatus.failed
-                    hintKey = "ERROR:"
+                    hintKey = "WARN:"
 
             self.updateNodeStatus(finalStatus, failIgnore=hasIgnoreFail, consumeTime=nodeConsumeTime)
             self.writeNodeLog("{} Node execute complete, status:{}.\n".format(hintKey, finalStatus))
@@ -1341,7 +1327,7 @@ class RunNode:
             opLockFile = None
 
         # 管道启动成功后，更新状态为running
-        self.updateNodeStatus(NodeStatus.running, op=op)
+        # self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -1423,7 +1409,7 @@ class RunNode:
             opLockFile = None
 
         # 管道启动成功后，更新状态为running
-        self.updateNodeStatus(NodeStatus.running, op=op)
+        # self.updateNodeStatus(NodeStatus.running, op=op)
 
         while True:
             # readline 增加maxSize参数是为了防止行过长，pipe buffer满了，行没结束，导致pipe写入阻塞
@@ -1477,7 +1463,7 @@ class RunNode:
                     runEnv["INS_ID_PATH"] = insIdPath
 
                 # self.killCmd = "kill -9 `ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
-                self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" ";print $2}\'; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; [ -z "$PIDS" ] && echo "WARN: No process found"'
+                self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" ";print $2}\'; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; exit 0;'
 
                 context = self.context
                 tagent = TagentClient.TagentClient(
@@ -1492,7 +1478,7 @@ class RunNode:
                 self.tagent = tagent
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op=op)
+                # self.updateNodeStatus(NodeStatus.running, op=op)
 
                 self.writeNodeLog("INFO: Begin to upload remote operation...\n")
                 uploadRet = 0
@@ -1610,6 +1596,7 @@ class RunNode:
                 if uploadRet == 0:
                     self.writeNodeLog("INFO: Remote operation upload success.\n")
 
+                ret = 1
                 if uploadRet == 0 and not self.context.goToStop:
                     tagent = TagentClient.TagentClient(
                         self.host,
@@ -1646,32 +1633,31 @@ class RunNode:
                             # 并更新文件output对应的key的目录为相对于作业目录下的目录
                             self._loadOpOutput(op)
 
-                            outFileMap = self._getOpFileOutMap(op)
-                            opFileOutRelDir = None
-                            if outFileMap:
-                                opFileOutRelDir = self._ensureOpFileOutputDir(op)
+                            opOutput = self.output.get(op.opId)
+                            if opOutput is not None:
+                                outFileMap = self._getOpFileOutMap(op)
+                                opFileOutRelDir = None
+                                if outFileMap:
+                                    opFileOutRelDir = self._ensureOpFileOutputDir(op)
 
-                            for outFileKey, outFilePath in outFileMap.items():
-                                outFileName = os.path.basename(outFilePath)
-                                savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
-                                outputStatus = tagent.download(
-                                    self.username,
-                                    "{}/{}".format(remotePath, outFilePath),
-                                    savePath,
-                                )
+                                for outFileKey, outFilePath in outFileMap.items():
+                                    outFileName = os.path.basename(outFilePath)
+                                    savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
+                                    outputStatus = tagent.download(
+                                        self.username,
+                                        "{}/{}".format(remotePath, outFilePath),
+                                        savePath,
+                                    )
 
-                                opOutput = self.output.get(op.opId)
-                                if opOutput is None:
-                                    break
+                                    opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
 
-                                opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
+                                    if outputStatus != 0:
+                                        opOutput[outFileKey] = None
+                                        self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
+                                        ret = 2
 
-                                if outputStatus != 0:
-                                    opOutput[outFileKey] = None
-                                    self.writeNodeLog("ERROR: Download output file:{} failed.\n".format(outFilePath))
-                                    ret = 2
-
-                            self._saveOpOutput(op)
+                                if outFileMap:
+                                    self._saveOpOutput(op)
                     try:
                         if ret == 0:
                             if tagent.agentOsType == "windows":
@@ -1703,8 +1689,17 @@ class RunNode:
                                     pass
                     except Exception as ex:
                         self.writeNodeLog("WARN: Remote remove directory {} failed {}\n".format(remoteRoot, ex))
+                elif uploadRet == 0:
+                    self.isPaused = True
+                    self.writeNodeLog("WARN: Not execute because of aborting or pausing.\n")
+                else:
+                    self.isPaused = True
+                    self.uploadFailed = True
+                    self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
+
             except Exception as ex:
-                self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opName, ex))
+                ret = 4
+                self.writeNodeLog("ERROR: Execute operation {} failed with unknown error, {}\n".format(op.opName, ex))
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
@@ -1748,7 +1743,7 @@ class RunNode:
             remoteCmd = op.getCmdLine(fullPath=True, remotePath=remotePath, osType="Unix").replace("&&", remoteEnv, 1)
             remoteCmdHidePass = op.getCmdOptsHidePassword(osType="Unix")
             # self.killCmd = "kill -9 `ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + "|grep -v grep|awk '{print $2}'`"
-            self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" "; print $2}\'`; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; [ -z "$PIDS" ] && echo "WARN: No process found"'
+            self.killCmd = "PIDS=`ps auxeww |grep AUTOEXEC_JOBID=" + self.context.jobId + '|grep -v grep|awk \'{ORS=" "; print $2}\'`; [ -n "$PIDS" ] && echo "WARN: Process $PIDS killed" && kill -9 $PIDS; exit 0;'
             tarFiles = []
             scriptFile = None
             uploaded = False
@@ -1773,7 +1768,7 @@ class RunNode:
                 sftp = ssh.open_sftp()
 
                 # 更新节点状态为running
-                self.updateNodeStatus(NodeStatus.running, op=op)
+                # self.updateNodeStatus(NodeStatus.running, op=op)
 
                 # 建立一个sftp客户端对象，通过ssh transport操作远程文件
                 # Copy a local file (localpath) to the SFTP server as remotepath
@@ -1956,15 +1951,19 @@ class RunNode:
                 self.writeNodeLog("ERROR: Upload plugin:{} to remoteRoot:{} failed: {}\n".format(op.opName, remoteRoot, err))
                 if sftp is not None:
                     sftp.close()
+                if ssh is not None:
+                    ssh.close()
             finally:
                 if scriptFile is not None:
                     fcntl.flock(scriptFile, fcntl.LOCK_UN)
                     scriptFile.close()
 
             if uploaded and not self.context.goToStop:
+                ret = 1
                 self.writeNodeLog("INFO: Execute -> {}\n".format(remoteCmdHidePass))
                 try:
-                    ret = 0
+                    if not tarFiles:
+                        ret = 0
                     # 解开package
                     for tarFile in tarFiles:
                         channel = ssh.get_transport().open_session()
@@ -1984,6 +1983,7 @@ class RunNode:
                     # 执行主命令
                     if ret == 0:
                         channel = ssh.invoke_shell(term="dumb", width=2048)
+                        self.writeNodeLog("INFO: Invoke shell to evaluate profile success.\n")
                         channel.settimeout(self.context.rexecReadTimeout)
                         cmdstdin = channel.makefile("wb")
                         cmdstdout = channel.makefile("rb")
@@ -2013,30 +2013,29 @@ class RunNode:
                             # 并更新文件output对应的key的目录为相对于作业目录下的目录
                             self._loadOpOutput(op)
 
-                            outFileMap = self._getOpFileOutMap(op)
-                            opFileOutRelDir = None
-                            if outFileMap:
-                                opFileOutRelDir = self._ensureOpFileOutputDir(op)
+                            opOutput = self.output.get(op.opId)
+                            if opOutput is not None:
+                                outFileMap = self._getOpFileOutMap(op)
+                                opFileOutRelDir = None
+                                if outFileMap:
+                                    opFileOutRelDir = self._ensureOpFileOutputDir(op)
 
-                            for outFileKey, outFilePath in outFileMap.items():
-                                opOutput = self.output.get(op.opId)
-                                if opOutput is None:
-                                    break
+                                for outFileKey, outFilePath in outFileMap.items():
+                                    try:
+                                        outFileName = os.path.basename(outFilePath)
+                                        savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
+                                        sftp.get(
+                                            "{}/{}".format(remotePath, outFilePath),
+                                            savePath,
+                                        )
 
-                                try:
-                                    outFileName = os.path.basename(outFilePath)
-                                    savePath = "{}/{}/{}".format(self.runPath, opFileOutRelDir, outFileName)
-                                    sftp.get(
-                                        "{}/{}".format(remotePath, outFilePath),
-                                        savePath,
-                                    )
-
-                                    opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
-                                except Exception as ex:
-                                    opOutput[outFileKey] = None
-                                    self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
-                                    ret = 2
-                            self._saveOpOutput(op)
+                                        opOutput[outFileKey] = opFileOutRelDir + "/" + outFileName
+                                    except Exception as ex:
+                                        opOutput[outFileKey] = None
+                                        self.writeNodeLog("ERROR: Download output file:{} failed {}\n".format(outFilePath, ex))
+                                        ret = 2
+                                if outFileMap:
+                                    self._saveOpOutput(op)
                         except Exception as ex:
                             self.writeNodeLog("ERROR: Download output failed {}\n".format(ex))
                             ret = 2
@@ -2063,9 +2062,16 @@ class RunNode:
                         sftp.close()
                     if ssh is not None:
                         ssh.close()
+            elif uploaded:
+                self.isPaused = True
+                self.writeNodeLog("WARN: Not execute because of aborting or pausing.\n")
+            else:
+                self.isPaused = True
+                self.uploadFailed = True
+                self.writeNodeLog("WARN: Upload execute tool to remote target failed, paused, you can execute it again.\n")
 
-            if ssh is not None:
-                ssh.close()
+            # if ssh is not None:
+            #     ssh.close()
 
         return ret
 
@@ -2074,13 +2080,11 @@ class RunNode:
 
     def kill(self):
         nodeStatus = self.getNodeStatus()
-        if nodeStatus != NodeStatus.running:
+        if nodeStatus != NodeStatus.running and nodeStatus != NodeStatus.waitInput:
             return
 
-        self.isAborting = True
-        if self.childPid is not None:
-            pid = self.childPid
-
+        pid = self.childPid
+        if pid is not None:
             try:
                 os.kill(pid, signal.SIGTERM)
                 # 如果子进程没有结束，等待3秒
@@ -2115,10 +2119,9 @@ class RunNode:
                 )
                 if tagent.execCmd(self.username, killCmd, isVerbose=0, callback=self.writeNodeLog) == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                    # self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
                 else:
-                    self.writeNodeLog("ERROR: Execute kill command:{} failed\n".format(killCmd))
+                    self.writeNodeLog("WARN: Execute kill command:{} failed\n".format(killCmd))
             if self.tagent:
                 self.tagent.close()
                 self.writeNodeLog("INFO: Stop agent execution success.\n")
@@ -2152,8 +2155,9 @@ class RunNode:
 
                 if ret == 0:
                     self.writeNodeLog("INFO: Execute kill command:{} success.\n".format(killCmd))
-                    # self.updateNodeStatus(NodeStatus.aborted)
                     self.isKilled = True
+                else:
+                    self.writeNodeLog("WARN: Execute kill command:{} failed.\n".format(killCmd))
             except Exception as err:
                 self.writeNodeLog("ERROR: Execute kill command:{} failed, {}\n".format(killCmd, err))
             finally:

@@ -204,7 +204,7 @@ sub main {
     }
     print("INFO: Transfer directory and file name complete:${from}->${to}\n");
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

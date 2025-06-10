@@ -90,7 +90,7 @@ sub main() {
         $hasError = 1;
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();

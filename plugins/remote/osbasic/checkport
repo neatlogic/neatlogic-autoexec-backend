@@ -110,7 +110,7 @@ sub main {
 
         if ( $isUsed == 1 ) {
             print("ERROR:: Port $port is used.\n");
-            $hasUsed++;
+            $hasUsed = 1;
         }
         else {
             print("INFO:: Port $port is not used.\n");

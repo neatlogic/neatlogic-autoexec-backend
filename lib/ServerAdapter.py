@@ -313,6 +313,7 @@ class ServerAdapter:
                     params = retObj["Return"]
                     paramsFile.truncate(0)
                     paramsFile.write(json.dumps(params, indent=4, ensure_ascii=False))
+                    paramsFile.flush()
                     return params
                 else:
                     raise "Get parameters for job {} failed, {}".format(self.context.jobId, retObj["Message"])
@@ -336,6 +337,7 @@ class ServerAdapter:
                 fcntl.flock(nodesFile, fcntl.LOCK_EX)
                 nodesFile.truncate(0)
                 nodesSeqDesc = {}
+                runnerNodeCount = {}
                 nodesCount = 0
                 linesCount = 0
                 line = None
@@ -346,9 +348,12 @@ class ServerAdapter:
                     else:
                         nodeObj = json.loads(line)
                         seqNo = nodeObj.get("seqNo", 0)
+                        runnerId = nodeObj.get("runnerId", 0)
                         nodesSeqDesc[seqNo] = nodesSeqDesc.get(seqNo, 0) + 1
+                        runnerNodeCount[runnerId] = runnerNodeCount.get(runnerId, 0) + 1
                     nodesFile.write(str(line, encoding="utf-8"))
                     linesCount = linesCount + 1
+                nodesFile.flush()
 
                 if not linesCount == nodesCount + 1:
                     raise AutoExecError("Get nodes failed, expect {} but get {}, download incomplete.".format(nodesCount, linesCount - 1))
@@ -377,7 +382,7 @@ class ServerAdapter:
                     if zeroSeqDesc is not None:
                         roundDef.append(zeroSeqDesc)
 
-                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef}, ensure_ascii=False))
+                    descFile.write(json.dumps({"maxParallel": maxParallel, "roundDef": roundDef, "runnerNodeCount": runnerNodeCount}, ensure_ascii=False))
                     descFile.close()
 
                 if phase is not None:
@@ -467,6 +472,7 @@ class ServerAdapter:
 
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, groupNo, phaseName, phaseStatus, status):
+        phaseStatus.status = status
         if self.context.devMode:
             return {}
 
@@ -476,6 +482,7 @@ class ServerAdapter:
             "groupNo": groupNo,
             "phase": phaseName,
             "status": status,
+            "needInform": phaseStatus.needInform,
             "failNodeCount": phaseStatus.failNodeCount,
             "sucNodeCount": phaseStatus.sucNodeCount,
             "skipNodeCount": phaseStatus.skipNodeCount,
@@ -486,8 +493,8 @@ class ServerAdapter:
         }
 
         try:
-            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
             response = self.httpJSON(self.apiMap["updatePhaseStatus"], params)
+            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             return json.loads(content)
@@ -590,6 +597,8 @@ class ServerAdapter:
         if self.context.devMode:
             return {}
 
+        jobId = self.context.jobId
+        execId = self.context.execId
         params = {
             "jobId": self.context.jobId,
             "execId": self.context.execId,
@@ -598,7 +607,7 @@ class ServerAdapter:
             "passThroughEnv": self.context.passThroughEnv,
         }
         response = self.httpJSON(self.apiMap["updateJobStatus"], params)
-        print("INFO: Update job:{} to status:{}.\n".format(self.context.jobId, jobStatus), end="")
+        print("INFO: Update job:{} execId:{} to status:{}.\n".format(jobId, execId, jobStatus), end="")
 
         try:
             charset = response.info().get_content_charset()

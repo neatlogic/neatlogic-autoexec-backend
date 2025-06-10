@@ -78,6 +78,7 @@ sub syncDir2OtherMembers {
             print("INFO: Sync '$targetPath' to $runnerIp:'$targetPath'.\n");
             my $syncCmd = qq{rsync -avrR --delete --rsync-path="mkdir -p '$targetDir' && rsync" '$targetPath' $runnerIp:'/'};
             $ret = system($syncCmd);
+            $ret = $ret >> 8;
             if ( $ret != 0 ) {
                 print("ERROR: Sync '$targetPath' to $runnerIp:'$targetPath' failed.\n");
                 last;
@@ -88,7 +89,7 @@ sub syncDir2OtherMembers {
     chdir($cwd);
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

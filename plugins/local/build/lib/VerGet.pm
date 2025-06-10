@@ -85,7 +85,7 @@ sub get {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -104,7 +104,7 @@ sub checkBaseLineMerged {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -123,7 +123,7 @@ sub mergeToBaseLine {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -142,7 +142,7 @@ sub mergeBaseLine {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -162,7 +162,7 @@ sub tag {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -182,7 +182,7 @@ sub tagRev {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -204,7 +204,7 @@ sub checkChangedAfterCompiled {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -243,7 +243,7 @@ sub getDiffByTag {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -283,7 +283,7 @@ sub getDiffByRev {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -311,7 +311,7 @@ sub getBuildDiff {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -327,7 +327,7 @@ sub compare {
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;
@@ -344,7 +344,7 @@ sub resetWorkingCopy{
     }
 
     if ( $ret > 255 ) {
-        $ret = $ret >> 8;
+        $ret = 1;
     }
 
     return $ret;

@@ -251,7 +251,7 @@ sub main {
         print("ERROR: Sync $src $directDesc $desc failed.\n");
     }
 
-    return $hasError;
+    return $hasError == 0 ? 0 : 1;
 }
 
 exit main();
