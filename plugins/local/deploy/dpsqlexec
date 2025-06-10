@@ -276,9 +276,8 @@ sub main {
             }
         }
 
-        if ( defined($sqlInfosInArg) ) {
-            $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
-        }
+        $sqlFileRunner->restoreSqlStatuses($sqlInfoInServer);
+
         $rc = $sqlFileRunner->execSqlFileSets($sqlFileSets);
     }
 
