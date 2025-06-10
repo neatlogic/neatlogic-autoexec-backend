@@ -161,7 +161,7 @@ sub checkout {
         print("INFO: Checkout $checkoutRepo, it will take a few minutes, pleas wait...\n");
         rmtree($prjPath);
 
-        print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
+        #print("DEBUG: svn --no-auth-cache --non-interactive --trust-server-cert --config-dir $autoexecHome --username $svnUser --password $svnPass co $checkoutRepo $prjPath\n");
         $ret = DeployUtils->execmd("svn $silentOpt --no-auth-cache --non-interactive --trust-server-cert --config-dir '$autoexecHome' --username $svnUser --password $svnPass co '$checkoutRepo' '$prjPath'");
     }
     elsif ( $checkoutRepo ne $localSvnInfo->{URL} ) {
