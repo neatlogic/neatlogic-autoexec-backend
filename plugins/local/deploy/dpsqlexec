@@ -2,6 +2,7 @@
 use strict;
 use FindBin;
 use Cwd;
+use File::Path;
 use Digest::MD5;
 use Getopt::Long;
 use Expect;
@@ -161,6 +162,7 @@ sub main {
     my $distPath     = $dirInfo->{distribute};
     my $sqlFileDir   = "$distPath/db";
     my $logFileDir   = "$jobPath/log/$phaseName";
+    my $sqlFileRealLogDir = "$distPath/db.log";
     my $sqlStatusDir = "$distPath/db.status";
 
     if ( -d $sqlFileDir ) {
@@ -170,6 +172,13 @@ sub main {
         my $jobSqlFileDir = "$jobPath/sqlfile/$phaseName";
         if ( not -e $jobSqlFileDir ) {
             symlink( $sqlFileDir, $jobSqlFileDir );
+        }
+
+        if ( not -e $sqlFileRealLogDir){
+            mkpath($sqlFileRealLogDir);
+        }
+        if ( not -e $logFileDir){
+            symlink( $sqlFileRealLogDir, $logFileDir);
         }
     }
 
