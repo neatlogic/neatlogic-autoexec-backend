@@ -150,13 +150,13 @@ class ServerAdapter:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj.get("Message", "")
+                raise AutoExecError("Request failed, {}".format(errMsg))
+            except URLError as ex:
                 if retryCount > 1:
-                    print("WARN: Request failed, {}, retry request, it is the {} retry.\n".format(errMsg, self.apiCallRetryCount - retryCount + 1))
+                    print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
                     retryCount = retryCount - 1
                     time.sleep(interval)
                     continue
-                raise AutoExecError("Request failed, {}".format(errMsg))
-            except URLError as ex:
                 raise AutoExecError("Request url:{} failed, {}\n".format(url, ex.reason))
             except socket.timeout as ex:
                 if retryCount > 1:
@@ -194,13 +194,13 @@ class ServerAdapter:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj["Message"]
+                raise AutoExecError("Request failed, {}".format(errMsg))
+            except URLError as ex:
                 if retryCount > 1:
-                    print("WARN: Request failed, {}, retry request, it is the {} retry.\n".format(errMsg, self.apiCallRetryCount - retryCount + 1))
+                    print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
                     retryCount = retryCount - 1
                     time.sleep(interval)
                     continue
-                raise AutoExecError("Request failed, {}".format(errMsg))
-            except URLError as ex:
                 raise AutoExecError("Request url:{} failed, {}".format(url, ex.reason))
             except socket.timeout as ex:
                 if retryCount > 1:
