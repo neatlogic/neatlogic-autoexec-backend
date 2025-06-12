@@ -730,7 +730,7 @@ class JobRunner:
                     print("ERROR: Job last more than max execute seconds:{}, exit.\n".format(self.context.maxExecSecs), end="")
                     break
 
-                if nodesFactory.nodesCount > 1 and nodesFactory.jobRunnerCount > 1:
+                if nodesFactory.jobRunnerCount > 1:
                     loopCount = int(self.context.maxExecSecs / 3)
                     hasInformed = False
                     loopNo = 0
