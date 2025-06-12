@@ -146,10 +146,15 @@ class ServerAdapter:
                 break
             except HTTPError as ex:
                 errMsg = ex.code
-                if ex.code > 500:
+                if ex.code >= 500:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj.get("Message", "")
+                    if retryCount > 1:
+                        print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                        retryCount = retryCount - 1
+                        time.sleep(interval)
+                        continue
                 raise AutoExecError("Request failed, {}".format(errMsg))
             except URLError as ex:
                 if retryCount > 1:
@@ -190,10 +195,15 @@ class ServerAdapter:
                 break
             except HTTPError as ex:
                 errMsg = ex.code
-                if ex.code > 500:
+                if ex.code >= 500:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj["Message"]
+                    if retryCount > 1:
+                        print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                        retryCount = retryCount - 1
+                        time.sleep(interval)
+                        continue
                 raise AutoExecError("Request failed, {}".format(errMsg))
             except URLError as ex:
                 if retryCount > 1:
@@ -234,10 +244,15 @@ class ServerAdapter:
                 break
             except HTTPError as ex:
                 errMsg = ex.code
-                if ex.code > 500:
+                if ex.code >= 500:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj.get("Message", "")
+                    if retryCount > 1:
+                        print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
+                        retryCount = retryCount - 1
+                        time.sleep(interval)
+                        continue
                 raise AutoExecError("Request failed, {}".format(errMsg))
             except URLError as ex:
                 if retryCount > 1:
