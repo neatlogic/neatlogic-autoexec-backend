@@ -42,7 +42,8 @@ class RunNodeFactory:
                     descContent = '{"maxParallel": 1, "roundDef": []}'
                 self.seqDesc = json.loads(descContent)
                 self.roundDef = self.seqDesc.get("roundDef", [])
-                self._currentSeq = self.roundDef[0][0]
+                if self.roundDef:
+                    self._currentSeq = self.roundDef[0][0]
                 self._runnerNodeCount = self.seqDesc.get("runnerNodeCount", {})
                 seqDescFile.close()
         else:
