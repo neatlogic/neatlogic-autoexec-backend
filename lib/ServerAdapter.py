@@ -150,7 +150,7 @@ class ServerAdapter:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj.get("Message", "")
-                    if retryCount > 1:
+                    if retryCount > 1 and ex.code in (502, 503, 504):
                         print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
                         retryCount = retryCount - 1
                         time.sleep(interval)
@@ -199,7 +199,7 @@ class ServerAdapter:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj["Message"]
-                    if retryCount > 1:
+                    if retryCount > 1 and ex.code in (502, 503, 504):
                         print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
                         retryCount = retryCount - 1
                         time.sleep(interval)
@@ -248,7 +248,7 @@ class ServerAdapter:
                     content = ex.read()
                     errObj = json.loads(content)
                     errMsg = errObj.get("Message", "")
-                    if retryCount > 1:
+                    if retryCount > 1 and ex.code in (502, 503, 504):
                         print("WARN: Request url:{} failed, {}, retry request, it is the {} retry.\n".format(url, ex.strerror, self.apiCallRetryCount - retryCount + 1))
                         retryCount = retryCount - 1
                         time.sleep(interval)
