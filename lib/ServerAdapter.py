@@ -182,11 +182,12 @@ class ServerAdapter:
         retryCount = self.apiCallRetryCount
         interval = self.apiCallRetryInterval
 
-        params["execId"] = self.context.execId
+        if params == None:
+            params = {}
 
-        if params:
-            data = urllib.parse.urlencode(params)
-            apiUri = apiUri + "?" + data
+        params["execId"] = self.context.execId
+        data = urllib.parse.urlencode(params)
+        apiUri = apiUri + "?" + data
 
         url = self.serverBaseUrl + apiUri
         req = urllib.request.Request(url)
