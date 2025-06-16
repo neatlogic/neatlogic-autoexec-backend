@@ -26,6 +26,7 @@ class Context:
         self.tenant = tenent
         self.config = config
         self.jobId = os.getenv("AUTOEXEC_JOBID")
+        self.execId = os.getenv("AUTOEXEC_EXECID")
         self.fileFeteched = {}
         self.scriptFetched = {}
         self.opFetched = {}
