@@ -1185,6 +1185,8 @@ class RunNode:
             for op in ops:
                 if self.context.goToStop:
                     self.isPaused = True
+                    lastOpSatus = NodeStatus.paused
+                    isFail = 1
                     self.writeNodeLog("INFO: Node running paused.\n")
                     break
 
