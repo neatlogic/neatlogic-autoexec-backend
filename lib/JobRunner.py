@@ -255,7 +255,7 @@ class ListenThread(threading.Thread):  # 继承父类threading.Thread
             workerCount = len(self.workers)
             # 入队对应线程数量的退出信号对象
             for idx in range(1, workerCount + 1):
-                self.workQueue.put(None)
+                self.workQueue.put(None, timeout=self.context.maxExecSecs)
 
             self.globalLock.stop()
 
