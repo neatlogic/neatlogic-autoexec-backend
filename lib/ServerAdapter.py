@@ -131,6 +131,8 @@ class ServerAdapter:
         retryCount = self.apiCallRetryCount
         interval = self.apiCallRetryInterval
 
+        params["execId"] = self.context.execId
+
         url = self.serverBaseUrl + apiUri
         headers = {"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}
 
@@ -180,6 +182,8 @@ class ServerAdapter:
         retryCount = self.apiCallRetryCount
         interval = self.apiCallRetryInterval
 
+        params["execId"] = self.context.execId
+
         if params:
             data = urllib.parse.urlencode(params)
             apiUri = apiUri + "?" + data
@@ -228,6 +232,8 @@ class ServerAdapter:
 
         retryCount = self.apiCallRetryCount
         interval = self.apiCallRetryInterval
+
+        params["execId"] = self.context.execId
 
         url = self.serverBaseUrl + apiUri
         headers = {"Content-Type": "application/json; charset=utf-8"}
