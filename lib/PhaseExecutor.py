@@ -153,7 +153,7 @@ class PhaseWorker(threading.Thread):
             self.currentNode.pause()
 
     def kill(self):
-        self._queue.put(None)
+        self._queue.put(None, timeout=self.context.maxExecSecs)
         if self.currentNode is not None:
             self.currentNode.kill()
 
@@ -288,12 +288,17 @@ class PhaseExecutor:
                             execQueue.get_nowait()
                     except Exception as ex:
                         pass
+                    try:
+                        while True:
+                            execQueue.get_nowait()
+                    except Exception as ex:
+                        pass
         finally:
             workerCount = len(worker_threads)
             # 入队对应线程数量的退出信号对象
             for idx in range(1, workerCount + 1):
                 try:
-                    execQueue.put(None)
+                    execQueue.put(None, timeout=self.context.maxExecSecs)
                 except:
                     pass
 
@@ -341,7 +346,7 @@ class PhaseExecutor:
             pass
         finally:
             for i in range(1, self.parallelCount + 1):
-                self.execQueue.put(None)
+                self.execQueue.put(None, timeout=self.context.maxExecSecs)
 
         # i = 1
         # pauseWorkers = []

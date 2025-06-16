@@ -1193,7 +1193,12 @@ class RunNode:
                 self.isPaused = False
                 self.uploadFailed = False
                 # execute on operation
-                opStatus = self.execOneOperation(op)
+                try:
+                    opStatus = self.execOneOperation(op)
+                except AutoExecError as ex:
+                    self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opId, str(ex)))
+                    opStatus = NodeStatus.failed
+
                 lastOpSatus = opStatus
                 if self.breakOut:
                     self.breakOut = False
