@@ -1197,7 +1197,10 @@ class RunNode:
                     opStatus = self.execOneOperation(op)
                 except AutoExecError as ex:
                     self.writeNodeLog("ERROR: Execute operation {} failed, {}\n".format(op.opId, str(ex)))
-                    opStatus = NodeStatus.failed
+                    if op.failIgnore:
+                        opStatus = NodeStatus.ignored
+                    else:
+                        opStatus = NodeStatus.failed
 
                 lastOpSatus = opStatus
                 if self.breakOut:
