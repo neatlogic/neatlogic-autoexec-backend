@@ -567,7 +567,9 @@ class RunNode:
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
-                    self.output.update(output)
+                    for k, v in output.items():
+                        if k not in self.output:
+                            self.output[k] = v
 
                 outputFile.truncate(0)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
