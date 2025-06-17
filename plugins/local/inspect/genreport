@@ -282,6 +282,9 @@ def getInspectData(nodeInfo):
 
             elif not key.startswith("cmdbcollect/"):
                 continue
+        
+            if 'DATA' not in value : 
+                continue
 
             collectData = value["DATA"]
             if collectData is None:
