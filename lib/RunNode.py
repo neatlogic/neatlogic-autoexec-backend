@@ -697,7 +697,9 @@ class RunNode:
             content = inputFile.read()
             if content:
                 input = json.loads(content)
-                self.input.update(input)
+                for k, v in input.items():
+                    if k not in self.input:
+                        self.input[k] = v
 
             inputFile.truncate(0)
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
