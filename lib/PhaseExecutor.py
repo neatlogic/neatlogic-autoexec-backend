@@ -329,12 +329,12 @@ class PhaseExecutor:
             if clean == 1:
                 if not (isLastNode and execLastOp):
                     self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
-                    print("INFO: Update runner node status to running succeed.\n", end="")
+                    print("INFO: Update runner status to running succeed.\n", end="")
                     self.context.serverAdapter.pushJobStatus(NodeStatus.running)
             else:
                 self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
                 self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
-                print("INFO: Update runner node status to waitInput succeed.\n", end="")
+                print("INFO: Update runner status to waitInput succeed.\n", end="")
 
     def pause(self):
         self.context.isPausing = True
