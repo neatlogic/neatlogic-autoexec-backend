@@ -471,6 +471,9 @@ class JobRunner:
 
             if endStatus is not None:
                 serverAdapter.pushPhaseStatus(groupNo, phaseName, phaseStatus, endStatus)
+                if phaseStatus.preStatus == NodeStatus.waitInput:
+                    self.context.serverAdapter.pushJobStatus(NodeStatus.running)
+
                 if not self.context.isPausing and endStatus in [NodeStatus.failed, NodeStatus.paused, NodeStatus.aborted]:
                     self.pause()
 
