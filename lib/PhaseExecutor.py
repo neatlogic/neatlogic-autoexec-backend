@@ -330,7 +330,7 @@ class PhaseExecutor:
                 if not (isLastNode and execLastOp):
                     self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
                     print("INFO: Update runner node status to running succeed.\n", end="")
-                self.context.serverAdapter.pushJobStatus(NodeStatus.running)
+                    self.context.serverAdapter.pushJobStatus(NodeStatus.running)
             else:
                 self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
                 self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)

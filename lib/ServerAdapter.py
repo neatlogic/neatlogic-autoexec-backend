@@ -494,6 +494,7 @@ class ServerAdapter:
 
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, groupNo, phaseName, phaseStatus, status):
+        phaseStatus.preStats = phaseStatus.status
         phaseStatus.status = status
         if self.context.devMode:
             return {}

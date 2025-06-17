@@ -12,6 +12,7 @@ class PhaseStatus:
         # super().__init__()
         self.phaseName = phaseName
         self.status = "pending"
+        self.preStatus = None
         self.localOutput = None
         # 用于标记当前phase是否有local或remote的工具
         # self.hasLocal = False
