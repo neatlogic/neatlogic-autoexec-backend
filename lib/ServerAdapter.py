@@ -494,7 +494,8 @@ class ServerAdapter:
 
     # 更新运行端阶段的状态
     def pushPhaseStatus(self, groupNo, phaseName, phaseStatus, status):
-        phaseStatus.preStats = phaseStatus.status
+        preStatus = phaseStatus.status
+        phaseStatus.preStatus = preStatus
         phaseStatus.status = status
         if self.context.devMode:
             return {}
@@ -517,7 +518,7 @@ class ServerAdapter:
 
         try:
             response = self.httpJSON(self.apiMap["updatePhaseStatus"], params)
-            print("INFO: Update phase:{} status to {}.\n".format(phaseName, status), end="")
+            print("INFO: Update phase:{} status from {} to {}.\n".format(phaseName, preStatus, status), end="")
             charset = response.info().get_content_charset()
             content = response.read().decode(charset, errors="ignore")
             return json.loads(content)
