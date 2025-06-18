@@ -581,6 +581,16 @@ class RunNode:
                     localOutputPath = "{}/output/local-0-0.json".format(self.runPath)
                     localOutFile = open(localOutputPath, "a+")
                     fcntl.flock(localOutFile, fcntl.LOCK_EX)
+
+                    # load current local output json content and update it
+                    localOutFile.seek(0, 0)
+                    content = localOutFile.read()
+                    if content:
+                        localOutput = json.loads(content)
+                        if activeOp is not None:
+                            localOutput.pop(activeOp.opId, None)
+                        phaseStatus.localOutput.update(localOutput)
+
                     localOutFile.truncate(0)
                     localOutFile.write(json.dumps(phaseStatus.localOutput, indent=4, ensure_ascii=False))
                     localOutFile.flush()
