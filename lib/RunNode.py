@@ -697,7 +697,6 @@ class RunNode:
             content = inputFile.read()
             if content:
                 input = json.loads(content)
-                input.pop(op.opId, None)
                 self.input.update(input)
 
             inputFile.truncate(0)
