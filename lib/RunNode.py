@@ -551,7 +551,7 @@ class RunNode:
                     fcntl.flock(inputFile, fcntl.LOCK_UN)
                     inputFile.close()
 
-    def _saveOutput(self):
+    def _saveOutput(self, activeOp=None):
         if self.output:
             outputFile = None
             localOutFile = None
@@ -567,9 +567,9 @@ class RunNode:
                 content = outputFile.read()
                 if content:
                     output = json.loads(content)
-                    for k, v in output.items():
-                        if k not in self.output:
-                            self.output[k] = v
+                    if activeOp is not None:
+                        output.pop(activeOp.opId, None)
+                    self.output.update(output)
 
                 outputFile.truncate(0)
                 outputFile.write(json.dumps(self.output, indent=4, ensure_ascii=False))
@@ -697,9 +697,7 @@ class RunNode:
             content = inputFile.read()
             if content:
                 input = json.loads(content)
-                for k, v in input.items():
-                    if k not in self.input:
-                        self.input[k] = v
+                self.input.update(input)
 
             inputFile.truncate(0)
             self.input[op.opId] = {"options": saveOpts, "arguments": saveArgs}
@@ -998,7 +996,7 @@ class RunNode:
                     if op.hasOutput or op.hasNodeEnv:
                         if op.opType not in ("target", "native"):
                             self._loadOpOutput(op)
-                        self._saveOutput()
+                        self._saveOutput(op)
             except:
                 ret = 3
                 self._removeOpOutput(op)
