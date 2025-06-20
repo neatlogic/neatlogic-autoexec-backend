@@ -120,7 +120,8 @@ sub deployInit {
             $deployEnv->{ $pathLevels[$i] . '_NAME' } = $pathNames[$i];
         }
 
-        my $verDataRoot = "$autoexecHome/data/verdata";
+        #my $verDataRoot = "$autoexecHome/data/verdata";
+        my $verDataRoot = Cwd::realpath("$autoexecHome/data/verdata");
         my $dataPath    = "$verDataRoot/$deployEnv->{SYS_ID}/$deployEnv->{MODULE_ID}";
         my $prjRoot     = "$dataPath/workspace";
         my $prjPath     = "$prjRoot/project";
@@ -241,7 +242,8 @@ sub getVerBaseEnv {
     }
     $verEnv->{AUTOEXEC_HOME} = $autoexecHome;
 
-    my $verDataRoot = "$autoexecHome/data/verdata";
+    #my $verDataRoot = "$autoexecHome/data/verdata";
+    my $verDataRoot = Cwd::realpath("$autoexecHome/data/verdata");
     my $dataPath    = "$verDataRoot/$verEnv->{SYS_ID}/$verEnv->{MODULE_ID}";
     my $prjRoot     = "$dataPath/workspace";
     my $prjPath     = "$prjRoot/project";
