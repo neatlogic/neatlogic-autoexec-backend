@@ -70,9 +70,9 @@ class VContext:
 
         # 存放执行数据以及日志的根目录
         if dataPath == None:
-            self.dataPath = homePath + "/data"
+            self.dataPath = os.path.realpath(homePath + "/data")
         else:
-            self.dataPath = dataPath
+            self.dataPath = os.path.realpath(dataPath)
 
         # 读取配置
         cfgPath = homePath + "/conf/config.ini"
