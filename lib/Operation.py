@@ -287,6 +287,12 @@ class Operation:
                 argValue = opArg.get("value")
                 if argType == "password":
                     try:
+                        argValue = self.resolveOptValue(
+                            argValue,
+                            refMap=refMap,
+                            localRefMap=localRefMap,
+                            nodeEnv=nodeEnv,
+                        )
                         argValue = self.context.decryptValue(argValue)
                     except:
                         self.writeLog("WARN: Decrypt password argument:{} failed.\n".format(self.opName))
