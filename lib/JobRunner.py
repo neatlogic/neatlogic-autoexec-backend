@@ -587,7 +587,7 @@ class JobRunner:
         else:
             parallelCount = nodesFactory.getSeqParallelCount()
 
-        parallelCount = float(parallelCount) / nodesFactory.jobRunnerCount
+        # parallelCount = float(parallelCount) / nodesFactory.jobRunnerCount
         parallelCount = int(parallelCount) + (parallelCount != int(parallelCount))
 
         threads = []

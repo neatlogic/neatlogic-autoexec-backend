@@ -308,7 +308,7 @@ class PhaseExecutor:
                 worker.join(3)
                 if not worker.is_alive():
                     worker_threads.pop(-1)
-            print("INFO: Phase:{} works exist.\n".format(self.phaseName), end="")
+            print("INFO: Phase:{} works exit.\n".format(self.phaseName), end="")
             phaseStatus.setRoundFinEvent()
 
         return phaseStatus.failNodeCount
