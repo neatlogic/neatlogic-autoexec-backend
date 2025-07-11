@@ -34,7 +34,7 @@ if __name__ == "__main__":
     outputKeyInfo = outputKey.split(".")
 
     if len(outputKeyInfo) != 3:
-        print("ERROR: Malform output key %s." % (outputKey))
+        print("ERROR: Malform output key %s, tool name in dot format not supported." % (outputKey))
         sys.exit(3)
 
     opId = outputKeyInfo[1]
