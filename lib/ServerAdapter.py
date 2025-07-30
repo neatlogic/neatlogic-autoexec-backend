@@ -320,7 +320,7 @@ class ServerAdapter:
         if os.path.exists(paramsFilePath):
             lastModifiedTime = os.path.getmtime(paramsFilePath)
         params["lastModified"] = lastModifiedTime
-
+        isFailed = 0 
         paramsFile = None
         try:
             paramsFile = open(paramsFilePath, "a+")
@@ -338,19 +338,25 @@ class ServerAdapter:
                     paramsFile.flush()
                     return params
                 else:
+                    isFailed = 1
                     raise "Get parameters for job {} failed, {}".format(self.context.jobId, retObj["Message"])
             else:
+                isFailed = 1
                 raise "Get parameters for job {} failed, status code:{} {}".format(self.context.jobId, response.status, content)
-        except:
-            raise
+        except Exception as e:
+            isFailed = 1
+            raise "Get parameters for job {} failed, reason:{}".format(e)
         finally:
             if paramsFile:
                 fcntl.flock(paramsFile, fcntl.LOCK_UN)
                 paramsFile.close()
+            if os.path.exists(paramsFilePath) and isFailed == 1 :
+                os.remove(paramsFilePath)
 
     # 下载运行作业或作业某个阶段的运行目标节点
     def downloadNodes(self, params, nodesFilePath, phase=None):
         nodesFile = None
+        isFailed = 0
         try:
             response = self.httpGET(self.apiMap["getNodes"], params)
 
@@ -378,11 +384,13 @@ class ServerAdapter:
                 nodesFile.flush()
 
                 if not linesCount == nodesCount + 1:
+                    isFailed = 1
                     raise AutoExecError("Get nodes failed, expect {} but get {}, download incomplete.".format(nodesCount, linesCount - 1))
                 elif line is not None:
                     try:
                         json.loads(line)
                     except:
+                        isFailed = 1
                         raise AutoExecError("Get nodes failed, download incomplete.")
 
                 seqDescFilePath = nodesFilePath + ".desc"
@@ -417,10 +425,20 @@ class ServerAdapter:
                 # 如果当前已经存在阶段节点文件，而且修改时间大于服务端，则服务端api给出204反馈，代表没有更改，不需要处理
                 if phase is not None:
                     self.context.phases[phase].nodesFilePath = nodesFilePath
+        except Exception as e:
+            isFailed = 1 
+            raise AutoExecError("Get nodes failed, reason:{}.".format(e))
         finally:
             if nodesFile:
                 fcntl.flock(nodesFile, fcntl.LOCK_UN)
                 nodesFile.close()
+            if os.path.exists(nodesFilePath) and isFailed == 1: 
+                #download异常时，保留现场方便定位问题
+                fileName = "his_{}".format(os.path.basename(nodesFilePath))
+                hisNodesFilePath ="{}/{}".format(os.path.dirname(nodesFilePath),fileName)
+                if os.path.exists(hisNodesFilePath): 
+                    os.remove(hisNodesFilePath)
+                os.rename(nodesFilePath,hisNodesFilePath)
 
     # 下载运行作业或作业某个阶段的运行目标节点
     def getNodes(self, phase=None, groupNo=None):
