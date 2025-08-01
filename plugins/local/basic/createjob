@@ -6,6 +6,8 @@ import json
 import os
 import sys
 import time
+import copy
+
 from pathlib import Path
 
 import AutoExecUtils
@@ -28,6 +30,7 @@ class EvenPairsAction(argparse.Action):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # parser.add_argument('--rerunStrategy', type=str,  help='重跑策略', required=False)
+    parser.add_argument("--jobMode", type=str, help="作业模式", default="child",required=True)
     parser.add_argument("--combopName", type=str, help="组合工具名", required=True)
     parser.add_argument("--name", type=str, help="作业名", required=True)
     parser.add_argument("--scenarioName", type=str, default="", help="场景名", required=False)
@@ -38,14 +41,24 @@ if __name__ == "__main__":
     parser.add_argument("--assignExecUser", type=str, default="", help="指定执行用户", required=False)
     parser.add_argument("--protocol", type=str, default="", help="执行目标，指定执行协议", required=False)
     parser.add_argument("--executeUser", type=str, default="", help="执行目标，指定执行用户", required=False)
-    parser.add_argument("--inputNodeList", type=str, default="", help="执行目标，指定执行节点", required=False)
-
+    parser.add_argument("--inputNodeList", type=str, default="", help="执行目标，指定执行节点", required=False) 
+    parser.add_argument('--runnerGroup', type=str, default="", help="执行器组", required=False)
+    parser.add_argument('--runnerGroupTag', type=str, default="", help="执行器组标签", required=False)
     parser.add_argument("param", type=str, nargs="*", action=EvenPairsAction, help="执行参数")
     args = parser.parse_args()
 
     param = {}
     for i in range(0, len(args.param), 2):
         param[args.param[i]] = args.param[i + 1]
+    
+    runnerGroup = None 
+    if ( args.runnerGroup is not  None and args.runnerGroup != '' ):
+        runnerGroup = args.runnerGroup
+    
+    runnerGroupTag = None 
+    if ( args.runnerGroupTag is not  None and args.runnerGroupTag != '' ):
+        runnerGroupTag = args.runnerGroupTag
+
     # for key, value in os.environ.items():
     #     print(f"{key}={value}")
     data = {
@@ -58,17 +71,27 @@ if __name__ == "__main__":
         "roundCount": args.roundCount,
         "assignExecUser": args.assignExecUser or os.environ.get("USER"),
         "param": param,
-        "parentId": os.environ.get("AUTOEXEC_JOBID"),
         "invokeId": os.environ.get("AUTOEXEC_JOBID"),
     }
 
+    if args.jobMode == "child" :
+        data["parentId"]=os.environ.get("AUTOEXEC_JOBID")
+
+    if runnerGroup is not None :
+        data["runnerGroup"]=runnerGroup
+    
+    if runnerGroupTag is not None :
+        data["runnerGroupTag"]=runnerGroupTag
+
     if args.protocol and args.executeUser and args.inputNodeList:
         data["executeConfig"] = {"protocol": args.protocol, "executeUser": {"mappingMode": "constant", "value": args.executeUser}, "executeNodeConfig": {"inputNodeList": json.loads(args.inputNodeList)}, "whenToSpecify": "runtime"}
-
+    
+    #原有的data数据在执行接口调用会往里面加一些内置参数，复制数据方便重跑比对
+    nativeData = copy.deepcopy(data)
     context = AutoExecUtils.getAutoexecContext()
     serverAdapter = ServerAdapter.ServerAdapter(context)
 
-    # 检查环境变量PASSTHROUGH_ENV。如果该环境变量存在，它将从环境变量中获取用户名（AUTOEXEC_USER）和密码（EXECUSER_TOKEN）
+    # 从环境变量中获取用户名（AUTOEXEC_USER）和密码（EXECUSER_TOKEN）
     user = None
     password = None
     if os.environ.get("PASSTHROUGH_ENV"):
@@ -78,25 +101,48 @@ if __name__ == "__main__":
             user = os.environ.get("AUTOEXEC_USER")
             password = passThroughEnv.get("EXECUSER_TOKEN")
 
-    # 获取环境变量NODE_OUTPUT_PATH的值，并检查这个路径是否存在。如果存在，则获取上次操作的结果数据（prev_data），并从中获取已创建的作业ID
+    # 可能会与loop插件结合，此处情况可能是多个，调整为作业的参数完全一样才匹配是否重跑
+    jobList = []
+    jobIdList = []
     outputPath = os.getenv("NODE_OUTPUT_PATH")
     if os.path.exists(outputPath):
-        prev_data = AutoExecUtils.getOpPreOutput()
-        if prev_data and prev_data.get("createdJobId"):
-            createdJobId = prev_data.get("createdJobId")
-            print("之前已创建过作业: " + str(createdJobId))
-            # 重跑
+        prevData = AutoExecUtils.getOpPreOutput()
+        isCreated = 0
+        createdJobId = None
+        if prevData is not None and prevData.get("data") is not None:
+            jobList = prevData.get("data")
+            for job in jobList:
+                createdJobId = job.get("createdJobId")
+                jobIdList.append("{}".format(createdJobId))
+                param = job.get("param")
+                if param == data :
+                    isCreated = 1
+
+        if isCreated == 1 :
             job_status = AutoExecUtils.getJobStatus({"jobId": createdJobId, "proxyToUrl": None})
-            print("现在该作业状态：" + job_status)
+            print("INFO:: Job already exists {}, job status :{}.".format(createdJobId, job_status))
             if job_status in ("aborted", "paused", "completed", "failed"):
-                print("作业重跑")
+                print("INFO:: Job already exists, refire job {}.".format(createdJobId))
                 # 这个接口没有返回值
                 serverAdapter.refireJob({"jobId": createdJobId, "type": "refireAll"}, user, password)
             exit(0)
 
     resp = serverAdapter.createJobFromCombop(data, user, password)
-    print(resp)
-    out = {"createdJobId": resp["jobId"]}
-    AutoExecUtils.saveOutput(out)
+    if resp is not None:
+        createdJobId = resp["jobId"]
+        jobIdList.append("{}".format(createdJobId))
+        print("INFO:: Create job success,jobId:{}.".format(createdJobId))
+        jobList.append({"createdJobId": createdJobId,"param":nativeData})
 
-    exit(0)
+        #考虑loop创建作业情况，如果是在loop内加上waitjob效率太低了,冗余参数支持在loop外统一waitjob 
+        createdJobIds = ",".join(jobIdList)
+        out={
+            "data": jobList,
+            "createdJobId": createdJobId,
+            "createdJobIds": createdJobIds
+        }
+        AutoExecUtils.saveOutput(out)
+        exit(0)
+    else:
+        print("ERROR:: Create job failed.")
+        exit(1)
