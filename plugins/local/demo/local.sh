@@ -17,43 +17,53 @@ parseOpts() {
         -)
             case "${OPTARG}" in
             tinput)
-                tinput="${!OPTIND}"
+                #tinput="${!OPTIND}"
+                tinput=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tjson)
-                tjson="${!OPTIND}"
+                #tjson="${!OPTIND}"
+                tjson=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tselect)
-                tselect="${!OPTIND}"
+                #tselect="${!OPTIND}"
+                tselect=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tmultiselect)
-                tmultiselect="${!OPTIND}"
+                #tmultiselect="${!OPTIND}"
+                tmultiselect=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tpassword)
-                tpassword="${!OPTIND}"
+                #tpassword="${!OPTIND}"
+                tpassword=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tfile)
-                tfile="${!OPTIND}"
+                #tfile="${!OPTIND}"
+                tfile=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tnode)
-                tnode="${!OPTIND}"
+                #tnode="${!OPTIND}"
+                tnode=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tdate)
-                tdate="${!OPTIND}"
+                #tdate="${!OPTIND}"
+                tdate=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             ttime)
-                ttime="${!OPTIND}"
+                #ttime="${!OPTIND}"
+                ttime=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             tdatetime)
-                tdatetime="${!OPTIND}"
+                #tdatetime="${!OPTIND}"
+                tdatetime=$(eval echo \${${OPTIND}})
                 OPTIND=$(($OPTIND + 1))
                 ;;
             *)
