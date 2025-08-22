@@ -19,6 +19,7 @@ import logging
 import re
 import shlex
 import chardet
+import ast
 
 import paramiko
 import paramiko.transport
@@ -749,6 +750,50 @@ class RunNode:
                     break
         return highRisk
 
+    def setNativeEnv(self, op, envScope, envType, envName, envValue, isHidden):
+        startTime = time.time()
+        if envType == "dict":
+            try:
+                envValue = ast.literal_eval(envValue)
+            except ValueError:
+                self.writeNodeLog("ERROR: Setenv type dict value:{},parameter format not correct\n".format(envValue))
+                if op.failIgnore:
+                    pass 
+                else:
+                    op.status = NodeStatus.failed
+                    timeConsume = time.time() - startTime
+                    self.updateNodeStatus(op.status ,op=op ,consumeTime=timeConsume)
+                
+        if envScope == "global":
+            if envType == "str":
+                self.context.setEnv(envName, envValue, isHidden)
+                self.context.exportEnv(envName, isHidden)
+                self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+            elif envType == "dict":
+                for key, value in envValue.items():
+                    self.context.setEnv(key, value, isHidden)
+                    self.context.exportEnv(key, isHidden)
+                    self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(key, value))
+        else:
+            op.hasNodeEnv = True
+            if envType == "str":
+                self.nodeEnv[envName] = envValue
+                persistenceEnv = self.output["nodeEnv"]
+                persistenceEnv[envName] = envValue
+                if isHidden == 1:
+                    hiddenEnv = self.output["hiddenNodeEnv"]
+                    hiddenEnv[envName] = 1
+                self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+            elif envType == "dict":
+                for key, value in envValue.items():
+                    self.nodeEnv[key] = value
+                    persistenceEnv = self.output["nodeEnv"]
+                    persistenceEnv[key] = value
+                    if isHidden == 1:
+                        hiddenEnv = self.output["hiddenNodeEnv"]
+                        hiddenEnv[key] = 1
+                    self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(key, value))
+
     def execOneOperation(self, op, force=False):
         op.setNode(self)
         opStatus = self.getNodeStatus(op)
@@ -811,7 +856,7 @@ class RunNode:
 
                 loopIdx = loopIdx + 1
                 self.writeNodeLog("______Loop__{}:[${}={}] start...\n".format(loopIdx, loopItemVar, loopItem))
-                os.environ[loopItemVar] = loopItem
+                os.environ[loopItemVar] = "{}".format(loopItem)
                 for loopOp in loopOps:
                     if self.breakOut:
                         break
@@ -866,7 +911,9 @@ class RunNode:
                                 envName = op.options["name"]
                                 envValue = op.options["value"]
                                 envScope = op.options["scope"]
+                                envType = op.options.get("type", "str")
                                 isHidden = op.options.get("hidden", 0)
+
                                 self.writeNodeLog("INFO: Execute -> native/{} {}={} scope:{}\n".format(op.opSubName, envName, envValue, envScope))
                                 matchCmds = re.findall(r"\$\(([^\)]+)\)", envValue)
                                 if matchCmds:
@@ -877,19 +924,20 @@ class RunNode:
                                             stdout=subprocess.PIPE,
                                         )
                                         envValue = result.stdout.decode().strip()
-                                if envScope == "global":
-                                    self.context.setEnv(envName, envValue, isHidden)
-                                    self.context.exportEnv(envName, isHidden)
-                                    self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
-                                else:
-                                    op.hasNodeEnv = True
-                                    self.nodeEnv[envName] = envValue
-                                    persistenceEnv = self.output["nodeEnv"]
-                                    persistenceEnv[envName] = envValue
-                                    if isHidden == 1:
-                                        hiddenEnv = self.output["hiddenNodeEnv"]
-                                        hiddenEnv[envName] = 1
-                                    self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+                                # if envScope == "global":
+                                #     self.context.setEnv(envName, envValue, isHidden)
+                                #     self.context.exportEnv(envName, isHidden)
+                                #     self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+                                # else:
+                                #     op.hasNodeEnv = True
+                                #     self.nodeEnv[envName] = envValue
+                                #     persistenceEnv = self.output["nodeEnv"]
+                                #     persistenceEnv[envName] = envValue
+                                #     if isHidden == 1:
+                                #         hiddenEnv = self.output["hiddenNodeEnv"]
+                                #         hiddenEnv[envName] = 1
+                                #     self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+                                self.setNativeEnv(op, envScope, envType, envName, envValue, isHidden)
                             elif op.opSubName == "updategparam":
                                 varName = op.options["name"]
                                 varValue = op.options["value"]
@@ -1111,11 +1159,30 @@ class RunNode:
             loopItemVar = "LOOP_ITEM"
         return loopItemVar
 
-    def getLoopItems(self, loopOp):
+#    def getLoopItems(self, loopOp):
+#        opParams = loopOp.param
+#        loopItemStr = loopOp.resolveOptValue(opParams["loopItems"])
+#
+#        loopItems = shlex.split(loopItemStr)
+#        return loopItems
+    
+    def getLoopItems(self ,loopOp):
         opParams = loopOp.param
         loopItemStr = loopOp.resolveOptValue(opParams["loopItems"])
-        loopItems = shlex.split(loopItemStr)
+        loopItems = None 
+        try:
+            loopItemParsed = json.loads(loopItemStr)
+        except ValueError:
+            loopItemParsed = loopItemStr
+            pass 
+        if isinstance(loopItemParsed, str):
+            loopItems = shlex.split(loopItemParsed)
+        elif isinstance(loopItemParsed, dict):
+            loopItems = [loopItemParsed]
+        elif isinstance(loopItemParsed, (list, tuple)):
+            loopItems = loopItemParsed
         return loopItems
+
 
     def getLoopBlockOps(self, loopOp):
         opParams = loopOp.param

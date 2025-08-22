@@ -6,12 +6,34 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "设置全局环境变量并导出, 提供给外部流程工具引用",
-    "option": [{
+    "option": [
+        {
+            "opt": "type",
+            "name": "变量类型",
+            "help": "变量类型，支持常规字符和dict字典,字典示例：{\"name\":\"neatlogic\"}",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "常规字符",
+                        "value": "str"
+                    },
+                    {
+                        "text": "dict字典",
+                        "value": "dict"
+                    }
+                ]
+            },
+            "defaultValue": "str"
+        },
+        {
             "opt": "name",
             "name": "变量名",
-            "help": "在环境变量中的名称",
+            "help": "在环境变量中的名称,常规字符变量类型必须提供名称",
             "type": "text",
-            "required": "true",
+            "required": "false",
             "validate": "",
             "defaultValue": ""
         },

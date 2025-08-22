@@ -63,7 +63,10 @@ class RunNodeFactory:
             self.nodesCount = int(nodesDescObj.get("totalCount", 0))
             self.totalNodesCount = self.nodesCount
             self.localRunnerId = nodesDescObj.get("localRunnerId", 0)
-            self.jobRunnerIds = nodesDescObj.get("jobRunnerIds", [])
+            #兼容neatlogic送过来异常或非法节点带过来的null空执行组导致后续计算异常
+            jobRunnerIds = nodesDescObj.get("jobRunnerIds", [])
+            newJobRunnerIds = [rid for rid in jobRunnerIds if rid is not None]
+            self.jobRunnerIds = newJobRunnerIds
             self.jobRunnerCount = len(self.jobRunnerIds)
         except:
             pass

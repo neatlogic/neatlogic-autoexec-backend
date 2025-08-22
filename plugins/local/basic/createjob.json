@@ -9,6 +9,28 @@
     "enabled": 1,
     "option": [
         {
+            "opt":"jobMode",
+            "name":"作业模式",
+            "help":"作业模式，选择了独立作业，创建的作业不会和当前作业建立父子关系，否则就创建为一个子作业",
+            "type":"select",
+            "required": "true",
+            "validate":"",
+            "dataSource":{
+                "dataList":
+                [
+                    {
+                        "text":"独立作业",
+                        "value":"standalone"
+                    },
+                    {
+                        "text":"子作业",
+                        "value":"child"
+                    }
+                ]
+            },
+            "defaultValue": "child"
+        },
+        {
             "opt": "combopName",
             "name": "组合工具名",
             "help": "组合工具名",
@@ -115,7 +137,7 @@
         },
         {
             "opt": "executeUser",
-            "name": "执行目标，指定执行用户",
+            "name": "执行用户",
             "help": "执行目标，指定执行用户",
             "type": "text",
             "required": "false",
@@ -124,9 +146,29 @@
         },
         {
             "opt": "inputNodeList",
-            "name": "执行目标，指定执行节点",
+            "name": "执行节点",
             "help": "执行目标，指定执行节点",
             "type": "node",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        },
+        {
+            
+            "opt": "runnerGroupTag",
+            "name": "执行组标签",
+            "help": "执行组标签，如：prd、sit",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        },
+        {
+            
+            "opt": "runnerGroup",
+            "name": "执行组",
+            "help": "执行组,如：生产网段执行组",
+            "type": "text",
             "required": "false",
             "validate": "",
             "defaultValue": null
@@ -147,6 +189,12 @@
             "opt": "createdJobId",
             "name": "已创建作业的id",
             "help": "已创建作业的id，可用于waitjob插件",
+            "type": "text"
+        },
+        {
+            "opt": "createdJobIds",
+            "name": "已创建作业的id集合",
+            "help": "已创建作业的id集合，适用于loop循环创建多个作业，在loop外统一用waitjob插件监视",
             "type": "text"
         }
     ]
