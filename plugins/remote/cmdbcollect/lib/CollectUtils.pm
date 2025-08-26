@@ -65,7 +65,7 @@ sub get_all_children_process {
         }
     }
 
-    return rerverse(@all_children);
+    return reverse(@all_children);
 }
 
 #获取windows的ps1文件内容拼装为powershell命令行
