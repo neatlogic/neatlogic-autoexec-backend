@@ -34,37 +34,42 @@ sub new {
 sub get_all_children_process {
     my ($self, $target_pid) = @_;
 
-    # 一次性读取所有进程关系
-    my %children_map = ();
+    my %process_map = ();
     my $ps;
     if($self->{ostype} ne 'Windows'){
-        open ($ps, "ps axo pid,ppid ｜") or return ();
+        open ($ps ,'-|', 'ps axo pid,ppid') or print("WARN: Can not execute command: ps axo pid,ppid,$1\n");
     }
     else{
         my $listProcCmd = $self->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
-        open( $ps, $listProcCmd . '|' ) or return ();
+        open( $ps, '-|' ,$listProcCmd ) or print("WARN: Can not execute command: $listProcCmd,$1\n");;
     }
 
     while (my $line = <$ps>) {
-        next if $line =~ /PPID/; # 跳过标题行
-        if ($line =~ /^\s*(\d+)\s+(\d+)/) {
-            push (@{$children_map{$2}}, $1);
+        $line =~ s/^\s+|\s+$//g; 
+        next if $line =~ /PPID/; 
+
+        if ($line =~ /^(\d+)\s+(\d+)/) {
+            my($pid, $ppid) = ($1, $2);
+            $process_map{$pid} = $ppid;
         }
     }
     close($ps);
 
-    # 收集所有后代进程
     my @all_children = ();
-    my @stack = ($target_pid);
+    #当前进程pid
+    push(@all_children, $target_pid);
 
+    #子进程递归查找
+    my @stack = ($target_pid);
     while (@stack) {
         my $pid = pop(@stack);
-        if (my $children = $children_map{$pid}) {
-            push(@all_children, @$children);
-            push(@stack, @$children);
+        while (my ($chpid, $chppid) = each %process_map) {
+            if ( "$chppid" eq "$pid" ) {
+                push(@all_children, $chpid);
+                push(@stack, $chpid);
+            }
         }
     }
-
     return reverse(@all_children);
 }
 
