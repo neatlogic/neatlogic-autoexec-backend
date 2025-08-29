@@ -100,6 +100,9 @@ if __name__ == "__main__":
         if passThroughEnv.get("EXECUSER_TOKEN"):
             user = os.environ.get("AUTOEXEC_USER")
             password = passThroughEnv.get("EXECUSER_TOKEN")
+            
+            if user is None:
+                user = passThroughEnv.get("EXECUSER_UUID")
 
     # 可能会与loop插件结合，此处情况可能是多个，调整为作业的参数完全一样才匹配是否重跑
     jobList = []
