@@ -6,7 +6,17 @@
     "interpreter": "python",
     "defaultProfile": null,
     "description": "对采集插件生成的数据存储到DB",
-    "option": [{
+    "option": [
+    {
+        "opt": "ttltime",
+        "name": "数据老化清理时间",
+        "help": "采集数据多少天内无更新自动清理的时间，单位为天",
+        "type": "text",
+        "required": "false",
+        "validate": ["number"],
+        "defaultValue": "30"
+    },
+    {
         "opt": "batchtag",
         "name": "批次号",
         "help": "保存到采集数据中的批次号，用于标记当次采集的数据",

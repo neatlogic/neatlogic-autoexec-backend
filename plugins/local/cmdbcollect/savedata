@@ -25,7 +25,8 @@ def getObjCatPkDef(objCat, customPkDef):
         "ADMINSET": ["UNIQUE_NAME"],
         "DBINS": ["MGMT_IP", "PORT", "INSTANCE_NAME"],
         "OS": ["MGMT_IP"],
-        "HOST": ["MGMT_IP", "BOARD_SERIAL"],
+        #"HOST": ["MGMT_IP", "BOARD_SERIAL"],
+        "HOST": ["MGMT_IP"], #兼容低版本采集不到BOARD_SERIAL
         "NETDEV": ["MGMT_IP", "SN"],
         "SECDEV": ["MGMT_IP", "SN"],
         "VIRTUALIZED": ["MGMT_IP"],
@@ -37,7 +38,8 @@ def getObjCatPkDef(objCat, customPkDef):
         "FCDEV": ["MGMT_IP", "SN"],
         "K8S": ["MGMT_IP"],
         "CONTAINER": ["MGMT_IP", "CONTAINER_ID"],
-        "UNKNOWN": ["MGMT_IP"],
+        "NOVMTOOL":["VCENTER_IP", "VM_ID" ],
+        "UNKNOWN": ["MGMT_IP"]
     }
     fixPkDef = pkDefs.get(objCat)
     if fixPkDef is not None:
@@ -62,12 +64,12 @@ def getObjCatIndexDef(objCat):
     return idxDef
 
 
-def createPKIndex(collection, pkDef):
+def createPKIndex(collection, pkDef , ttlTime):
     pkIdx = []
     for field in pkDef:
         pkIdx.append((field, 1))
     collection.create_index(pkIdx, name="idx_pk", unique=True)
-    collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
+    collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=ttlTime)
     collection.create_index([("_batch_tag", 1)], name="idx_batchtag")
 
 
@@ -82,7 +84,7 @@ def createIndex(collection, data, objCat):
 
 
 # 目的通过PEER信息搜索到应用进程
-def saveAppConnData(db, existsCollections, data):
+def saveAppConnData(db, existsCollections, data, ttlTime):
     if data["_OBJ_CATEGORY"] in ("INS", "DBINS") and "OS_ID" in data:
         connInfo = {}
         connInfo["OS_ID"] = data["OS_ID"]
@@ -114,14 +116,14 @@ def saveAppConnData(db, existsCollections, data):
             collection.create_index([("MGMT_IP", 1), ("PORT", 1)], name="idx_pk")
             collection.create_index([("BIND", 1)], name="idx_bind")
             collection.create_index([("PEER", 1)], name="idx_peer")
-            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
+            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=ttlTime)
             existsCollections["RELATION_INS_NETCONN"] = 1
 
         print("INFO: Save connection data success.")
         # del(data['CONN_INFO'])
 
 
-def saveSwMacTableData(db, existsCollections, data):
+def saveSwMacTableData(db, existsCollections, data, ttlTime):
     if data["_OBJ_CATEGORY"] == "SWITCH" and "MAC_TABLE" in data:
         macTableInfo = {}
         macTableInfo["_OBJ_CATEGORY"] = data["_OBJ_CATEGORY"]
@@ -142,14 +144,14 @@ def saveSwMacTableData(db, existsCollections, data):
             collection.create_index([("MGMT_IP", 1), ("SN", 1)], name="idx_pk")
             # MAC_TABLE_MACS索引用于使用$in操作符检索，结合$elemMatch返回匹配的MAC记录
             collection.create_index([("MAC_TABLE.MACS", 1)], name="idx_mac")
-            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
+            collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=ttlTime)
             existsCollections["RELATION_NET_MACTABLE"] = 1
 
         print("INFO: Save mac table data success.")
         # del data["MAC_TABLE"]
 
 
-def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
+def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat, ttlTime):
     collection = db[table]
     oldData = collection.find_one(primaryKey, {"_id": False})
     if oldData is None:
@@ -161,14 +163,15 @@ def mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat):
     print("INFO: Save data success.")
 
     if table not in existsCollections:
-        createPKIndex(collection, pkDef)
+        createPKIndex(collection, pkDef, ttlTime)
         createIndex(collection, data, objCat)
-        collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=15811200)
+        collection.create_index([("_renewtime", 1)], name="idx_ttl", expireAfterSeconds=ttlTime)
         existsCollections[table] = 1
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("--ttltime",default=30, help="ttl time")
     parser.add_argument("--batchtag", default="", help="Json document tag for this batch")
     parser.add_argument("--outputfile", default="", help="Output json file path for node")
     parser.add_argument("--node", default="", help="Execution node json")
@@ -178,6 +181,10 @@ if __name__ == "__main__":
         help="CMDB data collect custome tool names",
     )
     args = parser.parse_args()
+    ttlTime = args.ttltime 
+    if ttlTime is None :
+        ttlTime = 30 
+    ttlTime = int(ttlTime) * 86400
     batchTag = args.batchtag
     outputPath = args.outputfile
 
@@ -210,7 +217,7 @@ if __name__ == "__main__":
     (dbclient, db) = AutoExecUtils.getDB()
     existsCollections = {}
     for collection in db.list_collection_names():
-        if collection.find("COLLECT_") > -1:
+        if collection.find("COLLECT_") > -1 or collection.find("RELATION_") > -1 :
             existsCollections[collection] = 1
 
     execUser = os.getenv("AUTOEXEC_USER")
@@ -302,12 +309,12 @@ if __name__ == "__main__":
                     data["_batch_tag"] = batchTag
 
                     if "_OBJ_CATEGORY" in data:
-                        saveAppConnData(db, existsCollections, data)
-                        saveSwMacTableData(db, existsCollections, data)
+                        saveAppConnData(db, existsCollections, data, ttlTime)
+                        saveSwMacTableData(db, existsCollections, data, ttlTime)
                         pkDef = getObjCatPkDef(objCat, pkDef)
                     print("INFO: Save connection information success.")
 
-                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat)
+                    mergeAndSaveData(existsCollections, table, pkDef, primaryKey, data, objCat, ttlTime)
 
                     print("INFO: Save data success.\n".format(typeName, pkJson))
                 except Exception as ex:
