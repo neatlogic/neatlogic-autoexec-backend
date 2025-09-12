@@ -750,49 +750,72 @@ class RunNode:
                     break
         return highRisk
 
+    def setEnvIgnoreOrFailed(self, op, startTime , msg):
+        isFailed = True
+        self.writeNodeLog("ERROR:{}.\n".format(msg))
+        if op.failIgnore:
+            isFailed = False
+        if isFailed:
+            timeConsume = time.time() - startTime
+            raise AutoExecError(msg)
+
     def setNativeEnv(self, op, envScope, envType, envName, envValue, isHidden):
         startTime = time.time()
+        builtInEnvs = [
+            'AUTOEXEC_HOME','TOOLS_PATH','AUTOEXEC_JOBID','AUTOEXEC_EXECID','AUTOEXEC_PID','AUTOEXEC_TENANT','AUTOEXEC_USER','AUTOEXEC_WORK_PATH',
+            'AUTOEXEC_JOB_SOCK','AUTOEXEC_NODE','AUTOEXEC_NODES_PATH','AUTOEXEC_GROUP_NO','AUTOEXEC_PHASE_NAME','AUTOEXEC_OPERATION_ID','RUNNER_ID',
+            'DEPLOY_RUNNERGROUP','JOB_PARAMS_PATH','OUTPUT_DIR','OUTPUT_PATH','NODE_OUTPUT_PATH','LIVEDATA_PATH','DEPLOY_ID_PATH','DEPLOY_PATH',
+            'SYS_ID','SYS_NAME','MODULE_ID','MODULE_NAME','ENV_ID','ENV_NAME','VERSION','BUILD_NO','DATA_PATH','PRJ_ROOT','PRJ_PATH','VER_ROOT',
+            'BUILD_ROOT','BUILD_PATH','MIRROR_ROOT','DIST_ROOT','APP_DIST','DB_SCRIPT','AUTOEXEC_JOBID','AUTOEXEC_NODE','NODE_HOST','NODE_PORT','NODE_NAME'
+        ]
+
         if envType == "dict":
             try:
                 envValue = ast.literal_eval(envValue)
             except ValueError:
-                self.writeNodeLog("ERROR: Setenv type dict value:{},parameter format not correct\n".format(envValue))
-                if op.failIgnore:
-                    pass 
-                else:
-                    op.status = NodeStatus.failed
-                    timeConsume = time.time() - startTime
-                    self.updateNodeStatus(op.status ,op=op ,consumeTime=timeConsume)
+                self.setEnvIgnoreOrFailed(op, startTime, " Setenv type dict value:{},parameter format not correct".format(envValue))
                 
         if envScope == "global":
             if envType == "str":
-                self.context.setEnv(envName, envValue, isHidden)
-                self.context.exportEnv(envName, isHidden)
-                self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+                if envName not in builtInEnvs:
+                    self.context.setEnv(envName, envValue, isHidden)
+                    self.context.exportEnv(envName, isHidden)
+                    self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(envName, envValue))
+                else:
+                    self.setEnvIgnoreOrFailed(op, startTime, "Set global envrionment:{} is system builtin env, permission denied.".format(envName))
             elif envType == "dict":
                 for key, value in envValue.items():
-                    self.context.setEnv(key, value, isHidden)
-                    self.context.exportEnv(key, isHidden)
-                    self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(key, value))
+                    if envName not in builtInEnvs:
+                        self.context.setEnv(key, value, isHidden)
+                        self.context.exportEnv(key, isHidden)
+                        self.writeNodeLog("INFO: Set global envrionment:{}={}\n".format(key, value))
+                    else:
+                        self.setEnvIgnoreOrFailed(op, startTime, "Set global envrionment:{} is system builtin env, permission denied.".format(key))
         else:
             op.hasNodeEnv = True
             if envType == "str":
-                self.nodeEnv[envName] = envValue
-                persistenceEnv = self.output["nodeEnv"]
-                persistenceEnv[envName] = envValue
-                if isHidden == 1:
-                    hiddenEnv = self.output["hiddenNodeEnv"]
-                    hiddenEnv[envName] = 1
-                self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
-            elif envType == "dict":
-                for key, value in envValue.items():
-                    self.nodeEnv[key] = value
+                if envName not in builtInEnvs:
+                    self.nodeEnv[envName] = envValue
                     persistenceEnv = self.output["nodeEnv"]
-                    persistenceEnv[key] = value
+                    persistenceEnv[envName] = envValue
                     if isHidden == 1:
                         hiddenEnv = self.output["hiddenNodeEnv"]
-                        hiddenEnv[key] = 1
-                    self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(key, value))
+                        hiddenEnv[envName] = 1
+                    self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(envName, envValue))
+                else:
+                    self.setEnvIgnoreOrFailed(op, startTime, "Set node envrionment:{} is system builtin env, permission denied.".format(envName))
+            elif envType == "dict":
+                for key, value in envValue.items():
+                    if key not in builtInEnvs:
+                        self.nodeEnv[key] = value
+                        persistenceEnv = self.output["nodeEnv"]
+                        persistenceEnv[key] = value
+                        if isHidden == 1:
+                            hiddenEnv = self.output["hiddenNodeEnv"]
+                            hiddenEnv[key] = 1
+                        self.writeNodeLog("INFO: Set node envrionment:{}={}\n".format(key, value))
+                    else:
+                        self.setEnvIgnoreOrFailed(op, startTime, "Set node envrionment: {} is system builtin env, permission denied.".format(key))
 
     def execOneOperation(self, op, force=False):
         op.setNode(self)

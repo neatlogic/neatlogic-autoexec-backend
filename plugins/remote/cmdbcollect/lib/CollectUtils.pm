@@ -31,6 +31,48 @@ sub new {
     return $self;
 }
 
+sub get_all_children_process {
+    my ($self, $target_pid) = @_;
+
+    my %process_map = ();
+    my $ps;
+    if($self->{ostype} ne 'Windows'){
+        open ($ps ,'-|', 'ps axo pid,ppid') or print("WARN: Can not execute command: ps axo pid,ppid,$1\n");
+    }
+    else{
+        my $listProcCmd = $self->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
+        open( $ps, '-|' ,$listProcCmd ) or print("WARN: Can not execute command: $listProcCmd,$1\n");;
+    }
+
+    while (my $line = <$ps>) {
+        $line =~ s/^\s+|\s+$//g; 
+        next if $line =~ /PPID/; 
+
+        if ($line =~ /^(\d+)\s+(\d+)/) {
+            my($pid, $ppid) = ($1, $2);
+            $process_map{$pid} = $ppid;
+        }
+    }
+    close($ps);
+
+    my @all_children = ();
+    #当前进程pid
+    push(@all_children, $target_pid);
+
+    #子进程递归查找
+    my @stack = ($target_pid);
+    while (@stack) {
+        my $pid = pop(@stack);
+        while (my ($chpid, $chppid) = each %process_map) {
+            if ( "$chppid" eq "$pid" ) {
+                push(@all_children, $chpid);
+                push(@stack, $chpid);
+            }
+        }
+    }
+    return reverse(@all_children);
+}
+
 #获取windows的ps1文件内容拼装为powershell命令行
 sub getWinPs1Cmd {
     my ( $self, $psPath ) = @_;
