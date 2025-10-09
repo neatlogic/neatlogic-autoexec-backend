@@ -37,11 +37,11 @@ sub get_all_children_process {
     my %process_map = ();
     my $ps;
     if($self->{ostype} ne 'Windows'){
-        open ($ps ,'-|', 'ps axo pid,ppid') or print("WARN: Can not execute command: ps axo pid,ppid,$1\n");
+        open ($ps, 'ps axo pid,ppid |') or print("WARN: Can not execute command: ps axo pid,ppid,$1\n");
     }
     else{
         my $listProcCmd = $self->getWinPs1Cmd("$FindBin::Bin/lib/windowsps.ps1") . ' getAllProcesses';
-        open( $ps, '-|' ,$listProcCmd ) or print("WARN: Can not execute command: $listProcCmd,$1\n");;
+        open( $ps, $listProcCmd . '|' ) or print("WARN: Can not execute command: $listProcCmd,$1\n");;
     }
 
     while (my $line = <$ps>) {
