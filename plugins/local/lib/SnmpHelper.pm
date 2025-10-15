@@ -186,7 +186,8 @@ sub getScalar {
                 if (    defined($tmpVal)
                     and $tmpVal ne 'noSuchObject'
                     and $tmpVal ne 'noSuchInstance'
-                    and $tmpVal ne 'endOfMibView' )
+                    and $tmpVal ne 'endOfMibView' 
+                    and $tmpVal ne '' )
                 {
                     $oidVal = $tmpVal;
                     last;
