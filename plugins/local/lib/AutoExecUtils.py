@@ -376,7 +376,14 @@ def getNodePwd(resourceId, host, port, username, protocol):
     config = context.config
     passKey = config["server"]["password.key"]
     serverAdapter = ServerAdapter.ServerAdapter(context)
-    pwdEncrypted = serverAdapter.getNodePwd(resourceId, host, port, username, protocol)
+    pwdObject = serverAdapter.getNodePwd(resourceId, host, port, username, protocol)
+
+    pwdEncrypted = "unknown"
+    if isinstance(pwdObject, str):
+        pwdEncrypted = pwdObject
+    else:
+        pwdEncrypted = pwdObject.get("passwordCipher", "unknown")
+
     if pwdEncrypted.startswith("{ENCRYPTED}"):
         nodePwd = _rc4_decrypt_hex(passKey, pwdEncrypted[11:])
     elif pwdEncrypted.startswith("{RC4}"):
