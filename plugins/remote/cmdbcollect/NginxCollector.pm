@@ -375,10 +375,13 @@ sub getProxyPassMembers {
             $matched = 1;
             my $upstreamServersList = $upstreamsMap->{$upstreamName}->{server};
 
-            # if(ref($upstreamServersList) ne 'ARRAY'){
-            #   #如果只有一个server，返回不是数组，转换成数组
-            #   $upstreamServersList = [$upstreamServersList];
-            # }
+            if( not defined($upstreamServersList) ){
+                $upstreamServersList = [];
+            }
+            elsif(ref($upstreamServersList) ne 'ARRAY'){
+              #如果只有一个server，返回不是数组，转换成数组
+              $upstreamServersList = [$upstreamServersList];
+            }
 
             foreach my $serverAddr (@$upstreamServersList) {
                 $serverAddr =~ s/\s+.*$//g;
