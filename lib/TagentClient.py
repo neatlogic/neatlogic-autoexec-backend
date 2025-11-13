@@ -574,11 +574,13 @@ class TagentClient:
                                 chunk = ""
 
                             if chunk != "":
-                                chunk = chunk.decode(agentCharset, "ignore").encode(charset, "replace")
+                                if chunk != chunk.decode("utf-8", "ignore").encode("utf-8", "replace"):
+                                    chunk = chunk.decode(agentCharset, "ignore").encode(charset, "replace")
                                 f.write(chunk)
                         else:
                             if lineLeft != "":
-                                lineLeft = lineLeft.decode(agentCharset, "ignore").encode(charset, "replace")
+                                if lineLeft != lineLeft.decode("utf-8", "ignore").encode("utf-8", "replace"):
+                                    lineLeft = lineLeft.decode(agentCharset, "ignore").encode(charset, "replace")
                                 f.write(lineLeft)
                             break
 
