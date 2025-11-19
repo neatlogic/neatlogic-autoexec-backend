@@ -805,7 +805,7 @@ class Operation:
                     if self.interpreter == "bash":
                         # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = "cd {} && {} -l {}".format(remotePath, self.interpreter, self.opSubName)
-                    if self.interpreter == "sh" and osType == "linux":
+                    elif self.interpreter == "sh" and osType == "linux":
                         # cmd = '{} -l {}/{}'.format(self.interpreter, remotePath, self.opSubName)
                         cmd = "cd {} && {} -l {}".format(remotePath, self.interpreter, self.opSubName)
                     elif self.interpreter == "javascript":
