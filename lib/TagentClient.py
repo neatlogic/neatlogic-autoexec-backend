@@ -70,6 +70,14 @@ def _rc4_decrypt_hex(key: str, data: str):
         return _rc4(key, binascii.unhexlify(data))
 
 
+def _is_charset(bytes_data: bytes, charset):
+    try:
+        bytes_data.decode(charset)
+        return True
+    except:
+        return False
+
+
 class AuthError(RuntimeError):
     def __init__(self, value):
         self.value = value
@@ -449,15 +457,17 @@ class TagentClient:
                     break
 
                 if isVerbose == 1 or callback is not None:
-                    dec_line = line.decode(agentCharset, "ignore")
-                    if line != dec_line.encode(agentCharset, "replace"):
-                        dec_line = line.decode("utf-8", "ignore")
-                        if line != dec_line.encode("utf-8", "replace"):
-                            detectInfo = chardet.detect(line)
-                            detectEnc = detectInfo["encoding"]
-                            if detectEnc is not None:
-                                dec_line = line.decode(detectEnc, "ignore")
-                    line = dec_line
+                    if _is_charset(line, agentCharset):
+                        line = line.decode(agentCharset)
+                    elif _is_charset(line, "utf-8"):
+                        line = line.decode("utf-8")
+                    else:
+                        detectInfo = chardet.detect(line)
+                        detectEnc = detectInfo["encoding"]
+                        if detectEnc is not None:
+                            line = line.decode(detectEnc, "ignore")
+                        else:
+                            print("DEBUG:detect charset failed.")
                 if isVerbose == 1:
                     print(line.strip())
                 if callback:
@@ -578,12 +588,12 @@ class TagentClient:
                                 chunk = ""
 
                             if chunk != "":
-                                if chunk != chunk.decode("utf-8", "ignore").encode("utf-8", "replace"):
+                                if not _is_charset(chunk, charset):
                                     chunk = chunk.decode(agentCharset, "ignore").encode(charset, "replace")
                                 f.write(chunk)
                         else:
                             if lineLeft != "":
-                                if lineLeft != lineLeft.decode("utf-8", "ignore").encode("utf-8", "replace"):
+                                if not _is_charset(lineLeft, charset):
                                     lineLeft = lineLeft.decode(agentCharset, "ignore").encode(charset, "replace")
                                 f.write(lineLeft)
                             break
@@ -756,7 +766,7 @@ class TagentClient:
                 self.__writeChunk(sock)
             self.__readChunk(sock)
         except BaseException as errMsg:
-            raise AgentError("ERROR: Download file {} failed, {}.".format(filePath, errMsg))
+            raise AgentError("ERROR: Read file {} failed, {}.".format(filePath, errMsg))
         return status
 
     # 下载URL中的文件内容，写入网络连接中
