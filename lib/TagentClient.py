@@ -448,13 +448,17 @@ class TagentClient:
                 if not line:
                     break
 
+                if isVerbose == 1 or callback is not None:
+                    dec_line = line.decode(agentCharset, "ignore")
+                    if line != dec_line.encode(agentCharset, "replace"):
+                        dec_line = line.decode("utf-8", "ignore")
+                        if line != dec_line.encode("utf-8", "replace"):
+                            detectInfo = chardet.detect(line)
+                            detectEnc = detectInfo["encoding"]
+                            if detectEnc is not None:
+                                dec_line = line.decode(detectEnc, "ignore")
+                    line = dec_line
                 if isVerbose == 1:
-                    detectInfo = chardet.detect(line)
-                    detectEnc = detectInfo["encoding"]
-                    if detectEnc is not None:
-                        line = line.decode(detectEnc, "ignore")
-                    else:
-                        line = line.decode(errors="ignore")
                     print(line.strip())
                 if callback:
                     callback(line, *cbparams)
