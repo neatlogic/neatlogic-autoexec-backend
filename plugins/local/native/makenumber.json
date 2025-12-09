@@ -1,0 +1,43 @@
+{
+    "opName": "生成编号",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "根据类型生成编号",
+    "option": [
+        {
+            "opt": "tag",
+            "name": "类型",
+            "help": "生成编号的类型",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "当前时间戳",
+                        "value": "timestamp"
+                    },
+                    {
+                        "text": "Job作业ID",
+                        "value": "jobId"
+                    },
+                    {
+                        "text": "雪花ID",
+                        "value": "snowflake"
+                    }
+                ]
+            }
+        }
+    ],
+    "output": [
+        {
+            "opt": "numberNo",
+            "name": "批次号",
+            "help": "生成的编号",
+            "type": "text"
+        }
+    ]
+}
