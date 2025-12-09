@@ -134,7 +134,10 @@ class ServerAdapter:
         params["execId"] = self.context.execId
 
         url = self.serverBaseUrl + apiUri
-        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+            "source": "autoexec"
+        }
 
         postBody = json.dumps(params, ensure_ascii=False)
         req = urllib.request.Request(url, postBody.encode("utf-8"))
@@ -237,7 +240,10 @@ class ServerAdapter:
         params["execId"] = self.context.execId
 
         url = self.serverBaseUrl + apiUri
-        headers = {"Content-Type": "application/json; charset=utf-8"}
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "source": "autoexec"
+        }
 
         postBody = json.dumps(params, ensure_ascii=False)
         req = urllib.request.Request(url, postBody.encode("utf-8"))
