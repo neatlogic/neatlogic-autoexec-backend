@@ -59,6 +59,19 @@ class ListenWorkThread(threading.Thread):
                         if phaseStatus is not None and phaseStatus.executor is not None:
                             phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData.get("interact"), clean=clean)
                             print("INFO: Node interact event recieved, phase({}) resourceid({}) processed.\n".format(phaseName, resourceId), end="")
+                        if clean == 1:
+                            hasWaitInput = False
+                            for phaseSatus in self.context.phases.values():
+                                if phaseSatus.executor.waitInputFlag:
+                                    hasWaitInput = True
+                                    break
+                            if hasWaitInput:
+                                self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
+                                print("INFO: Update job status to waitInput succeed.\n", end="")
+                            else:
+                                self.context.serverAdapter.pushJobStatus(NodeStatus.running)
+                                print("INFO: Update job status to running succeed.\n", end="")
+
                     elif actionData["action"] == "informRoundContinue":
                         phaseName = actionData["phaseName"]
                         roundNo = actionData["roundNo"]
