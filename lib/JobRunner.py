@@ -888,7 +888,15 @@ class JobRunner:
                 if not self.context.goToStop:
                     # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
                     print("INFO: Fire group:{}.\n".format(lastGroupNo + 2), end="")
-                    self.context.serverAdapter.fireNextGroup(lastGroupNo)
+                    try:
+                        self.context.serverAdapter.fireNextGroup(lastGroupNo)
+                    except Exception as ex:
+                        print("ERROR: Fire group:{} failed, {}.".format(lastGroupNo + 2, ex), end="")
+                        try:
+                            self.context.serverAdapter.pushJobStatus(NodeStatus.failed)
+                        except Exception as e:
+                            print("ERROR: Update job status to failed after failed firing group:{}, {}.\n".format(lastGroupNo + 2, e), end="")
+                        raise
             else:
                 # myJobStatus = self.getMyJobStatus()
                 self.context.serverAdapter.pushJobStatus(NodeStatus.completed)
