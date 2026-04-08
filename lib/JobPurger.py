@@ -26,6 +26,23 @@ class JobPurger:
                 break
             startPath = startPath.parent
 
+    def getJobIdByPath(self, jobPath):
+        jobRoot = Path(self.context.dataPath) / "job"
+        try:
+            relativePath = Path(jobPath).resolve().relative_to(jobRoot.resolve())
+        except Exception:
+            return None
+        return "".join(relativePath.parts)
+
+    def purgeJobData(self, jobId):
+        db = self.context.db
+        if db is None or not jobId:
+            return
+
+        pk = {"jobId": jobId}
+        db["_node_output"].delete_many(pk)
+        db["_node_status"].delete_many(pk)
+
     def purgeJob(self, absRoot):
         if os.path.exists(absRoot):
             for item in os.scandir(absRoot):
@@ -34,9 +51,16 @@ class JobPurger:
                 else:
                     if item.name == "firstgroup" or item.name == "params.json":
                         paramFile = item.path
+                        if not os.path.exists(paramFile):
+                            continue
                         jobIdPath = paramFile[0:-12]
-                        jobMtime = os.stat(paramFile).st_mtime
+                        try:
+                            jobMtime = os.stat(paramFile).st_mtime
+                        except FileNotFoundError:
+                            continue
                         if self.nowTime - jobMtime > self.reserveSeconds:
+                            jobId = self.getJobIdByPath(jobIdPath)
+                            self.purgeJobData(jobId)
                             shutil.rmtree(jobIdPath, ignore_errors=True)
                             self.purgeEmptyJobDir(jobIdPath)
                             print("INFO: Remove job dictory:" + jobIdPath + "\n", end="")
