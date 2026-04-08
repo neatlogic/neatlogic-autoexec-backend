@@ -1,0 +1,35 @@
+{
+    "opDesc": "调用内部API",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "提供API URI和JSON参数，调用内部API",
+    "option": [{
+        "opt": "apiuri",
+        "name": "API URI",
+        "help": "内部API的URI，例如：/neatlogic/api/rest/cmdb/import",
+        "type": "text",
+        "required": "true",
+        "validate": "",
+        "defaultValue": ""
+    },{
+        "opt": "params",
+        "name": "参数",
+        "help": "JSON格式的参数",
+        "type": "json",
+        "required": "false",
+        "validate": "",
+        "defaultValue": "{}"
+    }],
+    "argument": null,
+    "output": [
+        {
+            "opt": "returnData",
+            "name": "返回数据",
+            "help": "调用接口返回的数据",
+            "type": "json"
+        }
+    ]
+}
