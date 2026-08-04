@@ -1,0 +1,70 @@
+{
+    "opDesc": "Modify sysctl.conf",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify/etc/sysctl.conf settings",
+    "option": [
+        {
+            "opt": "backup",
+            "name": "Backup Files",
+            "help": "Backup file before change to/etc/sysctl.conf.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "autotuneshm",
+            "name": "Automatic SHM Parameters",
+            "help": "Automatically adjust kernel.shmax and kernel.shmall to half the memory",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support multiple rows, e.g. kennel.shmmni=4096",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "sysctlConf",
+            "name": "sysctl configuration",
+            "help": "Updated sysctl.conf configuration",
+            "type": "textarea"
+        }
+    ]
+}

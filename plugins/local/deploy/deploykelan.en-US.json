@@ -1,0 +1,49 @@
+{
+    "opDesc": "Kelan OSGI deployment tool",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Asgi packages in the release version directory",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "console",
+            "name": "Manage URLs",
+            "help": "Collan Management Console URL",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username for access to the Kelan Management Console",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "User password for accessing Kelan Management Console",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "servername",
+            "name": "Server Name",
+            "help": "SERVER name for the collane application",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

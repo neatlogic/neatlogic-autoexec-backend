@@ -1,0 +1,11 @@
+{
+    "opDesc": "Update CMDB Collection Plugin Dictionary",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Update collection plugin data dictionary",
+    "option": [],
+    "output": []
+}

@@ -1,0 +1,43 @@
+{
+    "opDesc": "Same Tool Output Connection",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Connect to one variable of the same tool output for a single node to support string and array connections",
+    "option": [
+        {
+            "opt": "delimiter",
+            "name": "String Concatenation Delimiter",
+            "help": "If output is string, spell symbol",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ","
+        },
+        {
+            "opt": "outputkey",
+            "name": "Variable Name",
+            "help": "Variable name for upstream output",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "aggTxtData",
+            "name": "Aggregated text data",
+            "help": "Multi-node output of aggregated text data",
+            "type": "textarea"
+        },
+        {
+            "opt": "aggJsonData",
+            "name": "Aggregation of JSON data",
+            "help": "Multinodes output of JSON data after aggregation",
+            "type": "textarea"
+        }
+    ]
+}

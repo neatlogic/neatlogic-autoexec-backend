@@ -1,0 +1,49 @@
+{
+    "opDesc": "CVE Dependency Check",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Scan the project or its subdirectories, generate packages dependent on CVE loopholes to check information",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startdir",
+            "name": "Project subdirectories",
+            "help": "A subdirectorial under the project, if not declared, represents the scan of the entire project",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveValidForHours",
+            "name": "cve Effective test time",
+            "help": "Sets a valid test time for cve, in hours",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveUrlModified",
+            "name": "Local NVD library Url Modified",
+            "help": "When Mirroring the NVD you must mirror the *.json.gz and the *.meta files.",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cveUrlBase",
+            "name": "Local NVD library URL Base",
+            "help": "URL, Base URL for each year's CVE JSON data feed, the%d will be returned with the year",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

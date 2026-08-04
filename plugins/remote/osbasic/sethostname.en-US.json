@@ -1,0 +1,70 @@
+{
+    "opDesc": "Set hostname",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Set hostname based on the provided node IP and hostname matching table",
+    "option": [
+        {
+            "opt": "backup",
+            "name": "Backup Files",
+            "help": "Backup/etc/hosts files before changes are/etc/hosts.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "reset",
+            "name": "Empty hosts files",
+            "help": "Empty/etc/hosts files before changes",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP hostname control table",
+            "help": "Reference tool basic/seqhostname output parameter ip2Hostname",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "hostsConf",
+            "name": "Hosts Configuration",
+            "help": "Updated Hosts Configuration",
+            "type": "textarea"
+        }
+    ]
+}

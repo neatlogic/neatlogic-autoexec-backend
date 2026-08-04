@@ -1,0 +1,28 @@
+{
+    "opName": "节点Ping检查",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "bash",
+    "defaultProfile": null,
+    "description": "Check if the current node can be Pington",
+    "option": [
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

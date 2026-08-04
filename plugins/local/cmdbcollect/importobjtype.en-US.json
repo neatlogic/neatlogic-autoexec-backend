@@ -1,0 +1,22 @@
+{
+    "opDesc": "Import collected OBJ_TYPE",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Import collected OBJ TYPE to CMDB Import Settings Table",
+    "option": [
+        {
+            "opt": "objtypes",
+            "name": "OBJ TYPE CONCERNED",
+            "help": "OBJ TYPE Map, e.g. \"DBINS/Oracle\" 1: \"OS/Linux\":",
+            "type": "json",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": null,
+    "output": []
+}

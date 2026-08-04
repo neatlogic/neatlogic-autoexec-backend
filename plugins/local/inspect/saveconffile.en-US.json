@@ -1,0 +1,49 @@
+{
+    "opDesc": "Save text files to repository",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Save text files to repository",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "fileslist",
+            "name": "File Info List",
+            "help": "File Info List, [{'fileName':'xx', 'fullPath':'yyy', 'serverPath':'zzz', 'modifyTime':1661323868}]",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "[]"
+        },
+        {
+            "opt": "reservevercount",
+            "name": "Number of retention versions",
+            "help": "Keeps the number of versions, more than the version will be deleted",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "inspectlogttl",
+            "name": "Inspection log retention time",
+            "help": "Inspection log retention time, unit (days)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "output": []
+}

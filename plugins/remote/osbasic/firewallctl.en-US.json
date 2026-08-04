@@ -1,0 +1,72 @@
+{
+    "opDesc": "Firewall policy on or off",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Firewall policy on or off",
+    "option": [
+        {
+            "opt": "operat",
+            "name": "Operation Type",
+            "help": "Operation Type",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Open",
+                        "value": "open"
+                    },
+                    {
+                        "text": "Close",
+                        "value": "close"
+                    }
+                ]
+            },
+            "defaultValue": "open"
+        },
+        {
+            "opt": "protocol",
+            "name": "Agreements",
+            "help": "Port Protocol",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "tcp",
+                        "value": "TCP"
+                    },
+                    {
+                        "text": "udp",
+                        "value": "UDP"
+                    }
+                ]
+            },
+            "defaultValue": "TCP"
+        },
+        {
+            "opt": "input",
+            "name": "Access Port",
+            "help": "Other target access to OS service access ports, multiple commas separated. e.g.: 3306,8080",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "output",
+            "name": "Visit port",
+            "help": "The operating system accesss the external release of ports, multiple commas separated. e.g. 8804,88888",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

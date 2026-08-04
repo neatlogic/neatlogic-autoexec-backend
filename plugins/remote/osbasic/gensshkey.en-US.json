@@ -1,0 +1,58 @@
+{
+    "opDesc": "Create RSA Key",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SSH RSA key to create users of Unix/Linux operating system",
+    "option": [
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Only need to be defined when generating other users 'key through root, otherwise leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "keylen",
+            "name": "Key Length",
+            "help": "Key length, how many Bits",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "2048"
+        },
+        {
+            "opt": "recreate",
+            "name": "Recreate",
+            "help": "Recreate if Key already exists",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": [
+        {
+            "opt": "pubKey",
+            "name": "SSH Public Key",
+            "help": "SSH public key content generated",
+            "type": "text"
+        }
+    ]
+}

@@ -1,0 +1,94 @@
+{
+    "opDesc": "Remote Copy over SSH",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "File transfer based on SSH protocol",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Output Details",
+            "help": "",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "direction",
+            "name": "Copy Direction",
+            "help": "Copy Direction",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Remote to Local",
+                        "value": "pull"
+                    },
+                    {
+                        "text": "Local to Remote",
+                        "value": "push"
+                    }
+                ]
+            },
+            "defaultValue": "pull"
+        },
+        {
+            "opt": "src",
+            "name": "Source Directory",
+            "help": "Multiple directories/coma-separated files, e. g. /tmp/a,/tmp/b",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "Destination Directory",
+            "help": "Multiple directories/coma-separated files, e. g. /tmp/a,/tmp/b",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "np",
+            "name": "Do Not Retain File Information",
+            "help": "Do not retain the time, permission to file/director",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": []
+}

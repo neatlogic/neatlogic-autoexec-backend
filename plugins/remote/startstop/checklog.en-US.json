@@ -1,0 +1,103 @@
+{
+    "opDesc": "Log Check",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Check if certain keywords appear in the log",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Detailed Output",
+            "help": "Show matching details",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "maxsize",
+            "name": "Maximum number of inspections (MB)",
+            "help": "Maximum size to check from end of log file, unit MB",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "16"
+        },
+        {
+            "opt": "failcheck",
+            "name": "Test Orientation",
+            "help": "The key word is success or failure.",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Failed",
+                        "value": "1"
+                    },
+                    {
+                        "text": "Success",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "pattern",
+            "name": "Keyword",
+            "help": "Keywords, support regular expressions",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ERROR"
+        },
+        {
+            "opt": "op",
+            "name": "Multikey",
+            "help": "Operation symbol for multiple keywords",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "OR",
+                        "value": "or"
+                    },
+                    {
+                        "text": "AND",
+                        "value": "and"
+                    }
+                ]
+            },
+            "defaultValue": "or"
+        }
+    ],
+    "argument": {
+        "name": "Log Path",
+        "help": "Log path, supports wildcards and inverts",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

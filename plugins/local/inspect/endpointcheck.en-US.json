@@ -1,0 +1,28 @@
+{
+    "opName": "访问入口检查",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Checks if access is normal, supports IP, IP:PORT, URL",
+    "option": [
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

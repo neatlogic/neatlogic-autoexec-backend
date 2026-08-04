@@ -1,0 +1,59 @@
+{
+    "opName": "服务器硬件信息采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Collect server hardware information using IPMI",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "user",
+            "name": "Users with external card management",
+            "help": "Users with external card management",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Take the password for the Extranet.",
+            "help": "Take the password for the Extranet.",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

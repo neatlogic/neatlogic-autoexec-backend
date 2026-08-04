@@ -1,0 +1,69 @@
+{
+    "opName": "TCP连通性检查等待",
+    "opType": "runner",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Test and wait for the IP port to create TCP connection",
+    "option": [
+        {
+            "opt": "targetstatus",
+            "name": "Target Status",
+            "help": "Waiting for target status",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Up",
+                        "value": "up"
+                    },
+                    {
+                        "text": "Down",
+                        "value": "down"
+                    }
+                ]
+            },
+            "defaultValue": "up"
+        },
+        {
+            "opt": "host",
+            "name": "IP Address",
+            "help": "Target address for detection",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "127.0.0.1"
+        },
+        {
+            "opt": "port",
+            "name": "TCP Port",
+            "help": "Target TCP port for testing",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "22"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "retrycount",
+            "name": "Number of retries",
+            "help": "Failure Retry Count",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "30"
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,129 @@
+{
+    "opDesc": "Create Job",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Create Job",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "proxytourl",
+            "name": "Other Environmental Addresses",
+            "help": "If you create a job in the current distribution system, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "targetenvpath",
+            "name": "Destination Path",
+            "help": "Application system paths that need to be created, e.g. MY-SYS/MY-MODULE/SIT",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${NAME_PATH}"
+        },
+        {
+            "opt": "targetver",
+            "name": "Target Version",
+            "help": "Application system target version that needs to be created",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "plantime",
+            "name": "Planned implementation",
+            "help": "Scheduled Job Execution Time",
+            "type": "datetime",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "trigtype",
+            "name": "Trigger Method",
+            "help": "Once the plan job is created, do it automatically or manually at the plan time",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do it now.",
+                        "value": "now"
+                    },
+                    {
+                        "text": "Auto Execute",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "Manually execute",
+                        "value": "manual"
+                    }
+                ]
+            },
+            "defaultValue": "now"
+        },
+        {
+            "opt": "wait",
+            "name": "Wait for Job Completion",
+            "help": "Wait for Job Completion",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "round",
+            "name": "Round",
+            "help": "If there are many instances of the job, how many rounds of execution are done?",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "senario",
+            "name": "Scenario",
+            "help": "Job Scenario",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "instances",
+            "name": "Instance IP and Port",
+            "help": "List of IP ports for instance: 192.168.0:8080, 192.168.0.2:8080 (leave, represent all)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "1"
+        }
+    ],
+    "output": [
+        {
+            "opt": "createdJobId",
+            "name": "Created jobid",
+            "help": "Created id for waterjob plugins",
+            "type": "text"
+        }
+    ]
+}

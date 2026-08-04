@@ -1,0 +1,94 @@
+{
+    "opDesc": "Upload package to Jfrog",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "jfrog-args",
+    "description": "After the project compile package, upload the package to Jfrog",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "baseurl",
+            "name": "Nexus Address",
+            "help": "Nexus address, e.g. https://192.168.0:8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:jfrog.baseurl}"
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Nexus login username",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:jfrog.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Nexus login user password",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:jfrog.password}"
+        },
+        {
+            "opt": "repo",
+            "name": "Nexus Repository",
+            "help": "Nexus' library name with this Artifact",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "group",
+            "name": "Group Name",
+            "help": "Artifact's group name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "artifact",
+            "name": "Package Name",
+            "help": "Artifact ' s package name (excluding version number)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ext",
+            "name": "Extension",
+            "help": "Package extension, e.g. jar, war, or pom",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ver",
+            "name": "Version Number",
+            "help": "Version number of the package",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}${VERSION}"
+        },
+        {
+            "opt": "saveto",
+            "name": "Save Directory",
+            "help": "Subdirectories for Saved Downloads relative to Project Directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

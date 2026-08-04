@@ -1,0 +1,37 @@
+{
+    "opName": "Nginx状态巡检",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Nginx Service Status Inspection",
+    "option": [
+        {
+            "opt": "server_name",
+            "name": "Service Name",
+            "help": "Service name surveillance service, e. g. nginx-status",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "nginx-status"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

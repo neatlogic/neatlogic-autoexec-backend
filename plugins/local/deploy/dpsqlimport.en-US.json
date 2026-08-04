@@ -1,0 +1,79 @@
+{
+    "opDesc": "SQL Publish Check and Import",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "sqlexec-args",
+    "description": "Automatically release SQL files to check and import",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "targetphase",
+            "name": "Implementation phase",
+            "help": "Phase of SQL implementation",
+            "type": "phase",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "执行SQL"
+        },
+        {
+            "opt": "rbtargetphase",
+            "name": "Rollback Phase",
+            "help": "SQL Back Implementation Phase",
+            "type": "phase",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "回退SQL"
+        },
+        {
+            "opt": "extnames",
+            "name": "SQL Extension",
+            "help": "Extension of SQL file, default: sql, ext, imp, prc, pck, pkg, pkgh, pkgb",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sql.extnames}"
+        },
+        {
+            "opt": "filter",
+            "name": "Directory Filter",
+            "help": "Only file with filename matching file, e. g. after or before (leave, check all)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "index",
+            "name": "SQL Order File",
+            "help": "SQL file execution order index file name or Pattern (leave, execute according to file order)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

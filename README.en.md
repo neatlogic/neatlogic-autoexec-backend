@@ -17,7 +17,8 @@ control server and operation parameters provided by the target nodes, and callba
 ```shell
 usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER] [--paramsfile PARAMSFILE]
                 [--nodesfile NODESFILE] [--force] [--firstfire] [--abort] [--pause]
-                [--register REGISTER] [--cleanstatus] [--purgejobdata PURGEJOBDATA] [--devmode]
+                [--register REGISTER] [--registerlang REGISTERLANG] [--cleanstatus]
+                [--purgejobdata PURGEJOBDATA] [--devmode]
                 [--nofirenext] [--passthroughenv PASSTHROUGHENV] [--phasegroups PHASEGROUPS]
                 [--phases PHASES] [--nodes NODES] [--sqlfiles SQLFILES]
 
@@ -38,6 +39,8 @@ optional arguments:
   --pause, -s           Pause the job
   --register REGISTER, -r REGISTER
                         Register all tools to the tenant
+  --registerlang REGISTERLANG
+                        Language of tool descriptions to register
   --cleanstatus, -c     Clean all job stats
   --purgejobdata PURGEJOBDATA
                         Job reserve days
@@ -265,10 +268,11 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 
 ```shell
 $ python3 bin/autoexec --register tenant_name
+$ python3 bin/autoexec --register tenant_name --registerlang en-US
 ```
 
 *Registers the local and remote tools under the autoexec to a specific tenant, where tenant_name is the name of the
-tenant.*
+tenant. The tool description language defaults to zh-CN and can be selected with --registerlang.*
 
 - Run a job
 

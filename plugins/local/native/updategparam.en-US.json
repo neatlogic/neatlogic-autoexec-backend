@@ -1,0 +1,29 @@
+{
+    "opDesc": "Update global variables",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Updates the value of a variable in the global parameter table",
+    "option": [
+        {
+            "opt": "name",
+            "name": "Variable Name",
+            "help": "Name of the variable in the global argument table",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "value",
+            "name": "Variable Value",
+            "help": "The value of the environment variable, which supports $()shell expansion, with high-risk commands not valid",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ]
+}

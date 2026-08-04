@@ -1,0 +1,37 @@
+{
+    "opDesc": "Extract text from a JSON object",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Extract desired attribute values from text",
+    "option": [
+        {
+            "opt": "txtval",
+            "name": "Text Contents",
+            "help": "Text to be extracted",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selector",
+            "name": "Field Selection",
+            "help": "Draws from regular expressions. Regular expressions, such as: NowDate:\\s* ([\\d-\\s:]+)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "extractTxtVal",
+            "name": "Extraction Result",
+            "help": "Extracted Data",
+            "type": "text"
+        }
+    ]
+}

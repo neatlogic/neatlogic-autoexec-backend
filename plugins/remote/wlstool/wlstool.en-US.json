@@ -1,0 +1,411 @@
+{
+    "opDesc": "Deploy to WebLogic",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "wls-args",
+    "description": "Deploy to WebLogic",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "LANG",
+            "name": "LANG",
+            "help": "The language settings used by the WAS startup do not normally need to be set, and keep them as automatic",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "LC_ALL",
+            "name": "LC_ALL",
+            "help": "The language settings used by the WAS startup do not normally need to be set, and keep them as automatic",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "umask",
+            "name": "umask",
+            "help": "umask settings, if left empty, do not modify umask, e. g. 0022",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0022"
+        },
+        {
+            "opt": "action",
+            "name": "Actions",
+            "help": "WAS Action",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "admin-start",
+                        "value": "admin-start"
+                    },
+                    {
+                        "text": "admin-stop",
+                        "value": "admin-stop"
+                    },
+                    {
+                        "text": "app-start",
+                        "value": "app-start"
+                    },
+                    {
+                        "text": "app-stop",
+                        "value": "app-stop"
+                    },
+                    {
+                        "text": "check",
+                        "value": "check"
+                    },
+                    {
+                        "text": "clean",
+                        "value": "clean"
+                    },
+                    {
+                        "text": "clean-extract",
+                        "value": "clean-extract"
+                    },
+                    {
+                        "text": "deploy",
+                        "value": "deploy"
+                    },
+                    {
+                        "text": "extract",
+                        "value": "extract"
+                    },
+                    {
+                        "text": "node-start",
+                        "value": "node-start"
+                    },
+                    {
+                        "text": "node-stop",
+                        "value": "node-stop"
+                    },
+                    {
+                        "text": "patch",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "stop",
+                        "value": "stop"
+                    },
+                    {
+                        "text": "undeploy",
+                        "value": "undeploy"
+                    },
+                    {
+                        "text": "unpatch",
+                        "value": "unpatch"
+                    }
+                ]
+            },
+            "defaultValue": "admin-start"
+        },
+        {
+            "opt": "java_home",
+            "name": "JAVA_HOME",
+            "help": "JAVAHOME Directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/jdk"
+        },
+        {
+            "opt": "wls_home",
+            "name": "WLS_HOME",
+            "help": "Weblogic installation directory, e.g. /app/serverware/wls/wls1036",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/wls1036"
+        },
+        {
+            "opt": "domain_home",
+            "name": "DOMAIN_HOME",
+            "help": "Weblogic's Domain Directory, e.g. /app/serverware/wls/domains/tsdomain",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/app/serverware/wls/domains/tsdomain"
+        },
+        {
+            "opt": "admin_url",
+            "name": "Admin URL",
+            "help": "Weblogic's current domain's admin server access, e.g. http://127.0.0.1:7001",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "http://${INS_HOST}:${INS_PORT}"
+        },
+        {
+            "opt": "wls_user",
+            "name": "Username for console",
+            "help": "Username for the Weblog access interface",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "weblogic"
+        },
+        {
+            "opt": "wls_pwd",
+            "name": "Could not close temporary folder:%s",
+            "help": "Password for the users of the Weblog access interface",
+            "type": "password",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "start_timeout",
+            "name": "Start Timeout",
+            "help": "Start timeout (seconds), default 180 seconds",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "stop_timeout",
+            "name": "Stop timeout",
+            "help": "Stop timeout (sec), default 180 seconds",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "standalone",
+            "name": "Run independently",
+            "help": "Whether to run independently of Server, nodeagent and dmgr are not required",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "need_deploy",
+            "name": "New Application Autodeployment",
+            "help": "Whether or not to call the was interface deployment application, corresponding to dmgr, only to deploy on one machine, and all other nodes will automatically synchronize",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "servername",
+            "name": "Server Name",
+            "help": "Server's name.",
+            "type": "text",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "appname",
+            "name": "Deployment",
+            "help": "Apply a deployment name, deploy an interface with a corresponding deployment 'name 'value",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "demo_war"
+        },
+        {
+            "opt": "appfile",
+            "name": "Package Path",
+            "help": "Package path, transit directory for updating the current directory to webcast installation path",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/tmp/demo.war"
+        },
+        {
+            "opt": "source-path",
+            "name": "Install Path",
+            "help": "The path to the directory or package specified during the installation of the webcast console application",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/app/systems/test/sample/sample.war"
+        },
+        {
+            "opt": "target",
+            "name": "Target for deployment",
+            "help": "Apply the deployed target webcast instance name or Cluster name, deploy an interface in the deployed location, apply the corresponding deployment \"target\" value",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "myserver"
+        },
+        {
+            "opt": "staging-mode",
+            "name": "Staging Mode",
+            "help": "Deployment mode, nostage for Managed Server will not download applications from admin servicer, but will need to upload applications on all Server directories, suggesting nostage mode, or download applications from Admin Server for every restart",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "nostage",
+                        "value": "nostage"
+                    },
+                    {
+                        "text": "stage",
+                        "value": "stage"
+                    }
+                ]
+            },
+            "defaultValue": "nostage"
+        },
+        {
+            "opt": "checkurl",
+            "name": "Detect URL",
+            "help": "Apply URL access, take note of ports, e.g. http://127.0.0.1:9082/demo/",
+            "type": "text",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "custom_stdoutfiles",
+            "name": "Clientization log path",
+            "help": "You can set multiple paths, separated by commas, the first path is the standard output file path",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "max_logsize",
+            "name": "Log File Size",
+            "help": "Console output log, maximum size of single file (M), default of 2048M",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "2048"
+        },
+        {
+            "opt": "max_logfiles",
+            "name": "Maximum log number",
+            "help": "Maximum number of files in the console output log, more than will automatically clean up",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "123"
+        },
+        {
+            "opt": "max_logdays",
+            "name": "Maximum number of days to keep a log",
+            "help": "Maximum number of days left in the console output log, more than will automatically clean up",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "93"
+        },
+        {
+            "opt": "USER_MEM_ARGS",
+            "name": "JAVA Memory Parameters",
+            "help": "JAVA memory parameters for setting memory parameters, e.g. -Xms256m -Xmx1024m -XX: MaxPermSize=256m",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "JAVA_EXT_OPTS",
+            "name": "JAVA Parameters",
+            "help": "JAVA Extension Parameters for setting JAVA Extension Parameters",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "-Djava.security.egd=file:/dev/./urandom"
+        }
+    ],
+    "argument": {
+        "name": "Environmental variables",
+        "type": "text",
+        "defaultValue": "",
+        "help": "Definition of the environment variable used to initiate, e. g. PRODUCTION_MOD=true",
+        "count": 0,
+        "validate": "",
+        "required": "false"
+    },
+    "output": []
+}

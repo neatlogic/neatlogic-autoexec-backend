@@ -1,0 +1,149 @@
+{
+    "opDesc": "Generate Version Artifact",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "release-args",
+    "description": "Extract generated version of the file from the compiled catalogue",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "buildresv",
+            "name": "Number of Builds to Retain",
+            "help": "Number of builds to retain; older builds are automatically deleted",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verttl",
+            "name": "Number of days the version is retained",
+            "help": "The number of days left in the version will be automatically deleted after the number and number of days reserved",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "90"
+        },
+        {
+            "opt": "verresv",
+            "name": "Number of Versions Reserved",
+            "help": "Number of reservations in the version that exceed the number of days and the number of reservations will be automatically deleted",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "6"
+        },
+        {
+            "opt": "dbdir",
+            "name": "DB Directory",
+            "help": "Subdirectories to store SQL scripts in databases (relative directory relative to project catalogues, leave blanks on: db/ ${VERSION})",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "db/${VERSION}"
+        },
+        {
+            "opt": "docdir",
+            "name": "DOC Directory",
+            "help": "Subdirectories to store documents (relative directory relative to project directory, leave blank representation: doc/${VERSION})",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "doc/${VERSION}"
+        },
+        {
+            "opt": "packexts",
+            "name": "Package Artifact Extension",
+            "help": "For non-coded projects, depressive extraction of zip packages, etc., may be possible, e.g.: zip, tar, tgz, tar.gz",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exp",
+            "name": "Exclude Directory",
+            "help": "Exclude subdirectories, commas separated, and do not sync these subdirectories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "md5check",
+            "name": "Generate MD5",
+            "help": "md5 checksum (normally not required, unless required by the client)",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "ensureexists",
+            "name": "Ensure file exists",
+            "help": "Error if the extracted list is empty or the file does not exist",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "argument": {
+        "name": "Extract List",
+        "help": "Files or directories taken from project catalogues, e.g.: target/*.war or target/*.war:webapp/",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "target/*.war",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

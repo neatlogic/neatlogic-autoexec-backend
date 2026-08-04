@@ -1,0 +1,67 @@
+{
+    "opDesc": "Pull Docker Image",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "Pull Docker image to Current Host",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "registry",
+            "name": "Image Registry",
+            "help": "image registry address, e.g., 10.01.13:8080",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "project",
+            "name": "Docker Project Name",
+            "help": "Docker's project name, default to keep and apply the same name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}"
+        },
+        {
+            "opt": "image",
+            "name": "Image Name",
+            "help": "Docker's image name, default to keep the same name as the module",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${MODULE_NAME}"
+        },
+        {
+            "opt": "tagname",
+            "name": "Tag Name",
+            "help": "Docker's image tag name, maintained by default as: Environmentname - Version Number",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "user",
+            "name": "Repository User",
+            "help": "Docker's image registry login username",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:docker.reg.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Repository Password",
+            "help": "Docker's image registry login user password",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:docker.reg.password}"
+        }
+    ],
+    "output": []
+}

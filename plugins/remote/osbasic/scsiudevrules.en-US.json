@@ -1,0 +1,119 @@
+{
+    "opDesc": "Generate SCSI Disk Udev Rules",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Multi-host sharing of SCSI disks, generating a uniform Udev rule on one host, configures the rule to its host by other steps",
+    "option": [
+        {
+            "opt": "aliasprefix",
+            "name": "Disk alias prefix",
+            "help": "Alien prefix, e.g. /dev/asmdisk/asm-disk-",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/dev/asmdisk/asm-disk-"
+        },
+        {
+            "opt": "listdevcmd",
+            "name": "Column command for disks",
+            "help": "For example: lls /dev/sd* grep-v/dev/sda",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ls /dev/sd* | grep -v /dev/sda"
+        },
+        {
+            "opt": "selectrange",
+            "name": "Disk Serial Range",
+            "help": "For example: 1st to 3rd disks: 1,3; 6th and subsequent disks: 6,",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1,3"
+        },
+        {
+            "opt": "sortmethod",
+            "name": "Sort Devices",
+            "help": "Impact aliases by sorting",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Default",
+                        "value": "origin"
+                    },
+                    {
+                        "text": "Size",
+                        "value": "size"
+                    },
+                    {
+                        "text": "Name",
+                        "value": "name"
+                    },
+                    {
+                        "text": "SCSI ID",
+                        "value": "id"
+                    },
+                    {
+                        "text": "Size+ID",
+                        "value": "sizeandid"
+                    },
+                    {
+                        "text": "Size + Name",
+                        "value": "sizeandname"
+                    }
+                ]
+            },
+            "defaultValue": "sizeandid"
+        },
+        {
+            "opt": "owner",
+            "name": "Device Users",
+            "help": "Owner user for device",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "grid"
+        },
+        {
+            "opt": "group",
+            "name": "Device User Group",
+            "help": "Owner Group for Devices",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "asmadmin"
+        }
+    ],
+    "output": [
+        {
+            "opt": "diskDiscoveryString",
+            "name": "Disk wildcard",
+            "help": "Disk wildcard, disk path directory plus/*",
+            "type": "text"
+        },
+        {
+            "opt": "udevRules",
+            "name": "Text of udev Rules",
+            "help": "Generated text of more than udev rules",
+            "type": "textarea"
+        },
+        {
+            "opt": "diskDevsArray",
+            "name": "Disk List Group",
+            "help": "Data from multiple disks",
+            "type": "json"
+        },
+        {
+            "opt": "diskDevs",
+            "name": "Disk List",
+            "help": "Multiple disk columns, one line for each disk",
+            "type": "textarea"
+        }
+    ]
+}

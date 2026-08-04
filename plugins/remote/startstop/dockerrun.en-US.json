@@ -1,0 +1,68 @@
+{
+    "opDesc": "Run Docker Image",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "Run Docker images on remote OS",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "name",
+            "name": "Container Name",
+            "help": "Name of container",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
+        },
+        {
+            "opt": "image",
+            "name": "Image Name",
+            "help": "Docker's image name, default to keep the same name as the module",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${MODULE_NAME}"
+        },
+        {
+            "opt": "tagname",
+            "name": "Tag Name",
+            "help": "Docker's image tag name, maintained by default as: Environmentname - Version Number",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "ports",
+            "name": "Exposure Port",
+            "help": "Docker's image exposed port, format: Operating system end: container port, multiple commas separated. For example: 3308:3306, 8099:8080",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "network",
+            "name": "Network Name",
+            "help": "Docker's image binding network, e.g.:",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Application Parameters",
+        "help": "Application parameters for Docker startup",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

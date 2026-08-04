@@ -1,0 +1,31 @@
+{
+    "opDesc": "ORACLE Switch After Checking",
+    "opType": "target",
+    "typeName": "DR_SWITCH",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "ORACLE Switch After Checking",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "sid",
+            "name": "SID",
+            "help": "If not set, use the environment variable ORACLE_SID",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "primaryuniquename",
+            "name": "Primary Database Unique Name",
+            "help": "Turns out the only DB name in the main library is different.",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

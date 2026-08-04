@@ -1,0 +1,24 @@
+{
+    "opDesc": "Fetch IP Information",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Get IP information for operating system configuration (IP mask netcard name MAC address)",
+    "option": [],
+    "output": [
+        {
+            "opt": "allNics",
+            "name": "All cybercards",
+            "help": "All MAC addresses and card names of the operating system",
+            "type": "json"
+        },
+        {
+            "opt": "allIpInfo",
+            "name": "IP Info",
+            "help": "List of IP and webcard information for operating system configuration",
+            "type": "json"
+        }
+    ]
+}

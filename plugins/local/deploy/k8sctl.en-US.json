@@ -1,0 +1,190 @@
+{
+    "opDesc": "K8S Application Deployment Tool",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "k8s-args",
+    "description": "Deploy K8S Application",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "host",
+            "name": "Manage IP or domain names",
+            "help": "K8S manages IP or domain names, e. g. 192,168.99.100",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "apiport",
+            "name": "API Port",
+            "help": "K8S API port, e.g. 8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "8443"
+        },
+        {
+            "opt": "token",
+            "name": "Authenticate TOKEN",
+            "help": "K8S API Service Validation TOKEN",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:k8s.token}"
+        },
+        {
+            "opt": "action",
+            "name": "Actions",
+            "help": "Execute Actions",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Update",
+                        "value": "deploy"
+                    },
+                    {
+                        "text": "Roll back.",
+                        "value": "rollback"
+                    },
+                    {
+                        "text": "Restart",
+                        "value": "restart"
+                    },
+                    {
+                        "text": "Start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "Stop",
+                        "value": "stop"
+                    }
+                ]
+            },
+            "defaultValue": "patch"
+        },
+        {
+            "opt": "autocreate",
+            "name": "Automatically Create",
+            "help": "Automatically create resource objects if they do not exist",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "dryrun",
+            "name": "dryRun",
+            "help": "Dry run validation.",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "healthcheckneeded",
+            "name": "Need for health check-ups",
+            "help": "Check if a health check is in the configuration of the decoyment.",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "dplyyamlfile",
+            "name": "Deploy Profile",
+            "help": "The relative path of the Yaml configuration file in the repository, other attribute names below are not required if the file is provided",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "deployment.yaml"
+        },
+        {
+            "opt": "namespace",
+            "name": "Namespace",
+            "help": "Apply the current K8S namespace",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "deployment",
+            "name": "Deployment",
+            "help": "Name of the decoyment as defined in K8S",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Maximum timeout to recycle k8s scroll update pds status",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "integer_p"
+            ],
+            "defaultValue": "120"
+        },
+        {
+            "opt": "imagelist",
+            "name": "Image List",
+            "help": "Mirror list, support multiple mirrors, one in one row, automatically lowercase",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "repository/${SYS_NAME}/${MODULE_NAME}:${ENV_NAME}-${VERSION}"
+        }
+    ],
+    "output": [
+        {
+            "opt": "k8s_data",
+            "name": "Scroll Update Data",
+            "help": "Scroll Update Data",
+            "type": "text"
+        }
+    ]
+}

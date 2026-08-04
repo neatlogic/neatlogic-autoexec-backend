@@ -1,0 +1,52 @@
+{
+    "opDesc": "Wait for Job",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Wait for Job",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "proxytourl",
+            "name": "Other Environmental Addresses",
+            "help": "If waiting for current release system job, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "jobids",
+            "name": "Job ID List",
+            "help": "List of IDs for jobs, e.g.: 1234, 5678, 5000,60100",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ignorefailed",
+            "name": "Ignore failed jobs",
+            "help": "Ignore failed jobs and exit normally",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

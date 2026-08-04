@@ -1,0 +1,22 @@
+{
+    "opDesc": "Clear repository workspace changes",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "",
+    "description": "Reset drops the changes to the WorkSpace file, and the new file does not affect",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startpath",
+            "name": "Start Subdirectories",
+            "help": "Compile configuration subdirectories (relative to project root)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

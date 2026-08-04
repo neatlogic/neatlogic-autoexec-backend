@@ -1,0 +1,50 @@
+{
+    "opDesc": "Extract files from other projects ' latest bild catalogues",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "release-args",
+    "description": "Extract files from other systems' latest build directory to the current Build",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "srcenvpath",
+            "name": "Source System Module",
+            "help": "The extracted system module, provided that the other system versions are already in the repository",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "SYS-NAME/MODULE/NAME"
+        },
+        {
+            "opt": "srcversion",
+            "name": "Extracted Versions",
+            "help": "Version of the extracted system",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "latest"
+        },
+        {
+            "opt": "destsubdir",
+            "name": "Target subdirectories",
+            "help": "Subdirectories in Versions of the Current System",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "app"
+        }
+    ],
+    "argument": {
+        "name": "Extract List",
+        "help": "Files or directories extracted from project directories, such as: Dockerfile or target/*.jar or *.yaml",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "Dockerfile",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,22 @@
+{
+    "opDesc": "Adapt Configuration File",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Automatically modify the configuration template in environmental artifacts based on configuration of different environments",
+    "enabled": 1,
+    "option": [],
+    "argument": {
+        "name": "Instance Name",
+        "help": "instance name, one or more",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

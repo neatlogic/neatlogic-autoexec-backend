@@ -1,0 +1,28 @@
+{
+    "opDesc": "Fetch Node Information",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Get the target information for a certain phase of the current group to be saved in the output parameter, using the following pass values, with the number of nodes not to exceed 32",
+    "option": [
+        {
+            "opt": "phasename",
+            "name": "Implementation phase",
+            "help": "Upstream at some stage of implementation",
+            "type": "phase",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "nodes",
+            "name": "Execute Node List",
+            "help": "Execute node list information, excluding passwords",
+            "type": "json"
+        }
+    ]
+}

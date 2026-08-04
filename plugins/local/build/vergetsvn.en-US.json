@@ -1,0 +1,127 @@
+{
+    "opDesc": "Pull SVN code.",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Pull the code from the SVN repository.",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "repo",
+            "name": "Repository Address",
+            "help": "GIT's repository address or root path for SVN repository",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:svn.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "The password to access the repository",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:svn.password}"
+        },
+        {
+            "opt": "trunk",
+            "name": "Main Branch",
+            "help": "SVN main branch directory (relative to repository subdirectories)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "trunk"
+        },
+        {
+            "opt": "branch",
+            "name": "Version Branch",
+            "help": "SVN version subdirectories (relative to repository subdirectories)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "tag",
+            "name": "tag",
+            "help": "SVN version tag subdirectories, (relative to repository subdirectories)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "V${VERSION}"
+        },
+        {
+            "opt": "tagsdir",
+            "name": "SVN Tag Directory",
+            "help": "Subdirectories of repositories with SVN tags, (relative to subdirectories of repositories)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "tags"
+        },
+        {
+            "opt": "startpath",
+            "name": "Subdirectories",
+            "help": "Subdirectories for storage of code repositorys for joint compilations of multiple code repositories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,381 @@
+{
+    "opDesc": "Deploy to WAS",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "was-args",
+    "description": "Deploy to WAS",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "LANG",
+            "name": "LANG",
+            "help": "The language settings used by the WAS startup do not normally need to be set, and keep them as automatic",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "LC_ALL",
+            "name": "LC_ALL",
+            "help": "The language settings used by the WAS startup do not normally need to be set, and keep them as automatic",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "en_US.GBK"
+                    },
+                    {
+                        "text": "zh_CN.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "umask",
+            "name": "umask",
+            "help": "umask settings, if left empty, do not modify umask, e. g. 0022",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "0022"
+        },
+        {
+            "opt": "action",
+            "name": "Actions",
+            "help": "WAS Action",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "app-start",
+                        "value": "app-start"
+                    },
+                    {
+                        "text": "app-stop",
+                        "value": "app-stop"
+                    },
+                    {
+                        "text": "check",
+                        "value": "check"
+                    },
+                    {
+                        "text": "clean-extract",
+                        "value": "clean-extract"
+                    },
+                    {
+                        "text": "cluster-start",
+                        "value": "cluster-start"
+                    },
+                    {
+                        "text": "cluster-stop",
+                        "value": "cluster-stop"
+                    },
+                    {
+                        "text": "dmgr-start",
+                        "value": "dmgr-start"
+                    },
+                    {
+                        "text": "dmgr-stop",
+                        "value": "dmgr-stop"
+                    },
+                    {
+                        "text": "extract",
+                        "value": "extract"
+                    },
+                    {
+                        "text": "node-start",
+                        "value": "node-start"
+                    },
+                    {
+                        "text": "node-stop",
+                        "value": "node-stop"
+                    },
+                    {
+                        "text": "patch",
+                        "value": "patch"
+                    },
+                    {
+                        "text": "start",
+                        "value": "start"
+                    },
+                    {
+                        "text": "stop",
+                        "value": "stop"
+                    },
+                    {
+                        "text": "unpatch",
+                        "value": "unpatch"
+                    },
+                    {
+                        "text": "update",
+                        "value": "update"
+                    }
+                ]
+            },
+            "defaultValue": "app-start"
+        },
+        {
+            "opt": "was_profile",
+            "name": "Profile Directory",
+            "help": "WAS AppSrv configures WAS profile directories",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "admin_url",
+            "name": "Admin URL",
+            "help": "WAS management console URL for access/ibm/console/, e.g. http://127.0.0.1:9060",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "was_user",
+            "name": "WAS Username",
+            "help": "WAS Username",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "wasadmin"
+        },
+        {
+            "opt": "was_pwd",
+            "name": "WAS password",
+            "help": "WAS password",
+            "type": "password",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dmgr_profile",
+            "name": "DMGR Profile",
+            "help": "Profile catalogue for DMRG, left empty if not deployed, e.g. /opt/IBM/WebSphere/profiles/dmgr",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/opt/IBM/WebSphere/profiles/dmgr"
+        },
+        {
+            "opt": "start_timeout",
+            "name": "Start Timeout",
+            "help": "Start timeout (seconds), default 180 seconds",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "stop_timeout",
+            "name": "Stop timeout",
+            "help": "Stop timeout (sec), default 180 seconds",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "180"
+        },
+        {
+            "opt": "standalone",
+            "name": "Run independently",
+            "help": "Whether to run independently of Server, nodeagent and dmgr are not required",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "need_deploy",
+            "name": "New Application Autodeployment",
+            "help": "Whether or not to call the was interface deployment application, corresponding to dmgr, only to deploy on one machine, and all other nodes will automatically synchronize",
+            "type": "select",
+            "required": "true",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "cellname",
+            "name": "Cell Name",
+            "help": "Cell Name",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "demoCell01"
+        },
+        {
+            "opt": "nodename",
+            "name": "Node Name",
+            "help": "Node Name",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "demoNode01"
+        },
+        {
+            "opt": "servername",
+            "name": "Server Name",
+            "help": "Server Name",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "server1"
+        },
+        {
+            "opt": "clustername",
+            "name": "Cluster Name",
+            "help": "Cluster, leave empty if not configured or not deployed",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "appname",
+            "name": "Deployment",
+            "help": "Deployment of applications seen on WAS Console",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "demo_war"
+        },
+        {
+            "opt": "appfile",
+            "name": "Package Path",
+            "help": "Package Path",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/tmp/demo.war"
+        },
+        {
+            "opt": "contextroot",
+            "name": "WEB Context Root",
+            "help": "Every warr app must be configured, WAR's Context Root",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/demo"
+        },
+        {
+            "opt": "targetdir",
+            "name": "Application Installation Directory",
+            "help": "Apply the installation directory, specify the installation path, leave blank, and use the default value when installing websphere console",
+            "type": "text",
+            "required": "true",
+            "defaultValue": "/opt/IBM/deploy/demo"
+        },
+        {
+            "opt": "checkurl",
+            "name": "Detect URL",
+            "help": "Apply URL access, take note of ports, e.g. http://127.0.0.1:9082/demo/",
+            "type": "text",
+            "required": "true",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ihs_dir",
+            "name": "IHS installation directory",
+            "help": "IHS installation catalogue, left empty if not deployed, e.g. /opt/IBM/HTTPServer",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ihs_docroot",
+            "name": "IHS WEB Directory",
+            "help": "IHS html root directory, left empty if not deployed, e.g. /opt/IBM/HTTPServer/htdocs/demo",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        },
+        {
+            "opt": "options",
+            "name": "Other Options",
+            "help": "Other Options",
+            "type": "text",
+            "required": "false",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Environmental variables",
+        "type": "text",
+        "defaultValue": "",
+        "help": "Definition of the environment variable used to initiate, e. g. PRODUCTION_MOD=true",
+        "count": 0,
+        "validate": "",
+        "required": "false"
+    },
+    "output": []
+}

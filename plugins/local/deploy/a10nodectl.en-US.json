@@ -1,0 +1,91 @@
+{
+    "opDesc": "A10 POOL node control",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "A10-args",
+    "description": "Disable or Enable load balance A10 POOL node",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "Interface URL",
+            "help": "A10 interface URL address, e.g. https://10.16.185.1",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "Username",
+            "help": "Username for executing the operation",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Operation of user passwords",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pool",
+            "name": "POOL Name",
+            "help": "A10 target POOL name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "action",
+            "name": "Operation",
+            "help": "Operation (enable/disable)",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Disable",
+                        "value": "disable"
+                    },
+                    {
+                        "text": "enable",
+                        "value": "enable"
+                    }
+                ]
+            },
+            "defaultValue": "disable"
+        }
+    ],
+    "output": []
+}

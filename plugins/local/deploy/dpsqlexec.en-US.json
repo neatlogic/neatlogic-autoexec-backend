@@ -1,0 +1,133 @@
+{
+    "opDesc": "SQL File Dissemination Tool",
+    "opType": "sqlfile",
+    "typeName": "SQL_FILE",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": "sqlexec-args",
+    "description": "SQL file automatically release execution",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "maxparallel",
+            "name": "Max. Parallel",
+            "help": "Maximum number of parallel running SQLs that can run simultaneously",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1"
+        },
+        {
+            "opt": "extnames",
+            "name": "Extension",
+            "help": "Comma-separated SQL extensions, e.g. sql, prc, pck, pkg, pkgh, pkgb",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sql.extnames}"
+        },
+        {
+            "opt": "dryrun",
+            "name": "Test Run",
+            "help": "Test Run without really executing SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "force",
+            "name": "Force Run",
+            "help": "Repeat enforcement of SQL files regardless of the status of SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "rollback",
+            "name": "Rollback",
+            "help": "Check-in back used SQL scripts",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "filter",
+            "name": "Directory Filter",
+            "help": "Only file with filename matching file, e. g. after or before (leave, check all)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "index",
+            "name": "SQL Order File",
+            "help": "SQL file execution order index file name or Pattern (leave, execute according to file order)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "index.txt"
+        }
+    ],
+    "output": []
+}

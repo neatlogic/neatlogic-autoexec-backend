@@ -1,0 +1,100 @@
+{
+    "opDesc": "Modify/etc/hosts",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify IP and domain name settings in/etc/hosts",
+    "option": [
+        {
+            "opt": "backup",
+            "name": "Backup Files",
+            "help": "Backup/etc/hosts files before changes are/etc/hosts.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "reset",
+            "name": "Empty hosts files",
+            "help": "Empty/etc/hosts files before changes",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP hostname control table",
+            "help": "Reference tool basic/seqhostname output parameter ip2Hostname",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Supports multi-lines, where content is empty, automatically integrates the IP hostname control table into the modified data, e.g., 10.10.0.1 myhost.1",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "datakey",
+            "name": "Data Main Key",
+            "help": "Data master key, the default is an IP primary key that does not allow an IP-to-name configuration, and if a map name is primarily a name-to-name configuration for an IP to multiple names",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "IP",
+                        "value": "ip"
+                    },
+                    {
+                        "text": "Map Name",
+                        "value": "name"
+                    }
+                ]
+            },
+            "defaultValue": "ip"
+        }
+    ],
+    "output": [
+        {
+            "opt": "hostsConf",
+            "name": "Hosts Configuration",
+            "help": "Updated Hosts Configuration",
+            "type": "textarea"
+        }
+    ]
+}

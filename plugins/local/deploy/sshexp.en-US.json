@@ -1,0 +1,83 @@
+{
+    "opDesc": "SSH Express Tool",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SSH executes commands through Expect.",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "o",
+            "name": "SSH Parameters",
+            "help": "SSH parameters for special needs",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Call timeout (sec)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "15"
+        },
+        {
+            "opt": "charset",
+            "name": "Character Set",
+            "help": "Character set for remote OS",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GB18030",
+                        "value": "GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
+        }
+    ],
+    "argument": {
+        "name": "Command",
+        "help": "Command-line Content",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

@@ -8,7 +8,8 @@ autoexec是自动化runner上的backend执行工具。用于执行自动化作�
 ```shell
 usage: autoexec [-h] [-v] [--jobid JOBID] [--execuser EXECUSER] [--paramsfile PARAMSFILE]
                 [--nodesfile NODESFILE] [--force] [--firstfire] [--abort] [--pause]
-                [--register REGISTER] [--cleanstatus] [--purgejobdata PURGEJOBDATA] [--devmode]
+                [--register REGISTER] [--registerlang REGISTERLANG] [--cleanstatus]
+                [--purgejobdata PURGEJOBDATA] [--devmode]
                 [--nofirenext] [--passthroughenv PASSTHROUGHENV] [--phasegroups PHASEGROUPS]
                 [--phases PHASES] [--nodes NODES] [--sqlfiles SQLFILES]
 
@@ -29,6 +30,8 @@ optional arguments:
   --pause, -s           puase the job
   --register REGISTER, -r REGISTER
                         register all tools to tenent
+  --registerlang REGISTERLANG
+                        language of tool descriptions to register
   --cleanstatus, -c     clean all stats of job
   --purgejobdata PURGEJOBDATA
                         Job reserve days
@@ -206,9 +209,10 @@ $ python3 bin/autoexec --devmode --jobid 97867868 --paramsfile test/params.json
 
 ```shell
 $ python3 bin/autoexec --register tenant_name
+$ python3 bin/autoexec --register tenant_name --registerlang en-US
 ```
 
-*注册autoexec下的local和remote工具到某个租户下，tenant_name是租户的名称*
+*注册autoexec下的local和remote工具到某个租户下，tenant_name是租户的名称。工具描述语言默认为zh-CN，可通过--registerlang指定。*
 
 - 运行作业
 

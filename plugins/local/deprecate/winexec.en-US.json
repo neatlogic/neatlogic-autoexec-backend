@@ -1,0 +1,65 @@
+{
+    "opDesc": "Execute remote Windows commands",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Execute remote Windows server commands through WinRM",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "protocol",
+            "name": "Agreements",
+            "help": "Protocol used by WinRM",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "http",
+                        "value": "http"
+                    },
+                    {
+                        "text": "https",
+                        "value": "https"
+                    }
+                ]
+            },
+            "defaultValue": "https"
+        }
+    ],
+    "argument": {
+        "name": "Command",
+        "help": "Command-line Content",
+        "type": "text",
+        "count": 1,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

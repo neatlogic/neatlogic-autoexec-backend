@@ -1,0 +1,43 @@
+{
+    "opName": "生成编号",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Generate number by type",
+    "option": [
+        {
+            "opt": "tag",
+            "name": "Type",
+            "help": "Type of number generation",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Current time stamp",
+                        "value": "timestamp"
+                    },
+                    {
+                        "text": "Job ID",
+                        "value": "jobId"
+                    },
+                    {
+                        "text": "Snowflake ID",
+                        "value": "snowflake"
+                    }
+                ]
+            }
+        }
+    ],
+    "output": [
+        {
+            "opt": "numberNo",
+            "name": "Batch Number",
+            "help": "Numbers generated",
+            "type": "text"
+        }
+    ]
+}

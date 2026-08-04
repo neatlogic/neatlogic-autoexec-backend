@@ -1,0 +1,40 @@
+{
+    "opDesc": "Trigger CMDB data extraction",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Data extraction that triggers CMDB",
+    "option": [
+        {
+            "opt": "starttime",
+            "name": "Data update time",
+            "help": "Data is updated after this time, format is epoch time (sec) to 3 decimal places",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "batchtag",
+            "name": "Batch Number",
+            "help": "Save batch numbers in the collected data, provide the CMDB extract interface as a condition for data filtering",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "collectionObjs",
+            "name": "The data set involved",
+            "help": "Data sets to extract, e.g. {\"OS/Linux\": 1, \"DBINS/Mysql\": 1, \"INS/Tomcat\": 1, \"DBINS/Mongodb\": 1, \"INS/Python\": 1, \"INS/Java\": 1}",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": null,
+    "output": []
+}

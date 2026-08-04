@@ -1,0 +1,21 @@
+{
+    "opDesc": "Erase disk header information",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Erase disk header information",
+    "option": [],
+    "output": [],
+    "argument": {
+        "name": "Disk Path",
+        "help": "Disk Path Text Contents",
+        "type": "textarea",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}

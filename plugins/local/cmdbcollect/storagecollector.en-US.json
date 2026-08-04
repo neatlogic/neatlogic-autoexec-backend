@@ -1,0 +1,165 @@
+{
+    "opName": "存储CMDB采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Collection of information on storage equipment in support of IBM, NetApp, EMC, Huawei, etc.",
+    "option": [
+        {
+            "opt": "community",
+            "name": "Default group word",
+            "help": "Use this default SNMP group word when there is no password in the node message",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "public"
+        },
+        {
+            "opt": "sshaccount",
+            "name": "SSH Account",
+            "help": "Supplementary collection using SSH protocol account number",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "type",
+            "name": "Storage Category",
+            "help": "Category Model to store",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "EMC_Vnx",
+                        "value": "EMC_Vnx"
+                    },
+                    {
+                        "text": "EMC_Vplex",
+                        "value": "EMC_Vplex"
+                    },
+                    {
+                        "text": "EMC_RPA",
+                        "value": "EMC_RPA"
+                    },
+                    {
+                        "text": "HP_3PAR",
+                        "value": "HP_3PAR"
+                    },
+                    {
+                        "text": "HDS_AMS",
+                        "value": "HDS_AMS"
+                    },
+                    {
+                        "text": "HDS_VSP",
+                        "value": "HDS_VSP"
+                    },
+                    {
+                        "text": "Huawei",
+                        "value": "HuaWei"
+                    },
+                    {
+                        "text": "Huawei_OceanStor",
+                        "value": "Huawei_OceanStor"
+                    },
+                    {
+                        "text": "IBM_DS",
+                        "value": "IBM_DS"
+                    },
+                    {
+                        "text": "IBM_F900",
+                        "value": "IBM_F900"
+                    },
+                    {
+                        "text": "IBM_FS9200",
+                        "value": "IBM_FS9200"
+                    },
+                    {
+                        "text": "IBM_Flash",
+                        "value": "IBM_Flash"
+                    },
+                    {
+                        "text": "IBM_SVC",
+                        "value": "IBM_SVC"
+                    },
+                    {
+                        "text": "IBM_V7000",
+                        "value": "IBM_V7000"
+                    },
+                    {
+                        "text": "NetApp",
+                        "value": "NetApp"
+                    },
+                    {
+                        "text": "FUJITSU/Inspur OEM",
+                        "value": "FUJITSU"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "inspect",
+            "name": "Inspection",
+            "help": "Collect more detailed inspection data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Collect",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Collection",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

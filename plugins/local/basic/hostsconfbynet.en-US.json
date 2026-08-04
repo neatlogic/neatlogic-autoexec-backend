@@ -1,0 +1,52 @@
+{
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "description": "Generate /etc/hosts file configuration information required for cluster node configuration based on IP information from the Getallnicip tool output",
+    "option": [
+        {
+            "opt": "nameprefix",
+            "name": "Hostname (without serial number)",
+            "help": "Prefix named as node, node name: hostname + serial number",
+            "type": "text",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "net",
+            "name": "Configure the segment",
+            "help": "Definition of the grid to which the host name refers, e.g.: 10.10.100.0/24",
+            "type": "text",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        },
+        {
+            "opt": "nodesipinfo",
+            "name": "Node IP Info",
+            "help": "IP information for gettingallnicip tool output",
+            "type": "json",
+            "defaultValue": "",
+            "required": "true",
+            "validate": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "ip2HostName",
+            "name": "IP to hostname map",
+            "help": "Map of the public card IP to hostname",
+            "type": "json",
+            "defaultValue": ""
+        },
+        {
+            "opt": "hostsConfTxt",
+            "name": "Hosts Configuration",
+            "help": "/etc/hosts configuration",
+            "type": "textarea",
+            "defaultValue": ""
+        }
+    ]
+}

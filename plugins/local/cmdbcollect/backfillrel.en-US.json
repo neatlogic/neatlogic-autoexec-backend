@@ -1,0 +1,33 @@
+{
+    "opDesc": "CMDB Collection Relationship Backfill Plugin",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Retrieval calculations and backfilling of collected data",
+    "option": [
+        {
+            "opt": "type",
+            "name": "Relationship category",
+            "help": "Relationship category [OS or NET]",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Operating system-related",
+                        "value": "OS"
+                    },
+                    {
+                        "text": "Network-related",
+                        "value": "NET"
+                    }
+                ]
+            },
+            "defaultValue": "OS"
+        }
+    ],
+    "output": []
+}

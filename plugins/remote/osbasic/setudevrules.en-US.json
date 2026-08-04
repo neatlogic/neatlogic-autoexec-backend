@@ -1,0 +1,31 @@
+{
+    "opDesc": "Setup user ENV",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify user profile, set the user environment variable",
+    "option": [
+        {
+            "opt": "rulefile",
+            "name": "Udev rule file name",
+            "help": "File name, e.g.: 90-oracle-asmdisk.rules",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "90-oracle-asmdisk.rules"
+        }
+    ],
+    "output": [],
+    "argument": {
+        "name": "Contents of the rules",
+        "help": "Text content of Udev rules",
+        "type": "textarea",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}

@@ -1,0 +1,118 @@
+{
+    "opDesc": "Pull the GIT code.",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Pull the GIT repository code.",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "repo",
+            "name": "Repository Address",
+            "help": "GIT Repository URL",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Password to access repository (use ssh, leave empty)",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "trunk",
+            "name": "Main Branch",
+            "help": "GIT's main branch branch name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "master"
+        },
+        {
+            "opt": "branch",
+            "name": "Version Branch",
+            "help": "GIT Version Branch",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "tag",
+            "name": "tag",
+            "help": "GIT version tags, if configured, will give priority to the use of the tag to get the code",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "V${VERSION}"
+        },
+        {
+            "opt": "startpath",
+            "name": "Subdirectories",
+            "help": "Subdirectories for storage of code repositorys for joint compilations of multiple code repositories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

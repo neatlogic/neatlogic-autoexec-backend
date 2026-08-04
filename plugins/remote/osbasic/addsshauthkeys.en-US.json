@@ -1,0 +1,39 @@
+{
+    "opDesc": "Add SSH Public Key",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Add RSA public key to user.ssh/authorized_keys file",
+    "option": [
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Only if you want to define it through root to configure other users' authorized_keys, leave it empty.",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ip2hostnamemap",
+            "name": "IP hostname control table",
+            "help": "Reference tool basic/seqhostname output parameter ip2Hostname",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pubkeys",
+            "name": "Public Key List",
+            "help": "Public Key JSON, Format: {\"ip1\": \"pubkey1\", \"ip2\": \"pubkey2\"} or [\"pubkey1\", \"pubkey2\"]",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

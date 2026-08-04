@@ -14,7 +14,7 @@
 此目录用于存放本地和本地远程执行的插件，插件只支持长选项参数。
 本地运行就是在Runner节点上执行的工具，跟远程OS无关的工具存放此目录下。
 此目录下的工具主要完成跟远程OS无关的数据、文件处理和保存的工作。
-一个工具由两个文件组成，例如：mytool和mytool.json，mytool是工具的实现；mytool.json是工具的输入输出参数描述。
+一个工具由实现文件和带语言后缀的描述文件组成，例如：mytool和mytool.zh-CN.json。mytool是工具的实现；mytool.zh-CN.json是中文输入输出参数描述，英文描述文件命名为mytool.en-US.json。
 工具开发例子请参考子目录 demo 下的工具和工具的json文件。
 
 ## ServerAdapter.pm 接口说明

@@ -1,0 +1,34 @@
+{
+    "opDesc": "Retrieving block size",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Retrieving block size (MB)",
+    "option": [
+        {
+            "opt": "blockdevs",
+            "name": "Block Device List",
+            "help": "Block Device Path List",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "/dev/sda\n/dev/sdb"
+        }
+    ],
+    "output": [
+        {
+            "opt": "blockDevSizeInfo",
+            "name": "Block Device Size Information",
+            "help": "Block Device Size Information, Unit MB",
+            "type": "json"
+        },
+        {
+            "opt": "blockDevSizeList",
+            "name": "List of block sizes",
+            "help": "List of block sizes, units MB",
+            "type": "textarea"
+        }
+    ]
+}

@@ -1,0 +1,150 @@
+{
+    "opDesc": "Local company remote execution command",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Local company remote execution command",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "protocol",
+            "name": "Connection protocol",
+            "help": "The protocol to connect the target",
+            "type": "select",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "ssh",
+                        "value": "ssh"
+                    },
+                    {
+                        "text": "tagent",
+                        "value": "tagent"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "ip",
+            "name": "IP",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "ip"
+            ],
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "Port",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "integer_p"
+            ],
+            "defaultValue": "22"
+        },
+        {
+            "opt": "username",
+            "name": "Username",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "Script Interpreter",
+            "help": "Script Interpreter",
+            "type": "select",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "bash",
+                        "value": "bash"
+                    },
+                    {
+                        "text": "sh",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "ksh",
+                        "value": "ksh"
+                    },
+                    {
+                        "text": "csh",
+                        "value": "csh"
+                    },
+                    {
+                        "text": "ruby",
+                        "value": "ruby"
+                    },
+                    {
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    },
+                    {
+                        "text": "javascript",
+                        "value": "javascript"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "script",
+            "name": "Script",
+            "help": "Custom Script",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Script dynamic parameters",
+        "help": "If you want operational parameters, upstream step output parameters, static configuration parameters in a script, you need to define them here, and you can get them in order in a script.",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

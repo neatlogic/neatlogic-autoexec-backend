@@ -1,0 +1,22 @@
+{
+    "opDesc": "Manual delay",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Manual delay through sleep",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "seconds",
+            "name": "Delay seconds",
+            "help": "",
+            "type": "text",
+            "required": "true",
+            "validate": null,
+            "defaultValue": "3"
+        }
+    ],
+    "output": []
+}

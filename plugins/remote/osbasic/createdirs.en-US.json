@@ -1,0 +1,50 @@
+{
+    "opDesc": "Create directory remotely",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Login remote OS, create several directories",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "mode",
+            "name": "Permission Settings",
+            "help": "Permission settings for directories, e.g.: 0775",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "0775"
+        },
+        {
+            "opt": "user",
+            "name": "Home User",
+            "help": "Owner user for directory",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "group",
+            "name": "Catalogue group",
+            "help": "Owner Group for Directorys",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Directory List",
+        "help": "List of directories to create",
+        "type": "textarea",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

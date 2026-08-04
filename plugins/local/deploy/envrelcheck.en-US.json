@@ -1,0 +1,31 @@
+{
+    "opDesc": "Artifact Status Check",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Environmental artifact status checks to support cross-environmental monitoring",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "proxytourl",
+            "name": "Artifact Repository Address",
+            "help": "The address of the repository, e.g. https://192.168.8:8443, left empty for local environment",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "srcenvpath",
+            "name": "Source Environment Path",
+            "help": "Accessing version of the source environment path, e.g. MY-SYS/MY-MODULE/SIT",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}/${MODULE_NAME}/SIT"
+        }
+    ],
+    "output": []
+}

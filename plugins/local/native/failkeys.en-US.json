@@ -1,0 +1,52 @@
+{
+    "opDesc": "Error Log Detection",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "In some exceptional cases, an error check of the output log by line is required",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "operator",
+            "name": "Operator",
+            "help": "Whether to meet multiple regular expressions at the same time",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "and",
+                        "value": "and"
+                    },
+                    {
+                        "text": "or",
+                        "value": "or"
+                    }
+                ]
+            },
+            "defaultValue": "and"
+        },
+        {
+            "opt": "exclude",
+            "name": "Exclude Regular",
+            "help": "Exclude rows matching this regular expression",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Test regularity",
+        "help": "Regular expression of one or more error detections",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    }
+}

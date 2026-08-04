@@ -1,0 +1,55 @@
+{
+    "opDesc": "Uploading HTTP",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Uploading files based on HTTP",
+    "option": [
+        {
+            "opt": "addr",
+            "name": "HTTP Address",
+            "help": "HTTP file address, e.g. http://192.168.0.222/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dir",
+            "name": "Local Directory",
+            "help": "Local directories, e.g. /tmp/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Login User",
+            "help": "Username, if not required, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pass",
+            "name": "Login Password",
+            "help": "Password, if not needed, leave empty",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "uploadResponse",
+            "name": "File Path",
+            "help": "HTTP Upload Return",
+            "type": "text"
+        }
+    ]
+}

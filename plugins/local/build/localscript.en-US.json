@@ -1,0 +1,107 @@
+{
+    "opDesc": "Execute Local Script",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Implementation of local scripts within the system engineering or artifact catalogue allows customisation of the system ' s works and artifacts",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "basedir",
+            "name": "Writable Directory",
+            "help": "Relative to the subdirectories of the system data catalogue (leave delegates to represent the system material catalogue as a writeable directory)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "Script Language",
+            "help": "Languages of scripts written",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "bash",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    }
+                ]
+            },
+            "defaultValue": "sh"
+        },
+        {
+            "opt": "script",
+            "name": "Command",
+            "help": "Commands executed locally",
+            "type": "textarea",
+            "required": "true",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Script parameters",
+        "help": "Parameters required for custom script execution",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

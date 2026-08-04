@@ -1,0 +1,11 @@
+{
+    "opDesc": "Go on, Loop.",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Go ahead to the next Loop execution",
+    "option": [],
+    "argument": null
+}

@@ -1,0 +1,176 @@
+{
+    "opDesc": "Compile",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "maven-args",
+    "description": "Compile the pull code",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "type",
+            "name": "Compile Type",
+            "help": "Compile Type",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "maven",
+                        "value": "maven"
+                    },
+                    {
+                        "text": "maven3.6.3",
+                        "value": "maven3.6.3"
+                    },
+                    {
+                        "text": "npm",
+                        "value": "npm"
+                    },
+                    {
+                        "text": "npm8",
+                        "value": "npm8"
+                    },
+                    {
+                        "text": "npm10",
+                        "value": "npm10"
+                    },
+                    {
+                        "text": "npm12",
+                        "value": "npm12"
+                    },
+                    {
+                        "text": "npm13",
+                        "value": "npm13"
+                    },
+                    {
+                        "text": "ant",
+                        "value": "ant"
+                    },
+                    {
+                        "text": "gradle",
+                        "value": "gradle"
+                    }
+                ]
+            },
+            "defaultValue": "maven"
+        },
+        {
+            "opt": "jdk",
+            "name": "JDK Version",
+            "help": "JDK Version",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "jdk1.8",
+                        "value": "jdk1.8"
+                    },
+                    {
+                        "text": "jdk1.7",
+                        "value": "jdk1.7"
+                    },
+                    {
+                        "text": "jdk1.6",
+                        "value": "jdk1.6"
+                    },
+                    {
+                        "text": "jdk1.5",
+                        "value": "jdk1.5"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "args",
+            "name": "Custom Arguments",
+            "help": "Custom parameters for the compilation tool (e.g. parameters for ant or mvn)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "startpath",
+            "name": "Start Subdirectories",
+            "help": "Compile configuration subdirectories (relative to project root)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "islib",
+            "name": "Whether submodules",
+            "help": "The currently acquired code repository is a submodule for the joint compilation of multiple code repositories",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

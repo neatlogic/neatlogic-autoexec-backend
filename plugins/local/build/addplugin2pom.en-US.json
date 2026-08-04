@@ -1,0 +1,31 @@
+{
+    "opDesc": "Modify pom.xml to add plugin configuration",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify pom.xml in working copy, add plugin configuration",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "startpath",
+            "name": "Start Subdirectories",
+            "help": "Compile configuration subdirectories (relative to project root)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pluginxml",
+            "name": "Plugin Configuration",
+            "help": "XML configuration for plugin in plugins",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

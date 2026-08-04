@@ -1,0 +1,22 @@
+{
+    "opDesc": "Switch to Primary",
+    "opType": "target",
+    "typeName": "DR_SWITCH",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Execute in the repository, switch to the main repository state, after the main library executes the switch",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "sid",
+            "name": "SID",
+            "help": "If not set, use the environment variable ORACLE_SID",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

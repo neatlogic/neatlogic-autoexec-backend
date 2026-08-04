@@ -1,0 +1,109 @@
+{
+    "opDesc": "Create Version Tag",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Automatically tag a version based on tags (which need to be used later)",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "tagprefix",
+            "name": "Tag Prefix",
+            "help": "SVN Tag Prefix",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Password to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "branch",
+            "name": "Version Branch",
+            "help": "GIT version branch or SVN version subdirectories",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "tagsdir",
+            "name": "SVN Tag Directory",
+            "help": "Only SVN needs configuration, SVN repository subdirectories",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "tags"
+        },
+        {
+            "opt": "startpath",
+            "name": "Subdirectories",
+            "help": "Subdirectories for storage of code repositorys for joint compilations of multiple code repositories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

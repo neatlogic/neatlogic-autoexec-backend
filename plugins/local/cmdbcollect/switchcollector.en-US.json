@@ -1,0 +1,109 @@
+{
+    "opName": "交换机CMDB采集",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Collecting information on switches in support of Cisco, Huawei, H3C, etc.",
+    "option": [
+        {
+            "opt": "community",
+            "name": "Default group word",
+            "help": "Use this default SNMP group word when there is no password in the node message",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "public"
+        },
+        {
+            "opt": "sshaccount",
+            "name": "SSH Account",
+            "help": "Supplementary collection using SSH protocol account number",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Single SNMP query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "objtype",
+            "name": "Device Type",
+            "help": "Device type, e.g. Switch or Router",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Switches",
+                        "value": "Switch"
+                    },
+                    {
+                        "text": "Router",
+                        "value": "Router"
+                    }
+                ]
+            },
+            "defaultValue": "Switch"
+        },
+        {
+            "opt": "inspect",
+            "name": "Inspection",
+            "help": "Collect more detailed inspection data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Collect",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Collection",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "opDesc": "Whether or not to continue",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "interact-args",
+    "description": "Confirm whether or not to continue during execution, or suspend if not",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "message",
+            "name": "Interactive notes",
+            "help": "Descriptions displayed in interactive subject",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "是否继续执行？"
+        }
+    ],
+    "output": []
+}

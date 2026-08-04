@@ -1,0 +1,92 @@
+{
+    "opDesc": "Set Environmental Variables",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Set global environment variables and export them to external process tool references",
+    "option": [
+        {
+            "opt": "type",
+            "name": "Variable Type",
+            "help": "Variable type, supports general characters and dict dictionary, dictionaries for example: {`name ': 'neatlogic'}",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "General character",
+                        "value": "str"
+                    },
+                    {
+                        "text": "dict dictionary",
+                        "value": "dict"
+                    }
+                ]
+            },
+            "defaultValue": "str"
+        },
+        {
+            "opt": "name",
+            "name": "Variable Name",
+            "help": "In the name of the environment variable, the general character variable type must provide the name",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "value",
+            "name": "Variable Value",
+            "help": "The value of the environment variable, which supports $()shell expansion, with high-risk commands not valid",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "scope",
+            "name": "Scope",
+            "help": "Scope of Environmental Variables",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Current Node",
+                        "value": "node"
+                    },
+                    {
+                        "text": "All Nodes",
+                        "value": "global"
+                    }
+                ]
+            },
+            "defaultValue": "node"
+        },
+        {
+            "opt": "hidden",
+            "name": "Whether to hide",
+            "help": "If the variable is stored with sensitive information, set to hide",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ]
+}

@@ -1,0 +1,384 @@
+{
+    "opName": "OS和应用CMDB",
+    "opType": "target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Collect information on mainframe hardware, running applications on OS and OS and DB",
+    "option": [
+        {
+            "opt": "class",
+            "name": "Collection Class List",
+            "help": "The name of the collection category, the empty representative collects all, commas apart, to be the same as the collection category, e.g. OS, Tomcat, Weblogic, Oracle",
+            "type": "multiselect",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "All",
+                        "value": ""
+                    },
+                    {
+                        "text": "Operating systems",
+                        "value": "OS"
+                    },
+                    {
+                        "text": "Informix",
+                        "value": "Informix"
+                    },
+                    {
+                        "value": "IIS",
+                        "text": "IIS"
+                    },
+                    {
+                        "value": "Elasticsearch",
+                        "text": "Elasticsearch"
+                    },
+                    {
+                        "text": "Hadoop",
+                        "value": "Hadoop"
+                    },
+                    {
+                        "text": "Java",
+                        "value": "Java"
+                    },
+                    {
+                        "text": "JBoss",
+                        "value": "JBoss"
+                    },
+                    {
+                        "text": "Jetty",
+                        "value": "Jetty"
+                    },
+                    {
+                        "value": "Kafka",
+                        "text": "Kafka"
+                    },
+                    {
+                        "value": "Keepalived",
+                        "text": "Keepalived"
+                    },
+                    {
+                        "value": "Lighttpd",
+                        "text": "Lighttpd"
+                    },
+                    {
+                        "value": "Memcached",
+                        "text": "Memcached"
+                    },
+                    {
+                        "value": "Mongodb",
+                        "text": "Mongodb"
+                    },
+                    {
+                        "value": "MSSQLServer",
+                        "text": "MSSQLServer"
+                    },
+                    {
+                        "value": "Mysql",
+                        "text": "Mysql"
+                    },
+                    {
+                        "value": "Nginx",
+                        "text": "Nginx"
+                    },
+                    {
+                        "value": "Oracle",
+                        "text": "Oracle"
+                    },
+                    {
+                        "text": "OracleRAC",
+                        "value": "OracleRAC"
+                    },
+                    {
+                        "value": "PHP",
+                        "text": "PHP"
+                    },
+                    {
+                        "value": "Postgresql",
+                        "text": "Postgresql"
+                    },
+                    {
+                        "value": "Python",
+                        "text": "Python"
+                    },
+                    {
+                        "value": "RabbitMQ",
+                        "text": "RabbitMQ"
+                    },
+                    {
+                        "value": "Redis",
+                        "text": "Redis"
+                    },
+                    {
+                        "text": "Resin",
+                        "value": "Resin"
+                    },
+                    {
+                        "value": "Sybase",
+                        "text": "Sybase"
+                    },
+                    {
+                        "value": "ActiveMQ",
+                        "text": "ActiveMQ"
+                    },
+                    {
+                        "value": "RocketMQ",
+                        "text": "RocketMQ"
+                    },
+                    {
+                        "value": "IBMMQ",
+                        "text": "IBMMQ"
+                    },
+                    {
+                        "value": "Apache",
+                        "text": "Apache"
+                    },
+                    {
+                        "value": "DB2",
+                        "text": "DB2"
+                    },
+                    {
+                        "text": "Tomcat",
+                        "value": "Tomcat"
+                    },
+                    {
+                        "text": "Tuxedo",
+                        "value": "Tuxedo"
+                    },
+                    {
+                        "text": "Weblogic",
+                        "value": "Weblogic"
+                    },
+                    {
+                        "text": "WebSphere",
+                        "value": "WebSphere"
+                    },
+                    {
+                        "text": "WebSphereMQ",
+                        "value": "WebSphereMQ"
+                    },
+                    {
+                        "text": "Zookeeper",
+                        "value": "Zookeeper"
+                    },
+                    {
+                        "text": "Docker",
+                        "value": "Docker"
+                    },
+                    {
+                        "text": "Vastbase",
+                        "value": "Vastbase"
+                    },
+                    {
+                        "text": "TongWeb",
+                        "value": "TongWeb"
+                    },
+                    {
+                        "text": "TiDB",
+                        "value": "TiDB"
+                    },
+                    {
+                        "text": "Nacos",
+                        "value": "Nacos"
+                    },
+                    {
+                        "text": "Eureka",
+                        "value": "Eureka"
+                    },
+                    {
+                        "text": "Vcs",
+                        "value": "Vcs"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "Mysql",
+            "name": "Mysql account",
+            "help": "For example: Read-only users of Mysql required to collect data",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Postgresql",
+            "name": "Postgresql account",
+            "help": "For example: Read-only users of Postgresql for data collection",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "MSSQLServer",
+            "name": "MSSQLServer account",
+            "help": "For example: Read-only users of MSCQLServer required to collect data",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Mongodb",
+            "name": "Mongdb account",
+            "help": "For example: Read-only users of MongoDB required for data collection",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "TiDB",
+            "name": "TiDB account",
+            "help": "For example: Read-only users of TiDB for data collection",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Vastbase",
+            "name": "Vastbase account",
+            "help": "For example: Read-only users of Vastbase required to collect data",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "Redis",
+            "name": "Redis account",
+            "help": "e.g. Redis ' auth for data collection",
+            "type": "account",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "defaultpassconf",
+            "name": "Default Password Settings",
+            "help": "If no account number is selected, enter, e.g.: Mysql: root/pass1234, Postgresql:demo/test1234",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "inspect",
+            "name": "Inspection",
+            "help": "Collect more detailed inspection data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Collect",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Collection",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "container",
+            "name": "Collection Container",
+            "help": "Whether to collect container information, e.g.:docker",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Collect",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Collection",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "procenvname",
+            "name": "Process Characteristic Environmental Variables",
+            "help": "For unrecognized processes, automatically collect if this environment variable is present",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Maximum time of execution for each process information gathering, in seconds",
+            "type": "text",
+            "required": "false",
+            "validate": [
+                "number"
+            ],
+            "defaultValue": "300"
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "debug",
+            "name": "Show Details",
+            "help": "Show details of command execution",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

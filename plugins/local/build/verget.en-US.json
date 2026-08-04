@@ -1,0 +1,194 @@
+{
+    "opDesc": "Pull replacement code.",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Pull GIT/SVN code.",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "lang",
+            "name": "Languages",
+            "help": "Language and coding of project codes",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "en_US.GB18030",
+                        "value": "en_US.GB18030"
+                    }
+                ]
+            },
+            "defaultValue": "en_US.UTF-8"
+        },
+        {
+            "opt": "repotype",
+            "name": "Repository Type",
+            "help": "Type of code repository",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "GIT",
+                        "value": "GIT"
+                    },
+                    {
+                        "text": "SVN",
+                        "value": "SVN"
+                    }
+                ]
+            },
+            "defaultValue": "GIT"
+        },
+        {
+            "opt": "repo",
+            "name": "Repository Address",
+            "help": "GIT's repository address or root path for SVN repository",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Password to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "trunk",
+            "name": "Main Branch",
+            "help": "GIT main branch branch or SVN main branch directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "master"
+        },
+        {
+            "opt": "branch",
+            "name": "Version Branch",
+            "help": "GIT version branch or SVN version subdirectories",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "tag",
+            "name": "tag",
+            "help": "GIT version tags or SVN version subdirectories, which, if configured, give priority to the use of tags to get code",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "V${VERSION}"
+        },
+        {
+            "opt": "tagsdir",
+            "name": "SVN Tag Directory",
+            "help": "Only SVN needs configuration, SVN repository subdirectories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "islib",
+            "name": "Whether submodules",
+            "help": "The currently acquired code repository is a submodule for the joint compilation of multiple code repositories",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "startpath",
+            "name": "Subdirectories",
+            "help": "Subdirectories for storage of code repositorys for joint compilations of multiple code repositories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "startRev",
+            "name": "Version starts with the Commit.",
+            "help": "The start of the current fetching code",
+            "type": "text"
+        },
+        {
+            "opt": "endRev",
+            "name": "Version over Commit",
+            "help": "The Commit number of the end of the current acquisition code",
+            "type": "text"
+        },
+        {
+            "opt": "shortStartRev",
+            "name": "Version begins with the GitCommit.",
+            "help": "The start of the current acquisition code, GitCommit",
+            "type": "text"
+        },
+        {
+            "opt": "shortEndRev",
+            "name": "End version short GitCommit",
+            "help": "GitCommit, the end of the current acquisition code",
+            "type": "text"
+        }
+    ]
+}

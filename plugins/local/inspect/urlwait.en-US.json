@@ -1,0 +1,61 @@
+{
+    "opName": "URL连通检查等待",
+    "opType": "runner",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Test and wait for regular access to multiple URLs",
+    "option": [
+        {
+            "opt": "targetstatus",
+            "name": "Target Status",
+            "help": "Waiting for target status",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Up",
+                        "value": "up"
+                    },
+                    {
+                        "text": "Down",
+                        "value": "down"
+                    }
+                ]
+            },
+            "defaultValue": "up"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "retrycount",
+            "name": "Number of retries",
+            "help": "Failure Retry Count",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "30"
+        }
+    ],
+    "argument": {
+        "name": "HTTP Request",
+        "help": "For example: GET, http://$host}:${port}/console",
+        "isConst": "false",
+        "type": "text",
+        "count": 0,
+        "defaultValue": "GET, http://${host}:${port}/",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,41 @@
+{
+    "opDesc": "Get Cross-environment Artifact",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Users obtain artifacts across multiple sets of environments, e.g.: Production of a version of the bueld version from testing an environment and downloading the corresponding bueld version",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "proxytourl",
+            "name": "Artifact Repository Address",
+            "help": "The address of the repository, e.g. https://192.168.0:8443",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:build.proxytourl}"
+        },
+        {
+            "opt": "srcenvpath",
+            "name": "Source Environment Path",
+            "help": "Accessing version of the source environment path, e.g. MY-SYS/MY-MODULE/UAT",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${NAME_PATH}"
+        }
+    ],
+    "argument": {
+        "name": "Extract subdirectories",
+        "help": "Subdirectories extracted from release version directory, leave empty for all",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

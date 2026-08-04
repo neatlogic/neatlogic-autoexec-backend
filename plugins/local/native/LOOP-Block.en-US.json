@@ -1,0 +1,14 @@
+{
+    "opDesc": "Looping",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Loop more than one tool, each cycle will store the recycle item values as an environmental variable with the recycle item name",
+    "enabled": 1,
+    "loopItemVar": "LOOP_ITEM",
+    "loopItems": "",
+    "operations": [],
+    "option": []
+}

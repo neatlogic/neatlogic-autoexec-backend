@@ -1,0 +1,88 @@
+{
+    "opDesc": "Stop Application",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Call remote command to stop application and check that application stops while tail log",
+    "option": [
+        {
+            "opt": "prescript",
+            "name": "Stop Command",
+            "help": "Stop the Shell command required",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "addr",
+            "name": "Service Address",
+            "help": "URL or IP:PORT, several commas separated, e.g. http://127.0.0.1:8080,127.0.0.1:8090",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "eofstr",
+            "name": "Stop Successful Strings",
+            "help": "If log encoding is not UTF-8, configure: {GBK} Start complete; leave as little as possible and replace it with a service address detection",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout (seconds)",
+            "help": "Number of seconds to stop timeout, stop failure after timeout",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "300"
+        },
+        {
+            "opt": "postscript",
+            "name": "Stop Backup Command",
+            "help": "Apply stop, execute this command after detection has successfully stopped",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "endprescript",
+            "name": "Kill stopped the command.",
+            "help": "For cases where Ctrl+C is required after certain stop commands have been successfully stopped",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "Log Path",
+        "help": "Log path, which supports wildcards and inverts to display the startup log after the startup command",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

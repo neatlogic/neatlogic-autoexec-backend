@@ -1,0 +1,42 @@
+{
+    "opDesc": "Save the status of the previous step to the environment variable",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Retain the status of the previous step to the environment variable and provide external process tool references",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "envname",
+            "name": "Variable Name",
+            "help": "Name in Environment Variables",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "PRE_STEP_STATUS"
+        },
+        {
+            "opt": "scope",
+            "name": "Scope",
+            "help": "Scope of Environmental Variables",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Current Node",
+                        "value": "node"
+                    },
+                    {
+                        "text": "All Nodes",
+                        "value": "global"
+                    }
+                ]
+            },
+            "defaultValue": "node"
+        }
+    ]
+}
