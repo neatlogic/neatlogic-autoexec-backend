@@ -13,7 +13,7 @@
         "type": "text",
         "count": 1,
         "isConst": "false",
-        "defaultValue": "作业暂停，退出执行",
+        "defaultValue": "Job paused, exiting",
         "required": "true",
         "validate": ""
     }

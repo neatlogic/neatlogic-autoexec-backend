@@ -15,7 +15,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "是否继续执行？"
+            "defaultValue": "Continue execution?"
         }
     ],
     "output": []

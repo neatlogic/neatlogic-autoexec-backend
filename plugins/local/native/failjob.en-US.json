@@ -13,7 +13,7 @@
         "type": "text",
         "count": 1,
         "isConst": "false",
-        "defaultValue": "作业失败，主动退出",
+        "defaultValue": "Job failed, exiting",
         "required": "true",
         "validate": ""
     }

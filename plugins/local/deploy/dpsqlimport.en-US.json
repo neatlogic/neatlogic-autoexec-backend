@@ -36,7 +36,7 @@
             "type": "phase",
             "required": "true",
             "validate": "",
-            "defaultValue": "执行SQL"
+            "defaultValue": "Execute SQL"
         },
         {
             "opt": "rbtargetphase",
@@ -45,7 +45,7 @@
             "type": "phase",
             "required": "true",
             "validate": "",
-            "defaultValue": "回退SQL"
+            "defaultValue": "Rollback SQL"
         },
         {
             "opt": "extnames",

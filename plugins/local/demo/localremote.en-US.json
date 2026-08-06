@@ -14,7 +14,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "测试Local-Remote"
+            "defaultValue": "Test Local-Remote"
         },
         {
             "opt": "tjson",
@@ -23,7 +23,7 @@
             "type": "json",
             "required": "true",
             "validate": "",
-            "defaultValue": "{\"name\":\"测试Local-Remote\"}"
+            "defaultValue": "{\"name\":\"Test Local-Remote\"}"
         },
         {
             "opt": "tselect",

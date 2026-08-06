@@ -61,7 +61,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "请选择"
+            "defaultValue": "Please select"
         },
         {
             "opt": "message",
@@ -70,7 +70,7 @@
             "type": "text",
             "required": "true",
             "validate": "",
-            "defaultValue": "是否继续执行？"
+            "defaultValue": "Continue execution?"
         }
     ],
     "output": [
