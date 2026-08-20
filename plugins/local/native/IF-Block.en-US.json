@@ -1,0 +1,14 @@
+{
+    "opDesc": "Conditional judgement IF-ELSE",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Combination of several tools using IF-ELSE",
+    "enabled": 1,
+    "condition": "",
+    "if": [],
+    "else": [],
+    "option": []
+}

@@ -1,0 +1,30 @@
+{
+    "opDesc": "Change Unix user password",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Change user password for Unix/Linux operating system",
+    "option": [
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Operating system username",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Operation password for system users",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

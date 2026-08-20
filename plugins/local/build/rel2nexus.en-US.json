@@ -1,0 +1,94 @@
+{
+    "opDesc": "Upload package to Nexus",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "nexus-args",
+    "description": "After the project compile package, upload the package to Nexus",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "baseurl",
+            "name": "Nexus Address",
+            "help": "Nexus address, e.g. https://192.168.0:8443",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.baseurl}"
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Nexus login username",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Nexus login user password",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:nexus.password}"
+        },
+        {
+            "opt": "repo",
+            "name": "Nexus Repository",
+            "help": "Nexus' library name with this Artifact",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "group",
+            "name": "Group Name",
+            "help": "Artifact's group name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "artifact",
+            "name": "Package Name",
+            "help": "Artifact ' s package name (excluding version number)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ver",
+            "name": "Version Number",
+            "help": "Version number of the package",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}${VERSION}"
+        },
+        {
+            "opt": "pkgfile",
+            "name": "Package File",
+            "help": "Path to jar/war package relative to project directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pomfile",
+            "name": "pom file",
+            "help": "Path to op.xml relative to project directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,100 @@
+{
+    "opDesc": "Modify configuration file in Ini format",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify configuration file in Ini format",
+    "option": [
+        {
+            "opt": "backup",
+            "name": "Backup Files",
+            "help": "Backup file before change to xx.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "create",
+            "name": "Automatically Create",
+            "help": "Create files automatically if they do not exist",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "filepath",
+            "name": "File Path",
+            "help": "Path to Ini profile",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support multiple rows, e.g.: [mysqld] bind-address=0.0.0.0",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "nosection",
+            "name": "No section structure",
+            "help": "Whether the file contains a key = value configuration that is not in section",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "iniConf",
+            "name": "IniConf Configuration",
+            "help": "Updated Ini Configuration",
+            "type": "textarea"
+        }
+    ]
+}

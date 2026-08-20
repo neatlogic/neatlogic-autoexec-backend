@@ -1,0 +1,12 @@
+{
+    "opDesc": "Association Buildno",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "",
+    "description": "Association buildno, you can choose buildno when you trigger the operational parameter selection",
+    "enabled": 1,
+    "option": [],
+    "output": []
+}

@@ -1,0 +1,97 @@
+{
+    "opDesc": "Appollo Configuration Control",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "apollo-args",
+    "description": "Appolo Configuration Control",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "Interface URL",
+            "help": "Appollo interface URL address, e.g. https://10.16.185.1",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:apollo.url}"
+        },
+        {
+            "opt": "token",
+            "name": "Validate tokens",
+            "help": "Access token to Appolo interface",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:apollo.token}"
+        },
+        {
+            "opt": "env",
+            "name": "Apollo Environment Name",
+            "help": "The Apollo environment name to be manipulated",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$ENV_NAME"
+        },
+        {
+            "opt": "appid",
+            "name": "Apollo Application ID",
+            "help": "Apply ID in Apollo",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "cluster",
+            "name": "Apollo Cluster.",
+            "help": "Appolo Cluster Name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "namespace",
+            "name": "ApolloNameSpace Name",
+            "help": "Appolo NameSpace Name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "operator",
+            "name": "Operator",
+            "help": "Appolo users for updating operations (for recording operations history)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

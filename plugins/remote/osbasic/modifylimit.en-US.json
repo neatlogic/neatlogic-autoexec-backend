@@ -1,0 +1,67 @@
+{
+    "opDesc": "Modify.conf",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify settings under lmit.conf or lmit.d under/etc/security",
+    "option": [
+        {
+            "opt": "defaultdomain",
+            "name": "Default Configuration Scope",
+            "help": "range of rules, e. g. user name (user), group name (@group), all (*)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "backup",
+            "name": "Backup Files",
+            "help": "Backup before changing, e. g. /etc/security/ limit.conf.%Y%m%d-%H%M%S",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "filename",
+            "name": "Filename",
+            "help": "If you change /etc/securityLimit.conf is left empty, if you want to change the file under limit.d, the filename is given.",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support for multiple rows, e. g. oracle soft nrc 2047",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "limitConf",
+            "name": "Limit Configuration",
+            "help": "Updated limit.conf configuration",
+            "type": "textarea"
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "opDesc": "Profile Backup",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Copy remote OS files locally and backup them to file services",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "maxsize",
+            "name": "MaxSize",
+            "help": "Maximum file size, in: K",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "32"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Query timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "argument": {
+        "name": "Backup file required",
+        "help": "File expression that requires backup, ignoring directories only backup files. e. g. /opt/tagent/conf/*.conf,/tmp/*",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": [
+        {
+            "opt": "fileList",
+            "name": "File Backup Path",
+            "help": "File Info List, [{'fileName':'xx', 'fullPath':'yyy', 'serverPath':'zzz', 'modifyTime':1661323868}]",
+            "type": "json"
+        }
+    ]
+}

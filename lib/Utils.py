@@ -41,6 +41,14 @@ def _rc4_decrypt_hex(key, data):
         return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
 
 
+def decryptPassword(passKey, password):
+    """Decrypt password values that use a supported RC4 prefix."""
+    for prefix in ("{ENCRYPTED}", "{RC4}", "RC4:"):
+        if password.startswith(prefix):
+            return _rc4_decrypt_hex(passKey, password[len(prefix) :])
+    return password
+
+
 def checkPidExists(pid):
     isExists = False
     try:

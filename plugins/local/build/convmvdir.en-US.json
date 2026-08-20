@@ -1,0 +1,55 @@
+{
+    "opDesc": "Modify filename encoding",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Convert directory or filename to a consistent code",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "from",
+            "name": "Source Encoding",
+            "help": "Source code for directory or filename",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "GBK"
+        },
+        {
+            "opt": "to",
+            "name": "Target Encoding",
+            "help": "Destination code for directory or filename",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "UTF-8"
+        }
+    ],
+    "output": []
+}

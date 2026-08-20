@@ -1,0 +1,109 @@
+{
+    "opDesc": "Start Application",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Call remote command to start the application, test the application for start-up while tab log",
+    "option": [
+        {
+            "opt": "prescript",
+            "name": "Start Command",
+            "help": "Shell command required to start application",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "closetty",
+            "name": "Close TTY",
+            "help": "Closes the standard input output, and this option needs to be enabled for applications that exit after startup due to the exit of the parent process",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "addr",
+            "name": "Service Address",
+            "help": "URL or IP:PORT, several commas separated, e.g. http://127.0.0.1:8080,127.0.0.1:8090",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "eofstr",
+            "name": "Start successful string",
+            "help": "If log encoding is not UTF-8, configure: {GBK} Start complete; leave as little as possible and replace it with a service address detection",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout (seconds)",
+            "help": "Starts the timeout in seconds, the timeout starts without success",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "300"
+        },
+        {
+            "opt": "postscript",
+            "name": "Start Backup Command",
+            "help": "Apply startup and execute this command after successful startup",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "endprescript",
+            "name": "Termination of start-up command",
+            "help": "Use when Ctrl+C is required after certain start commands have been successfully activated",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "Log Path",
+        "help": "Log path, which supports wildcards and inverts to display the startup log after the startup command",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

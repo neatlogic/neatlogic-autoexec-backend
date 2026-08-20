@@ -141,8 +141,8 @@ class PhaseWorker(threading.Thread):
             if clean is None or clean == 0:
                 currentNode.updateNodeStatus(NodeStatus.waitInput, interact=interact)
             elif clean == 1:
-                if not currentNode.execLastOp:
-                    currentNode.updateNodeStatus(NodeStatus.running, interact=None)
+                #if not currentNode.execLastOp:
+                currentNode.updateNodeStatus(NodeStatus.running, interact=None)
             return True
         else:
             return False
@@ -173,6 +173,9 @@ class PhaseExecutor:
         self.execQueue = None
         self.isRunning = False
         self.waitInputFlagFilePath = self.context.runPath + "/log/" + self.phaseName + ".waitInput"
+        # 用于标记当前phase是否在waitInput
+        self.waitInputFlag = False
+        self.waitInputLock = threading.Lock()
 
     def _buildWorkerPool(self, execQueue):
         workers = []
@@ -314,27 +317,28 @@ class PhaseExecutor:
         return phaseStatus.failNodeCount
 
     def informNodeWaitInput(self, resourceId, interact=None, clean=None):
-        hasInformed = False
-        isLastNode = False
-        execLastOp = False
-        for worker in self.workers:
-            currentNode = worker.currentNode
-            if worker.informNodeWaitInput(resourceId, interact=interact, clean=clean):
-                if currentNode.isLastNode:
-                    isLastNode = True
-                    execLastOp = currentNode.execLastOp
-                hasInformed = True
-                break
-        if hasInformed:
-            if clean == 1:
-                if not (isLastNode and execLastOp):
-                    self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
-                    print("INFO: Update runner status to running succeed.\n", end="")
-                    self.context.serverAdapter.pushJobStatus(NodeStatus.running)
-            else:
-                self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
-                self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
-                print("INFO: Update runner status to waitInput succeed.\n", end="")
+        with self.waitInputLock:
+            hasInformed = False
+            waitInputFlag = False
+            for worker in self.workers:
+                currentNode = worker.currentNode
+                if not hasInformed and worker.informNodeWaitInput(resourceId, interact=interact, clean=clean):
+                    hasInformed = True
+                if not waitInputFlag and currentNode.getNodeStatus() == NodeStatus.waitInput:
+                    waitInputFlag = True
+                    
+            self.waitInputFlag = waitInputFlag
+
+            if hasInformed:
+                if clean == 1:
+                    if not self.waitInputFlag:
+                        self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.running)
+                        print("INFO: Update runner phase:{} status to running succeed.\n".format(self.phaseName), end="")
+                        #self.context.serverAdapter.pushJobStatus(NodeStatus.running)
+                else:
+                    self.context.serverAdapter.pushPhaseStatus(self.groupNo, self.phaseName, self.phaseStatus, NodeStatus.waitInput)
+                    #self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
+                    print("INFO: Update runner phase:{} status to waitInput succeed.\n".format(self.phaseName), end="")
 
     def pause(self):
         self.context.isPausing = True

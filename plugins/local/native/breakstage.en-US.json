@@ -1,0 +1,11 @@
+{
+    "opDesc": "Jump out of current phase",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Current implementation node out of current phase",
+    "option": [],
+    "argument": null
+}

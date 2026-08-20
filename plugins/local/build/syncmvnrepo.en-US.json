@@ -1,0 +1,31 @@
+{
+    "opDesc": "Sync local Maven repository artifact to runner group",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "syncmvnrepo-args",
+    "description": "Synchronise to other members of the runner group after the project compilemvn install",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "repo",
+            "name": "Local Maven Repository",
+            "help": "Maven Local repository Directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${HOME}/.m2"
+        },
+        {
+            "opt": "pomfile",
+            "name": "pom file",
+            "help": "Path to op.xml relative to project directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "pom.xml"
+        }
+    ],
+    "output": []
+}

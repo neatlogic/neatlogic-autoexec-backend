@@ -1,0 +1,154 @@
+{
+    "opDesc": "Execute Script with Tagent",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Tagent executes remote scripts",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Call timeout (sec)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "15"
+        },
+        {
+            "opt": "eofstr",
+            "name": "End String",
+            "help": "For commands that do not end, when exporting this string, successfully and finish execution",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "async",
+            "name": "Asynchronous Execution",
+            "help": "Step execution, not waiting for execution to be completed",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "destencoding",
+            "name": "Service Character Set",
+            "help": "Execute Character Set for Specified Service",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto",
+                        "value": ""
+                    },
+                    {
+                        "text": "en_US.UTF-8",
+                        "value": "en_US.UTF-8"
+                    },
+                    {
+                        "text": "zh_CN.GBK",
+                        "value": "zh_CN.GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "interpreter",
+            "name": "Script Language",
+            "help": "Languages of scripts written",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "bash",
+                        "value": "sh"
+                    },
+                    {
+                        "text": "perl",
+                        "value": "perl"
+                    },
+                    {
+                        "text": "python",
+                        "value": "python"
+                    },
+                    {
+                        "text": "cmd",
+                        "value": "cmd"
+                    },
+                    {
+                        "text": "powershell",
+                        "value": "powershell"
+                    },
+                    {
+                        "text": "vbscript",
+                        "value": "vbscript"
+                    }
+                ]
+            },
+            "defaultValue": "sh"
+        },
+        {
+            "opt": "script",
+            "name": "Script",
+            "help": "Execute Script Contents",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Script parameters",
+        "help": "Parameters required for custom script execution",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,80 @@
+{
+    "opDesc": "Send Command to Network Device",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Send Command to Network Device",
+    "option": [
+        {
+            "opt": "node",
+            "name": "node",
+            "help": "",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "exitCmd",
+            "name": "Exit Command",
+            "help": "Quit commands, e. g. quit, exit",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "exit",
+                        "value": "exit"
+                    },
+                    {
+                        "text": "quit",
+                        "value": "quit"
+                    }
+                ]
+            },
+            "defaultValue": "exit"
+        },
+        {
+            "opt": "timeout",
+            "name": "Connection timeout",
+            "help": "The default is 10 seconds.",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Print Detailed Log",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "cmd",
+            "name": "Command",
+            "help": "Issue command to support multi-line batch commands",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ]
+}

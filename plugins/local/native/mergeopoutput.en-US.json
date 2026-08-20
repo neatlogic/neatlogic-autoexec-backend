@@ -1,0 +1,28 @@
+{
+    "opDesc": "The same tool-output output merge",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "The same tool output key-value is assembled and packaged for single nodes",
+    "option": [
+        {
+            "opt": "outputkey",
+            "name": "Variable Name",
+            "help": "Variable name for upstream output",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "mergedData",
+            "name": "Merged Data",
+            "help": "Multiple-node output merged data, combined node information is lost, and if the upstream node has the same data as key, reciprocal overlay occurs",
+            "type": "json"
+        }
+    ]
+}

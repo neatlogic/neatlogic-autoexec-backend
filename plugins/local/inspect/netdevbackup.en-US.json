@@ -1,0 +1,113 @@
+{
+    "opDesc": "Back Up Network Device Configuration",
+    "opType": "runner_target",
+    "typeName": "BACKUP",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Back Up Network Device Configuration",
+    "option": [
+        {
+            "opt": "vendor",
+            "name": "Vendor",
+            "help": "Vendor",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Huawei",
+                        "value": "huawei"
+                    },
+                    {
+                        "text": "H3C",
+                        "value": "h3c"
+                    },
+                    {
+                        "text": "Cisco",
+                        "value": "cisco"
+                    },
+                    {
+                        "text": "Hillstone",
+                        "value": "hillstone"
+                    },
+                    {
+                        "text": "Ruijie",
+                        "value": "ruijie"
+                    },
+                    {
+                        "text": "Maipu",
+                        "value": "maipu"
+                    },
+                    {
+                        "text": "ZTE",
+                        "value": "zte"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "exitCmd",
+            "name": "Exit Command",
+            "help": "Quit commands, e. g. quit, exit",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "exit",
+                        "value": "exit"
+                    },
+                    {
+                        "text": "quit",
+                        "value": "quit"
+                    }
+                ]
+            },
+            "defaultValue": "exit"
+        },
+        {
+            "opt": "timeout",
+            "name": "Connection timeout",
+            "help": "The default is 10 seconds.",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "number"
+            ],
+            "defaultValue": "10"
+        },
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Print Detailed Log",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "fileList",
+            "name": "File Backup Path",
+            "help": "File Backup Path",
+            "type": "json"
+        }
+    ]
+}

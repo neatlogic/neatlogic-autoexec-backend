@@ -1,0 +1,64 @@
+{
+    "opDesc": "SCP Download",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Upload local files based on SCP to service",
+    "option": [
+        {
+            "opt": "addr",
+            "name": "SCP Address",
+            "help": "SCP file address, e.g. 192.16.8.222.2",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "remotedir",
+            "name": "Remote directory",
+            "help": "Local directories, e.g. /tmp/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dir",
+            "name": "Local Directory",
+            "help": "Local directories, e.g. /tmp/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Login User",
+            "help": "Username, if not required, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pass",
+            "name": "Login Password",
+            "help": "Password, if not needed, leave empty",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "filePath",
+            "name": "File Path",
+            "help": "Service-end file path uploaded by SCP",
+            "type": "text"
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "opDesc": "Configure zyppper ISO Source",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Configure local ISO sources for SOSE12 and above",
+    "option": [
+        {
+            "opt": "isofile",
+            "name": "ISO file",
+            "help": "Directory of ISO files",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "clean",
+            "name": "Delete other yum configurations",
+            "help": "Delete other configurations under/etc/yum.repos.d",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

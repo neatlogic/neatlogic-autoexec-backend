@@ -1,0 +1,42 @@
+{
+    "opDesc": "Create OS User",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Create Unix/Linux operating system user",
+    "option": [
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support multiple rows, for example: oracle oistall dba, admadm or oracle 1000 ointstall or or oracle 1000 ointstall dba, admadm",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "modifyifexist",
+            "name": "Modify if Existing",
+            "help": "Modify existing group if the user already exists",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": []
+}

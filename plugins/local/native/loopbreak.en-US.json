@@ -1,0 +1,11 @@
+{
+    "opDesc": "Jump out of Loop",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Jump out of the current Loop loop",
+    "option": [],
+    "argument": null
+}

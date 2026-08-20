@@ -59,6 +59,19 @@ class ListenWorkThread(threading.Thread):
                         if phaseStatus is not None and phaseStatus.executor is not None:
                             phaseStatus.executor.informNodeWaitInput(resourceId, interact=actionData.get("interact"), clean=clean)
                             print("INFO: Node interact event recieved, phase({}) resourceid({}) processed.\n".format(phaseName, resourceId), end="")
+                        if clean == 1:
+                            hasWaitInput = False
+                            for phaseSatus in self.context.phases.values():
+                                if phaseSatus.executor.waitInputFlag:
+                                    hasWaitInput = True
+                                    break
+                            if hasWaitInput:
+                                self.context.serverAdapter.pushJobStatus(NodeStatus.waitInput)
+                                print("INFO: Update job status to waitInput succeed.\n", end="")
+                            else:
+                                self.context.serverAdapter.pushJobStatus(NodeStatus.running)
+                                print("INFO: Update job status to running succeed.\n", end="")
+
                     elif actionData["action"] == "informRoundContinue":
                         phaseName = actionData["phaseName"]
                         roundNo = actionData["roundNo"]
@@ -875,7 +888,15 @@ class JobRunner:
                 if not self.context.goToStop:
                     # 所有跑完了，如果全局不存在失败的节点，且nofirenext则通知后台调度器调度下一个phase,通知后台做fireNext的处理
                     print("INFO: Fire group:{}.\n".format(lastGroupNo + 2), end="")
-                    self.context.serverAdapter.fireNextGroup(lastGroupNo)
+                    try:
+                        self.context.serverAdapter.fireNextGroup(lastGroupNo)
+                    except Exception as ex:
+                        print("ERROR: Fire group:{} failed, {}.".format(lastGroupNo + 2, ex), end="")
+                        try:
+                            self.context.serverAdapter.pushJobStatus(NodeStatus.failed)
+                        except Exception as e:
+                            print("ERROR: Update job status to failed after failed firing group:{}, {}.\n".format(lastGroupNo + 2, e), end="")
+                        raise
             else:
                 # myJobStatus = self.getMyJobStatus()
                 self.context.serverAdapter.pushJobStatus(NodeStatus.completed)

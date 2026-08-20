@@ -1,0 +1,55 @@
+{
+    "opDesc": "FTP Download",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "FTP-based downloading of server files",
+    "option": [
+        {
+            "opt": "addr",
+            "name": "FTP Address",
+            "help": "FTP file address, e.g.: ftp://192.168.0.222/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dir",
+            "name": "Local Directory",
+            "help": "Local directories, e.g. /tmp/test.tgz",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Login User",
+            "help": "Username, if not required, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pass",
+            "name": "Login Password",
+            "help": "Password, if not needed, leave empty",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "filePath",
+            "name": "File Path",
+            "help": "FTP Download Saved File Path",
+            "type": "filepath"
+        }
+    ]
+}

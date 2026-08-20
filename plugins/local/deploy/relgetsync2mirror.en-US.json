@@ -1,0 +1,196 @@
+{
+    "opDesc": "Generate Cross-environment Image Artifact",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "relsync-args",
+    "description": "User cross-environment synchronization artifacts, e.g., production of synchronized testing environment mirrors",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "backup",
+            "name": "Whether or not to backup",
+            "help": "Backup changed file directories when synchronized to reverse",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "blacklist",
+            "name": "Exclude DBSchema",
+            "help": "No RB Schema to environmental artifacts, e.g.: myadb.myauser,mybdb.mybuser",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "nomd5",
+            "name": "Document MD5",
+            "help": "MD5 comparing files while synchronized",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "0"
+                    },
+                    {
+                        "text": "No",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "nodelete",
+            "name": "Delete Extra",
+            "help": "Remove an extra file or subdirectories from the target directory",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "0"
+                    },
+                    {
+                        "text": "No",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "noattrs",
+            "name": "Sync File Permissions",
+            "help": "Synchronise permissions for files and subdirectories under source directory to target directory",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "0"
+                    },
+                    {
+                        "text": "No",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "notime",
+            "name": "Compare change time",
+            "help": "Synchronization is considered necessary if the change time of the content under the target directory is inconsistent with the source directory",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "0"
+                    },
+                    {
+                        "text": "No",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "exp",
+            "name": "Exclude Directory",
+            "help": "Exclude subdirectories, commas separated, and do not sync these subdirectories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "src",
+            "name": "Source Directory",
+            "help": "Relative directory relative to version catalogue (leave to default use of version directory root)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "Destination Directory",
+            "help": "Relative catalogues relative to catalogues of environmental artifacts (leave space represents the default use of directory roots of environmental artifacts)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "rollback",
+            "name": "Revert the current version changes",
+            "help": "Restore changes to the current version of environmental mirrors",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

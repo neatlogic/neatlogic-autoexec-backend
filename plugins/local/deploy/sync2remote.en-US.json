@@ -1,0 +1,250 @@
+{
+    "opDesc": "Synchronize Environment Artifact",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "sync2remote-args",
+    "description": "Sync Local Environmental artifacts to Remote Server",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "ostype",
+            "name": "OS Type",
+            "help": "Type of operating system",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Unix｜Linux",
+                        "value": "unix"
+                    },
+                    {
+                        "text": "Windows",
+                        "value": "windows"
+                    }
+                ]
+            },
+            "defaultValue": "unix"
+        },
+        {
+            "opt": "pdir",
+            "name": "Basic Directory",
+            "help": "Base directory categories relative to applied data directories",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Environment Artifact Directory",
+                        "value": "appdist"
+                    },
+                    {
+                        "text": "DB Script Directory",
+                        "value": "dbscript"
+                    },
+                    {
+                        "text": "Version catalogue",
+                        "value": "release"
+                    },
+                    {
+                        "text": "Environment Image Artifact",
+                        "value": "mirror"
+                    },
+                    {
+                        "text": "Project Directory",
+                        "value": "project"
+                    },
+                    {
+                        "text": "Root Directory",
+                        "value": "approot"
+                    }
+                ]
+            },
+            "defaultValue": "appdist"
+        },
+        {
+            "opt": "nodelete",
+            "name": "Do not delete files",
+            "help": "Synchronise, do not delete directories or files where the target does not exist",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "opmode",
+            "name": "Sync Mode",
+            "help": "How to handle files or subdirectories that have been added to the target directory",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Full Sync",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Do not execute deletion",
+                        "value": "1"
+                    },
+                    {
+                        "text": "Execute Delete Only",
+                        "value": "2"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "noattrs",
+            "name": "Sync File Permissions",
+            "help": "Synchronise permissions for files and subdirectories under source directory to target directory",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "0"
+                    },
+                    {
+                        "text": "No",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "followlinks",
+            "name": "FollowLinks",
+            "help": "Use soft connection as a normal directory file",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "addexecfornewfile",
+            "name": "Add Enforcement Permissions",
+            "help": "Actively grant enforcement authority to additional documents",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "pull",
+            "name": "Copy By",
+            "help": "Copy Direction",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Remote Copy to Local",
+                        "value": "1"
+                    },
+                    {
+                        "text": "Local Copy to Remote",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "exp",
+            "name": "Exclude Directory",
+            "help": "Exclude subdirectories, commas separated, and do not sync these subdirectories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "src",
+            "name": "Source Directory",
+            "help": "Synchronized source directory (relative to the root directory of material stored in the current system)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dest",
+            "name": "Destination Directory",
+            "help": "Synchronized target directory (relative to the root directory of material stored in the current system)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": null,
+    "output": []
+}

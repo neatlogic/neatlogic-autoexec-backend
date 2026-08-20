@@ -1,0 +1,97 @@
+{
+    "opDesc": "Update application files",
+    "opType": "target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "backup-args",
+    "description": "Update target application file",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "ins",
+            "name": "Instance Name",
+            "help": "Instance Name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$INS_NAME"
+        },
+        {
+            "opt": "version",
+            "name": "Version",
+            "help": "Version Number",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$VERSION"
+        },
+        {
+            "opt": "backupcount",
+            "name": "Number of backups retained",
+            "help": "Minimum number of backups retained",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "3"
+        },
+        {
+            "opt": "backuplastdays",
+            "name": "Keep backup days",
+            "help": "Minimum number of days to retain backup",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "30"
+        },
+        {
+            "opt": "backupdir",
+            "name": "Backup Directory",
+            "help": "Save backup directories, e. g. /app/backup",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "versrcpath",
+            "name": "Version Material Path",
+            "help": "Version material path, for example: /tmp/test.war",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "targetdir",
+            "name": "Application Directory",
+            "help": "Table of contents updated with version material, e.g.: /app/myapp",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

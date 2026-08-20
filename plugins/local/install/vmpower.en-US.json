@@ -1,0 +1,108 @@
+{
+    "opDesc": "Turn off the virtual machine.",
+    "opType": "runner",
+    "typeName": "INSTALL",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Vishpere-based virtual machines",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "ip",
+            "help": "vsphere Management IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "user",
+            "help": "vsphere Manage Users",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "password",
+            "help": "vsphere manage login user password",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "port",
+            "help": "vsphere manage port",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "443"
+        },
+        {
+            "opt": "vm_name",
+            "name": "Name",
+            "help": "Virtual Machine Name",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "vm_ip",
+            "name": "IP",
+            "help": "Virtual Machine IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "power_type",
+            "name": "Power State",
+            "help": "Power status for virtual machines to operate",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Turn on the power.",
+                        "value": "powerOn"
+                    },
+                    {
+                        "text": "powerOff",
+                        "value": "关闭电源"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Print Detailed Log",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

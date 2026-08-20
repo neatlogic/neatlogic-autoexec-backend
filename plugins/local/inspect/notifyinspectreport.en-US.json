@@ -1,0 +1,38 @@
+{
+    "opDesc": "Inspection Notification Plugin",
+    "opType": "runner",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Inspection Notification Plugin",
+    "option": [
+        {
+            "opt": "notifyHandler",
+            "name": "Method of notification",
+            "help": "Method of notification",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Mail",
+                        "value": "EmailNotifyHandler"
+                    }
+                ]
+            },
+            "defaultValue": "EmailNotifyHandler"
+        },
+        {
+            "opt": "notifyTargets",
+            "name": "Notifier Object",
+            "help": "Notifier object, supports notifier, group, role",
+            "type": "userselect",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

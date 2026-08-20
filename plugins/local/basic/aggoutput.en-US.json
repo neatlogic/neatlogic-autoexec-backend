@@ -1,0 +1,28 @@
+{
+    "opDesc": "Output Aggregation",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Aggregation of a variable from the output of multiple nodes, as shown below, with a recommended number of nodes not exceeding 32",
+    "option": [
+        {
+            "opt": "outputkey",
+            "name": "Variable Name",
+            "help": "Variable name for upstream output",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "aggData",
+            "name": "Aggregation Data",
+            "help": "Multinodes output data after aggregation, data sets are json interfaces, and aggregates with IP or IP:Port as datakey",
+            "type": "json"
+        }
+    ]
+}

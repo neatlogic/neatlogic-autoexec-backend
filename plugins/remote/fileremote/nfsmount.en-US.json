@@ -1,0 +1,109 @@
+{
+    "opDesc": "Mount Mount Mount",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Unix Environment Mounting NAS",
+    "option": [
+        {
+            "opt": "location",
+            "name": "Share Path",
+            "help": "Share paths, e.g. NFS: 192.16.0.222:/public, CIFS: //192.168.222/public",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "mountpoint",
+            "name": "Mount directory",
+            "help": "Mount directory, e. g. /mnt/ nas",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "Login User",
+            "help": "Username, if not required, leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Login Password",
+            "help": "Password, if not needed, leave empty",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "iocharset",
+            "name": "Encoding",
+            "help": "Encoding, default is utf8",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Default",
+                        "value": ""
+                    },
+                    {
+                        "text": "iso8859-1",
+                        "value": "iso8859-1"
+                    },
+                    {
+                        "text": "utf8",
+                        "value": "utf8"
+                    },
+                    {
+                        "text": "gb2312",
+                        "value": "gb2312"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "type",
+            "name": "Agreements",
+            "help": "Agreements",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Default",
+                        "value": ""
+                    },
+                    {
+                        "text": "nfs",
+                        "value": "nfs"
+                    },
+                    {
+                        "text": "cifs",
+                        "value": "cifs"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "mountPoint",
+            "name": "Mount directory",
+            "help": "Mount directory",
+            "type": "text"
+        }
+    ]
+}

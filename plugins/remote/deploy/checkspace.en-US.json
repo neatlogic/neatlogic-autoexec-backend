@@ -1,0 +1,21 @@
+{
+    "opDesc": "Space inspections",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Check if there is enough space for the mount point",
+    "option": [],
+    "argument": {
+        "name": "Check Expression",
+        "help": "For example: '/app/mysystem1100M', '/app/mysystem2 10G 50'",
+        "count": 0,
+        "type": "text",
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

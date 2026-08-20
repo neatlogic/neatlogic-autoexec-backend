@@ -1,0 +1,52 @@
+{
+    "opDesc": "Start Former ORACLE Standby Database",
+    "opType": "target",
+    "typeName": "DR_SWITCH",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Start the original repository (current repository) before it starts.",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "sid",
+            "name": "SID",
+            "help": "If not set, use the environment variable ORACLE_SID",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "dbname",
+            "name": "Database Name",
+            "help": "Database Name (same for primary and standby)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "israc",
+            "name": "Was it RAC?",
+            "help": "Whether the current node is a member of ORACLE RAC",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": []
+}

@@ -1,0 +1,44 @@
+{
+    "opDesc": "Generate sequence hostname",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Json of multiple nodes entered by parameters, generate hostnames with serial numbers according to IP sequence",
+    "option": [
+        {
+            "opt": "nodes",
+            "name": "Node List",
+            "help": "Need to generate a node list with serial number hostname",
+            "type": "node",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "nameprefix",
+            "name": "Hostname (without serial number)",
+            "help": "Host name prefix (without serial number)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "nodeIp2Hostname",
+            "name": "IP Host Name Map",
+            "help": "Map for conversion of IP to hostname",
+            "type": "json"
+        },
+        {
+            "opt": "hostsConfTxt",
+            "name": "Hosts Configuration",
+            "help": "/etc/hosts configuration",
+            "type": "textarea",
+            "defaultValue": ""
+        }
+    ]
+}

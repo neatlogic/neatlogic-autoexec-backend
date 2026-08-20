@@ -1,0 +1,36 @@
+{
+    "opDesc": "Execute switch commands",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Local company remotely executes commands for network device commands",
+    "enabled": 0,
+    "option": [
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Connection timeout",
+            "type": "text",
+            "required": "false",
+            "validate": [
+                "number"
+            ],
+            "defaultValue": "15"
+        },
+        {
+            "opt": "command",
+            "name": "Remote Command",
+            "help": "Custom Script",
+            "type": "textarea",
+            "required": "true",
+            "validate": [
+                "highriskcode"
+            ],
+            "defaultValue": ""
+        }
+    ],
+    "argument": {},
+    "output": []
+}

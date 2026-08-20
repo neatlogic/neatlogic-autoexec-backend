@@ -1,0 +1,37 @@
+{
+    "opDesc": "Output Conversion",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Share local output from remote node output to Runner execution with other nodes for subsequent operation",
+    "option": [
+        {
+            "opt": "node",
+            "name": "To Convert Node",
+            "help": "The node that needs to be converted to output",
+            "type": "node",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Variable Name",
+        "type": "text",
+        "defaultValue": "",
+        "help": "Variable name for upstream output",
+        "count": 0,
+        "validate": "",
+        "required": "true"
+    },
+    "output": [
+        {
+            "opt": "dataConverted",
+            "name": "Converted Data",
+            "help": "Single remote node converted to Local data",
+            "type": "json"
+        }
+    ]
+}

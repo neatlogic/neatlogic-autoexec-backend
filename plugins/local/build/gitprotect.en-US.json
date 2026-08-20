@@ -1,0 +1,112 @@
+{
+    "opDesc": "GIT protection settings",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Set or delete the GIT protection policy",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "API root URL",
+            "help": "Root of RestFul api in Gitlab, e.g. https://gitlab.example.com/api/v4",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.api.token}"
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "token",
+            "name": "Validate tokens",
+            "help": "Visit API Token",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:git.api.token}"
+        },
+        {
+            "opt": "object",
+            "name": "Protection Type",
+            "help": "Type of protection strategy",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "tags",
+                        "value": "tags"
+                    },
+                    {
+                        "text": "branches",
+                        "value": "branches"
+                    }
+                ]
+            },
+            "defaultValue": "tags"
+        },
+        {
+            "opt": "pattern",
+            "name": "Protection Target",
+            "help": "Protect Pattern of the target name or name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "action",
+            "name": "Actions",
+            "help": "Actions (add or delete protection)",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Add",
+                        "value": "add"
+                    },
+                    {
+                        "text": "Delete",
+                        "value": "delete"
+                    }
+                ]
+            },
+            "defaultValue": "add"
+        }
+    ],
+    "output": []
+}

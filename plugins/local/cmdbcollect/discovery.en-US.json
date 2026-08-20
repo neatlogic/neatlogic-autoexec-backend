@@ -1,0 +1,97 @@
+{
+    "opName": "CMDB自动发现",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Use SNMP protocol on-line search devices to identify the type of equipment and gather information",
+    "option": [
+        {
+            "opt": "nets",
+            "name": "Network Segment",
+            "help": "Scanning segments, e.g. 192.168.0.0/24, 192.168.1.0/24",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "192.168.0.0/24,192.168.1.0/24"
+        },
+        {
+            "opt": "ports",
+            "name": "Port List",
+            "help": "Scanning list of ports, e.g. 22,161, 135, 139, 445, 3389, 3939",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "22,161,135,139,445,3389,3939"
+        },
+        {
+            "opt": "snmpport",
+            "name": "SNMP Port",
+            "help": "SNMP Port Number",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "161"
+        },
+        {
+            "opt": "communities",
+            "name": "Group Word",
+            "help": "SNMP group word JSON array for scanning",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "[\"public\",\"mary\"]"
+        },
+        {
+            "opt": "workercount",
+            "name": "WORKER Number",
+            "help": "WOKER threads",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "16"
+        },
+        {
+            "opt": "timingtmpl",
+            "name": "Speed Level",
+            "help": "1 is slowest; 5 is fastest",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "1",
+                        "value": "1"
+                    },
+                    {
+                        "text": "2",
+                        "value": "2"
+                    },
+                    {
+                        "text": "3",
+                        "value": "3"
+                    },
+                    {
+                        "text": "4",
+                        "value": "4"
+                    },
+                    {
+                        "text": "5",
+                        "value": "5"
+                    }
+                ]
+            },
+            "defaultValue": "4"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "Unidentified data",
+            "help": "Data collected that failed to identify the target category",
+            "type": "json"
+        }
+    ]
+}

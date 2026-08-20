@@ -1,0 +1,42 @@
+{
+    "opDesc": "Create OS User Group",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Create Unix/Linux operating system user group",
+    "option": [
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support for multiple rows, e. g. oracle soft nrc 2047",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "modifyifexist",
+            "name": "Modify if Existing",
+            "help": "Modify existing group if group already exists",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        }
+    ],
+    "output": []
+}

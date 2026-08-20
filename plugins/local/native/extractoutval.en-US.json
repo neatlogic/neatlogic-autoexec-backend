@@ -1,0 +1,59 @@
+{
+    "opDesc": "Partial data extracted from upstream output data",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Extract part of the upstream output data and provide external process tool references",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "outputkey",
+            "name": "Variable Name or Data",
+            "help": "Upstream Output Variable Name or JSON Data",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selector",
+            "name": "Field Selection",
+            "help": "For JSON data, use Python syntax to select a field. For text data, use a regular expression.\nRegular expression example: Now Date:\\s*([\\d-\\s:]+)\nJSON object example (data is the JSON object supplied in the parameter): data['attr'][0]['myfield']",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selectortype",
+            "name": "Extraction Method",
+            "help": "Method of extracting different types of data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Regular Expression",
+                        "value": "RegExp"
+                    },
+                    {
+                        "text": "JSON Data Extraction",
+                        "value": "JsonObject"
+                    }
+                ]
+            },
+            "defaultValue": "JsonObject"
+        }
+    ],
+    "output": [
+        {
+            "opt": "extractTxtVal",
+            "name": "Extraction Result",
+            "help": "Extracted Data",
+            "type": "text"
+        }
+    ]
+}

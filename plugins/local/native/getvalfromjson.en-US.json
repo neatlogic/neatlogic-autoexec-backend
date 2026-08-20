@@ -1,0 +1,37 @@
+{
+    "opDesc": "Extract text from a JSON object",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Extract the desired attribute value text from a JSON object",
+    "option": [
+        {
+            "opt": "jsontxt",
+            "name": "JSON content",
+            "help": "Content of the JSON data object",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "selector",
+            "name": "Field Selection",
+            "help": "Python syntax for extraction, data for json object provided in parameters, e.g. data ['attr'][0]['myfield']",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "extractTxtVal",
+            "name": "Extraction Result",
+            "help": "Extracted Data",
+            "type": "text"
+        }
+    ]
+}

@@ -1,0 +1,121 @@
+{
+    "opDesc": "A10 POOL node control",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "F5-args",
+    "description": "Disable or Enable load balance F5 POOL node",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "Interface URL",
+            "help": "F5 interface URL address, e.g. https://10.16.185.1",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "Username",
+            "help": "Username for executing the operation",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Operation of user passwords",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "pool",
+            "name": "POOL Name",
+            "help": "A10 target POOL name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "action",
+            "name": "Operation",
+            "help": "Operation (enable/disable)",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Disable",
+                        "value": "disable"
+                    },
+                    {
+                        "text": "enable",
+                        "value": "enable"
+                    }
+                ]
+            },
+            "defaultValue": "disable"
+        },
+        {
+            "opt": "waitdisconnected",
+            "name": "Waiting for the connection to break",
+            "help": "Execute disable, waiting for all transfers to this node to be disconnected",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Call timeout (sec)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "15"
+        }
+    ],
+    "output": []
+}

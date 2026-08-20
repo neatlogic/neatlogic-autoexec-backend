@@ -1,0 +1,53 @@
+{
+    "opDesc": "Parameters for fetching required DBs",
+    "opType": "target",
+    "typeName": "DR_SWITCH",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Parameters include: library name (conformity), exemplifying name: consistent within RAC cluster, different master, synchronized sequence, etc.",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "sid",
+            "name": "SID",
+            "help": "If not set, use the environment variable ORACLE_SID",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "dbName",
+            "name": "Database Name",
+            "help": "Database Name (same for primary and standby)",
+            "type": "text"
+        },
+        {
+            "opt": "isRAC",
+            "name": "Whether RAC",
+            "help": "Oracle RAC?",
+            "type": "text"
+        },
+        {
+            "opt": "dbUniqueName",
+            "name": "Database Instance Name",
+            "help": "instance name, consistent within RAC cluster, different masters.",
+            "type": "text"
+        },
+        {
+            "opt": "dbSequence",
+            "name": "SynchroniseSequence",
+            "help": "Synchronized archive log's Sequence",
+            "type": "text"
+        },
+        {
+            "opt": "tempFilesCount",
+            "name": "Number of temporary documents",
+            "help": "Number of temporary documents",
+            "type": "text"
+        }
+    ]
+}

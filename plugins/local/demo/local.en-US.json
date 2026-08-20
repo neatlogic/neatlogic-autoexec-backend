@@ -1,0 +1,180 @@
+{
+    "opDesc": "Local Demo",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Demo in Runner Execute Tool",
+    "option": [
+        {
+            "opt": "tinput",
+            "name": "Normal Inputs",
+            "help": "Normal Input Test",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "Test-Local"
+        },
+        {
+            "opt": "tjson",
+            "name": "json input",
+            "help": "json input test",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "{\"name\":\"Test-Local\"}"
+        },
+        {
+            "opt": "tselect",
+            "name": "Single-select Input",
+            "help": "Single Input Test",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Option 1",
+                        "value": "sel1"
+                    },
+                    {
+                        "text": "Option 2",
+                        "value": "sel2"
+                    }
+                ]
+            },
+            "defaultValue": "sel1"
+        },
+        {
+            "opt": "tmultiselect",
+            "name": "Multi-select Input",
+            "help": "Multiple Input Tests",
+            "type": "multiselect",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Option 1",
+                        "value": "sel1"
+                    },
+                    {
+                        "text": "Option 2",
+                        "value": "sel2"
+                    },
+                    {
+                        "text": "Option 3",
+                        "value": "sel3"
+                    }
+                ]
+            },
+            "defaultValue": [
+                "sel1",
+                "sel2"
+            ]
+        },
+        {
+            "opt": "tpassword",
+            "name": "Password Input",
+            "help": "Password Input Test",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "local-password"
+        },
+        {
+            "opt": "tfile",
+            "name": "File Input",
+            "help": "File Input Test",
+            "type": "file",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "tnode",
+            "name": "Node Parameters",
+            "help": "Node Input Test",
+            "type": "node",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "tdate",
+            "name": "Date input",
+            "help": "Date Input Test",
+            "type": "date",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "ttime",
+            "name": "Time input",
+            "help": "Time input test",
+            "type": "time",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "tdatetime",
+            "name": "Date time input",
+            "help": "Date time input test",
+            "type": "datetime",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Free Parameters",
+        "help": "Parameters without parameter name",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": [
+        {
+            "opt": "outtext",
+            "name": "Normal Output 1",
+            "help": "Normal Output Test",
+            "type": "text"
+        },
+        {
+            "opt": "outfile",
+            "name": "File Output",
+            "help": "File Output Test",
+            "type": "file"
+        },
+        {
+            "opt": "outjsonlist",
+            "name": "Json List Output",
+            "help": "Json List Output Test",
+            "type": "json"
+        },
+        {
+            "opt": "outjsonobj",
+            "name": "json Object Output",
+            "help": "Json Object Output Test",
+            "type": "json"
+        },
+        {
+            "opt": "outcsv",
+            "name": "csv output",
+            "help": "csv output test",
+            "type": "text"
+        },
+        {
+            "opt": "outpassword",
+            "name": "Password Output",
+            "help": "Password output test",
+            "type": "password"
+        }
+    ]
+}

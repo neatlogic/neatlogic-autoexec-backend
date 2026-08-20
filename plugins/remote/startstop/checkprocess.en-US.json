@@ -1,0 +1,73 @@
+{
+    "opDesc": "Process Number Check",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Check that the number of processes is in line with expectations",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Detailed Output",
+            "help": "Show matching details",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "checkexp",
+            "name": "Number expression",
+            "help": "The number of processes varies, e.g.: '>10' or '=10' or '10' or '10' or '10' or '10'",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "op",
+            "name": "Multikey",
+            "help": "Operation symbol for multiple keywords",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "OR",
+                        "value": "or"
+                    },
+                    {
+                        "text": "AND",
+                        "value": "and"
+                    }
+                ]
+            },
+            "defaultValue": "or"
+        }
+    ],
+    "argument": {
+        "name": "Keyword",
+        "help": "Keywords, support regular expressions",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "ERROR",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

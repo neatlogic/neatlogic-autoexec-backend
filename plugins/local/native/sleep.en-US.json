@@ -1,0 +1,24 @@
+{
+    "opDesc": "sleep",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "In some special cases, it takes some time to delay.",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "seconds",
+            "name": "Sleep Duration in Seconds",
+            "help": "length of sleep, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "integer_natural"
+            ],
+            "defaultValue": "3"
+        }
+    ],
+    "argument": null
+}

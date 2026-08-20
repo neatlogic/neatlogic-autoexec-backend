@@ -1,0 +1,69 @@
+{
+    "opName": "Tomcat性能巡检",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Tomcat performance inspection.",
+    "option": [
+        {
+            "opt": "jmxport",
+            "name": "jmx port",
+            "help": "jmx service port",
+            "type": "text",
+            "required": "true",
+            "validate": [
+                "integer_p"
+            ],
+            "defaultValue": ""
+        },
+        {
+            "opt": "username",
+            "name": "jmx authentication user",
+            "help": "jmx authentication user",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "jmx authentication user password",
+            "help": "jmx authentication user password",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "JSON data",
+            "help": "Data collected",
+            "type": "json"
+        }
+    ]
+}

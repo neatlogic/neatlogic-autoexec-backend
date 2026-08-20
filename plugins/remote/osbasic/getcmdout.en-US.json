@@ -1,0 +1,60 @@
+{
+    "opDesc": "Get Command Output",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Get command line output content to write output parameters",
+    "option": [
+        {
+            "opt": "destencoding",
+            "name": "Server Encoding",
+            "help": "Remote Server Execution Encoding",
+            "type": "select",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Automatic (Agent only)",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "required": "true",
+            "validate": "",
+            "defaultValue": "auto"
+        }
+    ],
+    "output": [
+        {
+            "opt": "commandOutputTxt",
+            "name": "Output Content Text",
+            "help": "Executive text for multiple command output",
+            "type": "textarea"
+        },
+        {
+            "opt": "commandOutputJson",
+            "name": "Output content array",
+            "help": "The output content array of multiple command outputs, one command of an array element",
+            "type": "json"
+        }
+    ],
+    "argument": {
+        "name": "OS command line",
+        "help": "Elements of command line to execute",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    }
+}

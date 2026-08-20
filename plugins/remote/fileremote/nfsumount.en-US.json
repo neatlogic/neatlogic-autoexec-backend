@@ -1,0 +1,21 @@
+{
+    "opDesc": "Unmount",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Unix Environment Unmount NAS",
+    "option": [
+        {
+            "opt": "mountpoint",
+            "name": "Unmount Directory",
+            "help": "Unmount directory, e. g. /mnt/ nas",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

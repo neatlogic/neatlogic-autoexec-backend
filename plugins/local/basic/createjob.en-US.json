@@ -1,0 +1,198 @@
+{
+    "opDesc": "Create Job",
+    "opType": "runner",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Create Job",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "jobMode",
+            "name": "Job Mode",
+            "help": "jobs mode, select independent jobs, create jobs that do not establish paternity with the current job, or create a child job",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Independent jobs",
+                        "value": "standalone"
+                    },
+                    {
+                        "text": "Subjobs",
+                        "value": "child"
+                    }
+                ]
+            },
+            "defaultValue": "child"
+        },
+        {
+            "opt": "combopName",
+            "name": "Group Tool Name",
+            "help": "Group Tool Name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "name",
+            "name": "Job Name",
+            "help": "Job Name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "scenarioName",
+            "name": "Scenario Name",
+            "help": "Scenario Name",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "source",
+            "name": "Source",
+            "help": "Source, such as ITSM or a combination tool",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "ITSM",
+                        "value": "itsm"
+                    },
+                    {
+                        "text": "Combination Tool",
+                        "value": "combop"
+                    }
+                ]
+            },
+            "defaultValue": "combop"
+        },
+        {
+            "opt": "roundCount",
+            "name": "Round",
+            "help": "If there are many instances of the job, how many rounds of execution are done?",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "3"
+        },
+        {
+            "opt": "planStartTime",
+            "name": "Planned time",
+            "help": "Planned time",
+            "type": "date",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "triggerType",
+            "name": "Trigger Method",
+            "help": "Trigger, select automatic execution, and if you do not choose the scheduled time, you will do it immediately, or you will do it as planned.",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Auto Execute",
+                        "value": "auto"
+                    },
+                    {
+                        "text": "Manually execute",
+                        "value": "manual"
+                    }
+                ]
+            },
+            "defaultValue": "auto"
+        },
+        {
+            "opt": "assignExecUser",
+            "name": "Assign executing user",
+            "help": "Assign executing user",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "protocol",
+            "name": "Execution Protocol",
+            "help": "Execute the target, assign the enforcement protocol",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "ssh"
+        },
+        {
+            "opt": "executeUser",
+            "name": "Execute User",
+            "help": "Execute Target, Assign Execute Users",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "root"
+        },
+        {
+            "opt": "inputNodeList",
+            "name": "Execute Nodes",
+            "help": "Execute Target, Specify Executive Node",
+            "type": "node",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        },
+        {
+            "opt": "runnerGroupTag",
+            "name": "Executive Group tag",
+            "help": "Executive group tags, e. g. prd, sit",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        },
+        {
+            "opt": "runnerGroup",
+            "name": "Executive Group",
+            "help": "Executive groups, e.g., production network executive groups",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": null
+        }
+    ],
+    "argument": {
+        "name": "param",
+        "help": "Execute parameters with even numbers, to keep and value",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": [
+        {
+            "opt": "createdJobId",
+            "name": "Created jobid",
+            "help": "Created id for waterjob plugins",
+            "type": "text"
+        },
+        {
+            "opt": "createdJobIds",
+            "name": "Created id collections",
+            "help": "Created id collections for creating multiple jobs in the loop loop, using the Waitjob plugin to monitor outside the loop",
+            "type": "text"
+        }
+    ]
+}

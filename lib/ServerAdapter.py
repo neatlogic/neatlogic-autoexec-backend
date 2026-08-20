@@ -313,7 +313,9 @@ class ServerAdapter:
                     contextCfg["autoexec"]["db.url"] = "mongodb://%s/" % (mongoDBConf["host"])
                 contextCfg["autoexec"]["db.name"] = mongoDBConf["database"]
                 contextCfg["autoexec"]["db.username"] = mongoDBConf["username"]
-                contextCfg["autoexec"]["db.password"] = mongoDBConf["passwordPlain"]
+                contextCfg["autoexec"]["db.password"] = self.context.decryptPassword(
+                    mongoDBConf["passwordCipher"]
+                )
             except:
                 raise
 

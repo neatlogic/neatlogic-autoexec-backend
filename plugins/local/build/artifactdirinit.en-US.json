@@ -1,0 +1,12 @@
+{
+    "opDesc": "Initialize Artifact Directory",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Create Empty Artifact Directory Structure",
+    "enabled": 1,
+    "option": [],
+    "output": []
+}

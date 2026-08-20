@@ -1,0 +1,230 @@
+{
+    "opDesc": "SonarQube scan",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "sonar-args",
+    "description": "Scan the code staticly, generate scan reports",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "baseurl",
+            "name": "API Address",
+            "help": "SonarQube address, e.g. http://192.168.0.26:9,000",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sonar.url}"
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "SonarQube Username",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sonar.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "The password to access the repository",
+            "type": "password",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:sonar.password}"
+        },
+        {
+            "opt": "prefix",
+            "name": "Project subdirectories",
+            "help": "Subdirectories under Projects to Scan",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "language",
+            "name": "Programming languages",
+            "help": "Program language used in this project",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Java",
+                        "value": "java"
+                    },
+                    {
+                        "text": "C",
+                        "value": "c"
+                    },
+                    {
+                        "text": "C++",
+                        "value": "c++"
+                    }
+                ]
+            },
+            "defaultValue": "Java"
+        },
+        {
+            "opt": "encode",
+            "name": "File Encoding",
+            "help": "Character Encoding of Program Files in Project",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": "GBK"
+        },
+        {
+            "opt": "level",
+            "name": "Alert Level",
+            "help": "Level triggers the alarm.",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "critical",
+                        "value": "critical"
+                    },
+                    {
+                        "text": "blocker",
+                        "value": "blocker"
+                    }
+                ]
+            },
+            "defaultValue": "critical"
+        },
+        {
+            "opt": "threshold",
+            "name": "Threshold",
+            "help": "Maximum Passing Threshold",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "80"
+        },
+        {
+            "opt": "src",
+            "name": "Source Directory",
+            "help": "Relative directory relative to the project",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "bin",
+            "name": "Binary Directory",
+            "help": "Compile outcome document, Target for analysis (if not compiled)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Scan timeout (sec)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "600"
+        },
+        {
+            "opt": "projectKey",
+            "name": "Item Key",
+            "help": "Project Key from SonarQube.",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$SYS_NAME.$MODULE_NAME"
+        },
+        {
+            "opt": "projectName",
+            "name": "Project name",
+            "help": "Name of project in SonarQube",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$MODULE_NAME"
+        },
+        {
+            "opt": "projectVersion",
+            "name": "Project version",
+            "help": "Version number of the SonarQube project",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "$VERSION"
+        },
+        {
+            "opt": "modules",
+            "name": "Project modules",
+            "help": "Modules for the SonarQube project, e.g. module1, module2",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "intervalDay",
+            "name": "Last code time (days)",
+            "help": "The Sonar-Scanner code incremental scan starts with the number of days between, e. g. 7, representing the submission of a code within only 7 days and default full scan",
+            "type": "text",
+            "required": "false",
+            "validate": [
+                "integer_natural"
+            ],
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "Other parameters",
+        "help": "Additional arguments supported by sonar scanner",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,128 @@
+{
+    "opDesc": "SQL file execution",
+    "opType": "sqlfile",
+    "typeName": "SQL_FILE",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "SQL file execution tool (non-automatic publication)",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "sqlfilejson",
+            "name": "SQL File",
+            "help": "Upload to system multiple SQL files, SQL files and SQL scripts for at least one non-empty",
+            "type": "file",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "sql",
+            "name": "SQL Text",
+            "help": "SQL scripts, SQL files and SQL scripts for execution are not empty",
+            "type": "textarea",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "encoding",
+            "name": "SQL file encoding",
+            "help": "Encoding of SQL files",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Automatic recognition",
+                        "value": ""
+                    },
+                    {
+                        "text": "UTF-8",
+                        "value": "UTF-8"
+                    },
+                    {
+                        "text": "GBK",
+                        "value": "GBK"
+                    }
+                ]
+            },
+            "defaultValue": ""
+        },
+        {
+            "opt": "dryrun",
+            "name": "Test Run",
+            "help": "Test Run without really executing SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "force",
+            "name": "Force Run",
+            "help": "Repeat enforcement of SQL files regardless of the status of SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "autocommit",
+            "name": "Automatically submit",
+            "help": "SQL execution, automatic submission of each SQL",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "dbargs",
+            "name": "DB custom parameters",
+            "help": "Custom parameters for the database implementation tool",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

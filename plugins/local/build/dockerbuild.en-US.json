@@ -1,0 +1,85 @@
+{
+    "opDesc": "Build Docker Image",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "When the project compiles and generates environmental artifacts, docker mirrors are generated based on the catalogue of environmental artifacts",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "registry",
+            "name": "Image Registry",
+            "help": "image registry address, e.g., 10.01.13:8080",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${global:docker.reg.addr}"
+        },
+        {
+            "opt": "project",
+            "name": "Docker Project Name",
+            "help": "Docker's project name, default to keep and apply the same name",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}"
+        },
+        {
+            "opt": "image",
+            "name": "Image Name",
+            "help": "Docker's image name, default to keep the same name as the module",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${MODULE_NAME}"
+        },
+        {
+            "opt": "tagname",
+            "name": "Tag Name",
+            "help": "Docker's image tag name, maintained by default as: Environmentname - Version Number",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${ENV_NAME}-${VERSION}"
+        },
+        {
+            "opt": "buildfile",
+            "name": "Dockerfile",
+            "help": "relative path to Dockerfile",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "Dockerfile"
+        },
+        {
+            "opt": "architecture",
+            "name": "Structure",
+            "help": "image running operating system CPU architecture (this parameter must be supported by the Docker Buildx +QEMU emulator installed)",
+            "type": "select",
+            "required": "false",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "x86",
+                        "value": "linux/amd64"
+                    },
+                    {
+                        "text": "arm",
+                        "value": "linux/arm64"
+                    }
+                ]
+            }
+        }
+    ],
+    "output": [
+        {
+            "opt": "image_name",
+            "name": "Image Name",
+            "help": "Image Name",
+            "type": "text"
+        }
+    ]
+}

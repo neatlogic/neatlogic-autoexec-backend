@@ -1,0 +1,78 @@
+{
+    "opDesc": "Remote host directory to copy",
+    "opType": "runner_target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Remote host point-to-point file transfer, temporarily enable a TCP port on target OS for transfer, default port 1025",
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Output Details",
+            "help": "",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "No",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "srcnode",
+            "name": "Copy Source Node",
+            "help": "The source node of the copy, only one of them should be selected",
+            "type": "node",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "srcusername",
+            "name": "Source Node User",
+            "help": "User who connects the source node, leave blank to match the target node",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "transport",
+            "name": "Transfer Port",
+            "help": "A TCP port listening at the target node for point-to-point data transfer",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "1025"
+        },
+        {
+            "opt": "srcdir",
+            "name": "Source Directory",
+            "help": "Copy Source Directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "destdir",
+            "name": "Destination Directory",
+            "help": "Copy the destination directory, if the directory ends with a file or directory name from the original directory",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

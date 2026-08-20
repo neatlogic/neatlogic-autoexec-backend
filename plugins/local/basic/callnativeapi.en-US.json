@@ -1,0 +1,38 @@
+{
+    "opDesc": "Call Internal API",
+    "opType": "runner",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Provide API URI and JSON parameters, call inside API",
+    "option": [
+        {
+            "opt": "apiuri",
+            "name": "API URI",
+            "help": "Internal API URL, e.g.: /neatlogic/api/rest/cmdb/import",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "params",
+            "name": "Parameters",
+            "help": "Parameters in JSON format",
+            "type": "json",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "{}"
+        }
+    ],
+    "argument": null,
+    "output": [
+        {
+            "opt": "returnData",
+            "name": "Returns data",
+            "help": "Call back data from interface",
+            "type": "json"
+        }
+    ]
+}

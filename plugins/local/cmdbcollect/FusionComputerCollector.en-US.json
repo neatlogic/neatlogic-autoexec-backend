@@ -1,0 +1,85 @@
+{
+    "opDesc": "FusionComputer Collection Plugin",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "FusionComputer Collection Plugin",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "Manage IP",
+            "help": "FusionComputer Management IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "API Port",
+            "help": "FusionComputer API Port",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "7443"
+        },
+        {
+            "opt": "mgmt_port",
+            "name": "Manage Ports",
+            "help": "FusionComputer Manager",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "8443"
+        },
+        {
+            "opt": "user",
+            "name": "Account",
+            "help": "FusionComputer Manager",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "FusionComputer manages user passwords",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "Data collection",
+            "help": "Collect data output",
+            "type": "json"
+        }
+    ]
+}

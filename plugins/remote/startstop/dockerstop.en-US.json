@@ -1,0 +1,32 @@
+{
+    "opDesc": "Stop Docker Container",
+    "opType": "target",
+    "typeName": "START_STOP",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "docker-args",
+    "description": "Discontinue existing Docker container on remote OS",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "name",
+            "name": "Container Name",
+            "help": "Name of container",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${SYS_NAME}-${MODULE_NAME}"
+        },
+        {
+            "opt": "timeout",
+            "name": "Timeout",
+            "help": "Stop timeout, in seconds",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "10"
+        }
+    ],
+    "argument": null,
+    "output": []
+}

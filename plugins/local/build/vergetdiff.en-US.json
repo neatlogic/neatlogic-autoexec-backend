@@ -1,0 +1,97 @@
+{
+    "opDesc": "Get Incremental Code",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Use code repository diff to get incremental codes (to use only after verget)",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "diffsavedir",
+            "name": "Incremental Save Directory",
+            "help": "Subdirectories (relative directories within the project) saved by extracted incremental codes",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "master"
+        },
+        {
+            "opt": "excludedirs",
+            "name": "Exclude Directory",
+            "help": "Incremental extraction excluded subdirectories, commas separated (relative directories in the project)",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "${VERSION}"
+        },
+        {
+            "opt": "basetag",
+            "name": "Baseline tag",
+            "help": "Diff compares baseline tag names or SVN tag subdirectories",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "baseline"
+        },
+        {
+            "opt": "baserev",
+            "name": "Compare Review",
+            "help": "Diff Review",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "startpath",
+            "name": "Subdirectories",
+            "help": "Subdirectories for storage of code repositorys for joint compilations of multiple code repositories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Password to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        }
+    ],
+    "output": []
+}

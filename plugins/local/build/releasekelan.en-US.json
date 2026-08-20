@@ -1,0 +1,89 @@
+{
+    "opDesc": "Generate Version Artifact",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "git-args",
+    "description": "Extract the file generation version from the compiled catalogue (Calenet Silver)",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Username to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.user}"
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "Password to access the repository (e. g. GIT use ssh, leave empty)",
+            "type": "password",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "${global:git.password}"
+        },
+        {
+            "opt": "dbdir",
+            "name": "DB Directory",
+            "help": "Subdirectories to store SQL scripts in the database (relative directory relative to project catalogues, leave blank for: db)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "db"
+        },
+        {
+            "opt": "docdir",
+            "name": "DOC Directory",
+            "help": "Subdirectories to store documents (as opposed to relative directories to project directories, leave blanks for: doc)",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": "doc"
+        },
+        {
+            "opt": "exp",
+            "name": "Exclude Directory",
+            "help": "Exclude subdirectories, commas separated, and do not sync these subdirectories",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "argument": {
+        "name": "Extract List",
+        "help": "Non-declaration is the automatic extraction of files or directories taken from the project catalogue, e.g., target/*.war or target/*.war:webapp/",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "target/*.war",
+        "required": "false",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,40 @@
+{
+    "opDesc": "Find IP in code",
+    "opType": "runner",
+    "typeName": "BUILD",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Check if illegal IPs appear in the code",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "netblacklist",
+            "name": "Network ID",
+            "help": "IP of a defined network ID, e.g., 10.10.0.0/16, 10.20.0.0/24",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "autocfgenvs",
+            "name": "Check the environment",
+            "help": "You need to check the environment, just check UAT, PRD: UAT, PRD.",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "PRD"
+        },
+        {
+            "opt": "excludeexts",
+            "name": "Exclude Extensions",
+            "help": "Do not check files with specified extensions, e.g. dat,xls",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

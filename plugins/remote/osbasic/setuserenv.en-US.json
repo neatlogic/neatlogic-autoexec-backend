@@ -1,0 +1,39 @@
+{
+    "opDesc": "Setup user ENV",
+    "opType": "target",
+    "typeName": "BASIC",
+    "riskName": "HIGH",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Modify user profile, set the user environment variable",
+    "option": [
+        {
+            "opt": "user",
+            "name": "Username",
+            "help": "Only need to be defined by setting the profile of other users through root, otherwise leave empty",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "filename",
+            "name": "Profile filename",
+            "help": "File name, e. g..bash_profile or.profile",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ".bash_profile"
+        },
+        {
+            "opt": "content",
+            "name": "Content to change",
+            "help": "Support for multiple lines, e.g.: export ORACLE_HOME=/app/oracle",
+            "type": "textarea",
+            "required": "true",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": []
+}

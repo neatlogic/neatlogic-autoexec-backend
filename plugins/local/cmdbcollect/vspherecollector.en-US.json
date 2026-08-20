@@ -1,0 +1,76 @@
+{
+    "opDesc": "vsphere grab plugin",
+    "opType": "runner_target",
+    "typeName": "CMDB",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "vsphere grab plugin",
+    "option": [
+        {
+            "opt": "ip",
+            "name": "Manage IP",
+            "help": "vsphere manage IP",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "port",
+            "name": "Manage Ports",
+            "help": "vsphere manage port",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "user",
+            "name": "Account",
+            "help": "vsphere manage users",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "password",
+            "name": "Password",
+            "help": "vsphere manage user passwords",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "verbose",
+            "name": "Echoed Result Data",
+            "help": "Echo Collected Data",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Do Not Echo",
+                        "value": "0"
+                    },
+                    {
+                        "text": "Echo",
+                        "value": "1"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "output": [
+        {
+            "opt": "DATA",
+            "name": "Data collection",
+            "help": "Collect data output",
+            "type": "json"
+        }
+    ]
+}

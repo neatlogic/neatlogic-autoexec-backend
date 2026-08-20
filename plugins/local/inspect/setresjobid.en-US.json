@@ -1,0 +1,11 @@
+{
+    "opDesc": "Create a link between inspection targets and jobs.",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Automation exercise to show links to inspection objectives in the inspection interface",
+    "option": [],
+    "output": []
+}

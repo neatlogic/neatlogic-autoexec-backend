@@ -1,0 +1,37 @@
+{
+    "opDesc": "Analysis of CMDB capture and output data",
+    "opType": "runner_target",
+    "typeName": "INSPECT",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Analyse CMDB's output data to form the inspection report.",
+    "option": [
+        {
+            "opt": "statustarget",
+            "name": "Save Target",
+            "help": "Check Status Save Target",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Inspection",
+                        "value": "inspect"
+                    },
+                    {
+                        "text": "Monitor",
+                        "value": "monitor"
+                    },
+                    {
+                        "text": "Inspection and surveillance",
+                        "value": "both"
+                    }
+                ]
+            },
+            "defaultValue": "inspect"
+        }
+    ],
+    "output": []
+}

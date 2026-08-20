@@ -1,0 +1,144 @@
+{
+    "opDesc": "SCP Copy Document",
+    "opType": "runner_target",
+    "typeName": "DEPLOY",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": null,
+    "description": "Copy files or directories through SCP",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "verbose",
+            "name": "Show Details",
+            "help": "Show Detailed Execution Logs",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "1"
+        },
+        {
+            "opt": "pdir",
+            "name": "Basic Directory",
+            "help": "Base directory categories relative to applied data directories",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Environment Artifact Directory",
+                        "value": "appdist"
+                    },
+                    {
+                        "text": "DB Script Directory",
+                        "value": "dbscript"
+                    },
+                    {
+                        "text": "Version catalogue",
+                        "value": "release"
+                    },
+                    {
+                        "text": "Environment Image Artifact",
+                        "value": "mirror"
+                    },
+                    {
+                        "text": "Project Directory",
+                        "value": "project"
+                    },
+                    {
+                        "text": "Root Directory",
+                        "value": "approot"
+                    }
+                ]
+            },
+            "defaultValue": "appdist"
+        },
+        {
+            "opt": "cpifexists",
+            "name": "Copy when the file exists",
+            "help": "Do a copy only when local files exist",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "pull",
+            "name": "Copy Direction",
+            "help": "Copy Direction",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Remote Copy to Local",
+                        "value": "1"
+                    },
+                    {
+                        "text": "Local Copy to Remote",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        },
+        {
+            "opt": "np",
+            "name": "Retain Permission Properties",
+            "help": "Properties and permissions to copy files simultaneously",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "text": "No",
+                        "value": "0"
+                    }
+                ]
+            },
+            "defaultValue": "0"
+        }
+    ],
+    "argument": {
+        "name": "File or directory",
+        "help": "The last is a copy of a target file or directory, similar to a real cp command",
+        "type": "text",
+        "count": 0,
+        "isConst": "false",
+        "defaultValue": "",
+        "required": "true",
+        "validate": ""
+    },
+    "output": []
+}

@@ -1,0 +1,29 @@
+{
+    "opDesc": "Get Current Time",
+    "opType": "native",
+    "typeName": "NATIVE",
+    "riskName": "LOW",
+    "interpreter": "python",
+    "defaultProfile": null,
+    "description": "Fetch and generate timetamps for downstream tool references",
+    "enabled": 1,
+    "option": [
+        {
+            "opt": "timeformat",
+            "name": "Time format",
+            "help": "Output time format, leave blank, representing epoch time, e. g.%Y-%m-%d%H:%M:%S",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        }
+    ],
+    "output": [
+        {
+            "opt": "timeStr",
+            "name": "Time",
+            "help": "Get Time Strings",
+            "type": "text"
+        }
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "opDesc": "Implementing interactive tool",
+    "opType": "runner",
+    "typeName": "BASIC",
+    "riskName": "LOW",
+    "interpreter": "perl",
+    "defaultProfile": "interact-args",
+    "description": "Get user input during execution",
+    "enable": 0,
+    "option": [
+        {
+            "opt": "optype",
+            "name": "Interactive Type",
+            "help": "Select the type of interaction",
+            "type": "select",
+            "required": "true",
+            "validate": "",
+            "dataSource": {
+                "dataList": [
+                    {
+                        "text": "button",
+                        "value": "button"
+                    },
+                    {
+                        "text": "Drop-down selection",
+                        "value": "select"
+                    },
+                    {
+                        "text": "Dropdown Multiple Choices",
+                        "value": "mselect"
+                    },
+                    {
+                        "text": "Input",
+                        "value": "input"
+                    }
+                ]
+            },
+            "defaultValue": "button"
+        },
+        {
+            "opt": "optionsjson",
+            "name": "Input Options",
+            "help": "Enter the options for the JSON array, for example: [\"Yes\", \"No\"], set to [] if the type of input is input",
+            "type": "json",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "[\"Yes\",\"No\"]"
+        },
+        {
+            "opt": "role",
+            "name": "Operating role",
+            "help": "Allow Operating Roles",
+            "type": "text",
+            "required": "false",
+            "validate": "",
+            "defaultValue": ""
+        },
+        {
+            "opt": "title",
+            "name": "Title",
+            "help": "Interactive title",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "Please select"
+        },
+        {
+            "opt": "message",
+            "name": "Interactive notes",
+            "help": "Descriptions displayed in interactive subject",
+            "type": "text",
+            "required": "true",
+            "validate": "",
+            "defaultValue": "Continue execution?"
+        }
+    ],
+    "output": [
+        {
+            "opt": "interactOut",
+            "name": "Interactive results",
+            "help": "Results of the interactive input",
+            "type": "text"
+        }
+    ]
+}
