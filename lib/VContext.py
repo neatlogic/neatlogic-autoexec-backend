@@ -152,22 +152,12 @@ class VContext:
         os.environ["JOB_PARAMS_PATH"] = self.paramsFilePath
 
     def decryptPassword(self, password):
-        if password[0:11] == "{ENCRYPTED}":
-            password = Utils._rc4_decrypt_hex(self.passKey, password[11:])
-        elif password[0:5] == "{RC4}":
-            password = Utils._rc4_decrypt_hex(self.passKey, password[5:])
-        elif password[0:4] == "RC4:":
-            password = Utils._rc4_decrypt_hex(self.passKey, password[4:])
-
-        return password
+        return Utils.decryptPassword(self.passKey, password)
 
     def decryptValue(self, value):
-        if value[0:11] == "{ENCRYPTED}":
-            value = Utils._rc4_decrypt_hex(self.passKey, value[11:])
-        elif value[0:5] == "{RC4}":
-            value = Utils._rc4_decrypt_hex(self.passKey, value[5:])
-        elif value[0:4] == "RC4:":
-            value = Utils._rc4_decrypt_hex(self.passKey, value[4:])
+        decryptedValue = Utils.decryptPassword(self.passKey, value)
+        if decryptedValue != value:
+            value = decryptedValue
         else:
             try:
                 plainTxt = Utils._rc4_decrypt_hex(self.passKey, value)

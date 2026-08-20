@@ -5,18 +5,16 @@ Copyright © 2017 NeatLogic
 """
 
 import os
-import sys
 import os.path
 import fcntl
 import socket
 import json
 import time
-import binascii
 import pymongo
 import configparser
 import ServerAdapter
+import Utils
 
-PYTHON_VER = sys.version_info.major
 AUTOEXEC_CONTEXT = None
 
 
@@ -25,11 +23,15 @@ class Context:
         self.devMode = False
         self.tenant = tenent
         self.config = config
+        self.passKey = config["server"]["password.key"]
         self.jobId = os.getenv("AUTOEXEC_JOBID")
         self.execId = os.getenv("AUTOEXEC_EXECID")
         self.fileFeteched = {}
         self.scriptFetched = {}
         self.opFetched = {}
+
+    def decryptPassword(self, password):
+        return Utils.decryptPassword(self.passKey, password)
 
 
 def setEnv():
@@ -58,15 +60,15 @@ def getAutoexecContext():
 
         MY_KEY = "c3H002LGZRrseEPck9tsNgfXHJcl0USJ"
         if passKey.startswith("{ENCRYPTED}"):
-            passKey = _rc4_decrypt_hex(MY_KEY, passKey[11:])
+            passKey = Utils.decryptPassword(MY_KEY, passKey)
             config["server"]["password.key"] = passKey
 
         if serverPass.startswith("{ENCRYPTED}"):
-            serverPass = _rc4_decrypt_hex(passKey, serverPass[11:])
+            serverPass = Utils.decryptPassword(passKey, serverPass)
             config["server"]["server.password"] = serverPass
 
         if autoexecDBPass and autoexecDBPass.startswith("{ENCRYPTED}"):
-            autoexecDBPass = _rc4_decrypt_hex(passKey, autoexecDBPass[11:])
+            autoexecDBPass = Utils.decryptPassword(passKey, autoexecDBPass)
             config["autoexec"]["db.password"] = autoexecDBPass
 
         tenant = os.getenv("AUTOEXEC_TENANT")
@@ -114,29 +116,6 @@ def saveLiveData(outputData):
             "WARN: Could not save output file, because of environ LIVEDATA_PATH not defined.\n",
             end="",
         )
-
-
-def _rc4(key, data):
-    x = 0
-    box = list(range(256))
-    for i in range(256):
-        x = (x + box[i] + ord(key[i % len(key)])) % 256
-        box[i], box[x] = box[x], box[i]
-    x = y = 0
-    out = []
-    for char in data:
-        x = (x + 1) % 256
-        y = (y + box[x]) % 256
-        box[x], box[y] = box[y], box[x]
-        out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
-    return "".join(out)
-
-
-def _rc4_decrypt_hex(key, data):
-    if PYTHON_VER == 2:
-        return _rc4(key, binascii.unhexlify(data))
-    elif PYTHON_VER == 3:
-        return _rc4(key, binascii.unhexlify(data.encode("latin-1")).decode("latin-1"))
 
 
 def getDB():
@@ -384,11 +363,7 @@ def getNodePwd(resourceId, host, port, username, protocol):
     else:
         pwdEncrypted = pwdObject.get("passwordCipher", "unknown")
 
-    if pwdEncrypted.startswith("{ENCRYPTED}"):
-        nodePwd = _rc4_decrypt_hex(passKey, pwdEncrypted[11:])
-    elif pwdEncrypted.startswith("{RC4}"):
-        nodePwd = _rc4_decrypt_hex(passKey, pwdEncrypted[5:])
-    return nodePwd
+    return Utils.decryptPassword(passKey, pwdEncrypted)
 
 
 # def getInspectConf(ciType, resourceId):
